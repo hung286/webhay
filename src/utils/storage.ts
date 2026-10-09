@@ -9,7 +9,7 @@ const KEY_GEMINI_KEY = 'edu_gemini_session_key';
 
 export const DEFAULT_CONFIG: AppConfig = {
   appName: 'TOÁN PRO',
-  shortDesc: 'Nền tảng học toán tương tác và luyện thi thông minh',
+  shortDesc: 'Không để ai bị bỏ lại phía sau',
   orgName: 'LỚP TOÁN THẦY HÙNG',
   topBadge: 'EDUCATION APP v3.1 STABLE',
   themeColor: 'blue',
@@ -344,9 +344,49 @@ export function factoryResetSystem(): void {
     sessionStorage.removeItem(KEY_GEMINI_KEY);
   } catch {}
 }
-const KEY_TOOLS = 'edu_teaching_tools_v36';
+const KEY_TOOLS = 'edu_teaching_tools_v37';
 
 export const DEFAULT_TOOLS: TeachingTool[] = [
+  {
+    id: 'tool_duong_tron',
+    name: 'Phương Trình Đường Tròn',
+    type: 'iframe',
+    category: 'thao-tac',
+    url: '/phuong_trinh_duong_tron.html',
+    description: 'Trợ lý giải phương trình đường tròn',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_the_tich',
+    name: 'Tính Thể Tích',
+    type: 'iframe',
+    category: 'thao-tac',
+    url: '/tinh_the_tich.html',
+    description: 'Tính thể tích khối chóp, lăng trụ',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_dien_tich_tam_giac',
+    name: 'Diện Tích Tam Giác',
+    type: 'iframe',
+    category: 'thao-tac',
+    url: '/dien_tich_tam_giac.html',
+    description: 'Tính diện tích tam giác',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_lai_kep',
+    name: 'Lãi Đơn & Lãi Kép',
+    type: 'iframe',
+    category: 'thao-tac',
+    url: '/lai_don_lai_kep.html',
+    description: 'Bài toán gửi tiết kiệm, trả góp',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
   {
     id: 'tool_thong_ke_promax',
     name: 'Trợ lý Thống kê Promax',

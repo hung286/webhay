@@ -9,9 +9,24 @@ export const getToolEmbedUrl = (tool: TeachingTool): string => {
   if (tool.name.toLowerCase().includes('sơ đồ cây') || tool.name.toLowerCase().includes('sơ đ cAy') || tool.name.toLowerCase().includes('so do cay')) {
     finalUrl = '/so_do_cay_xac_suat.html';
   }
-  if (tool.name.toLowerCase().includes('thống kê') || tool.name.toLowerCase().includes('thong ke')) {
+  let lowerName = tool.name.toLowerCase();
+  if (lowerName.includes('thống kê') || lowerName.includes('thong ke')) {
     finalUrl = '/tro_ly_thong_ke_101112.html';
   }
+  if (lowerName.includes('đường tròn') || lowerName.includes('duong tron')) {
+    finalUrl = '/phuong_trinh_duong_tron.html';
+  }
+  if (lowerName.includes('thể tích') || lowerName.includes('the tich')) {
+    finalUrl = '/tinh_the_tich.html';
+  }
+  if (lowerName.includes('diện tích') || lowerName.includes('dien tich') || lowerName.includes('tam giác') || lowerName.includes('tam giac')) {
+    finalUrl = '/dien_tich_tam_giac.html';
+  }
+  if (lowerName.includes('tiết kiệm') || lowerName.includes('tiet kiem') || lowerName.includes('trả góp') || lowerName.includes('tra gop') || lowerName.includes('lãi')) {
+    finalUrl = '/lai_don_lai_kep.html';
+  }
+
+
   
   if (finalUrl.includes('<iframe')) {
     const srcMatch = finalUrl.match(/src=["']([^"']+)["']/);
