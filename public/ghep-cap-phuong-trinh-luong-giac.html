@@ -1,255 +1,996 @@
 <!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghép Cặp Phương Trình Lượng Giác - Học Toán Pro</title>
+<!-- saved from url=(0099)https://tro-ly-giao-vien-toanthpt.netlify.app/tro-choi/ghep-cap-phuong-trinh-luong-giac-co-ban.html -->
+<html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=5e51e807-cc05-4ed5-9e76-142c1084ee61
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Toán 11. Trò Chơi Ghép Cặp - Phương Trình Lượng Giác</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- KaTeX cho công thức toán học -->
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX for Math Rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
     <style>
-        body {
-            background-color: #050B14;
-            color: #f8fafc;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(244, 63, 94, 0.08) 0%, transparent 40%),
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
-            background-attachment: fixed;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-        }
+        body { font-family: 'Nunito', sans-serif; overflow: hidden; margin: 0; padding: 0; }
+        .katex-display { margin: 0 !important; }
 
-        .glass-panel {
-            background: linear-gradient(135deg, rgba(19, 30, 50, 0.85) 0%, rgba(5, 11, 20, 0.95) 100%);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.7);
+        /* Animations */
+        @keyframes sos-flash {
+            0%, 100% { filter: drop-shadow(0 0 15px #ef4444) brightness(1); color: #991b1b; transform: scale(1); }
+            50% { filter: drop-shadow(0 0 40px #dc2626) brightness(1.2); color: white; transform: scale(1.1); }
         }
+        .animate-sos { animation: sos-flash 0.3s ease-in-out infinite; z-index: 100 !important; }
 
-        .game-board {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 16px;
-            width: 100%;
-            perspective: 1000px;
+        @keyframes sparkle-glow {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px #fdf2f8) brightness(1); }
+            50% { transform: scale(1.3); filter: drop-shadow(0 0 50px #f472b6, 0 0 100px #fb7185) brightness(1.5); color: #db2777; z-index: 100; }
+            100% { transform: scale(0); opacity: 0; display: none; }
         }
+        .animate-sparkle { animation: sparkle-glow 1s forwards; }
 
-        .card-container {
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            min-height: 95px;
-            position: relative;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .card {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            transform-style: preserve-3d;
-            transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
-            border-radius: 16px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-        }
-
-        .card.flipped {
-            transform: rotateY(180deg);
-        }
-
-        .card.matched .card-back {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.6) 0%, rgba(5, 150, 105, 0.85) 100%);
-            border-color: rgba(52, 211, 153, 0.9);
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
-        }
-
-        .card-face {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 16px;
-            border: 2px solid rgba(255,255,255,0.12);
-            padding: 8px;
-            text-align: center;
-            overflow: hidden;
-        }
-
-        .card-front {
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(244, 63, 94, 0.25) 100%);
-            transform: rotateY(0deg);
-            transition: all 0.2s ease;
-        }
+        .merge-transition { transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1), top 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s !important; z-index: 110 !important; }
+        .halo-effect { position: absolute; pointer-events: none; z-index: 120; display: flex; align-items: center; justify-content: center; transform: translate(-50%, -50%); }
+        .halo-ring { position: absolute; border-radius: 50%; border: 4px solid #f472b6; animation: ring-expand 0.6s ease-out forwards; }
+        .halo-heart { position: absolute; font-size: 4rem; animation: heart-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; filter: drop-shadow(0 0 15px #f43f5e); }
         
-        .card-front:hover {
-            border-color: rgba(249, 115, 22, 0.7);
-            box-shadow: 0 0 20px rgba(249, 115, 22, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .card-front::after {
-            content: '?';
-            font-size: 2.8rem;
-            font-weight: 900;
-            color: rgba(255,255,255,0.85);
-            text-shadow: 0 0 15px rgba(249, 115, 22, 0.7);
-        }
-
-        .card-back {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
-            transform: rotateY(180deg);
-            color: white;
-            font-size: 1.1rem;
-            padding: 8px;
-            line-height: 1.3;
-            word-break: break-word;
-        }
+        @keyframes ring-expand { 0% { width: 0; height: 0; opacity: 1; border-width: 10px; box-shadow: 0 0 20px #fb7185; } 100% { width: 200px; height: 200px; opacity: 0; border-width: 0px; box-shadow: 0 0 60px #fda4af; } }
+        @keyframes heart-pop { 0% { transform: scale(0); opacity: 1; } 50% { transform: scale(1.5); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px) rotate(-3deg); } 40%, 80% { transform: translateX(8px) rotate(3deg); } }
         
-        .card-back .katex {
-            font-size: 1.15rem;
-        }
+        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         
-        @media (max-width: 640px) {
-            .game-board {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 10px;
-            }
-            .card-container {
-                min-height: 80px;
-                aspect-ratio: 16 / 10;
-            }
-            .card-front::after {
-                font-size: 2rem;
-            }
-            .card-back .katex {
-                font-size: 0.95rem;
-            }
-        }
+        /* Adjusted card size to fit up to 40 cards on screen */
+        .game-card { transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s, border-color 0.2s, opacity 0.3s; cursor: pointer; border-radius: 40px; user-select: none; display: flex; align-items: center; justify-content: center; position: absolute; will-change: left, top; padding: 8px 16px; font-size: 0.9rem; }
+        @media (min-width: 640px) { .game-card { padding: 12px 24px; font-size: 1.1rem; } }
+        .game-card:active { transform: scale(0.95) !important; }
+        
+        .floating-icon { position: absolute; z-index: 0; pointer-events: none; opacity: 0.2; animation: float-up linear infinite; filter: drop-shadow(0 0 10px rgba(255,255,255,0.8)); }
+        @keyframes float-up { 0% { transform: translateY(110vh) rotate(0deg) scale(0.8); opacity: 0; } 10%, 90% { opacity: 0.4; } 100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; } }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #050B14; }
-        ::-webkit-scrollbar-thumb { background: #f97316; border-radius: 10px; }
+        .heart-active { filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.6)); transform: scale(1); opacity: 1; }
+        .heart-lost { filter: grayscale(100%); transform: scale(0.7); opacity: 0.3; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
-</head>
-<body class="p-2 sm:p-4">
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.z-10{z-index:10}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.mx-2{margin-left:0.5rem;margin-right:0.5rem}.mx-auto{margin-left:auto;margin-right:auto}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.mb-1{margin-bottom:0.25rem}.mb-3{margin-bottom:0.75rem}.\!mt-0{margin-top:0px !important}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-screen{height:100vh}.h-6{height:1.5rem}.max-h-\[95vh\]{max-height:95vh}.min-h-\[120px\]{min-height:120px}.w-screen{width:100vw}.w-6{width:1.5rem}.w-full{width:100%}.w-1\/3{width:33.333333%}.w-2\/3{width:66.666667%}.w-px{width:1px}.w-12{width:3rem}.max-w-3xl{max-width:48rem}.max-w-5xl{max-width:64rem}.max-w-7xl{max-width:80rem}.max-w-\[100px\]{max-width:100px}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.shrink-0{flex-shrink:0}.scale-100{--tw-scale-x:1;--tw-scale-y:1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-\[1\.15\]{--tw-scale-x:1.15;--tw-scale-y:1.15;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes bounce{0%, 100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(0.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,0.2,1)}}.animate-bounce{animation:bounce 1s infinite}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}.cursor-pointer{cursor:pointer}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-nowrap{white-space:nowrap}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:9999px}.rounded-2xl{border-radius:1rem}.rounded-xl{border-radius:0.75rem}.rounded-\[40px\]{border-radius:40px}.rounded-lg{border-radius:0.5rem}.border-2{border-width:2px}.border-\[3px\]{border-width:3px}.border{border-width:1px}.border-4{border-width:4px}.border-b-4{border-bottom-width:4px}.border-b-\[8px\]{border-bottom-width:8px}.border-t-2{border-top-width:2px}.border-b-2{border-bottom-width:2px}.border-dashed{border-style:dashed}.border-\[\#B3E5FC\]{--tw-border-opacity:1;border-color:rgb(179 229 252 / var(--tw-border-opacity, 1))}.border-\[\#D1D5DB\]{--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.border-\[\#FFCDD2\]{--tw-border-opacity:1;border-color:rgb(255 205 210 / var(--tw-border-opacity, 1))}.border-\[\#FFECB3\]{--tw-border-opacity:1;border-color:rgb(255 236 179 / var(--tw-border-opacity, 1))}.border-indigo-200{--tw-border-opacity:1;border-color:rgb(199 210 254 / var(--tw-border-opacity, 1))}.border-indigo-300{--tw-border-opacity:1;border-color:rgb(165 180 252 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-indigo-100{--tw-border-opacity:1;border-color:rgb(224 231 255 / var(--tw-border-opacity, 1))}.border-orange-200{--tw-border-opacity:1;border-color:rgb(254 215 170 / var(--tw-border-opacity, 1))}.border-pink-200{--tw-border-opacity:1;border-color:rgb(251 207 232 / var(--tw-border-opacity, 1))}.border-purple-200{--tw-border-opacity:1;border-color:rgb(233 213 255 / var(--tw-border-opacity, 1))}.border-\[\#38BDF8\]{--tw-border-opacity:1;border-color:rgb(56 189 248 / var(--tw-border-opacity, 1))}.border-\[\#F472B6\]{--tw-border-opacity:1;border-color:rgb(244 114 182 / var(--tw-border-opacity, 1))}.border-yellow-400{--tw-border-opacity:1;border-color:rgb(250 204 21 / var(--tw-border-opacity, 1))}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.border-indigo-400{--tw-border-opacity:1;border-color:rgb(129 140 248 / var(--tw-border-opacity, 1))}.border-t-transparent{border-top-color:transparent}.bg-\[\#1E1B4B\]\/70{background-color:rgb(30 27 75 / 0.7)}.bg-\[\#1E1B4B\]\/90{background-color:rgb(30 27 75 / 0.9)}.bg-\[\#E1F5FE\]{--tw-bg-opacity:1;background-color:rgb(225 245 254 / var(--tw-bg-opacity, 1))}.bg-\[\#FFEBEE\]{--tw-bg-opacity:1;background-color:rgb(255 235 238 / var(--tw-bg-opacity, 1))}.bg-\[\#FFF8E1\]{--tw-bg-opacity:1;background-color:rgb(255 248 225 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-500{--tw-bg-opacity:1;background-color:rgb(59 130 246 / var(--tw-bg-opacity, 1))}.bg-indigo-50{--tw-bg-opacity:1;background-color:rgb(238 242 255 / var(--tw-bg-opacity, 1))}.bg-orange-50{--tw-bg-opacity:1;background-color:rgb(255 247 237 / var(--tw-bg-opacity, 1))}.bg-orange-500{--tw-bg-opacity:1;background-color:rgb(249 115 22 / var(--tw-bg-opacity, 1))}.bg-pink-50{--tw-bg-opacity:1;background-color:rgb(253 242 248 / var(--tw-bg-opacity, 1))}.bg-pink-500{--tw-bg-opacity:1;background-color:rgb(236 72 153 / var(--tw-bg-opacity, 1))}.bg-purple-50{--tw-bg-opacity:1;background-color:rgb(250 245 255 / var(--tw-bg-opacity, 1))}.bg-purple-500{--tw-bg-opacity:1;background-color:rgb(168 85 247 / var(--tw-bg-opacity, 1))}.bg-\[\#E0F2FE\]{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.bg-\[\#FCE7F3\]{--tw-bg-opacity:1;background-color:rgb(252 231 243 / var(--tw-bg-opacity, 1))}.bg-yellow-100{--tw-bg-opacity:1;background-color:rgb(254 249 195 / var(--tw-bg-opacity, 1))}.bg-gray-300{--tw-bg-opacity:1;background-color:rgb(209 213 219 / var(--tw-bg-opacity, 1))}.bg-gray-400{--tw-bg-opacity:1;background-color:rgb(156 163 175 / var(--tw-bg-opacity, 1))}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity, 1))}.bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-sky-100{--tw-gradient-from:#e0f2fe var(--tw-gradient-from-position);--tw-gradient-to:rgb(224 242 254 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-blue-500{--tw-gradient-from:#3b82f6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(59 130 246 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-indigo-600{--tw-gradient-from:#4f46e5 var(--tw-gradient-from-position);--tw-gradient-to:rgb(79 70 229 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-\[\#4ADE80\]{--tw-gradient-from:#4ADE80 var(--tw-gradient-from-position);--tw-gradient-to:rgb(74 222 128 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-indigo-100{--tw-gradient-to:rgb(224 231 255 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #e0e7ff var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-purple-200{--tw-gradient-to:#e9d5ff var(--tw-gradient-to-position)}.to-indigo-600{--tw-gradient-to:#4f46e5 var(--tw-gradient-to-position)}.to-purple-700{--tw-gradient-to:#7e22ce var(--tw-gradient-to-position)}.to-\[\#22C55E\]{--tw-gradient-to:#22C55E var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.object-cover{object-fit:cover}.p-2{padding:0.5rem}.p-4{padding:1rem}.p-3{padding:0.75rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.px-4{padding-left:1rem;padding-right:1rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.px-8{padding-left:2rem;padding-right:2rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.pb-2{padding-bottom:0.5rem}.pr-2{padding-right:0.5rem}.pt-4{padding-top:1rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-5xl{font-size:3rem;line-height:1}.text-6xl{font-size:3.75rem;line-height:1}.text-7xl{font-size:4.5rem;line-height:1}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-2xl{font-size:1.5rem;line-height:2rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.tracking-wide{letter-spacing:0.025em}.tracking-tight{letter-spacing:-0.025em}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-\[\#0277BD\]{--tw-text-opacity:1;color:rgb(2 119 189 / var(--tw-text-opacity, 1))}.text-\[\#FF8F00\]{--tw-text-opacity:1;color:rgb(255 143 0 / var(--tw-text-opacity, 1))}.text-indigo-200{--tw-text-opacity:1;color:rgb(199 210 254 / var(--tw-text-opacity, 1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-\[\#64748B\]{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-indigo-400{--tw-text-opacity:1;color:rgb(129 140 248 / var(--tw-text-opacity, 1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229 / var(--tw-text-opacity, 1))}.text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163 / var(--tw-text-opacity, 1))}.text-orange-800{--tw-text-opacity:1;color:rgb(154 52 18 / var(--tw-text-opacity, 1))}.text-pink-600{--tw-text-opacity:1;color:rgb(219 39 119 / var(--tw-text-opacity, 1))}.text-pink-800{--tw-text-opacity:1;color:rgb(157 23 77 / var(--tw-text-opacity, 1))}.text-purple-800{--tw-text-opacity:1;color:rgb(107 33 168 / var(--tw-text-opacity, 1))}.text-\[\#0369A1\]{--tw-text-opacity:1;color:rgb(3 105 161 / var(--tw-text-opacity, 1))}.text-\[\#BE185D\]{--tw-text-opacity:1;color:rgb(190 24 93 / var(--tw-text-opacity, 1))}.text-yellow-900{--tw-text-opacity:1;color:rgb(113 63 18 / var(--tw-text-opacity, 1))}.text-\[\#0284C7\]{--tw-text-opacity:1;color:rgb(2 132 199 / var(--tw-text-opacity, 1))}.text-\[\#16A34A\]{--tw-text-opacity:1;color:rgb(22 163 74 / var(--tw-text-opacity, 1))}.text-\[\#475569\]{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-\[\#D97706\]{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-yellow-800{--tw-text-opacity:1;color:rgb(133 77 14 / var(--tw-text-opacity, 1))}.text-indigo-700{--tw-text-opacity:1;color:rgb(67 56 202 / var(--tw-text-opacity, 1))}.text-orange-500{--tw-text-opacity:1;color:rgb(249 115 22 / var(--tw-text-opacity, 1))}.opacity-80{opacity:0.8}.shadow-\[0_20px_50px_rgba\(0\2c 0\2c 0\2c 0\.4\)\]{--tw-shadow:0 20px 50px rgba(0,0,0,0.4);--tw-shadow-colored:0 20px 50px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_15px_rgba\(0\2c 0\2c 0\2c 0\.1\)\]{--tw-shadow:0 4px 15px rgba(0,0,0,0.1);--tw-shadow-colored:0 4px 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_15px_rgba\(99\2c 102\2c 241\2c 0\.3\)\]{--tw-shadow:0 4px 15px rgba(99,102,241,0.3);--tw-shadow-colored:0 4px 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.\!shadow-\[0_4px_0_\#1d4ed8\]{--tw-shadow:0 4px 0 #1d4ed8 !important;--tw-shadow-colored:0 4px 0 var(--tw-shadow-color) !important;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important}.\!shadow-\[0_4px_0_\#6b21a8\]{--tw-shadow:0 4px 0 #6b21a8 !important;--tw-shadow-colored:0 4px 0 var(--tw-shadow-color) !important;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important}.\!shadow-\[0_4px_0_\#be185d\]{--tw-shadow:0 4px 0 #be185d !important;--tw-shadow-colored:0 4px 0 var(--tw-shadow-color) !important;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important}.\!shadow-\[0_4px_0_\#c2410c\]{--tw-shadow:0 4px 0 #c2410c !important;--tw-shadow-colored:0 4px 0 var(--tw-shadow-color) !important;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow) !important}.shadow-\[0_4px_0_rgba\(0\2c 0\2c 0\2c 0\.2\)\]{--tw-shadow:0 4px 0 rgba(0,0,0,0.2);--tw-shadow-colored:0 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_0_\#38BDF8\]{--tw-shadow:0 4px 0 #38BDF8;--tw-shadow-colored:0 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_0_\#F472B6\]{--tw-shadow:0 4px 0 #F472B6;--tw-shadow-colored:0 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_0_20px_\#facc15\]{--tw-shadow:0 0 20px #facc15;--tw-shadow-colored:0 0 20px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_0_\#9ca3af\]{--tw-shadow:0 4px 0 #9ca3af;--tw-shadow-colored:0 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_6px_0_\#15803D\]{--tw-shadow:0 6px 0 #15803D;--tw-shadow-colored:0 6px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.drop-shadow-sm{--tw-drop-shadow:drop-shadow(0 1px 1px rgb(0 0 0 / 0.05));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.drop-shadow-xl{--tw-drop-shadow:drop-shadow(0 20px 13px rgb(0 0 0 / 0.03)) drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-500{transition-duration:500ms}.ease-out{transition-timing-function:cubic-bezier(0, 0, 0.2, 1)}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-blue-600:hover{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.hover\:bg-orange-600:hover{--tw-bg-opacity:1;background-color:rgb(234 88 12 / var(--tw-bg-opacity, 1))}.hover\:bg-pink-600:hover{--tw-bg-opacity:1;background-color:rgb(219 39 119 / var(--tw-bg-opacity, 1))}.hover\:bg-purple-600:hover{--tw-bg-opacity:1;background-color:rgb(147 51 234 / var(--tw-bg-opacity, 1))}.hover\:bg-gray-500:hover{--tw-bg-opacity:1;background-color:rgb(107 114 128 / var(--tw-bg-opacity, 1))}.hover\:from-\[\#22C55E\]:hover{--tw-gradient-from:#22C55E var(--tw-gradient-from-position);--tw-gradient-to:rgb(34 197 94 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-\[\#16A34A\]:hover{--tw-gradient-to:#16A34A var(--tw-gradient-to-position)}.hover\:shadow-\[0_0_15px_\#7dd3fc\]:hover{--tw-shadow:0 0 15px #7dd3fc;--tw-shadow-colored:0 0 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.hover\:shadow-\[0_0_15px_\#f9a8d4\]:hover{--tw-shadow:0 0 15px #f9a8d4;--tw-shadow-colored:0 0 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.focus\:border-indigo-500:focus{--tw-border-opacity:1;border-color:rgb(99 102 241 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:translate-y-\[4px\]:active{--tw-translate-y:4px;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:shadow-none:active{--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}@media (min-width: 640px){.sm\:flex{display:flex}.sm\:h-8{height:2rem}.sm\:w-8{width:2rem}.sm\:w-auto{width:auto}.sm\:max-w-\[150px\]{max-width:150px}.sm\:flex-row{flex-direction:row}.sm\:gap-2{gap:0.5rem}.sm\:gap-4{gap:1rem}.sm\:p-3{padding:0.75rem}.sm\:p-4{padding:1rem}.sm\:p-8{padding:2rem}.sm\:px-3{padding-left:0.75rem;padding-right:0.75rem}.sm\:px-4{padding-left:1rem;padding-right:1rem}.sm\:px-5{padding-left:1.25rem;padding-right:1.25rem}.sm\:py-2{padding-top:0.5rem;padding-bottom:0.5rem}.sm\:py-3{padding-top:0.75rem;padding-bottom:0.75rem}.sm\:px-10{padding-left:2.5rem;padding-right:2.5rem}.sm\:py-4{padding-top:1rem;padding-bottom:1rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-6xl{font-size:3.75rem;line-height:1}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.md\:text-base{font-size:1rem;line-height:1.5rem}}</style></head>
+<body class="h-screen w-screen bg-gradient-to-b from-sky-100 via-indigo-100 to-purple-200 flex flex-col items-center relative overflow-hidden text-gray-800">
 
-    <!-- Header bar -->
-    <header class="w-full max-w-4xl flex justify-between items-center py-2 px-4 mb-2">
-        <div class="flex items-center gap-2">
-            <span class="text-xl">⚡</span>
-            <span class="text-xs uppercase tracking-widest text-[#fbbf24] font-bold">Toán 11 • Phương Trình Lượng Giác</span>
+    <div class="floating-icon text-6xl" style="left: 10%; animation-duration: 18s;">📐</div>
+    <div class="floating-icon text-5xl" style="left: 30%; animation-duration: 22s; animation-delay: -5s;">✏️</div>
+    <div class="floating-icon text-7xl" style="left: 60%; animation-duration: 25s; animation-delay: -12s;">🧠</div>
+    <div class="floating-icon text-6xl" style="left: 85%; animation-duration: 15s; animation-delay: -2s;">💡</div>
+
+    <!-- THANH TRẠNG THÁI -->
+    <div class="w-full max-w-7xl z-40 p-2 sm:p-4 flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 shrink-0 pointer-events-none transition-all">
+        <div id="logo-container" class="pointer-events-auto flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 sm:px-5 sm:py-2 rounded-full shadow-[0_4px_15px_rgba(99,102,241,0.3)] border-[3px] border-indigo-300 cursor-pointer hover:scale-105 transition-transform z-30" title="Nhấn để tải Logo lên">
+            <input type="file" id="logoUpload" accept="image/*" class="hidden">
+            <img id="custom-logo" src="https://tro-ly-giao-vien-toanthpt.netlify.app/tro-choi/ghep-cap-phuong-trinh-luong-giac-co-ban.html" class="hidden w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-indigo-200 shadow-sm">
+            <span id="default-icon" class="text-xl sm:text-2xl drop-shadow-sm">🎓</span>
+            <span class="font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-700 tracking-wide text-sm sm:text-xl"> Toán Pro - Thầy Hùng</span>
         </div>
-        <div id="admin-indicator" class="flex items-center gap-2">
-            <button onclick="promptAdminPin()" id="btn-unlock-admin" class="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 flex items-center gap-1 transition" title="Dành cho Giáo viên: Nhập mã PIN để chỉnh sửa bộ bài">
-                🔒 <span class="hidden sm:inline">Chế độ Giáo viên</span>
+
+        <div class="pointer-events-auto flex items-center gap-2">
+            <button id="btn-admin-mode" onclick="window.promptAdminPin()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border-2 border-emerald-300 text-xs font-black text-emerald-700 shadow-[0_3px_10px_rgba(16,185,129,0.2)] hover:scale-105 transition" title="Dành cho Giáo viên: Nhập mã PIN để chỉnh sửa công thức">
+                🔒 <span id="admin-status-text">Chế độ Giáo viên</span>
             </button>
         </div>
-    </header>
-
-    <main class="flex-grow flex flex-col items-center w-full max-w-4xl mx-auto">
-        <div class="text-center mb-6">
-            <h1 class="text-2xl sm:text-4xl md:text-5xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-[#f97316] via-amber-300 to-[#f43f5e]">
-                Phương Trình Lượng Giác
-            </h1>
-            <p class="text-gray-300 text-xs sm:text-sm">Lật các thẻ bài để tìm cặp phương trình và tập nghiệm tương ứng ($k \in \mathbb{Z}$)</p>
-            
-            <div class="mt-4 flex gap-4 justify-center text-sm sm:text-base">
-                <div class="glass-panel px-4 py-2 rounded-xl border border-rose-500/30">
-                    <span class="text-gray-400 font-medium">Lượt sai: </span>
-                    <span id="flips" class="text-[#f43f5e] font-black text-lg">0</span>
-                </div>
-                <div class="glass-panel px-4 py-2 rounded-xl border border-amber-500/30">
-                    <span class="text-gray-400 font-medium">Ghép đúng: </span>
-                    <span id="score" class="text-[#fbbf24] font-black text-lg">0</span> / <span id="total-pairs" class="text-white font-bold">8</span>
-                </div>
+    
+        <div id="header-panel" class="pointer-events-auto w-full sm:w-auto flex-1 max-w-3xl bg-white/90 backdrop-blur-md rounded-full p-2 sm:p-3 flex justify-between items-center shadow-[0_4px_15px_rgba(0,0,0,0.1)] border-b-4 border-indigo-200 hidden">
+            <div id="level-badge" class="sm:flex items-center gap-1 bg-gradient-to-r from-blue-500 to-indigo-600 px-3 py-1 rounded-full font-bold text-white shadow-inner text-sm">SIN - Có/Vô nghiệm</div>
+            <div class="flex items-center gap-1 sm:gap-2 bg-[#FFEBEE] border-2 border-[#FFCDD2] px-2 py-1 sm:px-3 sm:py-2 rounded-full shadow-inner">
+                <div id="lives-container" class="flex gap-1 text-lg sm:text-2xl"><span id="heart-0" class="heart-active transition-all duration-500 ease-out inline-block">❤️</span><span id="heart-1" class="heart-active transition-all duration-500 ease-out inline-block">❤️</span><span id="heart-2" class="heart-active transition-all duration-500 ease-out inline-block">❤️</span></div>
             </div>
-        </div>
-
-        <!-- KHUNG BẢNG BÀI - ĐÃ KHẮC PHỤC LỖI THU NHỎ -->
-        <div class="glass-panel rounded-3xl p-4 sm:p-6 w-full max-w-4xl mx-auto shadow-2xl border border-white/10">
-            <div class="game-board" id="game-board">
-                <!-- Thẻ bài render bằng JS -->
+            <div class="flex items-center gap-1 sm:gap-2 bg-[#FFF8E1] border-2 border-[#FFECB3] px-3 py-1 sm:px-4 sm:py-2 rounded-full font-black text-base sm:text-xl text-[#FF8F00] shadow-inner">
+                <span>⭐</span> <span id="score-display">5 / 5</span>
             </div>
-        </div>
-        
-        <!-- Các nút điều khiển -->
-        <div class="mt-6 mb-4 flex gap-3 flex-wrap justify-center items-center">
-            <button onclick="initGame()" class="px-6 py-3 bg-gradient-to-r from-[#f43f5e] to-[#f97316] hover:brightness-110 rounded-2xl font-bold text-white hover:scale-105 transition-all shadow-[0_0_25px_rgba(249,115,22,0.4)] flex items-center gap-2 text-sm sm:text-base">
-                🔄 <span>Chơi Lại</span>
-            </button>
-            
-            <!-- Nút Thêm/Sửa Cặp Bài: CHỈ HIỂN THỊ KHI Ở CHẾ ĐỘ ADMIN STUDIO HOẶC NHẬP ĐÚNG PIN -->
-            <button id="settings-btn" onclick="openSettings()" class="hidden px-5 py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 rounded-2xl font-bold text-white hover:scale-105 transition-all shadow-md flex items-center gap-2 text-sm sm:text-base border border-amber-400/30">
-                ⚙️ <span>Thêm/Sửa Cặp Bài (Admin)</span>
-            </button>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="w-full py-4 mt-6 border-t border-white/5 text-center bg-black/40 backdrop-blur-md">
-        <div class="text-slate-400 text-xs sm:text-sm font-medium">
-            Phát triển bởi <span class="text-[#fbbf24] font-bold uppercase tracking-wider">Toán Pro, Lớp Toán Thầy Hùng</span>
-        </div>
-    </footer>
-
-    <!-- Modal chiến thắng -->
-    <div id="win-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-md p-4">
-        <div class="glass-panel p-8 rounded-3xl text-center max-w-md w-full border border-amber-400/40 shadow-[0_0_50px_rgba(249,115,22,0.3)] animate-in fade-in zoom-in duration-300">
-            <div class="text-6xl mb-3 animate-bounce">🏆</div>
-            <h2 class="text-2xl sm:text-3xl font-black text-[#fbbf24] mb-2">Chúc Mừng!</h2>
-            <p class="text-gray-300 mb-6 text-sm sm:text-base">Bạn đã giải chính xác tất cả các phương trình lượng giác với <span id="final-flips" class="font-black text-[#f43f5e] text-lg">0</span> lần ghép sai.</p>
-            <button onclick="closeModalAndRestart()" class="w-full py-3.5 bg-gradient-to-r from-[#f97316] to-[#f43f5e] rounded-2xl font-bold text-white hover:scale-105 transition-transform shadow-lg">
-                Chơi Lại Ván Mới
-            </button>
+            <div id="timer-container" class="flex items-center gap-1 sm:gap-2 bg-[#E1F5FE] border-2 border-[#B3E5FC] px-3 py-1 sm:px-4 sm:py-2 rounded-full font-black text-base sm:text-xl text-[#0277BD] shadow-inner transition-colors">
+                <span>⏱️</span> <span id="timer-display">30s</span>
+            </div>
         </div>
     </div>
 
-    <!-- Modal Cài đặt: Quản lý Thêm/Sửa/Xóa cặp bài (Dành riêng cho Admin) -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/90 hidden z-50 flex-col items-center justify-center p-4">
-        <div class="glass-panel p-6 rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col border border-amber-500/30 shadow-2xl">
-            <div class="flex justify-between items-center mb-3 pb-3 border-b border-white/10">
-                <div>
-                    <h2 class="text-xl sm:text-2xl font-black text-[#fbbf24] flex items-center gap-2">
-                        ⚙️ Quản lý Bộ Bài Phương Trình Lượng Giác
-                    </h2>
-                    <p class="text-xs text-gray-400 mt-1">Hỗ trợ gõ công thức toán LaTeX bao bọc bởi <code class="text-amber-300">$$...$$</code> (VD: <code class="text-amber-300">$$\sin(x) = 0$$</code>)</p>
+    <!-- KHU VỰC THẺ BÀI -->
+    <div id="game-board" class="w-full flex-1 relative z-10 overflow-hidden mx-2 mb-2 hidden"><div data-base-classes="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]" data-id="1" data-side="right" class="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px] animate-sparkle pointer-events-none z-50" style="opacity: 1; left: 796.714px; top: 267.898px; transform: scale(0);"><div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">💖</span><span class="math-content"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mtext>V</mtext><mover accent="true"><mtext>o</mtext><mo>ˆ</mo></mover><mtext>&nbsp;nghiệm&nbsp;do&nbsp;</mtext></mrow><mn>3</mn><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{Vô nghiệm do } 3 &gt; 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">V</span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6944em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord">o</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.25em;"><span class="mord">ˆ</span></span></span></span></span></span></span><span class="mord">&nbsp;nghiệm&nbsp;do&nbsp;</span></span><span class="mord">3</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span></span></div></div><div data-base-classes="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]" data-id="2" data-side="right" class="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px] animate-sparkle pointer-events-none z-50" style="opacity: 1; left: 1060.85px; top: 577.756px; transform: scale(0);"><div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">💖</span><span class="math-content"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mtext>V</mtext><mover accent="true"><mtext>o</mtext><mo>ˆ</mo></mover><mtext>&nbsp;nghiệm&nbsp;do&nbsp;</mtext></mrow><mo>−</mo><mn>2</mn><mo>&lt;</mo><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{Vô nghiệm do } -2 &lt; -1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">V</span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6944em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord">o</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.25em;"><span class="mord">ˆ</span></span></span></span></span></span></span><span class="mord">&nbsp;nghiệm&nbsp;do&nbsp;</span></span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6835em; vertical-align: -0.0391em;"></span><span class="mord">2</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span class="mord">−</span><span class="mord">1</span></span></span></span></span></span></div></div><div data-base-classes="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]" data-id="3" data-side="right" class="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px] animate-sparkle pointer-events-none z-50" style="opacity: 1; left: 479.154px; top: 235.97px; transform: scale(0);"><div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">💖</span><span class="math-content"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mtext>C</mtext><mover accent="true"><mtext>o</mtext><mo>ˊ</mo></mover><mtext>&nbsp;nghiệm&nbsp;do&nbsp;</mtext></mrow><mrow><mo fence="true">∣</mo><mfrac><mn>1</mn><mn>3</mn></mfrac><mo fence="true">∣</mo></mrow><mo>≤</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{Có nghiệm do } \left|\frac{1}{3}\right| \le 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 2.4em; vertical-align: -0.95em;"></span><span class="mord text"><span class="mord">C</span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6944em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord">o</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.25em;"><span class="mord">ˊ</span></span></span></span></span></span></span><span class="mord">&nbsp;nghiệm&nbsp;do&nbsp;</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.45em;"><span class="" style="top: -3.45em;"><span class="pstrut" style="height: 4.4em;"></span><span class="" style="width: 0.333em; height: 2.4em;"><svg width="0.333em" height="2.400em" viewBox="0 0 333 2400"><path d="M145 15 v585 v1200 v585 c2.667,10,9.667,15,21,15
+c10,0,16.667,-5,20,-15 v-585 v-1200 v-585 c-2.667,-10,-9.667,-15,-21,-15
+c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.95em;"><span class=""></span></span></span></span></span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3214em;"><span class="" style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord">3</span></span></span><span class="" style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span class="" style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.686em;"><span class=""></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.45em;"><span class="" style="top: -3.45em;"><span class="pstrut" style="height: 4.4em;"></span><span class="" style="width: 0.333em; height: 2.4em;"><svg width="0.333em" height="2.400em" viewBox="0 0 333 2400"><path d="M145 15 v585 v1200 v585 c2.667,10,9.667,15,21,15
+c10,0,16.667,-5,20,-15 v-585 v-1200 v-585 c-2.667,-10,-9.667,-15,-21,-15
+c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1200 v585 h43z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.95em;"><span class=""></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span></span></div></div><div data-base-classes="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]" data-id="5" data-side="right" class="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px] animate-sparkle pointer-events-none z-50" style="opacity: 1; left: 138.609px; top: 47.599px; transform: scale(0);"><div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">💖</span><span class="math-content"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mtext>V</mtext><mover accent="true"><mtext>o</mtext><mo>ˆ</mo></mover><mtext>&nbsp;nghiệm&nbsp;do&nbsp;</mtext></mrow><mi>π</mi><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{Vô nghiệm do } \pi &gt; 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">V</span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6944em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord">o</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.25em;"><span class="mord">ˆ</span></span></span></span></span></span></span><span class="mord">&nbsp;nghiệm&nbsp;do&nbsp;</span></span><span class="mord mathnormal" style="margin-right: 0.0359em;">π</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span></span></div></div><div data-base-classes="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]" data-id="1" data-side="left" class="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px] animate-sparkle pointer-events-none z-50" style="opacity: 1; left: 847.214px; top: 267.398px; transform: scale(0);"><div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">💙</span><span class="math-content"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>sin</mi><mo>⁡</mo><mi>x</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\sin x = 3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6679em;"></span><span class="mop">sin</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">3</span></span></span></span></span></span></div></div><div data-base-classes="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]" data-id="3" data-side="left" class="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px] animate-sparkle pointer-events-none z-50" style="opacity: 1; left: 538.654px; top: 239.97px; transform: scale(0);"><div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">💙</span><span class="math-content"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>sin</mi><mo>⁡</mo><mi>x</mi><mo>=</mo><mfrac><mn>1</mn><mn>3</mn></mfrac></mrow><annotation encoding="application/x-tex">\sin x = \frac{1}{3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6679em;"></span><span class="mop">sin</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 2.0074em; vertical-align: -0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3214em;"><span class="" style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord">3</span></span></span><span class="" style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span class="" style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.686em;"><span class=""></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></span></div></div><div data-base-classes="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]" data-id="4" data-side="left" class="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px] animate-sparkle pointer-events-none z-50" style="opacity: 1; left: 413.771px; top: 351.535px; transform: scale(0);"><div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">💙</span><span class="math-content"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>sin</mi><mo>⁡</mo><mi>x</mi><mo>=</mo><mo>−</mo><mfrac><msqrt><mn>2</mn></msqrt><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">\sin x = -\frac{\sqrt{2}}{2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6679em;"></span><span class="mop">sin</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 2.2702em; vertical-align: -0.686em;"></span><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.5842em;"><span class="" style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord">2</span></span></span><span class="" style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span class="" style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.9072em;"><span class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord" style="padding-left: 0.833em;"><span class="mord">2</span></span></span><span class="" style="top: -2.8672em;"><span class="pstrut" style="height: 3em;"></span><span class="hide-tail" style="min-width: 0.853em; height: 1.08em;"><svg width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.1328em;"><span class=""></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.686em;"><span class=""></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></span></div></div><div data-base-classes="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]" data-id="2" data-side="left" class="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px] animate-sparkle pointer-events-none z-50" style="opacity: 1; left: 1124.35px; top: 577.256px; transform: scale(0);"><div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">💙</span><span class="math-content"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>sin</mi><mo>⁡</mo><mi>x</mi><mo>=</mo><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\sin x = -2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6679em;"></span><span class="mop">sin</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.7278em; vertical-align: -0.0833em;"></span><span class="mord">−</span><span class="mord">2</span></span></span></span></span></span></div></div><div data-base-classes="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]" data-id="4" data-side="right" class="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px] animate-sparkle pointer-events-none z-50" style="opacity: 1; left: 354.771px; top: 343.535px; transform: scale(0);"><div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">💖</span><span class="math-content"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mtext>C</mtext><mover accent="true"><mtext>o</mtext><mo>ˊ</mo></mover><mtext>&nbsp;nghiệm&nbsp;do&nbsp;</mtext></mrow><mrow><mo fence="true">∣</mo><mo>−</mo><mfrac><msqrt><mn>2</mn></msqrt><mn>2</mn></mfrac><mo fence="true">∣</mo></mrow><mo>≤</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{Có nghiệm do } \left|-\frac{\sqrt{2}}{2}\right| \le 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 3em; vertical-align: -1.25em;"></span><span class="mord text"><span class="mord">C</span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.6944em;"><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord">o</span></span><span class="" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="accent-body" style="left: -0.25em;"><span class="mord">ˊ</span></span></span></span></span></span></span><span class="mord">&nbsp;nghiệm&nbsp;do&nbsp;</span></span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.75em;"><span class="" style="top: -3.75em;"><span class="pstrut" style="height: 5em;"></span><span class="" style="width: 0.333em; height: 3em;"><svg width="0.333em" height="3.000em" viewBox="0 0 333 3000"><path d="M145 15 v585 v1800 v585 c2.667,10,9.667,15,21,15
+c10,0,16.667,-5,20,-15 v-585 v-1800 v-585 c-2.667,-10,-9.667,-15,-21,-15
+c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 1.25em;"><span class=""></span></span></span></span></span></span><span class="mord">−</span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.5842em;"><span class="" style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord">2</span></span></span><span class="" style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span class="" style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.9072em;"><span class="svg-align" style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord" style="padding-left: 0.833em;"><span class="mord">2</span></span></span><span class="" style="top: -2.8672em;"><span class="pstrut" style="height: 3em;"></span><span class="hide-tail" style="min-width: 0.853em; height: 1.08em;"><svg width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.1328em;"><span class=""></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.686em;"><span class=""></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.75em;"><span class="" style="top: -3.75em;"><span class="pstrut" style="height: 5em;"></span><span class="" style="width: 0.333em; height: 3em;"><svg width="0.333em" height="3.000em" viewBox="0 0 333 3000"><path d="M145 15 v585 v1800 v585 c2.667,10,9.667,15,21,15
+c10,0,16.667,-5,20,-15 v-585 v-1800 v-585 c-2.667,-10,-9.667,-15,-21,-15
+c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 1.25em;"><span class=""></span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">1</span></span></span></span></span></span></div></div><div data-base-classes="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]" data-id="5" data-side="left" class="game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px] animate-sparkle pointer-events-none z-50" style="opacity: 1; left: 189.609px; top: 47.599px; transform: scale(0);"><div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">💙</span><span class="math-content"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>sin</mi><mo>⁡</mo><mi>x</mi><mo>=</mo><mi>π</mi></mrow><annotation encoding="application/x-tex">\sin x = \pi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6679em;"></span><span class="mop">sin</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal" style="margin-right: 0.0359em;">π</span></span></span></span></span></span></div></div></div>
+
+    <!-- MÀN HÌNH CHUYỂN ẢI -->
+    <div id="transition-overlay" class="absolute inset-0 bg-[#1E1B4B]/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="text-center animate-bounce">
+            <div class="text-7xl mb-4">🚀</div>
+            <h1 id="transition-title" class="text-4xl font-black text-white mb-2">Hoàn thành Ải 1!</h1>
+            <p class="text-indigo-200 text-xl font-bold">Chuẩn bị sang Ải tiếp theo...</p>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH POPUP -->
+    <div id="overlay" class="absolute inset-0 bg-[#1E1B4B]/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div id="overlay-content" class="bg-white rounded-[2rem] p-4 sm:p-8 max-w-5xl w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.4)] border-b-[8px] border-[#D1D5DB] transform transition-all scale-100 flex flex-col max-h-[95vh]">
+                <div class="overflow-y-auto pb-2 custom-scrollbar">
+                    <div class="text-5xl sm:text-6xl mb-3 drop-shadow-xl animate-bounce">🧠</div>
+                    <h1 class="text-2xl sm:text-4xl font-black text-indigo-600 mb-1 tracking-tight">Ghép Cặp Trái Tim</h1>
+                    <h2 class="text-sm sm:text-lg font-bold text-indigo-400 mb-4 pb-2 inline-block">Phương Trình Lượng Giác</h2>
+                    
+                    <div class="mb-4 text-left bg-indigo-50 p-3 sm:p-4 rounded-2xl border-2 border-indigo-100">
+                        <label class="block text-sm sm:text-base font-bold text-indigo-800 mb-2">Nhập tên để lưu bảng xếp hạng:</label>
+                        <input type="text" id="playerNameInput" oninput="window.savePlayerName(this.value)" placeholder="Tên của bạn..." class="w-full px-4 py-2 sm:py-3 rounded-xl border-2 border-indigo-300 focus:outline-none focus:border-indigo-500 font-bold text-gray-700 shadow-inner" value="Ông mai bà mối">
+                    </div>
+                    <p class="text-[#64748B] mb-4 font-semibold text-xs sm:text-sm leading-relaxed">
+                        Ghép <span class="text-blue-600 font-bold">Phương trình (Xanh)</span> với <span class="text-pink-600 font-bold">Nghiệm đúng (Hồng)</span>. Bấm sai sẽ bị trừ mạng và bắn văng!
+                    </p>
+
+                    <!-- GRID 4 CỘT - 16 LEVEL -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-4 text-left">
+                        
+                        <!-- Cột SIN -->
+                        <div class="bg-blue-50 p-2 rounded-xl border-2 border-blue-200">
+                            <h3 class="font-black text-blue-800 text-center mb-2">Thư mục SIN(X)</h3>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="window.startLevel('sin_1')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-blue-500 hover:bg-blue-600 !shadow-[0_4px_0_#1d4ed8]">Lvl 1: Xét Nghiệm</button>
+                                <button onclick="window.startLevel('sin_2')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-blue-500 hover:bg-blue-600 !shadow-[0_4px_0_#1d4ed8]">Lvl 2: Đơn vị Radian</button>
+                                <button onclick="window.startLevel('sin_3')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-blue-500 hover:bg-blue-600 !shadow-[0_4px_0_#1d4ed8]">Lvl 3: Đơn vị Độ</button>
+                                <button onclick="window.startLevel('sin_4')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-blue-500 hover:bg-blue-600 !shadow-[0_4px_0_#1d4ed8]">Lvl 4: Biến đổi</button>
+                            </div>
+                        </div>
+
+                        <!-- Cột COS -->
+                        <div class="bg-pink-50 p-2 rounded-xl border-2 border-pink-200">
+                            <h3 class="font-black text-pink-800 text-center mb-2">Thư mục COS(X)</h3>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="window.startLevel('cos_1')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-pink-500 hover:bg-pink-600 !shadow-[0_4px_0_#be185d]">Lvl 1: Xét Nghiệm</button>
+                                <button onclick="window.startLevel('cos_2')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-pink-500 hover:bg-pink-600 !shadow-[0_4px_0_#be185d]">Lvl 2: Đơn vị Radian</button>
+                                <button onclick="window.startLevel('cos_3')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-pink-500 hover:bg-pink-600 !shadow-[0_4px_0_#be185d]">Lvl 3: Đơn vị Độ</button>
+                                <button onclick="window.startLevel('cos_4')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-pink-500 hover:bg-pink-600 !shadow-[0_4px_0_#be185d]">Lvl 4: Biến đổi</button>
+                            </div>
+                        </div>
+
+                        <!-- Cột TAN -->
+                        <div class="bg-orange-50 p-2 rounded-xl border-2 border-orange-200">
+                            <h3 class="font-black text-orange-800 text-center mb-2">Thư mục TAN(X)</h3>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="window.startLevel('tan_1')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-orange-500 hover:bg-orange-600 !shadow-[0_4px_0_#c2410c]">Lvl 1: Tổng quát</button>
+                                <button onclick="window.startLevel('tan_2')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-orange-500 hover:bg-orange-600 !shadow-[0_4px_0_#c2410c]">Lvl 2: Đơn vị Radian</button>
+                                <button onclick="window.startLevel('tan_3')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-orange-500 hover:bg-orange-600 !shadow-[0_4px_0_#c2410c]">Lvl 3: Đơn vị Độ</button>
+                                <button onclick="window.startLevel('tan_4')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-orange-500 hover:bg-orange-600 !shadow-[0_4px_0_#c2410c]">Lvl 4: Biến đổi</button>
+                            </div>
+                        </div>
+
+                        <!-- Cột COT -->
+                        <div class="bg-purple-50 p-2 rounded-xl border-2 border-purple-200">
+                            <h3 class="font-black text-purple-800 text-center mb-2">Thư mục COT(X)</h3>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="window.startLevel('cot_1')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#6b21a8]">Lvl 1: Tổng quát</button>
+                                <button onclick="window.startLevel('cot_2')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#6b21a8]">Lvl 2: Đơn vị Radian</button>
+                                <button onclick="window.startLevel('cot_3')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#6b21a8]">Lvl 3: Đơn vị Độ</button>
+                                <button onclick="window.startLevel('cot_4')" class="text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#6b21a8]">Lvl 4: Biến đổi</button>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-                <button onclick="closeSettings()" class="text-gray-400 hover:text-white text-2xl font-bold px-2">✕</button>
             </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // DATA 16 LEVELS - PHƯƠNG TRÌNH LƯỢNG GIÁC
+        // ==========================================
+        const GAME_LEVELS = {
+            // --- THƯ MỤC SIN ---
+            "sin_1": {
+                title: "SIN - Có/Vô nghiệm", time: 50,
+                pairs: [
+                    { id: 1, left: "\\sin x = 3", right: "\\text{Vô nghiệm do } 3 > 1" },
+                    { id: 2, left: "\\sin x = -2", right: "\\text{Vô nghiệm do } -2 < -1" },
+                    { id: 3, left: "\\sin x = \\frac{1}{3}", right: "\\text{Có nghiệm do } \\left|\\frac{1}{3}\\right| \\le 1" },
+                    { id: 4, left: "\\sin x = -\\frac{\\sqrt{2}}{2}", right: "\\text{Có nghiệm do } \\left|-\\frac{\\sqrt{2}}{2}\\right| \\le 1" },
+                    { id: 5, left: "\\sin x = \\pi", right: "\\text{Vô nghiệm do } \\pi > 1" }
+                ]
+            },
+            "sin_2": {
+                title: "SIN - Radian", time: 80,
+                pairs: [
+                    { id: 1, left: "\\sin x = \\sin \\frac{\\pi}{5}", right: "\\left[ \\begin{array}{l} x = \\frac{\\pi}{5} + k2\\pi \\\\ x = \\frac{4\\pi}{5} + k2\\pi \\end{array} \\right." },
+                    { id: 2, left: "\\sin x = \\frac{\\sqrt{3}}{2}", right: "\\left[ \\begin{array}{l} x = \\frac{\\pi}{3} + k2\\pi \\\\ x = \\frac{2\\pi}{3} + k2\\pi \\end{array} \\right." },
+                    { id: 3, left: "\\sin x = -\\frac{1}{2}", right: "\\left[ \\begin{array}{l} x = -\\frac{\\pi}{6} + k2\\pi \\\\ x = \\frac{7\\pi}{6} + k2\\pi \\end{array} \\right." },
+                    { id: 4, left: "\\sin x = 0", right: "x = k\\pi" },
+                    { id: 5, left: "\\sin x = 1", right: "x = \\frac{\\pi}{2} + k2\\pi" }
+                ]
+            },
+            "sin_3": {
+                title: "SIN - Độ", time: 90,
+                pairs: [
+                    { id: 1, left: "\\sin(x - 15^\\circ) = \\sin 65^\\circ", right: "\\left[ \\begin{array}{l} x = 80^\\circ + k360^\\circ \\\\ x = 130^\\circ + k360^\\circ \\end{array} \\right." },
+                    { id: 2, left: "\\sin(2x) = \\sin 40^\\circ", right: "\\left[ \\begin{array}{l} x = 20^\\circ + k180^\\circ \\\\ x = 70^\\circ + k180^\\circ \\end{array} \\right." },
+                    { id: 3, left: "\\sin(x + 20^\\circ) = \\sin 30^\\circ", right: "\\left[ \\begin{array}{l} x = 10^\\circ + k360^\\circ \\\\ x = 130^\\circ + k360^\\circ \\end{array} \\right." },
+                    { id: 4, left: "\\sin 3x = \\sin 90^\\circ", right: "x = 30^\\circ + k120^\\circ" }
+                ]
+            },
+            "sin_4": {
+                title: "SIN - Biến đổi", time: 100,
+                pairs: [
+                    { id: 1, left: "2\\sin x \\cos x = \\frac{1}{2}", right: "\\sin 2x = \\frac{1}{2}" },
+                    { id: 2, left: "\\sin x \\cos \\frac{\\pi}{6} + \\cos x \\sin \\frac{\\pi}{6} = 1", right: "\\sin\\left(x + \\frac{\\pi}{6}\\right) = 1" },
+                    { id: 3, left: "\\cos x = \\sin 2x", right: "\\sin\\left(\\frac{\\pi}{2} - x\\right) = \\sin 2x" },
+                    { id: 4, left: "\\sqrt{3}\\sin x - \\cos x = 2", right: "\\sin\\left(x - \\frac{\\pi}{6}\\right) = 1" }
+                ]
+            },
+
+            // --- THƯ MỤC COS ---
+            "cos_1": {
+                title: "COS - Có/Vô nghiệm", time: 50,
+                pairs: [
+                    { id: 1, left: "\\cos x = 4", right: "\\text{Vô nghiệm do } 4 > 1" },
+                    { id: 2, left: "\\cos x = -1.2", right: "\\text{Vô nghiệm do } -1.2 < -1" },
+                    { id: 3, left: "\\cos x = 0.8", right: "\\text{Có nghiệm do } |0.8| \\le 1" },
+                    { id: 4, left: "\\cos x = -\\frac{1}{2}", right: "\\text{Có nghiệm do } \\left|-\\frac{1}{2}\\right| \\le 1" },
+                    { id: 5, left: "\\cos x = \\frac{\\pi}{2}", right: "\\text{Vô nghiệm do } \\frac{\\pi}{2} > 1" }
+                ]
+            },
+            "cos_2": {
+                title: "COS - Radian", time: 80,
+                pairs: [
+                    { id: 1, left: "\\cos x = \\cos \\frac{\\pi}{5}", right: "\\left[ \\begin{array}{l} x = \\frac{\\pi}{5} + k2\\pi \\\\ x = -\\frac{\\pi}{5} + k2\\pi \\end{array} \\right." },
+                    { id: 2, left: "\\cos x = \\frac{1}{2}", right: "\\left[ \\begin{array}{l} x = \\frac{\\pi}{3} + k2\\pi \\\\ x = -\\frac{\\pi}{3} + k2\\pi \\end{array} \\right." },
+                    { id: 3, left: "\\cos x = 0", right: "x = \\frac{\\pi}{2} + k\\pi" },
+                    { id: 4, left: "\\cos x = -1", right: "x = \\pi + k2\\pi" },
+                    { id: 5, left: "\\cos x = 1", right: "x = k2\\pi" }
+                ]
+            },
+            "cos_3": {
+                title: "COS - Độ", time: 90,
+                pairs: [
+                    { id: 1, left: "\\cos(x - 10^\\circ) = \\cos 50^\\circ", right: "\\left[ \\begin{array}{l} x = 60^\\circ + k360^\\circ \\\\ x = -40^\\circ + k360^\\circ \\end{array} \\right." },
+                    { id: 2, left: "\\cos(2x) = \\cos 60^\\circ", right: "\\left[ \\begin{array}{l} x = 30^\\circ + k180^\\circ \\\\ x = -30^\\circ + k180^\\circ \\end{array} \\right." },
+                    { id: 3, left: "\\cos(x + 15^\\circ) = \\cos 45^\\circ", right: "\\left[ \\begin{array}{l} x = 30^\\circ + k360^\\circ \\\\ x = -60^\\circ + k360^\\circ \\end{array} \\right." }
+                ]
+            },
+            "cos_4": {
+                title: "COS - Biến đổi", time: 100,
+                pairs: [
+                    { id: 1, left: "2\\cos^2 x - 1 = \\frac{1}{2}", right: "\\cos 2x = \\frac{1}{2}" },
+                    { id: 2, left: "\\cos x \\cos \\frac{\\pi}{3} - \\sin x \\sin \\frac{\\pi}{3} = 0", right: "\\cos\\left(x + \\frac{\\pi}{3}\\right) = 0" },
+                    { id: 3, left: "\\sin x = \\cos 3x", right: "\\cos\\left(\\frac{\\pi}{2} - x\\right) = \\cos 3x" },
+                    { id: 4, left: "1 - 2\\sin^2 x = \\cos x", right: "\\cos 2x = \\cos x" }
+                ]
+            },
+
+            // --- THƯ MỤC TAN ---
+            "tan_1": {
+                title: "TAN - Tổng quát", time: 50,
+                pairs: [
+                    { id: 1, left: "\\tan x = 5", right: "x = \\arctan 5 + k\\pi" },
+                    { id: 2, left: "\\tan x = -3", right: "x = \\arctan(-3) + k\\pi" },
+                    { id: 3, left: "\\tan x = 2026", right: "x = \\arctan 2026 + k\\pi" },
+                    { id: 4, left: "\\tan x = 0", right: "x = k\\pi" }
+                ]
+            },
+            "tan_2": {
+                title: "TAN - Radian", time: 80,
+                pairs: [
+                    { id: 1, left: "\\tan x = \\tan \\frac{\\pi}{7}", right: "x = \\frac{\\pi}{7} + k\\pi" },
+                    { id: 2, left: "\\tan x = 1", right: "x = \\frac{\\pi}{4} + k\\pi" },
+                    { id: 3, left: "\\tan x = -\\sqrt{3}", right: "x = -\\frac{\\pi}{3} + k\\pi" },
+                    { id: 4, left: "\\tan x = \\frac{1}{\\sqrt{3}}", right: "x = \\frac{\\pi}{6} + k\\pi" }
+                ]
+            },
+            "tan_3": {
+                title: "TAN - Độ", time: 90,
+                pairs: [
+                    { id: 1, left: "\\tan(x - 20^\\circ) = \\tan 40^\\circ", right: "x = 60^\\circ + k180^\\circ" },
+                    { id: 2, left: "\\tan(2x) = \\tan 60^\\circ", right: "x = 30^\\circ + k90^\\circ" },
+                    { id: 3, left: "\\tan(x + 10^\\circ) = \\tan 45^\\circ", right: "x = 35^\\circ + k180^\\circ" }
+                ]
+            },
+            "tan_4": {
+                title: "TAN - Biến đổi", time: 100,
+                pairs: [
+                    { id: 1, left: "\\displaystyle \\frac{\\sin x}{\\cos x} = 3", right: "\\tan x = 3" },
+                    { id: 2, left: "\\displaystyle \\frac{2\\tan x}{1 - \\tan^2 x} = 1", right: "\\tan 2x = 1" },
+                    { id: 3, left: "\\cot x = \\tan 2x", right: "\\tan\\left(\\frac{\\pi}{2} - x\\right) = \\tan 2x" },
+                    { id: 4, left: "\\displaystyle \\frac{\\tan x + 1}{1 - \\tan x} = 1", right: "\\tan\\left(x + \\frac{\\pi}{4}\\right) = 1" }
+                ]
+            },
+
+            // --- THƯ MỤC COT ---
+            "cot_1": {
+                title: "COT - Tổng quát", time: 50,
+                pairs: [
+                    { id: 1, left: "\\cot x = 4", right: "x = \\text{arccot } 4 + k\\pi" },
+                    { id: 2, left: "\\cot x = -7", right: "x = \\text{arccot}(-7) + k\\pi" },
+                    { id: 3, left: "\\cot x = 100", right: "x = \\text{arccot } 100 + k\\pi" },
+                    { id: 4, left: "\\cot x = 0", right: "x = \\frac{\\pi}{2} + k\\pi" }
+                ]
+            },
+            "cot_2": {
+                title: "COT - Radian", time: 80,
+                pairs: [
+                    { id: 1, left: "\\cot x = \\cot \\frac{\\pi}{9}", right: "x = \\frac{\\pi}{9} + k\\pi" },
+                    { id: 2, left: "\\cot x = \\sqrt{3}", right: "x = \\frac{\\pi}{6} + k\\pi" },
+                    { id: 3, left: "\\cot x = -1", right: "x = -\\frac{\\pi}{4} + k\\pi" },
+                    { id: 4, left: "\\cot x = \\frac{1}{\\sqrt{3}}", right: "x = \\frac{\\pi}{3} + k\\pi" }
+                ]
+            },
+            "cot_3": {
+                title: "COT - Độ", time: 90,
+                pairs: [
+                    { id: 1, left: "\\cot(x - 30^\\circ) = \\cot 60^\\circ", right: "x = 90^\\circ + k180^\\circ" },
+                    { id: 2, left: "\\cot(3x) = \\cot 45^\\circ", right: "x = 15^\\circ + k60^\\circ" },
+                    { id: 3, left: "\\cot(x + 15^\\circ) = \\cot 30^\\circ", right: "x = 15^\\circ + k180^\\circ" }
+                ]
+            },
+            "cot_4": {
+                title: "COT - Biến đổi", time: 100,
+                pairs: [
+                    { id: 1, left: "\\displaystyle \\frac{\\cos x}{\\sin x} = 2", right: "\\cot x = 2" },
+                    { id: 2, left: "\\displaystyle \\frac{\\cot^2 x - 1}{2\\cot x} = \\sqrt{3}", right: "\\cot 2x = \\sqrt{3}" },
+                    { id: 3, left: "\\tan x = \\cot 3x", right: "\\cot\\left(\\frac{\\pi}{2} - x\\right) = \\cot 3x" },
+                    { id: 4, left: "\\displaystyle \\frac{\\cos 2x}{\\sin 2x} = 1", right: "\\cot 2x = 1" }
+                ]
+            }
+        };
+
+        const sndMatch = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+        const sndError = new Audio('https://assets.mixkit.co/active_storage/sfx/2997/2997-preview.mp3');
+
+        // State variables
+        let gameState = 'start';
+        let currentMode = 'sin_1'; 
+        
+        let currentPairs = [];
+        let movingCards = []; 
+        let firstCard = null; 
+        let matchedIds = [];
+        let score = 0, lives = 3, timeLeft = 60;
+        let timerInterval, animationFrameId;
+        let isAnimating = false;
+
+        const overlay = document.getElementById('overlay');
+        const overlayContent = document.getElementById('overlay-content');
+        const headerPanel = document.getElementById('header-panel');
+        const gameBoard = document.getElementById('game-board');
+        const livesContainer = document.getElementById('lives-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const timerContainer = document.getElementById('timer-container');
+        const timerDisplay = document.getElementById('timer-display');
+        const levelBadge = document.getElementById('level-badge');
+
+        // --- FIREBASE INIT (Bạn vui lòng điền config tại đây) ---
+        let appId = 'thay-chinh-pt-luong-giac';
+        let app, auth, db;
+        let authPromise = Promise.resolve();
+
+        try {
+            const firebaseConfig = {
+                apiKey: "AIzaSyDUEefc2MQd-ZMPsL-Q3Q078N8EyAFKUi4",
+                authDomain: "ghepcapptlgcb.firebaseapp.com",
+                projectId: "ghepcapptlgcb",
+                storageBucket: "ghepcapptlgcb.firebasestorage.app",
+                messagingSenderId: "328092715365",
+                appId: "1:328092715365:web:1b69fda204d988d601b98c",
+                measurementId: "G-YWZZH2PECC"
+            };
+
+            // Chỉ khởi tạo nếu có apiKey hợp lệ
+            if(firebaseConfig.apiKey) {
+                app = initializeApp(firebaseConfig); 
+                auth = getAuth(app); 
+                db = getFirestore(app);
+                
+                authPromise = (async () => {
+                    try { await signInAnonymously(auth); } 
+                    catch (err) { console.warn("Firebase Auth Bypassed.", err); }
+                })();
+            }
+        } catch (error) { console.warn("Firebase init failed.", error); }
+
+        // --- LEADERBOARD LOGIC ---
+        async function saveScore(playerName, finalScore, timeTaken, mode) {
+            const collectionName = `leaderboard_lvl_${mode}`;
+            const newRecord = { name: playerName, score: finalScore, time: timeTaken, timestamp: Date.now() };
             
-            <div class="overflow-y-auto flex-grow mb-4 pr-1 space-y-3" id="settings-list">
-                <!-- Danh sách input thẻ bài -->
+            if (db) {
+                await authPromise; 
+                try {
+                    const leaderboardRef = collection(db, 'artifacts', appId, 'public', 'data', collectionName);
+                    const docRef = await addDoc(leaderboardRef, newRecord);
+                    return docRef.id;
+                } catch (e) {}
+            }
+            
+            const localKey = `thayChinhLeaderboardPTLG_${mode}`;
+            const localLeaderboard = JSON.parse(localStorage.getItem(localKey) || '[]');
+            newRecord.id = 'local_' + Date.now() + Math.random().toString(36).substring(2, 7);
+            localLeaderboard.push(newRecord);
+            localStorage.setItem(localKey, JSON.stringify(localLeaderboard));
+            return newRecord.id;
+        }
+
+        async function fetchLeaderboardAndRank(currentDocId, mode) {
+            const collectionName = `leaderboard_lvl_${mode}`;
+            let records = [];
+            
+            if (db) {
+                await authPromise; 
+                try {
+                    const leaderboardRef = collection(db, 'artifacts', appId, 'public', 'data', collectionName);
+                    const snapshot = await getDocs(leaderboardRef);
+                    snapshot.forEach(doc => records.push({ id: doc.id, ...doc.data() }));
+                } catch (e) {}
+            }
+            
+            if (records.length === 0) {
+                const localKey = `thayChinhLeaderboardPTLG_${mode}`;
+                records = JSON.parse(localStorage.getItem(localKey) || '[]');
+            }
+            
+            records.sort((a, b) => { if (b.score !== a.score) return b.score - a.score; return a.time - b.time; });
+            let playerRank = null;
+            if (currentDocId) { 
+                const rankIndex = records.findIndex(r => r.id === currentDocId); 
+                if (rankIndex !== -1) playerRank = rankIndex + 1; 
+            }
+            return { top10: records.slice(0, 10), playerRank };
+        }
+
+        // --- GLOBAL EXPORTS FOR HTML ONCLICK ---
+        window.savePlayerName = function(val) {
+            try { localStorage.setItem('thayChinhPlayerName', val.trim()); } catch(e) {}
+        };
+
+        window.showOverlay = function(type) { showOverlay(type); };
+
+        window.startLevel = function(mode) {
+            const nameInput = document.getElementById('playerNameInput');
+            if (nameInput) {
+                try { localStorage.setItem('thayChinhPlayerName', nameInput.value.trim() || "Ninja Toán Học"); } catch(e) {} 
+            }
+            currentMode = mode;
+            lives = 3;
+            loadLevelLogic(mode);
+        };
+
+        window.changeLeaderboardTab = async function(modeToLoad) {
+            const lbContainer = document.getElementById('leaderboard-container');
+            lbContainer.innerHTML = `<div class="w-6 h-6 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mt-4"></div>`;
+            
+            const currentDocId = (modeToLoad === currentMode) ? window.lastPlayedDocId : null;
+            const { top10: records, playerRank } = await fetchLeaderboardAndRank(currentDocId, modeToLoad);
+            
+            const rankBadge = document.getElementById('player-rank-badge');
+            if (playerRank && currentMode === modeToLoad) { 
+                rankBadge.innerText = `Hạng của bạn: #${playerRank}`;
+                rankBadge.classList.remove('hidden');
+            } else {
+                rankBadge.classList.add('hidden');
+            }
+
+            if (records.length === 0) {
+                lbContainer.innerHTML = `<p class="text-center text-sm text-gray-500 font-semibold w-full py-4">Chưa có dữ liệu xếp hạng.</p>`;
+            } else {
+                let tableHTML = `<table class="w-full text-xs sm:text-sm"> <thead class="text-indigo-800 border-b-2 border-indigo-200"> <tr> <th class="pb-2 text-left w-12">Hạng</th> <th class="pb-2 text-left">Người chơi</th> <th class="pb-2 text-center w-12">Điểm</th> <th class="pb-2 text-right w-12">T.Gian</th> </tr> </thead> <tbody>`;
+                records.forEach((r, idx) => {
+                    let rankMoji = `<span class="inline-block w-6 h-6 text-center leading-6 rounded-full bg-gray-200 text-gray-600 font-black">${idx + 1}</span>`;
+                    if (idx === 0) rankMoji = '<span class="text-xl">🥇</span>'; if (idx === 1) rankMoji = '<span class="text-xl">🥈</span>'; if (idx === 2) rankMoji = '<span class="text-xl">🥉</span>';
+                    const isCurrent = r.id === currentDocId;
+                    const rowClass = isCurrent ? "bg-yellow-100 rounded-lg shadow-sm border border-yellow-400" : "border-b border-gray-100 last:border-0";
+                    tableHTML += `<tr class="${rowClass} transition-colors"> <td class="py-2 px-1 text-left">${rankMoji}</td> <td class="py-2 px-1 font-bold truncate max-w-[100px] sm:max-w-[150px] text-indigo-700">${r.name || 'Ẩn danh'}</td> <td class="py-2 px-1 font-black text-orange-500 text-center">${r.score}</td> <td class="py-2 px-1 font-semibold text-gray-500 text-right">${r.time}s</td> </tr>`;
+                });
+                tableHTML += `</tbody></table>`;
+                lbContainer.innerHTML = tableHTML;
+            }
+        };
+
+        // --- CUSTOM LOGO LOGIC ---
+        const logoUpload = document.getElementById('logoUpload');
+        const customLogo = document.getElementById('custom-logo');
+        const defaultIcon = document.getElementById('default-icon');
+
+        try {
+            const savedLogo = localStorage.getItem('thayChinhCustomLogo');
+            if (savedLogo) { customLogo.src = savedLogo; customLogo.classList.remove('hidden'); defaultIcon.classList.add('hidden'); }
+        } catch(e) {}
+
+        document.addEventListener('click', (e) => {
+            const logoArea = e.target.closest('#logo-container');
+            if (logoArea) document.getElementById('logoUpload').click();
+        });
+
+        if (logoUpload) {
+            logoUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_SIZE = 100;
+                        let w = img.width, h = img.height;
+                        if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } 
+                        else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        const dataUrl = canvas.toDataURL('image/png');
+                        try {
+                            localStorage.setItem('thayChinhCustomLogo', dataUrl);
+                            customLogo.src = dataUrl; customLogo.classList.remove('hidden'); defaultIcon.classList.add('hidden');
+                        } catch(err) { }
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // --- GAME MECHANICS ---
+        function loadLevelLogic(levelId) {
+            gameState = 'playing';
+            firstCard = null; 
+            matchedIds = [];
+            score = 0; 
+            isAnimating = false;
+            
+            const levelData = GAME_LEVELS[levelId];
+            currentPairs = levelData.pairs;
+            timeLeft = levelData.time;
+
+            // UI Updates
+            levelBadge.innerText = levelData.title;
+            levelBadge.classList.remove('hidden');
+
+            livesContainer.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const heart = document.createElement('span');
+                heart.innerText = '❤️';
+                heart.id = `heart-${i}`;
+                heart.className = i < lives ? 'heart-active transition-all duration-500 ease-out inline-block' : 'heart-lost transition-all duration-500 ease-out inline-block';
+                livesContainer.appendChild(heart);
+            }
+
+            updateHeader();
+            overlay.classList.add('hidden'); 
+            document.getElementById('transition-overlay').classList.add('hidden');
+            headerPanel.classList.remove('hidden'); 
+            gameBoard.classList.remove('hidden');
+            
+            renderAndSetupPhysics();
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateHeader();
+                if (timeLeft <= 0) endGame('gameover');
+            }, 1000);
+        }
+
+        function updateHeader() {
+            for (let i = 0; i < 3; i++) {
+                const heart = document.getElementById(`heart-${i}`);
+                if (heart) {
+                    if (i < lives) { heart.className = 'heart-active transition-all duration-500 ease-out inline-block'; } 
+                    else { heart.className = 'heart-lost transition-all duration-500 ease-out inline-block'; }
+                }
+            }
+            scoreDisplay.innerText = `${score} / ${currentPairs.length}`;
+            timerDisplay.innerText = `${timeLeft}s`;
+
+            if (timeLeft <= 10) { timerContainer.className = "flex items-center gap-1 sm:gap-2 bg-[#FFEBEE] border-2 border-[#EF9A9A] px-3 py-1 sm:px-4 sm:py-2 rounded-full font-black text-base sm:text-xl text-[#C62828] shadow-inner animate-pulse"; } 
+            else { timerContainer.className = "flex items-center gap-1 sm:gap-2 bg-[#E1F5FE] border-2 border-[#B3E5FC] px-3 py-1 sm:px-4 sm:py-2 rounded-full font-black text-base sm:text-xl text-[#0277BD] shadow-inner transition-colors"; }
+        }
+
+        function endGame(state) {
+            if (gameState !== 'playing') return; 
+            gameState = state; 
+            clearInterval(timerInterval); 
+            cancelAnimationFrame(animationFrameId);
+
+            setTimeout(() => {
+                overlay.classList.remove('hidden'); 
+                headerPanel.classList.add('hidden'); 
+                gameBoard.classList.add('hidden');
+                showLeaderboardOverlay(state);
+            }, 600);
+        }
+
+        function showOverlay(type) {
+            overlay.classList.remove('hidden'); headerPanel.classList.add('hidden'); gameBoard.classList.add('hidden');
+            let savedName = '';
+            try { savedName = localStorage.getItem('thayChinhPlayerName') || ''; } catch(e) {}
+
+            const btnBase = "text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center";
+            
+            overlayContent.innerHTML = `
+                <div class="overflow-y-auto pb-2 custom-scrollbar">
+                    <div class="text-5xl sm:text-6xl mb-3 drop-shadow-xl animate-bounce">🧠</div>
+                    <h1 class="text-2xl sm:text-4xl font-black text-indigo-600 mb-1 tracking-tight">Ghép Cặp Trái Tim</h1>
+                    <h2 class="text-sm sm:text-lg font-bold text-indigo-400 mb-4 pb-2 inline-block">Phương Trình Lượng Giác</h2>
+                    
+                    <div class="mb-4 text-left bg-indigo-50 p-3 sm:p-4 rounded-2xl border-2 border-indigo-100">
+                        <label class="block text-sm sm:text-base font-bold text-indigo-800 mb-2">Nhập tên để lưu bảng xếp hạng:</label>
+                        <input type="text" id="playerNameInput" oninput="window.savePlayerName(this.value)" placeholder="Tên của bạn..." class="w-full px-4 py-2 sm:py-3 rounded-xl border-2 border-indigo-300 focus:outline-none focus:border-indigo-500 font-bold text-gray-700 shadow-inner" value="${savedName}">
+                    </div>
+                    <p class="text-[#64748B] mb-4 font-semibold text-xs sm:text-sm leading-relaxed">
+                        Ghép <span class="text-blue-600 font-bold">Phương trình (Xanh)</span> với <span class="text-pink-600 font-bold">Nghiệm đúng (Hồng)</span>. Bấm sai sẽ bị trừ mạng và bắn văng!
+                    </p>
+
+                    <!-- GRID 4 CỘT - 16 LEVEL -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-4 text-left">
+                        
+                        <!-- Cột SIN -->
+                        <div class="bg-blue-50 p-2 rounded-xl border-2 border-blue-200">
+                            <h3 class="font-black text-blue-800 text-center mb-2">Thư mục SIN(X)</h3>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="window.startLevel('sin_1')" class="${btnBase} bg-blue-500 hover:bg-blue-600 !shadow-[0_4px_0_#1d4ed8]">Lvl 1: Xét Nghiệm</button>
+                                <button onclick="window.startLevel('sin_2')" class="${btnBase} bg-blue-500 hover:bg-blue-600 !shadow-[0_4px_0_#1d4ed8]">Lvl 2: Đơn vị Radian</button>
+                                <button onclick="window.startLevel('sin_3')" class="${btnBase} bg-blue-500 hover:bg-blue-600 !shadow-[0_4px_0_#1d4ed8]">Lvl 3: Đơn vị Độ</button>
+                                <button onclick="window.startLevel('sin_4')" class="${btnBase} bg-blue-500 hover:bg-blue-600 !shadow-[0_4px_0_#1d4ed8]">Lvl 4: Biến đổi</button>
+                            </div>
+                        </div>
+
+                        <!-- Cột COS -->
+                        <div class="bg-pink-50 p-2 rounded-xl border-2 border-pink-200">
+                            <h3 class="font-black text-pink-800 text-center mb-2">Thư mục COS(X)</h3>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="window.startLevel('cos_1')" class="${btnBase} bg-pink-500 hover:bg-pink-600 !shadow-[0_4px_0_#be185d]">Lvl 1: Xét Nghiệm</button>
+                                <button onclick="window.startLevel('cos_2')" class="${btnBase} bg-pink-500 hover:bg-pink-600 !shadow-[0_4px_0_#be185d]">Lvl 2: Đơn vị Radian</button>
+                                <button onclick="window.startLevel('cos_3')" class="${btnBase} bg-pink-500 hover:bg-pink-600 !shadow-[0_4px_0_#be185d]">Lvl 3: Đơn vị Độ</button>
+                                <button onclick="window.startLevel('cos_4')" class="${btnBase} bg-pink-500 hover:bg-pink-600 !shadow-[0_4px_0_#be185d]">Lvl 4: Biến đổi</button>
+                            </div>
+                        </div>
+
+                        <!-- Cột TAN -->
+                        <div class="bg-orange-50 p-2 rounded-xl border-2 border-orange-200">
+                            <h3 class="font-black text-orange-800 text-center mb-2">Thư mục TAN(X)</h3>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="window.startLevel('tan_1')" class="${btnBase} bg-orange-500 hover:bg-orange-600 !shadow-[0_4px_0_#c2410c]">Lvl 1: Tổng quát</button>
+                                <button onclick="window.startLevel('tan_2')" class="${btnBase} bg-orange-500 hover:bg-orange-600 !shadow-[0_4px_0_#c2410c]">Lvl 2: Đơn vị Radian</button>
+                                <button onclick="window.startLevel('tan_3')" class="${btnBase} bg-orange-500 hover:bg-orange-600 !shadow-[0_4px_0_#c2410c]">Lvl 3: Đơn vị Độ</button>
+                                <button onclick="window.startLevel('tan_4')" class="${btnBase} bg-orange-500 hover:bg-orange-600 !shadow-[0_4px_0_#c2410c]">Lvl 4: Biến đổi</button>
+                            </div>
+                        </div>
+
+                        <!-- Cột COT -->
+                        <div class="bg-purple-50 p-2 rounded-xl border-2 border-purple-200">
+                            <h3 class="font-black text-purple-800 text-center mb-2">Thư mục COT(X)</h3>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="window.startLevel('cot_1')" class="${btnBase} bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#6b21a8]">Lvl 1: Tổng quát</button>
+                                <button onclick="window.startLevel('cot_2')" class="${btnBase} bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#6b21a8]">Lvl 2: Đơn vị Radian</button>
+                                <button onclick="window.startLevel('cot_3')" class="${btnBase} bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#6b21a8]">Lvl 3: Đơn vị Độ</button>
+                                <button onclick="window.startLevel('cot_4')" class="${btnBase} bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#6b21a8]">Lvl 4: Biến đổi</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        }
+
+        async function showLeaderboardOverlay(type) {
+            let finalScore = score;
+            let finalTime = GAME_LEVELS[currentMode].time - timeLeft;
+            
+            let playerName = "Ninja Toán Học";
+            try { playerName = localStorage.getItem('thayChinhPlayerName') || "Ninja Toán Học"; } catch(e) {}
+            
+            const titleIcon = type === 'victory' ? '🏆' : '💥';
+            const titleText = type === 'victory' ? 'Tuyệt Vời!' : 'Rất tiếc!';
+            const titleColor = type === 'victory' ? 'text-[#16A34A]' : 'text-[#DC2626]';
+            const subText = type === 'victory' ? 'Bạn đã giải chuẩn xác Lượng Giác!' : (lives <= 0 ? "Sai quá 3 lần." : "Đã hết thời gian!");
+            
+            const btnClass = "mt-4 flex-shrink-0 bg-gradient-to-b from-[#4ADE80] to-[#22C55E] hover:from-[#22C55E] hover:to-[#16A34A] text-white font-black py-3 sm:py-4 px-8 sm:px-10 rounded-full text-xl sm:text-2xl shadow-[0_6px_0_#15803D] transition-all active:shadow-none active:scale-95 w-full sm:w-auto cursor-pointer";
+            let buttonStyle = btnClass;
+            if(type === 'gameover') { buttonStyle = btnClass.replace(/4ADE80|22C55E|16A34A|15803D/g, (m) => ({'4ADE80':'F87171','22C55E':'EF4444','16A34A':'DC2626','15803D':'991B1B'})[m]); }
+
+            // Tạo khung HTML
+            overlayContent.innerHTML = `
+                <div class="overflow-y-auto custom-scrollbar pr-2">
+                    <div class="text-5xl sm:text-6xl mb-2 drop-shadow-xl ${type==='victory'?'animate-bounce':'animate-shake'}">${titleIcon}</div>
+                    <h1 class="text-2xl sm:text-4xl font-black ${titleColor} mb-2">${titleText}</h1>
+                    <p class="text-[#475569] mb-4 font-bold text-sm sm:text-lg">${subText}</p>
+                    
+                    <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-3 mb-4 inline-flex gap-4 shadow-inner">
+                        <div class="text-center"> <p class="text-xs font-bold text-gray-500 uppercase">Tổng Điểm</p> <p class="text-xl sm:text-2xl font-black text-[#D97706]">${finalScore} ⭐</p> </div>
+                        <div class="w-px bg-gray-300"></div>
+                        <div class="text-center"> <p class="text-xs font-bold text-gray-500 uppercase">Tổng T.Gian</p> <p class="text-xl sm:text-2xl font-black text-[#0284C7]">${finalTime}s</p> </div>
+                    </div>
+
+                    <div class="text-left w-full border-t-2 border-dashed border-gray-200 pt-4 mt-2">
+                        <div class="flex justify-between items-center mb-2 gap-2">
+                            <h3 class="font-black text-indigo-800 flex items-center gap-2 whitespace-nowrap"><span class="text-xl">👑</span> Xếp Hạng</h3>
+                            
+                            <!-- Dropdown Leaderboard -->
+                            <select id="leaderboard-filter" class="p-2 bg-indigo-50 border border-indigo-200 rounded-lg text-sm font-bold text-indigo-800 shadow-sm focus:outline-none" onchange="window.changeLeaderboardTab(this.value)">
+                                <optgroup label="Thư mục SIN(X)">
+                                    <option value="sin_1">SIN - Lvl 1: Xét nghiệm</option>
+                                    <option value="sin_2">SIN - Lvl 2: Radian</option>
+                                    <option value="sin_3">SIN - Lvl 3: Độ</option>
+                                    <option value="sin_4">SIN - Lvl 4: Biến đổi</option>
+                                </optgroup>
+                                <optgroup label="Thư mục COS(X)">
+                                    <option value="cos_1">COS - Lvl 1: Xét nghiệm</option>
+                                    <option value="cos_2">COS - Lvl 2: Radian</option>
+                                    <option value="cos_3">COS - Lvl 3: Độ</option>
+                                    <option value="cos_4">COS - Lvl 4: Biến đổi</option>
+                                </optgroup>
+                                <optgroup label="Thư mục TAN(X)">
+                                    <option value="tan_1">TAN - Lvl 1: Tổng quát</option>
+                                    <option value="tan_2">TAN - Lvl 2: Radian</option>
+                                    <option value="tan_3">TAN - Lvl 3: Độ</option>
+                                    <option value="tan_4">TAN - Lvl 4: Biến đổi</option>
+                                </optgroup>
+                                <optgroup label="Thư mục COT(X)">
+                                    <option value="cot_1">COT - Lvl 1: Tổng quát</option>
+                                    <option value="cot_2">COT - Lvl 2: Radian</option>
+                                    <option value="cot_3">COT - Lvl 3: Độ</option>
+                                    <option value="cot_4">COT - Lvl 4: Biến đổi</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <span id="player-rank-badge" class="hidden inline-block bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full border border-yellow-400 shadow-sm mb-2"></span>
+
+                        <div id="leaderboard-container" class="bg-indigo-50 rounded-xl p-3 shadow-inner min-h-[120px] border border-indigo-100">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button onclick="window.showOverlay('start')" class="w-1/3 bg-gray-400 hover:bg-gray-500 text-white font-black py-3 sm:py-4 rounded-full text-lg shadow-[0_4px_0_#9ca3af] transition-all active:shadow-none active:translate-y-[4px]">Menu</button>
+                    <button onclick="window.startLevel('${currentMode}')" class="${buttonStyle.replace('w-full', 'w-2/3')} !mt-0">Chơi lại</button>
+                </div>
+            `;
+
+            // Cập nhật giá trị thẻ select khớp với currentMode
+            document.getElementById('leaderboard-filter').value = currentMode;
+
+            // Lưu & Load Xếp hạng
+            saveScore(playerName, finalScore, finalTime, currentMode).then((currentDocId) => {
+                window.lastPlayedDocId = currentDocId;
+                window.changeLeaderboardTab(currentMode);
+            });
+        }
+
+        // --- RENDER & PHYSICS ---
+        function applyCardState(element, state, isLeft) {
+            element.className = element.dataset.baseClasses;
+            if (state === 'matched') { element.classList.add('animate-sparkle', 'pointer-events-none', 'z-50'); } 
+            else if (state === 'error') { element.classList.add('animate-sos', 'z-40'); } 
+            else if (state === 'selected') { 
+                element.classList.add('bg-yellow-100', 'border-yellow-400', 'text-yellow-900', 'scale-[1.15]', 'z-30', 'shadow-[0_0_20px_#facc15]'); 
+            } 
+            else {
+                element.classList.add('z-10', 'hover:scale-105'); 
+                if (isLeft) { 
+                    element.classList.add('bg-[#E0F2FE]', 'border-[#38BDF8]', 'text-[#0369A1]', 'shadow-[0_4px_0_#38BDF8]', 'hover:shadow-[0_0_15px_#7dd3fc]'); 
+                } else { 
+                    element.classList.add('bg-[#FCE7F3]', 'border-[#F472B6]', 'text-[#BE185D]', 'shadow-[0_4px_0_#F472B6]', 'hover:shadow-[0_0_15px_#f9a8d4]'); 
+                }
+            }
+        }
+
+        function renderAndSetupPhysics() {
+            gameBoard.innerHTML = ''; movingCards = []; let allItems = [];
+            currentPairs.forEach(pair => { allItems.push({ id: pair.id, isLeft: true, content: pair.left }); allItems.push({ id: pair.id, isLeft: false, content: pair.right }); });
+            allItems.sort(() => Math.random() - 0.5);
+
+            allItems.forEach(item => {
+                const el = document.createElement('div');
+                const baseClasses = `game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]`;
+                el.dataset.baseClasses = baseClasses; el.dataset.id = item.id; el.dataset.side = item.isLeft ? 'left' : 'right';
+                
+                const icon = item.isLeft ? '💙' : '💖'; 
+                el.innerHTML = `<div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">${icon}</span><span class="math-content"></span></div>`;
+                
+                applyCardState(el, 'idle', item.isLeft);
+                el.addEventListener('click', () => handleSelect(item.isLeft, item.id, el));
+                el.style.opacity = "0"; 
+                gameBoard.appendChild(el);
+
+                katex.render(item.content, el.querySelector('.math-content'), { throwOnError: false, displayMode: true });
+                movingCards.push({ id: item.id, isLeft: item.isLeft, el: el, active: true, x: 0, y: 0, vx: 0, vy: 0, width: 0, height: 0, baseSpeed: 0 });
+            });
+
+            setTimeout(() => {
+                const boardRect = gameBoard.getBoundingClientRect();
+                movingCards.forEach(c => {
+                    c.width = c.el.offsetWidth; c.height = c.el.offsetHeight;
+                    c.x = Math.random() * (boardRect.width - c.width); c.y = Math.random() * (boardRect.height - c.height);
+                    const speed = 0.6 + Math.random() * 0.9; c.baseSpeed = speed; 
+                    const angle = Math.random() * 2 * Math.PI; c.vx = Math.cos(angle) * speed; c.vy = Math.sin(angle) * speed;
+                    c.el.style.left = `${c.x}px`; c.el.style.top = `${c.y}px`; c.el.style.opacity = "1"; 
+                });
+                gameLoop(); 
+            }, 300);
+        }
+
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+            const boardRect = gameBoard.getBoundingClientRect();
+            const boardW = boardRect.width; const boardH = boardRect.height;
+
+            movingCards.forEach(c => {
+                if (!c.active) return; 
+                const currentSpeed = Math.sqrt(c.vx * c.vx + c.vy * c.vy);
+                if (currentSpeed > c.baseSpeed) {
+                    c.vx *= 0.95; c.vy *= 0.95; 
+                    const newSpeed = Math.sqrt(c.vx * c.vx + c.vy * c.vy);
+                    if (newSpeed <= c.baseSpeed && newSpeed > 0) { const angle = Math.atan2(c.vy, c.vx); c.vx = Math.cos(angle) * c.baseSpeed; c.vy = Math.sin(angle) * c.baseSpeed; }
+                }
+                c.x += c.vx; c.y += c.vy;
+                if (c.x <= 0) { c.x = 0; c.vx = Math.abs(c.vx); }
+                if (c.x + c.width >= boardW) { c.x = boardW - c.width; c.vx = -Math.abs(c.vx); }
+                if (c.y <= 0) { c.y = 0; c.vy = Math.abs(c.vy); }
+                if (c.y + c.height >= boardH) { c.y = boardH - c.height; c.vy = -Math.abs(c.vy); }
+                c.el.style.left = `${c.x}px`; c.el.style.top = `${c.y}px`;
+            });
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function handleSelect(isLeft, id, element) {
+            if (gameState !== 'playing' || isAnimating || matchedIds.includes(id)) return;
+
+            if (firstCard && firstCard.id === id && firstCard.isLeft === isLeft) { applyCardState(element, 'idle', isLeft); firstCard = null; return; }
+            if (!firstCard) { firstCard = { id, isLeft, el: element }; applyCardState(element, 'selected', isLeft); return; }
+            
+            const secondCard = { id, isLeft, el: element };
+            applyCardState(element, 'selected', isLeft);
+            checkMatch(firstCard, secondCard);
+        }
+
+        function createHaloEffect(x, y) {
+            const halo = document.createElement('div'); halo.className = 'halo-effect'; halo.style.left = `${x}px`; halo.style.top = `${y}px`;
+            const ring1 = document.createElement('div'); ring1.className = 'halo-ring';
+            const ring2 = document.createElement('div'); ring2.className = 'halo-ring'; ring2.style.animationDelay = '0.1s'; ring2.style.borderColor = '#fb7185';
+            const heart = document.createElement('div'); heart.className = 'halo-heart'; heart.innerText = '💖';
+            halo.appendChild(ring1); halo.appendChild(ring2); halo.appendChild(heart);
+            document.getElementById('game-board').appendChild(halo);
+            setTimeout(() => { if (halo.parentNode) halo.parentNode.removeChild(halo); }, 1000);
+        }
+
+        function checkMatch(c1, c2) {
+            isAnimating = true; 
+            const isMatch = (c1.id === c2.id) && (c1.isLeft !== c2.isLeft); 
+            
+            if (isMatch) {
+                matchedIds.push(c1.id); score++; updateHeader();
+                sndMatch.currentTime = 0; sndMatch.play().catch(e => {});
+
+                const physC1 = movingCards.find(c => c.id === c1.id && c.isLeft === c1.isLeft);
+                const physC2 = movingCards.find(c => c.id === c2.id && c.isLeft === c2.isLeft);
+                
+                if(physC1 && physC2) {
+                    physC1.active = false; physC2.active = false;
+                    const midX = (physC1.x + physC1.width/2 + physC2.x + physC2.width/2) / 2; const midY = (physC1.y + physC1.height/2 + physC2.y + physC2.height/2) / 2;
+
+                    c1.el.classList.add('merge-transition'); c2.el.classList.add('merge-transition');
+                    c1.el.style.left = `${midX - physC1.width/2}px`; c1.el.style.top = `${midY - physC1.height/2}px`;
+                    c2.el.style.left = `${midX - physC2.width/2}px`; c2.el.style.top = `${midY - physC2.height/2}px`;
+
+                    setTimeout(() => {
+                        createHaloEffect(midX, midY);
+                        c1.el.style.transform = 'scale(0)'; c2.el.style.transform = 'scale(0)';
+                        setTimeout(() => { applyCardState(c1.el, 'matched', c1.isLeft); applyCardState(c2.el, 'matched', c2.isLeft); }, 200);
+                        
+                        if (matchedIds.length === currentPairs.length) {
+                            setTimeout(() => endGame('victory'), 800);
+                        } else { firstCard = null; isAnimating = false;  }
+                    }, 250);
+                }
+            } else {
+                lives--; updateHeader();
+                sndError.currentTime = 0; sndError.play().catch(e => {});
+
+                applyCardState(c1.el, 'error', c1.isLeft); applyCardState(c2.el, 'error', c2.isLeft);
+
+                const physC1 = movingCards.find(c => c.id === c1.id && c.isLeft === c1.isLeft);
+                const physC2 = movingCards.find(c => c.id === c2.id && c.isLeft === c2.isLeft);
+                
+                if (physC1 && physC2) {
+                    const cx1 = physC1.x + physC1.width/2; const cy1 = physC1.y + physC1.height/2;
+                    const cx2 = physC2.x + physC2.width/2; const cy2 = physC2.y + physC2.height/2;
+                    let dx = cx1 - cx2; let dy = cy1 - cy2;
+                    let dist = Math.sqrt(dx*dx + dy*dy); if (dist === 0) { dx = 1; dy = 0; dist = 1; } 
+                    
+                    const repelForce = 50; 
+                    physC1.vx = (dx / dist) * repelForce; physC1.vy = (dy / dist) * repelForce;
+                    physC2.vx = -(dx / dist) * repelForce; physC2.vy = -(dy / dist) * repelForce;
+                }
+
+                if (lives <= 0) {
+                    setTimeout(() => {
+                        applyCardState(c1.el, 'idle', c1.isLeft); applyCardState(c2.el, 'idle', c2.isLeft);
+                        endGame('gameover');
+                    }, 600); 
+                } else {
+                    setTimeout(() => {
+                        applyCardState(c1.el, 'idle', c1.isLeft); applyCardState(c2.el, 'idle', c2.isLeft);
+                        firstCard = null; isAnimating = false;
+                    }, 800);
+                }
+            }
+        }
+
+        // Khởi động giao diện chính
+        showOverlay('start');
+    </script>
+
+<script async="" src="./hud" data-nf-variant="public" data-netlify-site-id="5e51e807-cc05-4ed5-9e76-142c1084ee61" data-app-host="app.netlify.com"></script>
+
+    <!-- MODAL QUẢN LÝ BỘ BÀI (DÀNH RIÊNG CHO ADMIN) -->
+    <div id="admin-pair-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-[200] flex items-center justify-center p-3 sm:p-5">
+        <div class="bg-white rounded-3xl p-5 sm:p-7 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border-4 border-emerald-300 text-gray-800 animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200 mb-3">
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-black text-emerald-700 flex items-center gap-2">
+                        ⚙️ Quản Lý Cặp Bài - Thầy Hùng Pro
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                        Thêm bớt cặp công thức, hỗ trợ ký hiệu LaTeX như <code class="text-emerald-600">\sin(2x)</code>, <code class="text-emerald-600">\cos(x)</code>...
+                    </p>
+                </div>
+                <button onclick="window.closePairEditor()" class="text-gray-400 hover:text-red-500 text-2xl font-black px-2">✕</button>
             </div>
 
-            <div class="flex flex-wrap justify-between items-center pt-4 border-t border-white/10 gap-3">
-                <button onclick="addNewPairInput()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1 shadow-md">
+            <div class="overflow-y-auto flex-grow mb-4 pr-1 space-y-2.5 custom-scrollbar" id="admin-pairs-list">
+                <!-- Danh sách các cặp bài -->
+            </div>
+
+            <div class="flex flex-wrap justify-between items-center pt-3 border-t border-gray-200 gap-2">
+                <button onclick="window.addPairRow()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs sm:text-sm transition shadow-sm">
                     + Thêm cặp mới
                 </button>
                 <div class="flex gap-2 flex-wrap">
-                    <button onclick="resetToDefault()" class="px-3.5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-xs sm:text-sm transition">
-                        Khôi phục gốc (8 cặp)
+                    <button onclick="window.resetPairsDefault()" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-xs sm:text-sm transition">
+                        Khôi phục gốc
                     </button>
-                    <button onclick="closeSettings()" class="px-4 py-2.5 border border-white/20 hover:bg-white/10 text-white rounded-xl font-bold text-xs sm:text-sm transition">
+                    <button onclick="window.closePairEditor()" class="px-4 py-2 border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-xl font-bold text-xs sm:text-sm transition">
                         Đóng
                     </button>
-                    <button onclick="saveSettings()" class="px-6 py-2.5 bg-gradient-to-r from-[#f97316] to-[#f43f5e] hover:brightness-110 text-white rounded-xl font-black text-xs sm:text-sm transition shadow-lg">
+                    <button onclick="window.saveCustomPairs()" class="px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white rounded-xl font-black text-xs sm:text-sm shadow-md transition">
                         💾 Lưu & Cập Nhật Game
                     </button>
                 </div>
@@ -258,306 +999,178 @@
     </div>
 
     <script>
-        // Cặp mặc định
-        const defaultPairs = [
-            { id: 1, text1: "$$\\sin(x) = 0$$", text2: "$$x = k\\pi$$" },
-            { id: 2, text1: "$$\\cos(x) = 0$$", text2: "$$x = \\frac{\\pi}{2} + k\\pi$$" },
-            { id: 3, text1: "$$\\sin(x) = 1$$", text2: "$$x = \\frac{\\pi}{2} + k2\\pi$$" },
-            { id: 4, text1: "$$\\cos(x) = 1$$", text2: "$$x = k2\\pi$$" },
-            { id: 5, text1: "$$\\sin(x) = \\frac{1}{2}$$", text2: "$$\\begin{bmatrix} x = \\frac{\\pi}{6} + k2\\pi \\\\ x = \\frac{5\\pi}{6} + k2\\pi \\end{bmatrix}$$" },
-            { id: 6, text1: "$$\\cos(x) = \\frac{1}{2}$$", text2: "$$x = \\pm\\frac{\\pi}{3} + k2\\pi$$" },
-            { id: 7, text1: "$$\\tan(x) = 1$$", text2: "$$x = \\frac{\\pi}{4} + k\\pi$$" },
-            { id: 8, text1: "$$\\cot(x) = \\sqrt{3}$$", text2: "$$x = \\frac{\\pi}{6} + k\\pi$$" }
-        ];
-
-        let currentPairs = [];
-        let cards = [];
-        let hasFlippedCard = false;
-        let lockBoard = false;
-        let firstCard, secondCard;
-        let matches = 0;
-        let wrongFlips = 0;
+    (function() {
+        const STORAGE_KEY = 'custom_pairs_ptlg';
         let isAdminActive = false;
+        let editingList = [];
 
-        // KIỂM TRA PHÂN QUYỀN ADMIN
-        function checkAdminPermission() {
-            const params = new URLSearchParams(window.location.search);
-            const adminParam = params.get('admin') === '1' || params.get('admin') === 'true' || params.get('mode') === 'admin';
-            if (adminParam) {
+        // Kiểm tra quyền Admin từ URL (?admin=1 hoặc ?mode=admin)
+        function checkAdmin() {
+            const p = new URLSearchParams(window.location.search);
+            if (p.get('admin') === '1' || p.get('admin') === 'true' || p.get('mode') === 'admin') {
                 isAdminActive = true;
             }
-            updateAdminUI();
+            updateUI();
         }
 
-        function updateAdminUI() {
-            const btn = document.getElementById('settings-btn');
-            const unlockBtn = document.getElementById('btn-unlock-admin');
+        function updateUI() {
+            const adminBtn = document.getElementById('admin-settings-btn');
+            const statusText = document.getElementById('admin-status-text');
+            const btnMode = document.getElementById('btn-admin-mode');
             if (isAdminActive) {
-                if (btn) btn.classList.remove('hidden');
-                if (unlockBtn) {
-                    unlockBtn.innerHTML = '👑 <span class="hidden sm:inline">Admin Đang Bật</span>';
-                    unlockBtn.className = 'text-xs px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold';
-                }
+                if (adminBtn) adminBtn.classList.remove('hidden');
+                if (statusText) statusText.innerText = '👑 Admin Đang Bật';
+                if (btnMode) btnMode.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 border-2 border-amber-400 text-xs font-black text-amber-800 shadow-sm';
             } else {
-                if (btn) btn.classList.add('hidden');
+                if (adminBtn) adminBtn.classList.add('hidden');
             }
         }
 
-        function promptAdminPin() {
+        window.promptAdminPin = function() {
             if (isAdminActive) {
-                openSettings();
+                window.openPairEditor();
                 return;
             }
             const pin = prompt("Nhập mã PIN Admin để mở quyền sửa cặp bài (Mặc định: 1234):");
             if (pin === "1234") {
                 isAdminActive = true;
-                updateAdminUI();
+                updateUI();
                 alert("Xác thực Giáo viên thành công! Nút 'Thêm/Sửa Cặp Bài' đã được mở.");
-                openSettings();
+                window.openPairEditor();
             } else if (pin !== null) {
                 alert("Mã PIN không chính xác!");
             }
+        };
+
+        window.openPairEditor = function() {
+            loadEditingPairs();
+            renderPairsList();
+            document.getElementById('admin-pair-modal').classList.remove('hidden');
+        };
+
+        window.closePairEditor = function() {
+            document.getElementById('admin-pair-modal').classList.add('hidden');
+        };
+
+        function loadEditingPairs() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    editingList = JSON.parse(saved);
+                    if (Array.isArray(editingList) && editingList.length >= 2) return;
+                } catch(e) {}
+            }
+            // Lấy từ level mặc định đầu tiên
+            if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS['sin_1']) {
+                editingList = JSON.parse(JSON.stringify(GAME_LEVELS['sin_1'].pairs));
+            } else {
+                editingList = [
+                    { id: 1, left: "\\sin^2 x + \\cos^2 x", right: "1" },
+                    { id: 2, left: "\\sin(2x)", right: "2\\sin x \\cos x" },
+                    { id: 3, left: "\\cos(2x)", right: "\\cos^2 x - \\sin^2 x" },
+                    { id: 4, left: "1 + \\tan^2 x", right: "\\frac{1}{\\cos^2 x}" },
+                    { id: 5, left: "\\tan x", right: "\\frac{\\sin x}{\\cos x}" }
+                ];
+            }
         }
 
-        function loadPairs() {
-            const saved = localStorage.getItem('custom_pairs_ptlg');
-            if (saved) {
+        function renderPairsList() {
+            const container = document.getElementById('admin-pairs-list');
+            container.innerHTML = '';
+            editingList.forEach((pair, idx) => {
+                const row = document.createElement('div');
+                row.className = "flex gap-2 items-center bg-slate-50 p-2.5 rounded-xl border border-gray-200";
+                row.innerHTML = `
+                    <div class="font-bold text-emerald-700 w-6 text-center text-xs">${idx + 1}</div>
+                    <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <span class="text-[10px] text-gray-500 font-bold block mb-0.5">Thẻ 1 (Vế trái / Đề bài)</span>
+                            <input type="text" class="pair-input-left w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold outline-none focus:border-emerald-500" value="${pair.left.replace(/"/g, '&quot;')}">
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-500 font-bold block mb-0.5">Thẻ 2 (Vế phải / Đáp án)</span>
+                            <input type="text" class="pair-input-right w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold outline-none focus:border-emerald-500" value="${pair.right.replace(/"/g, '&quot;')}">
+                        </div>
+                    </div>
+                    <button onclick="window.removePairRow(${idx})" class="w-8 h-8 shrink-0 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-black text-sm flex items-center justify-center" title="Xóa">✕</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        window.addPairRow = function() {
+            syncEditingFromInputs();
+            editingList.push({ id: Date.now(), left: "", right: "" });
+            renderPairsList();
+            const c = document.getElementById('admin-pairs-list');
+            c.scrollTop = c.scrollHeight;
+        };
+
+        window.removePairRow = function(idx) {
+            syncEditingFromInputs();
+            if (editingList.length <= 2) {
+                alert("Cần giữ lại ít nhất 2 cặp bài!");
+                return;
+            }
+            editingList.splice(idx, 1);
+            renderPairsList();
+        };
+
+        function syncEditingFromInputs() {
+            const lInputs = document.querySelectorAll('.pair-input-left');
+            const rInputs = document.querySelectorAll('.pair-input-right');
+            editingList = [];
+            for (let i = 0; i < lInputs.length; i++) {
+                editingList.push({
+                    id: i + 1,
+                    left: lInputs[i].value,
+                    right: rInputs[i].value
+                });
+            }
+        }
+
+        window.resetPairsDefault = function() {
+            if (confirm("Khôi phục về các cặp bài ban đầu chuẩn SGK?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                loadEditingPairs();
+                renderPairsList();
+                alert("Đã khôi phục dữ liệu gốc!");
+            }
+        };
+
+        window.saveCustomPairs = function() {
+            syncEditingFromInputs();
+            const valid = editingList.filter(p => p.left.trim() && p.right.trim());
+            if (valid.length < 2) {
+                alert("Vui lòng nhập ít nhất 2 cặp bài hoàn chỉnh!");
+                return;
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(valid));
+            alert(`Đã lưu thành công ${valid.length} cặp bài vào hệ thống!`);
+            window.closePairEditor();
+            // Nếu có hàm nạp lại level thì nạp
+            if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS['sin_1']) {
+                GAME_LEVELS['sin_1'].pairs = valid;
+            }
+            if (typeof window.startLevel === 'function') {
+                window.startLevel('sin_1');
+            }
+        };
+
+        // Áp dụng custom pairs vào GAME_LEVELS khi khởi động
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAdmin();
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved && typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS['sin_1']) {
                 try {
                     const parsed = JSON.parse(saved);
                     if (Array.isArray(parsed) && parsed.length >= 2) {
-                        currentPairs = parsed;
-                        return;
+                        GAME_LEVELS['sin_1'].pairs = parsed;
                     }
                 } catch(e) {}
             }
-            currentPairs = JSON.parse(JSON.stringify(defaultPairs));
-        }
-
-        function initGame() {
-            loadPairs();
-            const board = document.getElementById('game-board');
-            board.innerHTML = '';
-            cards = [];
-            matches = 0;
-            wrongFlips = 0;
-            hasFlippedCard = false;
-            lockBoard = false;
-            firstCard = null;
-            secondCard = null;
-            
-            document.getElementById('total-pairs').innerText = currentPairs.length;
-            updateStats();
-            document.getElementById('win-modal').classList.add('hidden');
-            document.getElementById('win-modal').classList.remove('flex');
-
-            currentPairs.forEach((pair, idx) => {
-                const id = pair.id || (idx + 1);
-                cards.push({ pairId: id, content: pair.text1 });
-                cards.push({ pairId: id, content: pair.text2 });
-            });
-
-            cards.sort(() => Math.random() - 0.5);
-
-            cards.forEach((card) => {
-                const cardEl = document.createElement('div');
-                cardEl.classList.add('card-container');
-                
-                cardEl.innerHTML = `
-                    <div class="card" data-pair="${card.pairId}" onclick="flipCard(this)">
-                        <div class="card-face card-front"></div>
-                        <div class="card-face card-back">${card.content}</div>
-                    </div>
-                `;
-                board.appendChild(cardEl);
-            });
-
-            if (window.renderMathInElement) {
-                renderMathInElement(board, {
-                    delimiters: [
-                        {left: "$$", right: "$$", display: true},
-                        {left: "$", right: "$", display: false}
-                    ]
-                });
-            }
-        }
-
-        function flipCard(card) {
-            if (lockBoard) return;
-            if (card === firstCard) return;
-            if (card.classList.contains('flipped')) return;
-
-            card.classList.add('flipped');
-
-            if (!hasFlippedCard) {
-                hasFlippedCard = true;
-                firstCard = card;
-                return;
-            }
-
-            secondCard = card;
-            checkForMatch();
-        }
-
-        function checkForMatch() {
-            let isMatch = firstCard.dataset.pair === secondCard.dataset.pair;
-            
-            if (isMatch) {
-                disableCards();
-            } else {
-                unflipCards();
-            }
-        }
-
-        function disableCards() {
-            firstCard.classList.add('matched');
-            secondCard.classList.add('matched');
-
-            matches++;
-            updateStats();
-
-            resetBoard();
-
-            if (matches === currentPairs.length) {
-                setTimeout(() => {
-                    document.getElementById('final-flips').innerText = wrongFlips;
-                    const modal = document.getElementById('win-modal');
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                }, 600);
-            }
-        }
-
-        function unflipCards() {
-            lockBoard = true;
-            wrongFlips++;
-            updateStats();
-
-            setTimeout(() => {
-                if (firstCard) firstCard.classList.remove('flipped');
-                if (secondCard) secondCard.classList.remove('flipped');
-                resetBoard();
-            }, 1000);
-        }
-
-        function resetBoard() {
-            [hasFlippedCard, lockBoard] = [false, false];
-            [firstCard, secondCard] = [null, null];
-        }
-
-        function updateStats() {
-            document.getElementById('flips').innerText = wrongFlips;
-            document.getElementById('score').innerText = matches;
-        }
-
-        function closeModalAndRestart() {
-            document.getElementById('win-modal').classList.add('hidden');
-            document.getElementById('win-modal').classList.remove('flex');
-            initGame();
-        }
-
-        /* --- QUẢN LÝ CÀI ĐẶT BỘ BÀI (ADMIN) --- */
-        let editingPairs = [];
-
-        function openSettings() {
-            loadPairs();
-            editingPairs = JSON.parse(JSON.stringify(currentPairs));
-            renderSettingsList();
-            const modal = document.getElementById('settings-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeSettings() {
-            const modal = document.getElementById('settings-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function renderSettingsList() {
-            const list = document.getElementById('settings-list');
-            list.innerHTML = '';
-            
-            editingPairs.forEach((pair, index) => {
-                const row = document.createElement('div');
-                row.className = "flex gap-2 items-center bg-white/5 p-3 rounded-2xl border border-white/10 hover:border-amber-500/30 transition";
-                
-                row.innerHTML = `
-                    <div class="font-bold text-amber-400 w-7 text-center shrink-0 text-sm">${index + 1}</div>
-                    <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[10px] text-gray-400 font-bold uppercase mb-0.5">Thẻ 1 (Phương trình)</label>
-                            <input type="text" class="pair-input-1 w-full bg-black/50 border border-white/20 rounded-xl p-2 text-white text-xs sm:text-sm font-mono outline-none focus:border-[#fbbf24]" value="${pair.text1.replace(/"/g, '&quot;')}" placeholder="VD: $$\\sin(x) = 0$$">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-gray-400 font-bold uppercase mb-0.5">Thẻ 2 (Tập nghiệm tương ứng)</label>
-                            <input type="text" class="pair-input-2 w-full bg-black/50 border border-white/20 rounded-xl p-2 text-white text-xs sm:text-sm font-mono outline-none focus:border-[#fbbf24]" value="${pair.text2.replace(/"/g, '&quot;')}" placeholder="VD: $$x = k\\pi$$">
-                        </div>
-                    </div>
-                    <button onclick="removePair(${index})" class="w-9 h-9 shrink-0 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-xl flex items-center justify-center font-bold text-sm transition" title="Xóa cặp này">✕</button>
-                `;
-                list.appendChild(row);
-            });
-        }
-
-        function addNewPairInput() {
-            updateEditingPairsFromInputs();
-            editingPairs.push({ id: Date.now(), text1: "", text2: "" });
-            renderSettingsList();
-            const list = document.getElementById('settings-list');
-            list.scrollTop = list.scrollHeight;
-        }
-
-        function removePair(index) {
-            updateEditingPairsFromInputs();
-            if (editingPairs.length <= 2) {
-                alert("Cần giữ ít nhất 2 cặp bài để có thể chơi game!");
-                return;
-            }
-            editingPairs.splice(index, 1);
-            renderSettingsList();
-        }
-
-        function updateEditingPairsFromInputs() {
-            const inputs1 = document.querySelectorAll('.pair-input-1');
-            const inputs2 = document.querySelectorAll('.pair-input-2');
-            
-            editingPairs = [];
-            for (let i = 0; i < inputs1.length; i++) {
-                editingPairs.push({
-                    id: i + 1,
-                    text1: inputs1[i].value,
-                    text2: inputs2[i].value
-                });
-            }
-        }
-
-        function resetToDefault() {
-            if (confirm("Khôi phục danh sách về 8 cặp phương trình lượng giác mặc định?")) {
-                editingPairs = JSON.parse(JSON.stringify(defaultPairs));
-                renderSettingsList();
-            }
-        }
-
-        function saveSettings() {
-            updateEditingPairsFromInputs();
-            
-            const finalPairs = editingPairs.filter(p => p.text1.trim() !== '' && p.text2.trim() !== '');
-            
-            if (finalPairs.length < 2) {
-                alert("Vui lòng nhập ít nhất 2 cặp bài hoàn chỉnh để có thể chơi game!");
-                return;
-            }
-
-            localStorage.setItem('custom_pairs_ptlg', JSON.stringify(finalPairs));
-            alert(`Đã lưu thành công ${finalPairs.length} cặp bài vào hệ thống!`);
-            closeSettings();
-            initGame();
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            checkAdminPermission();
-            initGame();
         });
+    })();
     </script>
-</body>
-</html>
+    
+</body></html>
