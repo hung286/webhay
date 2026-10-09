@@ -344,9 +344,19 @@ export function factoryResetSystem(): void {
     sessionStorage.removeItem(KEY_GEMINI_KEY);
   } catch {}
 }
-const KEY_TOOLS = 'edu_teaching_tools_v34';
+const KEY_TOOLS = 'edu_teaching_tools_v35';
 
 export const DEFAULT_TOOLS: TeachingTool[] = [
+  {
+    id: 'tool_so_do_cay_123',
+    name: 'Sơ đồ cây xác suất',
+    type: 'iframe',
+    category: 'thao-tac',
+    url: '/so_do_cay_xac_suat.html',
+    description: 'Công cụ vẽ sơ đồ cây xác suất',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
   {
     id: 'tool_khao_sat_ham_so_12',
     name: 'Khảo sát hàm số',
