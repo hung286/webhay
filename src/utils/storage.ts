@@ -344,9 +344,39 @@ export function factoryResetSystem(): void {
     sessionStorage.removeItem(KEY_GEMINI_KEY);
   } catch {}
 }
-const KEY_TOOLS = 'edu_teaching_tools_v37';
+const KEY_TOOLS = 'edu_teaching_tools_v39';
 
 export const DEFAULT_TOOLS: TeachingTool[] = [
+  {
+    id: 'tool_ghep_cap_luong_giac',
+    name: 'Ghép Cặp Lượng Giác',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/ghep-cap-luong-giac.html',
+    description: 'Trò chơi lật thẻ ghép cặp công thức lượng giác (Toán 11)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_ghep_cap_pt_luong_giac',
+    name: 'Ghép Cặp Phương Trình Lượng Giác',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/ghep-cap-phuong-trinh-luong-giac.html',
+    description: 'Trò chơi lật thẻ ghép cặp nghiệm phương trình lượng giác cơ bản',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_ca_ngua_dao_ham_11',
+    name: 'Cờ Cá Ngựa Đạo Hàm',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/ca-ngua-dao-ham11.html',
+    description: 'Trò chơi cờ cá ngựa luyện tập công thức và bài tập Đạo hàm Toán 11',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
   {
     id: 'tool_duong_tron',
     name: 'Phương Trình Đường Tròn',

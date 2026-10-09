@@ -118,6 +118,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({ history, onHistoryChange
             <option value="Thi thử">Thi thử</option>
             <option value="Phản xạ">Phản xạ nhanh</option>
             <option value="Đối kháng">Đối kháng 2 đội</option>
+            <option value="Trò chơi">Trò chơi học tập</option>
           </select>
         </div>
 

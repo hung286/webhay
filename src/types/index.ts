@@ -53,7 +53,7 @@ export interface LearningMaterial {
   };
 }
 
-export type GameMode = 'Tự học' | 'Thi thử' | 'Phản xạ' | 'Đối kháng' | 'Giáo viên';
+export type GameMode = 'Tự học' | 'Thi thử' | 'Phản xạ' | 'Đối kháng' | 'Trò chơi' | 'Giáo viên';
 
 export interface PlayHistory {
   id: string;
