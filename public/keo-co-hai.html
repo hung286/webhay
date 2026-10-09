@@ -1,0 +1,1088 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toán 11. Game Kéo Co - Hai mặt phẳng vuông góc(Solo trực tiếp)</title>
+    
+    <!-- Cấu hình MathJax để hiển thị công thức Toán học đẹp -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+            startup: { typeset: false } 
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; user-select: none; }
+        body { background: linear-gradient(135deg, #ffefea 0%, #ffd1d1 100%); height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative;}
+
+        /* Header Lễ hội */
+        .header { text-align: center; padding: 10px; background: rgba(255, 255, 255, 0.9); box-shadow: 0 4px 15px rgba(220, 20, 60, 0.2); z-index: 10; display: flex; justify-content: space-around; align-items: center; border-bottom: 4px solid #ff4757;}
+        .timer { font-size: 35px; font-weight: 900; color: #fff; background: #ff4757; padding: 5px 25px; border-radius: 30px; box-shadow: 0 4px 0 #c0392b;}
+        .center-control { width: 220px; display: flex; justify-content: center; align-items: center; }
+        .btn-start-header { font-size: 24px; font-weight: 900; cursor: pointer; border-radius: 30px; border: none; background: #2ecc71; color: white; box-shadow: 0 5px #27ae60; padding: 10px 25px; transition: transform 0.1s; animation: pulse 1.5s infinite; text-transform: uppercase;}
+        .btn-start-header:active { box-shadow: 0 0 #27ae60; transform: translateY(5px); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .title { font-size: 26px; color: #c0392b; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);}
+
+        /* Bố cục chính */
+        .game-container { display: flex; flex: 1; justify-content: space-between; align-items: stretch; position: relative; padding: 10px; z-index: 5;}
+
+        /* Bảng điều khiển HTML */
+        .panel { width: 35%; max-width: 450px; padding: 15px 20px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.95); box-shadow: 0 10px 25px rgba(0,0,0,0.15); margin: 10px; border-radius: 20px; z-index: 5; position: relative; transition: opacity 0.3s;}
+        .panel::before { content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border-radius: 25px; z-index: -1; background: linear-gradient(45deg, #f1c40f, #e67e22); }
+        .panel.blue::before { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .panel.submitted { opacity: 0.8; pointer-events: none; } 
+        
+        /* Tên đội nổi bật */
+        .team-name { font-size: 28px; font-weight: 900; margin-bottom: 12px; text-transform: uppercase; padding: 8px 25px; border-radius: 20px; color: white !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); box-shadow: 0 5px 15px rgba(0,0,0,0.2); letter-spacing: 1px; border: 3px solid #fff;}
+        .panel.blue .team-name { background: linear-gradient(135deg, #0984e3, #00cec9); }
+        .panel.red .team-name { background: linear-gradient(135deg, #d63031, #e84393); }
+        .exp-col.blue .team-name { background: linear-gradient(135deg, #0984e3, #00cec9); }
+        .exp-col.red .team-name { background: linear-gradient(135deg, #d63031, #e84393); }
+
+        .score-box { background: #fff3cd; padding: 5px 20px; border-radius: 20px; font-size: 20px; font-weight: bold; margin-bottom: 10px; color: #d35400; border: 2px solid #ffeaa7;}
+        .question-info { font-size: 16px; font-weight: bold; color: #7f8c8d; margin-bottom: 5px; background: #ecf0f1; padding: 4px 15px; border-radius: 15px;}
+        .question-info.de { color: #27ae60; background: #e8f8f5; border: 1px solid #2ecc71;}
+        .question-info.vua { color: #d35400; background: #fdf2e9; border: 1px solid #e67e22;}
+        .question-info.kho { color: #c0392b; background: #fdedec; border: 1px solid #e74c3c;}
+
+        /* Khung Đề bài & Ô điền hợp nhất */
+        .problem-wrapper { background: #fdfdfd; border-radius: 10px; padding: 15px; border: 2px dashed #bdc3c7; width: 100%; min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 15px;}
+        .problem-text { width: 100%; font-size: 20px; color: #2c3e50; display: flex; flex-direction: column; align-items: flex-start;}
+        .problem-title { font-weight: 900; margin-bottom: 10px; color: #c0392b; font-size: 22px; width: 100%; text-align: center;}
+        .problem-options { font-size: 19px; width: 100%; font-weight: 600; line-height: 1.6; padding-left: 10px;}
+        
+        /* Giao diện Đúng/Sai */
+        .tf-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e0e0e0; width: 100%;}
+        .tf-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .tf-text { flex: 1; padding-right: 10px; font-size: 17px; line-height: 1.3; font-weight: 600; color: #34495e; text-align: left;}
+        .tf-radios { display: flex; gap: 8px; }
+        .tf-label { display: flex; align-items: center; justify-content: center; width: 45px; height: 35px; background: #ecf0f1; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; border: 2px solid #bdc3c7; transition: all 0.2s; color: #2c3e50;}
+        .tf-label input[type="radio"] { display: none; }
+        .tf-label.selected-d { background: #2ecc71; color: white; border-color: #27ae60; }
+        .tf-label.selected-s { background: #e74c3c; color: white; border-color: #c0392b; }
+
+        /* Giao diện ABCD */
+        .abcd-row { display: flex; align-items: center; margin-bottom: 8px; cursor: pointer; padding: 8px 10px; border-radius: 10px; transition: all 0.2s; border: 2px solid transparent; width: 100%;}
+        .abcd-row:hover { background: #f1f2f6; }
+        .abcd-row.selected { background: #e8f8f5; border-color: #2ecc71; }
+        .abcd-radio { margin-right: 12px; transform: scale(1.5); cursor: pointer; accent-color: #2ecc71;}
+        .abcd-text { font-size: 18px; font-weight: 600; color: #2c3e50; text-align: left; line-height: 1.4;}
+
+        .inline-input-box { width: 85%; max-width: 220px; height: 45px; border: 2px solid #3498db; border-radius: 10px; font-size: 24px; font-weight: bold; color: #e74c3c; display: flex; justify-content: center; align-items: center; background: #fff; margin-top: 15px; letter-spacing: 2px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); transition: all 0.2s;}
+        .inline-input-box.small-text { font-size: 17px; letter-spacing: normal; color: #d35400; border-color: #bdc3c7; }
+        .inline-input-box.waiting { width: 100%; max-width: 100%; font-size: 16px; color: #27ae60; background: #e8f8f5; border-color: #2ecc71; letter-spacing: normal; }
+
+        /* Bàn phím đa năng */
+        .keypad { display: grid; gap: 8px; width: 100%;}
+        .keypad-abcd { grid-template-columns: repeat(2, 1fr); }
+        .keypad-tf { grid-template-columns: repeat(2, 1fr); }
+        .keypad-short { grid-template-columns: repeat(3, 1fr); }
+        .btn-col-span-2 { grid-column: span 2; }
+
+        .btn { padding: 8px 0; font-size: 22px; font-weight: bold; border: none; border-radius: 10px; background: #f1f2f6; color: #2f3542; cursor: pointer; box-shadow: 0 4px #ced6e0; transition: transform 0.1s, box-shadow 0.1s;}
+        .btn:active { box-shadow: 0 0 #ced6e0; transform: translateY(4px); }
+        .btn.clear { background: #ff6b81; color: white; box-shadow: 0 4px #ff4757;}
+        .btn.submit { background: #2ed573; color: white; box-shadow: 0 4px #1e90ff;}
+        .panel.blue .btn.submit { background: #1e90ff; box-shadow: 0 4px #3742fa;}
+        .panel.red .btn.submit { background: #ff4757; box-shadow: 0 4px #ff1e00;}
+
+        /* Khu vực Canvas */
+        .canvas-container { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; min-width: 0; padding: 0 10px;}
+        canvas { width: 100%; height: 100%; max-height: 550px; border-radius: 20px; background: linear-gradient(to bottom, #ffe0e0 0%, #ffefea 60%, #f5dbd3 100%); box-shadow: inset 0 0 30px rgba(200,0,0,0.1), 0 10px 20px rgba(0,0,0,0.1); border: 4px solid #fff;}
+
+        /* Lồng đèn trang trí */
+        .lantern { position: absolute; width: 50px; height: 65px; background: #e74c3c; border-radius: 40%; top: -10px; z-index: 20; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2), 0 5px 15px rgba(231, 76, 60, 0.6);}
+        .lantern::before { content:''; position: absolute; top: -5px; left: 15px; width: 20px; height: 10px; background: #f1c40f; border-radius: 3px;}
+        .lantern::after { content:''; position: absolute; bottom: -15px; left: 20px; width: 10px; height: 25px; background: #f1c40f; clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%);}
+        .lantern.left { left: 5%; }
+        .lantern.right { right: 5%; }
+
+        /* Các Overlay */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 62, 80, 0.95); z-index: 100; color: white; flex-direction: column; justify-content: center; align-items: center; overflow-y: auto;}
+        
+        .settings-btn { position: absolute; left: 25px; top: 12px; font-size: 32px; cursor: pointer; transition: transform 0.3s; z-index: 20; background: #fff; border-radius: 50%; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2);}
+        .settings-btn:hover { transform: rotate(90deg); }
+        .settings-modal { background: #fff; padding: 30px; border-radius: 20px; width: 400px; text-align: center; color: #333; box-shadow: 0 15px 30px rgba(0,0,0,0.3);}
+        .settings-modal h2 { margin-bottom: 20px; color: #c0392b;}
+        .settings-input-group { margin-bottom: 15px; text-align: left;}
+        .settings-input-group label { font-weight: bold; display: block; margin-bottom: 5px; color: #2c3e50;}
+        .settings-input-group input[type="text"] { width: 100%; padding: 12px; font-size: 18px; border: 2px solid #bdc3c7; border-radius: 10px; outline: none;}
+        .settings-input-group input[type="file"] { width: 100%; padding: 8px; font-size: 15px; background: #f9f9f9; border: 2px solid #bdc3c7; border-radius: 10px; outline: none; cursor: pointer;}
+        .settings-actions { margin-top: 25px; display: flex; justify-content: space-around;}
+        .btn-save { padding: 10px 25px; background: #2ecc71; color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px #27ae60;}
+        .btn-cancel { padding: 10px 25px; background: #e74c3c; color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px #c0392b;}
+
+        /* Modal Giải Thích */
+        .explanation-modal { width: 90%; max-width: 1200px; background: #fff; color: #333; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; box-shadow: 0 15px 30px rgba(0,0,0,0.3); max-height: 90vh;}
+        .exp-header { font-size: 28px; font-weight: bold; text-align: center; color: #e74c3c; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;}
+        .exp-body { display: flex; justify-content: space-between; gap: 20px; flex: 1; overflow-y: auto;}
+        .exp-col { flex: 1; padding: 15px; background: #f8f9fa; border-radius: 15px; border: 2px solid #ddd;}
+        .exp-col.blue { border-color: #3498db; background: #ebf5fb; }
+        .exp-col.red { border-color: #e74c3c; background: #fdedec; }
+        
+        .exp-q { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #2c3e50;}
+        .exp-ans { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #27ae60;}
+        .exp-ans.partial { color: #f39c12; }
+        .exp-ans.wrong { color: #c0392b; }
+        .exp-text { font-size: 17px; line-height: 1.6;}
+        
+        .btn-next { margin-top: 20px; align-self: center; padding: 15px 50px; font-size: 24px; font-weight: bold; cursor: pointer; border-radius: 15px; border: none; background: #2ecc71; color: white; box-shadow: 0 6px #27ae60;}
+        .btn-next:active { box-shadow: 0 0 #27ae60; transform: translateY(6px); }
+
+        .end-screen-title { font-size: 70px; margin-bottom: 30px; text-shadow: 2px 4px 10px rgba(0,0,0,0.5); text-align: center; z-index: 10;}
+        .btn-replay { padding: 20px 50px; font-size: 30px; font-weight: bold; cursor: pointer; border-radius: 15px; border: none; background: #f1c40f; color: #2c3e50; box-shadow: 0 8px #f39c12; z-index: 10; position: relative;}
+        
+        /* Canvas Pháo Hoa */
+        #fireworksCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+
+        /* Thông báo Bật nhạc (Vượt tường lửa tự động phát của trình duyệt) */
+        #autoplay-banner {
+            position: absolute; top: 85px; left: 50%; transform: translateX(-50%);
+            background: #e74c3c; color: white; padding: 8px 20px; border-radius: 20px;
+            font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 9999; pointer-events: none; display: none;
+            animation: bounce-banner 1s infinite;
+        }
+        @keyframes bounce-banner { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 5px); } }
+    </style>
+</head>
+<body>
+
+    <div id="autoplay-banner">🔊 Click chuột bất kỳ đâu trên màn hình để tự động phát nhạc nền!</div>
+
+    <div class="header">
+        <div class="settings-btn" onclick="openSettings()" title="Cài đặt trò chơi">⚙️</div>
+        <div class="lantern left"></div>
+        <div class="title">🌸 LỄ HỘI TOÁN HỌC MÙA XUÂN: TRÒ CHƠI DÂN GIAN KÉO CO 🌸</div>
+        <div class="center-control">
+            <button class="btn-start-header" id="btn-start" onclick="startGame()">▶ BẮT ĐẦU</button>
+            <div class="timer" id="timer" style="display: none;">00:00</div>
+        </div>
+        <div class="lantern right"></div>
+    </div>
+
+    <div class="game-container">
+        <!-- Đội 1 (Xanh) -->
+        <div class="panel blue" id="panel1">
+            <div class="team-name" id="name-display-1">Đội Xanh</div>
+            <div class="question-info" id="q-info1">Câu 1/10</div>
+            
+            <div class="problem-wrapper">
+                <div class="problem-text" id="prob1">...</div>
+                <div class="inline-input-box" id="input1"></div>
+            </div>
+            
+            <div class="keypad" id="keypad1"></div>
+        </div>
+
+        <!-- Khu vực Canvas -->
+        <div class="canvas-container">
+            <canvas id="gameCanvas" width="1000" height="550"></canvas>
+        </div>
+
+        <!-- Đội 2 (Đỏ) -->
+        <div class="panel red" id="panel2">
+            <div class="team-name" id="name-display-2">Đội Đỏ</div>
+            <div class="question-info" id="q-info2">Câu 1/10</div>
+            
+            <div class="problem-wrapper">
+                <div class="problem-text" id="prob2">...</div>
+                <div class="inline-input-box" id="input2"></div>
+            </div>
+            
+            <div class="keypad" id="keypad2"></div>
+        </div>
+    </div>
+
+    <!-- Màn hình Giải Thích (Sau khi 2 đội chốt xong) -->
+    <div class="overlay" id="explanation-screen">
+        <div class="explanation-modal">
+            <div class="exp-header">📝 GIẢI THÍCH ĐÁP ÁN - CÂU <span id="exp-q-num">1</span></div>
+            <div class="exp-body">
+                <div class="exp-col blue">
+                    <div class="team-name" id="exp-name-display-1" style="color:#2980b9; text-align:center;">ĐỀ ĐỘI XANH</div>
+                    <div class="exp-q" id="exp-q1"></div>
+                    <div class="exp-ans" id="exp-ans1"></div>
+                    <div class="exp-text" id="exp-text1"></div>
+                </div>
+                <div class="exp-col red">
+                    <div class="team-name" id="exp-name-display-2" style="color:#c0392b; text-align:center;">ĐỀ ĐỘI ĐỎ</div>
+                    <div class="exp-q" id="exp-q2"></div>
+                    <div class="exp-ans" id="exp-ans2"></div>
+                    <div class="exp-text" id="exp-text2"></div>
+                </div>
+            </div>
+            <button class="btn-next" onclick="nextQuestion()">➡ CÂU TIẾP THEO</button>
+        </div>
+    </div>
+
+    <!-- Modal Cài đặt Tên Đội & Nhạc -->
+    <div class="overlay" id="settings-screen" style="z-index: 105;">
+        <div class="settings-modal">
+            <h2>⚙️ Cài Đặt Trò Chơi</h2>
+            <div class="settings-input-group">
+                <label>Tên Đội 1 (Bên Trái):</label>
+                <input type="text" id="input-team1-name" value="Đội Xanh" maxlength="15">
+            </div>
+            <div class="settings-input-group">
+                <label>Tên Đội 2 (Bên Phải):</label>
+                <input type="text" id="input-team2-name" value="Đội Đỏ" maxlength="15">
+            </div>
+            <hr style="margin: 20px 0; border: 1px dashed #bdc3c7;">
+            <div class="settings-input-group">
+                <label>🎵 Tải Nhạc Đầu Game (Intro):</label>
+                <input type="file" id="input-audio-intro" accept="audio/*">
+                <small id="audio-intro-status" style="color: #27ae60; display: none; margin-top: 5px; font-weight: bold;">✔ Đã ghi nhớ nhạc Intro từ lần trước</small>
+            </div>
+            <div class="settings-input-group">
+                <label>🏆 Tải Nhạc Chiến Thắng (Win):</label>
+                <input type="file" id="input-audio-win" accept="audio/*">
+                <small id="audio-win-status" style="color: #27ae60; display: none; margin-top: 5px; font-weight: bold;">✔ Đã ghi nhớ nhạc Chiến Thắng</small>
+            </div>
+            <div class="settings-actions">
+                <button class="btn-cancel" onclick="closeSettings()">Hủy</button>
+                <button class="btn-save" onclick="saveSettings()">Lưu Thay Đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Màn hình kết quả Chung cuộc có Pháo hoa -->
+    <div class="overlay" id="end-screen">
+        <canvas id="fireworksCanvas"></canvas>
+        <h1 class="end-screen-title" id="winner-text">Đội Xanh Thắng!</h1>
+        <button class="btn-replay" onclick="resetGame()">CHƠI LẠI TỪ ĐẦU</button>
+    </div>
+
+    <script>
+        // --- DATA CÂU HỎI HÌNH HỌC KHÔNG GIAN (HAI MẶT PHẲNG VUÔNG GÓC) ---
+        const QUESTIONS = [
+            // 5 Câu Trắc Nghiệm ABCD (30s)
+            { 
+                type: 'abcd', time: 30, level: "Dễ", class: "de",
+                q1: { text: "Góc giữa hai mặt phẳng song song hoặc trùng nhau bằng bao nhiêu độ?", options: ["A. \\( 0^\\circ \\)", "B. \\( 45^\\circ \\)", "C. \\( 90^\\circ \\)", "D. \\( 180^\\circ \\)"], ans: "A", 
+                      exp: "Theo định nghĩa SGK, góc giữa hai mặt phẳng song song hoặc trùng nhau được quy ước bằng \\( 0^\\circ \\)." },
+                q2: { text: "Kí hiệu \\( \\varphi \\) là góc giữa hai mặt phẳng cắt nhau. Khẳng định nào sau đây đúng?", options: ["A. \\( 0^\\circ \\le \\varphi \\le 90^\\circ \\)", "B. \\( 0^\\circ < \\varphi \\le 90^\\circ \\)", "C. \\( 0^\\circ < \\varphi < 90^\\circ \\)", "D. \\( 0^\\circ \\le \\varphi < 90^\\circ \\)"], ans: "B", 
+                      exp: "Vì hai mặt phẳng cắt nhau nên góc giữa chúng lớn hơn \\( 0^\\circ \\) và không vượt quá \\( 90^\\circ \\)." }
+            },
+            { 
+                type: 'abcd', time: 30, level: "Dễ", class: "de",
+                q1: { text: "Điều kiện cần và đủ để hai mặt phẳng \\( (P) \\) và \\( (Q) \\) vuông góc với nhau là:", options: ["A. \\( (P) \\) chứa đường thẳng song song với \\( (Q) \\)", "B. \\( (P) \\) chứa đường thẳng vuông góc với \\( (Q) \\)", "C. Giao tuyến của chúng vuông góc với 1 mặt phẳng thứ 3", "D. Mọi đường thẳng trong \\( (P) \\) vuông góc với \\( (Q) \\)"], ans: "B", 
+                      exp: "Định lí: Hai mặt phẳng vuông góc với nhau nếu mặt phẳng này chứa một đường thẳng vuông góc với mặt phẳng kia." },
+                q2: { text: "Hai mặt phẳng \\( (\\alpha) \\) và \\( (\\beta) \\) được gọi là vuông góc với nhau khi và chỉ khi:", options: ["A. Góc giữa chúng bằng \\( 0^\\circ \\)", "B. Góc giữa chúng bằng \\( 45^\\circ \\)", "C. Góc giữa chúng bằng \\( 90^\\circ \\)", "D. Góc giữa chúng lớn hơn \\( 90^\\circ \\)"], ans: "C", 
+                      exp: "Định nghĩa: Hai mặt phẳng được gọi là vuông góc với nhau nếu góc giữa chúng bằng \\( 90^\\circ \\)." }
+            },
+            { 
+                type: 'abcd', time: 30, level: "Dễ", class: "de",
+                q1: { text: "Cho hình lập phương \\( ABCD.A'B'C'D' \\). Mặt phẳng \\( (ABCD) \\) vuông góc với mặt phẳng nào dưới đây?", options: ["A. \\( (A'B'C'D') \\)", "B. \\( (ACC'A') \\)", "C. \\( (AB'C'D) \\)", "D. \\( (A'BD) \\)"], ans: "B", 
+                      exp: "Mặt phẳng \\( (ACC'A') \\) chứa cạnh bên \\( AA' \\). Mà \\( AA' \\perp (ABCD) \\) nên \\( (ACC'A') \\perp (ABCD) \\)." },
+                q2: { text: "Cho hình hộp chữ nhật \\( ABCD.A'B'C'D' \\). Mặt phẳng \\( (ADD'A') \\) vuông góc với mặt phẳng nào dưới đây?", options: ["A. \\( (BCC'B') \\)", "B. \\( (ABCD) \\)", "C. \\( (A'BD) \\)", "D. \\( (AB'C') \\)"], ans: "B", 
+                      exp: "Mặt phẳng \\( (ADD'A') \\) chứa cạnh bên \\( AA' \\). Mà \\( AA' \\perp (ABCD) \\) nên \\( (ADD'A') \\perp (ABCD) \\)." }
+            },
+            { 
+                type: 'abcd', time: 30, level: "Dễ", class: "de",
+                q1: { text: "Cho tứ diện \\( OABC \\) có \\( OA, OB, OC \\) đôi một vuông góc. Góc giữa hai mặt phẳng \\( (OAB) \\) và \\( (OBC) \\) bằng:", options: ["A. \\( 30^\\circ \\)", "B. \\( 45^\\circ \\)", "C. \\( 60^\\circ \\)", "D. \\( 90^\\circ \\)"], ans: "D", 
+                      exp: "Do \\( OA \\perp OB \\) và \\( OA \\perp OC \\) nên \\( OA \\perp (OBC) \\). Mà \\( OA \\subset (OAB) \\) nên hai mặt phẳng \\( (OAB) \\) và \\( (OBC) \\) vuông góc với nhau (tức góc bằng \\( 90^\\circ \\))." },
+                q2: { text: "Cho chóp \\( S.ABCD \\) có đáy là hình vuông, \\( SA \\perp (ABCD) \\). Góc giữa hai mặt phẳng \\( (SAB) \\) và \\( (SAD) \\) bằng:", options: ["A. \\( 45^\\circ \\)", "B. \\( 90^\\circ \\)", "C. \\( 60^\\circ \\)", "D. \\( 30^\\circ \\)"], ans: "B", 
+                      exp: "Ta có \\( AB \\perp AD \\) và \\( AB \\perp SA \\) nên \\( AB \\perp (SAD) \\). Mà \\( AB \\subset (SAB) \\) nên \\( (SAB) \\perp (SAD) \\) (góc \\( 90^\\circ \\))." }
+            },
+            { 
+                type: 'abcd', time: 30, level: "Dễ", class: "de",
+                q1: { text: "(Vận dụng) Một quyển sách đang mở ra trên bàn. Nếu gáy sách đặt vuông góc với mặt bàn, thì góc giữa 2 mặt trang sách có phụ thuộc vào góc giữa 2 mép dưới của trang sách (nằm trên bàn) không?", options: ["A. Luôn bằng nhau", "B. Luôn bù nhau", "C. Gấp đôi nhau", "D. Không liên quan"], ans: "A", 
+                      exp: "Mặt bàn vuông góc với giao tuyến (gáy sách). Theo SGK, góc giữa hai mặt phẳng chính bằng góc giữa hai đường thẳng (hai mép dưới) cùng nằm trong hai mặt phẳng và cùng vuông góc với giao tuyến tại một điểm." },
+                q2: { text: "(Vận dụng) Một cánh cửa xoay quanh trục bản lề được lắp thẳng đứng, vuông góc với sàn nhà. Mặt phẳng cánh cửa luôn có mối quan hệ gì với mặt sàn?", options: ["A. Song song", "B. Tạo góc nhọn", "C. Vuông góc", "D. Trùng nhau"], ans: "C", 
+                      exp: "Mặt phẳng cánh cửa luôn chứa trục bản lề. Vì trục bản lề vuông góc với mặt sàn, theo định lí, mặt phẳng cánh cửa luôn vuông góc với mặt sàn." }
+            },
+            
+            // 3 Câu Đúng/Sai (120s) - Đã được làm lệch đáp án 2 đội
+            { 
+                type: 'tf', time: 120, level: "Vừa", class: "vua",
+                q1: { text: "Cho hai mp \\( (P) \\) và \\( (Q) \\) vuông góc với nhau, giao tuyến là \\( \\Delta \\).", options: ["a) Mọi đường thẳng trong \\( (P) \\) đều vuông góc với \\( (Q) \\)", "b) Lấy đường thẳng \\( a \\subset (P) \\). Nếu \\( a \\perp \\Delta \\) thì \\( a \\perp (Q) \\)", "c) Có duy nhất một đường thẳng trong \\( (P) \\) vuông góc với \\( (Q) \\)", "d) Nếu đường thẳng \\( d \\perp (P) \\) thì \\( d \\subset (Q) \\) hoặc \\( d \\parallel (Q) \\)"], ans: "SĐSĐ", 
+                      exp: "a) Sai, chỉ có đường vuông góc với giao tuyến mới vuông góc với mp kia.<br>b) Đúng (Tính chất cơ bản).<br>c) Sai, có vô số đường thẳng song song với nhau cùng vuông góc (Q).<br>d) Đúng." },
+                q2: { text: "Cho hai mp \\( (P) \\) và \\( (Q) \\) vuông góc với nhau, giao tuyến là \\( \\Delta \\).", options: ["a) Nếu đường thẳng \\( d \\perp (Q) \\) thì \\( d \\subset (P) \\) hoặc \\( d \\parallel (P) \\)", "b) Lấy điểm \\( A \\in (P) \\). Đường thẳng qua \\( A \\) vuông góc với \\( (Q) \\) sẽ nằm trọn trong \\( (P) \\)", "c) Mọi đường thẳng cắt \\( \\Delta \\) nằm trong \\( (P) \\) đều vuông góc với \\( (Q) \\)", "d) Hai đường thẳng bất kì lần lượt nằm trong hai mặt phẳng này sẽ luôn vuông góc với nhau"], ans: "ĐĐSS", 
+                      exp: "a) Đúng.<br>b) Đúng.<br>c) Sai, nó phải vuông góc với giao tuyến \\( \\Delta \\) thì mới vuông góc (Q).<br>d) Sai, chúng có thể chéo nhau không vuông góc." }
+            },
+            { 
+                type: 'tf', time: 120, level: "Vừa", class: "vua",
+                q1: { text: "Cho hình chóp \\( S.ABCD \\) đáy là hình vuông, có \\( SA \\perp (ABCD) \\).", options: ["a) Hai mặt phẳng \\( (SAB) \\) và \\( (SBC) \\) vuông góc với nhau", "b) Hai mặt phẳng \\( (SAD) \\) và \\( (SCD) \\) vuông góc với nhau", "c) Góc giữa \\( (SBC) \\) và \\( (ABCD) \\) là góc \\( \\widehat{SCA} \\)", "d) Hai mặt phẳng \\( (SAC) \\) và \\( (SBD) \\) vuông góc với nhau"], ans: "ĐĐSĐ", 
+                      exp: "a) Đúng, vì \\( BC \\perp (SAB) \\).<br>b) Đúng, vì \\( CD \\perp (SAD) \\).<br>c) Sai, góc giữa (SBC) và đáy là góc \\( \\widehat{SBA} \\).<br>d) Đúng, vì \\( BD \\perp (SAC) \\)." },
+                q2: { text: "Cho hình chóp \\( S.ABCD \\) đáy là hình chữ nhật (không là hình vuông), có \\( SA \\perp (ABCD) \\).", options: ["a) Hai mặt phẳng \\( (SAB) \\) và \\( (SBC) \\) vuông góc với nhau", "b) Góc giữa \\( (SCD) \\) và \\( (ABCD) \\) là góc \\( \\widehat{SDA} \\)", "c) Hai mặt phẳng \\( (SAC) \\) và \\( (SBD) \\) vuông góc với nhau", "d) Hai mặt phẳng \\( (SCD) \\) và \\( (SAD) \\) vuông góc với nhau"], ans: "ĐĐSĐ", 
+                      exp: "a) Đúng, vì \\( BC \\perp AB \\) và \\( BC \\perp SA \\) nên \\( BC \\perp (SAB) \\).<br>b) Đúng, vì \\( CD \\perp AD \\).<br>c) Sai, hai đường chéo hình chữ nhật không vuông góc.<br>d) Đúng, vì \\( CD \\perp (SAD) \\)." }
+            },
+            { 
+                type: 'tf', time: 120, level: "Vừa", class: "vua",
+                q1: { text: "Cho lăng trụ đứng \\( ABC.A'B'C' \\) có đáy là tam giác vuông cân tại \\( B \\).", options: ["a) Mặt bên \\( (ACC'A') \\) là hình vuông", "b) Góc giữa \\( (A'BC) \\) và \\( (ABC) \\) là góc \\( \\widehat{A'BA} \\)", "c) Số đo góc giữa hai mặt phẳng \\( (A'BC) \\) và \\( (ABC) \\) luôn bằng \\( 45^\\circ \\)", "d) Mặt phẳng \\( (A'BC) \\) vuông góc với mặt phẳng \\( (ABB'A') \\)"], ans: "SĐSĐ", 
+                      exp: "a) Sai, đáy AC bằng \\( AB\\sqrt{2} \\), chiều cao chưa biết nên chưa chắc là hình vuông.<br>b) Đúng, vì \\( BC \\perp AB \\) và \\( BC \\perp A'B \\).<br>c) Sai, phụ thuộc vào chiều cao \\( AA' \\).<br>d) Đúng, vì \\( BC \\perp (ABB'A') \\) và \\( BC \\subset (A'BC) \\)." },
+                q2: { text: "Cho lăng trụ đứng \\( ABC.A'B'C' \\) có đáy là tam giác đều. Gọi M là trung điểm BC.", options: ["a) Góc giữa \\( (A'BC) \\) và \\( (ABC) \\) là góc \\( \\widehat{A'MA} \\)", "b) Cạnh bên \\( AA' \\) là đường cao của lăng trụ", "c) Mặt phẳng \\( (A'BC) \\) vuông góc với mặt phẳng \\( (ABB'A') \\)", "d) Mặt phẳng \\( (A'BC) \\) vuông góc với mặt phẳng \\( (AA'M) \\)"], ans: "ĐĐSĐ", 
+                      exp: "a) Đúng, vì \\( AM \\perp BC \\) và \\( A'M \\perp BC \\).<br>b) Đúng, theo tính chất lăng trụ đứng.<br>c) Sai, vì BC không vuông góc với AB.<br>d) Đúng, vì \\( BC \\perp (AA'M) \\) và \\( BC \\subset (A'BC) \\)." }
+            },
+            
+            // 2 Câu Trả Lời Ngắn (180s)
+            { 
+                type: 'short', time: 180, level: "Khó", class: "kho",
+                q1: { text: "Hai mặt phẳng \\( (P) \\) và \\( (Q) \\) vuông góc với nhau theo giao tuyến \\( \\Delta \\). Lấy \\( A \\in (P) \\), \\( B \\in (Q) \\). Kẻ \\( AH \\perp \\Delta \\) và \\( BK \\perp \\Delta \\) (H, K thuộc \\( \\Delta \\)). Biết \\( AH = 3 \\), \\( HK = 4 \\), \\( BK = 5 \\). Tính bình phương độ dài đoạn thẳng \\( AB \\).", options: [], ans: "50", 
+                      exp: "Vì \\( (P) \\perp (Q) \\) và \\( AH \\perp \\Delta \\) nên \\( AH \\perp (Q) \\) \\( \\Rightarrow AH \\perp BK \\). Các đoạn thẳng \\( AH, HK, BK \\) đôi một vuông góc. Khi đó \\( AB^2 = AH^2 + HK^2 + BK^2 = 3^2 + 4^2 + 5^2 = 50 \\)." },
+                q2: { text: "Hai mặt phẳng \\( (P) \\) và \\( (Q) \\) vuông góc với nhau theo giao tuyến \\( d \\). Lấy \\( M \\in (P) \\), \\( N \\in (Q) \\). Kẻ \\( ME \\perp d \\) và \\( NF \\perp d \\) (E, F thuộc \\( d \\)). Biết \\( ME = 4 \\), \\( EF = 3 \\), \\( NF = 12 \\). Tính bình phương độ dài đoạn thẳng \\( MN \\).", options: [], ans: "169", 
+                      exp: "Tương tự, các đoạn thẳng \\( ME, EF, NF \\) đôi một vuông góc trong không gian. Áp dụng định lí Pytago mở rộng: \\( MN^2 = ME^2 + EF^2 + FN^2 = 4^2 + 3^2 + 12^2 = 169 \\)." }
+            },
+            { 
+                type: 'short', time: 180, level: "Khó", class: "kho",
+                q1: { text: "(Thực tế) Một mái nhà hình chữ V ngược đối xứng có góc ở đỉnh là \\( 120^\\circ \\). Tính góc (theo độ) tạo bởi một bên mái nhà và mặt trần nhà (mặt phẳng nằm ngang).", options: [], ans: "30", 
+                      exp: "Cắt ngang mái nhà ta được một tam giác cân có góc ở đỉnh là \\( 120^\\circ \\). Góc giữa mái và trần nhà chính là góc ở đáy của tam giác cân này. Ta có \\( \\alpha = \\frac{180^\\circ - 120^\\circ}{2} = 30^\\circ \\)." },
+                q2: { text: "(Thực tế) Cột chống của một chiếc lều trại tạo thành hình chữ V ngược đối xứng, góc ở đỉnh lều là \\( 90^\\circ \\). Tính góc (theo độ) tạo bởi một mặt bên của lều và mặt đất (mặt phẳng nằm ngang).", options: [], ans: "45", 
+                      exp: "Cắt ngang mặt lều ta được tam giác vuông cân tại đỉnh. Góc giữa mặt bên của lều và mặt đất chính là góc ở đáy tam giác này. Ta có \\( \\alpha = \\frac{180^\\circ - 90^\\circ}{2} = 45^\\circ \\)." }
+            }
+        ];
+
+        // --- LƯU TRỮ NHẠC AUDIO ---
+        const audioIntro = new Audio();
+        audioIntro.loop = true;
+        const audioWin = new Audio();
+
+        // --- CƠ SỞ DỮ LIỆU INDEXEDDB CHO NHẠC (LƯU FILE XUYÊN SUỐT) ---
+        let db;
+        const dbReq = indexedDB.open("KeoCoDB", 1);
+        dbReq.onupgradeneeded = (e) => {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("media")) {
+                db.createObjectStore("media");
+            }
+        };
+        dbReq.onsuccess = (e) => {
+            db = e.target.result;
+            loadMediaFromDB();
+        };
+
+        function saveMediaToDB(key, blob) {
+            if (!db) return;
+            const tx = db.transaction("media", "readwrite");
+            tx.objectStore("media").put(blob, key);
+        }
+
+        function loadMediaFromDB() {
+            if (!db) return;
+            const tx = db.transaction("media", "readonly");
+            
+            const reqIntro = tx.objectStore("media").get("introMusic");
+            reqIntro.onsuccess = () => {
+                if (reqIntro.result) {
+                    audioIntro.src = URL.createObjectURL(reqIntro.result);
+                    document.getElementById('audio-intro-status').style.display = 'block';
+                    
+                    // Thử tự động phát nếu trình duyệt cho phép
+                    if (!state.isStarted) {
+                        let playPromise = audioIntro.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(err => {
+                                // Trình duyệt chặn tự động phát -> Hiện thông báo yêu cầu click
+                                const banner = document.getElementById('autoplay-banner');
+                                if (banner) banner.style.display = 'block';
+                                
+                                // Lắng nghe click đầu tiên để bật nhạc
+                                document.body.addEventListener('click', () => {
+                                    if (!state.isStarted && audioIntro.paused) {
+                                        audioIntro.play().catch(e => {});
+                                    }
+                                    if (banner) banner.style.display = 'none';
+                                }, { once: true });
+                            });
+                        }
+                    }
+                }
+            };
+
+            const reqWin = tx.objectStore("media").get("winMusic");
+            reqWin.onsuccess = () => {
+                if (reqWin.result) {
+                    audioWin.src = URL.createObjectURL(reqWin.result);
+                    document.getElementById('audio-win-status').style.display = 'block';
+                }
+            };
+        }
+
+        // --- LOGIC GAME & BÀN PHÍM ---
+        let teamNames = { t1: "Đội Xanh", t2: "Đội Đỏ" };
+        let state = { 
+            t1: { score: 0, input: "", submitted: false, isCorrect: false, tfCorrectCount: 0 }, 
+            t2: { score: 0, input: "", submitted: false, isCorrect: false, tfCorrectCount: 0 }, 
+            currentQIndex: 0, targetRopePos: 50, timeLeft: 0, isPlaying: false, isStarted: false 
+        };
+        let timerInterval;
+
+        function startGame() {
+            document.getElementById('btn-start').style.display = 'none';
+            document.getElementById('timer').style.display = 'block';
+            state.isPlaying = true;
+            state.isStarted = true;
+            
+            // Tắt nhạc intro khi bắt đầu
+            audioIntro.pause();
+            audioIntro.currentTime = 0;
+            
+            loadQuestion();
+        }
+
+        function openSettings() {
+            document.getElementById('input-team1-name').value = teamNames.t1;
+            document.getElementById('input-team2-name').value = teamNames.t2;
+            document.getElementById('settings-screen').style.display = 'flex';
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-screen').style.display = 'none';
+        }
+
+        function saveSettings() {
+            let n1 = document.getElementById('input-team1-name').value.trim() || "Đội Xanh";
+            let n2 = document.getElementById('input-team2-name').value.trim() || "Đội Đỏ";
+            
+            teamNames.t1 = n1;
+            teamNames.t2 = n2;
+
+            // Lưu tên vào LocalStorage để nhớ cho lần sau
+            localStorage.setItem("keoco_t1", n1);
+            localStorage.setItem("keoco_t2", n2);
+
+            document.getElementById('name-display-1').innerText = n1;
+            document.getElementById('name-display-2').innerText = n2;
+            document.getElementById('exp-name-display-1').innerText = "ĐỀ " + n1.toUpperCase();
+            document.getElementById('exp-name-display-2').innerText = "ĐỀ " + n2.toUpperCase();
+
+            // Load Intro Audio & Ghi nhớ vào CSDL
+            const fIntro = document.getElementById('input-audio-intro').files[0];
+            if (fIntro) {
+                audioIntro.src = URL.createObjectURL(fIntro);
+                saveMediaToDB("introMusic", fIntro); // Lưu file vào IndexedDB
+                document.getElementById('audio-intro-status').style.display = 'block';
+                if (!state.isStarted) {
+                    audioIntro.play().catch(e => console.log("Vui lòng tương tác trang để bật nhạc"));
+                }
+            }
+
+            // Load Win Audio & Ghi nhớ vào CSDL
+            const fWin = document.getElementById('input-audio-win').files[0];
+            if (fWin) {
+                audioWin.src = URL.createObjectURL(fWin);
+                saveMediaToDB("winMusic", fWin); // Lưu file vào IndexedDB
+                document.getElementById('audio-win-status').style.display = 'block';
+            }
+
+            closeSettings();
+        }
+
+        function renderKeypad(team, type) {
+            let html = '';
+            let kEl = document.getElementById(`keypad${team}`);
+            kEl.className = `keypad keypad-${type}`;
+
+            if (type === 'abcd') {
+                html += `<button class="btn clear" onclick="clearNum(${team})">X Chọn lại</button>`;
+                html += `<button class="btn submit" onclick="submitAns(${team})">✔ Chốt Đáp Án</button>`;
+            } else if (type === 'tf') {
+                html += `<button class="btn clear" onclick="clearNum(${team})">X Chọn lại</button>`;
+                html += `<button class="btn submit" onclick="submitAns(${team})">✔ Chốt Đáp Án</button>`;
+            } else {
+                html += `<button class="btn clear" onclick="clearNum(${team})">X Xóa</button>`;
+                html += `<button class="btn submit btn-col-span-2" onclick="submitAns(${team})">✔ Chốt Đáp Án</button>`;
+                [1,2,3,4,5,6,7,8,9].forEach(n => html += `<button class="btn" onclick="addNum(${team}, '${n}')">${n}</button>`);
+                html += `<button class="btn" onclick="addNum(${team}, '-')">-</button>`;
+                html += `<button class="btn" onclick="addNum(${team}, '0')">0</button>`;
+                html += `<button class="btn" onclick="addNum(${team}, ',')">,</button>`;
+            }
+            kEl.innerHTML = html;
+        }
+
+        function loadQuestion() {
+            if (state.currentQIndex >= QUESTIONS.length) { checkFinalWin(); return; }
+
+            let qData = QUESTIONS[state.currentQIndex];
+            state.timeLeft = qData.time;
+            
+            // Khôi phục trạng thái
+            [1, 2].forEach(team => {
+                // Nếu là câu Đúng/Sai, input là mảng 4 phần tử
+                state[`t${team}`].input = qData.type === 'tf' ? ["", "", "", ""] : ""; 
+                state[`t${team}`].submitted = false;
+                state[`t${team}`].isCorrect = false;
+                state[`t${team}`].tfCorrectCount = 0;
+                document.getElementById(`panel${team}`).classList.remove('submitted');
+                let inputEl = document.getElementById(`input${team}`);
+                inputEl.className = 'inline-input-box';
+                
+                let q = team === 1 ? qData.q1 : qData.q2;
+                
+                let htmlContent = `<div class="problem-title">${q.text}</div>`;
+                if (q.options && q.options.length > 0) {
+                    htmlContent += `<div class="problem-options">`;
+                    q.options.forEach((opt, idx) => {
+                        if (qData.type === 'tf') {
+                            // Giao diện Nút Radio Inline cho câu Đúng/Sai
+                            htmlContent += `
+                            <div class="tf-row">
+                                <div class="tf-text">${opt}</div>
+                                <div class="tf-radios">
+                                    <label class="tf-label lbl-t${team}-opt${idx}">
+                                        <input type="radio" name="t${team}_opt${idx}" value="Đ" onchange="setTfAns(${team}, ${idx}, 'Đ')"> Đ
+                                    </label>
+                                    <label class="tf-label lbl-t${team}-opt${idx}">
+                                        <input type="radio" name="t${team}_opt${idx}" value="S" onchange="setTfAns(${team}, ${idx}, 'S')"> S
+                                    </label>
+                                </div>
+                            </div>`;
+                        } else if (qData.type === 'abcd') {
+                            // Giao diện Nút Radio Inline cho câu ABCD
+                            const letters = ['A', 'B', 'C', 'D'];
+                            let letter = letters[idx];
+                            htmlContent += `
+                            <label class="abcd-row lbl-t${team}-abcd" id="lbl-t${team}-abcd-${letter}">
+                                <input type="radio" name="t${team}_abcd" class="abcd-radio" value="${letter}" onchange="setAbcdAns(${team}, '${letter}')">
+                                <span class="abcd-text">${opt}</span>
+                            </label>`;
+                        } else {
+                            htmlContent += `<div>${opt}</div>`;
+                        }
+                    });
+                    htmlContent += `</div>`;
+                }
+
+                document.getElementById(`prob${team}`).innerHTML = htmlContent;
+                let infoEl = document.getElementById(`q-info${team}`);
+                infoEl.innerHTML = `Câu ${state.currentQIndex + 1}/10 (${qData.level})`;
+                infoEl.className = `question-info ${qData.class}`;
+                
+                updateInputDisplay(team);
+                renderKeypad(team, qData.type);
+            });
+
+            // Yêu cầu MathJax render lại công thức cho đề bài mới
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([document.getElementById('panel1'), document.getElementById('panel2')]);
+            }
+
+            startTimer();
+        }
+
+        // Xử lý khi click vào nút Đ hoặc S
+        function setTfAns(team, optIndex, val) {
+            if (!state.isPlaying || state[`t${team}`].submitted) return;
+            state[`t${team}`].input[optIndex] = val;
+            
+            // Cập nhật giao diện nút Radio (đổi màu)
+            let labels = document.querySelectorAll(`.lbl-t${team}-opt${optIndex}`);
+            labels.forEach(lbl => {
+                lbl.classList.remove('selected-d', 'selected-s');
+                if (lbl.querySelector('input').checked) {
+                    if (val === 'Đ') lbl.classList.add('selected-d');
+                    else lbl.classList.add('selected-s');
+                }
+            });
+            updateInputDisplay(team);
+        }
+
+        // Xử lý khi click vào đáp án ABCD
+        function setAbcdAns(team, val) {
+            if (!state.isPlaying || state[`t${team}`].submitted) return;
+            state[`t${team}`].input = val;
+            
+            // Cập nhật giao diện nút Radio (đổi màu)
+            let labels = document.querySelectorAll(`.lbl-t${team}-abcd`);
+            labels.forEach(lbl => lbl.classList.remove('selected'));
+            let selectedLbl = document.getElementById(`lbl-t${team}-abcd-${val}`);
+            if (selectedLbl) selectedLbl.classList.add('selected');
+            
+            updateInputDisplay(team);
+        }
+
+        function addNum(team, val) {
+            if (!state.isPlaying || state[`t${team}`].submitted) return;
+            let type = QUESTIONS[state.currentQIndex].type;
+
+            if (type === 'tf' || type === 'abcd') return; // Không dùng bàn phím số cho dạng Đúng/Sai hoặc ABCD nữa
+            if (state[`t${team}`].input.length < 8) state[`t${team}`].input += val;
+            
+            updateInputDisplay(team);
+        }
+
+        function clearNum(team) { 
+            if (state[`t${team}`].submitted) return;
+            let type = QUESTIONS[state.currentQIndex].type;
+            
+            if (type === 'tf') {
+                // Reset lại mảng và bỏ chọn toàn bộ radio buttons
+                state[`t${team}`].input = ["", "", "", ""];
+                let labels = document.querySelectorAll(`[class*="lbl-t${team}-opt"]`);
+                labels.forEach(lbl => {
+                    lbl.classList.remove('selected-d', 'selected-s');
+                    let r = lbl.querySelector('input');
+                    if(r) r.checked = false;
+                });
+            } else if (type === 'abcd') {
+                // Reset chọn ABCD
+                state[`t${team}`].input = "";
+                let labels = document.querySelectorAll(`.lbl-t${team}-abcd`);
+                labels.forEach(lbl => {
+                    lbl.classList.remove('selected');
+                    let r = lbl.querySelector('input');
+                    if(r) r.checked = false;
+                });
+            } else {
+                state[`t${team}`].input = ""; 
+            }
+            updateInputDisplay(team); 
+        }
+        
+        function updateInputDisplay(team) { 
+            let el = document.getElementById(`input${team}`);
+            let type = QUESTIONS[state.currentQIndex].type;
+            
+            // Ẩn hoàn toàn ô nhập liệu với ABCD và TF để nhường chỗ cho đề bài
+            if (type === 'abcd' || type === 'tf') {
+                el.style.display = 'none';
+            } else {
+                el.style.display = 'flex';
+            }
+
+            let submitBtn = document.querySelector(`#keypad${team} .btn.submit`);
+            let clearBtn = document.querySelector(`#keypad${team} .btn.clear`);
+
+            if (state[`t${team}`].submitted) {
+                if (type === 'short') {
+                    el.innerText = "⏳ Đã chốt...";
+                    el.className = 'inline-input-box waiting';
+                }
+                
+                // Vô hiệu hóa và đổi màu nút Chốt
+                if (submitBtn) {
+                    submitBtn.innerHTML = "⏳ Đã chốt";
+                    submitBtn.style.background = "#95a5a6";
+                    submitBtn.style.boxShadow = "0 4px #7f8c8d";
+                    submitBtn.disabled = true;
+                }
+                if (clearBtn) clearBtn.style.opacity = "0.5";
+
+                // Khóa radio không cho bấm nữa
+                if (type === 'tf') {
+                    document.querySelectorAll(`input[name^="t${team}_opt"]`).forEach(r => r.disabled = true);
+                } else if (type === 'abcd') {
+                    document.querySelectorAll(`input[name="t${team}_abcd"]`).forEach(r => r.disabled = true);
+                }
+            } else {
+                // Khôi phục nút
+                if (submitBtn) {
+                    submitBtn.innerHTML = "✔ Chốt Đáp Án";
+                    submitBtn.style.background = ""; 
+                    submitBtn.style.boxShadow = "";
+                    submitBtn.disabled = false;
+                }
+                if (clearBtn) clearBtn.style.opacity = "1";
+
+                if (type === 'short') {
+                    el.classList.remove('waiting');
+                    el.innerText = state[`t${team}`].input; 
+                    el.className = 'inline-input-box';
+                }
+            }
+        }
+
+        // Đội bấm chốt đáp án
+        function submitAns(team) {
+            if (!state.isPlaying || state[`t${team}`].submitted) return;
+            
+            let qData = QUESTIONS[state.currentQIndex];
+            let q = team === 1 ? qData.q1 : qData.q2;
+            let type = qData.type;
+            
+            if (type === 'tf') {
+                if (state[`t${team}`].input.includes("")) return; // Phải chọn đủ 4 ý mới cho chốt
+            } else {
+                if (state[`t${team}`].input === "") return;
+            }
+            
+            state[`t${team}`].submitted = true;
+            document.getElementById(`panel${team}`).classList.add('submitted'); // Mờ bảng
+            updateInputDisplay(team);
+
+            let points = 0;
+            let pull = 0;
+            let isCorrect = false;
+
+            // TÍNH ĐIỂM CHIA NHỎ CHO DẠNG ĐÚNG/SAI
+            if (type === 'tf') {
+                let correctCount = 0;
+                let ansStr = q.ans; // VD: "ĐĐSĐ"
+                for(let i=0; i<4; i++) {
+                    if(state[`t${team}`].input[i] === ansStr[i]) correctCount++;
+                }
+                if (correctCount === 1) { points = 0.1; pull = 1; }
+                else if (correctCount === 2) { points = 0.25; pull = 2.5; }
+                else if (correctCount === 3) { points = 0.5; pull = 5; }
+                else if (correctCount === 4) { points = 1.0; pull = 10; }
+
+                if (correctCount > 0) isCorrect = true; 
+                state[`t${team}`].tfCorrectCount = correctCount; 
+            } else {
+                if (state[`t${team}`].input === q.ans) {
+                    points = 1; pull = 10; isCorrect = true;
+                }
+            }
+
+            // Xử lý cộng điểm và dịch dây
+            if (isCorrect) {
+                state[`t${team}`].isCorrect = true;
+                state[`t${team}`].score += points;
+                state[`t${team}`].score = Math.round(state[`t${team}`].score * 100) / 100; // Tránh lỗi làm tròn thập phân
+                
+                state.targetRopePos += (team === 1) ? -pull : pull;
+                
+                // KIỂM TRA THẮNG ÁP ĐẢO (K.O) NGAY LẬP TỨC
+                if (state.targetRopePos <= 0 || state.targetRopePos >= 100) {
+                    checkFinalWin();
+                    return; 
+                }
+            }
+
+            // Nếu cả 2 đội đều đã chốt -> Kết thúc vòng
+            if (state.t1.submitted && state.t2.submitted) {
+                endRound();
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay(); 
+            timerInterval = setInterval(() => {
+                state.timeLeft--;
+                if (state.timeLeft < 0) { endRound(); return; }
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            let m = Math.floor(state.timeLeft / 60).toString().padStart(2, '0');
+            let s = (state.timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
+        }
+
+        function endRound() {
+            clearInterval(timerInterval);
+            let qData = QUESTIONS[state.currentQIndex];
+
+            // Render dữ liệu giải thích
+            document.getElementById('exp-q-num').innerText = state.currentQIndex + 1;
+            
+            [1, 2].forEach(team => {
+                let q = team === 1 ? qData.q1 : qData.q2;
+                document.getElementById(`exp-q${team}`).innerHTML = q.text;
+                
+                let ansColor = "";
+                let ansText = "";
+
+                if (qData.type === 'tf') {
+                    let count = state[`t${team}`].tfCorrectCount || 0;
+                    if (count === 4) ansColor = "";
+                    else if (count > 0) ansColor = "partial";
+                    else ansColor = "wrong";
+
+                    let pts = 0;
+                    if(count===1) pts=0.1; else if(count===2) pts=0.25; else if(count===3) pts=0.5; else if(count===4) pts=1.0;
+                    let ptsStr = pts.toString().replace('.', ',');
+
+                    ansText = (count === 4) ? `✅ Đúng cả 4 ý (+1 điểm)` : 
+                              (count > 0) ? `⚠️ Đúng ${count}/4 ý (+${ptsStr} điểm)` : 
+                              `❌ Sai hết / Quá giờ (0 điểm)`;
+                    ansText += `<br>Đáp án đúng: ${q.ans}`;
+                } else {
+                    ansColor = state[`t${team}`].isCorrect ? "" : "wrong";
+                    ansText = state[`t${team}`].isCorrect ? `✅ Đội làm đúng! (Đáp án: ${q.ans})` 
+                        : `❌ Đội làm sai / Quá giờ (Đáp án đúng: ${q.ans})`;
+                }
+                
+                document.getElementById(`exp-ans${team}`).className = `exp-ans ${ansColor}`;
+                document.getElementById(`exp-ans${team}`).innerHTML = ansText;
+                document.getElementById(`exp-text${team}`).innerHTML = q.exp;
+            });
+
+            // Nếu 1 đội chênh 5 điểm (kéo được 100% hoặc 0%) hoặc hết 10 câu
+            let isKO = state.targetRopePos <= 0 || state.targetRopePos >= 100;
+            let isLast = state.currentQIndex >= QUESTIONS.length - 1;
+            document.querySelector('.btn-next').innerText = (isKO || isLast) ? "➡ XEM KẾT QUẢ CHUNG CUỘC" : "➡ CÂU TIẾP THEO";
+
+            document.getElementById('explanation-screen').style.display = 'flex';
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([document.getElementById('explanation-screen')]);
+            }
+        }
+
+        function nextQuestion() {
+            document.getElementById('explanation-screen').style.display = 'none';
+            // Thắng luôn (K.O) nếu dây bị kéo qua vạch đích
+            if (state.targetRopePos <= 0 || state.targetRopePos >= 100) {
+                checkFinalWin();
+                return;
+            }
+            state.currentQIndex++;
+            loadQuestion();
+        }
+
+        function checkFinalWin() {
+            state.isPlaying = false; clearInterval(timerInterval);
+            let msg = "";
+            
+            // Lấy điểm 2 đội và đổi dấu chấm thành phẩy
+            let s1 = state.t1.score.toString().replace('.', ',');
+            let s2 = state.t2.score.toString().replace('.', ',');
+            let ratioText = `<span style='font-size:30px'>Tỉ số chung cuộc: ${s1} - ${s2}</span>`;
+
+            if (state.targetRopePos <= 0) msg = `🎉 ${teamNames.t1.toUpperCase()} THẮNG ÁP ĐẢO! 🎉<br>${ratioText}`;
+            else if (state.targetRopePos >= 100) msg = `🎉 ${teamNames.t2.toUpperCase()} THẮNG ÁP ĐẢO! 🎉<br>${ratioText}`;
+            else if (state.targetRopePos < 50) msg = `🎉 ${teamNames.t1.toUpperCase()} THẮNG! 🎉<br>${ratioText}`;
+            else if (state.targetRopePos > 50) msg = `🎉 ${teamNames.t2.toUpperCase()} THẮNG! 🎉<br>${ratioText}`;
+            else msg = `🤝 TRẬN ĐẤU HÒA! 🤝<br>${ratioText}`;
+
+            document.getElementById('winner-text').innerHTML = msg;
+            document.getElementById('end-screen').style.display = 'flex';
+            
+            // Phát nhạc chiến thắng
+            if (audioWin.src) {
+                audioWin.currentTime = 0;
+                audioWin.play().catch(e => console.log("Lỗi phát nhạc:", e));
+            }
+
+            // Bật pháo hoa nếu có đội thắng (Không hòa)
+            if (state.targetRopePos !== 50) {
+                startFireworks();
+            }
+        }
+
+        function resetGame() {
+            state = { t1: { score: 0, input: "", submitted: false, isCorrect: false, tfCorrectCount: 0 }, t2: { score: 0, input: "", submitted: false, isCorrect: false, tfCorrectCount: 0 }, currentQIndex: 0, targetRopePos: 50, timeLeft: 0, isPlaying: false, isStarted: false };
+            document.getElementById('end-screen').style.display = 'none';
+            stopFireworks(); 
+            currentRopePos = 50; 
+            
+            // Xóa nội dung chờ màn hình bắt đầu
+            document.getElementById('prob1').innerHTML = "<div class='problem-title'>Sẵn sàng...</div>";
+            document.getElementById('prob2').innerHTML = "<div class='problem-title'>Sẵn sàng...</div>";
+            document.getElementById('input1').innerText = "";
+            document.getElementById('input2').innerText = "";
+            document.getElementById('input1').className = 'inline-input-box';
+            document.getElementById('input2').className = 'inline-input-box';
+            document.getElementById('input1').style.display = 'flex';
+            document.getElementById('input2').style.display = 'flex';
+            document.getElementById('q-info1').innerText = "Câu --/10";
+            document.getElementById('q-info2').innerText = "Câu --/10";
+            
+            document.getElementById('btn-start').style.display = 'block';
+            document.getElementById('timer').style.display = 'none';
+            document.getElementById('timer').innerText = "00:00";
+
+            audioWin.pause();
+            audioWin.currentTime = 0;
+
+            if (audioIntro.src) {
+                audioIntro.currentTime = 0;
+                audioIntro.play().catch(e=>{});
+            }
+        }
+
+        // --- ĐỒ HỌA CANVAS (VẼ TRỰC TIẾP BẰNG JS) ---
+        const canvasObj = document.getElementById('gameCanvas');
+        const ctxObj = canvasObj.getContext('2d');
+        let currentRopePos = 50; 
+        let petals = [];
+        for(let i=0; i<40; i++) petals.push({ x: Math.random() * 1000, y: Math.random() * 550, size: Math.random() * 4 + 3, speedY: Math.random() * 1 + 0.5, speedX: Math.random() * 1 - 0.5, angle: Math.random() * 360, spin: Math.random() * 4 - 2 });
+
+        function drawPetals() {
+            ctxObj.fillStyle = '#ff9ff3';
+            petals.forEach(p => {
+                ctxObj.save(); ctxObj.translate(p.x, p.y); ctxObj.rotate(p.angle * Math.PI / 180);
+                ctxObj.beginPath(); ctxObj.ellipse(0, 0, p.size, p.size/2, 0, 0, Math.PI * 2); ctxObj.fill(); ctxObj.restore();
+                p.y += p.speedY; p.x += p.speedX; p.angle += p.spin;
+                if (p.y > canvasObj.height) { p.y = -10; p.x = Math.random() * canvasObj.width; }
+            });
+        }
+
+        function drawCharacter(x, y, color, facingRight, struggleAmount) {
+            ctxObj.save(); ctxObj.translate(x, y); if (!facingRight) ctxObj.scale(-1, 1);
+            ctxObj.scale(0.6, 0.6);
+            ctxObj.rotate(-struggleAmount * 0.1); ctxObj.translate(-struggleAmount * 5, struggleAmount * 2);
+
+            ctxObj.lineWidth = 12; ctxObj.strokeStyle = '#e67e22'; ctxObj.lineCap = 'round'; ctxObj.lineJoin = 'round';
+            ctxObj.beginPath(); ctxObj.moveTo(0, -20); ctxObj.lineTo(25 + struggleAmount*2, 0); ctxObj.lineTo(55 + struggleAmount*2, -5); ctxObj.stroke();
+            ctxObj.lineWidth = 14; ctxObj.strokeStyle = '#2c3e50'; 
+            ctxObj.beginPath(); ctxObj.moveTo(-10, 20); ctxObj.lineTo(-30, 60); ctxObj.lineTo(-40, 90); ctxObj.stroke();
+            ctxObj.fillStyle = '#111'; ctxObj.beginPath(); ctxObj.ellipse(-45, 90, 15, 8, 0, 0, Math.PI*2); ctxObj.fill();
+            ctxObj.beginPath(); ctxObj.moveTo(10, 20); ctxObj.lineTo(35, 55); ctxObj.lineTo(20, 90); ctxObj.stroke();
+            ctxObj.beginPath(); ctxObj.ellipse(25, 90, 15, 8, 0, 0, Math.PI*2); ctxObj.fill();
+            ctxObj.fillStyle = color; ctxObj.beginPath(); ctxObj.roundRect(-20, -30, 40, 60, 15); ctxObj.fill();
+            ctxObj.lineWidth = 4; ctxObj.strokeStyle = '#f1c40f'; ctxObj.beginPath(); ctxObj.moveTo(-20, 20); ctxObj.lineTo(20, 20); ctxObj.stroke();
+            ctxObj.fillStyle = '#f1c27d'; ctxObj.beginPath(); ctxObj.arc(0, -50, 22, 0, Math.PI * 2); ctxObj.fill();
+            ctxObj.lineWidth = 3; ctxObj.strokeStyle = '#2c3e50'; ctxObj.beginPath(); ctxObj.moveTo(5, -55); ctxObj.lineTo(15, -50); ctxObj.moveTo(5, -50); ctxObj.lineTo(15, -55); ctxObj.stroke();
+            ctxObj.beginPath(); ctxObj.arc(10, -42, 6, Math.PI, Math.PI * 2); ctxObj.stroke();
+            ctxObj.fillStyle = '#111'; ctxObj.beginPath(); ctxObj.arc(0, -68, 18, Math.PI, 0); ctxObj.fill(); ctxObj.fillRect(-22, -68, 44, 5);
+            ctxObj.strokeStyle = '#fff'; ctxObj.lineWidth=2; ctxObj.beginPath(); ctxObj.moveTo(-10, -75); ctxObj.lineTo(10, -75); ctxObj.stroke();
+            ctxObj.lineWidth = 14; ctxObj.strokeStyle = '#f1c27d'; ctxObj.beginPath(); ctxObj.moveTo(5, -15); ctxObj.lineTo(35 + struggleAmount*2, 10); ctxObj.lineTo(50 + struggleAmount*2, 0); ctxObj.stroke();
+            ctxObj.restore();
+        }
+
+        function drawGame() {
+            currentRopePos += (state.targetRopePos - currentRopePos) * 0.08;
+            ctxObj.clearRect(0, 0, canvasObj.width, canvasObj.height); drawPetals();
+            let centerY = canvasObj.height / 2 + 50; let centerX = canvasObj.width / 2;
+            let groundY = centerY + 65; 
+            let time = Date.now(); let struggle = (state.isPlaying && state.isStarted) ? Math.sin(time / 150) * 3 : 0; 
+            
+            let winLineLeft = canvasObj.width * 0.15; 
+            let winLineRight = canvasObj.width * 0.85;
+            let ropeAnchorX = winLineLeft + (currentRopePos / 100) * (winLineRight - winLineLeft);
+            
+            ctxObj.beginPath(); ctxObj.setLineDash([10, 10]); 
+            ctxObj.moveTo(winLineLeft, centerY - 100); ctxObj.lineTo(winLineLeft, canvasObj.height - 50);
+            ctxObj.moveTo(winLineRight, centerY - 100); ctxObj.lineTo(winLineRight, canvasObj.height - 50);
+            ctxObj.lineWidth = 4; ctxObj.strokeStyle = '#f39c12'; ctxObj.stroke(); ctxObj.setLineDash([]);
+
+            ctxObj.beginPath(); ctxObj.setLineDash([15, 15]); ctxObj.moveTo(centerX, centerY - 200); ctxObj.lineTo(centerX, canvasObj.height - 20);
+            ctxObj.lineWidth = 6; ctxObj.strokeStyle = '#e74c3c'; ctxObj.stroke(); ctxObj.setLineDash([]); 
+
+            let teamOffset = 110; 
+            let straightLeft = ropeAnchorX - teamOffset - 90;
+            let straightRight = ropeAnchorX + teamOffset + 90;
+
+            function traceRopePath(context) {
+                context.moveTo(-50, groundY); 
+                context.lineTo(straightLeft - 120, groundY); 
+                context.quadraticCurveTo(straightLeft - 40, groundY, straightLeft, centerY); 
+                context.lineTo(straightRight, centerY); 
+                context.quadraticCurveTo(straightRight + 40, groundY, straightRight + 120, groundY); 
+                context.lineTo(canvasObj.width + 50, groundY); 
+            }
+
+            ctxObj.beginPath(); traceRopePath(ctxObj);
+            ctxObj.lineWidth = 12; ctxObj.strokeStyle = '#8B4513'; ctxObj.lineCap = 'round'; ctxObj.lineJoin = 'round'; ctxObj.stroke();
+            ctxObj.beginPath(); ctxObj.setLineDash([12, 18]); traceRopePath(ctxObj);
+            ctxObj.lineWidth = 4; ctxObj.strokeStyle = '#D2691E'; ctxObj.stroke(); ctxObj.setLineDash([]);
+
+            ctxObj.fillStyle = '#ff0000'; ctxObj.beginPath(); ctxObj.moveTo(ropeAnchorX, centerY - 3); ctxObj.lineTo(ropeAnchorX - 18, centerY + 25); ctxObj.lineTo(ropeAnchorX + 18, centerY + 25); ctxObj.fill();
+            ctxObj.fillStyle = '#fff'; ctxObj.beginPath(); ctxObj.arc(ropeAnchorX, centerY, 4, 0, Math.PI*2); ctxObj.fill();
+
+            drawCharacter(ropeAnchorX - teamOffset - 70, centerY, '#3498db', true, struggle);
+            drawCharacter(ropeAnchorX - teamOffset, centerY, '#2980b9', true, struggle);
+            drawCharacter(ropeAnchorX + teamOffset + 70, centerY, '#e74c3c', false, struggle);
+            drawCharacter(ropeAnchorX + teamOffset, centerY, '#c0392b', false, struggle);
+
+            // Vẽ bảng điểm số của 2 đội bay trên Canvas (Cố định ở giữa 2 bên trên cùng)
+            let team1CenterX = canvasObj.width * 0.25; 
+            let team2CenterX = canvasObj.width * 0.75; 
+
+            let boxWidth = 330;    
+            let boxHeight = 100;  
+            let boxY = 40; 
+
+            ctxObj.fillStyle = 'rgba(255, 255, 255, 0.9)'; 
+            ctxObj.beginPath();
+            ctxObj.roundRect(team1CenterX - boxWidth / 2, boxY, boxWidth, boxHeight, 20);
+            ctxObj.roundRect(team2CenterX - boxWidth / 2, boxY, boxWidth, boxHeight, 20);
+            ctxObj.fill();
+            ctxObj.lineWidth = 5; 
+            ctxObj.strokeStyle = '#bdc3c7'; ctxObj.stroke();
+
+            ctxObj.font = '900 55px "Segoe UI"'; 
+            ctxObj.textAlign = 'center'; ctxObj.textBaseline = 'middle';
+            
+            ctxObj.fillStyle = '#2980b9';
+            ctxObj.fillText(`Điểm: ${state.t1.score.toString().replace('.', ',')}`, team1CenterX, boxY + boxHeight / 2 + 3);
+            
+            ctxObj.fillStyle = '#c0392b';
+            ctxObj.fillText(`Điểm: ${state.t2.score.toString().replace('.', ',')}`, team2CenterX, boxY + boxHeight / 2 + 3);
+
+            requestAnimationFrame(drawGame);
+        }
+        
+        // --- HỆ THỐNG PHÁO HOA CHÚC MỪNG CHIẾN THẮNG ---
+        let fwCanvas, fwCtx, fwParticles = [], fwAnimationId;
+        function startFireworks() {
+            fwCanvas = document.getElementById('fireworksCanvas');
+            fwCtx = fwCanvas.getContext('2d');
+            resizeFwCanvas();
+            window.addEventListener('resize', resizeFwCanvas);
+            fwParticles = [];
+            createFirework();
+            loopFireworks();
+        }
+        
+        function stopFireworks() {
+            cancelAnimationFrame(fwAnimationId);
+            window.removeEventListener('resize', resizeFwCanvas);
+            if(fwCtx) fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+        }
+
+        function resizeFwCanvas() {
+            fwCanvas.width = window.innerWidth;
+            fwCanvas.height = window.innerHeight;
+        }
+
+        function createFirework() {
+            if (!state.isPlaying && document.getElementById('end-screen').style.display === 'flex') {
+                let x = Math.random() * fwCanvas.width;
+                let y = Math.random() * (fwCanvas.height / 2);
+                let colors = ['#ff4757', '#2ed573', '#1e90ff', '#f1c40f', '#ff9ff3'];
+                let color = colors[Math.floor(Math.random() * colors.length)];
+                
+                for (let i = 0; i < 70; i++) {
+                    let angle = Math.random() * Math.PI * 2;
+                    let speed = Math.random() * 6 + 1;
+                    fwParticles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, alpha: 1, color: color, decay: Math.random() * 0.015 + 0.015 });
+                }
+                setTimeout(createFirework, Math.random() * 800 + 300);
+            }
+        }
+
+        function loopFireworks() {
+            fwCtx.fillStyle = 'rgba(44, 62, 80, 0.2)'; 
+            fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+            
+            for (let i = fwParticles.length - 1; i >= 0; i--) {
+                let p = fwParticles[i];
+                p.vy += 0.05; 
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= p.decay;
+                
+                if (p.alpha <= 0) {
+                    fwParticles.splice(i, 1);
+                } else {
+                    fwCtx.globalAlpha = p.alpha;
+                    fwCtx.fillStyle = p.color;
+                    fwCtx.beginPath();
+                    fwCtx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                    fwCtx.fill();
+                }
+            }
+            fwCtx.globalAlpha = 1;
+            fwAnimationId = requestAnimationFrame(loopFireworks);
+        }
+
+        window.onload = () => { 
+            // Nạp tên đội từ LocalStorage
+            const savedT1 = localStorage.getItem("keoco_t1");
+            const savedT2 = localStorage.getItem("keoco_t2");
+            if (savedT1) teamNames.t1 = savedT1;
+            if (savedT2) teamNames.t2 = savedT2;
+
+            document.getElementById('input-team1-name').value = teamNames.t1;
+            document.getElementById('input-team2-name').value = teamNames.t2;
+            document.getElementById('name-display-1').innerText = teamNames.t1;
+            document.getElementById('name-display-2').innerText = teamNames.t2;
+            document.getElementById('exp-name-display-1').innerText = "ĐỀ " + teamNames.t1.toUpperCase();
+            document.getElementById('exp-name-display-2').innerText = "ĐỀ " + teamNames.t2.toUpperCase();
+
+            resetGame(); // Khởi tạo UI chuẩn chờ bắt đầu
+            drawGame(); 
+        };
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!-- saved from url=(0089)https://tro-ly-giao-vien-toanthpt.netlify.app/tro-choi/ghep-cap-cong-thuc-luong-giac.html -->
 <html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
@@ -427,7 +427,7 @@
                 } catch (e) {}
             }
             
-            const localKey = `thayChinhLeaderboardLuongGiac_${mode}`;
+            const localKey = `thayHungLeaderboardLuongGiac_${mode}`;
             const localLeaderboard = JSON.parse(localStorage.getItem(localKey) || '[]');
             newRecord.id = 'local_' + Date.now() + Math.random().toString(36).substring(2, 7);
             localLeaderboard.push(newRecord);
@@ -449,7 +449,7 @@
             }
             
             if (records.length === 0) {
-                const localKey = `thayChinhLeaderboardLuongGiac_${mode}`;
+                const localKey = `thayHungLeaderboardLuongGiac_${mode}`;
                 records = JSON.parse(localStorage.getItem(localKey) || '[]');
             }
             
@@ -463,7 +463,7 @@
         }
 
         window.savePlayerName = function(val) {
-            try { localStorage.setItem('thayChinhPlayerName', val.trim()); } catch(e) {}
+            try { localStorage.setItem('thayHungPlayerName', val.trim()); } catch(e) {}
         };
 
         window.showOverlay = function(type) {
@@ -473,7 +473,7 @@
         window.startLevel = function(mode) {
             const nameInput = document.getElementById('playerNameInput');
             if (nameInput) {
-                try { localStorage.setItem('thayChinhPlayerName', nameInput.value.trim() || "Ông mai bà mối"); } catch(e) {} 
+                try { localStorage.setItem('thayHungPlayerName', nameInput.value.trim() || "Ông mai bà mối"); } catch(e) {} 
             }
 
             currentMode = mode;
@@ -527,7 +527,7 @@
         const defaultIcon = document.getElementById('default-icon');
 
         try {
-            const savedLogo = localStorage.getItem('thayChinhCustomLogo');
+            const savedLogo = localStorage.getItem('thayHungCustomLogo');
             if (savedLogo) { customLogo.src = savedLogo; customLogo.classList.remove('hidden'); defaultIcon.classList.add('hidden'); }
         } catch(e) {}
 
@@ -553,7 +553,7 @@
                         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                         const dataUrl = canvas.toDataURL('image/png');
                         try {
-                            localStorage.setItem('thayChinhCustomLogo', dataUrl);
+                            localStorage.setItem('thayHungCustomLogo', dataUrl);
                             customLogo.src = dataUrl; customLogo.classList.remove('hidden'); defaultIcon.classList.add('hidden');
                         } catch(err) { }
                     };
@@ -656,7 +656,7 @@
         function showOverlay(type) {
             overlay.classList.remove('hidden'); headerPanel.classList.add('hidden'); gameBoard.classList.add('hidden');
             let savedName = '';
-            try { savedName = localStorage.getItem('thayChinhPlayerName') || ''; } catch(e) {}
+            try { savedName = localStorage.getItem('thayHungPlayerName') || ''; } catch(e) {}
 
             const btnCT = "bg-sky-500 hover:bg-sky-600 text-white text-[11px] sm:text-xs font-black py-1.5 rounded-lg shadow-[0_3px_0_#0369a1] active:translate-y-[3px] active:shadow-none transition-all";
             const btnVD = "bg-indigo-500 hover:bg-indigo-600 text-white text-[11px] sm:text-xs font-black py-1.5 rounded-lg shadow-[0_3px_0_#3730a3] active:translate-y-[3px] active:shadow-none transition-all";
@@ -739,7 +739,7 @@
             }
 
             let playerName = "Ông mai bà mối";
-            try { playerName = localStorage.getItem('thayChinhPlayerName') || "Ông mai bà mối"; } catch(e) {}
+            try { playerName = localStorage.getItem('thayHungPlayerName') || "Ông mai bà mối"; } catch(e) {}
             
             const titleIcon = type === 'victory' ? '🏆' : '💥';
             const titleText = type === 'victory' ? 'Phá Đảo!' : 'Rất tiếc!';

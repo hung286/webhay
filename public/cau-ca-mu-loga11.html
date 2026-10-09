@@ -1,0 +1,624 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toán 11. Game câu cá_Mũ và logarit full chương</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(', '\\)']] },
+            svg: { fontCache: 'global' },
+            startup: { typeset: false } 
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap');
+
+        body { margin: 0; overflow: hidden; font-family: 'Nunito', sans-serif; background-color: #87CEFA; }
+        canvas { user-select: none; -webkit-user-select: none; }
+
+        .game-title {
+            font-family: 'Fredoka One', cursive; font-size: 5.5rem;
+            background: linear-gradient(to bottom, #FFA500 30%, #FFD700 70%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-text-stroke: 3px #4A2E00; filter: drop-shadow(0px 8px 0px #4A2E00);
+            letter-spacing: 2px; line-height: 1.1; margin-bottom: 0.5rem; text-align: center;
+        }
+
+        .panel-cartoon { background: #ffffff; border: 6px solid #2A6BB8; border-radius: 30px; box-shadow: 0 10px 0 #1A4B85, 0 20px 40px rgba(0,0,0,0.6); }
+
+        .btn-cartoon {
+            font-family: 'Fredoka One', cursive; background: #FF5A5F; border: 4px solid #991B1B;
+            color: white; border-radius: 20px; box-shadow: 0 8px 0 #991B1B;
+            transition: all 0.1s; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+        }
+        .btn-cartoon:active { transform: translateY(8px); box-shadow: 0 0 0 #991B1B; }
+
+        .btn-answer {
+            background: #F8FAFC; border: 4px solid #CBD5E1; color: #1E293B;
+            border-radius: 15px; transition: all 0.2s; font-weight: 800; font-size: 1.1rem;
+            box-shadow: 0 5px 0 #CBD5E1; padding: 1rem; display: flex; align-items: center; justify-content: center; min-height: 80px; cursor: pointer;
+        }
+        .btn-answer:hover { background: #E2E8F0; transform: translateY(-2px); }
+        .btn-answer:active { transform: translateY(5px); box-shadow: 0 0 0 #CBD5E1; }
+        .btn-answer.correct { background: #22C55E; border-color: #166534; color: white; box-shadow: 0 5px 0 #166534; }
+        .btn-answer.wrong { background: #EF4444; border-color: #991B1B; color: white; box-shadow: 0 5px 0 #991B1B; }
+
+        #game-canvas { display: block; position: absolute; top: 0; left: 0; z-index: 10; cursor: crosshair; }
+        .modal { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal.active { opacity: 1; pointer-events: auto; }
+    </style>
+</head>
+<body>
+
+    <canvas id="game-canvas"></canvas>
+
+    <!-- MÀN HÌNH MENU -->
+    <div id="screen-menu" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
+        
+        <div class="absolute top-8 flex flex-col items-center z-50">
+            <div class="relative w-[120px] h-[120px] group cursor-pointer" onclick="triggerLogoUpload()">
+                <img id="custom-logo" src="https://api.dicebear.com/7.x/bottts/svg?seed=ThayChinh" class="w-full h-full rounded-full object-cover border-4 border-[#FFB000] shadow-lg group-hover:scale-105 transition duration-300">
+                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                    <i class="fas fa-camera text-white text-3xl"></i>
+                </div>
+            </div>
+            <div class="mt-3 bg-white text-[#4A2E00] font-black px-6 py-2 rounded-full text-base border-4 border-[#FFB000] shadow-[0_4px_0_#4A2E00]"><i class="fas fa-crown text-[#FFB000]"></i> TOÁN PRO - THẦY HÙNG</div>
+        </div>
+
+        <div class="text-center mt-36 relative z-40 w-full max-w-md">
+            <h1 class="game-title">MATH<br>FISHING</h1>
+            <div class="bg-white/90 backdrop-blur rounded-3xl p-6 mt-4 shadow-2xl border-4 border-[#2A6BB8]">
+                <input type="text" id="player-name" placeholder="Nhập tên Cần thủ..." class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-4 border-blue-400 text-gray-800 focus:outline-none focus:border-[#FFB000] text-center text-2xl font-black mb-6 shadow-inner">
+                <button onclick="startGame()" class="btn-cartoon w-full py-4 text-3xl mb-4"><i class="fas fa-play mr-2"></i> BẮT ĐẦU CÂU</button>
+                <button onclick="showLeaderboard()" class="w-full py-3 rounded-2xl bg-[#2A6BB8] text-white font-black text-xl border-b-4 border-[#1A4B85] hover:bg-[#1A4B85] transition shadow-lg"><i class="fas fa-trophy mr-2 text-yellow-300"></i> Bảng Xếp Hạng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI GAMEPLAY -->
+    <div id="screen-game" class="hidden absolute inset-0 z-20 pointer-events-none">
+        <div class="flex justify-between items-start p-6">
+            <div class="bg-white/95 backdrop-blur border-4 border-[#FFB000] p-2 pr-6 rounded-full flex items-center gap-3 shadow-[0_5px_0_#4A2E00] pointer-events-auto">
+                <img id="game-logo" src="https://api.dicebear.com/7.x/bottts/svg?seed=ThayChinh" class="w-12 h-12 rounded-full border-2 border-[#4A2E00] object-cover">
+                <div><div class="text-[#4A2E00] font-black text-lg leading-tight" id="ui-player-name">Player</div><div class="text-xs text-[#FFB000] font-black leading-tight uppercase drop-shadow-sm">TOÁN PRO - THẦY HÙNG</div></div>
+            </div>
+            
+            <div class="flex gap-4 pointer-events-auto">
+                <div class="bg-white/95 border-4 border-yellow-400 px-6 py-2 rounded-2xl text-center shadow-[0_5px_0_#B87A00] min-w-[150px]">
+                    <div class="text-xs text-yellow-600 font-black uppercase">Điểm số</div>
+                    <div class="text-3xl font-['Fredoka_One'] text-[#FFB000]" id="ui-score">0</div>
+                </div>
+                <div class="bg-white/95 border-4 border-green-400 px-6 py-2 rounded-2xl text-center shadow-[0_5px_0_#166534] min-w-[150px]">
+                    <div class="text-xs text-green-600 font-black uppercase">Tiến độ câu</div>
+                    <div class="text-3xl font-['Fredoka_One'] text-[#22C55E]" id="ui-progress">0/10</div>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-6 py-2 rounded-full font-bold shadow-lg pointer-events-none backdrop-blur animate-pulse">
+            <i class="fas fa-hand-pointer text-yellow-400"></i> Bấm chọn con cá bạn muốn câu! (Cá to điểm cao)
+        </div>
+    </div>
+
+    <!-- MODAL QUIZ -->
+    <div id="modal-quiz" class="modal absolute inset-0 z-40 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div class="panel-cartoon p-8 max-w-4xl w-full mx-4 relative max-h-[95vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <div class="bg-blue-100 text-blue-800 px-5 py-2 rounded-xl text-base font-black border-2 border-blue-300 uppercase tracking-wider" id="quiz-topic">Chủ đề</div>
+                <div class="bg-[#FFF8E1] text-[#FF8F00] px-5 py-2 rounded-xl font-black text-xl border-2 border-[#FFC107] shadow-sm"><i class="fas fa-star"></i> +<span id="quiz-points">100</span> Điểm</div>
+            </div>
+            <div class="bg-white text-gray-900 p-8 rounded-2xl mb-6 border-4 border-gray-200 min-h-[160px] flex items-center justify-center text-center shadow-inner">
+                <div id="quiz-question" class="math-text text-2xl font-bold leading-relaxed w-full">Đang tải...</div>
+            </div>
+            <div class="grid grid-cols-2 gap-5" id="quiz-options"></div>
+            
+            <!-- KHUNG LỜI GIẢI CHI TIẾT (ẨN MẶC ĐỊNH) -->
+            <div id="quiz-explanation" class="hidden mt-6 p-5 bg-[#E8F5E9] border-4 border-[#81C784] rounded-2xl text-left shadow-inner">
+                <div class="flex items-center gap-2 mb-3 text-[#2E7D32] font-black text-xl uppercase tracking-wide">
+                    <i class="fas fa-lightbulb text-yellow-500"></i> Lời giải chi tiết
+                </div>
+                <div id="expl-content" class="math-text text-gray-800 text-lg leading-relaxed font-bold"></div>
+            </div>
+
+            <!-- NÚT TIẾP TỤC CÂU -->
+            <button id="btn-continue-fishing" class="hidden btn-cartoon w-full py-4 mt-6 text-2xl">TIẾP TỤC CÂU <i class="fas fa-arrow-right ml-2"></i></button>
+        </div>
+    </div>
+
+    <!-- MODAL KẾT QUẢ -->
+    <div id="modal-result" class="modal absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md">
+        <div class="panel-cartoon p-10 text-center max-w-md w-full mx-4">
+            <div id="result-icon" class="text-7xl mb-4 drop-shadow-lg">🏆</div>
+            <h2 id="result-title" class="font-['Fredoka_One'] text-4xl mb-4 text-[#22C55E]">HOÀN THÀNH!</h2>
+            <p id="result-desc" class="text-xl text-gray-600 font-bold mb-6">Bạn đã kết thúc chuyến đi câu.</p>
+            <div class="bg-gray-50 border-4 border-gray-200 rounded-2xl p-5 mb-8 shadow-inner"><div class="text-sm text-gray-500 font-black uppercase mb-1">Tổng điểm nhận được</div><div class="text-5xl font-['Fredoka_One'] text-[#FFB000]" id="result-score">1500</div></div>
+            <button id="btn-next-action" class="btn-cartoon w-full py-4 text-2xl">CHƠI LẠI TỪ ĐẦU</button>
+            <button onclick="showLeaderboard()" class="w-full py-3 mt-3 rounded-2xl bg-[#2A6BB8] text-white font-black text-xl border-b-4 border-[#1A4B85] hover:bg-[#1A4B85] transition shadow-lg">XEM BẢNG XẾP HẠNG</button>
+        </div>
+    </div>
+
+    <!-- MODAL XẾP HẠNG -->
+    <div id="modal-leaderboard" class="modal absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md">
+        <div class="panel-cartoon p-8 max-w-md w-full mx-4">
+            <h2 class="font-['Fredoka_One'] text-4xl text-center mb-8 text-[#FFB000]"><i class="fas fa-crown"></i> TOP CẦN THỦ</h2>
+            <div class="space-y-4 mb-8 max-h-[50vh] overflow-y-auto pr-2" id="leaderboard-list"></div>
+            <button onclick="closeLeaderboard()" class="w-full py-4 rounded-2xl bg-gray-200 text-gray-700 font-black text-xl border-b-4 border-gray-300 hover:bg-gray-300 transition">ĐÓNG LẠI</button>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================================================
+           1. LOGO UPLOAD (BẰNG JAVASCRIPT THUẦN - TRÁNH LỖI IFRAME)
+        ========================================================================= */
+        function loadSavedLogo() {
+            try {
+                const savedLogo = localStorage.getItem('thayHungLogoData');
+                if (savedLogo) {
+                    document.getElementById('custom-logo').src = savedLogo;
+                    document.getElementById('game-logo').src = savedLogo;
+                }
+            } catch(e) { console.error("Không thể tải logo đã lưu:", e); }
+        }
+        loadSavedLogo();
+
+        function triggerLogoUpload() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const dataURL = event.target.result;
+                    document.getElementById('custom-logo').src = dataURL;
+                    document.getElementById('game-logo').src = dataURL;
+                    try { localStorage.setItem('thayHungLogoData', dataURL); } 
+                    catch(err) { console.warn("Lỗi lưu ảnh:", err); }
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        /* =========================================================================
+           2. DATABASE 50 CÂU HỎI (MŨ VÀ LOGARIT)
+           25 Dễ (100đ) - 15 Vừa (150đ) - 10 Khó (300đ)
+           KHÔNG DÙNG: Đạo hàm. ĐÃ CÓ LỜI GIẢI CHI TIẾT.
+        ========================================================================= */
+        const QUESTION_BANK = [
+            // 25 CÂU DỄ (100 điểm)
+            { id: 1, level: 1, topic: "Hàm số logarit", points: 100, q: "Tập xác định của hàm số \\( y = \\log_2(x - 3) \\) là:", opts: ["\\( (3; +\\infty) \\)", "\\( [3; +\\infty) \\)", "\\( \\mathbb{R} \\setminus \\{3\\} \\)", "\\( (0; +\\infty) \\)"], ans: 0, expl: "Hàm số \\( y = \\log_a f(x) \\) xác định khi \\( f(x) > 0 \\). Ở đây \\( x - 3 > 0 \\Leftrightarrow x > 3 \\)." },
+            { id: 2, level: 1, topic: "Hàm số logarit", points: 100, q: "Tập xác định của hàm số \\( y = \\ln(2x - 4) \\) là:", opts: ["\\( (2; +\\infty) \\)", "\\( [2; +\\infty) \\)", "\\( \\mathbb{R} \\)", "\\( (0; +\\infty) \\)"], ans: 0, expl: "Điều kiện xác định của hàm logarit tự nhiên (ln) là biểu thức bên trong lớn hơn 0: \\( 2x - 4 > 0 \\Leftrightarrow x > 2 \\)." },
+            { id: 3, level: 1, topic: "Hàm số logarit", points: 100, q: "Tập xác định của hàm số \\( y = \\log(5 - x) \\) là:", opts: ["\\( (5; +\\infty) \\)", "\\( (-\\infty; 5) \\)", "\\( \\mathbb{R} \\)", "\\( \\mathbb{R} \\setminus \\{5\\} \\)"], ans: 1, expl: "Điều kiện xác định là \\( 5 - x > 0 \\Leftrightarrow x < 5 \\). Vậy tập xác định là \\( (-\\infty; 5) \\)." },
+            { id: 4, level: 1, topic: "Hàm số mũ", points: 100, q: "Hàm số nào sau đây đồng biến trên \\( \\mathbb{R} \\)?", opts: ["\\( y = 2^x \\)", "\\( y = (0.5)^x \\)", "\\( y = \\log_2 x \\)", "\\( y = \\ln x \\)"], ans: 0, expl: "Hàm số mũ \\( y = a^x \\) có tập xác định \\( \\mathbb{R} \\) và đồng biến khi \\( a > 1 \\). Các hàm số logarit chỉ xác định trên \\( (0; +\\infty) \\)." },
+            { id: 5, level: 1, topic: "Hàm số mũ", points: 100, q: "Hàm số nào sau đây nghịch biến trên \\( \\mathbb{R} \\)?", opts: ["\\( y = 3^x \\)", "\\( y = \\log_{1/3} x \\)", "\\( y = (\\frac{1}{3})^x \\)", "\\( y = e^x \\)"], ans: 2, expl: "Hàm số mũ \\( y = a^x \\) nghịch biến trên \\( \\mathbb{R} \\) khi \\( 0 < a < 1 \\). Ở đây \\( a = \\frac{1}{3} < 1 \\)." },
+            { id: 6, level: 1, topic: "Hàm số mũ", points: 100, q: "Tập giá trị của hàm số \\( y = e^x \\) là:", opts: ["\\( \\mathbb{R} \\)", "\\( [0; +\\infty) \\)", "\\( (0; +\\infty) \\)", "\\( (-\\infty; 0) \\)"], ans: 2, expl: "Hàm số mũ \\( y = a^x \\) luôn nhận giá trị dương với mọi \\( x \\). Tập giá trị là \\( (0; +\\infty) \\)." },
+            { id: 7, level: 1, topic: "Hàm số mũ", points: 100, q: "Đồ thị hàm số \\( y = a^x \\) (với \\( a > 0, a \\neq 1 \\)) luôn đi qua điểm nào sau đây?", opts: ["\\( (0; 1) \\)", "\\( (1; 0) \\)", "\\( (0; 0) \\)", "\\( (1; a) \\)"], ans: 0, expl: "Thay \\( x = 0 \\) vào ta được \\( y = a^0 = 1 \\). Vậy đồ thị luôn đi qua điểm \\( (0; 1) \\)." },
+            { id: 8, level: 1, topic: "Hàm số logarit", points: 100, q: "Đồ thị hàm số \\( y = \\log_a x \\) (với \\( a > 0, a \\neq 1 \\)) luôn đi qua điểm nào sau đây?", opts: ["\\( (0; 1) \\)", "\\( (1; 0) \\)", "\\( (0; 0) \\)", "\\( (a; 1) \\)"], ans: 1, expl: "Thay \\( x = 1 \\) vào ta được \\( y = \\log_a 1 = 0 \\). Vậy đồ thị luôn đi qua điểm \\( (1; 0) \\)." },
+            { id: 9, level: 1, topic: "Phương trình mũ", points: 100, q: "Nghiệm của phương trình \\( 2^{x-1} = 4 \\) là:", opts: ["\\( x = 2 \\)", "\\( x = 3 \\)", "\\( x = 1 \\)", "\\( x = 4 \\)"], ans: 1, expl: "Ta có \\( 2^{x-1} = 2^2 \\Leftrightarrow x - 1 = 2 \\Leftrightarrow x = 3 \\)." },
+            { id: 10, level: 1, topic: "Phương trình mũ", points: 100, q: "Nghiệm của phương trình \\( 3^{2x-1} = 27 \\) là:", opts: ["\\( x = 2 \\)", "\\( x = 1 \\)", "\\( x = 3 \\)", "\\( x = 0 \\)"], ans: 0, expl: "Ta có \\( 3^{2x-1} = 3^3 \\Leftrightarrow 2x - 1 = 3 \\Leftrightarrow 2x = 4 \\Leftrightarrow x = 2 \\)." },
+            { id: 11, level: 1, topic: "Phương trình mũ", points: 100, q: "Nghiệm của phương trình \\( 5^{x+2} = 1 \\) là:", opts: ["\\( x = -2 \\)", "\\( x = 2 \\)", "\\( x = 0 \\)", "\\( x = 1 \\)"], ans: 0, expl: "Ta có \\( 5^{x+2} = 5^0 \\Leftrightarrow x + 2 = 0 \\Leftrightarrow x = -2 \\)." },
+            { id: 12, level: 1, topic: "Phương trình mũ", points: 100, q: "Nghiệm của phương trình \\( 10^x = 100 \\) là:", opts: ["\\( x = 1 \\)", "\\( x = 10 \\)", "\\( x = 2 \\)", "\\( x = 0 \\)"], ans: 2, expl: "Ta có \\( 10^x = 10^2 \\Leftrightarrow x = 2 \\)." },
+            { id: 13, level: 1, topic: "Phương trình logarit", points: 100, q: "Nghiệm của phương trình \\( \\log_2(x-1) = 3 \\) là:", opts: ["\\( x = 8 \\)", "\\( x = 9 \\)", "\\( x = 7 \\)", "\\( x = 10 \\)"], ans: 1, expl: "Điều kiện \\( x > 1 \\). Phương trình tương đương \\( x - 1 = 2^3 = 8 \\Leftrightarrow x = 9 \\)." },
+            { id: 14, level: 1, topic: "Phương trình logarit", points: 100, q: "Nghiệm của phương trình \\( \\log_3(2x+1) = 2 \\) là:", opts: ["\\( x = 4 \\)", "\\( x = 5 \\)", "\\( x = 3 \\)", "\\( x = 8 \\)"], ans: 0, expl: "Điều kiện \\( x > -0.5 \\). Phương trình tương đương \\( 2x + 1 = 3^2 = 9 \\Leftrightarrow 2x = 8 \\Leftrightarrow x = 4 \\)." },
+            { id: 15, level: 1, topic: "Phương trình logarit", points: 100, q: "Nghiệm của phương trình \\( \\ln(x) = 0 \\) là:", opts: ["\\( x = e \\)", "\\( x = 0 \\)", "\\( x = 1 \\)", "\\( x = 10 \\)"], ans: 2, expl: "Điều kiện \\( x > 0 \\). Phương trình tương đương \\( x = e^0 = 1 \\)." },
+            { id: 16, level: 1, topic: "Phương trình logarit", points: 100, q: "Nghiệm của phương trình \\( \\log(x) = 1 \\) là:", opts: ["\\( x = 1 \\)", "\\( x = e \\)", "\\( x = 0 \\)", "\\( x = 10 \\)"], ans: 3, expl: "Điều kiện \\( x > 0 \\). Logarit cơ số 10, phương trình tương đương \\( x = 10^1 = 10 \\)." },
+            { id: 17, level: 1, topic: "Bất phương trình mũ", points: 100, q: "Tập nghiệm của bất phương trình \\( 2^x > 8 \\) là:", opts: ["\\( (-\\infty; 3) \\)", "\\( (3; +\\infty) \\)", "\\( [3; +\\infty) \\)", "\\( (2; +\\infty) \\)"], ans: 1, expl: "Bất phương trình tương đương \\( 2^x > 2^3 \\). Do cơ số 2 > 1 nên \\( x > 3 \\)." },
+            { id: 18, level: 1, topic: "Bất phương trình mũ", points: 100, q: "Tập nghiệm của bất phương trình \\( 3^{x-1} \\leq 9 \\) là:", opts: ["\\( (-\\infty; 3] \\)", "\\( [3; +\\infty) \\)", "\\( (-\\infty; 2] \\)", "\\( (-\\infty; 3) \\)"], ans: 0, expl: "Bất phương trình tương đương \\( 3^{x-1} \\leq 3^2 \\). Vì cơ số 3 > 1 nên \\( x - 1 \\leq 2 \\Leftrightarrow x \\leq 3 \\)." },
+            { id: 19, level: 1, topic: "Bất phương trình mũ", points: 100, q: "Tập nghiệm của bất phương trình \\( (\\frac{1}{2})^x < \\frac{1}{8} \\) là:", opts: ["\\( (-\\infty; 3) \\)", "\\( (3; +\\infty) \\)", "\\( (-\\infty; -3) \\)", "\\( (-3; +\\infty) \\)"], ans: 1, expl: "Ta có \\( (\\frac{1}{2})^x < (\\frac{1}{2})^3 \\). Vì cơ số \\( \\frac{1}{2} < 1 \\) nên đổi chiều dấu bất đẳng thức: \\( x > 3 \\)." },
+            { id: 20, level: 1, topic: "Bất phương trình logarit", points: 100, q: "Tập nghiệm của bất phương trình \\( \\log_2 x > 3 \\) là:", opts: ["\\( (8; +\\infty) \\)", "\\( (-\\infty; 8) \\)", "\\( (0; 8) \\)", "\\( [8; +\\infty) \\)"], ans: 0, expl: "Điều kiện \\( x > 0 \\). Vì cơ số 2 > 1 nên \\( \\log_2 x > 3 \\Leftrightarrow x > 2^3 = 8 \\)." },
+            { id: 21, level: 1, topic: "Bất phương trình logarit", points: 100, q: "Tập nghiệm của bất phương trình \\( \\log_3 x \\leq 2 \\) là:", opts: ["\\( (0; 9] \\)", "\\( (-\\infty; 9] \\)", "\\( (9; +\\infty) \\)", "\\( [0; 9] \\)"], ans: 0, expl: "Điều kiện \\( x > 0 \\). Vì cơ số 3 > 1 nên \\( \\log_3 x \\leq 2 \\Leftrightarrow x \\leq 3^2 = 9 \\). Kết hợp điều kiện ta được \\( x \\in (0; 9] \\)." },
+            { id: 22, level: 1, topic: "Bất phương trình logarit", points: 100, q: "Tập nghiệm của bất phương trình \\( \\log_{0.5} x > -1 \\) là:", opts: ["\\( (2; +\\infty) \\)", "\\( (0; 2) \\)", "\\( (-\\infty; 2) \\)", "\\( (0; +\\infty) \\)"], ans: 1, expl: "Điều kiện \\( x > 0 \\). Vì cơ số 0.5 < 1 nên đổi chiều: \\( x < 0.5^{-1} = 2 \\). Kết hợp đk: \\( 0 < x < 2 \\)." },
+            { id: 23, level: 1, topic: "Hàm số logarit", points: 100, q: "Với \\( a, b, c \\) là các số thực dương và \\( a \\neq 1 \\), mệnh đề nào sau đây ĐÚNG?", opts: ["\\( \\log_a(bc) = \\log_a b + \\log_a c \\)", "\\( \\log_a(bc) = \\log_a b \\cdot \\log_a c \\)", "\\( \\log_a(b+c) = \\log_a b + \\log_a c \\)", "\\( \\log_a(bc) = \\log_a b - \\log_a c \\)"], ans: 0, expl: "Logarit của một tích bằng tổng các logarit (nếu biểu thức xác định): \\( \\log_a(bc) = \\log_a b + \\log_a c \\)." },
+            { id: 24, level: 1, topic: "Hàm số logarit", points: 100, q: "Với \\( a, b, c \\) là các số thực dương và \\( a \\neq 1 \\), mệnh đề nào sau đây ĐÚNG?", opts: ["\\( \\log_a(b-c) = \\log_a b - \\log_a c \\)", "\\( \\log_a(\\frac{b}{c}) = \\log_a b - \\log_a c \\)", "\\( \\log_a(\\frac{b}{c}) = \\frac{\\log_a b}{\\log_a c} \\)", "\\( \\log_a(b+c) = \\log_a b \\cdot \\log_a c \\)"], ans: 1, expl: "Logarit của một thương bằng hiệu các logarit (nếu biểu thức xác định): \\( \\log_a(\\frac{b}{c}) = \\log_a b - \\log_a c \\)." },
+            { id: 25, level: 1, topic: "Hàm số logarit", points: 100, q: "Giá trị của biểu thức \\( a^{\\log_a b} \\) (với \\( a > 0, a \\neq 1, b > 0 \\)) bằng:", opts: ["\\( a \\)", "\\( 1 \\)", "\\( b \\)", "\\( \\log_a b \\)"], ans: 2, expl: "Theo tính chất cơ bản của logarit và lũy thừa (định nghĩa logarit), ta luôn có \\( a^{\\log_a b} = b \\)." },
+
+            // 15 CÂU VỪA (150 điểm)
+            { id: 26, level: 2, topic: "Hàm số logarit", points: 150, q: "Tập xác định của hàm số \\( y = \\log_2(x^2 - 5x + 6) \\) là:", opts: ["\\( (-\\infty; 2) \\cup (3; +\\infty) \\)", "\\( (2; 3) \\)", "\\( \\mathbb{R} \\setminus \\{2; 3\\} \\)", "\\( [3; +\\infty) \\)"], ans: 0, expl: "Điều kiện: \\( x^2 - 5x + 6 > 0 \\Leftrightarrow x < 2 \\) hoặc \\( x > 3 \\)." },
+            { id: 27, level: 2, topic: "Hàm số logarit", points: 150, q: "Tập xác định của hàm số \\( y = \\log(4 - x^2) \\) là:", opts: ["\\( (-2; 2) \\)", "\\( [-2; 2] \\)", "\\( (-\\infty; -2) \\cup (2; +\\infty) \\)", "\\( \\mathbb{R} \\setminus \\{\\pm 2\\} \\)"], ans: 0, expl: "Điều kiện: \\( 4 - x^2 > 0 \\Leftrightarrow x^2 < 4 \\Leftrightarrow -2 < x < 2 \\)." },
+            { id: 28, level: 2, topic: "Phương trình mũ", points: 150, q: "Tổng các nghiệm của phương trình \\( 4^x - 3 \\cdot 2^x + 2 = 0 \\) là:", opts: ["\\( 0 \\)", "\\( 1 \\)", "\\( 2 \\)", "\\( 3 \\)"], ans: 1, expl: "Đặt \\( t = 2^x \\) (\\( t > 0 \\)), pt trở thành \\( t^2 - 3t + 2 = 0 \\Leftrightarrow t = 1 \\) hoặc \\( t = 2 \\). Với \\( t=1 \\Rightarrow x=0 \\); với \\( t=2 \\Rightarrow x=1 \\). Tổng là 1." },
+            { id: 29, level: 2, topic: "Phương trình mũ", points: 150, q: "Tích các nghiệm của phương trình \\( 9^x - 4 \\cdot 3^x + 3 = 0 \\) là:", opts: ["\\( 0 \\)", "\\( 1 \\)", "\\( 3 \\)", "\\( 4 \\)"], ans: 0, expl: "Đặt \\( t = 3^x \\) (\\( t > 0 \\)), pt trở thành \\( t^2 - 4t + 3 = 0 \\Leftrightarrow t = 1 \\) hoặc \\( t = 3 \\). Với \\( t=1 \\Rightarrow x=0 \\); với \\( t=3 \\Rightarrow x=1 \\). Tích là \\( 0 \\cdot 1 = 0 \\)." },
+            { id: 30, level: 2, topic: "Phương trình logarit", points: 150, q: "Tổng các nghiệm của phương trình \\( \\log_2^2 x - 5\\log_2 x + 6 = 0 \\) là:", opts: ["\\( 5 \\)", "\\( 6 \\)", "\\( 12 \\)", "\\( 10 \\)"], ans: 2, expl: "Đặt \\( t = \\log_2 x \\), pt thành \\( t^2 - 5t + 6 = 0 \\Leftrightarrow t = 2 \\) hoặc \\( t = 3 \\). Suy ra \\( x = 2^2 = 4 \\) hoặc \\( x = 2^3 = 8 \\). Tổng là 12." },
+            { id: 31, level: 2, topic: "Phương trình mũ", points: 150, q: "Tập nghiệm của phương trình \\( 2^x + 2^{1-x} = 3 \\) là:", opts: ["\\( \\{-1; 0\\} \\)", "\\( \\{0; 1\\} \\)", "\\( \\{1; 2\\} \\)", "\\( \\emptyset \\)"], ans: 1, expl: "Nhân 2 vế với \\( 2^x \\) ta được: \\( (2^x)^2 - 3 \\cdot 2^x + 2 = 0 \\Leftrightarrow 2^x = 1 \\) hoặc \\( 2^x = 2 \\). Vậy \\( x = 0 \\) hoặc \\( x = 1 \\)." },
+            { id: 32, level: 2, topic: "Phương trình logarit", points: 150, q: "Nghiệm của phương trình \\( \\log_3 x + \\log_3 (x-2) = 1 \\) là:", opts: ["\\( x = 3 \\)", "\\( x = -1 \\)", "\\( x = 3, x = -1 \\)", "\\( x = 4 \\)"], ans: 0, expl: "Điều kiện: \\( x > 2 \\). Pt tương đương \\( \\log_3(x^2 - 2x) = 1 \\Leftrightarrow x^2 - 2x - 3 = 0 \\). Nghiệm \\( x=3 \\) (TM) hoặc \\( x=-1 \\) (Loại)." },
+            { id: 33, level: 2, topic: "Phương trình mũ", points: 150, q: "Phương trình \\( 2^{x^2-3x+2} = 1 \\) có bao nhiêu nghiệm?", opts: ["0", "1", "2", "3"], ans: 2, expl: "Pt tương đương \\( x^2 - 3x + 2 = 0 \\). Bấm máy ta có 2 nghiệm phân biệt là \\( x=1 \\) và \\( x=2 \\)." },
+            { id: 34, level: 2, topic: "Bất phương trình mũ", points: 150, q: "Tập nghiệm của bất phương trình \\( 4^x - 5 \\cdot 2^x + 4 \\leq 0 \\) là:", opts: ["\\( [0; 2] \\)", "\\( (-\\infty; 0] \\cup [2; +\\infty) \\)", "\\( [1; 4] \\)", "\\( (0; 2) \\)"], ans: 0, expl: "Đặt \\( t = 2^x \\) (\\( t > 0 \\)), bpt thành \\( t^2 - 5t + 4 \\leq 0 \\Leftrightarrow 1 \\leq t \\leq 4 \\). Do đó \\( 1 \\leq 2^x \\leq 4 \\Leftrightarrow 0 \\leq x \\leq 2 \\)." },
+            { id: 35, level: 2, topic: "Bất phương trình logarit", points: 150, q: "Tập nghiệm của bất phương trình \\( \\log_2^2 x - 3\\log_2 x + 2 < 0 \\) là:", opts: ["\\( (1; 2) \\)", "\\( (2; 4) \\)", "\\( (-\\infty; 2) \\cup (4; +\\infty) \\)", "\\( [2; 4] \\)"], ans: 1, expl: "Đặt \\( t = \\log_2 x \\), ta có \\( t^2 - 3t + 2 < 0 \\Leftrightarrow 1 < t < 2 \\). Do đó \\( 1 < \\log_2 x < 2 \\Leftrightarrow 2 < x < 4 \\)." },
+            { id: 36, level: 2, topic: "Bất phương trình logarit", points: 150, q: "Tập nghiệm của bất phương trình \\( \\log_2(x-1) \\leq \\log_2(2x-3) \\) là:", opts: ["\\( [2; +\\infty) \\)", "\\( (1.5; +\\infty) \\)", "\\( (1.5; 2] \\)", "\\( (1; 2] \\)"], ans: 0, expl: "Bpt tương đương hệ: \\( \\begin{cases} x - 1 > 0 \\\\ 2x - 3 > 0 \\\\ x - 1 \\leq 2x - 3 \\end{cases} \\Leftrightarrow \\begin{cases} x > 1 \\\\ x > 1.5 \\\\ x \\geq 2 \\end{cases} \\Leftrightarrow x \\geq 2 \\)." },
+            { id: 37, level: 2, topic: "Bất phương trình mũ", points: 150, q: "Tập nghiệm của bất phương trình \\( 2^{x^2-x} < 4 \\) là:", opts: ["\\( (-\\infty; -1) \\cup (2; +\\infty) \\)", "\\( (-1; 2) \\)", "\\( (1; 2) \\)", "\\( (-2; 1) \\)"], ans: 1, expl: "Bpt tương đương \\( x^2 - x < 2 \\Leftrightarrow x^2 - x - 2 < 0 \\Leftrightarrow -1 < x < 2 \\)." },
+            { id: 38, level: 2, topic: "Hàm số logarit", points: 150, q: "Tập xác định của hàm số \\( y = \\sqrt{\\log_2 x - 1} \\) là:", opts: ["\\( (0; +\\infty) \\)", "\\( (2; +\\infty) \\)", "\\( [2; +\\infty) \\)", "\\( [1; +\\infty) \\)"], ans: 2, expl: "Hàm số có nghĩa khi \\( \\log_2 x - 1 \\geq 0 \\Leftrightarrow \\log_2 x \\geq 1 \\Leftrightarrow x \\geq 2 \\)." },
+            { id: 39, level: 2, topic: "Phương trình mũ", points: 150, q: "Giao điểm của đồ thị hàm số \\( y = 3^{x+1} \\) và đường thẳng \\( y = 27 \\) có hoành độ là:", opts: ["\\( 2 \\)", "\\( 3 \\)", "\\( 4 \\)", "\\( 1 \\)"], ans: 0, expl: "Phương trình hoành độ giao điểm: \\( 3^{x+1} = 27 \\Leftrightarrow 3^{x+1} = 3^3 \\Leftrightarrow x + 1 = 3 \\Leftrightarrow x = 2 \\)." },
+            { id: 40, level: 2, topic: "Phương trình logarit", points: 150, q: "Nghiệm của phương trình \\( \\log_2(x+1) + 1 = \\log_2(3x-1) \\) là:", opts: ["\\( x = 1 \\)", "\\( x = 2 \\)", "\\( x = 3 \\)", "\\( x = 4 \\)"], ans: 2, expl: "Điều kiện \\( x > 1/3 \\). Pt tương đương \\( \\log_2(x+1) + \\log_2 2 = \\log_2(3x-1) \\Leftrightarrow \\log_2[2(x+1)] = \\log_2(3x-1) \\Leftrightarrow 2x+2 = 3x-1 \\Leftrightarrow x=3 \\)." },
+
+            // 10 CÂU KHÓ (300 điểm)
+            { id: 41, level: 3, topic: "Bất phương trình logarit", points: 300, q: "Có bao nhiêu số nguyên \\( x \\) thỏa mãn bất phương trình \\( \\log_2(x^2 - 4x + 3) < 3 \\)?", opts: ["1", "2", "3", "4"], ans: 1, expl: "ĐK: \\( x^2-4x+3 > 0 \\Leftrightarrow x < 1 \\) hoặc \\( x > 3 \\). Bpt: \\( x^2-4x+3 < 8 \\Leftrightarrow x^2-4x-5 < 0 \\Leftrightarrow -1 < x < 5 \\). Kết hợp ĐK ta có \\( x \\in (-1; 1) \\cup (3; 5) \\). Các số nguyên là 0, 4. Có 2 số." },
+            { id: 42, level: 3, topic: "Phương trình mũ", points: 300, q: "Tìm \\( m \\) để phương trình \\( 4^x - 2^{x+1} + m = 0 \\) có nghiệm.", opts: ["\\( m \\leq 1 \\)", "\\( m \\geq 1 \\)", "\\( m < 1 \\)", "\\( m \\leq 0 \\)"], ans: 0, expl: "Đặt \\( t = 2^x \\) (\\( t > 0 \\)), pt thành \\( t^2 - 2t + m = 0 \\Leftrightarrow m = 2t - t^2 \\). Khảo sát \\( f(t) = 2t - t^2 \\) trên \\( (0; +\\infty) \\). Bảng biến thiên cho thấy max của \\( f(t) \\) là 1 tại \\( t = 1 \\). Vậy để có nghiệm \\( t > 0 \\) thì \\( m \\leq 1 \\)." },
+            { id: 43, level: 3, topic: "Phương trình mũ", points: 300, q: "Tìm \\( m \\) để phương trình \\( 9^x - 2 \\cdot 3^x + m = 0 \\) có hai nghiệm phân biệt.", opts: ["\\( m < 1 \\)", "\\( 0 < m < 1 \\)", "\\( m > 0 \\)", "\\( m \\geq 1 \\)"], ans: 1, expl: "Đặt \\( t = 3^x \\) (\\( t > 0 \\)), pt thành \\( t^2 - 2t + m = 0 \\). Để pt đầu có 2 nghiệm pb thì pt sau phải có 2 nghiệm dương pb. ĐK: \\( \\Delta' = 1 - m > 0 \\), \\( S = 2 > 0 \\), \\( P = m > 0 \\). Suy ra \\( 0 < m < 1 \\)." },
+            { id: 44, level: 3, topic: "Phương trình logarit", points: 300, q: "Tìm \\( m \\) để phương trình \\( \\log_2^2 x - 2\\log_2 x + m = 0 \\) có 2 nghiệm phân biệt \\( x_1, x_2 \\) thỏa mãn \\( x_1 x_2 = 4 \\).", opts: ["\\( m = 1 \\)", "\\( m < 1 \\)", "\\( m > 1 \\)", "\\( m \\leq 1 \\)"], ans: 1, expl: "Đặt \\( t = \\log_2 x \\), pt thành \\( t^2 - 2t + m = 0 \\). Gọi 2 nghiệm là \\( t_1, t_2 \\). Ta có \\( x_1 x_2 = 2^{t_1} \\cdot 2^{t_2} = 2^{t_1+t_2} = 2^S = 2^2 = 4 \\). Điều này luôn đúng nếu pt có 2 nghiệm pb. ĐK có 2 nghiệm pb: \\( \\Delta' = 1 - m > 0 \\Leftrightarrow m < 1 \\)." },
+            { id: 45, level: 3, topic: "Bất phương trình logarit", points: 300, q: "Có bao nhiêu số nguyên \\( x \\) để bất phương trình \\( \\frac{\\log_2(x-1)}{x^2-9} < 0 \\) có nghĩa và đúng?", opts: ["0", "1", "2", "Vô số"], ans: 0, expl: "ĐK: \\( x > 1, x \\neq 3 \\). Bpt xảy ra 2 trường hợp. TH1: Tử > 0, Mẫu < 0 \\( \\Rightarrow x > 2 \\) và \\( -3 < x < 3 \\Rightarrow x \\in (2; 3) \\). TH2: Tử < 0, Mẫu > 0 \\( \\Rightarrow 1 < x < 2 \\) và (\\( x > 3 \\) hoặc \\( x < -3 \\)) \\( \\Rightarrow \\) Vô nghiệm. Vậy nghiệm là \\( (2; 3) \\). Không có số nguyên nào nằm trong khoảng này." },
+            { id: 46, level: 3, topic: "Phương trình logarit", points: 300, q: "Tích các nghiệm của phương trình \\( \\log_2 x \\cdot \\log_3 x = \\log_2 x + \\log_3 x \\) là:", opts: ["\\( 1 \\)", "\\( 6 \\)", "\\( 2 \\)", "\\( 3 \\)"], ans: 1, expl: "Điều kiện \\( x > 0 \\). Rõ ràng \\( x = 1 \\) là nghiệm (do \\( 0 = 0 \\)). Nếu \\( x \\neq 1 \\), chia 2 vế cho \\( \\log_2 x \\cdot \\log_3 x \\), ta được \\( 1 = \\frac{1}{\\log_3 x} + \\frac{1}{\\log_2 x} = \\log_x 3 + \\log_x 2 = \\log_x 6 \\Rightarrow x = 6 \\). Tích 2 nghiệm là 6." },
+            { id: 47, level: 3, topic: "Bất phương trình logarit", points: 300, q: "Có bao nhiêu cặp số nguyên \\( (x, y) \\) thỏa mãn \\( \\log_2(x^2 + y^2) \\leq 2 \\)?", opts: ["8", "9", "12", "13"], ans: 2, expl: "Điều kiện: \\( x^2 + y^2 > 0 \\) (nên bỏ gốc (0,0)). Bpt \\( \\Rightarrow x^2 + y^2 \\leq 4 \\). Các cặp số nguyên (x,y) thỏa mãn: (\\(\\pm 1\\), 0), (0, \\(\\pm 1\\)) có 4 cặp; (\\(\\pm 1\\), \\(\\pm 1\\)) có 4 cặp; (\\(\\pm 2\\), 0), (0, \\(\\pm 2\\)) có 4 cặp. Tổng là 12 cặp." },
+            { id: 48, level: 3, topic: "Bất phương trình logarit", points: 300, q: "Tập nghiệm của bất phương trình \\( \\log_2(x+1) + \\log_2(x-1) \\leq 3 \\) là:", opts: ["\\( [-3; 3] \\)", "\\( (1; 3] \\)", "\\( (1; +\\infty) \\)", "\\( (-1; 3] \\)"], ans: 1, expl: "ĐK: \\( x+1 > 0 \\) và \\( x-1 > 0 \\Rightarrow x > 1 \\). Bpt tương đương \\( \\log_2(x^2 - 1) \\leq 3 \\Leftrightarrow x^2 - 1 \\leq 8 \\Leftrightarrow x^2 \\leq 9 \\Leftrightarrow -3 \\leq x \\leq 3 \\). Kết hợp ĐK ta được \\( x \\in (1; 3] \\)." },
+            { id: 49, level: 3, topic: "Phương trình mũ", points: 300, q: "Phương trình \\( 3^x + 4^x = 5^x \\) có bao nhiêu nghiệm thực?", opts: ["1", "2", "0", "Vô số"], ans: 0, expl: "Chia cả hai vế cho \\( 5^x \\), ta được \\( (\\frac{3}{5})^x + (\\frac{4}{5})^x = 1 \\). Vế trái là hàm số nghịch biến liên tục, vế phải là hằng số. Do đó phương trình có tối đa 1 nghiệm. Dễ thấy \\( x = 2 \\) thỏa mãn. Vậy pt có duy nhất 1 nghiệm." },
+            { id: 50, level: 3, topic: "Phương trình logarit", points: 300, q: "Cho \\( x, y > 0 \\) thỏa mãn \\( \\log_3 \\frac{x+y}{xy} = xy - (x+y) \\). Giá trị nhỏ nhất của biểu thức \\( P = x + y \\) là:", opts: ["2", "4", "6", "8"], ans: 1, expl: "Pt \\( \\Leftrightarrow \\log_3(x+y) + (x+y) = \\log_3(xy) + xy \\). Xét hàm \\( f(t) = \\log_3 t + t \\) đồng biến trên \\( (0; +\\infty) \\), ta suy ra \\( x+y = xy \\). Áp dụng BĐT AM-GM: \\( (x+y)^2 \\geq 4xy = 4(x+y) \\Rightarrow x+y \\geq 4 \\) (vì \\( x+y>0 \\)). Min là 4." }
+        ];
+
+        /* =========================================================================
+           3. ĐỒ HỌA VECTOR (CÁ VÀ CUA) THÊM BIẾN SVGASSETS ĐỂ HIỂN THỊ
+        ========================================================================= */
+        const svgAssets = [
+            `<svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="30" rx="40" ry="25" fill="#FF8C00"/><path d="M90,30 L110,15 L105,30 L110,45 Z" fill="#FF4500"/><path d="M30,10 Q35,30 30,50 M50,5 Q55,30 50,55 M70,10 Q75,30 70,50" fill="none" stroke="#333" stroke-width="4"/><circle cx="25" cy="25" r="5" fill="white"/><circle cx="23" cy="25" r="2.5" fill="black"/></svg>`,
+            `<svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg"><path d="M80,30 C80,50 30,60 10,40 L0,30 L10,20 C30,0 80,10 80,30 Z" fill="#1E90FF"/><path d="M80,30 L105,10 L95,30 L105,50 Z" fill="#DC143C"/><path d="M40,5 L55,-5 L50,15 Z" fill="#DC143C"/><path d="M40,55 L55,65 L50,45 Z" fill="#DC143C"/><circle cx="20" cy="25" r="6" fill="white"/><circle cx="18" cy="25" r="3" fill="black"/></svg>`,
+            `<svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg"><ellipse cx="45" cy="30" rx="35" ry="20" fill="#FF6347"/><path d="M80,30 L95,15 L90,30 L95,45 Z" fill="#FF6347"/><path d="M35,10 Q45,30 35,50 M55,10 Q65,30 55,50" fill="none" stroke="#FFF" stroke-width="6"/><circle cx="22" cy="25" r="4" fill="white"/><circle cx="20" cy="25" r="2" fill="black"/></svg>`,
+            `<svg viewBox="0 0 110 70" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="35" rx="45" ry="30" fill="#9ACD32"/><path d="M95,35 L120,20 L110,35 L120,50 Z" fill="#6B8E23"/><circle cx="40" cy="20" r="10" fill="#556B2F" opacity="0.6"/><circle cx="70" cy="45" r="12" fill="#556B2F" opacity="0.6"/><circle cx="50" cy="55" r="8" fill="#556B2F" opacity="0.6"/><circle cx="25" cy="30" r="7" fill="white"/><circle cx="22" cy="30" r="3" fill="black"/></svg>`,
+            `<svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg"><path d="M90,30 C90,50 40,55 15,30 C40,5 90,10 90,30 Z" fill="#FFD700"/><path d="M90,30 L110,15 L100,30 L110,45 Z" fill="#FFA500"/><path d="M25,25 L80,25 M20,35 L85,35" stroke="#4169E1" stroke-width="4" stroke-linecap="round"/><circle cx="25" cy="28" r="5" fill="white"/><circle cx="23" cy="28" r="2" fill="black"/></svg>`,
+            `<svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="50" rx="30" ry="20" fill="#FF4500"/><path d="M25,40 C10,20 0,10 15,10 C25,10 30,25 35,35 Z" fill="#FF0000"/><path d="M75,40 C90,20 100,10 85,10 C75,10 70,25 65,35 Z" fill="#FF0000"/><path d="M25,60 L10,75 M35,65 L25,85 M65,65 L75,85 M75,60 L90,75" stroke="#FF4500" stroke-width="4" stroke-linecap="round"/><circle cx="35" cy="35" r="6" fill="white"/><circle cx="35" cy="35" r="3" fill="black"/><circle cx="65" cy="35" r="6" fill="white"/><circle cx="65" cy="35" r="3" fill="black"/></svg>`,
+            `<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"><path d="M 150,50 Q 180,20 190,10 Q 170,50 190,90 Q 180,80 150,50 Z" fill="#455A64"/><path d="M 90,30 L 120,0 L 130,30 Z" fill="#455A64"/><path d="M 80,65 L 110,95 L 110,65 Z" fill="#455A64"/><path d="M 10,55 Q 10,20 100,30 Q 160,40 160,50 Q 160,60 100,70 Q 20,80 10,55 Z" fill="#546E7A"/><path d="M 10,55 Q 40,75 100,70 Q 160,60 160,50 Q 100,60 10,55 Z" fill="#CFD8DC"/><path d="M 10,55 Q 30,65 50,55 L 40,45 Q 20,50 10,55 Z" fill="#111"/><path d="M 13,54 L 18,49 L 23,54 L 28,49 L 33,54 L 38,49 L 43,54" stroke="#FFF" stroke-width="2" fill="none" stroke-linejoin="miter"/><path d="M 15,55 L 20,60 L 25,56 L 30,61 L 35,56 L 40,61 L 45,56" stroke="#FFF" stroke-width="2" fill="none" stroke-linejoin="miter"/><circle cx="45" cy="35" r="5" fill="white"/><circle cx="44" cy="36" r="2" fill="#D32F2F"/><path d="M 38,30 L 52,38" stroke="#111" stroke-width="3" stroke-linecap="round"/><path d="M 65,40 L 60,55 M 72,40 L 67,55 M 79,40 L 74,55" stroke="#37474F" stroke-width="2" stroke-linecap="round"/></svg>`,
+            `<svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"><path d="M 160,80 C 180,60 200,50 200,50 C 190,70 190,90 200,110 C 180,100 160,80 160,80 Z" fill="#0277BD"/><path d="M 170,80 C 140,100 100,110 50,100 C 20,95 0,80 0,70 C 0,50 40,30 90,30 C 140,30 160,60 170,80 Z" fill="#0277BD"/><path d="M 170,80 C 140,100 100,110 50,100 C 20,95 0,80 0,70 C 10,85 50,95 100,95 C 140,95 160,75 170,80 Z" fill="#E1F5FE"/><path d="M 80,90 C 90,110 110,120 110,120 C 100,100 90,90 80,90 Z" fill="#01579B"/><circle cx="30" cy="65" r="5" fill="white"/><circle cx="28" cy="65" r="2.5" fill="black"/><path d="M 60,30 C 50,10 30,0 30,0 M 60,30 C 65,10 80,0 80,0 M 60,30 C 60,5 60,-5 60,-5" stroke="#4FC3F7" stroke-width="4" fill="none" stroke-linecap="round"/></svg>`
+        ];
+
+        const fishImgs = svgAssets.map(svg => { let img = new Image(); img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); return img; });
+
+        /* =========================================================================
+           4. VẬT LÝ & TƯƠNG TÁC CHỌN CÁ
+        ========================================================================= */
+        const canvas = document.getElementById('game-canvas'); const ctx = canvas.getContext('2d');
+        
+        let GAME = {
+            state: 'menu', score: 0, fishCaught: 0, 
+            waterLevel: 0, fishes: [], bubbles: [], splashes: [],
+            fisherman: { x: 0, y: 0, rodAngle: -Math.PI/4, action: 'idle', bodyLean: 0 },
+            hook: { startX:0, startY:0, currX:0, currY:0, state:'idle', speed:20 },
+            targetedFish: null, time: 0, reqAnim: null,
+            availableQuestions: []
+        };
+
+        function resize() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            GAME.waterLevel = canvas.height * 0.45; 
+            GAME.fisherman.x = canvas.width * 0.15; 
+            GAME.fisherman.y = GAME.waterLevel - 150;
+        }
+        window.addEventListener('resize', resize); resize();
+
+        class Fish {
+            constructor() {
+                let availableLevels = [];
+                if (GAME.availableQuestions && GAME.availableQuestions.some(q => q.level === 1)) availableLevels.push(1);
+                if (GAME.availableQuestions && GAME.availableQuestions.some(q => q.level === 2)) availableLevels.push(2);
+                if (GAME.availableQuestions && GAME.availableQuestions.some(q => q.level === 3)) availableLevels.push(3);
+                
+                let chosenLevel = availableLevels.length > 0 
+                    ? availableLevels[Math.floor(Math.random() * availableLevels.length)] 
+                    : (Math.floor(Math.random() * 3) + 1);
+
+                this.level = chosenLevel;
+                this.points = chosenLevel === 1 ? 100 : (chosenLevel === 2 ? 150 : 300);
+                
+                if (this.level === 3) {
+                    this.type = Math.random() > 0.5 ? 6 : 7; 
+                    this.isCrab = false;
+                } else {
+                    this.type = Math.floor(Math.random() * 6); 
+                    this.isCrab = (this.type === 5);
+                }
+
+                let scaleBase = chosenLevel === 1 ? 1.2 : (chosenLevel === 2 ? 1.6 : 1.0);
+                let baseWidth = this.isCrab ? 60 : 80;
+                
+                if (this.level === 3) {
+                    this.width = 180 + Math.random() * 60; 
+                    this.height = this.width * 0.55; 
+                } else {
+                    this.width = baseWidth * scaleBase; 
+                    this.height = this.isCrab ? this.width * 0.8 : this.width * 0.6;
+                }
+                
+                let minW = this.isCrab ? canvas.height - 80 : GAME.waterLevel + 100;
+                this.baseY = minW + Math.random() * (canvas.height - minW - this.height);
+                
+                this.direction = Math.random() > 0.5 ? 1 : -1; 
+                this.x = this.direction === 1 ? -this.width - 50 : canvas.width + this.width + 50;
+                this.speed = (Math.random()*1 + 1) * (this.points / 100); 
+                this.yOffset = Math.random()*Math.PI*2; 
+                this.state = 'swimming'; 
+            }
+            update() {
+                if(this.state === 'swimming') { 
+                    this.x += this.speed * this.direction; 
+                    if(!this.isCrab) this.y = this.baseY + Math.sin(GAME.time*0.05 + this.yOffset)*15; 
+                } else if(this.state === 'panicked') {
+                    this.x += (Math.random()-0.5)*2; this.y += (Math.random()-0.5)*2;
+                } else if(this.state === 'caught') { 
+                    this.x = GAME.hook.currX; this.y = GAME.hook.currY; 
+                }
+            }
+            draw(ctx) {
+                ctx.save(); ctx.translate(this.x, this.y);
+                
+                if(this.state === 'caught') {
+                    ctx.rotate(Math.PI/2); 
+                    if(this.direction === 1) ctx.scale(-1, 1);
+                } else if (this.state === 'chasing') {
+                    let a = Math.atan2(GAME.hook.currY - this.y, GAME.hook.currX - this.x);
+                    if(Math.abs(a) < Math.PI/2) { ctx.scale(-1, 1); ctx.rotate(-a); } 
+                    else { ctx.rotate(a - Math.PI); }
+                } else {
+                    let a = (!this.isCrab) ? Math.cos(GAME.time*0.05 + this.yOffset)*0.2*this.direction : 0;
+                    if(this.direction === 1) { ctx.scale(-1, 1); ctx.rotate(-a); } 
+                    else { ctx.rotate(a); }
+                }
+                
+                if(fishImgs[this.type].complete) ctx.drawImage(fishImgs[this.type], -this.width/2, -this.height/2, this.width, this.height);
+                ctx.restore();
+
+                if (this.state === 'swimming' || this.state === 'panicked') {
+                    ctx.save(); ctx.translate(this.x, this.y - this.height/2 - 10);
+                    ctx.fillStyle = "white"; 
+                    ctx.font = (this.points === 300 ? "900 26px" : "900 18px") + " 'Fredoka One'"; 
+                    ctx.textAlign = "center";
+                    ctx.strokeStyle = this.points === 300 ? "#D50000" : "#4A2E00"; ctx.lineWidth = 4;
+                    ctx.strokeText(`+${this.points}`, 0, 0); ctx.fillText(`+${this.points}`, 0, 0);
+                    ctx.restore();
+                }
+            }
+        }
+
+        function spawnParticles(x, y, isWater) { for(let i=0; i<15; i++) GAME.splashes.push({ x: x, y: y, vx: (Math.random()-0.5)*10, vy: (Math.random()-1)*10, life: 1, type: isWater }); }
+
+        function drawEnvironment() {
+            let sky = ctx.createLinearGradient(0,0,0,GAME.waterLevel); sky.addColorStop(0, '#B3E5FC'); sky.addColorStop(1, '#FFF9C4');
+            ctx.fillStyle = sky; ctx.fillRect(0,0,canvas.width,GAME.waterLevel);
+            
+            ctx.fillStyle = "rgba(255,255,255,0.8)";
+            function cloud(cx,cy,sc) { ctx.beginPath(); ctx.arc(cx,cy,40*sc,0,Math.PI*2); ctx.arc(cx-30*sc,cy+10*sc,30*sc,0,Math.PI*2); ctx.arc(cx+30*sc,cy+10*sc,30*sc,0,Math.PI*2); ctx.fill(); }
+            cloud(canvas.width*0.3, GAME.waterLevel*0.2, 1); cloud(canvas.width*0.8, GAME.waterLevel*0.4, 0.7);
+
+            let water = ctx.createLinearGradient(0,GAME.waterLevel,0,canvas.height); water.addColorStop(0, '#0288D1'); water.addColorStop(1, '#01579B');
+            ctx.fillStyle = water; ctx.beginPath(); ctx.moveTo(0, GAME.waterLevel);
+            for(let i=0; i<=canvas.width; i+=20) ctx.lineTo(i, GAME.waterLevel + Math.sin(i*0.02 + GAME.time*0.05)*6);
+            ctx.lineTo(canvas.width, canvas.height); ctx.lineTo(0, canvas.height); ctx.fill();
+
+            ctx.fillStyle = "rgba(255,255,255,0.3)";
+            GAME.bubbles.forEach(b => { ctx.beginPath(); ctx.arc(b.x, b.y, b.s, 0, Math.PI*2); ctx.fill(); b.y -= b.speed; b.x += Math.sin(b.y*0.05)*0.5; if(b.y < GAME.waterLevel) { b.y = canvas.height; b.x = Math.random()*canvas.width; }});
+            
+            ctx.strokeStyle = "#4CAF50"; ctx.lineWidth = 12; ctx.lineCap = "round";
+            for(let i=0; i<4; i++) { ctx.beginPath(); ctx.moveTo(canvas.width - 50 - i*40, canvas.height); ctx.quadraticCurveTo(canvas.width - 30 - i*50 + Math.sin(GAME.time*0.03)*30, canvas.height - 80, canvas.width - 40 - i*40 + Math.sin(GAME.time*0.03)*40, canvas.height - 150 + i*10); ctx.stroke(); }
+            
+            ctx.save(); ctx.font = "900 70px 'Fredoka One'"; ctx.textAlign = "center";
+            let txtGrad = ctx.createLinearGradient(0, GAME.waterLevel - 50, 0, GAME.waterLevel + 20); txtGrad.addColorStop(0, "#FFB300"); txtGrad.addColorStop(1, "#FF8F00");
+            ctx.fillStyle = txtGrad; ctx.lineWidth = 12; ctx.strokeStyle = "#4E342E"; ctx.lineJoin = "round";
+            let txtY = GAME.waterLevel + 10 + Math.sin(GAME.time*0.05)*5;
+            ctx.strokeText(" ", canvas.width/2, txtY); ctx.fillText(" ", canvas.width/2, txtY); ctx.restore();
+            
+            for(let i=GAME.splashes.length-1; i>=0; i--) {
+                let p = GAME.splashes[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.5; p.life -= 0.05;
+                ctx.fillStyle = p.type ? `rgba(255,255,255,${p.life})` : `rgba(135,206,235,${p.life})`;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill(); if(p.life <= 0) GAME.splashes.splice(i, 1);
+            }
+        }
+
+        function drawCharacterAndRod() {
+            let cx = GAME.fisherman.x, cy = GAME.fisherman.y + Math.sin(GAME.time*0.05)*5; 
+            let tAng = -Math.PI/4, tLean = 0;
+            if(GAME.fisherman.action === 'swinging') { tAng = -Math.PI*0.8; tLean = -0.2; }
+            else if(GAME.fisherman.action === 'casting' || GAME.hook.state === 'homing') { tAng = Math.PI/6; tLean = 0.2; }
+            else if(GAME.fisherman.action === 'jerking') { tAng = -Math.PI*0.6; tLean = -0.4; }
+            
+            GAME.fisherman.rodAngle += (tAng - GAME.fisherman.rodAngle)*0.2; GAME.fisherman.bodyLean += (tLean - GAME.fisherman.bodyLean)*0.2;
+
+            ctx.save(); ctx.translate(cx, cy); ctx.rotate(GAME.fisherman.bodyLean);
+            ctx.fillStyle = "#1A237E"; ctx.fillRect(-15, 60, 15, 50); ctx.beginPath(); ctx.moveTo(0,60); ctx.lineTo(40,80); ctx.lineTo(30,95); ctx.lineTo(0,70); ctx.fill();
+            ctx.fillStyle = "#B71C1C"; ctx.fillRect(-25, 100, 30, 20); ctx.fillRect(25, 80, 30, 20);
+            ctx.fillStyle = "#E53935"; ctx.beginPath(); ctx.arc(0, 20, 25, 0, Math.PI*2); ctx.fill(); ctx.fillRect(-25, 20, 50, 45);
+            ctx.fillStyle = "#FFCCBC"; ctx.beginPath(); ctx.arc(0, -30, 30, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#000"; ctx.beginPath(); ctx.ellipse(10, -35, 4, 8, 0, 0, Math.PI*2); ctx.fill(); 
+            ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(5, -50); ctx.quadraticCurveTo(10, -55, 15, -45); ctx.stroke(); 
+            ctx.fillStyle = "#FFF"; ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(15, -15, 10, 0, Math.PI); ctx.fill(); ctx.stroke(); 
+            ctx.fillStyle = "#0D47A1"; ctx.beginPath(); ctx.moveTo(-30,-30); ctx.lineTo(-25,-70); ctx.lineTo(-10,-55); ctx.lineTo(5,-75); ctx.lineTo(15,-60); ctx.lineTo(25,-70); ctx.lineTo(20,-40); ctx.fill();
+
+            ctx.save(); ctx.translate(0, 15); ctx.rotate(GAME.fisherman.rodAngle);
+            let rodBendY = (GAME.fisherman.action === 'jerking') ? 80 : 0;
+            ctx.strokeStyle = "#FF9800"; ctx.lineWidth = 10; ctx.lineCap = "round";
+            ctx.beginPath(); ctx.moveTo(-30, 0); ctx.quadraticCurveTo(80, rodBendY, 200, 0); ctx.stroke();
+            ctx.fillStyle = "#FFCCBC"; ctx.beginPath(); ctx.arc(10, -5, 12, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(40, -5, 12, 0, Math.PI*2); ctx.fill(); 
+            
+            let tipX = cx + Math.cos(GAME.fisherman.rodAngle + GAME.fisherman.bodyLean)*200;
+            let tipY = cy + 15 + Math.sin(GAME.fisherman.rodAngle + GAME.fisherman.bodyLean)*200;
+            if(GAME.fisherman.action === 'jerking') { tipY += rodBendY*0.5; } 
+            ctx.restore(); ctx.restore();
+
+            GAME.hook.startX = tipX; GAME.hook.startY = tipY;
+        }
+
+        function gameLoop() {
+            if (GAME.state !== 'playing') return; GAME.time++;
+            ctx.clearRect(0, 0, canvas.width, canvas.height); drawEnvironment();
+
+            if (Math.random() < 0.05 && GAME.fishes.length < 15) GAME.fishes.push(new Fish());
+            
+            for (let i = GAME.fishes.length - 1; i >= 0; i--) {
+                let f = GAME.fishes[i]; f.update(); f.draw(ctx);
+                if (f.x > canvas.width + 300 || f.x < -300) GAME.fishes.splice(i, 1);
+            }
+
+            drawCharacterAndRod(); updateAndDrawHook(); GAME.reqAnim = requestAnimationFrame(gameLoop);
+        }
+
+        function updateAndDrawHook() {
+            if(GAME.hook.state === 'homing' && GAME.targetedFish) {
+                let f = GAME.targetedFish;
+                let dx = f.x - GAME.hook.currX, dy = f.y - GAME.hook.currY, dist = Math.hypot(dx,dy);
+                if (Math.abs(GAME.hook.currY - GAME.waterLevel) < 10) spawnParticles(GAME.hook.currX, GAME.waterLevel, true);
+
+                if(dist < GAME.hook.speed) { 
+                    GAME.hook.state = 'returning'; f.state = 'caught'; GAME.fisherman.action = 'jerking'; Sound.catch(); 
+                } else { 
+                    GAME.hook.currX += (dx/dist)*GAME.hook.speed; GAME.hook.currY += (dy/dist)*GAME.hook.speed; 
+                }
+            } else if(GAME.hook.state === 'returning') {
+                let dx = GAME.hook.startX - GAME.hook.currX, dy = GAME.hook.startY - GAME.hook.currY, dist = Math.hypot(dx,dy);
+                if(dist < 30) { 
+                    GAME.hook.state = 'idle'; GAME.fisherman.action = 'idle'; 
+                    let fIdx = GAME.fishes.findIndex(f=>f.state==='caught'); if(fIdx>-1) GAME.fishes.splice(fIdx,1); 
+                    triggerQuiz(); 
+                }
+                else { GAME.hook.currX += (dx/dist)*30; GAME.hook.currY += (dy/dist)*30; }
+            } else {
+                GAME.hook.currX = GAME.hook.startX; GAME.hook.currY = GAME.hook.startY + 30;
+            }
+
+            let lineX = GAME.hook.currX; if(GAME.hook.state === 'returning') lineX += Math.sin(GAME.time)*3; 
+            ctx.strokeStyle = "rgba(255,255,255,0.9)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(GAME.hook.startX, GAME.hook.startY); ctx.lineTo(lineX, GAME.hook.currY); ctx.stroke();
+            
+            ctx.save(); ctx.translate(lineX, GAME.hook.currY);
+            if(GAME.hook.state !== 'idle') ctx.rotate(Math.atan2(GAME.hook.currY - GAME.hook.startY, lineX - GAME.hook.startX) - Math.PI/2);
+            ctx.strokeStyle = "#546E7A"; ctx.lineWidth = 4; ctx.lineCap="round"; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,18); ctx.stroke(); ctx.beginPath(); ctx.arc(-7,18,7,0,Math.PI); ctx.stroke();
+            ctx.fillStyle = "#FF1744"; ctx.beginPath(); ctx.arc(-14,16,5,0,Math.PI*2); ctx.fill(); ctx.restore();
+        }
+
+        canvas.addEventListener('mousedown', handleClick);
+        canvas.addEventListener('touchstart', (e) => { 
+            if (GAME.state === 'playing') e.preventDefault(); 
+            handleClick(e.touches[0]); 
+        }, {passive: false});
+        
+        function handleClick(e) { 
+            if(GAME.state !== 'playing' || GAME.hook.state !== 'idle') return;
+            
+            let rect = canvas.getBoundingClientRect();
+            let mouseX = e.clientX - rect.left;
+            let mouseY = e.clientY - rect.top;
+
+            let clickedFish = null;
+            for (let i = GAME.fishes.length - 1; i >= 0; i--) {
+                let f = GAME.fishes[i];
+                if (f.state !== 'swimming') continue;
+                if (Math.hypot(f.x - mouseX, f.y - mouseY) < (f.width / 1.5)) {
+                    clickedFish = f; break;
+                }
+            }
+
+            if (clickedFish) {
+                GAME.targetedFish = clickedFish;
+                clickedFish.state = 'panicked'; 
+                GAME.fisherman.action = 'swinging'; 
+                setTimeout(() => {
+                    GAME.fisherman.action = 'casting'; Sound.throw(); 
+                    GAME.hook.state = 'homing';
+                }, 300);
+            }
+        }
+
+        /* =========================================================================
+           5. GAME FLOW & MATHJAX CÙNG NÚT TIẾP TỤC
+        ========================================================================= */
+        let audioCtx = null;
+        function initAudio() {
+            if(!audioCtx) {
+                try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+                catch(e) { console.warn("Audio not supported"); }
+            }
+        }
+        function playTone(f, t, d, v=0.1) { 
+            initAudio();
+            if(!audioCtx) return;
+            if(audioCtx.state==='suspended') audioCtx.resume(); 
+            let o = audioCtx.createOscillator(), g = audioCtx.createGain(); 
+            o.type = t; o.frequency.value = f; 
+            g.gain.setValueAtTime(v, audioCtx.currentTime); 
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d); 
+            o.connect(g); g.connect(audioCtx.destination); 
+            o.start(); o.stop(audioCtx.currentTime + d); 
+        }
+        const Sound = { click:()=>playTone(600,'sine',0.1), throw:()=>playTone(400,'sine',0.2,0.05), catch:()=>{playTone(800,'square',0.1);setTimeout(()=>playTone(1200,'square',0.2),100);}, correct:()=>{playTone(523,'sine',0.1);setTimeout(()=>playTone(659,'sine',0.1),100);setTimeout(()=>playTone(783,'sine',0.2),200);}, wrong:()=>{playTone(200,'sawtooth',0.2);setTimeout(()=>playTone(150,'sawtooth',0.3),200);}, win:()=>playTone(500,'square',0.4) };
+
+        function startGame() { 
+            initAudio(); 
+            GAME.player = document.getElementById('player-name').value.trim() || "Cần thủ"; 
+            document.getElementById('ui-player-name').innerText = GAME.player; 
+            document.getElementById('screen-menu').classList.add('hidden'); document.getElementById('screen-game').classList.remove('hidden'); 
+            Sound.click(); GAME.score = 0; GAME.fishCaught = 0; GAME.fishes = []; GAME.hook.state = 'idle'; 
+            document.getElementById('ui-score').innerText = 0; document.getElementById('ui-progress').innerText = `0/10`; 
+            
+            GAME.availableQuestions = JSON.parse(JSON.stringify(QUESTION_BANK));
+
+            GAME.state = 'playing'; if(GAME.reqAnim) cancelAnimationFrame(GAME.reqAnim); gameLoop(); 
+        }
+        
+        function triggerQuiz() {
+            GAME.state = 'quiz'; cancelAnimationFrame(GAME.reqAnim);
+            
+            let targetLevel = GAME.targetedFish.level;
+            
+            let qs = GAME.availableQuestions.filter(q => q.level === targetLevel); 
+            if (qs.length === 0) qs = GAME.availableQuestions;
+            if (qs.length === 0) qs = QUESTION_BANK; 
+
+            GAME.currentQ = qs[Math.floor(Math.random() * qs.length)];
+            GAME.availableQuestions = GAME.availableQuestions.filter(q => q.id !== GAME.currentQ.id);
+
+            document.getElementById('quiz-topic').innerText = GAME.currentQ.topic; 
+            document.getElementById('quiz-points').innerText = GAME.currentQ.points; 
+            document.getElementById('quiz-question').innerHTML = GAME.currentQ.q;
+            
+            const explBox = document.getElementById('quiz-explanation');
+            explBox.classList.add('hidden');
+            document.getElementById('expl-content').innerHTML = '';
+
+            const optsDiv = document.getElementById('quiz-options'); optsDiv.innerHTML = '';
+            const btnContinue = document.getElementById('btn-continue-fishing');
+            btnContinue.classList.add('hidden');
+
+            GAME.currentQ.opts.forEach((opt, idx) => {
+                let btn = document.createElement('div'); btn.className = 'btn-answer math-text'; btn.innerHTML = opt;
+                btn.onclick = () => {
+                    document.querySelectorAll('.btn-answer').forEach(b=>b.style.pointerEvents='none');
+                    if(idx === GAME.currentQ.ans) { Sound.correct(); btn.classList.add('correct'); GAME.score += GAME.currentQ.points; } 
+                    else { Sound.wrong(); btn.classList.add('wrong'); document.querySelectorAll('.btn-answer')[GAME.currentQ.ans].classList.add('correct'); }
+                    
+                    GAME.fishCaught++;
+                    document.getElementById('ui-score').innerText = GAME.score; document.getElementById('ui-progress').innerText = `${GAME.fishCaught}/10`;
+                    
+                    document.getElementById('expl-content').innerHTML = GAME.currentQ.expl;
+                    explBox.classList.remove('hidden');
+                    if(window.MathJax && window.MathJax.typesetPromise) {
+                        MathJax.typesetPromise([explBox]).catch(err => console.log(err));
+                    }
+
+                    btnContinue.classList.remove('hidden');
+                    btnContinue.onclick = () => {
+                        Sound.click();
+                        document.getElementById('modal-quiz').classList.remove('active'); 
+                        checkEndSession();
+                    };
+                }; optsDiv.appendChild(btn);
+            });
+            
+            document.getElementById('modal-quiz').classList.add('active');
+            setTimeout(() => { if(window.MathJax && window.MathJax.typesetPromise) { MathJax.typesetClear(); MathJax.typesetPromise([document.getElementById('modal-quiz')]); } }, 50);
+        }
+
+        function checkEndSession() {
+            if (GAME.fishCaught >= 10) {
+                GAME.state = 'result'; const modal = document.getElementById('modal-result');
+                document.getElementById('result-score').innerText = GAME.score; Sound.win(); saveScore();
+                document.getElementById('btn-next-action').onclick = () => { modal.classList.remove('active'); startGame(); };
+                modal.classList.add('active');
+            } else { 
+                GAME.state = 'playing'; gameLoop(); 
+            }
+        }
+
+        function saveScore() { if(GAME.score === 0) return; let lb = JSON.parse(localStorage.getItem('fishingLB_Final6')) || []; lb.push({ name: GAME.player, score: GAME.score, date: new Date().toLocaleDateString('vi-VN') }); lb.sort((a, b) => b.score - a.score); localStorage.setItem('fishingLB_Final6', JSON.stringify(lb.slice(0, 10))); }
+        function showLeaderboard() { Sound.click(); let lb = JSON.parse(localStorage.getItem('fishingLB_Final6')) || []; let html = lb.length === 0 ? '<div class="text-center font-bold text-gray-500">Chưa có dữ liệu!</div>' : ''; lb.forEach((e, i) => { html += `<div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl mb-3 border-2 border-gray-200"><div class="font-black text-xl text-gray-700">#${i+1} ${e.name}</div><div class="text-[#2A6BB8] font-black text-2xl">${e.score}</div></div>`; }); document.getElementById('leaderboard-list').innerHTML = html; document.getElementById('modal-leaderboard').classList.add('active'); }
+        function closeLeaderboard() { Sound.click(); document.getElementById('modal-leaderboard').classList.remove('active'); }
+    </script>
+</body>
+</html>

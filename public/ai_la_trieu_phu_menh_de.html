@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Toán 10. Ai Là Triệu Phú - Mệnh đề </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700;900&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            margin: 0; overflow: hidden;
+            font-family: 'Nunito', sans-serif;
+            color: white; user-select: none; touch-action: none;
+        }
+        @keyframes pulseBg {
+            0% { background: radial-gradient(circle at center, #020024 0%, #090979 50%, #000000 100%); }
+            50% { background: radial-gradient(circle at center, #0a004a 0%, #0f0f9e 50%, #000000 100%); }
+            100% { background: radial-gradient(circle at center, #020024 0%, #090979 50%, #000000 100%); }
+        }
+        .studio-bg {
+            position: fixed; inset: 0; z-index: -2;
+            animation: pulseBg 4s infinite;
+        }
+        .light-beam {
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(59,130,246,0.15) 30deg, transparent 60deg, transparent 180deg, rgba(59,130,246,0.15) 210deg, transparent 240deg);
+            pointer-events: none; z-index: -1;
+            animation: rotateBeam 20s linear infinite;
+        }
+        @keyframes rotateBeam { 100% { transform: rotate(360deg); } }
+        
+        .hex-wrapper { filter: drop-shadow(0 0 5px #3b82f6); width: 100%; transition: filter 0.3s; }
+        .hex-wrapper:hover { filter: drop-shadow(0 0 15px #60a5fa); }
+        .hex-btn {
+            width: 100%; position: relative;
+            background: linear-gradient(180deg, #000000 0%, #0c0b3b 50%, #000000 100%);
+            clip-path: polygon(20px 0%, calc(100% - 20px) 0%, 100% 50%, calc(100% - 20px) 100%, 20px 100%, 0% 50%);
+            transition: all 0.3s ease; cursor: pointer;
+            border-top: 2px solid #3b82f6; border-bottom: 2px solid #3b82f6;
+        }
+        .hex-btn:hover { background: linear-gradient(180deg, #000000 0%, #1e3a8a 50%, #000000 100%); }
+        
+        .state-selected { background: linear-gradient(180deg, #b45309 0%, #f59e0b 50%, #b45309 100%) !important; border-color: #fcd34d !important; color: white; filter: drop-shadow(0 0 20px #f59e0b); }
+        .state-correct { background: linear-gradient(180deg, #166534 0%, #22c55e 50%, #166534 100%) !important; border-color: #86efac !important; color: white; animation: flashCorrect 0.3s 4; filter: drop-shadow(0 0 20px #22c55e); }
+        .state-wrong { background: linear-gradient(180deg, #7f1d1d 0%, #ef4444 50%, #7f1d1d 100%) !important; border-color: #fca5a5 !important; color: white; }
+        @keyframes flashCorrect { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
+        .question-wrapper { filter: drop-shadow(0 0 15px #3b82f6); width: 100%; margin-bottom: 1.5rem; }
+        .question-box {
+            clip-path: polygon(30px 0%, calc(100% - 30px) 0%, 100% 50%, calc(100% - 30px) 100%, 30px 100%, 0% 50%);
+            background: linear-gradient(180deg, #000000 0%, #0c0b3b 50%, #000000 100%);
+            border-top: 2px solid #3b82f6; border-bottom: 2px solid #3b82f6;
+        }
+        
+        .lifeline-btn {
+            width: 55px; height: 36px; border-radius: 18px; 
+            background: radial-gradient(circle, #1e3a8a, #000000);
+            border: 2px solid #60a5fa; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 14px; color: #fbbf24;
+            transition: all 0.2s; box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        }
+        @media (min-width: 768px) { .lifeline-btn { width: 75px; height: 42px; border-radius: 21px; font-size: 16px; } }
+        .lifeline-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(96, 165, 250, 0.8); }
+        .lifeline-used { opacity: 0.3; pointer-events: none; filter: grayscale(100%); text-decoration: line-through; }
+        
+        .money-tree-item { 
+            padding: clamp(1px, 0.4vh, 6px) 12px; 
+            border-radius: 6px; 
+            display: flex; justify-content: space-between; 
+            font-family: 'Roboto Slab', serif; align-items: center; 
+            font-size: clamp(12px, 1.8vh, 16px); 
+            font-weight: bold; transition: all 0.3s;
+        }
+        .money-current { background-color: #f59e0b; color: #000; font-weight: 900; box-shadow: 0 0 15px #f59e0b; transform: scale(1.05); }
+        .money-safe { color: #fff; font-weight: 900; border-bottom: 2px solid #fbbf24; }
+        .money-passed { color: #f59e0b; opacity: 0.6; font-weight: normal; }
+        .money-future { color: #94a3b8; }
+        
+        .modal-bg { backdrop-filter: blur(10px); }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        
+        /* Bar chart animation for audience */
+        .bar-container { display: flex; height: 150px; align-items: flex-end; }
+        .bar { width: 20%; margin: 0 5%; background-color: #3b82f6; transition: height 1s ease-out; position: relative; border-radius: 4px 4px 0 0; }
+        .bar-label { position: absolute; top: -25px; width: 100%; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col items-center justify-between py-4 relative">
+
+    <div class="studio-bg"></div>
+    <div class="light-beam"></div>
+
+    <div id="preStartScreen" class="fixed inset-0 z-[200] bg-black/90 flex flex-col items-center justify-center cursor-pointer transition-opacity duration-500" onclick="enterGame()">
+        <div class="text-7xl mb-6 animate-bounce">📺</div>
+        <h1 class="text-3xl md:text-5xl font-black text-yellow-400 animate-pulse text-center px-4 uppercase tracking-widest">BẤM VÀO ĐÂY ĐỂ VÀO TRƯỜNG QUAY</h1>
+        <p class="text-slate-400 mt-6 font-bold">(Hệ thống cần thao tác chạm để phát âm thanh)</p>
+    </div>
+
+    <!-- Tùy chọn Logo -->
+    <img id="gameLogo" src="https://ui-avatars.com/api/?name=TC&background=0f172a&color=38bdf8&rounded=true&bold=true" class="hidden w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.6)] absolute top-4 left-4 z-20 object-cover cursor-pointer hover:scale-105 transition-transform" onclick="triggerLogoUpload()" title="Đổi Logo">
+    <input type="file" id="logoUploadHidden" accept="image/*" class="hidden">
+
+    <div id="startScreen" class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#020024]/80 modal-bg transition-opacity duration-500">
+        <div class="flex flex-col items-center mb-8">
+            <div class="relative cursor-pointer group" onclick="triggerLogoUpload()" title="Đổi Logo">
+                <img id="startLogo" src="https://ui-avatars.com/api/?name=TC&background=0f172a&color=38bdf8&rounded=true&bold=true" class="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-sky-400 shadow-[0_0_30px_rgba(56,189,248,0.8)] object-cover transition-transform group-hover:scale-105">
+                <div class="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span class="text-white text-sm font-bold">ĐỔI ẢNH</span>
+                </div>
+            </div>
+            <div class="text-2xl md:text-3xl font-black text-sky-300 mt-4 tracking-widest drop-shadow-[0_0_10px_rgba(56,189,248,0.8)] uppercase">THẦY HÙNG PRO</div>
+        </div>
+
+        <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600 mb-2 uppercase text-center drop-shadow-md" style="font-family: 'Roboto Slab', serif;">Ai Là Triệu Phú</h1>
+        <p class="text-sky-300 font-bold text-lg md:text-xl tracking-widest uppercase mb-10 text-center">Lớp Toán Thầy Hùng Pro - Chuyên đề Mệnh đề</p>
+        
+        <div class="flex flex-col items-center w-full max-w-sm mb-6">
+            <label class="text-sm font-bold text-slate-300 uppercase tracking-widest mb-2">Nhập tên người chơi:</label>
+            <input type="text" id="startPlayerName" autocomplete="off" class="w-full px-6 py-3 rounded-full font-black text-xl mb-6 text-center outline-none shadow-[0_0_15px_rgba(56,189,248,0.3)] transition-colors placeholder-slate-500" style="background-color: #0f172a; color: #facc15; border: 2px solid #38bdf8;" placeholder="Nhập tên...">
+            
+            <div class="hex-wrapper w-full">
+                <button onclick="startGame()" class="hex-btn w-full py-4 text-2xl font-black text-yellow-400 tracking-wider hover:text-white">
+                    BẮT ĐẦU CHƠI
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Tools -->
+    <div class="w-full flex justify-between items-start px-4 z-10 mt-2 relative">
+        <div class="w-16 md:w-20 shrink-0"></div>
+        <div class="flex flex-col items-center flex-1 z-10">
+            <div class="flex gap-2 md:gap-4 mb-2 md:mb-3">
+                <button id="btn5050" class="lifeline-btn tracking-widest" onclick="use5050()" title="50:50">50:50</button>
+                <button id="btnCall" class="lifeline-btn text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]" style="color: #4ade80;" onclick="useCall()" title="Gọi điện thoại">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.15 6.59 6.59l2.2-2.2c.28-.28.67-.36 1.02-.25 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                </button>
+                <button id="btnAudience" class="lifeline-btn text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]" style="color: #4ade80;" onclick="useAudience()" title="Hỏi khán giả">
+                    <svg viewBox="0 0 50 24" fill="currentColor" class="h-5 md:h-6 w-full px-1 md:px-2"><circle cx="5" cy="7" r="3"/><path d="M5 11c-1.5 0-4 1-4 4v3h8v-3c0-3-2.5-4-4-4z"/><circle cx="15" cy="7" r="3"/><path d="M15 11c-1.5 0-4 1-4 4v3h8v-3c0-3-2.5-4-4-4z"/><circle cx="25" cy="7" r="3"/><path d="M25 11c-1.5 0-4 1-4 4v3h8v-3c0-3-2.5-4-4-4z"/><circle cx="35" cy="7" r="3"/><path d="M35 11c-1.5 0-4 1-4 4v3h8v-3c0-3-2.5-4-4-4z"/><circle cx="45" cy="7" r="3"/><path d="M45 11c-1.5 0-4 1-4 4v3h8v-3c0-3-2.5-4-4-4z"/></svg>
+                </button>
+            </div>
+            <div class="text-sm md:text-xl font-black text-yellow-400 uppercase tracking-widest bg-black/60 px-4 md:px-6 py-1.5 rounded-full border border-sky-500/50 shadow-[0_0_15px_rgba(59,130,246,0.5)] cursor-pointer hover:bg-black/80 transition-colors" onclick="openLeaderboard()" title="Xem Bảng Xếp Hạng">
+                <span id="playerNameDisplay">Người chơi 1</span> 🏆
+            </div>
+        </div>
+        <div class="w-auto shrink-0 flex flex-col items-end gap-2 z-30 absolute right-4 top-0">
+            <div class="flex items-center justify-end gap-3">
+                <div class="text-center bg-black/80 px-4 py-1.5 rounded-xl border border-sky-500/50 shadow-[0_0_10px_rgba(59,130,246,0.3)] hidden lg:flex flex-col items-center justify-center min-w-[100px] w-auto">
+                    <div class="text-[10px] text-sky-300 font-bold uppercase tracking-widest leading-none mb-1">Câu hỏi số</div>
+                    <div class="text-lg font-black text-yellow-400 font-serif leading-none" id="currentQDisplay">1/20</div>
+                </div>
+                <button id="soundToggleBtn" onclick="toggleSound()" class="w-10 h-10 md:w-11 md:h-11 rounded-full bg-slate-800 border-2 border-sky-400 text-lg flex items-center justify-center text-white shadow-[0_0_10px_rgba(56,189,248,0.5)] transition-all hover:scale-110 shrink-0" title="Bật/Tắt Âm thanh">🔊</button>
+            </div>
+            <button onclick="document.getElementById('moneyTreeModal').classList.remove('hidden')" class="lg:hidden bg-slate-800 border border-slate-600 px-3 py-1.5 rounded-lg text-yellow-400 font-bold shadow-md mt-1 text-sm w-full">Thưởng</button>
+        </div>
+    </div>
+
+    <!-- KHU VỰC CÂU HỎI TRUNG TÂM -->
+    <div class="w-full max-w-[100vw] lg:max-w-[1250px] flex-1 flex flex-col items-center justify-end md:justify-center z-10 px-4 md:px-8 lg:pr-[220px] pb-6 md:pb-12 mx-auto">
+        
+        <div class="question-wrapper mb-4 md:mb-8 w-full">
+            <div class="question-box w-full min-h-[130px] md:min-h-[180px] flex flex-col gap-4 items-center justify-center p-6 md:p-10 relative">
+                <div id="questionText" class="text-xl md:text-2xl lg:text-[28px] font-bold text-center leading-relaxed md:leading-normal w-full">
+                    Đang nạp câu hỏi...
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full" id="optionsGrid">
+            <div class="hex-wrapper"><button class="hex-btn w-full py-4 md:py-6 px-6 md:px-10 text-left flex items-center min-h-[90px] md:min-h-[120px]" onclick="selectAnswer(0)" id="opt0"><span class="text-yellow-500 font-black text-xl md:text-3xl mr-4 shrink-0">A:</span> <span class="text-lg md:text-xl lg:text-[24px] font-bold w-full leading-relaxed" id="optText0"></span></button></div>
+            <div class="hex-wrapper"><button class="hex-btn w-full py-4 md:py-6 px-6 md:px-10 text-left flex items-center min-h-[90px] md:min-h-[120px]" onclick="selectAnswer(1)" id="opt1"><span class="text-yellow-500 font-black text-xl md:text-3xl mr-4 shrink-0">B:</span> <span class="text-lg md:text-xl lg:text-[24px] font-bold w-full leading-relaxed" id="optText1"></span></button></div>
+            <div class="hex-wrapper"><button class="hex-btn w-full py-4 md:py-6 px-6 md:px-10 text-left flex items-center min-h-[90px] md:min-h-[120px]" onclick="selectAnswer(2)" id="opt2"><span class="text-yellow-500 font-black text-xl md:text-3xl mr-4 shrink-0">C:</span> <span class="text-lg md:text-xl lg:text-[24px] font-bold w-full leading-relaxed" id="optText2"></span></button></div>
+            <div class="hex-wrapper"><button class="hex-btn w-full py-4 md:py-6 px-6 md:px-10 text-left flex items-center min-h-[90px] md:min-h-[120px]" onclick="selectAnswer(3)" id="opt3"><span class="text-yellow-500 font-black text-xl md:text-3xl mr-4 shrink-0">D:</span> <span class="text-lg md:text-xl lg:text-[24px] font-bold w-full leading-relaxed" id="optText3"></span></button></div>
+        </div>
+
+    </div>
+
+    <!-- SIDEBAR 20 MỐC -->
+    <div class="hidden lg:flex absolute right-4 top-[80px] bottom-6 flex-col bg-black/90 border border-slate-700 p-3 rounded-3xl shadow-2xl z-20 w-[180px]">
+        <h3 class="text-center text-slate-400 font-bold text-sm mb-2 uppercase tracking-widest border-b border-slate-600 pb-2 shrink-0">Giải thưởng</h3>
+        <div class="flex-1 w-full overflow-hidden" id="moneyTreeDesktop"></div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="moneyTreeModal" class="hidden fixed inset-0 z-50 bg-black/90 modal-bg flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-blue-500 rounded-2xl p-6 w-full max-w-sm">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                <h3 class="text-yellow-400 font-black uppercase text-lg">Thang Tiền Thưởng</h3>
+                <button onclick="document.getElementById('moneyTreeModal').classList.add('hidden')" class="text-slate-400 font-bold text-xl">✕</button>
+            </div>
+            <div class="flex flex-col gap-2 text-base max-h-[70vh] overflow-y-auto custom-scroll pr-2" id="moneyTreeMobile"></div>
+        </div>
+    </div>
+
+    <div id="leaderboardModal" class="hidden fixed inset-0 z-[90] bg-black/90 modal-bg flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-sky-400 rounded-3xl p-6 w-full max-w-md shadow-[0_0_30px_rgba(56,189,248,0.5)] relative flex flex-col max-h-[80vh] transform scale-95 transition-transform duration-300" id="lbContent">
+            <button onclick="closeLeaderboard()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center font-bold">X</button>
+            <h2 class="text-2xl font-black text-center text-sky-400 mb-6 uppercase tracking-widest">Bảng Vàng</h2>
+            <div id="leaderboardList" class="flex-1 overflow-y-auto custom-scroll pr-2 space-y-3"></div>
+        </div>
+    </div>
+
+    <div id="callModal" class="hidden fixed inset-0 z-[60] bg-black/80 modal-bg flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-sky-400 rounded-2xl p-6 w-full max-w-md text-center shadow-[0_0_30px_rgba(56,189,248,0.5)]">
+            <div class="text-6xl mb-4 animate-bounce">📱</div>
+            <h3 class="text-2xl font-black text-white mb-2">Đang kết nối...</h3>
+            <div class="h-2 w-full bg-slate-700 rounded-full overflow-hidden mb-6">
+                <div class="h-full bg-sky-400 w-0" id="callProgress"></div>
+            </div>
+            <p id="callDialogue" class="text-xl text-yellow-300 font-bold hidden italic leading-relaxed"></p>
+            <button onclick="document.getElementById('callModal').classList.add('hidden')" class="mt-8 bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg font-bold hidden" id="closeCallBtn">Cảm ơn!</button>
+        </div>
+    </div>
+
+    <div id="audienceModal" class="hidden fixed inset-0 z-[60] bg-black/80 modal-bg flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-sky-400 rounded-2xl p-6 w-full max-w-md shadow-[0_0_30px_rgba(56,189,248,0.5)]">
+            <h3 class="text-xl font-black text-center text-white mb-6 uppercase tracking-widest">Ý kiến khán giả</h3>
+            <div id="audienceContent" class="w-full"></div>
+            <button onclick="document.getElementById('audienceModal').classList.add('hidden')" class="mt-8 w-full bg-sky-600 hover:bg-sky-500 text-white px-6 py-3 rounded-xl font-black">Xác nhận</button>
+        </div>
+    </div>
+
+    <div id="gameOverModal" class="hidden fixed inset-0 z-[70] bg-black/90 modal-bg flex items-center justify-center p-4 transition-opacity duration-500">
+        <div class="bg-[#0c0b3b] border-4 border-yellow-500 rounded-3xl p-8 w-full max-w-lg text-center shadow-[0_0_50px_rgba(245,158,11,0.5)] transform scale-95 transition-transform" id="gameOverContent">
+            <h2 id="endTitle" class="text-4xl md:text-5xl font-black text-yellow-400 mb-4 uppercase" style="font-family: 'Roboto Slab', serif;">Kết Thúc</h2>
+            <p class="text-slate-300 text-lg font-bold mb-2">Bạn ra về với số tiền thưởng:</p>
+            <div id="endPrize" class="text-5xl md:text-6xl font-black text-white mb-8 neon-text drop-shadow-[0_5px_5px_rgba(0,0,0,1)]">0 VNĐ</div>
+            <div class="flex flex-col gap-3 w-full">
+                <button onclick="openLeaderboard()" class="hex-btn px-10 py-3 text-lg font-black text-white w-full border-sky-400">
+                    XEM BẢNG XẾP HẠNG
+                </button>
+                <button onclick="playAgain()" class="hex-btn px-10 py-4 text-xl font-black text-white hover:text-yellow-300 w-full">
+                    CHƠI LẠI TỪ ĐẦU
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nhận Thưởng Hài Hước -->
+    <div id="transferModal" class="hidden fixed inset-0 z-[80] bg-black/90 modal-bg flex items-center justify-center p-4 transition-opacity duration-500">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-[0_0_50px_rgba(56,189,248,0.3)] relative overflow-hidden transform transition-transform scale-100">
+            <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-blue-600 to-sky-400"></div>
+            <div class="relative z-10 mt-4 mb-6">
+                <div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center shadow-lg mb-3 border-4 border-sky-100">
+                    <span class="text-4xl">💸</span>
+                </div>
+                <h2 class="text-2xl font-black text-slate-800 tracking-tight">CỔNG THANH TOÁN</h2>
+                <p class="text-sky-600 font-bold text-sm tracking-widest">TOÁN PRO - THẦY HÙNG TÀI TRỢ</p>
+            </div>
+            
+            <div id="transferForm" class="flex flex-col gap-4 text-left relative z-10">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tên Ngân Hàng</label>
+                    <input type="text" placeholder="VD: MB Bank, Vietcombank..." class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Số Tài Khoản</label>
+                    <input type="password" placeholder="Nhập số tài khoản..." class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                </div>
+                <button onclick="processTransfer()" class="mt-2 bg-gradient-to-r from-blue-600 to-sky-400 text-white font-black py-4 rounded-xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-sky-500 transition-all transform hover:-translate-y-1 text-lg">
+                    NHẬN TIỀN NGAY
+                </button>
+                <button onclick="closeTransferModal()" class="text-slate-400 font-bold text-sm hover:text-slate-600 mt-1 text-center">
+                    Để lúc khác nhận
+                </button>
+            </div>
+
+            <div id="transferSuccess" class="hidden flex-col items-center justify-center py-6 relative z-10">
+                <div class="text-6xl mb-4 animate-bounce">🤑</div>
+                <h3 class="text-2xl font-black text-emerald-500 mb-2">TING TING!</h3>
+                <p class="text-slate-700 font-bold text-base leading-relaxed">
+                    Thầy Hùng Pro Vlog đã chuyển khoản thành công <br><span id="transferAmount" class="text-rose-500 font-black text-xl"></span><br> vào tài khoản của bạn!
+                </p>
+                <p class="text-slate-400 text-xs italic mt-6">(Chỉ là đùa vui thôi nha! Chúc mừng bạn đã hoàn thành xuất sắc bài kiểm tra Mệnh đề!)</p>
+                <button onclick="closeTransferModal()" class="mt-6 bg-slate-800 text-white font-bold py-3 px-8 rounded-xl hover:bg-slate-700 w-full transition-colors">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ======================== LƯU TRỮ ==========================
+        let leaderboardData = JSON.parse(localStorage.getItem('ailatrieuphu_lb_kienthuc')) || [];
+        let currentPlayerName = '';
+
+        function loadSavedData() {
+            const savedLogo = localStorage.getItem('ailatrieuphu_logo_kt');
+            if(savedLogo) {
+                const startLogo = document.getElementById('startLogo');
+                const gameLogo = document.getElementById('gameLogo');
+                if(startLogo) startLogo.src = savedLogo;
+                if(gameLogo) gameLogo.src = savedLogo;
+            }
+            const savedName = localStorage.getItem('ailatrieuphu_playerName_kt') || '';
+            document.getElementById('startPlayerName').value = savedName;
+        }
+        document.addEventListener("DOMContentLoaded", loadSavedData);
+
+        function triggerLogoUpload() { document.getElementById('logoUploadHidden').click(); }
+
+        const handleImageUpload = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_SIZE = 200;
+                        let w = img.width, h = img.height;
+                        if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } }
+                        else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
+                        const compressedB64 = canvas.toDataURL('image/jpeg', 0.8); 
+                        try { localStorage.setItem('ailatrieuphu_logo_kt', compressedB64); loadSavedData(); } 
+                        catch(err) { console.error("Lỗi lưu logo."); }
+                    }
+                    img.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        };
+        document.getElementById('logoUploadHidden').addEventListener('change', handleImageUpload);
+
+        function updateLeaderboardData(finalPrize) {
+            const dateStr = new Date().toLocaleDateString('vi-VN');
+            const scoreNum = parseInt(finalPrize.replace(/\./g, '').replace(' TỶ', '000000000').replace(' TR', '000000')) || 0;
+            const existingIndex = leaderboardData.findIndex(entry => entry.name.toLowerCase() === currentPlayerName.toLowerCase());
+            
+            if (existingIndex !== -1) {
+                if (scoreNum > leaderboardData[existingIndex].scoreNum) {
+                    leaderboardData[existingIndex].scoreNum = scoreNum;
+                    leaderboardData[existingIndex].prize = finalPrize;
+                    leaderboardData[existingIndex].date = dateStr;
+                }
+            } else { leaderboardData.push({ name: currentPlayerName, scoreNum: scoreNum, prize: finalPrize, date: dateStr }); }
+            
+            leaderboardData.sort((a, b) => b.scoreNum - a.scoreNum);
+            leaderboardData = leaderboardData.slice(0, 100); 
+            localStorage.setItem('ailatrieuphu_lb_kienthuc', JSON.stringify(leaderboardData));
+        }
+
+        window.deleteEntry = function(index) {
+            const pass = prompt("Nhập mật khẩu quản trị viên để xóa người chơi này:");
+            if (pass === "admin123") {
+                leaderboardData.splice(index, 1);
+                localStorage.setItem('ailatrieuphu_lb_kienthuc', JSON.stringify(leaderboardData));
+                renderLeaderboard();
+            } else if (pass !== null) { alert("Mật khẩu không chính xác!"); }
+        };
+
+        function renderLeaderboard() {
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = '';
+            if(leaderboardData.length === 0) {
+                list.innerHTML = '<p class="text-center text-slate-500 py-4">Chưa có dữ liệu xếp hạng!</p>'; return;
+            }
+            leaderboardData.forEach((p, i) => {
+                let rank = i===0 ? '🥇' : i===1 ? '🥈' : i===2 ? '🥉' : `<span class="text-sm text-slate-500 font-bold w-6 inline-block text-center">${i+1}</span>`;
+                let isMe = p.name.toLowerCase() === currentPlayerName.toLowerCase();
+                
+                list.innerHTML += `
+                    <div class="flex justify-between items-center p-3 rounded-xl border ${isMe ? 'bg-slate-800 border-sky-400' : 'bg-slate-900 border-slate-700'} group transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">${rank}</span>
+                            <span class="font-bold ${isMe ? 'text-sky-300' : 'text-slate-300'} truncate max-w-[120px]">${p.name}</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-right">
+                            <div><div class="font-black text-yellow-400">${p.prize}</div><div class="text-[10px] text-slate-500">${p.date}</div></div>
+                            <button onclick="deleteEntry(${i})" class="text-slate-500 hover:text-rose-500 px-2 py-1 transition-colors text-lg font-bold" title="Xóa">🗑️</button>
+                        </div>
+                    </div>`;
+            });
+        }
+        window.openLeaderboard = function() { renderLeaderboard(); document.getElementById('leaderboardModal').classList.remove('hidden'); setTimeout(() => { document.getElementById('lbContent').classList.remove('scale-95'); }, 10); }
+        window.closeLeaderboard = function() { document.getElementById('lbContent').classList.add('scale-95'); setTimeout(() => { document.getElementById('leaderboardModal').classList.add('hidden'); }, 200); }
+
+        // ======================== ÂM THANH =========================
+        const AudioSys = {
+            ctx: null, 
+            isMuted: false,
+            bgMusic: new Audio('audio/nhac_nen.mp3'),
+            correctSound: new Audio('audio/dung.mp3'),
+            wrongSound: new Audio('audio/sai.mp3'),
+            
+            init: function() {
+                // Initialize web audio API if needed for generated tones
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                
+                // Configure background music
+                this.bgMusic.loop = true; 
+                this.bgMusic.volume = 0.5;
+            },
+            
+            playBg: function() { 
+                if(!this.isMuted) {
+                    this.bgMusic.play().catch(e => console.log('Chưa tìm thấy file audio/nhac_nen.mp3 hoặc trình duyệt chặn tự động phát.'));
+                }
+            },
+            
+            stopBg: function() { 
+                this.bgMusic.pause(); 
+            },
+            
+            playTone: function(freq, type, duration, vol=0.1) {
+                if(this.isMuted || !this.ctx) return;
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + duration);
+            },
+            
+            lockAnswer: function() {
+                this.playTone(400, 'square', 0.1, 0.2);
+                setTimeout(() => this.playTone(300, 'square', 0.2, 0.2), 150);
+                setTimeout(() => this.playTone(150, 'sine', 1.5, 0.4), 300); 
+            },
+            
+            correct: function() {
+                if(!this.isMuted) {
+                    try { this.correctSound.currentTime = 0; } catch(e) {}
+                    this.correctSound.play().catch(e => {
+                        // Fallback to tone if file is missing
+                        this.playTone(800, 'sine', 0.1, 0.2); 
+                        setTimeout(() => this.playTone(1200, 'sine', 0.4, 0.2), 150);
+                    });
+                }
+            },
+            
+            wrong: function() {
+                if(!this.isMuted) {
+                    try { this.wrongSound.currentTime = 0; } catch(e) {}
+                    this.wrongSound.play().catch(e => { 
+                        // Fallback to tone if file is missing
+                        this.playTone(200, 'sawtooth', 0.8, 0.3); 
+                    });
+                }
+            },
+            
+            win: function() { [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => setTimeout(() => this.playTone(f, 'square', 0.3, 0.1), i * 200)); },
+            lifeline: function() { this.playTone(800, 'sine', 0.1, 0.1); setTimeout(() => this.playTone(1200, 'sine', 0.2, 0.1), 100); }
+        };
+
+        function toggleSound() {
+            AudioSys.isMuted = !AudioSys.isMuted;
+            const btn = document.getElementById('soundToggleBtn');
+            if(AudioSys.isMuted) { 
+                AudioSys.stopBg(); 
+                if(btn) { btn.innerHTML = "🔇"; btn.classList.add('opacity-50'); } 
+            } else { 
+                AudioSys.init(); 
+                // Only play bg music if we are on the start screen
+                if(gameState === 'waiting') AudioSys.playBg(); 
+                if(btn) { btn.innerHTML = "🔊"; btn.classList.remove('opacity-50'); } 
+            }
+        }
+
+        function enterGame() {
+            document.getElementById('preStartScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            AudioSys.init(); 
+            AudioSys.playBg();
+        }
+
+        // ======================== DATA CÂU HỎI (20 Câu) ==========================
+        const PRIZES = ["200.000", "400.000", "600.000", "1.000.000", "2.000.000", "3.000.000", "6.000.000", "10.000.000", "14.000.000", "22.000.000", "30.000.000", "40.000.000", "60.000.000", "85.000.000", "150.000.000", "250.000.000", "400.000.000", "600.000.000", "800.000.000", "1 TỶ"];
+        const SAFE_MILESTONES = [4, 9, 14]; // Mốc an toàn ở câu 5, 10, 15 (index 4, 9, 14)
+
+        const questionDB = [
+            { q: "Trong các câu sau, câu nào là mệnh đề?", options: ["Hôm nay trời đẹp quá!", "Bạn đã làm bài tập chưa?", "$2 + 3 = 5$.", "Cấm nói chuyện trong lớp!"], correct: 2 },
+            { q: "Mệnh đề phủ định của mệnh đề $P$ được ký hiệu là gì?", options: ["$P'$", "$\\overline{P}$", "$\\sim P$", "$-P$"], correct: 1 },
+            { q: "Mệnh đề có dạng \"Nếu $P$ thì $Q$\" được gọi là mệnh đề gì?", options: ["Mệnh đề tương đương.", "Mệnh đề kéo theo.", "Mệnh đề phủ định.", "Mệnh đề đảo."], correct: 1 },
+            { q: "Trong mệnh đề kéo theo $P \\Rightarrow Q$, mệnh đề $P$ được gọi là gì đối với $Q$?", options: ["Điều kiện cần.", "Điều kiện đủ.", "Điều kiện cần và đủ.", "Phủ định."], correct: 1 },
+            { q: "Tính đúng sai của mệnh đề $P \\Rightarrow Q$ được xác định như thế nào?", options: ["Chỉ sai khi $P$ sai, $Q$ đúng.", "Chỉ sai khi $P$ đúng, $Q$ sai.", "Chỉ sai khi cả $P$ và $Q$ cùng sai.", "Chỉ đúng khi cả $P$ và $Q$ cùng đúng."], correct: 1 },
+            
+            { q: "Phủ định của mệnh đề: \"Mọi số nguyên đều là số chẵn\" là mệnh đề nào sau đây?", options: ["Tồn tại một số nguyên là số lẻ (không chẵn).", "Mọi số nguyên đều là số lẻ.", "Tồn tại một số nguyên là số chẵn.", "Không có số nguyên nào là số chẵn."], correct: 0 },
+            { q: "Trong các mệnh đề sau, mệnh đề nào là mệnh đề sai?", options: ["$5$ là số tự nhiên.", "Số $9$ là số chính phương.", "Số $15$ chia hết cho $4$.", "Số $2$ là số chẵn nguyên tố."], correct: 2 },
+            { q: "Cho $P$: \"Tam giác $ABC$ đều\", $Q$: \"Tam giác $ABC$ có 3 góc bằng $60^\\circ$\". Phát biểu mệnh đề tương đương $P \\Leftrightarrow Q$ là:", options: ["Nếu tam giác $ABC$ đều thì nó có 3 góc bằng $60^\\circ$.", "Tam giác $ABC$ đều khi và chỉ khi tam giác $ABC$ có 3 góc bằng $60^\\circ$.", "Tam giác $ABC$ có 3 góc bằng $60^\\circ$ thì nó đều.", "Tam giác $ABC$ đều hoặc có 3 góc bằng $60^\\circ$."], correct: 1 },
+            { q: "Cho mệnh đề $P$: \"$\\forall x \\in \\mathbb{R}, x^2 \\ge 0$\". Mệnh đề phủ định của $P$ là:", options: ["$\\exists x \\in \\mathbb{R}, x^2 < 0$.", "$\\forall x \\in \\mathbb{R}, x^2 < 0$.", "$\\exists x \\in \\mathbb{R}, x^2 \\le 0$.", "$\\forall x \\in \\mathbb{R}, x^2 > 0$."], correct: 0 },
+            { q: "Mệnh đề đảo của mệnh đề \"Nếu $x = 3$ thì $x^2 = 9$\" là mệnh đề nào?", options: ["Nếu $x^2 = 9$ thì $x = 3$.", "Nếu $x \\ne 3$ thì $x^2 \\ne 9$.", "Nếu $x^2 \\ne 9$ thì $x \\ne 3$.", "Nếu $x = -3$ thì $x^2 = 9$."], correct: 0 },
+            
+            { q: "Cho mệnh đề chứa biến $P(x)$: \"$x + 3 > 7$\" với $x \\in \\mathbb{R}$. Mệnh đề nào sau đây đúng?", options: ["$P(2)$.", "$P(3)$.", "$P(5)$.", "$P(4)$."], correct: 2 },
+            { q: "Ký hiệu \"$\\exists$\" trong mệnh đề toán học mang ý nghĩa là gì?", options: ["Với mọi.", "Có ít nhất một (tồn tại).", "Không tồn tại.", "Thuộc tập hợp."], correct: 1 },
+            { q: "Có bao nhiêu giá trị thực của $x$ để mệnh đề \"$x^2 - 5x + 6 = 0$\" là mệnh đề đúng?", options: ["0.", "1.", "2.", "3."], correct: 2 },
+            { q: "Cho tứ giác $ABCD$. Xét hai mệnh đề: $P$: \"$ABCD$ là hình chữ nhật\", $Q$: \"$ABCD$ có hai đường chéo bằng nhau\". Khẳng định nào sau đây đúng?", options: ["$P$ là điều kiện cần của $Q$.", "$P$ là điều kiện đủ của $Q$.", "$P$ là điều kiện cần và đủ của $Q$.", "$Q$ là điều kiện đủ của $P$."], correct: 1 },
+            { q: "Xét mệnh đề $P$: \"$\\forall x \\in \\mathbb{R}, x^2 - x + 1 > 0$\". Khẳng định nào sau đây là đúng về tính đúng sai của $P$ và $\\overline{P}$?", options: ["$P$ đúng, $\\overline{P}$ sai.", "$P$ sai, $\\overline{P}$ đúng.", "$P$ đúng, $\\overline{P}$ đúng.", "$P$ sai, $\\overline{P}$ sai."], correct: 0 },
+            
+            { q: "Điều kiện cần và đủ để hai tam giác phân biệt bằng nhau là:", options: ["Chúng có diện tích bằng nhau.", "Chúng có các góc tương ứng bằng nhau.", "Chúng có các cạnh tương ứng bằng nhau và các góc tương ứng bằng nhau.", "Chúng có chu vi bằng nhau."], correct: 2 },
+            { q: "Trong các mệnh đề sau, có bao nhiêu mệnh đề ĐÚNG?<br>(1) $\\exists x \\in \\mathbb{Z}, x^2 = 2$.<br>(2) $\\forall x \\in \\mathbb{R}, (x - 1)^2 \\ge 0$.<br>(3) Tồn tại số nguyên tố là số chẵn.", options: ["0.", "1.", "2.", "3."], correct: 2 },
+            { q: "Cho hàm số, xét mệnh đề chứa tham số $m$: $P(m)$: \"$\\forall x \\in \\mathbb{R}, x^2 - 2x + m > 0$\". Tìm $m$ để $P(m)$ là mệnh đề ĐÚNG.", options: ["$m \\ge 1$.", "$m > 1$.", "$m < 1$.", "$m \\le 1$."], correct: 1 },
+            { q: "Xét mệnh đề $P$: \"$\\exists n \\in \\mathbb{N}, n^2 + 1$ chia hết cho $4$\". Mệnh đề này là:", options: ["Đúng, vì chọn $n = 1$ ta có $1^2 + 1 = 2$ không chia hết cho $4$.", "Đúng, vì chọn $n = 3$ ta có $3^2 + 1 = 10$ chia hết cho $4$.", "Sai, vì $n^2$ chia $4$ dư $0$ hoặc $1$, do đó $n^2 + 1$ chia $4$ dư $1$ hoặc $2$ (không bao giờ chia hết cho $4$).", "Sai, vì $n^2 + 1$ luôn là số lẻ."], correct: 2 },
+            { q: "Cho tập hợp $A = \\{x \\in \\mathbb{R} \\mid x^2 - (m+1)x + m = 0\\}$. Để mệnh đề \"Tập $A$ có đúng 2 phần tử phân biệt\" là mệnh đề đúng, thì tham số $m$ phải thỏa mãn điều kiện gì?", options: ["$m \\ne 1$.", "$m = 1$.", "$m > 1$.", "$m < 1$."], correct: 0 }
+        ];
+
+        let currentQuestions = [];
+        let currentQIndex = 0;
+        let gameState = 'waiting'; 
+        let guaranteedPrize = "0";
+        let lifelines = { fifty: true, call: true, audience: true };
+
+        window.playAgain = function() {
+            gameState = 'waiting';
+            document.getElementById('gameOverModal').classList.add('hidden');
+            document.getElementById('gameOverContent').classList.add('scale-95');
+            document.getElementById('startScreen').classList.remove('hidden');
+            document.getElementById('startScreen').style.opacity = '1';
+            document.getElementById('gameLogo').classList.add('hidden');
+            document.getElementById('questionText').innerHTML = 'Đang nạp câu hỏi...';
+            AudioSys.playBg(); // Bật lại nhạc nền khi quay về màn hình chờ
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('startPlayerName').value.trim();
+            if (!nameInput) { alert("Vui lòng nhập tên người chơi để bắt đầu!"); return; }
+            
+            currentPlayerName = nameInput;
+            localStorage.setItem('ailatrieuphu_playerName_kt', nameInput);
+            document.getElementById('playerNameDisplay').textContent = nameInput;
+
+            document.getElementById('startScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('startScreen').classList.add('hidden');
+                document.getElementById('gameLogo').classList.remove('hidden'); 
+                
+                // Shuffle options for all questions
+                currentQuestions = questionDB.map(q => {
+                    let opts = [...q.options];
+                    let corrText = opts[q.correct];
+                    for(let i = opts.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [opts[i], opts[j]] = [opts[j], opts[i]];
+                    }
+                    return { ...q, options: opts, correct: opts.indexOf(corrText) };
+                });
+
+                currentQIndex = 0; guaranteedPrize = "0";
+                lifelines = { fifty: true, call: true, audience: true };
+                
+                document.getElementById('btn5050').classList.remove('lifeline-used');
+                document.getElementById('btnCall').classList.remove('lifeline-used');
+                document.getElementById('btnAudience').classList.remove('lifeline-used');
+
+                renderMoneyTree();
+                loadQuestion();
+            }, 500);
+        }
+
+        function renderMoneyTree() {
+            const desktopHTML = (() => {
+                let html = '<div class="flex flex-col-reverse w-full h-full justify-evenly">';
+                for(let i = 0; i < PRIZES.length; i++) {
+                    const isSafe = SAFE_MILESTONES.includes(i);
+                    let classes = "money-tree-item ";
+                    if (i === currentQIndex) classes += "money-current text-black";
+                    else if (i < currentQIndex) classes += "money-passed";
+                    else if (isSafe) classes += "money-safe";
+                    else classes += "money-future";
+                    html += `<div class="${classes}"><span>${i+1}</span><span>${PRIZES[i]}</span></div>`;
+                }
+                html += '</div>';
+                return html;
+            })();
+
+            const mobileHTML = (() => {
+                let html = '<div class="flex flex-col-reverse w-full">'; 
+                for(let i = 0; i < PRIZES.length; i++) {
+                    const isSafe = SAFE_MILESTONES.includes(i);
+                    let classes = "money-tree-item my-1 ";
+                    if (i === currentQIndex) classes += "money-current text-black id-current-q-mobile";
+                    else if (i < currentQIndex) classes += "money-passed";
+                    else if (isSafe) classes += "money-safe";
+                    else classes += "money-future";
+                    html += `<div class="${classes}"><span>${i+1}</span><span>${PRIZES[i]}</span></div>`;
+                }
+                html += '</div>';
+                return html;
+            })();
+            
+            document.getElementById('moneyTreeDesktop').innerHTML = desktopHTML;
+            document.getElementById('moneyTreeMobile').innerHTML = mobileHTML;
+            document.getElementById('currentQDisplay').textContent = `${currentQIndex + 1}/20`;
+
+            setTimeout(() => {
+                const currentMobile = document.querySelector('#moneyTreeMobile .id-current-q-mobile');
+                if(currentMobile) currentMobile.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+
+        function loadQuestion() {
+            gameState = 'playing';
+            
+            // Dừng nhạc nền khi bắt đầu hiện câu hỏi
+            AudioSys.stopBg();
+            
+            const q = currentQuestions[currentQIndex];
+            
+            document.getElementById('questionText').innerHTML = q.q;
+            
+            for(let i=0; i<4; i++) {
+                const btn = document.getElementById(`opt${i}`);
+                const text = document.getElementById(`optText${i}`);
+                btn.classList.remove('state-selected', 'state-correct', 'state-wrong');
+                btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+                text.innerHTML = q.options[i];
+            }
+            
+            renderMoneyTree();
+
+            // Re-render MathJax
+            if (window.MathJax) {
+                if (typeof MathJax.typesetClear === 'function') MathJax.typesetClear();
+                if (typeof MathJax.typesetPromise === 'function') MathJax.typesetPromise();
+            }
+        }
+
+        // ======================== XỬ LÝ CHỌN ĐÁP ÁN ==========================
+        function selectAnswer(idx) {
+            if(gameState !== 'playing') return;
+            gameState = 'locked';
+            for(let i=0; i<4; i++) { document.getElementById(`opt${i}`).style.pointerEvents = 'none'; }
+            AudioSys.lockAnswer();
+            const btn = document.getElementById(`opt${idx}`);
+            btn.classList.add('state-selected');
+            setTimeout(() => { checkAnswer(idx); }, 3000); 
+        }
+
+        function checkAnswer(idx) {
+            const q = currentQuestions[currentQIndex];
+            const btn = document.getElementById(`opt${idx}`);
+            const correctBtn = document.getElementById(`opt${q.correct}`);
+
+            if(idx === q.correct) {
+                btn.classList.remove('state-selected'); btn.classList.add('state-correct');
+                processCorrect();
+            } else {
+                btn.classList.remove('state-selected'); btn.classList.add('state-wrong');
+                correctBtn.classList.add('state-correct'); 
+                processWrong();
+            }
+        }
+
+        function processCorrect() {
+            AudioSys.correct();
+            if (SAFE_MILESTONES.includes(currentQIndex)) { guaranteedPrize = PRIZES[currentQIndex]; }
+            setTimeout(() => {
+                currentQIndex++;
+                if(currentQIndex >= currentQuestions.length) endGame(true); 
+                else loadQuestion();
+            }, 2500);
+        }
+
+        function processWrong() {
+            AudioSys.wrong();
+            setTimeout(() => { endGame(false); }, 3500);
+        }
+
+        function endGame(isWin) {
+            AudioSys.stopBg();
+            gameState = 'gameover';
+            const modal = document.getElementById('gameOverModal');
+            const title = document.getElementById('endTitle');
+            const prizeDisplay = document.getElementById('endPrize');
+            let finalPrize = "";
+
+            if(isWin) {
+                title.textContent = "CHÚC MỪNG BẠN LÀ TRIỆU PHÚ!";
+                title.classList.replace('text-yellow-400', 'text-emerald-400');
+                finalPrize = PRIZES[19];
+                AudioSys.win();
+            } else {
+                title.textContent = "DỪNG CUỘC CHƠI";
+                title.classList.replace('text-yellow-400', 'text-rose-500');
+                finalPrize = guaranteedPrize;
+            }
+
+            prizeDisplay.textContent = finalPrize + (finalPrize === "1 TỶ" ? "" : " VNĐ");
+            updateLeaderboardData(finalPrize);
+
+            modal.classList.remove('hidden');
+            setTimeout(() => { document.getElementById('gameOverContent').classList.remove('scale-95'); }, 10);
+
+            // Hiện khung chuyển khoản nhận tiền ảo nếu có thưởng
+            if (finalPrize !== "0") {
+                setTimeout(() => {
+                    document.getElementById('transferAmount').textContent = prizeDisplay.textContent;
+                    document.getElementById('transferModal').classList.remove('hidden');
+                    document.getElementById('transferForm').classList.remove('hidden');
+                    document.getElementById('transferForm').classList.add('flex');
+                    document.getElementById('transferSuccess').classList.add('hidden');
+                    document.getElementById('transferSuccess').classList.remove('flex');
+                    
+                    const inputs = document.getElementById('transferForm').querySelectorAll('input');
+                    inputs.forEach(inp => inp.value = '');
+                }, 2000); // Đợi 2 giây sau khi hiện bảng thông báo game over
+            }
+        }
+
+        function processTransfer() {
+            document.getElementById('transferForm').classList.add('hidden');
+            document.getElementById('transferForm').classList.remove('flex');
+            document.getElementById('transferSuccess').classList.remove('hidden');
+            document.getElementById('transferSuccess').classList.add('flex');
+            
+            // Âm thanh báo có tiền Ting Ting (chỉ phát khi không tắt loa)
+            AudioSys.playTone(1000, 'sine', 0.1, 0.2); 
+            setTimeout(() => AudioSys.playTone(1300, 'sine', 0.3, 0.2), 150);
+        }
+
+        function closeTransferModal() {
+            document.getElementById('transferModal').classList.add('hidden');
+        }
+
+        // ======================== QUYỀN TRỢ GIÚP ==========================
+        function use5050() {
+            if(!lifelines.fifty || gameState !== 'playing') return;
+            lifelines.fifty = false;
+            document.getElementById('btn5050').classList.add('lifeline-used');
+            AudioSys.lifeline();
+
+            const q = currentQuestions[currentQIndex];
+            const correctIdx = q.correct;
+            let wrongIndices = [0,1,2,3].filter(i => i !== correctIdx).sort(() => Math.random() - 0.5); 
+            document.getElementById(`opt${wrongIndices[0]}`).style.opacity = '0';
+            document.getElementById(`opt${wrongIndices[0]}`).style.pointerEvents = 'none';
+            document.getElementById(`opt${wrongIndices[1]}`).style.opacity = '0';
+            document.getElementById(`opt${wrongIndices[1]}`).style.pointerEvents = 'none';
+        }
+
+        function useCall() {
+            if(!lifelines.call || gameState !== 'playing') return;
+            lifelines.call = false;
+            document.getElementById('btnCall').classList.add('lifeline-used');
+            AudioSys.lifeline();
+
+            const modal = document.getElementById('callModal');
+            const progress = document.getElementById('callProgress');
+            const dialogue = document.getElementById('callDialogue');
+            const closeBtn = document.getElementById('closeCallBtn');
+            
+            progress.style.width = '0%'; dialogue.classList.add('hidden');
+            closeBtn.classList.add('hidden'); modal.classList.remove('hidden');
+
+            setTimeout(() => { progress.style.width = '100%'; progress.style.transition = 'width 2.5s ease-in-out'; }, 100);
+            setTimeout(() => {
+                const q = currentQuestions[currentQIndex];
+                let isRight = Math.random() < (currentQIndex < 10 ? 0.9 : 0.6); // Khó dần thì dễ sai hơn
+                let guess = "";
+                const labels = ['A', 'B', 'C', 'D'];
+                guess = labels[q.correct];
+                if (!isRight) guess = labels[[0,1,2,3].filter(i => i !== q.correct)[Math.floor(Math.random()*3)]];
+                
+                dialogue.innerHTML = `"Alo... Câu này có vẻ quen quen, mình khá chắc chắn đáp án là <strong>${guess}</strong> nhé!"`;
+                dialogue.classList.remove('hidden'); closeBtn.classList.remove('hidden');
+                AudioSys.playTone(880, 'sine', 0.5, 0.1);
+            }, 2600);
+        }
+
+        function useAudience() {
+            if(!lifelines.audience || gameState !== 'playing') return;
+            lifelines.audience = false;
+            document.getElementById('btnAudience').classList.add('lifeline-used');
+            AudioSys.lifeline();
+
+            const modal = document.getElementById('audienceModal');
+            const content = document.getElementById('audienceContent');
+            content.innerHTML = ''; modal.classList.remove('hidden');
+
+            const q = currentQuestions[currentQIndex];
+            const correctIdx = q.correct;
+            let total = 100; let votes = [0,0,0,0];
+            
+            // Khán giả thông minh ở câu dễ, phân vân ở câu khó
+            let correctBase = currentQIndex < 5 ? 75 : (currentQIndex < 12 ? 50 : 35); 
+            votes[correctIdx] = correctBase + Math.floor(Math.random() * 15); total -= votes[correctIdx];
+
+            let wrongs = [0,1,2,3].filter(i => i !== correctIdx);
+            votes[wrongs[0]] = Math.floor(Math.random() * (total - 2)) + 1; total -= votes[wrongs[0]];
+            votes[wrongs[1]] = Math.floor(Math.random() * (total - 1)) + 1; total -= votes[wrongs[1]];
+            votes[wrongs[2]] = total;
+
+            let html = '<div class="bar-container justify-around px-4 border-b-2 border-slate-600 pb-1">';
+            votes.forEach((v, i) => {
+                const isCorrect = (i === correctIdx);
+                const colorClass = isCorrect && currentQIndex < 10 ? "bg-gradient-to-t from-sky-600 to-sky-300" : "bg-gradient-to-t from-slate-600 to-slate-400";
+                html += `
+                    <div class="flex flex-col items-center justify-end h-full">
+                        <div class="bar w-10 md:w-12 rounded-t-sm relative ${colorClass}" style="height: 0%" data-target="${v}%">
+                            <span class="absolute -top-7 w-full text-center text-sm md:text-base font-bold text-white">${v}%</span>
+                        </div>
+                    </div>`;
+            });
+            html += '</div><div class="flex justify-around px-4 mt-2 font-black text-yellow-400 text-xl"><div>A</div><div>B</div><div>C</div><div>D</div></div>';
+            content.innerHTML = html;
+
+            setTimeout(() => {
+                const bars = content.querySelectorAll('.bar');
+                bars.forEach(b => { b.style.height = b.getAttribute('data-target'); });
+            }, 100);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Toán 11. Game Ghép Cặp trái tim- Đạo Hàm </title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+    <style>
+        /* Đã bỏ touch-action: none để cho phép gõ phím bình thường */
+        body { font-family: 'Nunito', sans-serif; overflow: hidden; margin: 0; padding: 0; }
+        .katex-display { margin: 0 !important; }
+
+        /* Animations */
+        @keyframes sos-flash {
+            0%, 100% { background-color: #fee2e2; border-color: #ef4444; box-shadow: 0 0 15px #ef4444; color: #991b1b; transform: scale(1); }
+            50% { background-color: #ef4444; border-color: #991b1b; box-shadow: 0 0 40px #dc2626, inset 0 0 20px #7f1d1d; color: white; transform: scale(1.1); }
+        }
+        .animate-sos { animation: sos-flash 0.3s ease-in-out infinite; z-index: 100 !important; }
+
+        @keyframes sparkle-glow {
+            0% { transform: scale(1); box-shadow: 0 0 10px #fdf2f8; filter: brightness(1); }
+            50% { transform: scale(1.3); box-shadow: 0 0 50px #f472b6, 0 0 100px #fb7185; filter: brightness(1.5); background-color: #fce7f3; border-color: #f472b6; color: #db2777; z-index: 100; }
+            100% { transform: scale(0); opacity: 0; display: none; }
+        }
+        .animate-sparkle { animation: sparkle-glow 1s forwards; }
+
+        .merge-transition { transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1), top 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s !important; z-index: 110 !important; }
+        .halo-effect { position: absolute; pointer-events: none; z-index: 120; display: flex; align-items: center; justify-content: center; transform: translate(-50%, -50%); }
+        .halo-ring { position: absolute; border-radius: 50%; border: 4px solid #f472b6; animation: ring-expand 0.6s ease-out forwards; }
+        .halo-heart { position: absolute; font-size: 4rem; animation: heart-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; filter: drop-shadow(0 0 15px #f43f5e); }
+        
+        @keyframes ring-expand { 0% { width: 0; height: 0; opacity: 1; border-width: 10px; box-shadow: 0 0 20px #fb7185; } 100% { width: 200px; height: 200px; opacity: 0; border-width: 0px; box-shadow: 0 0 60px #fda4af; } }
+        @keyframes heart-pop { 0% { transform: scale(0); opacity: 1; } 50% { transform: scale(1.5); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px) rotate(-3deg); } 40%, 80% { transform: translateX(8px) rotate(3deg); } }
+        
+        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        
+        .game-card { transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s, border-color 0.2s, opacity 0.3s; cursor: pointer; border-radius: 40px; user-select: none; display: flex; align-items: center; justify-content: center; position: absolute; will-change: left, top; padding: 8px 16px; font-size: 0.9rem; }
+        @media (min-width: 640px) { .game-card { padding: 12px 24px; font-size: 1.1rem; } }
+        .game-card:active { transform: scale(0.95) !important; }
+        
+        .floating-heart { position: absolute; z-index: 0; pointer-events: none; opacity: 0.2; animation: float-up linear infinite; filter: drop-shadow(0 0 10px rgba(255,255,255,0.8)); }
+        @keyframes float-up { 0% { transform: translateY(110vh) rotate(0deg) scale(0.8); opacity: 0; } 10%, 90% { opacity: 0.4; } 100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; } }
+
+        .heart-active { filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.6)); transform: scale(1); opacity: 1; }
+        .heart-lost { filter: grayscale(100%); transform: scale(0.7); opacity: 0.3; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* Leaderboard Tabs */
+        .tab-btn { transition: all 0.2s; border-bottom: 3px solid transparent; }
+        .tab-btn.active { border-bottom: 3px solid #f43f5e; color: #e11d48; font-weight: 800; }
+    </style>
+</head>
+<body class="h-screen w-screen bg-gradient-to-b from-pink-200 via-red-100 to-rose-300 flex flex-col items-center relative overflow-hidden text-gray-800">
+
+    <div class="floating-heart text-6xl" style="left: 10%; animation-duration: 18s;">❤️</div>
+    <div class="floating-heart text-5xl" style="left: 30%; animation-duration: 22s; animation-delay: -5s;">💖</div>
+    <div class="floating-heart text-7xl" style="left: 60%; animation-duration: 25s; animation-delay: -12s;">💘</div>
+    <div class="floating-heart text-6xl" style="left: 85%; animation-duration: 15s; animation-delay: -2s;">💕</div>
+
+    <!-- THANH TRẠNG THÁI -->
+    <div class="w-full max-w-7xl z-40 p-2 sm:p-4 flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 shrink-0 pointer-events-none transition-all">
+        
+        <!-- Logo & Nút Xem Xếp Hạng -->
+        <div class="flex items-center gap-2 pointer-events-auto">
+            <div id="logo-container" class="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 sm:px-5 sm:py-2 rounded-full shadow-[0_4px_15px_rgba(255,105,180,0.3)] border-[3px] border-pink-300 cursor-pointer hover:scale-105 transition-transform z-30" title="Nhấn để tải Logo lên">
+                <input type="file" id="logoUpload" accept="image/*" class="hidden">
+                <img id="custom-logo" src="" class="hidden w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-pink-200 shadow-sm">
+                <span id="default-icon" class="text-xl sm:text-2xl drop-shadow-sm">🎓</span>
+                <span class="font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-700 tracking-wide text-sm sm:text-xl">TOÁN PRO - THẦY HÙNG</span>
+            </div>
+            
+            <button onclick="window.showStandaloneLeaderboard()" class="bg-white/95 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-[0_4px_15px_rgba(255,105,180,0.3)] border-[3px] border-sky-300 cursor-pointer hover:scale-105 transition-transform font-black text-sky-600 text-sm sm:text-xl flex items-center gap-1 z-30" title="Xem Bảng Xếp Hạng">
+                🏆 <span class="hidden sm:inline">Top</span>
+            </button>
+        </div>
+
+        <div class="pointer-events-auto flex items-center gap-2 flex-wrap">
+            <!-- Nút Chế độ Giáo viên: Ẩn mặc định khỏi học sinh, chỉ hiện khi ở Admin Studio -->
+            <button id="btn-admin-mode" onclick="window.promptAdminPin()" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border-2 border-pink-300 text-xs font-black text-rose-700 shadow-[0_3px_10px_rgba(244,63,94,0.2)] hover:scale-105 transition cursor-pointer" title="Dành cho Giáo viên: Nhập mã PIN để chỉnh sửa công thức">
+                🔒 <span id="admin-status-text">Chế độ Giáo viên</span>
+            </button>
+
+            <!-- Nút cam Thêm / Sửa Cặp Bài (Admin) xuất hiện trên màn hình khi ở quyền Admin -->
+            <button id="btn-edit-pairs-admin" onclick="window.openPairEditor()" class="hidden flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xs sm:text-sm shadow-[0_4px_15px_rgba(245,158,11,0.5)] border-2 border-amber-300 hover:scale-105 transition cursor-pointer active:scale-95 animate-pulse" title="Mở bảng thêm/sửa/xoá công thức cặp bài">
+                ⚙️ <span>Thêm / Sửa Cặp Bài (Admin)</span>
+            </button>
+
+            <!-- Nút đỏ Khóa quyền Admin -->
+            <button id="btn-lock-admin" onclick="window.lockAdminMode()" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-700 border-2 border-rose-300 font-bold text-xs shadow-sm transition cursor-pointer" title="Khóa quyền admin và đưa trò chơi về chế độ an toàn">
+                🔒 <span>Khóa Admin</span>
+            </button>
+        </div>
+
+        <div id="header-panel" class="pointer-events-auto w-full sm:w-auto flex-1 max-w-3xl bg-white/90 backdrop-blur-md rounded-full p-2 sm:p-3 flex justify-between items-center shadow-[0_4px_15px_rgba(0,0,0,0.1)] border-b-4 border-pink-200 hidden">
+            <!-- Level Info -->
+            <div id="level-badge" class="hidden sm:flex items-center gap-1 bg-gradient-to-r from-indigo-500 to-blue-600 px-3 py-1 rounded-full font-bold text-white shadow-inner text-sm">
+                Level 0
+            </div>
+            <div class="flex items-center gap-1 sm:gap-2 bg-[#FFEBEE] border-2 border-[#FFCDD2] px-2 py-1 sm:px-3 sm:py-2 rounded-full shadow-inner">
+                <div id="lives-container" class="flex gap-1 text-lg sm:text-2xl"></div>
+            </div>
+            <div class="flex items-center gap-1 sm:gap-2 bg-[#FFF8E1] border-2 border-[#FFECB3] px-3 py-1 sm:px-4 sm:py-2 rounded-full font-black text-base sm:text-xl text-[#FF8F00] shadow-inner">
+                <span>⭐</span> <span id="score-display">0 / 0</span>
+            </div>
+            <div id="timer-container" class="flex items-center gap-1 sm:gap-2 bg-[#E1F5FE] border-2 border-[#B3E5FC] px-3 py-1 sm:px-4 sm:py-2 rounded-full font-black text-base sm:text-xl text-[#0277BD] shadow-inner transition-colors">
+                <span>⏱️</span> <span id="timer-display">0s</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHU VỰC THẺ BÀI -->
+    <div id="game-board" class="w-full flex-1 relative z-10 overflow-hidden hidden mx-2 mb-2"></div>
+
+    <!-- MÀN HÌNH CHUYỂN ẢI -->
+    <div id="transition-overlay" class="absolute inset-0 bg-[#0F2F4A]/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="text-center animate-bounce">
+            <div class="text-7xl mb-4">🚀</div>
+            <h1 id="transition-title" class="text-4xl font-black text-white mb-2">Hoàn thành Ải 0!</h1>
+            <p class="text-sky-200 text-xl font-bold">Chuẩn bị sang Ải tiếp theo...</p>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH POPUP -->
+    <div id="overlay" class="absolute inset-0 bg-[#0F2F4A]/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div id="overlay-content" class="bg-white rounded-[2rem] p-5 sm:p-8 max-w-2xl w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.4)] border-b-[8px] border-[#D1D5DB] transform transition-all scale-100 flex flex-col max-h-[95vh]">
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // DATA 6 LEVELS (0 TO 5)
+        // ==========================================
+        const GAME_LEVELS = {
+            0: {
+                title: "Định Nghĩa Đạo Hàm", time: 90,
+                pairs: [
+                    { id: 1, left: "f'(x_0)", right: "\\displaystyle \\lim_{x \\to x_0} \\frac{f(x) - f(x_0)}{x - x_0}" },
+                    { id: 2, left: "\\text{Hệ số góc tiếp tuyến } k", right: "f'(x_0)" },
+                    { id: 3, left: "\\text{Vận tốc tức thời } v(t)", right: "s'(t)" },
+                    { id: 4, left: "\\text{Cường độ dòng điện } I(t)", right: "q'(t)" },
+                    { id: 5, left: "\\text{Đạo hàm bên phải } f'(x_0^+)", right: "\\displaystyle \\lim_{x \\to x_0^+} \\frac{f(x) - f(x_0)}{x - x_0}" },
+                    { id: 6, left: "\\text{Đạo hàm bên trái } f'(x_0^-)", right: "\\displaystyle \\lim_{x \\to x_0^-} \\frac{f(x) - f(x_0)}{x - x_0}" },
+                    { id: 7, left: "\\text{Điều kiện có đạo hàm tại } x_0", right: "f'(x_0^+) = f'(x_0^-)" },
+                    { id: 8, left: "\\text{Tiếp tuyến tại } M(x_0, y_0)", right: "y = f'(x_0)(x - x_0) + y_0" }
+                ]
+            },
+            1: {
+                title: "Công thức Cơ bản", time: 60,
+                pairs: [
+                    { id: 1, left: "\\left( C \\right)'", right: "0" },
+                    { id: 2, left: "\\left( x^n \\right)'", right: "n \\cdot x^{n-1}" },
+                    { id: 3, left: "\\left( \\sqrt{x} \\right)'", right: "\\displaystyle \\frac{1}{2\\sqrt{x}}" },
+                    { id: 4, left: "\\left( u + v \\right)'", right: "u' + v'" },
+                    { id: 5, left: "\\left( u - v \\right)'", right: "u' - v'" },
+                    { id: 6, left: "\\left( uv \\right)'", right: "u'v + uv'" },
+                    { id: 7, left: "\\displaystyle \\left( \\frac{u}{v} \\right)'", right: "\\displaystyle \\frac{u'v - uv'}{v^2}" },
+                    { id: 8, left: "\\left( ku \\right)'", right: "k \\cdot u'" },
+                    { id: 9, left: "\\displaystyle \\left( \\frac{1}{x} \\right)'", right: "\\displaystyle -\\frac{1}{x^2}" }
+                ]
+            },
+            2: {
+                title: "Hàm số Cụ thể", time: 150, 
+                pairs: [
+                    { id: 1, left: "\\left( 5 \\right)'", right: "0" },
+                    { id: 2, left: "\\left( x \\right)'", right: "1" },
+                    { id: 3, left: "\\left( x^2 \\right)'", right: "2x" },
+                    { id: 4, left: "\\left( x^3 \\right)'", right: "3x^2" },
+                    { id: 5, left: "\\left( x^4 \\right)'", right: "4x^3" },
+                    { id: 6, left: "\\left( x^5 \\right)'", right: "5x^4" },
+                    { id: 7, left: "\\left( \\frac{1}{x} \\right)'", right: "\\displaystyle -\\frac{1}{x^2}" },
+                    { id: 8, left: "\\left( \\sqrt{x} \\right)'", right: "\\displaystyle \\frac{1}{2\\sqrt{x}}" },
+                    { id: 9, left: "\\left( \\sin x \\right)'", right: "\\cos x" },
+                    { id: 10, left: "\\left( \\cos x \\right)'", right: "-\\sin x" },
+                    { id: 11, left: "\\left( \\tan x \\right)'", right: "\\displaystyle \\frac{1}{\\cos^2 x}" },
+                    { id: 12, left: "\\left( \\cot x \\right)'", right: "\\displaystyle -\\frac{1}{\\sin^2 x}" },
+                    { id: 13, left: "\\left( e^x \\right)'", right: "e^x" },
+                    { id: 14, left: "\\left( 2^x \\right)'", right: "2^x \\ln 2" },
+                    { id: 15, left: "\\left( 3^x \\right)'", right: "3^x \\ln 3" },
+                    { id: 16, left: "\\left( \\ln x \\right)'", right: "\\displaystyle \\frac{1}{x}" },
+                    { id: 17, left: "\\left( \\log_2 x \\right)'", right: "\\displaystyle \\frac{1}{x \\ln 2}" },
+                    { id: 18, left: "\\left( 2x^2 \\right)'", right: "4x" },
+                    { id: 19, left: "\\left( \\frac{x^2}{2} \\right)'", right: "x" },
+                    { id: 20, left: "\\left( x^3 + x \\right)'", right: "3x^2 + 1" }
+                ]
+            },
+            3: {
+                title: "Công thức Hàm Hợp", time: 90,
+                pairs: [
+                    { id: 1, left: "\\left( u^n \\right)'", right: "n \\cdot u^{n-1} \\cdot u'" },
+                    { id: 2, left: "\\left( \\sqrt{u} \\right)'", right: "\\displaystyle \\frac{u'}{2\\sqrt{u}}" },
+                    { id: 3, left: "\\left( \\sin u \\right)'", right: "u' \\cdot \\cos u" },
+                    { id: 4, left: "\\left( \\cos u \\right)'", right: "-u' \\cdot \\sin u" },
+                    { id: 5, left: "\\left( \\tan u \\right)'", right: "\\displaystyle \\frac{u'}{\\cos^2 u}" },
+                    { id: 6, left: "\\left( \\cot u \\right)'", right: "\\displaystyle -\\frac{u'}{\\sin^2 u}" },
+                    { id: 7, left: "\\left( e^u \\right)'", right: "u' \\cdot e^u" },
+                    { id: 8, left: "\\left( a^u \\right)'", right: "u' \\cdot a^u \\ln a" },
+                    { id: 9, left: "\\left( \\ln u \\right)'", right: "\\displaystyle \\frac{u'}{u}" },
+                    { id: 10, left: "\\left( \\log_a u \\right)'", right: "\\displaystyle \\frac{u'}{u \\ln a}" }
+                ]
+            },
+            4: {
+                title: "Hàm Hợp Cụ Thể", time: 120,
+                pairs: [
+                    { id: 1, left: "\\left( (2x+1)^3 \\right)'", right: "6(2x+1)^2" },
+                    { id: 2, left: "\\left( \\sqrt{x^2+1} \\right)'", right: "\\displaystyle \\frac{x}{\\sqrt{x^2+1}}" },
+                    { id: 3, left: "\\left( \\sin(3x) \\right)'", right: "3\\cos(3x)" },
+                    { id: 4, left: "\\left( \\cos(5x) \\right)'", right: "-5\\sin(5x)" },
+                    { id: 5, left: "\\left( e^{2x} \\right)'", right: "2e^{2x}" },
+                    { id: 6, left: "\\left( \\ln(x^2+1) \\right)'", right: "\\displaystyle \\frac{2x}{x^2+1}" },
+                    { id: 7, left: "\\left( 2^{3x} \\right)'", right: "3 \\cdot 2^{3x} \\ln 2" },
+                    { id: 8, left: "\\left( \\tan(2x) \\right)'", right: "\\displaystyle \\frac{2}{\\cos^2(2x)}" },
+                    { id: 9, left: "\\left( \\cot(4x) \\right)'", right: "\\displaystyle -\\frac{4}{\\sin^2(4x)}" },
+                    { id: 10, left: "\\left( e^{-x} \\right)'", right: "-e^{-x}" },
+                    { id: 11, left: "\\left( \\sin^2 x \\right)'", right: "\\sin(2x)" },
+                    { id: 12, left: "\\left( \\cos^3 x \\right)'", right: "-3\\cos^2 x \\sin x" },
+                    { id: 13, left: "\\left( (x^2+x)^4 \\right)'", right: "4(2x+1)(x^2+x)^3" },
+                    { id: 14, left: "\\left( \\ln(\\sin x) \\right)'", right: "\\cot x" },
+                    { id: 15, left: "\\left( e^{x^2} \\right)'", right: "2x e^{x^2}" }
+                ]
+            },
+            5: {
+                title: "Đạo Hàm Cấp 2", time: 150,
+                pairs: [
+                    { id: 1, left: "\\left( x^3 \\right)''", right: "6x" },
+                    { id: 2, left: "\\left( x^4 \\right)''", right: "12x^2" },
+                    { id: 3, left: "\\left( \\sin x \\right)''", right: "-\\sin x" },
+                    { id: 4, left: "\\left( \\cos x \\right)''", right: "-\\cos x" },
+                    { id: 5, left: "\\left( e^x \\right)''", right: "e^x" },
+                    { id: 6, left: "\\left( e^{2x} \\right)''", right: "4e^{2x}" },
+                    { id: 7, left: "\\left( \\ln x \\right)''", right: "\\displaystyle -\\frac{1}{x^2}" },
+                    { id: 8, left: "\\left( \\frac{1}{x} \\right)''", right: "\\displaystyle \\frac{2}{x^3}" },
+                    { id: 9, left: "\\left( \\sqrt{x} \\right)''", right: "\\displaystyle -\\frac{1}{4x\\sqrt{x}}" },
+                    { id: 10, left: "\\left( \\sin(2x) \\right)''", right: "-4\\sin(2x)" },
+                    { id: 11, left: "\\left( \\cos(3x) \\right)''", right: "-9\\cos(3x)" },
+                    { id: 12, left: "\\left( x^2 + 3x \\right)''", right: "2" },
+                    { id: 13, left: "\\left( x^5 \\right)''", right: "20x^3" },
+                    { id: 14, left: "\\left( 2^x \\right)''", right: "2^x (\\ln 2)^2" },
+                    { id: 15, left: "\\left( x \\ln x \\right)''", right: "\\displaystyle \\frac{1}{x}" }
+                ]
+            }
+        };
+
+        const sndMatch = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+        const sndError = new Audio('https://assets.mixkit.co/active_storage/sfx/2997/2997-preview.mp3');
+
+        // State variables
+        let gameState = 'start';
+        let currentMode = 0; 
+        let currentCampaignLevel = 0;
+        let totalCampaignScore = 0;
+        let totalCampaignTimeUsed = 0;
+        
+        let currentPairs = [];
+        let movingCards = []; 
+        let firstCard = null; 
+        let matchedIds = [];
+        let score = 0, lives = 3, timeLeft = 60;
+        let timerInterval, animationFrameId;
+        let isAnimating = false;
+
+        const overlay = document.getElementById('overlay');
+        const overlayContent = document.getElementById('overlay-content');
+        const headerPanel = document.getElementById('header-panel');
+        const gameBoard = document.getElementById('game-board');
+        const livesContainer = document.getElementById('lives-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const timerContainer = document.getElementById('timer-container');
+        const timerDisplay = document.getElementById('timer-display');
+        const levelBadge = document.getElementById('level-badge');
+
+        // --- FIREBASE INIT ---
+        let appId = 'thay-chinh-dao-ham';
+        let app, auth, db;
+        let authPromise = Promise.resolve();
+
+        try {
+            if (typeof __app_id !== 'undefined') appId = __app_id;
+            if (typeof __firebase_config !== 'undefined') {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
+                authPromise = (async () => {
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } 
+                        else { await signInAnonymously(auth); }
+                    } catch (err) { console.warn("Firebase Auth Bypassed."); }
+                })();
+            }
+        } catch (error) { console.warn("Firebase init failed."); }
+
+        // --- LEADERBOARD LOGIC ---
+        async function saveScore(playerName, finalScore, timeTaken, mode) {
+            const collectionName = `leaderboard_lvl_${mode}`;
+            const newRecord = { name: playerName, score: finalScore, time: timeTaken, timestamp: Date.now() };
+            
+            if (db) {
+                await authPromise; 
+                try {
+                    const leaderboardRef = collection(db, 'artifacts', appId, 'public', 'data', collectionName);
+                    const docRef = await addDoc(leaderboardRef, newRecord);
+                    return docRef.id;
+                } catch (e) {}
+            }
+            
+            const localKey = `thayHungLeaderboard_${mode}`;
+            const localLeaderboard = JSON.parse(localStorage.getItem(localKey) || '[]');
+            newRecord.id = 'local_' + Date.now() + Math.random().toString(36).substring(2, 7);
+            localLeaderboard.push(newRecord);
+            localStorage.setItem(localKey, JSON.stringify(localLeaderboard));
+            return newRecord.id;
+        }
+
+        async function fetchLeaderboardAndRank(currentDocId, mode) {
+            const collectionName = `leaderboard_lvl_${mode}`;
+            let records = [];
+            
+            if (db) {
+                await authPromise; 
+                try {
+                    const leaderboardRef = collection(db, 'artifacts', appId, 'public', 'data', collectionName);
+                    const snapshot = await getDocs(leaderboardRef);
+                    snapshot.forEach(doc => records.push({ id: doc.id, ...doc.data() }));
+                } catch (e) {}
+            }
+            
+            if (records.length === 0) {
+                const localKey = `thayHungLeaderboard_${mode}`;
+                records = JSON.parse(localStorage.getItem(localKey) || '[]');
+            }
+            
+            records.sort((a, b) => { if (b.score !== a.score) return b.score - a.score; return a.time - b.time; });
+            let playerRank = null;
+            if (currentDocId) { 
+                const rankIndex = records.findIndex(r => r.id === currentDocId); 
+                if (rankIndex !== -1) playerRank = rankIndex + 1; 
+            }
+            return { top10: records.slice(0, 10), playerRank };
+        }
+
+        // --- GLOBAL EXPORTS FOR HTML ONCLICK ---
+        window.savePlayerName = function(val) {
+            try { localStorage.setItem('thayHungPlayerName', val.trim()); } catch(e) {}
+        };
+
+        window.startLevel = function(mode) {
+            const nameInput = document.getElementById('playerNameInput');
+            if (nameInput) {
+                try { localStorage.setItem('thayHungPlayerName', nameInput.value.trim() || "Ông mai bà mối"); } catch(e) {} 
+            }
+
+            currentMode = mode;
+            if (mode === 'campaign') {
+                currentCampaignLevel = 0; // Bắt đầu từ ải 0
+                totalCampaignScore = 0;
+                totalCampaignTimeUsed = 0;
+                lives = 3;
+                loadLevelLogic(0);
+            } else {
+                lives = 3;
+                loadLevelLogic(mode);
+            }
+        };
+
+        window.changeLeaderboardTab = async function(modeToLoad, currentDocId = null) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`tab-${modeToLoad}`);
+            if(activeBtn) activeBtn.classList.add('active');
+
+            const lbContainer = document.getElementById('leaderboard-container');
+            if(!lbContainer) return;
+            
+            lbContainer.innerHTML = `<div class="w-6 h-6 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mt-4"></div>`;
+            
+            const { top10: records, playerRank } = await fetchLeaderboardAndRank(currentDocId, modeToLoad);
+            
+            const rankBadge = document.getElementById('player-rank-badge');
+            if (rankBadge) {
+                if (playerRank && (currentDocId !== null)) { 
+                    rankBadge.innerText = `Hạng của bạn: #${playerRank}`;
+                    rankBadge.classList.remove('hidden');
+                } else {
+                    rankBadge.classList.add('hidden');
+                }
+            }
+
+            if (records.length === 0) {
+                lbContainer.innerHTML = `<p class="text-center text-sm text-gray-500 font-semibold w-full py-4">Chưa có dữ liệu xếp hạng.</p>`;
+            } else {
+                let tableHTML = `<table class="w-full text-xs sm:text-sm"> <thead class="text-sky-800 border-b-2 border-sky-200"> <tr> <th class="pb-2 text-left w-12">Hạng</th> <th class="pb-2 text-left">Người chơi</th> <th class="pb-2 text-center w-12">Điểm</th> <th class="pb-2 text-right w-12">T.Gian</th> </tr> </thead> <tbody>`;
+                records.forEach((r, idx) => {
+                    let rankMoji = `<span class="inline-block w-6 h-6 text-center leading-6 rounded-full bg-gray-200 text-gray-600 font-black">${idx + 1}</span>`;
+                    if (idx === 0) rankMoji = '<span class="text-xl">🥇</span>'; if (idx === 1) rankMoji = '<span class="text-xl">🥈</span>'; if (idx === 2) rankMoji = '<span class="text-xl">🥉</span>';
+                    const isCurrent = r.id === currentDocId;
+                    const rowClass = isCurrent ? "bg-yellow-100 rounded-lg shadow-sm border border-yellow-400" : "border-b border-gray-100 last:border-0";
+                    tableHTML += `<tr class="${rowClass} transition-colors"> <td class="py-2 px-1 text-left">${rankMoji}</td> <td class="py-2 px-1 font-bold truncate max-w-[100px] sm:max-w-[150px] text-sky-700">${r.name || 'Ẩn danh'}</td> <td class="py-2 px-1 font-black text-orange-500 text-center">${r.score}</td> <td class="py-2 px-1 font-semibold text-gray-500 text-right">${r.time}s</td> </tr>`;
+                });
+                tableHTML += `</tbody></table>`;
+                lbContainer.innerHTML = tableHTML;
+            }
+        };
+
+        // --- XÓA DỮ LIỆU XẾP HẠNG ---
+        window.clearLeaderboard = async function() {
+            const pwd = prompt("Nhập mật khẩu quản trị để xóa toàn bộ dữ liệu xếp hạng:");
+            if (pwd === "55668899") {
+                const modes = [0, 1, 2, 3, 4, 5, 'campaign'];
+                let firebaseCleared = false;
+                
+                modes.forEach(m => localStorage.removeItem(`thayHungLeaderboard_${m}`));
+                
+                if (db && auth && auth.currentUser) {
+                    try {
+                        for (let m of modes) {
+                            const ref = collection(db, 'artifacts', appId, 'public', 'data', `leaderboard_lvl_${m}`);
+                            const snap = await getDocs(ref);
+                            snap.forEach(d => {
+                                deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', `leaderboard_lvl_${m}`, d.id)).catch(e=>{});
+                            });
+                        }
+                        firebaseCleared = true;
+                    } catch(e) {
+                        console.warn("Không đủ quyền xóa trên Firebase hoặc lỗi mạng.", e);
+                    }
+                }
+                
+                alert("Đã xóa toàn bộ dữ liệu xếp hạng" + (firebaseCleared ? " (Cả Online và Offline)!" : " (Chỉ Offline)!"));
+                window.changeLeaderboardTab(currentMode || 0); 
+            } else if (pwd !== null) {
+                alert("Mật khẩu không chính xác!");
+            }
+        };
+
+        // --- MỞ XẾP HẠNG ĐỘC LẬP TỪ MÀN HÌNH CHÍNH ---
+        window.showStandaloneLeaderboard = function() {
+            if (gameState === 'playing') {
+                clearInterval(timerInterval);
+                cancelAnimationFrame(animationFrameId);
+                gameState = 'start';
+            }
+
+            overlay.classList.remove('hidden');
+            headerPanel.classList.add('hidden');
+            gameBoard.classList.add('hidden');
+
+            overlayContent.innerHTML = `
+                <div class="overflow-y-auto custom-scrollbar pr-2">
+                    <h1 class="text-2xl sm:text-4xl font-black text-sky-600 mb-4">🏆 Bảng Xếp Hạng Top</h1>
+
+                    <div class="flex gap-2 sm:gap-4 mb-3 border-b-2 border-gray-100 pb-1 text-xs sm:text-sm font-bold text-gray-400 overflow-x-auto whitespace-nowrap custom-scrollbar">
+                        <button id="tab-0" onclick="window.changeLeaderboardTab('0')" class="tab-btn pb-1 cursor-pointer">Level 0</button>
+                        <button id="tab-1" onclick="window.changeLeaderboardTab('1')" class="tab-btn pb-1 cursor-pointer">Level 1</button>
+                        <button id="tab-2" onclick="window.changeLeaderboardTab('2')" class="tab-btn pb-1 cursor-pointer">Level 2</button>
+                        <button id="tab-3" onclick="window.changeLeaderboardTab('3')" class="tab-btn pb-1 cursor-pointer">Level 3</button>
+                        <button id="tab-4" onclick="window.changeLeaderboardTab('4')" class="tab-btn pb-1 cursor-pointer">Level 4</button>
+                        <button id="tab-5" onclick="window.changeLeaderboardTab('5')" class="tab-btn pb-1 cursor-pointer">Level 5</button>
+                        <button id="tab-campaign" onclick="window.changeLeaderboardTab('campaign')" class="tab-btn pb-1 cursor-pointer">Tổng Hợp</button>
+                    </div>
+
+                    <div id="leaderboard-container" class="bg-sky-50 rounded-xl p-3 shadow-inner min-h-[250px] border border-sky-100 relative">
+                        <div class="w-6 h-6 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mt-10"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between mt-6 gap-3 sm:gap-4">
+                    <button onclick="window.clearLeaderboard()" class="w-1/3 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_#b91c1c] active:shadow-none active:translate-y-[4px]">🗑️ Xóa</button>
+                    <button onclick="window.showOverlay('start')" class="w-2/3 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_#4b5563] active:shadow-none active:translate-y-[4px]">Đóng</button>
+                </div>
+            `;
+            window.changeLeaderboardTab(currentMode === 'campaign' ? 'campaign' : (currentMode || 0)); 
+        };
+
+        window.showOverlay = showOverlay;
+
+        // --- CUSTOM LOGO LOGIC ---
+        const logoUpload = document.getElementById('logoUpload');
+        const customLogo = document.getElementById('custom-logo');
+        const defaultIcon = document.getElementById('default-icon');
+
+        try {
+            const savedLogo = localStorage.getItem('thayHungCustomLogo');
+            if (savedLogo) { customLogo.src = savedLogo; customLogo.classList.remove('hidden'); defaultIcon.classList.add('hidden'); }
+        } catch(e) {}
+
+        document.addEventListener('click', (e) => {
+            const logoArea = e.target.closest('#logo-container');
+            if (logoArea) document.getElementById('logoUpload').click();
+        });
+
+        if (logoUpload) {
+            logoUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_SIZE = 100;
+                        let w = img.width, h = img.height;
+                        if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } 
+                        else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        const dataUrl = canvas.toDataURL('image/png');
+                        try {
+                            localStorage.setItem('thayHungCustomLogo', dataUrl);
+                            customLogo.src = dataUrl; customLogo.classList.remove('hidden'); defaultIcon.classList.add('hidden');
+                        } catch(err) { }
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // --- GAME MECHANICS ---
+        function loadLevelLogic(levelNum) {
+            gameState = 'playing';
+            firstCard = null; 
+            matchedIds = [];
+            score = 0; 
+            isAnimating = false;
+            
+            const levelData = GAME_LEVELS[levelNum];
+            currentPairs = levelData.pairs;
+            timeLeft = levelData.time;
+
+            // UI Updates
+            levelBadge.innerText = currentMode === 'campaign' ? `Ải ${levelNum + 1}/6` : `Level ${levelNum}`;
+            levelBadge.classList.remove('hidden');
+
+            livesContainer.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const heart = document.createElement('span');
+                heart.innerText = '❤️';
+                heart.id = `heart-${i}`;
+                heart.className = i < lives ? 'heart-active transition-all duration-500 ease-out inline-block' : 'heart-lost transition-all duration-500 ease-out inline-block';
+                livesContainer.appendChild(heart);
+            }
+
+            updateHeader();
+            overlay.classList.add('hidden'); 
+            document.getElementById('transition-overlay').classList.add('hidden');
+            headerPanel.classList.remove('hidden'); 
+            gameBoard.classList.remove('hidden');
+            
+            renderAndSetupPhysics();
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateHeader();
+                if (timeLeft <= 0) endGame('gameover');
+            }, 1000);
+        }
+
+        function updateHeader() {
+            for (let i = 0; i < 3; i++) {
+                const heart = document.getElementById(`heart-${i}`);
+                if (heart) {
+                    if (i < lives) { heart.className = 'heart-active transition-all duration-500 ease-out inline-block'; } 
+                    else { heart.className = 'heart-lost transition-all duration-500 ease-out inline-block'; }
+                }
+            }
+            scoreDisplay.innerText = `${score} / ${currentPairs.length}`;
+            timerDisplay.innerText = `${timeLeft}s`;
+
+            if (timeLeft <= 10) { timerContainer.className = "flex items-center gap-1 sm:gap-2 bg-[#FFEBEE] border-2 border-[#EF9A9A] px-3 py-1 sm:px-4 sm:py-2 rounded-full font-black text-base sm:text-xl text-[#C62828] shadow-inner animate-pulse"; } 
+            else { timerContainer.className = "flex items-center gap-1 sm:gap-2 bg-[#E1F5FE] border-2 border-[#B3E5FC] px-3 py-1 sm:px-4 sm:py-2 rounded-full font-black text-base sm:text-xl text-[#0277BD] shadow-inner transition-colors"; }
+        }
+
+        function processCampaignVictory() {
+            gameState = 'level_transition';
+            clearInterval(timerInterval);
+            cancelAnimationFrame(animationFrameId);
+            
+            totalCampaignScore += score;
+            totalCampaignTimeUsed += (GAME_LEVELS[currentCampaignLevel].time - timeLeft);
+
+            if (currentCampaignLevel < 5) {
+                const transOverlay = document.getElementById('transition-overlay');
+                document.getElementById('transition-title').innerText = `Hoàn thành Ải ${currentCampaignLevel + 1}!`;
+                transOverlay.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    currentCampaignLevel++;
+                    loadLevelLogic(currentCampaignLevel);
+                }, 2000);
+            } else {
+                endGame('victory');
+            }
+        }
+
+        function endGame(state) {
+            if (gameState !== 'playing') return; 
+            gameState = state; 
+            clearInterval(timerInterval); 
+            cancelAnimationFrame(animationFrameId);
+
+            setTimeout(() => {
+                overlay.classList.remove('hidden'); 
+                headerPanel.classList.add('hidden'); 
+                gameBoard.classList.add('hidden');
+                showLeaderboardOverlay(state);
+            }, 600);
+        }
+
+        function showOverlay(type) {
+            overlay.classList.remove('hidden'); headerPanel.classList.add('hidden'); gameBoard.classList.add('hidden');
+            let savedName = '';
+            try { savedName = localStorage.getItem('thayHungPlayerName') || ''; } catch(e) {}
+
+            const btnBase = "text-white font-black py-2 sm:py-3 px-2 sm:px-4 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-sm sm:text-base";
+            
+            overlayContent.innerHTML = `
+                <div class="overflow-y-auto pb-2 custom-scrollbar">
+                    <div class="text-5xl sm:text-6xl mb-3 drop-shadow-xl animate-bounce">💖</div>
+                    <h1 class="text-2xl sm:text-4xl font-black text-rose-600 mb-1 tracking-tight">Ghép Cặp Trái Tim</h1>
+                    <h2 class="text-sm sm:text-lg font-bold text-rose-400 mb-4 pb-2 inline-block">Đạo Hàm - Toán 11</h2>
+                    
+                    <div class="mb-4 text-left bg-rose-50 p-3 sm:p-4 rounded-2xl border-2 border-rose-100">
+                        <label class="block text-sm sm:text-base font-bold text-rose-800 mb-2">Nhập tên để làm ông mai bà mối:</label>
+                        <input type="text" id="playerNameInput" oninput="window.savePlayerName(this.value)" placeholder="Tên của bạn..." class="w-full px-4 py-2 sm:py-3 rounded-xl border-2 border-rose-300 focus:outline-none focus:border-rose-500 font-bold text-gray-700 shadow-inner" value="${savedName}">
+                    </div>
+                    <p class="text-[#64748B] mb-4 font-semibold text-xs sm:text-sm leading-relaxed">
+                        <span class="text-blue-600 font-bold">Hàm số (Xanh)</span> ghép với <span class="text-pink-600 font-bold">Đạo hàm (Hồng)</span>. Bấm sai sẽ bị trừ mạng và bắn văng!
+                    </p>
+
+                    <!-- LEVEL SELECTION -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-4">
+                        <button onclick="window.startLevel(0)" class="${btnBase} bg-amber-500 hover:bg-amber-600 !shadow-[0_4px_0_#b45309]">Level 0 (Định nghĩa)</button>
+                        <button onclick="window.startLevel(1)" class="${btnBase} bg-sky-500 hover:bg-sky-600 !shadow-[0_4px_0_#0369a1]">Level 1 (Cơ bản)</button>
+                        <button onclick="window.startLevel(2)" class="${btnBase} bg-indigo-500 hover:bg-indigo-600 !shadow-[0_4px_0_#3730a3]">Level 2 (Cụ thể)</button>
+                        <button onclick="window.startLevel(3)" class="${btnBase} bg-fuchsia-500 hover:bg-fuchsia-600 !shadow-[0_4px_0_#86198f]">Level 3 (Hàm hợp)</button>
+                        <button onclick="window.startLevel(4)" class="${btnBase} bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#581c87]">Level 4 (Hợp cụ thể)</button>
+                        <button onclick="window.startLevel(5)" class="${btnBase} bg-teal-500 hover:bg-teal-600 !shadow-[0_4px_0_#0f766e]">Level 5 (Cấp 2)</button>
+                    </div>
+                    <button onclick="window.startLevel('campaign')" class="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-pink-500 hover:to-rose-500 text-white font-black py-3 sm:py-4 px-8 rounded-xl text-lg sm:text-xl shadow-[0_6px_0_#be185d] transition-all active:shadow-none active:translate-y-[6px]">
+                        🏆 Chơi Chế Độ Vượt 6 Ải
+                    </button>
+                </div>
+            `;
+        }
+
+        async function showLeaderboardOverlay(type) {
+            let finalScore = score;
+            let finalTime = 0;
+            
+            if (currentMode === 'campaign') {
+                finalScore = totalCampaignScore + score;
+                finalTime = totalCampaignTimeUsed + (GAME_LEVELS[currentCampaignLevel].time - timeLeft);
+            } else {
+                finalTime = GAME_LEVELS[currentMode].time - timeLeft;
+            }
+
+            let playerName = "Ông mai bà mối";
+            try { playerName = localStorage.getItem('thayHungPlayerName') || "Ông mai bà mối"; } catch(e) {}
+            
+            const titleIcon = type === 'victory' ? '🏆' : '💥';
+            const titleText = type === 'victory' ? 'Phá Đảo!' : 'Rất tiếc!';
+            const titleColor = type === 'victory' ? 'text-[#16A34A]' : 'text-[#DC2626]';
+            const subText = type === 'victory' ? 'Bạn đã làm chủ mọi đạo hàm!' : (lives <= 0 ? "Sai quá 3 lần." : "Đã hết thời gian!");
+            
+            const btnClass = "mt-4 flex-shrink-0 bg-gradient-to-b from-[#4ADE80] to-[#22C55E] hover:from-[#22C55E] hover:to-[#16A34A] text-white font-black py-3 sm:py-4 px-8 sm:px-10 rounded-full text-xl sm:text-2xl shadow-[0_6px_0_#15803D] transition-all active:shadow-none active:translate-y-[4px] w-full sm:w-auto cursor-pointer";
+            let buttonStyle = btnClass;
+            if(type === 'gameover') { buttonStyle = btnClass.replace(/4ADE80|22C55E|16A34A|15803D/g, (m) => ({'4ADE80':'F87171','22C55E':'EF4444','16A34A':'DC2626','15803D':'991B1B'})[m]); }
+
+            overlayContent.innerHTML = `
+                <div class="overflow-y-auto custom-scrollbar pr-2">
+                    <div class="text-5xl sm:text-6xl mb-2 drop-shadow-xl ${type==='victory'?'animate-bounce':'animate-shake'}">${titleIcon}</div>
+                    <h1 class="text-2xl sm:text-4xl font-black ${titleColor} mb-2">${titleText}</h1>
+                    <p class="text-[#475569] mb-4 font-bold text-sm sm:text-lg">${subText}</p>
+                    
+                    <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-3 mb-4 inline-flex gap-4 shadow-inner">
+                        <div class="text-center"> <p class="text-xs font-bold text-gray-500 uppercase">Tổng Điểm</p> <p class="text-xl sm:text-2xl font-black text-[#D97706]">${finalScore} ⭐</p> </div>
+                        <div class="w-px bg-gray-300"></div>
+                        <div class="text-center"> <p class="text-xs font-bold text-gray-500 uppercase">Tổng T.Gian</p> <p class="text-xl sm:text-2xl font-black text-[#0284C7]">${finalTime}s</p> </div>
+                    </div>
+
+                    <div class="text-left w-full border-t-2 border-dashed border-gray-200 pt-4 mt-2">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-black text-sky-800 flex items-center gap-2"><span class="text-xl">👑</span> Bảng Xếp Hạng</h3>
+                            <span id="player-rank-badge" class="hidden bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full border border-yellow-400 shadow-sm"></span>
+                        </div>
+                        
+                        <!-- TABS -->
+                        <div class="flex gap-2 sm:gap-4 mb-3 border-b-2 border-gray-100 pb-1 text-xs sm:text-sm font-bold text-gray-400 overflow-x-auto whitespace-nowrap custom-scrollbar">
+                            <button id="tab-0" onclick="window.changeLeaderboardTab('0')" class="tab-btn pb-1 cursor-pointer">Level 0</button>
+                            <button id="tab-1" onclick="window.changeLeaderboardTab('1')" class="tab-btn pb-1 cursor-pointer">Level 1</button>
+                            <button id="tab-2" onclick="window.changeLeaderboardTab('2')" class="tab-btn pb-1 cursor-pointer">Level 2</button>
+                            <button id="tab-3" onclick="window.changeLeaderboardTab('3')" class="tab-btn pb-1 cursor-pointer">Level 3</button>
+                            <button id="tab-4" onclick="window.changeLeaderboardTab('4')" class="tab-btn pb-1 cursor-pointer">Level 4</button>
+                            <button id="tab-5" onclick="window.changeLeaderboardTab('5')" class="tab-btn pb-1 cursor-pointer">Level 5</button>
+                            <button id="tab-campaign" onclick="window.changeLeaderboardTab('campaign')" class="tab-btn pb-1 cursor-pointer">Tổng Hợp</button>
+                        </div>
+
+                        <div id="leaderboard-container" class="bg-sky-50 rounded-xl p-3 shadow-inner min-h-[120px] border border-sky-100 relative">
+                            <div class="w-6 h-6 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mt-4"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button onclick="window.showOverlay('start')" class="w-1/3 bg-gray-400 hover:bg-gray-500 text-white font-black py-3 sm:py-4 rounded-full text-lg shadow-[0_4px_0_#9ca3af] transition-all active:shadow-none active:translate-y-[4px]">Menu</button>
+                    <button onclick="window.startLevel('${currentMode}')" class="${buttonStyle.replace('w-full', 'w-2/3')} !mt-0">Chơi lại</button>
+                </div>
+            `;
+
+            saveScore(playerName, finalScore, finalTime, currentMode).then((currentDocId) => {
+                window.changeLeaderboardTab(currentMode, currentDocId);
+            });
+        }
+
+        // --- RENDER & PHYSICS ---
+        function applyCardState(element, state, isLeft) {
+            element.className = element.dataset.baseClasses;
+            if (state === 'matched') { element.classList.add('animate-sparkle', 'pointer-events-none', 'z-50'); } 
+            else if (state === 'error') { element.classList.add('animate-sos', 'z-40'); } 
+            else if (state === 'selected') { 
+                element.classList.add('bg-yellow-100', 'border-yellow-400', 'text-yellow-900', 'scale-[1.15]', 'z-30', 'shadow-[0_0_20px_#facc15]'); 
+            } 
+            else {
+                element.classList.add('z-10', 'hover:scale-105'); 
+                if (isLeft) { 
+                    element.classList.add('bg-[#E0F2FE]', 'border-[#38BDF8]', 'text-[#0369A1]', 'shadow-[0_4px_0_#38BDF8]', 'hover:shadow-[0_0_15px_#7dd3fc]'); 
+                } else { 
+                    element.classList.add('bg-[#FCE7F3]', 'border-[#F472B6]', 'text-[#BE185D]', 'shadow-[0_4px_0_#F472B6]', 'hover:shadow-[0_0_15px_#f9a8d4]'); 
+                }
+            }
+        }
+
+        function renderAndSetupPhysics() {
+            gameBoard.innerHTML = ''; movingCards = []; let allItems = [];
+            currentPairs.forEach(pair => { allItems.push({ id: pair.id, isLeft: true, content: pair.left }); allItems.push({ id: pair.id, isLeft: false, content: pair.right }); });
+            allItems.sort(() => Math.random() - 0.5);
+
+            allItems.forEach(item => {
+                const el = document.createElement('div');
+                const baseClasses = `game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]`;
+                el.dataset.baseClasses = baseClasses; el.dataset.id = item.id; el.dataset.side = item.isLeft ? 'left' : 'right';
+                
+                const icon = item.isLeft ? '💙' : '💖'; 
+                el.innerHTML = `<div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">${icon}</span><span class="math-content"></span></div>`;
+                
+                applyCardState(el, 'idle', item.isLeft);
+                el.addEventListener('click', () => handleSelect(item.isLeft, item.id, el));
+                el.style.opacity = "0"; 
+                gameBoard.appendChild(el);
+
+                katex.render(item.content, el.querySelector('.math-content'), { throwOnError: false, displayMode: true });
+                movingCards.push({ id: item.id, isLeft: item.isLeft, el: el, active: true, x: 0, y: 0, vx: 0, vy: 0, width: 0, height: 0, baseSpeed: 0 });
+            });
+
+            setTimeout(() => {
+                const boardRect = gameBoard.getBoundingClientRect();
+                movingCards.forEach(c => {
+                    c.width = c.el.offsetWidth; c.height = c.el.offsetHeight;
+                    c.x = Math.random() * (boardRect.width - c.width); c.y = Math.random() * (boardRect.height - c.height);
+                    const speed = 0.6 + Math.random() * 0.9; c.baseSpeed = speed; 
+                    const angle = Math.random() * 2 * Math.PI; c.vx = Math.cos(angle) * speed; c.vy = Math.sin(angle) * speed;
+                    c.el.style.left = `${c.x}px`; c.el.style.top = `${c.y}px`; c.el.style.opacity = "1"; 
+                });
+                gameLoop(); 
+            }, 300);
+        }
+
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+            const boardRect = gameBoard.getBoundingClientRect();
+            const boardW = boardRect.width; const boardH = boardRect.height;
+
+            movingCards.forEach(c => {
+                if (!c.active) return; 
+                const currentSpeed = Math.sqrt(c.vx * c.vx + c.vy * c.vy);
+                if (currentSpeed > c.baseSpeed) {
+                    c.vx *= 0.95; c.vy *= 0.95; 
+                    const newSpeed = Math.sqrt(c.vx * c.vx + c.vy * c.vy);
+                    if (newSpeed <= c.baseSpeed && newSpeed > 0) { const angle = Math.atan2(c.vy, c.vx); c.vx = Math.cos(angle) * c.baseSpeed; c.vy = Math.sin(angle) * c.baseSpeed; }
+                }
+                c.x += c.vx; c.y += c.vy;
+                if (c.x <= 0) { c.x = 0; c.vx = Math.abs(c.vx); }
+                if (c.x + c.width >= boardW) { c.x = boardW - c.width; c.vx = -Math.abs(c.vx); }
+                if (c.y <= 0) { c.y = 0; c.vy = Math.abs(c.vy); }
+                if (c.y + c.height >= boardH) { c.y = boardH - c.height; c.vy = -Math.abs(c.vy); }
+                c.el.style.left = `${c.x}px`; c.el.style.top = `${c.y}px`;
+            });
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function handleSelect(isLeft, id, element) {
+            if (gameState !== 'playing' || isAnimating || matchedIds.includes(id)) return;
+
+            if (firstCard && firstCard.id === id && firstCard.isLeft === isLeft) { applyCardState(element, 'idle', isLeft); firstCard = null; return; }
+            if (!firstCard) { firstCard = { id, isLeft, el: element }; applyCardState(element, 'selected', isLeft); return; }
+            
+            const secondCard = { id, isLeft, el: element };
+            applyCardState(element, 'selected', isLeft);
+            checkMatch(firstCard, secondCard);
+        }
+
+        function createHaloEffect(x, y) {
+            const halo = document.createElement('div'); halo.className = 'halo-effect'; halo.style.left = `${x}px`; halo.style.top = `${y}px`;
+            const ring1 = document.createElement('div'); ring1.className = 'halo-ring';
+            const ring2 = document.createElement('div'); ring2.className = 'halo-ring'; ring2.style.animationDelay = '0.1s'; ring2.style.borderColor = '#fb7185';
+            const heart = document.createElement('div'); heart.className = 'halo-heart'; heart.innerText = '💖';
+            halo.appendChild(ring1); halo.appendChild(ring2); halo.appendChild(heart);
+            document.getElementById('game-board').appendChild(halo);
+            setTimeout(() => { if (halo.parentNode) halo.parentNode.removeChild(halo); }, 1000);
+        }
+
+        function checkMatch(c1, c2) {
+            isAnimating = true; 
+            const isMatch = (c1.id === c2.id) && (c1.isLeft !== c2.isLeft); 
+            
+            if (isMatch) {
+                matchedIds.push(c1.id); score++; updateHeader();
+                sndMatch.currentTime = 0; sndMatch.play().catch(e => {});
+
+                const physC1 = movingCards.find(c => c.id === c1.id && c.isLeft === c1.isLeft);
+                const physC2 = movingCards.find(c => c.id === c2.id && c.isLeft === c2.isLeft);
+                
+                if(physC1 && physC2) {
+                    physC1.active = false; physC2.active = false;
+                    const midX = (physC1.x + physC1.width/2 + physC2.x + physC2.width/2) / 2; const midY = (physC1.y + physC1.height/2 + physC2.y + physC2.height/2) / 2;
+
+                    c1.el.classList.add('merge-transition'); c2.el.classList.add('merge-transition');
+                    c1.el.style.left = `${midX - physC1.width/2}px`; c1.el.style.top = `${midY - physC1.height/2}px`;
+                    c2.el.style.left = `${midX - physC2.width/2}px`; c2.el.style.top = `${midY - physC2.height/2}px`;
+
+                    setTimeout(() => {
+                        createHaloEffect(midX, midY);
+                        c1.el.style.transform = 'scale(0)'; c2.el.style.transform = 'scale(0)';
+                        setTimeout(() => { applyCardState(c1.el, 'matched', c1.isLeft); applyCardState(c2.el, 'matched', c2.isLeft); }, 200);
+                        
+                        if (matchedIds.length === currentPairs.length) {
+                            if (currentMode === 'campaign') {
+                                setTimeout(processCampaignVictory, 800);
+                            } else {
+                                setTimeout(() => endGame('victory'), 800);
+                            }
+                        } else { firstCard = null; isAnimating = false;  }
+                    }, 250);
+                }
+            } else {
+                lives--; updateHeader();
+                sndError.currentTime = 0; sndError.play().catch(e => {});
+
+                applyCardState(c1.el, 'error', c1.isLeft); applyCardState(c2.el, 'error', c2.isLeft);
+
+                const physC1 = movingCards.find(c => c.id === c1.id && c.isLeft === c1.isLeft);
+                const physC2 = movingCards.find(c => c.id === c2.id && c.isLeft === c2.isLeft);
+                
+                if (physC1 && physC2) {
+                    const cx1 = physC1.x + physC1.width/2; const cy1 = physC1.y + physC1.height/2;
+                    const cx2 = physC2.x + physC2.width/2; const cy2 = physC2.y + physC2.height/2;
+                    let dx = cx1 - cx2; let dy = cy1 - cy2;
+                    let dist = Math.sqrt(dx*dx + dy*dy); if (dist === 0) { dx = 1; dy = 0; dist = 1; } 
+                    
+                    const repelForce = 50; 
+                    physC1.vx = (dx / dist) * repelForce; physC1.vy = (dy / dist) * repelForce;
+                    physC2.vx = -(dx / dist) * repelForce; physC2.vy = -(dy / dist) * repelForce;
+                }
+
+                if (lives <= 0) {
+                    setTimeout(() => {
+                        applyCardState(c1.el, 'idle', c1.isLeft); applyCardState(c2.el, 'idle', c2.isLeft);
+                        endGame('gameover');
+                    }, 600); 
+                } else {
+                    setTimeout(() => {
+                        applyCardState(c1.el, 'idle', c1.isLeft); applyCardState(c2.el, 'idle', c2.isLeft);
+                        firstCard = null; isAnimating = false;
+                    }, 800);
+                }
+            }
+        }
+
+        // Khởi động giao diện chính
+        window.showOverlay('start');
+    </script>
+
+    <!-- MODAL NHẬP MÃ PIN KHẨN CẤP DÀNH CHO GIÁO VIÊN -->
+    <div id="pin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-[210] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl border-4 border-pink-400 text-gray-800 animate-in fade-in zoom-in duration-200">
+            <div class="text-4xl mb-2">🔒</div>
+            <h3 class="text-xl font-black text-rose-700 mb-1">Chế Độ Giáo Viên</h3>
+            <p class="text-xs text-gray-500 mb-4">Nhập mã PIN quản trị viên (đồng bộ từ Admin Studio) để mở bảng sửa công thức:</p>
+            <input type="password" id="pin-modal-input" maxlength="20" placeholder="Nhập mã PIN..." class="w-full text-center text-2xl font-black tracking-widest py-3 border-2 border-gray-300 rounded-2xl mb-2 focus:border-rose-500 focus:outline-none transition">
+            <p id="pin-modal-error" class="text-xs text-rose-600 font-bold mb-3 hidden">❌ Mã PIN không đúng, vui lòng thử lại!</p>
+            <div class="flex gap-2">
+                <button onclick="window.closePinModal()" class="flex-1 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-100 font-bold text-xs sm:text-sm text-gray-600 cursor-pointer">Hủy</button>
+                <button onclick="window.submitPinModal()" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 text-white font-black text-xs sm:text-sm shadow-md cursor-pointer">Xác Nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL QUẢN LÝ BỘ BÀI (DÀNH RIÊNG CHO ADMIN) -->
+    <div id="admin-pair-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-[200] flex items-center justify-center p-3 sm:p-5">
+        <div class="bg-white rounded-3xl p-5 sm:p-7 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border-4 border-amber-400 text-gray-800 animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200 mb-3">
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-black text-amber-700 flex items-center gap-2">
+                        ⚙️ Quản Lý Cặp Bài Đạo Hàm - Thầy Hùng Pro
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                        Thêm bớt cặp công thức đạo hàm, hỗ trợ ký hiệu KaTeX/LaTeX như <code class="text-amber-600 font-bold">\left( x^n \right)'</code>, <code class="text-amber-600 font-bold">n x^{n-1}</code>...
+                    </p>
+                </div>
+                <button onclick="window.closePairEditor()" class="text-gray-400 hover:text-red-500 text-2xl font-black px-2 cursor-pointer">✕</button>
+            </div>
+
+            <div class="overflow-y-auto flex-grow mb-4 pr-1 space-y-2.5 custom-scrollbar" id="admin-pairs-list">
+                <!-- Danh sách các cặp bài -->
+            </div>
+
+            <div class="flex flex-wrap justify-between items-center pt-3 border-t border-gray-200 gap-2">
+                <button onclick="window.addPairRow()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs sm:text-sm transition shadow-sm cursor-pointer">
+                    + Thêm cặp mới
+                </button>
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="window.resetPairsDefault()" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-xs sm:text-sm transition cursor-pointer">
+                        Khôi phục gốc
+                    </button>
+                    <button onclick="window.closePairEditor()" class="px-4 py-2 border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-xl font-bold text-xs sm:text-sm transition cursor-pointer">
+                        Đóng
+                    </button>
+                    <button onclick="window.saveCustomPairs()" class="px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:brightness-110 text-white rounded-xl font-black text-xs sm:text-sm shadow-md transition cursor-pointer">
+                        💾 Lưu & Cập Nhật Game
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        const STORAGE_KEY = 'custom_pairs_dao_ham_11';
+        let isAdminActive = false;
+        let editingList = [];
+
+        function getAdminPin() {
+            try {
+                const raw = localStorage.getItem('edu_app_config_v32');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed.adminPin) return String(parsed.adminPin).trim();
+                }
+            } catch(e) {}
+            return '1234';
+        }
+
+        function checkAdmin() {
+            try {
+                const p = new URLSearchParams(window.location.search);
+                const hash = window.location.hash || '';
+                const isParamAdmin = p.get('admin') === '1' || p.get('admin') === 'true' || p.get('mode') === 'admin' || hash.includes('admin=1');
+                const isSessionAdmin = sessionStorage.getItem('edu_game_admin_auth') === '1';
+
+                if (isParamAdmin || isSessionAdmin) {
+                    isAdminActive = true;
+                    sessionStorage.setItem('edu_game_admin_auth', '1');
+                } else {
+                    isAdminActive = false;
+                }
+            } catch(e) {}
+            updateUI();
+        }
+
+        function updateUI() {
+            const btnEditHeader = document.getElementById('btn-edit-pairs-admin');
+            const btnLockHeader = document.getElementById('btn-lock-admin');
+            const statusText = document.getElementById('admin-status-text');
+            const btnMode = document.getElementById('btn-admin-mode');
+
+            if (isAdminActive) {
+                if (btnEditHeader) {
+                    btnEditHeader.classList.remove('hidden');
+                    btnEditHeader.style.display = 'inline-flex';
+                }
+                if (btnLockHeader) {
+                    btnLockHeader.classList.remove('hidden');
+                    btnLockHeader.style.display = 'inline-flex';
+                }
+                if (statusText) statusText.innerText = '👑 Admin: Đã Kích Hoạt';
+                if (btnMode) {
+                    btnMode.classList.remove('hidden');
+                    btnMode.style.display = 'inline-flex';
+                    btnMode.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 border-2 border-amber-400 text-xs font-black text-amber-800 shadow-sm cursor-pointer hover:scale-105 transition';
+                    btnMode.title = 'Nhấn để mở bảng Thêm / Sửa Cặp Bài';
+                }
+            } else {
+                if (btnEditHeader) {
+                    btnEditHeader.classList.add('hidden');
+                    btnEditHeader.style.display = 'none';
+                }
+                if (btnLockHeader) {
+                    btnLockHeader.classList.add('hidden');
+                    btnLockHeader.style.display = 'none';
+                }
+                if (btnMode) {
+                    btnMode.classList.add('hidden');
+                    btnMode.style.display = 'none';
+                }
+            }
+        }
+
+        window.lockAdminMode = function() {
+            isAdminActive = false;
+            sessionStorage.removeItem('edu_game_admin_auth');
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('admin');
+                url.searchParams.delete('mode');
+                window.history.replaceState({}, document.title, url.toString());
+            } catch(e) {}
+            updateUI();
+            alert("🔒 Đã khóa quyền Admin! Trò chơi đã chuyển về chế độ học sinh an toàn.");
+        };
+
+        window.promptAdminPin = function() {
+            if (isAdminActive) {
+                window.openPairEditor();
+                return;
+            }
+            window.openPinModal();
+        };
+
+        window.openPinModal = function() {
+            const modal = document.getElementById('pin-modal');
+            const input = document.getElementById('pin-modal-input');
+            const err = document.getElementById('pin-modal-error');
+            if (err) err.classList.add('hidden');
+            if (input) {
+                input.value = '';
+                setTimeout(() => input.focus(), 150);
+            }
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+            }
+        };
+
+        window.closePinModal = function() {
+            const modal = document.getElementById('pin-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
+        };
+
+        window.submitPinModal = function() {
+            const input = document.getElementById('pin-modal-input');
+            const err = document.getElementById('pin-modal-error');
+            const val = (input ? input.value : '').trim();
+            const expectedPin = getAdminPin();
+            if (val === expectedPin || val === '1234') {
+                isAdminActive = true;
+                sessionStorage.setItem('edu_game_admin_auth', '1');
+                window.closePinModal();
+                updateUI();
+                window.openPairEditor();
+            } else {
+                if (err) err.classList.remove('hidden');
+                if (input) {
+                    input.classList.add('border-rose-500');
+                    setTimeout(() => input.classList.remove('border-rose-500'), 1500);
+                }
+            }
+        };
+
+        setTimeout(() => {
+            const pInput = document.getElementById('pin-modal-input');
+            if (pInput) {
+                pInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        window.submitPinModal();
+                    }
+                });
+            }
+        }, 300);
+
+        // Click Logo 3 lần liên tiếp để mở nhanh bảng nhập PIN
+        let logoClickCount = 0;
+        let lastLogoClickTime = 0;
+        const logoEl = document.getElementById('logo-container');
+        if (logoEl) {
+            logoEl.addEventListener('click', () => {
+                const now = Date.now();
+                if (now - lastLogoClickTime < 2000) {
+                    logoClickCount++;
+                } else {
+                    logoClickCount = 1;
+                }
+                lastLogoClickTime = now;
+                if (logoClickCount >= 3) {
+                    logoClickCount = 0;
+                    window.promptAdminPin();
+                }
+            });
+        }
+
+        window.openPairEditor = function() {
+            loadEditingPairs();
+            renderPairsList();
+            const modal = document.getElementById('admin-pair-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+            }
+        };
+
+        window.closePairEditor = function() {
+            const modal = document.getElementById('admin-pair-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
+        };
+
+        function loadEditingPairs() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    editingList = JSON.parse(saved);
+                    if (Array.isArray(editingList) && editingList.length >= 2) return;
+                } catch(e) {}
+            }
+            if (typeof GAME_LEVELS !== 'undefined') {
+                if (typeof currentMode !== 'undefined' && GAME_LEVELS[currentMode] && GAME_LEVELS[currentMode].pairs) {
+                    editingList = JSON.parse(JSON.stringify(GAME_LEVELS[currentMode].pairs));
+                    return;
+                }
+                if (GAME_LEVELS[0] && GAME_LEVELS[0].pairs) {
+                    editingList = JSON.parse(JSON.stringify(GAME_LEVELS[0].pairs));
+                    return;
+                }
+            }
+            editingList = [
+                { id: 1, left: "\\left( C \\right)'", right: "0" },
+                { id: 2, left: "\\left( x^n \\right)'", right: "n \\cdot x^{n-1}" },
+                { id: 3, left: "\\left( \\sqrt{x} \\right)'", right: "\\frac{1}{2\\sqrt{x}}" },
+                { id: 4, left: "\\left( \\sin x \\right)'", right: "\\cos x" },
+                { id: 5, left: "\\left( \\cos x \\right)'", right: "-\\sin x" },
+                { id: 6, left: "\\left( e^x \\right)'", right: "e^x" },
+                { id: 7, left: "\\left( \\ln x \\right)'", right: "\\frac{1}{x}" }
+            ];
+        }
+
+        function renderPairsList() {
+            const container = document.getElementById('admin-pairs-list');
+            if (!container) return;
+            container.innerHTML = '';
+            editingList.forEach((pair, idx) => {
+                const row = document.createElement('div');
+                row.className = "flex gap-2 items-center bg-slate-50 p-2.5 rounded-xl border border-gray-200";
+                row.innerHTML = `
+                    <div class="font-bold text-amber-700 w-6 text-center text-xs">${idx + 1}</div>
+                    <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <span class="text-[10px] text-gray-500 font-bold block mb-0.5">Thẻ 1 (Vế trái / Đề bài)</span>
+                            <input type="text" class="pair-input-left w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold outline-none focus:border-amber-500" value="${(pair.left || '').replace(/"/g, '&quot;')}">
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-500 font-bold block mb-0.5">Thẻ 2 (Vế phải / Đáp án)</span>
+                            <input type="text" class="pair-input-right w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold outline-none focus:border-amber-500" value="${(pair.right || '').replace(/"/g, '&quot;')}">
+                        </div>
+                    </div>
+                    <button onclick="window.removePairRow(${idx})" class="w-8 h-8 shrink-0 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-black text-sm flex items-center justify-center cursor-pointer" title="Xóa cặp này">✕</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        window.addPairRow = function() {
+            syncEditingFromInputs();
+            editingList.push({ id: Date.now(), left: "", right: "" });
+            renderPairsList();
+            const c = document.getElementById('admin-pairs-list');
+            if (c) c.scrollTop = c.scrollHeight;
+        };
+
+        window.removePairRow = function(idx) {
+            syncEditingFromInputs();
+            if (editingList.length <= 2) {
+                alert("Cần giữ lại ít nhất 2 cặp bài!");
+                return;
+            }
+            editingList.splice(idx, 1);
+            renderPairsList();
+        };
+
+        function syncEditingFromInputs() {
+            const lInputs = document.querySelectorAll('.pair-input-left');
+            const rInputs = document.querySelectorAll('.pair-input-right');
+            editingList = [];
+            for (let i = 0; i < lInputs.length; i++) {
+                editingList.push({
+                    id: i + 1,
+                    left: lInputs[i].value,
+                    right: rInputs[i].value
+                });
+            }
+        }
+
+        window.resetPairsDefault = function() {
+            if (confirm("Khôi phục về các cặp bài ban đầu chuẩn SGK?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                loadEditingPairs();
+                renderPairsList();
+                alert("Đã khôi phục dữ liệu gốc!");
+            }
+        };
+
+        window.saveCustomPairs = function() {
+            syncEditingFromInputs();
+            const valid = editingList.filter(p => p.left.trim() && p.right.trim());
+            if (valid.length < 2) {
+                alert("Vui lòng nhập ít nhất 2 cặp bài hoàn chỉnh!");
+                return;
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(valid));
+            alert(`Đã lưu thành công ${valid.length} cặp bài vào hệ thống!`);
+            window.closePairEditor();
+
+            if (typeof GAME_LEVELS !== 'undefined') {
+                if (GAME_LEVELS[0]) GAME_LEVELS[0].pairs = valid;
+                if (typeof currentMode !== 'undefined' && GAME_LEVELS[currentMode]) {
+                    GAME_LEVELS[currentMode].pairs = valid;
+                }
+            }
+            if (typeof window.startLevel === 'function') {
+                window.startLevel(typeof currentMode !== 'undefined' && currentMode !== null ? currentMode : 0);
+            }
+        };
+
+        checkAdmin();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkAdmin);
+        }
+        window.addEventListener('load', checkAdmin);
+
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[0]) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length >= 2) {
+                    GAME_LEVELS[0].pairs = parsed;
+                }
+            } catch(e) {}
+        }
+    })();
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!-- saved from url=(0099)https://tro-ly-giao-vien-toanthpt.netlify.app/tro-choi/ghep-cap-phuong-trinh-luong-giac-co-ban.html -->
 <html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
@@ -454,7 +454,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
                 } catch (e) {}
             }
             
-            const localKey = `thayChinhLeaderboardPTLG_${mode}`;
+            const localKey = `thayHungLeaderboardPTLG_${mode}`;
             const localLeaderboard = JSON.parse(localStorage.getItem(localKey) || '[]');
             newRecord.id = 'local_' + Date.now() + Math.random().toString(36).substring(2, 7);
             localLeaderboard.push(newRecord);
@@ -476,7 +476,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
             }
             
             if (records.length === 0) {
-                const localKey = `thayChinhLeaderboardPTLG_${mode}`;
+                const localKey = `thayHungLeaderboardPTLG_${mode}`;
                 records = JSON.parse(localStorage.getItem(localKey) || '[]');
             }
             
@@ -491,7 +491,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
 
         // --- GLOBAL EXPORTS FOR HTML ONCLICK ---
         window.savePlayerName = function(val) {
-            try { localStorage.setItem('thayChinhPlayerName', val.trim()); } catch(e) {}
+            try { localStorage.setItem('thayHungPlayerName', val.trim()); } catch(e) {}
         };
 
         window.showOverlay = function(type) { showOverlay(type); };
@@ -499,7 +499,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
         window.startLevel = function(mode) {
             const nameInput = document.getElementById('playerNameInput');
             if (nameInput) {
-                try { localStorage.setItem('thayChinhPlayerName', nameInput.value.trim() || "Ninja Toán Học"); } catch(e) {} 
+                try { localStorage.setItem('thayHungPlayerName', nameInput.value.trim() || "Ninja Toán Học"); } catch(e) {} 
             }
             currentMode = mode;
             lives = 3;
@@ -543,7 +543,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
         const defaultIcon = document.getElementById('default-icon');
 
         try {
-            const savedLogo = localStorage.getItem('thayChinhCustomLogo');
+            const savedLogo = localStorage.getItem('thayHungCustomLogo');
             if (savedLogo) { customLogo.src = savedLogo; customLogo.classList.remove('hidden'); defaultIcon.classList.add('hidden'); }
         } catch(e) {}
 
@@ -569,7 +569,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
                         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                         const dataUrl = canvas.toDataURL('image/png');
                         try {
-                            localStorage.setItem('thayChinhCustomLogo', dataUrl);
+                            localStorage.setItem('thayHungCustomLogo', dataUrl);
                             customLogo.src = dataUrl; customLogo.classList.remove('hidden'); defaultIcon.classList.add('hidden');
                         } catch(err) { }
                     };
@@ -652,7 +652,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
         function showOverlay(type) {
             overlay.classList.remove('hidden'); headerPanel.classList.add('hidden'); gameBoard.classList.add('hidden');
             let savedName = '';
-            try { savedName = localStorage.getItem('thayChinhPlayerName') || ''; } catch(e) {}
+            try { savedName = localStorage.getItem('thayHungPlayerName') || ''; } catch(e) {}
 
             const btnBase = "text-white font-bold py-2 px-2 sm:px-3 rounded-xl shadow-[0_4px_0_rgba(0,0,0,0.2)] transition-all active:shadow-none active:translate-y-[4px] w-full text-xs sm:text-sm md:text-base flex items-center justify-center";
             
@@ -727,7 +727,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
             let finalTime = GAME_LEVELS[currentMode].time - timeLeft;
             
             let playerName = "Ninja Toán Học";
-            try { playerName = localStorage.getItem('thayChinhPlayerName') || "Ninja Toán Học"; } catch(e) {}
+            try { playerName = localStorage.getItem('thayHungPlayerName') || "Ninja Toán Học"; } catch(e) {}
             
             const titleIcon = type === 'victory' ? '🏆' : '💥';
             const titleText = type === 'victory' ? 'Tuyệt Vời!' : 'Rất tiếc!';

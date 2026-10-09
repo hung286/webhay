@@ -1,0 +1,951 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Toán 11. Game xếp gạch_Hai Mặt Phẳng Vuông Góc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- MathJax -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background-color: #09090b; 
+            color: #f8fafc;
+            overflow: hidden; 
+            margin: 0; 
+            touch-action: none; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        
+        /* HIỆU ỨNG NEON */
+        .neon-text-blue { text-shadow: 0 0 10px rgba(56, 189, 248, 0.8), 0 0 20px rgba(56, 189, 248, 0.4); }
+        .neon-text-pink { text-shadow: 0 0 10px rgba(2ec, 72, 153, 0.8), 0 0 20px rgba(236, 72, 153, 0.4); }
+        .neon-box { box-shadow: 0 0 20px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(56, 189, 248, 0.1); border: 2px solid rgba(56, 189, 248, 0.5); }
+        .neon-box-pink { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), inset 0 0 15px rgba(236, 72, 153, 0.1); border: 2px solid rgba(236, 72, 153, 0.5); }
+
+        /* LƯỚI GRID GAME TETRIS */
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(20, 1fr);
+            gap: 1px;
+            background-color: #020617;
+            padding: 3px;
+            border-radius: 6px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(56,189,248,0.2);
+            height: 65vh; /* Chiếm 65% chiều cao màn hình */
+            max-height: 600px;
+            aspect-ratio: 10 / 20; /* Tỉ lệ chuẩn Tetris */
+            margin: 0 auto;
+            border: 2px solid #1e293b;
+        }
+
+        .grid-cell {
+            background-color: #0f172a;
+            border-radius: 2px;
+        }
+
+        /* Gạch hiển thị */
+        .block-filled {
+            box-shadow: inset 2px 2px 4px rgba(255,255,255,0.4), inset -2px -2px 4px rgba(0,0,0,0.6);
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.5);
+        }
+
+        /* Bóng ma (Ghost piece) */
+        .block-ghost {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        /* Màu Sắc Gạch Chuẩn */
+        .color-I { background-color: #06b6d4; } /* Cyan */
+        .color-J { background-color: #3b82f6; } /* Blue */
+        .color-L { background-color: #f97316; } /* Orange */
+        .color-O { background-color: #facc15; } /* Yellow */
+        .color-S { background-color: #22c55e; } /* Green */
+        .color-T { background-color: #a855f7; } /* Purple */
+        .color-Z { background-color: #f43f5e; } /* Red */
+
+        /* Hiệu ứng gạch nổ (Blast) */
+        @keyframes blastAnim {
+            0% { transform: scale(1); filter: brightness(2); }
+            50% { transform: scale(1.2); filter: brightness(3); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .blasting { animation: blastAnim 0.4s ease-out forwards; z-index: 10; position: relative;}
+
+        /* BỘ NÚT ĐIỀU KHIỂN TETRIS */
+        .control-btn {
+            width: 60px; height: 60px; 
+            background: rgba(56, 189, 248, 0.15);
+            border: 2px solid rgba(56, 189, 248, 0.5); 
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; pointer-events: auto; user-select: none; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            transition: transform 0.1s, background 0.1s;
+            color: #e0f2fe;
+        }
+        .control-btn:active, .control-btn.pressed { transform: scale(0.9); background: rgba(56, 189, 248, 0.5); }
+        
+        /* QUIZ MODAL BUTTONS */
+        .quiz-btn {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(56, 189, 248, 0.4);
+            color: #e2e8f0;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .quiz-btn:hover {
+            border-color: rgba(56, 189, 248, 1);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6), inset 0 0 10px rgba(56, 189, 248, 0.2);
+            color: #fff;
+            transform: scale(1.02);
+        }
+        .quiz-btn:active { transform: scale(0.98); }
+
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen w-screen bg-[#09090b]">
+
+    <!-- SIDEBAR THÔNG TIN -->
+    <div class="w-full md:w-80 flex-shrink-0 bg-[#0f172a] border-b md:border-b-0 md:border-r border-slate-800 flex flex-col shadow-2xl z-30 relative">
+        
+        <!-- THƯƠNG HIỆU -->
+        <div class="p-4 md:p-6 border-b border-slate-800 bg-gradient-to-b from-[#1e293b] to-[#0f172a] flex items-center gap-4 relative group">
+            <input type="file" id="logoUpload" accept="image/*" class="hidden">
+            <div class="relative cursor-pointer flex-shrink-0" onclick="document.getElementById('logoUpload').click()" title="Đổi Logo">
+                <img id="brandLogo" src="https://ui-avatars.com/api/?name=TC&background=0f172a&color=38bdf8&rounded=true&bold=true" class="w-14 h-14 rounded-full border-2 border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.5)] object-cover group-hover:scale-105 transition-all">
+            </div>
+            <div class="overflow-hidden">
+                <!-- THÊM WHITESPACE-NOWRAP ĐỂ ÉP TÊN GIÁO VIÊN KHÔNG XUỐNG DÒNG -->
+                <h1 class="text-lg md:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-blue-500 leading-tight uppercase tracking-widest neon-text-blue whitespace-nowrap">
+                    TOÁN PRO - THẦY HÙNG
+                </h1>
+                <p class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest truncate">Tetris x Hình Học 11</p>
+            </div>
+        </div>
+        
+        <!-- BẢNG ĐIỀU KHIỂN & ĐIỂM -->
+        <div class="flex-1 flex flex-col p-4 md:p-6 gap-6 overflow-y-auto custom-scroll">
+            
+            <div class="bg-[#1e293b] rounded-2xl p-6 border border-slate-700 shadow-inner flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:10px_10px]"></div>
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1 z-10">ĐIỂM CỦA BẠN</h2>
+                <div id="scoreDisplay" class="text-5xl font-black text-sky-400 neon-text-blue z-10 font-mono">0</div>
+            </div>
+
+            <div class="space-y-3 mt-auto">
+                <button onclick="openLeaderboard()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-sky-400 border border-sky-500/30 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                    🏆 Xem Bảng Xếp Hạng
+                </button>
+                <button id="soundToggleBtn" onclick="toggleSound()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                    🔇 Bật Âm Thanh
+                </button>
+                <button onclick="resetGame()" class="w-full bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 border border-rose-500/30 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                    🔄 Chơi Lại Từ Đầu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN GAME AREA -->
+    <div class="flex-1 flex flex-col relative justify-center items-center p-2 md:p-4">
+        
+        <!-- Bảng xếp hình -->
+        <div id="game-board">
+            <!-- JS sẽ sinh 200 ô div vào đây -->
+        </div>
+
+        <!-- CỤM 4 NÚT ĐIỀU KHIỂN Y HỆT MÁY GAME -->
+        <div id="mobileControls" class="w-full flex justify-center items-center gap-3 md:gap-5 mt-6 z-30">
+            <div class="control-btn" id="btnLeft" title="Sang trái">◀</div>
+            <div class="control-btn" id="btnRotate" title="Xoay 90 độ" style="background: rgba(168, 85, 247, 0.25); border-color: rgba(168, 85, 247, 0.6); color: #e9d5ff;">↻</div>
+            <div class="control-btn" id="btnDown" title="Rơi nhanh">▼</div>
+            <div class="control-btn" id="btnRight" title="Sang phải">▶</div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH BẮT ĐẦU -->
+    <div id="startModal" class="fixed inset-0 z-[100] bg-[#09090b] flex flex-col items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-[#0f172a] rounded-3xl p-8 shadow-[0_0_50px_rgba(56,189,248,0.2)] w-full max-w-md neon-box flex flex-col items-center">
+            <h1 class="text-3xl font-black text-center text-sky-400 mb-2 uppercase tracking-widest neon-text-blue">TETRIS</h1>
+            <p class="text-center text-pink-400 font-bold mb-8 tracking-widest uppercase text-sm neon-text-pink">Hai Mặt Phẳng Vuông Góc</p>
+            
+            <div class="w-full bg-[#1e293b] p-5 rounded-2xl border border-slate-700 mb-6">
+                <label class="block text-xs font-black text-slate-400 mb-2 uppercase tracking-wider text-center">Tên Người Chơi:</label>
+                <input type="text" id="startPlayerName" class="w-full px-4 py-3 rounded-xl bg-[#09090b] border border-slate-600 font-bold outline-none focus:border-sky-400 text-sky-300 text-center text-xl placeholder-slate-600" placeholder="Nhập tên...">
+            </div>
+
+            <button onclick="startGame()" class="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white py-4 rounded-xl font-black text-xl shadow-[0_0_20px_rgba(56,189,248,0.5)] active:scale-95 transition-all uppercase tracking-widest">
+                ▶ BẮT ĐẦU
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL CÂU HỎI (NEON) -->
+    <div id="quizModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#0f172a] rounded-[2rem] p-8 md:p-12 w-full max-w-4xl transform scale-95 transition-transform duration-300 neon-box relative flex flex-col items-center" id="modalContent">
+            
+            <div class="absolute -top-8 bg-[#09090b] px-6 py-2 rounded-full border-2 border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.6)]">
+                <span class="text-lg font-black text-sky-400 uppercase tracking-widest neon-text-blue">Thử Thách Hình Học</span>
+            </div>
+            
+            <div id="questionText" class="text-xl md:text-2xl font-bold text-white mb-10 mt-6 text-center leading-relaxed w-full min-h-[80px] block">
+                Nội dung câu hỏi...
+            </div>
+            
+            <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                <!-- JS chèn nút đáp án -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GAME OVER -->
+    <div id="gameOverModal" class="hidden fixed inset-0 z-[80] bg-black/90 flex flex-col items-center justify-center p-4">
+        <div class="bg-[#0f172a] rounded-3xl p-8 w-full max-w-md neon-box-pink text-center flex flex-col items-center">
+            <h1 class="text-4xl font-black text-pink-500 mb-2 uppercase tracking-widest neon-text-pink">GAME OVER</h1>
+            <p class="text-slate-400 font-bold mb-6">Chạm đỉnh rồi!</p>
+            
+            <div class="bg-[#1e293b] p-6 rounded-2xl w-full mb-8 border border-slate-700">
+                <p class="text-sm text-slate-500 uppercase font-bold mb-1">Tổng điểm</p>
+                <div class="text-6xl font-black text-sky-400 neon-text-blue font-mono" id="finalScore">0</div>
+            </div>
+
+            <div class="flex gap-3 w-full">
+                <button onclick="openLeaderboard()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold transition-all">
+                    Xếp Hạng
+                </button>
+                <button onclick="resetGame()" class="flex-1 bg-sky-500 hover:bg-sky-400 text-white py-3 rounded-xl font-bold shadow-[0_0_15px_rgba(56,189,248,0.4)] transition-all">
+                    Chơi Lại
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BẢNG XẾP HẠNG -->
+    <div id="leaderboardModal" class="hidden fixed inset-0 z-[90] bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#0f172a] rounded-3xl p-6 md:p-8 w-full max-w-md neon-box relative flex flex-col max-h-[90vh] transform scale-95 transition-transform duration-300" id="lbContent">
+            <button onclick="closeLeaderboard()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center font-bold">X</button>
+            <h2 class="text-2xl font-black text-center text-sky-400 mb-6 uppercase tracking-widest neon-text-blue">Bảng Vàng</h2>
+            
+            <div id="leaderboardList" class="flex-1 overflow-y-auto custom-scroll pr-2 space-y-3">
+                <!-- Data Xếp Hạng -->
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST ĐÚNG/SAI (ĐÃ ĐẨY CAO LÊN TOP 12%) -->
+    <div id="feedbackToast" class="hidden fixed top-[12%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100] text-5xl md:text-7xl font-black text-center drop-shadow-[0_0_20px_rgba(0,0,0,1)] pointer-events-none">
+        +100
+    </div>
+
+    <!-- HUD ĐIỂM SỐ TRÊN ĐIỆN THOẠI (HIỆN Ở GÓC TRÊN) -->
+    <div id="mobileHud" class="absolute top-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none md:hidden hidden">
+        <!-- Thương hiệu (Có thêm whitespace-nowrap để không bị rớt dòng) -->
+        <div class="flex items-center pointer-events-auto bg-black/40 p-1.5 rounded-full border border-white/20 backdrop-blur-sm shadow-lg transition">
+            <img id="mobileBrandLogo" src="https://ui-avatars.com/api/?name=TC&background=0f172a&color=38bdf8&rounded=true&bold=true" class="w-10 h-10 rounded-full border-2 border-yellow-400 object-cover shadow-inner">
+            <div class="flex flex-col px-2 cursor-pointer hover:opacity-80 transition-opacity" onclick="openLeaderboard()">
+                <span class="text-yellow-400 font-black font-sans text-[10px] leading-tight tracking-wide uppercase whitespace-nowrap">TOÁN PRO - THẦY HÙNG</span>
+                <span class="text-white text-[8px] font-bold mt-0.5">XẾP HẠNG 🏆</span>
+            </div>
+        </div>
+        <!-- Điểm số -->
+        <div class="flex flex-col items-center bg-black/40 px-3 py-1.5 rounded-xl border border-white/20 backdrop-blur-sm pixel-font text-white text-xs shadow-lg">
+            <div><span id="mobileScoreDisplay" class="text-sky-400">0</span></div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. DATA CÂU HỎI TOÁN 11 (HAI MẶT PHẲNG VUÔNG GÓC)
+        // ==========================================
+        const questionBank = [
+            {
+                q: "Điều kiện cần và đủ để hai mặt phẳng vuông góc với nhau là gì?",
+                options: [
+                    "Mặt phẳng này chứa một đường thẳng vuông góc với mặt phẳng kia.",
+                    "Hai mặt phẳng cùng vuông góc với mặt phẳng thứ ba.",
+                    "Giao tuyến của hai mặt phẳng vuông góc với một đường thẳng.",
+                    "Mặt phẳng này chứa hai đường thẳng cắt nhau vuông góc với mặt phẳng kia."
+                ],
+                correct: 0
+            },
+            {
+                q: "Cho hình chóp $S.ABC$ có $SA \\perp (ABC)$. Mặt phẳng $(SAB)$ vuông góc với mặt phẳng nào sau đây?",
+                options: [
+                    "$(ABC)$",
+                    "$(SBC)$",
+                    "$(SAC)$",
+                    "Chưa đủ dữ kiện để kết luận"
+                ],
+                correct: 0
+            },
+            {
+                q: "Nếu hai mặt phẳng vuông góc với nhau thì góc giữa chúng bằng bao nhiêu độ?",
+                options: ["$90^\\circ$", "$0^\\circ$", "$180^\\circ$", "$45^\\circ$"],
+                correct: 0
+            },
+            {
+                q: "Cho hình hộp chữ nhật $ABCD.A'B'C'D'$. Có bao nhiêu mặt phẳng vuông góc với mặt đáy $(ABCD)$?",
+                options: ["4", "2", "6", "8"],
+                correct: 0 // 4 mặt bên
+            },
+            {
+                q: "Khẳng định nào sau đây **SAI**?",
+                options: [
+                    "Hai mặt phẳng vuông góc thì mọi đường thẳng nằm trong mặt này sẽ vuông góc với mặt kia.",
+                    "Nếu hai mặt phẳng phân biệt cùng vuông góc với mặt phẳng thứ ba thì giao tuyến của chúng vuông góc với mặt phẳng thứ ba đó.",
+                    "Qua một đường thẳng $d$ không vuông góc với mặt phẳng $(P)$, có duy nhất một mặt phẳng chứa $d$ và vuông góc với $(P)$.",
+                    "Góc giữa hai mặt phẳng vuông góc là $90^\\circ$."
+                ],
+                correct: 0
+            },
+            {
+                q: "Cho lăng trụ đứng $ABC.A'B'C'$. Mặt phẳng $(ABB'A')$ vuông góc với mặt phẳng nào?",
+                options: [
+                    "$(ABC)$",
+                    "$(ACC'A')$",
+                    "$(BCC'B')$",
+                    "$(A'B'C')$ và $(ABC)$"
+                ],
+                correct: 3 // Cả 2 đáy
+            },
+            {
+                q: "Cho hình chóp $S.ABCD$ có đáy là hình vuông, $SA \\perp (ABCD)$. Mặt phẳng $(SAD)$ vuông góc với mặt phẳng nào?",
+                options: [
+                    "$(SAB)$",
+                    "$(SBD)$",
+                    "$(SAC)$",
+                    "$(SCD)$"
+                ],
+                correct: 0 // Vì AB vuông góc (SAD) -> (SAB) vuông (SAD)
+            },
+            {
+                q: "Hai mặt phẳng $(P)$ và $(Q)$ cắt nhau theo giao tuyến $\\Delta$. Lấy đường thẳng $a \\subset (P)$ sao cho $a \\perp \\Delta$. Nếu $(P) \\perp (Q)$ thì khẳng định nào đúng?",
+                options: [
+                    "$a \\perp (Q)$",
+                    "$a \\parallel (Q)$",
+                    "$a \\subset (Q)$",
+                    "Góc giữa $a$ và $(Q)$ là $45^\\circ$"
+                ],
+                correct: 0
+            },
+            {
+                q: "Số đo góc giữa hai mặt phẳng bất kỳ luôn nằm trong khoảng nào?",
+                options: [
+                    "$[0^\\circ; 90^\\circ]$",
+                    "$(0^\\circ; 90^\\circ]$",
+                    "$[0^\\circ; 180^\\circ]$",
+                    "$[90^\\circ; 180^\\circ]$"
+                ],
+                correct: 0
+            },
+            {
+                q: "Cho tứ diện $ABCD$ có $AB \\perp (BCD)$. Kẻ $AH \\perp CD$. Khẳng định nào đúng?",
+                options: [
+                    "$(ABH) \\perp (ACD)$",
+                    "$(ABC) \\perp (ACD)$",
+                    "$(ABD) \\perp (ACD)$",
+                    "$(ABH) \\perp (BCD)$"
+                ],
+                correct: 0 // CD vuông góc (ABH) -> (ACD) vuông góc (ABH)
+            }
+        ];
+
+        let currentQuestions = [];
+        function getNextQuestion() {
+            if (currentQuestions.length === 0) {
+                currentQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+            }
+            return currentQuestions.pop();
+        }
+
+        // ==========================================
+        // 2. HỆ THỐNG ÂM THANH 8-BIT
+        // ==========================================
+        const Sound = {
+            ctx: null, isMuted: true,
+            init: function() {
+                if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                this.isMuted = false;
+            },
+            playTone: function(freq, type, duration, vol=0.05) {
+                if(this.isMuted || !this.ctx) return;
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + duration);
+            },
+            pickup: () => Sound.playTone(400, 'sine', 0.1, 0.05), // Âm xoay khối
+            dropValid: () => Sound.playTone(150, 'square', 0.1, 0.05), // Âm chạm đáy
+            blast: () => { Sound.playTone(100, 'square', 0.3, 0.1); setTimeout(()=>Sound.playTone(50, 'sawtooth', 0.4, 0.1), 50); }, // Nổ gạch
+            correct: () => { Sound.playTone(800, 'sine', 0.1, 0.05); setTimeout(()=>Sound.playTone(1200, 'sine', 0.2, 0.05), 100); },
+            wrong: () => { Sound.playTone(300, 'sawtooth', 0.2, 0.05); setTimeout(()=>Sound.playTone(200, 'sawtooth', 0.4, 0.05), 200); },
+            gameOver: () => { [300, 250, 200, 150].forEach((f, i) => setTimeout(() => Sound.playTone(f, 'square', 0.3, 0.05), i*300)); }
+        };
+
+        window.toggleSound = function() {
+            const btn = document.getElementById('soundToggleBtn');
+            if (Sound.isMuted) {
+                Sound.init(); btn.innerHTML = "🔊 Đang Bật Âm Thanh"; btn.classList.replace('text-slate-300', 'text-sky-400');
+            } else {
+                Sound.isMuted = true; btn.innerHTML = "🔇 Bật Âm Thanh"; btn.classList.replace('text-sky-400', 'text-slate-300');
+            }
+        };
+
+        let playerName = localStorage.getItem('blockblast_user') || '';
+        document.getElementById('startPlayerName').value = playerName;
+
+        // ==========================================
+        // 3. LOGIC GAME TETRIS (XẾP GẠCH RƠI TỰ ĐỘNG)
+        // ==========================================
+        const COLS = 10;
+        const ROWS = 20;
+        let board = Array(ROWS).fill().map(() => Array(COLS).fill(0)); 
+        let score = 0;
+        let isQuizActive = false;
+        let gameState = 'waiting'; // waiting, playing, gameover
+
+        // 7 Hình khối chuẩn Tetris (Kích thước ma trận vuông để Xoay chính xác 100%)
+        const TETROMINOES = [
+            { name: 'I', mat: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], color: 'color-I' },
+            { name: 'J', mat: [[1,0,0],[1,1,1],[0,0,0]], color: 'color-J' },
+            { name: 'L', mat: [[0,0,1],[1,1,1],[0,0,0]], color: 'color-L' },
+            { name: 'O', mat: [[1,1],[1,1]], color: 'color-O' },
+            { name: 'S', mat: [[0,1,1],[1,1,0],[0,0,0]], color: 'color-S' },
+            { name: 'T', mat: [[0,1,0],[1,1,1],[0,0,0]], color: 'color-T' },
+            { name: 'Z', mat: [[1,1,0],[0,1,1],[0,0,0]], color: 'color-Z' }
+        ];
+
+        let currentPiece = null;
+
+        // Khởi tạo Bàn cờ HTML 200 ô
+        const boardEl = document.getElementById('game-board');
+        const cells = [];
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                let cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                boardEl.appendChild(cell);
+                cells.push(cell);
+            }
+        }
+
+        // Sinh khối mới ở trên cùng
+        function spawnPiece() {
+            const r = Math.floor(Math.random() * TETROMINOES.length);
+            const tetro = TETROMINOES[r];
+            currentPiece = {
+                mat: tetro.mat.map(row => [...row]),
+                color: tetro.color,
+                x: Math.floor(COLS / 2) - Math.floor(tetro.mat[0].length / 2),
+                y: 0
+            };
+            
+            // Nếu vừa sinh ra đã đè lên gạch cũ => GAME OVER
+            if (collide(currentPiece.mat, currentPiece.x, currentPiece.y)) {
+                gameState = 'gameover';
+                Sound.gameOver();
+                document.getElementById('finalScore').textContent = score;
+                document.getElementById('gameOverModal').classList.remove('hidden');
+                document.getElementById('gameOverModal').classList.add('flex');
+                saveToLeaderboard();
+            }
+            updateBoardView();
+        }
+
+        // Thuật toán phát hiện va chạm
+        function collide(mat, x, y) {
+            for (let r = 0; r < mat.length; r++) {
+                for (let c = 0; c < mat[r].length; c++) {
+                    if (mat[r][c]) {
+                        let newX = x + c;
+                        let newY = y + r;
+                        if (newX < 0 || newX >= COLS || newY >= ROWS) return true; // Chạm tường hoặc đáy
+                        if (newY >= 0 && board[newY][newX] !== 0) return true; // Chạm gạch cũ
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Khóa khối gạch vào bàn cờ
+        function merge() {
+            for (let r = 0; r < currentPiece.mat.length; r++) {
+                for (let c = 0; c < currentPiece.mat[r].length; c++) {
+                    if (currentPiece.mat[r][c]) {
+                        let boardY = currentPiece.y + r;
+                        let boardX = currentPiece.x + c;
+                        if (boardY >= 0 && boardY < ROWS && boardX >= 0 && boardX < COLS) {
+                            board[boardY][boardX] = currentPiece.color;
+                        }
+                    }
+                }
+            }
+            Sound.dropValid();
+        }
+
+        // Tính toán vị trí Bóng Ma (Ghost)
+        function getGhostY() {
+            if (!currentPiece) return 0;
+            let ghostY = currentPiece.y;
+            while (!collide(currentPiece.mat, currentPiece.x, ghostY + 1)) {
+                ghostY++;
+            }
+            return ghostY;
+        }
+
+        // Render toàn bộ lưới (Bảng + Ghost + Khối hiện tại)
+        function updateBoardView() {
+            let ghostY = getGhostY();
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    let cell = cells[r * COLS + c];
+                    cell.className = 'grid-cell'; 
+                    let color = board[r][c];
+                    
+                    let isCurrent = false;
+                    if (currentPiece && 
+                        r >= currentPiece.y && r < currentPiece.y + currentPiece.mat.length &&
+                        c >= currentPiece.x && c < currentPiece.x + currentPiece.mat[0].length &&
+                        currentPiece.mat[r - currentPiece.y][c - currentPiece.x]) {
+                        color = currentPiece.color;
+                        isCurrent = true;
+                    }
+
+                    let isGhost = false;
+                    if (!isCurrent && currentPiece && 
+                        r >= ghostY && r < ghostY + currentPiece.mat.length &&
+                        c >= currentPiece.x && c < currentPiece.x + currentPiece.mat[0].length &&
+                        currentPiece.mat[r - ghostY][c - currentPiece.x]) {
+                        isGhost = true;
+                    }
+
+                    if (color !== 0) {
+                        cell.classList.add('block-filled', color);
+                    } else if (isGhost) {
+                        cell.classList.add('block-ghost', currentPiece.color); // Bóng ma mờ
+                    }
+                }
+            }
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('mobileScoreDisplay').textContent = score;
+        }
+
+        // Thuật toán xoay ma trận chuẩn 90 độ
+        function rotateMatrix(matrix) {
+            const N = matrix.length;
+            const result = Array(N).fill().map(() => Array(N).fill(0));
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    result[j][N - 1 - i] = matrix[i][j];
+                }
+            }
+            return result;
+        }
+
+        // Xoay khối (Có kỹ thuật Wall Kick để đẩy khối ra nếu chạm tường)
+        function rotatePiece() {
+            if (!currentPiece) return;
+            const nextMat = rotateMatrix(currentPiece.mat);
+            let originalX = currentPiece.x;
+            let originalY = currentPiece.y;
+            
+            let kicked = false;
+            
+            // Wall Kick ngây thơ: Thử lùi trái/phải/trên 1 ô nếu bị kẹt
+            if (!collide(nextMat, currentPiece.x, currentPiece.y)) {
+                kicked = true;
+            } else if (!collide(nextMat, currentPiece.x - 1, currentPiece.y)) {
+                currentPiece.x -= 1; kicked = true;
+            } else if (!collide(nextMat, currentPiece.x + 1, currentPiece.y)) {
+                currentPiece.x += 1; kicked = true;
+            } else if (!collide(nextMat, currentPiece.x, currentPiece.y - 1)) {
+                currentPiece.y -= 1; kicked = true;
+            }
+
+            if (kicked) {
+                currentPiece.mat = nextMat;
+                Sound.pickup(); // Tiếng tạch tạch khi xoay
+                updateBoardView();
+            } else {
+                currentPiece.x = originalX;
+                currentPiece.y = originalY;
+            }
+        }
+
+        // Xử lý di chuyển
+        function movePieceDown() {
+            if(!currentPiece || isQuizActive || gameState !== 'playing') return;
+            currentPiece.y++;
+            if (collide(currentPiece.mat, currentPiece.x, currentPiece.y)) {
+                currentPiece.y--;
+                merge();
+                clearLines();
+            }
+            updateBoardView();
+        }
+
+        function movePieceLeft() {
+            if(!currentPiece) return;
+            currentPiece.x--;
+            if (collide(currentPiece.mat, currentPiece.x, currentPiece.y)) currentPiece.x++;
+            updateBoardView();
+        }
+
+        function movePieceRight() {
+            if(!currentPiece) return;
+            currentPiece.x++;
+            if (collide(currentPiece.mat, currentPiece.x, currentPiece.y)) currentPiece.x--;
+            updateBoardView();
+        }
+
+        // --- LINE CLEARING & QUIZ TRIGGER ---
+        function clearLines() {
+            let rowsToClear = [];
+            
+            for (let r = ROWS - 1; r >= 0; r--) {
+                let isFull = true;
+                for (let c = 0; c < COLS; c++) {
+                    if (board[r][c] === 0) { isFull = false; break; }
+                }
+                if (isFull) {
+                    rowsToClear.push(r);
+                }
+            }
+
+            if (rowsToClear.length > 0) {
+                isQuizActive = true; 
+                Sound.blast();
+
+                // Hiệu ứng chớp sáng Neon
+                rowsToClear.forEach(r => {
+                    for(let c=0; c<COLS; c++) cells[r * COLS + c].classList.add('blasting');
+                });
+
+                setTimeout(() => {
+                    // Xóa hàng & Đẩy các hàng trên xuống
+                    rowsToClear.forEach(r => { 
+                        board.splice(r, 1);
+                        board.unshift(Array(COLS).fill(0));
+                    });
+                    
+                    document.querySelectorAll('.blasting').forEach(el => el.classList.remove('blasting'));
+                    
+                    // Ăn nhiều dòng cùng lúc thì điểm nhân gấp thếp
+                    score += rowsToClear.length * 100 * rowsToClear.length; 
+                    updateBoardView();
+                    
+                    // Kích hoạt Câu Hỏi
+                    showQuiz();
+                }, 400); 
+            } else {
+                spawnPiece();
+            }
+        }
+
+        // --- ĐIỀU KHIỂN PHÍM CỨNG (PC) ---
+        window.addEventListener('keydown', e => {
+            if (gameState !== 'playing' || isQuizActive || !currentPiece) return;
+            if (e.code === 'ArrowLeft') movePieceLeft();
+            if (e.code === 'ArrowRight') movePieceRight();
+            if (e.code === 'ArrowDown') movePieceDown();
+            // Up hoặc Space để xoay
+            if (e.code === 'ArrowUp' || e.code === 'Space') { e.preventDefault(); rotatePiece(); }
+        });
+
+        // --- ĐIỀU KHIỂN NÚT ẢO (MOBILE) ---
+        const btnL = document.getElementById('btnLeft');
+        const btnR = document.getElementById('btnRight');
+        const btnD = document.getElementById('btnDown');
+        const btnRot = document.getElementById('btnRotate');
+
+        // Hàm hỗ trợ nhấn giữ để chạy liên tục
+        const addHoldControl = (btn, actionStart, actionStop) => {
+            const press = (e) => { e.preventDefault(); btn.classList.add('pressed'); actionStart(); };
+            const release = (e) => { e.preventDefault(); btn.classList.remove('pressed'); actionStop(); };
+            
+            btn.addEventListener('mousedown', press);
+            btn.addEventListener('mouseup', release);
+            btn.addEventListener('mouseleave', release);
+            
+            btn.addEventListener('touchstart', press, {passive: false});
+            btn.addEventListener('touchend', release);
+        };
+
+        // Nút xoay chỉ nhận click từng cái 1
+        const addClickControl = (btn, action) => {
+            const press = (e) => { e.preventDefault(); btn.classList.add('pressed'); action(); };
+            const release = (e) => { e.preventDefault(); btn.classList.remove('pressed'); };
+            
+            btn.addEventListener('mousedown', press);
+            btn.addEventListener('mouseup', release);
+            btn.addEventListener('mouseleave', release);
+            
+            btn.addEventListener('touchstart', press, {passive: false});
+            btn.addEventListener('touchend', release);
+        };
+
+        let dropKeyInterval = null;
+        function startDrop() { if (!dropKeyInterval) { movePieceDown(); dropKeyInterval = setInterval(movePieceDown, 50); } }
+        function stopDrop() { if (dropKeyInterval) { clearInterval(dropKeyInterval); dropKeyInterval = null; } }
+
+        let moveLeftInterval = null;
+        function startLeft() { movePieceLeft(); moveLeftInterval = setInterval(movePieceLeft, 120); }
+        function stopLeft() { if (moveLeftInterval) { clearInterval(moveLeftInterval); moveLeftInterval = null; } }
+
+        let moveRightInterval = null;
+        function startRight() { movePieceRight(); moveRightInterval = setInterval(movePieceRight, 120); }
+        function stopRight() { if (moveRightInterval) { clearInterval(moveRightInterval); moveRightInterval = null; } }
+
+        addHoldControl(btnL, startLeft, stopLeft);
+        addHoldControl(btnR, startRight, stopRight);
+        addHoldControl(btnD, startDrop, stopDrop);
+        addClickControl(btnRot, rotatePiece);
+
+        // Phát hiện Mobile/PC để hiện nút
+        let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        function updateControlsVisibility() {
+            const mc = document.getElementById('mobileControls');
+            const mobileHud = document.getElementById('mobileHud');
+            if (isMobile) {
+                mc.classList.add('show');
+                mobileHud.classList.remove('hidden'); // Show small HUD on mobile
+            } else {
+                mc.classList.remove('show');
+                mobileHud.classList.add('hidden'); // Hide small HUD on PC
+            }
+        }
+        window.addEventListener('load', updateControlsVisibility);
+
+
+        // --- LOGIC VÒNG LẶP RƠI TỰ ĐỘNG ---
+        let dropCounter = 0;
+        let lastTime = 0;
+        
+        function loop(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const dt = timestamp - lastTime;
+            lastTime = timestamp;
+
+            if (gameState === 'playing' && !isQuizActive && currentPiece) {
+                dropCounter += dt;
+                // Tốc độ rơi tăng dần theo điểm số (Từ 1s xuống 0.1s)
+                let currentSpeed = Math.max(100, 1000 - Math.floor(score / 500) * 100);
+                if (dropCounter > currentSpeed) {
+                    movePieceDown();
+                    dropCounter = 0;
+                }
+            }
+            requestAnimationFrame(loop);
+        }
+        requestAnimationFrame(loop);
+
+
+        // --- QUIZ LOGIC ---
+        let currentQuizCorrectIdx = 0;
+
+        function showQuiz() {
+            const modal = document.getElementById('quizModal');
+            const content = document.getElementById('modalContent');
+            const qText = document.getElementById('questionText');
+            const optContainer = document.getElementById('optionsContainer');
+            
+            const qData = getNextQuestion();
+
+            qText.innerHTML = qData.q;
+            optContainer.innerHTML = '';
+            
+            let options = [...qData.options];
+            let originalCorrectText = options[qData.correct];
+            
+            for (let j = options.length - 1; j > 0; j--) {
+                const k = Math.floor(Math.random() * (j + 1));
+                [options[j], options[k]] = [options[k], options[j]];
+            }
+            currentQuizCorrectIdx = options.indexOf(originalCorrectText);
+
+            options.forEach((optHTML, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-5 px-6 rounded-2xl text-center text-lg md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[80px]";
+                
+                // SỬA LỖI: Bọc nội dung vào 1 thẻ span có w-full và leading-relaxed để text tự động xuống dòng mượt mà
+                btn.innerHTML = `<span class="w-full leading-relaxed">${optHTML}</span>`;
+                
+                btn.onclick = () => answerQuiz(idx);
+                optContainer.appendChild(btn);
+            });
+
+            modal.classList.remove('hidden');
+            MathJax.typesetClear();
+            MathJax.typesetPromise().then(() => { 
+                setTimeout(() => { content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10); 
+            });
+        }
+
+        function answerQuiz(idx) {
+            const modal = document.getElementById('quizModal');
+            const content = document.getElementById('modalContent');
+            
+            content.classList.remove('scale-100'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 200);
+
+            if (idx === currentQuizCorrectIdx) {
+                score += 100;
+                showToast("+100", "#38bdf8", "neon-text-blue"); 
+                Sound.correct();
+            } else {
+                score = Math.max(0, score - 50);
+                showToast("-50", "#ec4899", "neon-text-pink"); 
+                Sound.wrong();
+            }
+
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('mobileScoreDisplay').textContent = score;
+            
+            setTimeout(() => { 
+                isQuizActive = false; 
+                spawnPiece(); // Châm gạch mới tiếp tục chơi
+            }, 300);
+        }
+
+        // ĐÃ CẬP NHẬT CLASS TOP-12% TRONG JS
+        function showToast(text, color, neonClass) {
+            const toast = document.getElementById('feedbackToast'); 
+            toast.textContent = text; 
+            toast.style.color = color;
+            toast.className = `fixed top-[12%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100] text-5xl md:text-7xl font-black text-center drop-shadow-[0_0_20px_rgba(0,0,0,1)] pointer-events-none ${neonClass}`;
+            
+            toast.animate([ 
+                { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 0 }, 
+                { transform: 'translate(-50%, -80%) scale(1.2)', opacity: 1, offset: 0.5 }, 
+                { transform: 'translate(-50%, -100%) scale(1)', opacity: 0 } 
+            ], { duration: 1500, easing: 'ease-out' });
+        }
+
+
+        // --- LEADERBOARD & CONTROL LOGIC ---
+        window.startGame = function() {
+            playerName = document.getElementById('startPlayerName').value.trim();
+            if (!playerName) { alert("Vui lòng nhập tên để lưu xếp hạng!"); return; }
+            localStorage.setItem('blockblast_user', playerName);
+            
+            document.getElementById('startModal').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('startModal').style.display = 'none';
+                if(Sound.isMuted) toggleSound(); 
+                resetGame();
+            }, 300);
+        }
+
+        window.resetGame = function() {
+            board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+            score = 0;
+            isQuizActive = false;
+            gameState = 'playing';
+            document.getElementById('gameOverModal').classList.add('hidden');
+            document.getElementById('gameOverModal').classList.remove('flex');
+            spawnPiece();
+            updateBoardView();
+        };
+
+        let lbData = JSON.parse(localStorage.getItem('tetris_lb_11')) || [];
+        
+        function saveToLeaderboard() {
+            if(!playerName) return;
+            let existingIdx = lbData.findIndex(p => p.name.toLowerCase() === playerName.toLowerCase());
+            if(existingIdx > -1) {
+                if(score > lbData[existingIdx].score) lbData[existingIdx].score = score;
+            } else {
+                lbData.push({name: playerName, score: score});
+            }
+            lbData.sort((a,b) => b.score - a.score);
+            lbData = lbData.slice(0, 100);
+            localStorage.setItem('tetris_lb_11', JSON.stringify(lbData));
+        }
+
+        window.openLeaderboard = function() {
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = '';
+            lbData.forEach((p, i) => {
+                let rank = i===0 ? '🥇' : i===1 ? '🥈' : i===2 ? '🥉' : `${i+1}`;
+                let isMe = p.name.toLowerCase() === playerName.toLowerCase();
+                list.innerHTML += `
+                    <div class="flex justify-between items-center p-3 rounded-xl border ${isMe ? 'bg-[#1e293b] border-sky-500' : 'bg-[#0f172a] border-slate-700'}">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl w-6 text-center text-slate-400 font-bold">${rank}</span>
+                            <span class="font-bold ${isMe ? 'text-sky-300' : 'text-slate-300'}">${p.name}</span>
+                        </div>
+                        <div class="font-black text-sky-400 neon-text-blue">${p.score}</div>
+                    </div>`;
+            });
+            if(lbData.length === 0) list.innerHTML = '<p class="text-center text-slate-500">Chưa có ai chơi!</p>';
+
+            document.getElementById('leaderboardModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('lbContent').classList.remove('scale-95'), 10);
+        };
+
+        window.closeLeaderboard = function() {
+            document.getElementById('lbContent').classList.add('scale-95');
+            setTimeout(() => document.getElementById('leaderboardModal').classList.add('hidden'), 200);
+        };
+
+        // Đổi Logo (Có nén ảnh để tránh tràn bộ nhớ LocalStorage)
+        document.getElementById('logoUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_SIZE = 150;
+                        let w = img.width, h = img.height;
+                        if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } }
+                        else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, w, h);
+                        ctx.drawImage(img, 0, 0, w, h);
+                        const compressed = canvas.toDataURL('image/jpeg', 0.8); 
+                        document.getElementById('brandLogo').src = compressed;
+                        document.getElementById('mobileBrandLogo').src = compressed;
+                        try { localStorage.setItem('tetris_logo', compressed); } catch(err) {}
+                    }
+                    img.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+        const savedLogo = localStorage.getItem('tetris_logo');
+        if(savedLogo) {
+            document.getElementById('brandLogo').src = savedLogo;
+            document.getElementById('mobileBrandLogo').src = savedLogo;
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Toán 10: Game Sút Pen: Giá trị lượng giác của 1 góc từ 0 đến 180 độ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-green: #00ff66;
+            --neon-red: #ff003c;
+            --gold: #ffd700;
+            --dark-glass: rgba(10, 15, 30, 0.85);
+            --font-display: 'Teko', sans-serif;
+            --font-body: 'Montserrat', sans-serif;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { margin: 0; overflow: hidden; background-color: #020617; font-family: var(--font-body); width: 100vw; height: 100vh; touch-action: none; }
+
+        /* Canvas game */
+        #game-canvas { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; display: block; }
+
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
+        .interactive { pointer-events: auto; }
+
+        #top-hud { display: flex; justify-content: space-between; align-items: center; padding: max(15px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 10px max(20px, env(safe-area-inset-left)); }
+        
+        .level-badge { background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; font-family: var(--font-display); font-size: clamp(1.4rem, 5vw, 1.8rem); padding: 0 20px; border-radius: 8px; font-weight: 700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); letter-spacing: 1px; line-height: 1.2; text-transform: uppercase;}
+        
+        .lives-container { display: flex; gap: 8px; background: var(--dark-glass); padding: 8px 16px; border-radius: 12px; border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+        .life-icon { width: clamp(20px, 6vw, 25px); height: clamp(20px, 6vw, 25px); background-color: var(--neon-red); border-radius: 50%; box-shadow: 0 0 10px var(--neon-red), inset -3px -3px 6px rgba(0,0,0,0.4); transition: all 0.3s; }
+        .life-icon.lost { background-color: #333; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8); transform: scale(0.8); }
+
+        .audio-toggle { background: var(--dark-glass); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); cursor: pointer; color: white; transition: all 0.2s; margin-left: 15px;}
+        .audio-toggle:active { transform: scale(0.9); }
+        .audio-toggle.muted { opacity: 0.5; filter: grayscale(1); }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-3px, -2px) rotate(-1deg); }
+            20%, 40%, 60%, 80% { transform: translate(3px, 2px) rotate(1deg); }
+        }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
+        #bottom-hud { display: flex; justify-content: center; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+        .score-badge { background: var(--dark-glass); color: #fff; font-family: var(--font-display); font-size: clamp(1.8rem, 6vw, 2.5rem); padding: 5px 40px; border-radius: 12px; border: 2px solid var(--neon-blue); box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); text-transform: uppercase; letter-spacing: 2px; line-height: 1.2;}
+        .score-val { color: var(--gold); font-size: clamp(2.2rem, 7vw, 3rem); text-shadow: 0 0 10px var(--gold); }
+
+        #question-panel {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1);
+            background: var(--dark-glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px; padding: clamp(15px, 4vw, 25px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(255,255,255,0.1);
+            width: 92%; max-width: 700px; max-height: 85vh; overflow-y: auto;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+            z-index: 25;
+            border-top: 5px solid var(--neon-blue);
+        }
+        #question-panel.hidden { transform: translate(-50%, 120vh) scale(0.7); opacity: 0; pointer-events: none; }
+
+        .question-text {
+            text-align: center; font-size: clamp(1.1rem, 4vw, 1.4rem); color: #fff; font-weight: 700;
+            margin-bottom: 20px; min-height: 60px; display: flex; align-items: center; justify-content: center;
+            line-height: 1.5; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(10px, 3vw, 15px); }
+        
+        .option-btn {
+            background: linear-gradient(145deg, #1e293b, #0f172a); color: #fff;
+            border: 2px solid #334155; border-radius: 12px;
+            padding: 12px; font-size: clamp(1.1rem, 3.5vw, 1.3rem); font-weight: 700; font-family: var(--font-body);
+            cursor: pointer; box-shadow: 0 6px 0px #020617;
+            transition: all 0.1s; display: flex; align-items: center; justify-content: center;
+            min-height: clamp(60px, 12vw, 70px);
+        }
+        .option-btn:active:not(:disabled) { transform: translateY(6px); box-shadow: 0 0px 0px #020617; }
+        .option-btn.correct { background: linear-gradient(145deg, #059669, #047857) !important; border-color: var(--neon-green) !important; box-shadow: 0 6px 0px #022c22 !important; color: #fff !important; text-shadow: 0 0 5px #fff; }
+        .option-btn.wrong { background: linear-gradient(145deg, #e11d48, #be123c) !important; border-color: var(--neon-red) !important; box-shadow: 0 6px 0px #4c0519 !important; color: #fff !important; text-shadow: 0 0 5px #fff; }
+
+        /* BỘ CÔNG CỤ VẼ TOÁN HTML */
+        .math-frac { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; padding: 0 4px; font-size: 0.9em; line-height: 1.2; }
+        .math-num { border-bottom: 2px solid currentColor; padding-bottom: 2px; }
+        .math-den { padding-top: 2px; }
+        .math-sqrt { white-space: nowrap; font-weight: 800;}
+        .math-sqrt-sym { font-size: 1.1em; margin-right: -2px; }
+        .math-sqrt-val { border-top: 2px solid currentColor; padding-top: 1px; display: inline-block; }
+
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(15, 23, 42, 0.95) 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.4s; padding: 20px; text-align: center; overflow-y: auto;}
+        .overlay.hidden { opacity: 0; pointer-events: none; }
+
+        .game-title { font-family: var(--font-display); font-size: clamp(3.5rem, 12vw, 6rem); color: #fff; text-transform: uppercase; line-height: 0.9; text-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.5); margin-bottom: 0.5rem; margin-top: 20px;}
+        .game-subtitle { background: transparent; color: var(--gold); border: 2px solid var(--gold); padding: 5px 25px; border-radius: 30px; font-size: clamp(1rem, 3.5vw, 1.3rem); font-weight: 800; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 15px rgba(255,215,0,0.3), inset 0 0 10px rgba(255,215,0,0.2); }
+        
+        .play-btn {
+            background: linear-gradient(45deg, var(--neon-blue), #0066ff); color: white;
+            font-family: var(--font-display); font-size: clamp(1.8rem, 6vw, 2.5rem);
+            padding: 10px 50px; border: none; border-radius: 50px; margin-top: 15px;
+            cursor: pointer; box-shadow: 0 10px 30px rgba(0, 102, 255, 0.5), inset 0 2px 5px rgba(255,255,255,0.5);
+            transition: all 0.2s; text-transform: uppercase; letter-spacing: 2px; line-height: 1.2;
+        }
+        .play-btn:active { transform: scale(0.95); box-shadow: 0 5px 15px rgba(0, 102, 255, 0.5); }
+        
+        /* GIAO DIỆN PHÒNG THAY ĐỒ (SETUP PANEL) */
+        .setup-panel { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(0, 243, 255, 0.3); border-radius: 15px; padding: 20px; width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); margin-bottom: 10px;}
+        .setup-row { display: flex; justify-content: space-between; align-items: center; }
+        .setup-label { color: #cbd5e1; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;}
+        
+        .setup-input { background: rgba(15, 23, 42, 0.8); border: 1px solid var(--neon-blue); color: var(--gold); font-family: var(--font-display); font-size: 1.5rem; padding: 5px 10px; border-radius: 8px; width: 160px; text-align: center; outline: none; box-shadow: 0 0 10px rgba(0,243,255,0.1);}
+        .setup-input:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.3);}
+        
+        .color-options { display: flex; gap: 10px; }
+        .color-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s;}
+        .color-btn.active { transform: scale(1.2); box-shadow: 0 0 15px var(--gold); border: 2px solid var(--gold);}
+        
+        .foot-toggle { display: flex; background: rgba(15, 23, 42, 0.8); border-radius: 8px; overflow: hidden; border: 1px solid #334155;}
+        .foot-btn { padding: 8px 15px; color: #94a3b8; font-weight: 700; cursor: pointer; transition: all 0.2s; user-select: none;}
+        .foot-btn.active { background: var(--neon-blue); color: #020617; text-shadow: none;}
+
+        #action-feedback { position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0); font-family: var(--font-display); font-weight: 700; font-size: clamp(3.5rem, 15vw, 8rem); text-transform: uppercase; opacity: 0; pointer-events: none; z-index: 30; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s; text-align: center; width: 100%; letter-spacing: 5px; }
+        #action-feedback.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .feedback-goal { color: var(--gold); text-shadow: 0 0 20px var(--gold), 0 0 50px #ff8c00; }
+        .feedback-miss { color: var(--neon-red); text-shadow: 0 0 20px var(--neon-red), 0 0 50px #8b0000; }
+
+        @media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <!-- Màn hình Canvas 2.5D -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Lớp UI -->
+    <div id="ui-layer">
+        <div id="top-hud" class="interactive">
+            <div class="level-badge" id="level-badge">VÒNG BẢNG</div>
+            <div style="display: flex; align-items: center;">
+                <div class="lives-container" id="lives-display">
+                    <div class="life-icon"></div><div class="life-icon"></div><div class="life-icon"></div>
+                </div>
+                <button class="audio-toggle" id="audio-btn" onclick="audioSys.toggle()" title="Bật/Tắt Âm Thanh">🔊</button>
+            </div>
+        </div>
+
+        <div id="action-feedback">VÀO!</div>
+
+        <div id="question-panel" class="interactive hidden">
+            <div class="question-text" id="question-text">Đang tải dữ liệu...</div>
+            <div class="options-grid" id="options-container">
+                <button class="option-btn" onclick="checkAnswer(0)"></button>
+                <button class="option-btn" onclick="checkAnswer(1)"></button>
+                <button class="option-btn" onclick="checkAnswer(2)"></button>
+                <button class="option-btn" onclick="checkAnswer(3)"></button>
+            </div>
+        </div>
+
+        <div id="bottom-hud" class="interactive">
+            <div class="score-badge">ĐIỂM: <span class="score-val" id="score-val">0</span></div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH KHỞI ĐỘNG VÀ SETUP CẦU THỦ -->
+    <div id="start-screen" class="overlay interactive">
+        <div class="game-title">WC PENALTY 26</div>
+        <div class="game-subtitle">Toán 10 KNTT - Lượng Giác</div>
+        
+        <div class="setup-panel">
+            <div class="setup-row">
+                <span class="setup-label">Đội Bóng:</span>
+                <input type="text" id="setup-team" class="setup-input" value="HƯNG YÊN" maxlength="12" spellcheck="false" autocomplete="off">
+            </div>
+            <div class="setup-row">
+                <span class="setup-label">Số Áo:</span>
+                <input type="number" id="setup-num" class="setup-input" value="7" min="0" max="99" style="width: 80px;">
+            </div>
+            <div class="setup-row">
+                <span class="setup-label">Màu Áo:</span>
+                <div class="color-options">
+                    <div class="color-btn active" style="background-color: #ef4444;" onclick="selectColor('#ef4444', this)"></div>
+                    <div class="color-btn" style="background-color: #3b82f6;" onclick="selectColor('#3b82f6', this)"></div>
+                    <div class="color-btn" style="background-color: #f8fafc;" onclick="selectColor('#f8fafc', this)"></div>
+                    <div class="color-btn" style="background-color: #fbbf24;" onclick="selectColor('#fbbf24', this)"></div>
+                    <div class="color-btn" style="background-color: #a855f7;" onclick="selectColor('#a855f7', this)"></div>
+                </div>
+            </div>
+            <div class="setup-row">
+                <span class="setup-label">Chân Thuận:</span>
+                <div class="foot-toggle">
+                    <div class="foot-btn" id="foot-left" onclick="selectFoot('left')">TRÁI</div>
+                    <div class="foot-btn active" id="foot-right" onclick="selectFoot('right')">PHẢI</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="play-btn" onclick="applySetupAndInitGame()">VÀO SÂN</button>
+    </div>
+
+    <!-- Màn hình Chuyển Cấp -->
+    <div id="transition-screen" class="overlay interactive hidden">
+        <div class="game-title" id="ts-title">VÒNG BẢNG</div>
+        <div class="game-subtitle" id="ts-subtitle">Mức độ: Nhận Biết</div>
+        <button class="play-btn" id="ts-btn" onclick="startCurrentLevel()">TIẾP TỤC</button>
+    </div>
+
+    <!-- Màn hình Kết thúc -->
+    <div id="game-over-screen" class="overlay interactive hidden">
+        <div class="game-title" id="go-title" style="color: var(--neon-red); text-shadow: 0 0 20px var(--neon-red);">THẤT BẠI</div>
+        <div style="color: white; font-size: 1.5rem; margin-bottom: 1rem; font-family: var(--font-body);">TỔNG BÀN THẮNG</div>
+        <div id="final-score" style="color: var(--gold); font-size: 5rem; font-family: var(--font-display); line-height: 1; margin-bottom: 2rem; text-shadow: 0 0 20px var(--gold);">0</div>
+        <div id="final-msg" style="color: var(--neon-blue); font-size: 1.2rem; margin-bottom: 2rem; font-weight: 800; font-family: var(--font-body);"></div>
+        <button class="play-btn" onclick="showStartScreen()">LÀM LẠI</button>
+    </div>
+
+    <script>
+        /* CẤU HÌNH NHÂN VẬT TỪ UI */
+        const playerSettings = {
+            teamName: "HƯNG YÊN",
+            color: "#ef4444",
+            number: "7",
+            foot: "right"
+        };
+
+        function selectColor(hex, element) {
+            playerSettings.color = hex;
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function selectFoot(foot) {
+            playerSettings.foot = foot;
+            document.getElementById('foot-left').classList.remove('active');
+            document.getElementById('foot-right').classList.remove('active');
+            document.getElementById(`foot-${foot}`).classList.add('active');
+        }
+
+        function showStartScreen() {
+            ui.overScreen.classList.add('hidden');
+            ui.startScreen.classList.remove('hidden');
+        }
+
+        function applySetupAndInitGame() {
+            let tName = document.getElementById('setup-team').value.trim();
+            playerSettings.teamName = tName.length > 0 ? tName.toUpperCase() : "HƯNG YÊN";
+            let pNum = document.getElementById('setup-num').value;
+            playerSettings.number = pNum !== "" ? pNum.toString() : "7";
+            
+            ui.startScreen.classList.add('hidden');
+            resizeCanvas(); 
+            initGameData();
+        }
+
+        /* BỘ CÔNG CỤ VẼ TOÁN HTML (KHÔNG DÙNG MATHJAX) */
+        const frac = (n, d) => `<span class="math-frac"><span class="math-num">${n}</span><span class="math-den">${d}</span></span>`;
+        const sqrt = (v) => `<span class="math-sqrt"><span class="math-sqrt-sym">&radic;</span><span class="math-sqrt-val">${v}</span></span>`;
+        const negFrac = (n, d) => `&minus;${frac(n, d)}`;
+
+        /* HỆ THỐNG ÂM THANH WEB AUDIO API (KHÔNG TẢI FILE) */
+        const audioSys = {
+            ctx: null, enabled: true, ambientNode: null,
+            init: function() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) this.ctx = new AudioContext();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+                this.startAmbient();
+            },
+            toggle: function() {
+                this.enabled = !this.enabled;
+                const btn = document.getElementById('audio-btn');
+                btn.textContent = this.enabled ? '🔊' : '🔇';
+                btn.className = this.enabled ? 'audio-toggle' : 'audio-toggle muted';
+                if(!this.enabled && this.ambientNode) this.ambientNode.gain.value = 0;
+                else if(this.enabled && this.ambientNode) this.ambientNode.gain.value = 0.05;
+                if(this.enabled) this.init();
+            },
+            createNoise: function(duration) {
+                if (!this.ctx || !this.enabled) return null;
+                const bufferSize = this.ctx.sampleRate * duration;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer; return noise;
+            },
+            startAmbient: function() {
+                if (!this.ctx || !this.enabled || this.ambientNode) return;
+                const noise = this.createNoise(2); if(!noise) return;
+                noise.loop = true;
+                const filter = this.ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 350; 
+                const gain = this.ctx.createGain(); gain.gain.value = 0.05;
+                noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+                noise.start(); this.ambientNode = gain;
+            },
+            playWhistle: function() {
+                if (!this.ctx || !this.enabled) return;
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(2200, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(2800, this.ctx.currentTime + 0.1);
+                osc.frequency.linearRampToValueAtTime(2200, this.ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.15, this.ctx.currentTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.4);
+            },
+            playKick: function() {
+                if (!this.ctx || !this.enabled) return;
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.16);
+            },
+            playGoal: function() {
+                if (!this.ctx || !this.enabled) return;
+                [261.6, 329.6, 392.0].forEach((freq) => {
+                    const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth'; osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1.5);
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(); osc.stop(this.ctx.currentTime + 1.5);
+                });
+                const noise = this.createNoise(2.0); if(!noise) return;
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass'; filter.frequency.value = 1000;
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.4, this.ctx.currentTime + 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 2.0);
+                noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+                noise.start();
+            },
+            playMiss: function() {
+                if (!this.ctx || !this.enabled) return;
+                const noise = this.createNoise(1.5); if(!noise) return;
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
+                filter.frequency.linearRampToValueAtTime(300, this.ctx.currentTime + 1.0);
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.3, this.ctx.currentTime + 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1.5);
+                noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+                noise.start();
+            },
+            playPost: function() {
+                if (!this.ctx || !this.enabled) return;
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.8, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.2);
+                setTimeout(() => this.playMiss(), 200); 
+            }
+        };
+
+        /* HỆ THỐNG 3 LEVEL */
+        const levelsData = [
+            {
+                name: "VÒNG BẢNG", sub: "Mức độ: Nhận Biết", 
+                gkColor: '#059669', speed: 1.0, curve: 0, gkSkill: 0.5,
+                questions: [
+                    { q: "Giá trị của sin 30&deg; bằng bao nhiêu?", options: [frac(1,2), frac(sqrt(3),2), "1", frac(sqrt(2),2)], correct: 0 },
+                    { q: "Giá trị của cos 60&deg; bằng bao nhiêu?", options: [frac(sqrt(3),2), frac(1,2), "0", "1"], correct: 1 },
+                    { q: "Giá trị của tan 45&deg; bằng bao nhiêu?", options: [sqrt(3), frac(sqrt(3),3), "1", "Không xác định"], correct: 2 },
+                    { q: "Giá trị của cot 90&deg; bằng bao nhiêu?", options: ["1", "Không xác định", "0", "&minus;1"], correct: 2 },
+                    { q: "Khẳng định nào đúng với cos 180&deg;?", options: ["0", "1", "&minus;1", "Không xác định"], correct: 2 }
+                ]
+            },
+            {
+                name: "BÁN KẾT", sub: "Mức độ: Thông Hiểu", 
+                gkColor: '#1e3a8a', speed: 1.25, curve: 0, gkSkill: 0.8,
+                questions: [
+                    { q: "Tính giá trị của sin 150&deg;", options: [frac(sqrt(3),2), frac(1,2), negFrac(1,2), negFrac(sqrt(3),2)], correct: 1 },
+                    { q: "Tính giá trị của cos 135&deg;", options: [frac(sqrt(2),2), negFrac(sqrt(2),2), frac(1,2), negFrac(1,2)], correct: 1 },
+                    { q: "Hai góc bù nhau &alpha; và 180&deg;&minus;&alpha;. Khẳng định nào <b>SAI</b>?", options: ["sin(180&deg;&minus;&alpha;) = sin &alpha;", "cos(180&deg;&minus;&alpha;) = cos &alpha;", "tan(180&deg;&minus;&alpha;) = &minus;tan &alpha;", "cot(180&deg;&minus;&alpha;) = &minus;cot &alpha;"], correct: 1 },
+                    { q: "Cho góc &alpha; (0&deg; &le; &alpha; &le; 180&deg;). Biểu thức nào luôn bằng 1?", options: ["sin<sup>2</sup>&alpha; + cos<sup>2</sup>&alpha;", "sin &alpha; + cos &alpha;", "sin<sup>2</sup>&alpha; &minus; cos<sup>2</sup>&alpha;", "tan &alpha; &times; cot &alpha;"], correct: 0 },
+                    { q: "Tính giá trị của cos 120&deg;", options: [frac(1,2), negFrac(1,2), frac(sqrt(3),2), negFrac(sqrt(3),2)], correct: 1 }
+                ]
+            },
+            {
+                name: "CHUNG KẾT", sub: "Thủ Môn Siêu Sao & Bóng Xoáy", 
+                gkColor: '#b8860b', speed: 1.5, curve: 0.8, gkSkill: 0.95,
+                questions: [
+                    { q: `Nếu sin &alpha; = ${frac(1,3)} và 90&deg; &lt; &alpha; &lt; 180&deg;, thì cos &alpha; bằng?`, options: [frac(`2${sqrt(2)}`, 3), negFrac(`2${sqrt(2)}`, 3), frac(8,9), negFrac(8,9)], correct: 1 },
+                    { q: "Tính P = sin 30&deg;&middot;cos 60&deg; + sin 60&deg;&middot;cos 30&deg;", options: ["1", "0", frac(sqrt(3),2), frac(1,2)], correct: 0 },
+                    { q: "Tính E = 2cos 30&deg; + 3sin 120&deg; &minus; 4cos 150&deg;", options: [frac(`9${sqrt(3)}`, 2), frac(`5${sqrt(3)}`, 2), frac(sqrt(3), 2), negFrac(sqrt(3), 2)], correct: 0 },
+                    { q: "Biết cos &alpha; = &minus;1/2 (0&deg; &le; &alpha; &le; 180&deg;). Góc &alpha; bằng?", options: ["60&deg;", "120&deg;", "150&deg;", "135&deg;"], correct: 1 },
+                    { q: "Cho tam giác ABC. Khẳng định nào đúng?", options: ["sin(A+B) = &minus;sin C", "cos(A+B) = cos C", "sin(A+B) = sin C", "cos(A+B) = sin C"], correct: 2 }
+                ]
+            }
+        ];
+
+        let gameState = { levelIdx: 0, score: 0, lives: 3, questions: [], currentQ: null, isAnimating: true };
+
+        const ui = {
+            panel: document.getElementById('question-panel'), qText: document.getElementById('question-text'), options: document.querySelectorAll('.option-btn'),
+            scoreVal: document.getElementById('score-val'), lives: document.getElementById('lives-display').children, levelBadge: document.getElementById('level-badge'),
+            startScreen: document.getElementById('start-screen'),
+            transScreen: document.getElementById('transition-screen'), tsTitle: document.getElementById('ts-title'), tsSub: document.getElementById('ts-subtitle'), tsBtn: document.getElementById('ts-btn'),
+            overScreen: document.getElementById('game-over-screen'), goTitle: document.getElementById('go-title'), fScore: document.getElementById('final-score'), fMsg: document.getElementById('final-msg'),
+            feedback: document.getElementById('action-feedback')
+        };
+
+        /* ENGINE CANVAS 2.5D KINEMATICS */
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        let cw, ch;
+        let horizonY, pitchBottomY;
+        let goalRect = { x: 0, y: 0, w: 0, h: 0 };
+        
+        let ball = { x: 0, y: 0, scale: 1, visible: true, spin: 0 };
+        let gk = { x: 0, y: 0, diveOffsetX: 0, diveOffsetY: 0, tilt: 0, armStretch: 0, color: '#059669' };
+        let kicker = { x: 0, y: 0, legSwing: 0, opacity: 1 };
+        
+        let animState = 'idle'; // idle, flying, resolving
+        let shotStartTime = 0, shotDuration = 1000;
+        let shotStartX, shotStartY, shotTargetX, shotTargetY, shotTargetScale;
+        let isGoalScored = false;
+        let ballHitPost = false; 
+        let currentLevelConfig;
+        
+        let ballVelocityY = 0; 
+        let netShakeTime = 0;
+        let groundYInsideGoal = 0;
+        let ballTrail = []; 
+        let kickerOffsetX = 0; 
+
+        function resizeCanvas() {
+            cw = canvas.width = window.innerWidth;
+            ch = canvas.height = window.innerHeight;
+            horizonY = ch * 0.35;
+            pitchBottomY = ch;
+
+            let gWidth = Math.min(cw * 0.7, 500);
+            let gHeight = gWidth * 0.45;
+            goalRect = { x: (cw - gWidth) / 2, y: horizonY + (ch - horizonY) * 0.1, w: gWidth, h: gHeight };
+            
+            // Xếp cầu thủ chệch sang một bên tùy chân thuận để lộ quả bóng
+            let offsetX = playerSettings.foot === 'right' ? -(cw * 0.15) : (cw * 0.15);
+            kicker.x = cw/2 + offsetX;
+            kicker.y = pitchBottomY - ch * 0.05;
+            
+            if (animState === 'idle') resetBall();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function drawBackground(timestamp) {
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+            skyGrad.addColorStop(0, '#020617'); skyGrad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, cw, horizonY);
+
+            // Đèn flash khán giả
+            ctx.fillStyle = '#fff';
+            for(let i=0; i<30; i++) {
+                let fx = (Math.sin(i*123 + timestamp*0.002) * 0.5 + 0.5) * cw;
+                let fy = (Math.cos(i*321 + timestamp*0.003) * 0.5 + 0.5) * horizonY * 0.8;
+                let alpha = Math.sin(timestamp*0.01 + i) * 0.5 + 0.5;
+                ctx.globalAlpha = alpha * 0.8;
+                ctx.beginPath(); ctx.arc(fx, fy, 1.5, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.globalAlpha = 1.0;
+
+            const adHeight = ch * 0.05;
+            const adY = horizonY - adHeight;
+
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(0, adY, cw, adHeight);
+            ctx.strokeStyle = '#00f3ff'; ctx.lineWidth = 2; ctx.strokeRect(0, adY, cw, adHeight);
+
+            ctx.save();
+            ctx.beginPath(); ctx.rect(0, adY, cw, adHeight); ctx.clip();
+            ctx.fillStyle = '#ffd700'; ctx.font = `800 ${adHeight * 0.6}px "Teko", sans-serif`;
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 10;
+
+            const adText = `${playerSettings.teamName} ESPORTS: ĐỔI MỚI - SÁNG TẠO - HIỆU QUẢ   ⚽   WORLD CUP 2026   ★   TOÁN 10 KNTT   ★   `;
+            const textWidth = ctx.measureText(adText).width;
+            let offset = -(timestamp * 0.08) % textWidth;
+
+            while (offset < cw) {
+                ctx.fillText(adText, offset, adY + adHeight / 2 + 2);
+                offset += textWidth;
+            }
+            ctx.restore();
+
+            const pitchGrad = ctx.createLinearGradient(0, horizonY, 0, pitchBottomY);
+            pitchGrad.addColorStop(0, '#064e3b'); pitchGrad.addColorStop(1, '#047857');
+            ctx.fillStyle = pitchGrad; ctx.fillRect(0, horizonY, cw, ch - horizonY);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2;
+            for(let i = -5; i <= 5; i++) {
+                ctx.beginPath(); ctx.moveTo(cw/2, horizonY); ctx.lineTo(cw/2 + i * (cw/3), pitchBottomY); ctx.stroke();
+            }
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(goalRect.x - 50, goalRect.y + goalRect.h); ctx.lineTo(goalRect.x + goalRect.w + 50, goalRect.y + goalRect.h); ctx.stroke();
+        }
+
+        function drawGoal() {
+            const depth = goalRect.h * 0.45; 
+            const inset = goalRect.w * 0.04; 
+
+            let shakeOffsetX = 0; let shakeOffsetY = 0;
+            if (netShakeTime > 0) {
+                shakeOffsetX = Math.sin(netShakeTime * 30) * (netShakeTime * 8);
+                shakeOffsetY = Math.cos(netShakeTime * 40) * (netShakeTime * 5);
+                netShakeTime -= 0.03; if (netShakeTime < 0) netShakeTime = 0;
+            }
+
+            const fTL = { x: goalRect.x, y: goalRect.y }; 
+            const fTR = { x: goalRect.x + goalRect.w, y: goalRect.y };
+            const fBL = { x: goalRect.x, y: goalRect.y + goalRect.h };
+            const fBR = { x: goalRect.x + goalRect.w, y: goalRect.y + goalRect.h };
+
+            const pushBackY = netShakeTime > 0 ? (netShakeTime * -10) : 0; 
+            const bTL = { x: goalRect.x + inset + shakeOffsetX, y: goalRect.y + depth * 0.3 + shakeOffsetY + pushBackY }; 
+            const bTR = { x: goalRect.x + goalRect.w - inset + shakeOffsetX, y: goalRect.y + depth * 0.3 + shakeOffsetY + pushBackY };
+            const bBL = { x: goalRect.x + inset + shakeOffsetX, y: goalRect.y + goalRect.h - depth * 0.6 + shakeOffsetY };
+            const bBR = { x: goalRect.x + goalRect.w - inset + shakeOffsetX, y: goalRect.y + goalRect.h - depth * 0.6 + shakeOffsetY };
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1.5;
+
+            const drawPlaneNet = (p1, p2, p3, p4, rows, cols) => {
+                for (let i = 1; i < rows; i++) {
+                    let r = i / rows;
+                    let start = { x: p1.x + (p4.x - p1.x)*r, y: p1.y + (p4.y - p1.y)*r };
+                    let end = { x: p2.x + (p3.x - p2.x)*r, y: p2.y + (p3.y - p2.y)*r };
+                    ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(end.x, end.y); ctx.stroke();
+                }
+                for (let j = 1; j < cols; j++) {
+                    let c = j / cols;
+                    let start = { x: p1.x + (p2.x - p1.x)*c, y: p1.y + (p2.y - p1.y)*c };
+                    let end = { x: p4.x + (p3.x - p4.x)*c, y: p4.y + (p3.y - p4.y)*c };
+                    ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(end.x, end.y); ctx.stroke();
+                }
+            };
+
+            drawPlaneNet(bTL, bTR, fTR, fTL, 6, 16); 
+            drawPlaneNet(fTR, bTR, bBR, fBR, 8, 4);  
+            drawPlaneNet(bTL, fTL, fBL, bBL, 8, 4);  
+            drawPlaneNet(bTL, bTR, bBR, bBL, 10, 18); 
+
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = goalRect.w * 0.015; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(fBL.x, fBL.y); ctx.lineTo(fTL.x, fTL.y); ctx.lineTo(fTR.x, fTR.y); ctx.lineTo(fBR.x, fBR.y); ctx.stroke();
+            
+            ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = goalRect.w * 0.008;
+            ctx.beginPath(); ctx.moveTo(fTL.x, fTL.y); ctx.lineTo(bBL.x, bBL.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(fTR.x, fTR.y); ctx.lineTo(bBR.x, bBR.y); ctx.stroke();
+        }
+
+        const skinColor = '#fca5a5'; const skinDark = '#b91c1c';
+        function shadeColor(color, percent) {
+            let R = parseInt(color.substring(1,3),16); let G = parseInt(color.substring(3,5),16); let B = parseInt(color.substring(5,7),16);
+            R = parseInt(R * (100 + percent) / 100); G = parseInt(G * (100 + percent) / 100); B = parseInt(B * (100 + percent) / 100);
+            R = (R<255)?R:255; G = (G<255)?G:255; B = (B<255)?B:255;
+            R = Math.max(0, R); G = Math.max(0, G); B = Math.max(0, B);
+            let RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+            let GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+            let BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+            return "#"+RR+GG+BB;
+        }
+
+        function drawLimb(x, y, w, h, angle, colorMain, colorDark, isShoe = false) {
+            ctx.save();
+            ctx.translate(x, y); ctx.rotate(angle);
+            const grad = ctx.createLinearGradient(-w/2, 0, w/2, 0);
+            grad.addColorStop(0, colorDark); grad.addColorStop(0.5, colorMain); grad.addColorStop(1, colorDark);
+            ctx.fillStyle = grad;
+            ctx.beginPath(); ctx.roundRect(-w/2, 0, w, h, w/2); ctx.fill();
+            if(isShoe) { 
+                ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.roundRect(-w, h-5, w*2, 12, 5); ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.fillRect(-w+2, h+7, 4, 3); ctx.fillRect(w-6, h+7, 4, 3);
+            }
+            ctx.restore();
+        }
+
+        function drawGoalkeeper() {
+            ctx.save();
+            let gkx = goalRect.x + goalRect.w/2 + gk.diveOffsetX;
+            // Ép gốc tọa độ Y của thủ môn dính chặt vào vạch vôi trắng dưới cùng của khung thành
+            // Chiều dài từ hông xuống mũi giày chính xác là 42px
+            let gky = goalRect.y + goalRect.h - 42 + gk.diveOffsetY;
+            ctx.translate(gkx, gky); ctx.rotate(gk.tilt);
+
+            let gkMain = gk.color; let gkDark = '#022c22'; 
+            if (gkMain === '#1e3a8a') gkDark = '#172554';
+            if (gkMain === '#b8860b') gkDark = '#713f12';
+
+            const torsoGrad = ctx.createLinearGradient(-15, 0, 15, 0);
+            torsoGrad.addColorStop(0, gkDark); torsoGrad.addColorStop(0.5, gkMain); torsoGrad.addColorStop(1, gkDark);
+
+            let isDiving = Math.abs(gk.diveOffsetY) > 5 || gk.armStretch > 0.1;
+            let diveDir = gk.tilt > 0 ? 1 : (gk.tilt < 0 ? -1 : (gk.diveOffsetX > 0 ? 1 : -1));
+            
+            /* HỆ THỐNG VẼ TAY THỦ MÔN CÓ GĂNG BỌC KÍN */
+            const drawArmWithGlove = (x, y, w, h, angle) => {
+                ctx.save();
+                ctx.translate(x, y); ctx.rotate(angle);
+                
+                // Cánh tay kéo giãn cực đại khi bay người
+                let currentH = h + (isDiving ? gk.armStretch * 25 : 0); 
+                const armGrad = ctx.createLinearGradient(-w/2, 0, w/2, 0);
+                armGrad.addColorStop(0, gkDark); armGrad.addColorStop(0.5, gkMain); armGrad.addColorStop(1, gkDark);
+                ctx.fillStyle = armGrad;
+                ctx.beginPath(); ctx.roundRect(-w/2, 0, w, currentH, w/2); ctx.fill();
+                
+                // Di chuyển xuống cổ tay để vẽ Găng
+                ctx.translate(0, currentH); 
+                
+                // Cổ găng tay (Wristband)
+                ctx.fillStyle = '#111';
+                ctx.beginPath(); ctx.roundRect(-w/2 - 1, -2, w + 2, 6, 2); ctx.fill();
+
+                // Lưng găng tay (Red Glove)
+                ctx.fillStyle = '#ef4444'; 
+                ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 4;
+                ctx.beginPath(); ctx.roundRect(-w/2 - 3, 2, w + 6, 20, 6); ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // Lòng bàn tay màu trắng (chỉ lộ ra khi giang tay đón bóng)
+                if (isDiving) {
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.beginPath(); ctx.roundRect(-w/2 - 1, 4, w + 2, 14, 3); ctx.fill();
+                }
+                ctx.restore();
+            };
+
+            // Tay sau (Đã sửa lỗi: Có găng tay và giang rộng hết cỡ)
+            let backArmAngle = isDiving ? (Math.PI/2 * diveDir) : (Math.sin(performance.now()*0.005)*0.1 + 0.3);
+            drawArmWithGlove(isDiving ? -12*diveDir : -15, -15, 11, 24, backArmAngle); 
+
+            // Chân sau
+            let backLegAngle = isDiving ? (-0.5 * diveDir) : (Math.sin(performance.now()*0.005)*0.05);
+            drawLimb(isDiving ? -5*diveDir : -12, 15, 13, 22, backLegAngle, '#1e293b', '#020617', true);
+
+            // Thân người
+            ctx.fillStyle = torsoGrad; ctx.beginPath(); ctx.roundRect(-18, -25, 36, 45, 10); ctx.fill();
+
+            // Đầu
+            ctx.fillStyle = '#fca5a5'; ctx.beginPath(); ctx.arc(0, -35, 12, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(0, -38, 12, Math.PI, Math.PI*2); ctx.fill(); 
+
+            // Chân trước
+            let frontLegAngle = isDiving ? (0.8 * diveDir) : (-Math.sin(performance.now()*0.005)*0.05);
+            drawLimb(isDiving ? 5*diveDir : 12, 15, 13, 20, frontLegAngle, '#1e293b', '#020617', true);
+
+            // Tay trước (Giang rộng vươn tới bóng)
+            let frontArmAngle = isDiving ? (Math.PI/2.2 * diveDir) : (-Math.sin(performance.now()*0.005)*0.1 - 0.3);
+            drawArmWithGlove(isDiving ? 12*diveDir : 15, -15, 11, 25, frontArmAngle);
+
+            ctx.restore();
+        }
+
+        function drawKicker() {
+            if (kicker.opacity <= 0) return;
+            ctx.save();
+            ctx.globalAlpha = kicker.opacity;
+            ctx.translate(kicker.x + kickerOffsetX, kicker.y);
+
+            let isRightFooted = playerSettings.foot === 'right';
+            let swingDir = isRightFooted ? 1 : -1;
+            let pColor = playerSettings.color;
+            let pDark = shadeColor(pColor, -40); 
+            let shortsColor = shadeColor(pColor, -60); 
+
+            let swingProg = kicker.legSwing; 
+            let hipRot = 0; let kneeRot = 0; let bodyLean = 0;
+            let armLRot = 0.2; let armRRot = -0.2;
+
+            if (swingProg !== 0) {
+                bodyLean = swingProg > 0 ? 0.3 * swingDir : -0.1 * swingDir; 
+                hipRot = swingProg * 1.5 * swingDir; 
+                kneeRot = swingProg < 0 ? (swingProg * 2 * swingDir) : 0; 
+                armLRot = swingProg * -1.2 * swingDir; armRRot = swingProg * 1.2 * swingDir;
+            }
+
+            const torsoGrad = ctx.createLinearGradient(-20, 0, 20, 0);
+            torsoGrad.addColorStop(0, pDark); torsoGrad.addColorStop(0.5, pColor); torsoGrad.addColorStop(1, pDark);
+
+            let backArmAngle = isRightFooted ? armRRot : armLRot;
+            drawLimb(isRightFooted ? 15 : -15, -60, 12, 35, backArmAngle, skinColor, skinDark);
+
+            let standLegX = isRightFooted ? -12 : 12;
+            drawLimb(standLegX, -10, 14, 20, -0.1*swingDir, shortsColor, '#111'); 
+            drawLimb(standLegX, 8, 12, 25, 0, pColor, pDark, true); 
+
+            ctx.save();
+            ctx.rotate(bodyLean);
+            ctx.fillStyle = torsoGrad; ctx.beginPath(); ctx.roundRect(-22, -65, 44, 55, 10); ctx.fill();
+            ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(-10, -15); ctx.lineTo(-15, -50); ctx.stroke();
+            
+            ctx.fillStyle = '#fff'; ctx.font = '900 35px "Teko"'; ctx.textAlign = 'center'; ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 5;
+            ctx.fillText(playerSettings.number, 0, -25); ctx.shadowBlur = 0;
+            ctx.restore();
+
+            ctx.save(); ctx.rotate(bodyLean * 0.5);
+            ctx.fillStyle = skinColor; ctx.beginPath(); ctx.arc(0, -75, 14, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#27272a'; ctx.beginPath(); ctx.arc(0, -78, 15, Math.PI*0.8, Math.PI*2.2); ctx.fill();
+            ctx.restore();
+
+            let kickLegX = isRightFooted ? 12 : -12;
+            ctx.save();
+            ctx.translate(kickLegX, -10); ctx.rotate(hipRot);
+            drawLimb(0, 0, 15, 22, 0, shortsColor, '#111'); 
+            ctx.translate(0, 20); ctx.rotate(kneeRot);
+            drawLimb(0, 0, 13, 25, 0, pColor, pDark, true); 
+            ctx.restore();
+
+            let frontArmAngle = isRightFooted ? armLRot : armRRot;
+            drawLimb(isRightFooted ? -18 : 18, -60, 14, 38, frontArmAngle, skinColor, skinDark);
+            ctx.restore();
+        }
+
+        function drawBall() {
+            if(!ball.visible) return;
+            const radius = 22 * ball.scale; 
+
+            if (animState === 'flying' && ballTrail.length > 0) {
+                ctx.save();
+                for (let i = 0; i < ballTrail.length; i++) {
+                    let pt = ballTrail[i];
+                    let alpha = (i + 1) / ballTrail.length * 0.4; 
+                    let trRadius = 22 * pt.scale;
+                    ctx.beginPath(); ctx.arc(pt.x, pt.y, trRadius, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                    ctx.shadowColor = '#00f3ff'; ctx.shadowBlur = 10 * alpha; ctx.fill();
+                }
+                ctx.restore();
+            }
+
+            ctx.save();
+            let groundY = pitchBottomY - ch * 0.22; 
+            
+            if (animState === 'flying') {
+                 const elapsed = performance.now() - shotStartTime;
+                 let progress = elapsed / shotDuration; if (progress > 1) progress = 1;
+                 const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+                 groundY = shotStartY + (shotTargetY - shotStartY) * easeOutCubic;
+            } else if (animState === 'resolving') {
+                 groundY = groundYInsideGoal || (goalRect.y + goalRect.h - 10);
+                 if (!isGoalScored) groundY = pitchBottomY - ch * 0.22;
+            }
+
+            const heightDiff = groundY - ball.y;
+            const shadowScale = Math.max(0.2, 1 - (heightDiff * 0.006));
+            const shadowAlpha = Math.max(0.05, 0.5 - (heightDiff * 0.003));
+
+            ctx.fillStyle = `rgba(0,0,0,${shadowAlpha})`;
+            ctx.beginPath(); ctx.ellipse(ball.x, groundY, radius * 0.8 * shadowScale, radius * 0.25 * shadowScale, 0, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(ball.x, ball.y); ctx.rotate(ball.spin);
+            ctx.fillStyle = '#f8fafc'; ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI*2); ctx.clip();
+
+            ctx.fillStyle = '#1e293b';
+            const drawHex = (hx, hy, hr) => {
+                ctx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    let angle = i * Math.PI / 3;
+                    ctx.lineTo(hx + Math.cos(angle)*hr, hy + Math.sin(angle)*hr);
+                }
+                ctx.fill();
+            };
+            drawHex(0, 0, radius*0.4); drawHex(radius*0.7, -radius*0.4, radius*0.35); drawHex(-radius*0.7, -radius*0.4, radius*0.35); drawHex(0, radius*0.8, radius*0.35);
+
+            const ballGrad = ctx.createRadialGradient(-radius*0.3, -radius*0.3, radius*0.1, 0, 0, radius);
+            ballGrad.addColorStop(0, 'rgba(255,255,255,0.6)'); ballGrad.addColorStop(0.5, 'rgba(0,0,0,0.1)'); ballGrad.addColorStop(1, 'rgba(0,0,0,0.7)');
+            ctx.fillStyle = ballGrad; ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI*2); ctx.fill();
+
+            if (animState === 'flying' && Math.abs(ball.spin) > 0.5) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; ctx.beginPath(); ctx.ellipse(-radius*0.5, -radius*0.5, radius*0.3, radius*0.1, Math.PI/4, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        function resetBall() {
+            ball.x = cw/2; ball.y = pitchBottomY - ch * 0.22; ball.scale = 1.0; ball.visible = true; ball.spin = 0;
+            ballTrail = []; gk.diveOffsetX = 0; gk.diveOffsetY = 0; gk.tilt = 0; gk.armStretch = 0;
+            if(levelsData[gameState.levelIdx]) gk.color = levelsData[gameState.levelIdx].gkColor;
+            kicker.legSwing = 0; kicker.opacity = 1; kickerOffsetX = 0; animState = 'idle'; ballHitPost = false; 
+        }
+
+        function shootBall(isCorrect) {
+            animState = 'flying'; shotStartTime = performance.now(); shotDuration = 1000 / currentLevelConfig.speed;
+            audioSys.playKick(); 
+            
+            shotStartX = ball.x; shotStartY = ball.y; shotTargetScale = 0.25; ballVelocityY = 0; netShakeTime = 0; ballHitPost = false;
+
+            if (isCorrect) {
+                const isLeft = Math.random() > 0.5;
+                shotTargetX = goalRect.x + (isLeft ? goalRect.w * 0.1 : goalRect.w * 0.9);
+                shotTargetY = goalRect.y + goalRect.h * 0.2; 
+                isGoalScored = true;
+            } else {
+                const rand = Math.random();
+                if (rand > 0.5) {
+                    shotTargetX = goalRect.x + goalRect.w * 0.5 + (Math.random() - 0.5) * 50; shotTargetY = goalRect.y + goalRect.h * 0.5;
+                } else if (rand > 0.15) {
+                    shotTargetX = goalRect.x + (Math.random() > 0.5 ? -50 : goalRect.w + 50); shotTargetY = goalRect.y - 50; 
+                } else {
+                    shotTargetX = goalRect.x + (Math.random() > 0.5 ? 0 : goalRect.w); shotTargetY = goalRect.y + goalRect.h * (Math.random() > 0.5 ? 0 : 0.5); 
+                    ballHitPost = true;
+                }
+                isGoalScored = false;
+            }
+        }
+
+        function gameLoop(timestamp) {
+            ctx.clearRect(0, 0, cw, ch);
+            drawBackground(timestamp); drawGoal(); drawGoalkeeper(); drawBall(); drawKicker(); 
+
+            if (animState === 'flying') {
+                const elapsed = timestamp - shotStartTime;
+                let progress = elapsed / shotDuration; if (progress >= 1) progress = 1;
+
+                let isRightFooted = playerSettings.foot === 'right'; let swingDir = isRightFooted ? 1 : -1;
+
+                /* 1. GIAI ĐOẠN CẦU THỦ CHẠY ĐÀ VÀ VUNG CHÂN SÚT (Từ 0.0 đến 0.3) */
+                let kickPhase = Math.min(progress / 0.3, 1.0);
+                if (kickPhase < 0.5) {
+                    let p1 = kickPhase / 0.5; 
+                    kicker.legSwing = -(Math.sin(p1 * Math.PI / 2) * 1.6); 
+                    kickerOffsetX = -Math.sin(p1 * Math.PI) * 6 * swingDir; 
+                } else if (kickPhase < 0.8) {
+                    let p2 = (kickPhase - 0.5) / 0.3; 
+                    kicker.legSwing = -1.6 + (Math.pow(p2, 3) * 3.2); 
+                    kickerOffsetX = Math.pow(p2, 2) * 16 * swingDir; 
+                } else {
+                    let p3 = (kickPhase - 0.8) / 0.2; 
+                    kicker.legSwing = 1.6 - (Math.pow(p3, 2) * 1.6); 
+                    kickerOffsetX = 16 * swingDir - (p3 * 16 * swingDir); 
+                }
+                
+                if (progress > 0.3) kicker.opacity -= 0.06; if (kicker.opacity < 0) kicker.opacity = 0;
+
+                /* 2. GIAI ĐOẠN BÓNG BAY VÀ THỦ MÔN BAY NGƯỜI (Bắt đầu từ 0.3) */
+                if (progress >= 0.3) {
+                    let flightProgress = (progress - 0.3) / 0.7;
+                    const easeOutCubic = 1 - Math.pow(1 - flightProgress, 3);
+                    const arcHeight = ch * 0.18; let magnusEffect = 0;
+                    
+                    if(isGoalScored) {
+                        const curveLevel = currentLevelConfig ? currentLevelConfig.curve : 0;
+                        const currentCurve = curveLevel * (shotTargetX > cw/2 ? 1 : -1);
+                        let curveDir = playerSettings.foot === 'right' ? 1 : -1;
+                        magnusEffect = currentCurve * cw * 0.15 * Math.sin(easeOutCubic * Math.PI) * curveDir; 
+                    }
+
+                    // Bóng lăn
+                    ball.x = shotStartX + (shotTargetX - shotStartX) * easeOutCubic + magnusEffect;
+                    ball.y = shotStartY + (shotTargetY - shotStartY) * easeOutCubic - Math.sin(flightProgress * Math.PI) * arcHeight;
+                    ball.scale = 1 - (1 - shotTargetScale) * easeOutCubic;
+                    
+                    ballTrail.push({x: ball.x, y: ball.y, scale: ball.scale});
+                    if (ballTrail.length > 6) ballTrail.shift(); 
+                    ball.spin += (0.5 + (currentLevelConfig ? currentLevelConfig.curve * 2 : 0));
+
+                    // CHỈ KHI BÓNG BAY, THỦ MÔN MỚI BẮT ĐẦU LAO ĐI
+                    const gkSkillLevel = currentLevelConfig ? currentLevelConfig.gkSkill : 0.6;
+                    const targetGkOffsetX = shotTargetX - (cw/2);
+                    
+                    gk.diveOffsetX += (targetGkOffsetX * gkSkillLevel - gk.diveOffsetX) * 0.2;
+                    const gkHangTime = Math.sin(flightProgress * Math.PI);
+                    
+                    // Tăng lực bật nhảy (từ 0.45 lên 0.75) vì thủ môn giờ xuất phát từ sát mặt đất
+                    gk.diveOffsetY = -gkHangTime * (goalRect.h * 0.75); 
+                    gk.tilt = (gk.diveOffsetX * 0.007) * (1 + gkHangTime * 0.5);
+                    gk.armStretch = gkHangTime * 1.5; // Kéo giãn tay tối đa
+                } else {
+                    // Khi cầu thủ đang chạy đà (Progress < 0.3): Bóng đứng im
+                    ball.x = shotStartX; ball.y = shotStartY; ball.scale = 1;
+                    
+                    // THỦ MÔN TIẾP TỤC ĐỨNG TRÊN VẠCH VÔI ĐỂ ĐÁNH LẠC HƯỚNG
+                    let idleTime = timestamp * 0.005;
+                    gk.diveOffsetX = Math.sin(idleTime) * 15; 
+                    gk.diveOffsetY = 0; // KHÓA CỨNG 2 CHÂN TRÊN VẠCH VÔI
+                    gk.tilt = Math.sin(idleTime) * 0.05; 
+                    gk.armStretch = 0;
+                }
+
+                if (progress === 1) {
+                    animState = 'resolving'; ballTrail = []; 
+                    if (isGoalScored) {
+                        netShakeTime = 1.2; ballVelocityY = -3.5; groundYInsideGoal = goalRect.y + goalRect.h - (goalRect.h * 0.15); audioSys.playGoal(); 
+                    } else {
+                        if (ballHitPost) {
+                            ballVelocityY = -2.5; audioSys.playPost(); 
+                            document.getElementById('game-canvas').classList.add('shake');
+                            setTimeout(() => document.getElementById('game-canvas').classList.remove('shake'), 400);
+                        } else { ballVelocityY = 0; audioSys.playMiss(); }
+                    }
+                    checkResult();
+                }
+            } else if (animState === 'resolving') {
+                if (isGoalScored) {
+                    ballVelocityY += 0.8; ball.y += ballVelocityY; ball.x += (cw/2 - ball.x) * 0.02; 
+                    if (ball.y >= groundYInsideGoal) {
+                        ball.y = groundYInsideGoal; ballVelocityY *= -0.55; ball.spin += ballVelocityY * 0.1; 
+                        if (Math.abs(ballVelocityY) < 1) { ballVelocityY = 0; ball.spin *= 0.9; }
+                    } else { ball.spin += 0.15; }
+                } else {
+                    ballVelocityY += 1.2; ball.y += ballVelocityY;
+                    let groundOutside = goalRect.y + goalRect.h;
+                    if (ball.y >= groundOutside) {
+                        ball.y = groundOutside; ballVelocityY *= -0.4;
+                        if (Math.abs(ballVelocityY) < 1) ballVelocityY = 0;
+                    }
+                }
+                gk.diveOffsetY += (0 - gk.diveOffsetY) * 0.15;
+                gk.armStretch -= 0.1; if(gk.armStretch < 0) gk.armStretch = 0;
+                gk.diveOffsetX += (0 - gk.diveOffsetX) * 0.05; gk.tilt += (0 - gk.tilt) * 0.05;
+            } else if (animState === 'idle') {
+                // Nhịp nhàng di chuyển ngang nhưng chân bám vạch vôi
+                let idleTime = timestamp * 0.005;
+                gk.diveOffsetX = Math.sin(idleTime) * 15; 
+                gk.diveOffsetY = 0; 
+                gk.tilt = Math.sin(idleTime) * 0.05; 
+                gk.armStretch = 0;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function initGameData() {
+            gameState.levelIdx = 0; gameState.score = 0; gameState.lives = 3;
+            ui.overScreen.classList.add('hidden'); ui.panel.classList.add('hidden');
+            gameState.questions = [...levelsData[0].questions].sort(() => Math.random() - 0.5);
+            ui.transScreen.classList.remove('hidden'); showTransitionScreen();
+        }
+
+        function showTransitionScreen() {
+            const lvl = levelsData[gameState.levelIdx];
+            ui.tsTitle.innerHTML = lvl.name; ui.tsSub.innerHTML = lvl.sub; ui.tsBtn.textContent = "BẮT ĐẦU";
+            gameState.lives = 3; updateUI();
+        }
+
+        function startCurrentLevel() {
+            audioSys.init(); 
+            ui.transScreen.classList.add('hidden');
+            currentLevelConfig = levelsData[gameState.levelIdx];
+            audioSys.playWhistle(); 
+            prepareNextShot();
+        }
+
+        function prepareNextShot() {
+            resetBall();
+            if (gameState.lives <= 0) { showGameOver(false); return; }
+            if (gameState.questions.length === 0) {
+                gameState.levelIdx++;
+                if (gameState.levelIdx >= levelsData.length) { showGameOver(true); } 
+                else {
+                    gameState.questions = [...levelsData[gameState.levelIdx].questions].sort(() => Math.random() - 0.5);
+                    ui.transScreen.classList.remove('hidden'); showTransitionScreen();
+                }
+                return;
+            }
+
+            gameState.currentQ = gameState.questions.pop();
+            ui.qText.innerHTML = gameState.currentQ.q;
+            
+            ui.options.forEach((btn, idx) => {
+                btn.innerHTML = gameState.currentQ.options[idx];
+                btn.className = 'option-btn'; btn.disabled = false;
+            });
+
+            setTimeout(() => { ui.panel.classList.remove('hidden'); gameState.isAnimating = false; }, 300);
+        }
+
+        function checkAnswer(selectedIdx) {
+            if (gameState.isAnimating) return;
+            gameState.isAnimating = true;
+
+            const isCorrect = selectedIdx === gameState.currentQ.correct;
+            ui.options[selectedIdx].classList.add(isCorrect ? 'correct' : 'wrong');
+            if (!isCorrect) ui.options[gameState.currentQ.correct].classList.add('correct');
+            ui.options.forEach(btn => btn.disabled = true);
+
+            setTimeout(() => {
+                ui.panel.classList.add('hidden');
+                setTimeout(() => shootBall(isCorrect), 400);
+            }, 1000);
+        }
+
+        function checkResult() {
+            if (isGoalScored) {
+                ui.feedback.textContent = "VÀOOO!"; ui.feedback.className = 'feedback-goal show';
+                gameState.score++; ui.scoreVal.parentElement.classList.add('scale-110');
+                setTimeout(() => ui.scoreVal.parentElement.classList.remove('scale-110'), 200);
+            } else {
+                ui.feedback.textContent = ballHitPost ? "CỘT DỌC!" : "KHÔNG VÀO!"; ui.feedback.className = 'feedback-miss show';
+                gameState.lives--;
+            }
+            
+            updateUI();
+            setTimeout(() => { ui.feedback.classList.remove('show'); setTimeout(() => prepareNextShot(), 800); }, 1500);
+        }
+
+        function updateUI() {
+            ui.scoreVal.textContent = gameState.score; ui.levelBadge.textContent = levelsData[gameState.levelIdx].name;
+            for (let i = 0; i < 3; i++) {
+                if (i < gameState.lives) ui.lives[2-i].classList.remove('lost'); else ui.lives[2-i].classList.add('lost');
+            }
+        }
+
+        function showGameOver(isWin) {
+            gameState.isAnimating = true; ui.panel.classList.add('hidden'); ui.overScreen.classList.remove('hidden'); ui.fScore.textContent = gameState.score;
+            if (isWin) {
+                ui.goTitle.textContent = "VÔ ĐỊCH"; ui.goTitle.style.color = "var(--gold)"; ui.goTitle.style.textShadow = "0 0 30px var(--gold)";
+                ui.fMsg.textContent = "CHÚC MỪNG BẠN ĐÃ GIÀNH CÚP VÀNG THẾ GIỚI!";
+            } else {
+                ui.goTitle.textContent = "BỊ LOẠI"; ui.goTitle.style.color = "var(--neon-red)"; ui.goTitle.style.textShadow = "0 0 30px var(--neon-red)";
+                ui.fMsg.textContent = "HÃY ÔN LẠI KIẾN THỨC VÀ PHỤC THÙ NHÉ!";
+            }
+        }
+
+        window.onload = () => { resizeCanvas(); requestAnimationFrame(gameLoop); };
+    </script>
+</body>
+</html>

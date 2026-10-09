@@ -1,0 +1,564 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toán 11. Game Yoga_Xác suất 11</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- MathJax cho LaTeX -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- MediaPipe Libraries (Chỉ dùng duy nhất Pose để tránh xung đột bộ nhớ WebAssembly) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
+        body {
+            font-family: 'Baloo 2', cursive;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            border: 8px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            overflow: hidden;
+            background-color: #000;
+            z-index: 10;
+        }
+
+        .input_video {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Chế độ gương */
+        }
+
+        .progress-ring {
+            transition: stroke-dashoffset 0.1s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .option-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Active states */
+        .active-left { transform: scale(1.05); border-color: #4ade80; box-shadow: 0 0 25px #4ade80; }
+        .active-right { transform: scale(1.05); border-color: #f87171; box-shadow: 0 0 25px #f87171; }
+        .active-A { transform: scale(1.05); border-color: #fbbf24; box-shadow: 0 0 25px #fbbf24; }
+        .active-B { transform: scale(1.05); border-color: #60a5fa; box-shadow: 0 0 25px #60a5fa; }
+        .active-C { transform: scale(1.05); border-color: #c084fc; box-shadow: 0 0 25px #c084fc; }
+        .active-D { transform: scale(1.05); border-color: #34d399; box-shadow: 0 0 25px #34d399; }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        .brand-title {
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        mjx-container {
+            max-width: 100% !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            box-sizing: border-box;
+        }
+
+        .stickman { width: 80px; height: 80px; margin-bottom: 15px; }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col items-center justify-center relative">
+
+    <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#fff 2px, transparent 2px); background-size: 30px 30px;"></div>
+
+    <input type="file" id="logo-upload" accept="image/*" style="display: none;">
+
+    <div class="absolute top-6 left-6 flex items-center space-x-3 z-50">
+        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white overflow-hidden cursor-pointer hover:scale-105" onclick="document.getElementById('logo-upload').click()" title="Đổi Logo">
+            <img id="logo-img-1" src="https://i.pravatar.cc/150?img=12" class="w-full h-full object-cover">
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-white drop-shadow-md brand-title">TOÁN PRO - THẦY HÙNG</h1>
+            <p class="text-sm text-yellow-300 font-semibold uppercase tracking-wider">Toán 11 - Xác Suất KNTT</p>
+        </div>
+    </div>
+
+    <div class="absolute top-6 right-6 text-right z-50">
+        <div class="text-3xl font-bold text-white drop-shadow-md">Điểm: <span id="score" class="text-yellow-400">0</span>/<span id="total-q1">0</span></div>
+        <div class="text-lg text-white/80">Câu: <span id="question-number">1</span>/<span id="total-q2">0</span></div>
+    </div>
+
+    <!-- Màn hình chờ AI -->
+    <div id="start-screen" class="absolute inset-0 bg-gray-900 bg-opacity-95 z-40 flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-2xl mb-6 border-4 border-white overflow-hidden cursor-pointer hover:scale-105" onclick="document.getElementById('logo-upload').click()">
+            <img id="logo-img-2" src="https://i.pravatar.cc/150?img=12" class="w-full h-full object-cover">
+        </div>
+        <h2 class="text-5xl font-bold mb-4 text-yellow-400 brand-title">TOÁN PRO - THẦY HÙNG</h2>
+        <h3 class="text-3xl font-bold mb-6 text-white">Game AI: Vận Động Trả Lời Câu Hỏi</h3>
+        
+        <div class="flex space-x-8 mb-8 text-left bg-black/40 p-6 rounded-2xl border border-white/10 max-w-4xl">
+            <div class="w-1/2">
+                <h4 class="text-xl font-bold text-green-400 mb-2">✅ Dạng Đúng/Sai:</h4>
+                <p class="text-gray-300 text-lg">Giữ yên vai, nghiêng đầu sang Trái hoặc Phải để chọn.</p>
+            </div>
+            <div class="w-px bg-white/20"></div>
+            <div class="w-1/2">
+                <h4 class="text-xl font-bold text-blue-400 mb-2">🏃 Dạng A, B, C, D:</h4>
+                <p class="text-gray-300 text-lg">Đứng lùi xa camera để AI thấy rõ nửa người. Làm theo tư thế người que trên màn hình (đã được làm kiểu gương).</p>
+            </div>
+        </div>
+
+        <div id="loading-status" class="text-2xl font-semibold text-blue-300 animate-pulse mb-6">
+            Đang tải mô hình AI Vận Động... Vui lòng đợi...
+        </div>
+
+        <button id="start-btn" class="hidden px-10 py-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-full text-2xl font-bold hover:scale-105 shadow-[0_0_20px_rgba(74,222,128,0.5)] border-2 border-white/50">
+            BẮT ĐẦU CHƠI
+        </button>
+    </div>
+
+    <!-- Màn hình kết thúc -->
+    <div id="game-over-screen" class="hidden absolute inset-0 bg-gray-900 z-50 flex flex-col items-center justify-center p-6 text-center">
+        <h2 class="text-6xl font-bold mb-4 text-yellow-400">HOÀN THÀNH!</h2>
+        <p class="text-3xl mb-8">Số câu đúng: <span id="final-score" class="text-green-400 font-bold">0</span></p>
+        <button onclick="location.reload()" class="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-2xl font-bold hover:scale-105 shadow-lg border-2 border-white/50">
+            CHƠI LẠI
+        </button>
+    </div>
+
+    <!-- Giao diện Game -->
+    <div id="game-ui" class="w-full h-full flex flex-col items-center justify-center relative opacity-0 transition-opacity duration-500 pt-16">
+        
+        <!-- Khung Câu hỏi -->
+        <div class="absolute top-20 z-20 bg-black/70 backdrop-blur-md px-10 py-6 rounded-3xl border border-white/20 shadow-2xl max-w-5xl w-full text-center min-h-[120px] flex items-center justify-center">
+            <h3 id="question-text" class="text-2xl font-semibold leading-relaxed">Đang tải...</h3>
+        </div>
+
+        <!-- LAYOUT 1: ĐÚNG/SAI -->
+        <div id="layout-tf" class="absolute w-full max-w-6xl flex justify-between items-center px-10 top-1/2 -translate-y-1/2 hidden">
+            <div id="tf-left" class="option-card w-[28%] p-8 rounded-3xl flex flex-col items-center text-center">
+                <div class="text-4xl font-bold text-green-400 mb-4" id="tf-text-left">ĐÚNG</div>
+                <div class="text-sm text-gray-300 bg-black/50 px-3 py-1 rounded-full uppercase">Nghiêng sang Trái</div>
+            </div>
+            <div id="tf-right" class="option-card w-[28%] p-8 rounded-3xl flex flex-col items-center text-center">
+                <div class="text-4xl font-bold text-red-400 mb-4" id="tf-text-right">SAI</div>
+                <div class="text-sm text-gray-300 bg-black/50 px-3 py-1 rounded-full uppercase">Nghiêng sang Phải</div>
+            </div>
+        </div>
+
+        <!-- LAYOUT 2: 4 ĐÁP ÁN (POSE) -->
+        <div id="layout-mc" class="absolute w-full max-w-7xl h-full flex items-center justify-center hidden">
+            <!-- Đáp án A: Tay trái giơ lên, tay phải chống sườn. KIỂU GƯƠNG: Trái màn hình giơ lên, Phải màn hình chống sườn. -->
+            <div id="mc-A" class="option-card absolute top-[28%] left-[6%] w-[23%] p-5 rounded-3xl flex flex-col items-center text-center">
+                <svg class="stickman text-yellow-400" viewBox="0 0 100 100">
+                    <circle cx="50" cy="20" r="12" fill="currentColor"/>
+                    <line x1="50" y1="32" x2="50" y2="70" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="50" y1="70" x2="35" y2="95" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="50" y1="70" x2="65" y2="95" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Gương: Bên phải màn hình chống hông -->
+                    <polyline points="50,40 70,50 60,65" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+                    <!-- Gương: Bên trái màn hình giơ cao -->
+                    <line x1="50" y1="40" x2="15" y2="10" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+                <div class="text-xl font-bold text-yellow-400 mb-2 w-full"><span class="bg-yellow-400 text-black px-2 rounded mr-1">A</span><span id="mc-text-A"></span></div>
+            </div>
+            
+            <!-- Đáp án B: Tay phải giơ lên, tay trái chống sườn. KIỂU GƯƠNG: Phải màn hình giơ lên, Trái màn hình chống sườn. -->
+            <div id="mc-B" class="option-card absolute top-[28%] right-[6%] w-[23%] p-5 rounded-3xl flex flex-col items-center text-center">
+                <svg class="stickman text-blue-400" viewBox="0 0 100 100">
+                    <circle cx="50" cy="20" r="12" fill="currentColor"/>
+                    <line x1="50" y1="32" x2="50" y2="70" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="50" y1="70" x2="35" y2="95" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="50" y1="70" x2="65" y2="95" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Gương: Bên trái màn hình chống hông -->
+                    <polyline points="50,40 30,50 40,65" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+                    <!-- Gương: Bên phải màn hình giơ cao -->
+                    <line x1="50" y1="40" x2="85" y2="10" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+                <div class="text-xl font-bold text-blue-400 mb-2 w-full"><span class="bg-blue-400 text-black px-2 rounded mr-1">B</span><span id="mc-text-B"></span></div>
+            </div>
+
+            <!-- Đáp án C: Tay trái giơ xuống, tay phải chống sườn. KIỂU GƯƠNG: Trái màn hình giơ xuống, Phải màn hình chống sườn. -->
+            <div id="mc-C" class="option-card absolute bottom-[6%] left-[6%] w-[23%] p-5 rounded-3xl flex flex-col items-center text-center">
+                <svg class="stickman text-purple-400" viewBox="0 0 100 100">
+                    <circle cx="50" cy="20" r="12" fill="currentColor"/>
+                    <line x1="50" y1="32" x2="50" y2="70" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="50" y1="70" x2="35" y2="95" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="50" y1="70" x2="65" y2="95" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Gương: Bên phải màn hình chống hông -->
+                    <polyline points="50,40 70,50 60,65" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+                    <!-- Gương: Bên trái màn hình giơ xuống -->
+                    <line x1="50" y1="40" x2="15" y2="75" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+                <div class="text-xl font-bold text-purple-400 mb-2 w-full"><span class="bg-purple-400 text-black px-2 rounded mr-1">C</span><span id="mc-text-C"></span></div>
+            </div>
+
+            <!-- Đáp án D: Tay phải giơ xuống, tay trái chống sườn. KIỂU GƯƠNG: Phải màn hình giơ xuống, Trái màn hình chống sườn. -->
+            <div id="mc-D" class="option-card absolute bottom-[6%] right-[6%] w-[23%] p-5 rounded-3xl flex flex-col items-center text-center">
+                <svg class="stickman text-green-400" viewBox="0 0 100 100">
+                    <circle cx="50" cy="20" r="12" fill="currentColor"/>
+                    <line x1="50" y1="32" x2="50" y2="70" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="50" y1="70" x2="35" y2="95" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="50" y1="70" x2="65" y2="95" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                    <!-- Gương: Bên trái màn hình chống hông -->
+                    <polyline points="50,40 30,50 40,65" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+                    <!-- Gương: Bên phải màn hình giơ xuống -->
+                    <line x1="50" y1="40" x2="85" y2="75" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+                <div class="text-xl font-bold text-green-400 mb-2 w-full"><span class="bg-green-400 text-black px-2 rounded mr-1">D</span><span id="mc-text-D"></span></div>
+            </div>
+        </div>
+
+        <!-- Camera (Ở giữa) -->
+        <div class="flex flex-col items-center absolute top-[55%] left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div class="camera-container relative">
+                <video class="input_video" autoplay playsinline></video>
+                <svg class="absolute top-0 left-0 w-full h-full pointer-events-none" viewBox="0 0 380 380">
+                    <circle cx="190" cy="190" r="176" stroke="rgba(255,255,255,0.1)" stroke-width="16" fill="none" />
+                    <circle id="progress-ring-svg" class="progress-ring" cx="190" cy="190" r="176" stroke="#fbbf24" stroke-width="16" fill="none" stroke-dasharray="1105" stroke-dashoffset="1105" stroke-linecap="round" />
+                </svg>
+                <div id="feedback-overlay" class="absolute inset-0 bg-black/70 hidden flex items-center justify-center z-10">
+                    <div id="feedback-icon" class="text-9xl drop-shadow-2xl">✅</div>
+                </div>
+            </div>
+            <div class="mt-4 bg-black/60 px-5 py-2 rounded-full text-yellow-300 font-bold tracking-wide animate-pulse border border-yellow-500/50" id="instruction-hint">
+                ...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. NGÂN HÀNG CÂU HỎI KNTT LỚP 11 (XÁC SUẤT) ---
+        const questionsBank = [
+            // Dạng Trắc Nghiệm Pose
+            { type: 'MC', text: "Cho hai biến cố $A, B$ xung khắc. Công thức nào sau đây đúng?", 
+              opts: { A: "$P(A \\cup B) = P(A) \\cdot P(B)$", B: "$P(A \\cup B) = P(A) + P(B)$", C: "$P(A \\cap B) = P(A) + P(B)$", D: "$P(A \\cap B) = 1$" }, correct: "B" },
+            { type: 'MC', text: "Cho hai biến cố $A$ và $B$ độc lập. Biết $P(A) = 0,3$ và $P(B) = 0,2$. Tính $P(A \\cap B)$.", 
+              opts: { A: "$0,06$", B: "$0,5$", C: "$0,1$", D: "$0,6$" }, correct: "A" },
+            { type: 'MC', text: "Gieo 2 con xúc xắc cân đối. Gọi $A$ là biến cố 'Tổng số chấm bằng 7', $B$ là biến cố 'Có ít nhất một con 6 chấm'. Tính $P(A \\cup B)$.", 
+              opts: { A: "$\\frac{1}{6}$", B: "$\\frac{17}{36}$", C: "$\\frac{5}{12}$", D: "$\\frac{1}{3}$" }, correct: "C" },
+            { type: 'MC', text: "Hộp có 5 bi xanh, 4 bi đỏ. Lấy lần lượt 2 bi (không hoàn lại). Xác suất để lấy được cả 2 bi đỏ là:", 
+              opts: { A: "$\\frac{2}{9}$", B: "$\\frac{16}{81}$", C: "$\\frac{1}{6}$", D: "$\\frac{1}{12}$" }, correct: "C" },
+            { type: 'MC', text: "Lớp có 40 học sinh gồm 25 nam, 15 nữ. Chọn ngẫu nhiên 2 bạn. Xác suất chọn được 1 nam và 1 nữ là:", 
+              opts: { A: "$\\frac{1}{2}$", B: "$\\frac{15}{52}$", C: "$\\frac{375}{800}$", D: "$\\frac{25}{52}$" }, correct: "D" },
+            { type: 'MC', text: "Cho hai biến cố xung khắc $A$ và $B$. Biết $P(A) = 0,6; P(B) = 0,3$. Tính $P(A \\cup B)$.", 
+              opts: { A: "$0,18$", B: "$0,9$", C: "$0,3$", D: "$0,5$" }, correct: "B" },
+            { type: 'MC', text: "Xác suất sinh con trai là $0,51$. Một gia đình sinh 2 con. Xác suất có ít nhất 1 con trai là:", 
+              opts: { A: "$0,2601$", B: "$0,51$", C: "$0,7599$", D: "$0,49$" }, correct: "C" },
+            { type: 'MC', text: "Hai xạ thủ bắn độc lập vào bia. XS trúng của người 1 là $0,7$, người 2 là $0,8$. XS có đúng 1 người bắn trúng là:", 
+              opts: { A: "$0,56$", B: "$0,38$", C: "$0,94$", D: "$0,06$" }, correct: "B" },
+
+            // Dạng Đúng/Sai Face
+            { type: 'TF', text: "Nếu hai biến cố $A$ và $B$ độc lập thì $P(A \\cap B) = P(A) \\cdot P(B)$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+            { type: 'TF', text: "Hai biến cố xung khắc thì luôn luôn độc lập với nhau.", left: "Đúng", right: "Sai", correct: "RIGHT" },
+            { type: 'TF', text: "Với hai biến cố $A, B$ bất kỳ, ta có $P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+            { type: 'TF', text: "Nếu $P(A) = 0,4; P(B) = 0,5$ và $P(A \\cup B) = 0,9$ thì $A$ và $B$ độc lập với nhau.", left: "Đúng", right: "Sai", correct: "RIGHT" }
+        ];
+
+        document.getElementById('total-q1').innerText = questionsBank.length;
+        document.getElementById('total-q2').innerText = questionsBank.length;
+
+        // --- 2. BIẾN TRẠNG THÁI & ÂM THANH ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let gameState = 'INIT';
+        let activeInput = 'NONE';
+        let holdStartTime = null;
+        const HOLD_DURATION = 1500;
+        const RING_CIRC = 1105;
+
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+        }
+        function playSound(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if (type === 'success') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            }
+            gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        // --- 3. UI LOGIC ---
+        const uiQuestion = document.getElementById('question-text');
+        const uiHint = document.getElementById('instruction-hint');
+        const uiRing = document.getElementById('progress-ring-svg');
+        
+        const layoutTF = document.getElementById('layout-tf');
+        const tfLeft = document.getElementById('tf-left'), tfRight = document.getElementById('tf-right');
+        
+        const layoutMC = document.getElementById('layout-mc');
+        const mcA = document.getElementById('mc-A'), mcB = document.getElementById('mc-B'), mcC = document.getElementById('mc-C'), mcD = document.getElementById('mc-D');
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questionsBank.length) {
+                gameState = 'END';
+                document.getElementById('game-ui').style.display = 'none';
+                document.getElementById('game-over-screen').classList.remove('hidden');
+                document.getElementById('final-score').innerText = score;
+                return;
+            }
+            
+            const q = questionsBank[currentQuestionIndex];
+            uiQuestion.innerHTML = `<b>Câu ${currentQuestionIndex + 1}:</b> ${q.text}`;
+            document.getElementById('question-number').innerText = (currentQuestionIndex + 1);
+            
+            tfLeft.className = tfLeft.className.replace(/active-\w+/g, '');
+            tfRight.className = tfRight.className.replace(/active-\w+/g, '');
+            [mcA, mcB, mcC, mcD].forEach(el => el.className = el.className.replace(/active-\w+/g, ''));
+            
+            if (q.type === 'TF') {
+                layoutTF.classList.remove('hidden'); layoutMC.classList.add('hidden');
+                document.getElementById('tf-text-left').innerHTML = q.left;
+                document.getElementById('tf-text-right').innerHTML = q.right;
+                uiHint.innerText = "NHÌN VÀO GƯƠNG, NGHIÊNG ĐẦU ĐỂ CHỌN!";
+            } else {
+                layoutMC.classList.remove('hidden'); layoutTF.classList.add('hidden');
+                document.getElementById('mc-text-A').innerHTML = q.opts.A;
+                document.getElementById('mc-text-B').innerHTML = q.opts.B;
+                document.getElementById('mc-text-C').innerHTML = q.opts.C;
+                document.getElementById('mc-text-D').innerHTML = q.opts.D;
+                uiHint.innerText = "NHÌN VÀO GƯƠNG VÀ TẠO DÁNG Y HỆT HÌNH!";
+            }
+
+            if (window.MathJax) MathJax.typesetPromise();
+            
+            gameState = 'PLAYING';
+            activeInput = 'NONE';
+            holdStartTime = null;
+            updateProgressRing(0, 'NONE');
+        }
+
+        function handleAnswer(chosenAns) {
+            if (gameState !== 'PLAYING') return;
+            gameState = 'FEEDBACK';
+            
+            const q = questionsBank[currentQuestionIndex];
+            const isCorrect = (chosenAns === q.correct);
+            const overlay = document.getElementById('feedback-overlay');
+            const icon = document.getElementById('feedback-icon');
+            
+            overlay.classList.remove('hidden');
+            icon.classList.remove('animate-pop'); void icon.offsetWidth; icon.classList.add('animate-pop');
+
+            if (isCorrect) {
+                score++; document.getElementById('score').innerText = score;
+                icon.innerText = '✅'; playSound('success');
+            } else {
+                icon.innerText = '❌'; playSound('error');
+            }
+
+            if(q.type === 'TF') {
+                if(chosenAns === 'LEFT') tfLeft.style.borderColor = isCorrect ? '#4ade80' : '#f87171';
+                else tfRight.style.borderColor = isCorrect ? '#4ade80' : '#f87171';
+            } else {
+                const map = {A: mcA, B: mcB, C: mcC, D: mcD};
+                map[chosenAns].style.borderColor = isCorrect ? '#4ade80' : '#f87171';
+            }
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                tfLeft.style.borderColor = ''; tfRight.style.borderColor = '';
+                [mcA, mcB, mcC, mcD].forEach(el => el.style.borderColor = '');
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 2000);
+        }
+
+        const colorMap = { 'LEFT': '#4ade80', 'RIGHT': '#f87171', 'A': '#fbbf24', 'B': '#60a5fa', 'C': '#c084fc', 'D': '#34d399', 'NONE': '#ffffff' };
+        
+        function updateProgressRing(percent, answerKey) {
+            uiRing.style.strokeDashoffset = RING_CIRC - (percent * RING_CIRC);
+            uiRing.setAttribute('stroke', colorMap[answerKey] || '#ffffff');
+            
+            tfLeft.classList.remove('active-left'); tfRight.classList.remove('active-right');
+            [mcA, mcB, mcC, mcD].forEach(el => el.classList.remove('active-'+el.id.split('-')[1]));
+
+            if(percent > 0) {
+                if(answerKey === 'LEFT') tfLeft.classList.add('active-left');
+                if(answerKey === 'RIGHT') tfRight.classList.add('active-right');
+                if(answerKey === 'A') mcA.classList.add('active-A');
+                if(answerKey === 'B') mcB.classList.add('active-B');
+                if(answerKey === 'C') mcC.classList.add('active-C');
+                if(answerKey === 'D') mcD.classList.add('active-D');
+            }
+        }
+
+        function processInput(detectedInput) {
+            if (detectedInput !== 'NONE') {
+                if (activeInput !== detectedInput) {
+                    activeInput = detectedInput;
+                    holdStartTime = Date.now();
+                } else {
+                    const duration = Date.now() - holdStartTime;
+                    let percent = Math.min(duration / HOLD_DURATION, 1);
+                    updateProgressRing(percent, detectedInput);
+                    if (duration >= HOLD_DURATION) handleAnswer(detectedInput);
+                }
+            } else {
+                activeInput = 'NONE';
+                holdStartTime = null;
+                updateProgressRing(0, 'NONE');
+            }
+        }
+
+        // --- 4. AI MODEL (CHỈ DÙNG POSE CHO CẢ ĐÚNG/SAI VÀ TRẮC NGHIỆM) ---
+        const videoElement = document.querySelector('.input_video');
+        
+        const pose = new Pose({locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`});
+        pose.setOptions({
+            modelComplexity: 1, 
+            smoothLandmarks: true, 
+            minDetectionConfidence: 0.5, 
+            minTrackingConfidence: 0.5
+        });
+
+        pose.onResults((results) => {
+            if (gameState !== 'PLAYING') return;
+            const qType = questionsBank[currentQuestionIndex].type;
+            let detectedInput = 'NONE';
+            
+            if (results.poseLandmarks) {
+                const lm = results.poseLandmarks;
+                
+                if (qType === 'TF') {
+                    // DẠNG ĐÚNG/SAI: Dùng tọa độ 2 Tai (Ears) từ Pose để tính góc nghiêng đầu
+                    // Tai trái vật lý = index 7, Tai phải vật lý = index 8
+                    const leftEar = lm[7];  
+                    const rightEar = lm[8]; 
+                    
+                    if (leftEar.visibility > 0.5 && rightEar.visibility > 0.5) {
+                        const diffY = leftEar.y - rightEar.y;
+                        
+                        // Khi nghiêng đầu sang trái (nhìn vào màn hình), tai trái vật lý hạ xuống -> diffY dương
+                        if (diffY > 0.035) detectedInput = 'RIGHT'; 
+                        else if (diffY < -0.035) detectedInput = 'LEFT';
+                    }
+                } 
+                else if (qType === 'MC') {
+                    // DẠNG 4 ĐÁP ÁN: Dùng tọa độ Tay và Hông
+                    const lShoulder = lm[11], rShoulder = lm[12];
+                    const lWrist = lm[15], rWrist = lm[16];
+                    const lHip = lm[23], rHip = lm[24];
+
+                    if (lWrist.visibility > 0.5 && rWrist.visibility > 0.5 && lHip.visibility > 0.5 && rHip.visibility > 0.5) {
+                        const isRightOnHip = Math.abs(rWrist.y - rHip.y) < 0.2 && Math.abs(rWrist.x - rHip.x) < 0.2;
+                        const isLeftOnHip = Math.abs(lWrist.y - lHip.y) < 0.2 && Math.abs(lWrist.x - lHip.x) < 0.2;
+
+                        const isLeftUp = lWrist.y < lShoulder.y - 0.1 && lWrist.x > lShoulder.x + 0.05;
+                        const isRightUp = rWrist.y < rShoulder.y - 0.1 && rWrist.x < rShoulder.x - 0.05;
+
+                        const isLeftDown = lWrist.y > lShoulder.y && lWrist.y < lHip.y + 0.15 && lWrist.x > lHip.x + 0.15;
+                        const isRightDown = rWrist.y > rShoulder.y && rWrist.y < rHip.y + 0.15 && rWrist.x < rHip.x - 0.15;
+
+                        // A: Tay phải thực tế chống hông (isRightOnHip), tay trái thực tế giơ lên (isLeftUp)
+                        if (isRightOnHip && isLeftUp && !isLeftOnHip) detectedInput = 'A';
+                        // B: Tay trái thực tế chống hông (isLeftOnHip), tay phải thực tế giơ lên (isRightUp)
+                        else if (isLeftOnHip && isRightUp && !isRightOnHip) detectedInput = 'B';
+                        // C: Tay phải thực tế chống hông, tay trái thực tế giơ xuống
+                        else if (isRightOnHip && isLeftDown && !isLeftOnHip) detectedInput = 'C';
+                        // D: Tay trái thực tế chống hông, tay phải thực tế giơ xuống
+                        else if (isLeftOnHip && isRightDown && !isRightOnHip) detectedInput = 'D';
+                    }
+                }
+            }
+            processInput(detectedInput);
+        });
+
+        // --- 5. KHỞI TẠO HỆ THỐNG ---
+        pose.initialize().then(() => {
+            document.getElementById('loading-status').style.display = 'none';
+            document.getElementById('start-btn').classList.remove('hidden');
+        }).catch((error) => {
+            console.error(error);
+            document.getElementById('loading-status').innerText = "Lỗi tải AI. Vui lòng F5 tải lại trang!";
+        });
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                if(gameState !== 'PLAYING') return;
+                await pose.send({image: videoElement});
+            },
+            width: 640, height: 480
+        });
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            initAudio();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-ui').classList.remove('opacity-0');
+            document.getElementById('game-ui').classList.add('opacity-100');
+            camera.start().then(() => loadQuestion()).catch(() => alert("Lỗi Camera!"));
+        });
+
+        // Tải Logo
+        const logoUpload = document.getElementById('logo-upload');
+        const savedLogo = localStorage.getItem('customLogoV2');
+        if (savedLogo) { document.getElementById('logo-img-1').src = savedLogo; document.getElementById('logo-img-2').src = savedLogo; }
+
+        logoUpload.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const scale = 150 / img.width;
+                        canvas.width = 150; canvas.height = img.height * scale;
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        document.getElementById('logo-img-1').src = dataUrl;
+                        document.getElementById('logo-img-2').src = dataUrl;
+                        try { localStorage.setItem('customLogoV2', dataUrl); } catch(err) {}
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>

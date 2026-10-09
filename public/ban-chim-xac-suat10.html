@@ -1,0 +1,623 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toán 10.Game bắn chim Xác Suất</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX cho công thức Toán học chuẩn SGK -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #000;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            user-select: none;
+        }
+        #game-container { position: relative; width: 100vw; height: 100vh; }
+        canvas { display: block; width: 100%; height: 100%; object-fit: cover; }
+        
+        .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        
+        .pill-box {
+            background: white; border: 4px solid #FBC02D; border-radius: 999px;
+            padding: 8px 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        
+        .title-badge {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            background: #FFCA28; border: 2px solid #F57F17; border-radius: 20px;
+            padding: 2px 12px; font-size: 12px; font-weight: bold; color: #5D4037;
+            white-space: nowrap; transition: all 0.3s;
+        }
+
+        .overlay-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 100; pointer-events: auto;
+        }
+
+        #game-canvas { pointer-events: auto; }
+
+        /* Brand Logo Style */
+        .brand-logo {
+            position: absolute; bottom: 20px; right: 20px;
+            background: rgba(255, 255, 255, 0.9); border: 3px solid #ef4444;
+            padding: 10px 20px; border-radius: 15px; font-weight: black;
+            font-size: 24px; color: #ef4444; text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 20;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .brand-logo img { width: 40px; height: 40px; border-radius: 50%; }
+
+        /* Leaderboard table */
+        .leaderboard-table {
+            width: 100%; max-width: 400px; border-collapse: collapse; margin-top: 5px;
+            background: white; border-radius: 10px;
+        }
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 10px; text-align: center; border-bottom: 1px solid #ddd;
+        }
+        .leaderboard-table th { background: #FBC02D; color: #333; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.4); }
+        .leaderboard-table tr:last-child td { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- TOÁN PRO - THẦY HÙNG Branding -->
+    <div class="brand-logo">
+        <span class="text-3xl">📚</span> TOÁN PRO - THẦY HÙNG
+    </div>
+
+    <!-- UI Overlay (Khi đang chơi) -->
+    <div id="in-game-ui" class="ui-layer p-4 flex justify-between items-start hidden">
+        <div class="flex gap-4">
+            <!-- Điểm số và Tên -->
+            <div class="pill-box border-blue-400 bg-white shadow-lg flex flex-col items-center p-2 px-6">
+                <span id="display-name" class="text-gray-600 font-bold text-sm uppercase mb-1 border-b-2 border-gray-200 pb-1 w-full text-center">Khách</span>
+                <span class="text-blue-500 font-black text-2xl" style="text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff;">ĐIỂM: <span id="score">0</span></span>
+                <span class="text-red-500 font-bold text-sm">🔥 COMBO x<span id="combo">1</span></span>
+            </div>
+            <!-- Thời gian -->
+            <div class="pill-box border-red-500 bg-white shadow-lg flex flex-col items-center p-2 px-6">
+                <span class="text-red-500 font-black text-2xl">⏳ <span id="timer">60</span>s</span>
+            </div>
+        </div>
+
+        <!-- Câu hỏi -->
+        <div class="pill-box border-yellow-400 border-4 bg-white shadow-lg relative px-10 py-4 mt-2 max-w-3xl text-center">
+            <div id="level-badge" class="title-badge">TOÁN 10: XÁC SUẤT - BẮN ĐÁP ÁN ĐÚNG</div>
+            <div id="math-question" class="text-yellow-700 font-bold text-xl leading-tight">Đang tải câu hỏi...</div>
+        </div>
+
+        <!-- Trạng thái -->
+        <div class="flex flex-col items-end gap-2">
+            <button onclick="endGame()" class="pill-box border-red-500 bg-red-400 text-white font-bold px-4 py-2 text-sm hover:bg-red-500 pointer-events-auto shadow-md">
+                KẾT THÚC SỚM
+            </button>
+        </div>
+    </div>
+
+    <div id="floating-msg" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl font-black text-white hidden z-50 pointer-events-none" style="-webkit-text-stroke: 2px #000; text-shadow: 4px 4px 0 rgba(0,0,0,0.5);">
+        CHÍNH XÁC!
+    </div>
+
+    <!-- Màn hình chờ & Nhập tên -->
+    <div id="start-screen" class="overlay-screen">
+        <h1 class="text-6xl font-black text-yellow-400 mb-2 text-center" style="-webkit-text-stroke: 2px #d97706;">THỢ SĂN XÁC SUẤT</h1>
+        <h2 class="text-2xl font-bold text-white mb-6">VIBE CODER: TOÁN PRO - THẦY HÙNG (Toán 10 - KNTT)</h2>
+        
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full text-center flex flex-col items-center">
+            <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full text-center border-4 border-blue-300 rounded-xl px-4 py-3 text-xl font-bold text-gray-700 mb-4 focus:outline-none focus:border-blue-500">
+            
+            <p class="text-gray-600 text-sm mb-4">
+                <b>Cách chơi:</b> Bắn chim mang đáp án đúng.<br>
+                <b>Chế độ:</b> Bạn có thể chọn Vượt ải để leo level (cộng thêm thời gian) hoặc chọn luyện tập riêng từng Level.
+            </p>
+
+            <div class="flex flex-col gap-3 w-full">
+                <button class="mode-btn bg-purple-500 hover:bg-purple-600 text-white font-black text-xl py-3 px-4 rounded-xl border-b-4 border-purple-700 shadow-md active:border-b-0 active:translate-y-1 transition-all" data-mode="campaign" data-level="1">
+                    🏆 CHẾ ĐỘ VƯỢT ẢI (Đề xuất)
+                </button>
+                <div class="grid grid-cols-3 gap-2">
+                    <button class="mode-btn bg-green-500 hover:bg-green-600 text-white font-bold text-sm py-2 rounded-xl border-b-4 border-green-700 shadow-md active:border-b-0 active:translate-y-1 transition-all" data-mode="single" data-level="1">Chỉ Level 1</button>
+                    <button class="mode-btn bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm py-2 rounded-xl border-b-4 border-blue-700 shadow-md active:border-b-0 active:translate-y-1 transition-all" data-mode="single" data-level="2">Chỉ Level 2</button>
+                    <button class="mode-btn bg-red-500 hover:bg-red-600 text-white font-bold text-sm py-2 rounded-xl border-b-4 border-red-700 shadow-md active:border-b-0 active:translate-y-1 transition-all" data-mode="single" data-level="3">Chỉ Level 3</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Màn hình kết thúc & BXH -->
+    <div id="end-screen" class="overlay-screen hidden">
+        <h1 class="text-5xl font-black text-red-500 mb-2" style="-webkit-text-stroke: 1px #fff;">HẾT GIỜ!</h1>
+        <p class="text-white text-2xl mb-4">Điểm của <span id="final-name" class="text-yellow-400 font-bold"></span>: <span id="final-score" class="font-black text-4xl text-green-400">0</span></p>
+        
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full flex flex-col items-center max-h-[85vh]">
+            <h2 class="text-xl font-black text-blue-600 mb-2">🏆 BẢNG XẾP HẠNG TOP 50 🏆</h2>
+            <div class="w-full overflow-y-auto" style="max-height: 40vh; border-radius: 8px; border: 1px solid #eee;">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr><th>Hạng</th><th>Tên</th><th>Điểm</th></tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <!-- Nội dung BXH sẽ được JS chèn vào -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <button onclick="location.reload()" class="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-black text-xl py-3 px-8 rounded-xl border-b-4 border-blue-700 shadow-md active:border-b-0 active:translate-y-1 transition-all">
+                🔄 CHƠI LẠI
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- BỘ CÂU HỎI XÁC SUẤT LỚP 10 (KNTT) THEO LEVEL ---
+    const questionLevels = {
+        1: [ // LEVEL 1: XÁC SUẤT CƠ BẢN (Biến cố đơn, đếm không gian mẫu cơ bản)
+            { q: "Gieo một con xúc xắc cân đối, đồng chất. Số phần tử của không gian mẫu \\( n(\\Omega) \\) bằng bao nhiêu?", correct: "6", wrongs: ["1", "36", "12", "8", "2"] },
+            { q: "Gieo một con xúc xắc. Gọi \\( A \\) là biến cố 'Xuất hiện mặt chẵn'. Số phần tử \\( n(A) \\) bằng bao nhiêu?", correct: "3", wrongs: ["2", "4", "6", "1", "5"] },
+            { q: "Gieo một con xúc xắc. Xác suất để xuất hiện mặt có số chấm lớn hơn 4 là bao nhiêu?", correct: "1/3", wrongs: ["1/2", "1/6", "2/3", "1/4", "5/6"] },
+            { q: "Tung hai đồng xu phân biệt. Số phần tử của không gian mẫu \\( n(\\Omega) \\) bằng bao nhiêu?", correct: "4", wrongs: ["2", "8", "6", "12", "16"] },
+            { q: "Tung hai đồng xu phân biệt. Xác suất để cả hai đồng xu đều xuất hiện mặt sấp là bao nhiêu?", correct: "1/4", wrongs: ["1/2", "1", "1/3", "3/4", "1/8"] },
+            { q: "Rút ngẫu nhiên một lá bài từ bộ bài Tây 52 lá. Xác suất rút được lá bài màu đỏ là bao nhiêu?", correct: "1/2", wrongs: ["1/4", "1/13", "1/52", "1/3", "26"] },
+            { q: "Một hộp có 3 viên bi Xanh và 2 viên bi Đỏ. Chọn ngẫu nhiên 1 viên bi. Xác suất để chọn được viên bi Xanh là bao nhiêu?", correct: "3/5", wrongs: ["2/5", "1/5", "1/2", "1/3", "3"] },
+            { q: "Chọn ngẫu nhiên 1 số nguyên từ 0 đến 9. Xác suất để chọn được số 0 là bao nhiêu?", correct: "1/10", wrongs: ["0", "1/9", "1/5", "1", "1/2"] },
+            { q: "Gieo hai con xúc xắc. Gọi \\( G \\) là biến cố: 'Tổng số chấm bằng 12'. Số phần tử \\( n(G) \\) bằng bao nhiêu?", correct: "1", wrongs: ["2", "6", "12", "3", "4"] },
+            { q: "Rút ngẫu nhiên một lá bài từ bộ bài Tây 52 lá. Xác suất rút được lá Át (A) là bao nhiêu?", correct: "1/13", wrongs: ["4/13", "1/52", "1/4", "1/2", "4"] },
+        ],
+        2: [ // LEVEL 2: VẬN DỤNG TỔ HỢP CƠ BẢN (C, A, Rút nhiều phần tử)
+            { q: "Một hộp có 4 viên bi Xanh và 3 viên bi Đỏ. Lấy ngẫu nhiên 2 viên bi. Số phần tử của không gian mẫu \\( n(\\Omega) \\) bằng:", correct: "21", wrongs: ["12", "7", "42", "14", "35"] },
+            { q: "Một hộp có 4 viên bi Xanh và 3 viên bi Đỏ. Lấy ngẫu nhiên 2 viên bi. Xác suất để cả 2 viên bi đều là màu Xanh bằng:", correct: "2/7", wrongs: ["1/7", "4/7", "3/7", "12/21", "6/21"] },
+            { q: "Một tổ có 5 học sinh Nam và 4 học sinh Nữ. Chọn ngẫu nhiên 2 học sinh. Số phần tử của không gian mẫu \\( n(\\Omega) \\) bằng:", correct: "36", wrongs: ["9", "20", "18", "72", "45"] },
+            { q: "Một tổ có 5 học sinh Nam và 4 học sinh Nữ. Chọn ngẫu nhiên 2 học sinh. Xác suất để chọn được 2 học sinh Nam bằng:", correct: "5/18", wrongs: ["2/9", "5/9", "10/36", "1/2", "4/9"] },
+            { q: "Gieo hai con xúc xắc cân đối. Xác suất để tổng số chấm trên hai mặt xuất hiện bằng 7 là bao nhiêu?", correct: "1/6", wrongs: ["1/12", "1/7", "7/36", "1/4", "1/3"] },
+            { q: "Tung ba đồng xu phân biệt. Xác suất để có đúng 1 đồng xu xuất hiện mặt Ngửa bằng bao nhiêu?", correct: "3/8", wrongs: ["1/8", "1/4", "1/2", "5/8", "1/3"] },
+            { q: "Rút ngẫu nhiên 2 lá bài từ bộ bài Tây 52 lá. Số phần tử của không gian mẫu \\( n(\\Omega) \\) bằng bao nhiêu?", correct: "1326", wrongs: ["104", "2652", "52", "2704", "100"] },
+            { q: "Từ tập hợp các chữ số \\( \\{1, 2, 3, 4, 5\\} \\). Có thể lập được bao nhiêu số tự nhiên có 2 chữ số phân biệt?", correct: "20", wrongs: ["25", "10", "15", "120", "5"] },
+            { q: "Một tổ có 10 người. Chọn ngẫu nhiên 3 người đi trực nhật. Số phần tử của không gian mẫu \\( n(\\Omega) \\) bằng bao nhiêu?", correct: "120", wrongs: ["30", "720", "90", "100", "240"] },
+            { q: "Một hộp có 5 viên bi Xanh và 5 viên bi Đỏ. Lấy ngẫu nhiên 2 viên bi. Xác suất để 2 viên bi lấy ra khác màu nhau là:", correct: "5/9", wrongs: ["1/2", "4/9", "25/45", "10/45", "1/4"] },
+        ],
+        3: [ // LEVEL 3: QUY TẮC CỘNG, NHÂN, BIẾN CỐ ĐỐI, XUNG KHẮC, ĐỘC LẬP
+            { q: "Cho hai biến cố độc lập \\( A \\) và \\( B \\). Biết \\( P(A)=0.4 \\) và \\( P(B)=0.5 \\). Tính xác suất \\( P(A \\cap B) \\).", correct: "0.2", wrongs: ["0.9", "0.1", "0.45", "0.25", "0.02"] },
+            { q: "Cho hai biến cố xung khắc \\( A \\) và \\( B \\). Biết \\( P(A)=0.3 \\) và \\( P(B)=0.4 \\). Tính xác suất \\( P(A \\cup B) \\).", correct: "0.7", wrongs: ["0.12", "0.1", "1.0", "0.8", "0.5"] },
+            { q: "Cho biến cố \\( A \\) có xác suất \\( P(A) = 0.65 \\). Xác suất của biến cố đối \\( P(\\overline{A}) \\) bằng bao nhiêu?", correct: "0.35", wrongs: ["0.65", "0.45", "1.0", "0", "-0.65"] },
+            { q: "Một hộp có 4 viên bi Xanh và 5 viên bi Đỏ. Chọn ngẫu nhiên 3 viên bi. Xác suất để có ít nhất 1 viên bi Xanh là:", correct: "37/42", wrongs: ["5/42", "1/2", "3/4", "4/9", "35/42"] },
+            { q: "Gieo ba đồng xu phân biệt. Xác suất để có ít nhất 1 đồng xu ngửa là bao nhiêu?", correct: "7/8", wrongs: ["1/8", "3/8", "5/8", "1/2", "1"] },
+            { q: "Cho hai biến cố độc lập \\( A \\) và \\( B \\). Biết \\( P(A)=0.2 \\) và \\( P(B)=0.3 \\). Tính xác suất \\( P(A \\cup B) \\).", correct: "0.44", wrongs: ["0.5", "0.06", "0.1", "0.56", "0.38"] },
+            { q: "Một xạ thủ bắn súng với xác suất trúng đích là \\( 0.8 \\). Bắn 2 viên độc lập. Xác suất để trật cả 2 viên là:", correct: "0.04", wrongs: ["0.16", "0.64", "0.2", "0.4", "0.36"] },
+            { q: "Một hộp có 3 viên bi Xanh và 4 viên bi Đỏ. Chọn ngẫu nhiên 2 viên bi. Xác suất để 2 viên bi chọn ra có cùng màu là:", correct: "3/7", wrongs: ["4/7", "1/7", "2/7", "12/21", "1/2"] },
+            { q: "Một bài thi có 10 câu hỏi trắc nghiệm, mỗi câu có 4 đáp án. Số phần tử của không gian mẫu \\( n(\\Omega) \\) bằng bao nhiêu?", correct: "4^10", wrongs: ["10^4", "40", "C(4,10)", "A(4,10)", "14"] },
+            { q: "Một lớp có 20 học sinh. Cần chọn ra 2 học sinh để phân công 1 làm Lớp trưởng và 1 làm Lớp phó. Số cách chọn là:", correct: "380", wrongs: ["190", "400", "40", "20", "760"] },
+        ]
+    };
+
+    // --- ÂM THANH ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playSound(type) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+        if (type === 'shoot') {
+            osc.type = 'square'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now); osc.stop(now + 0.1);
+        } else if (type === 'correct') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.setValueAtTime(800, now + 0.1);
+            gainNode.gain.setValueAtTime(0.3, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'wrong') {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+            gainNode.gain.setValueAtTime(0.3, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'levelup') {
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(400, now); osc.frequency.linearRampToValueAtTime(800, now + 0.2); osc.frequency.linearRampToValueAtTime(1200, now + 0.4);
+            gainNode.gain.setValueAtTime(0.3, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.6);
+            osc.start(now); osc.stop(now + 0.6);
+        }
+    }
+
+    // --- CẤU HÌNH GAME ---
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    
+    function resize() {
+        width = window.innerWidth; height = window.innerHeight;
+        canvas.width = width; canvas.height = height;
+        if (typeof renderBackgroundBuffer === 'function') renderBackgroundBuffer();
+    }
+    window.addEventListener('resize', resize);
+
+    let gameState = {
+        isPlaying: false,
+        playerName: "Khách",
+        mode: "campaign", // 'campaign' hoặc 'single'
+        level: 1, 
+        score: 0, combo: 1,
+        timeLeft: 60,
+        lastTime: 0, timerAccumulator: 0,
+        currentQuestion: null,
+        birds: [],
+        crosshair: { x: window.innerWidth/2, y: window.innerHeight/2, isPinching: false, pinchCooldown: 0 },
+        particles: []
+    };
+
+    // --- ĐỒ HỌA ---
+    const bgCanvas = document.createElement('canvas');
+    const bgCtx = bgCanvas.getContext('2d');
+
+    function renderBackgroundBuffer() {
+        bgCanvas.width = width; bgCanvas.height = height;
+        let grad = bgCtx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, '#87CEEB'); grad.addColorStop(1, '#E0F6FF');
+        bgCtx.fillStyle = grad; bgCtx.fillRect(0, 0, width, height);
+
+        bgCtx.fillStyle = '#8B9B70'; bgCtx.beginPath(); bgCtx.moveTo(0, height); bgCtx.lineTo(width*0.3, height*0.3); bgCtx.lineTo(width*0.6, height); bgCtx.fill();
+        bgCtx.fillStyle = '#7A8B5D'; bgCtx.beginPath(); bgCtx.moveTo(width*0.4, height); bgCtx.lineTo(width*0.7, height*0.2); bgCtx.lineTo(width, height); bgCtx.fill();
+
+        bgCtx.fillStyle = '#228B22'; for(let i=0; i<20; i++) { bgCtx.beginPath(); bgCtx.arc(i*(width/15), height*0.75, width*0.1, 0, Math.PI*2); bgCtx.fill(); }
+        bgCtx.fillStyle = '#32CD32'; for(let i=0; i<15; i++) { bgCtx.beginPath(); bgCtx.arc(i*(width/10), height*0.85, width*0.08, 0, Math.PI*2); bgCtx.fill(); }
+
+        bgCtx.fillStyle = '#8B4513'; bgCtx.fillRect(0, height*0.95, width, height*0.05);
+        bgCtx.strokeStyle = '#006400'; bgCtx.lineWidth = 3;
+        for(let i=0; i<100; i++) {
+            let x = Math.random() * width; bgCtx.beginPath(); bgCtx.moveTo(x, height); bgCtx.lineTo(x + (Math.random()*10 - 5), height * 0.92 - Math.random()*20); bgCtx.stroke();
+        }
+    }
+    resize();
+
+    // TUYỆT ĐỐI GIỮ NGUYÊN HÀM NÀY THEO YÊU CẦU
+    function drawBird(ctx, x, y, frame, answer) {
+        ctx.save(); ctx.translate(x, y);
+        ctx.scale(1.2, 1.2); 
+
+        const flapOffset = Math.sin(frame * 0.2) * 10;
+
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        function drawLeg(startX, startY, kneeX, kneeY, endX, endY, isBack) {
+            ctx.strokeStyle = '#2F3640'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(kneeX, kneeY); ctx.lineTo(endX, endY); ctx.stroke();
+            
+            ctx.strokeStyle = isBack ? '#D35400' : '#FFC312'; 
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(kneeX, kneeY); ctx.lineTo(endX, endY); ctx.stroke();
+            
+            ctx.fillStyle = isBack ? '#D35400' : '#FFC312'; 
+            ctx.strokeStyle = '#2F3640'; ctx.lineWidth = 1.5;
+            const drawToe = (ox, oy, rot) => {
+                ctx.save(); ctx.translate(endX + ox, endY + oy); ctx.rotate(rot);
+                ctx.beginPath(); ctx.ellipse(0, 0, 2.5, 5, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                ctx.restore();
+            }
+            drawToe(-3, 0, Math.PI/4);
+            drawToe(0, 1, 0);
+            drawToe(3, 0, -Math.PI/4);
+        }
+        
+        drawLeg(5, 12, 7, 21, 3, 30, true);   
+        drawLeg(-1, 15, 1, 24, -2, 30, false); 
+
+        ctx.fillStyle = '#00A8FF'; ctx.beginPath(); ctx.ellipse(0, 0, 30, 20, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-25, 0); ctx.lineTo(-45, -10); ctx.lineTo(-40, 10); ctx.fill();
+        ctx.fillStyle = '#0097E6'; ctx.beginPath(); ctx.moveTo(-10, -5); ctx.quadraticCurveTo(10, -30 + flapOffset, 20, -10); ctx.fill();
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(15, -5, 5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(17, -5, 2, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#FFC312'; ctx.beginPath(); ctx.moveTo(28, -2); ctx.lineTo(40, 0); ctx.lineTo(28, 5); ctx.fill();
+
+        ctx.fillStyle = '#FF9F43';
+        ctx.strokeStyle = '#2c3e50';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.roundRect(-30, 30, 60, 25, 5); ctx.fill(); ctx.stroke();
+        
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(answer, 0, 42.5);
+
+        ctx.restore();
+    }
+
+    // --- LOGIC TRÒ CHƠI ---
+    function generateQuestion() {
+        // Lấy câu hỏi theo level hiện tại
+        const bank = questionLevels[gameState.level];
+        const qData = bank[Math.floor(Math.random() * bank.length)];
+        gameState.currentQuestion = qData;
+        
+        // Render Toán học chuẩn SGK bằng KaTeX
+        const questionEl = document.getElementById('math-question');
+        questionEl.innerHTML = qData.q;
+        if (window.renderMathInElement) {
+            renderMathInElement(questionEl, {
+                delimiters: [
+                    {left: "\\(", right: "\\)", display: false}
+                ]
+            });
+        }
+
+        gameState.birds = [];
+        let answers = [qData.correct];
+        
+        let shuffledWrongs = [...qData.wrongs].sort(() => 0.5 - Math.random());
+        let numWrongsToAdd = Math.min(4, shuffledWrongs.length);
+        for(let i=0; i<numWrongsToAdd; i++){
+            answers.push(shuffledWrongs[i]);
+        }
+        
+        answers.sort(() => Math.random() - 0.5);
+
+        answers.forEach((ans, index) => {
+            // NÂNG CẤP CHUYỂN ĐỘNG: Định nghĩa các tham số tạo quỹ đạo bay phức tạp
+            gameState.birds.push({
+                baseX: -100 - (Math.random() * 300), // Trục X tịnh tiến
+                baseY: height * 0.15 + (index * height * 0.15) + (Math.random()*20 - 10), // Trục Y cơ sở
+                x: 0, y: 0,
+                // Tốc độ bay nhanh hơn theo level
+                speedX: 1.2 + Math.random() * 1.5 + (gameState.level * 0.6), 
+                // Tham số tạo quỹ đạo lượn vòng (Lissajous curves)
+                ampX: (gameState.level > 1) ? 30 + Math.random() * 60 : 10, // Độ giật lùi/tiến vòng (level 1 ít giật)
+                freqX: 0.02 + Math.random() * 0.03,
+                ampY: 40 + Math.random() * (40 * gameState.level), // Độ bổ nhào sâu hơn theo level
+                freqY: 0.03 + Math.random() * 0.04,
+                answer: ans,
+                frameOffset: Math.random() * 1000
+            });
+        });
+    }
+
+    function showMessage(text, color) {
+        const msg = document.getElementById('floating-msg');
+        msg.innerText = text; msg.style.color = color;
+        msg.classList.remove('hidden'); msg.style.animation = 'none';
+        void msg.offsetWidth;
+        msg.style.animation = 'ping 1s cubic-bezier(0, 0, 0.2, 1) forwards';
+        setTimeout(() => msg.classList.add('hidden'), 1000);
+    }
+
+    function updateScoreDisplay() {
+        document.getElementById('score').innerText = gameState.score;
+        document.getElementById('combo').innerText = gameState.combo;
+        document.getElementById('timer').innerText = gameState.timeLeft;
+    }
+
+    function updateLevelBadge() {
+        const badge = document.getElementById('level-badge');
+        let modeText = gameState.mode === 'campaign' ? 'VƯỢT ẢI' : 'TỰ CHỌN';
+        let diffText = gameState.level === 1 ? "CƠ BẢN" : (gameState.level === 2 ? "VẬN DỤNG" : "CAO THỦ");
+        badge.innerText = `TOÁN 10 (${modeText}) - LEVEL ${gameState.level}: ${diffText}`;
+        if(gameState.level === 2) { badge.style.backgroundColor = '#60a5fa'; badge.style.borderColor = '#2563eb'; badge.style.color = '#fff'; }
+        if(gameState.level === 3) { badge.style.backgroundColor = '#c084fc'; badge.style.borderColor = '#7e22ce'; badge.style.color = '#fff'; }
+        if(gameState.level === 1) { badge.style.backgroundColor = '#FFCA28'; badge.style.borderColor = '#F57F17'; badge.style.color = '#5D4037'; }
+    }
+
+    function shoot(x, y) {
+        if (!gameState.isPlaying) return;
+        playSound('shoot');
+        
+        for(let i=0; i<5; i++) {
+            gameState.particles.push({ x: x, y: y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, life: 1.0 });
+        }
+
+        for (let i = gameState.birds.length - 1; i >= 0; i--) {
+            let b = gameState.birds[i];
+            let dist = Math.hypot(b.x - x, b.y - y);
+            if (dist < 80) { 
+                if (b.answer === gameState.currentQuestion.correct) {
+                    gameState.score += 10 * gameState.combo;
+                    gameState.combo++;
+
+                    // KIỂM TRA LÊN LEVEL (Chỉ áp dụng ở chế độ Vượt Ải)
+                    if (gameState.mode === 'campaign') {
+                        if (gameState.score >= 400 && gameState.level === 2) {
+                            gameState.level = 3;
+                            gameState.timeLeft += 50; // Thưởng thời gian
+                            playSound('levelup');
+                            showMessage("LEVEL 3! +50s", "#c084fc");
+                            updateLevelBadge();
+                        } else if (gameState.score >= 150 && gameState.level === 1) {
+                            gameState.level = 2;
+                            gameState.timeLeft += 40; // Thưởng thời gian
+                            playSound('levelup');
+                            showMessage("LEVEL 2! +40s", "#60a5fa");
+                            updateLevelBadge();
+                        } else {
+                            playSound('correct');
+                            showMessage("CHÍNH XÁC!", "#4ade80");
+                        }
+                    } else {
+                        // Nếu chơi chế độ Level đơn lẻ
+                        playSound('correct');
+                        showMessage("CHÍNH XÁC!", "#4ade80");
+                    }
+                    
+                    updateScoreDisplay();
+                    generateQuestion();
+                } else {
+                    playSound('wrong');
+                    gameState.combo = 1;
+                    gameState.score = Math.max(0, gameState.score - 5);
+                    showMessage("SAI RỒI!", "#f87171");
+                    gameState.birds.splice(i, 1);
+                    updateScoreDisplay();
+                }
+                break;
+            }
+        }
+    }
+
+    // Sự kiện Chuột
+    canvas.addEventListener('mousedown', (e) => { shoot(e.clientX, e.clientY); gameState.crosshair.x = e.clientX; gameState.crosshair.y = e.clientY; gameState.crosshair.isPinching = true; });
+    canvas.addEventListener('mouseup', () => gameState.crosshair.isPinching = false);
+    canvas.addEventListener('mousemove', (e) => { gameState.crosshair.x = e.clientX; gameState.crosshair.y = e.clientY; });
+
+    // Sự kiện Cảm ứng (Touch cho Mobile/Tablet)
+    canvas.addEventListener('touchstart', (e) => { 
+        e.preventDefault(); 
+        let touch = e.touches[0];
+        shoot(touch.clientX, touch.clientY); 
+        gameState.crosshair.x = touch.clientX; 
+        gameState.crosshair.y = touch.clientY; 
+        gameState.crosshair.isPinching = true; 
+    }, {passive: false});
+    canvas.addEventListener('touchend', (e) => { 
+        e.preventDefault();
+        gameState.crosshair.isPinching = false; 
+    }, {passive: false});
+    canvas.addEventListener('touchmove', (e) => { 
+        e.preventDefault();
+        let touch = e.touches[0];
+        gameState.crosshair.x = touch.clientX; 
+        gameState.crosshair.y = touch.clientY; 
+    }, {passive: false});
+
+    // --- LEADERBOARD LOGIC ---
+    function saveScoreAndShowLeaderboard() {
+        let scores = JSON.parse(localStorage.getItem('thayHungScores') || '[]');
+        scores.push({ name: gameState.playerName, score: gameState.score, date: new Date().toLocaleDateString() });
+        scores.sort((a, b) => b.score - a.score); 
+        scores = scores.slice(0, 50); 
+        localStorage.setItem('thayHungScores', JSON.stringify(scores));
+
+        let html = '';
+        scores.forEach((s, i) => {
+            let rank = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : i + 1));
+            html += `<tr><td>${rank}</td><td><b>${s.name}</b></td><td class="text-green-600 font-bold">${s.score}</td></tr>`;
+        });
+        document.getElementById('leaderboard-body').innerHTML = html;
+    }
+
+    function endGame() {
+        gameState.isPlaying = false;
+        document.getElementById('in-game-ui').classList.add('hidden');
+        document.getElementById('end-screen').classList.remove('hidden');
+        document.getElementById('final-name').innerText = gameState.playerName;
+        document.getElementById('final-score').innerText = gameState.score;
+        saveScoreAndShowLeaderboard();
+    }
+
+    // --- GAME LOOP ---
+    function gameLoop(timestamp) {
+        if (!gameState.lastTime) gameState.lastTime = timestamp;
+        let dt = timestamp - gameState.lastTime;
+        gameState.lastTime = timestamp;
+
+        ctx.drawImage(bgCanvas, 0, 0);
+
+        if (gameState.isPlaying) {
+            // Cập nhật Timer
+            gameState.timerAccumulator += dt;
+            if (gameState.timerAccumulator >= 1000) {
+                gameState.timeLeft--;
+                gameState.timerAccumulator = 0;
+                document.getElementById('timer').innerText = gameState.timeLeft;
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                    return; 
+                }
+            }
+
+            let frameCount = timestamp / 16;
+            let allOffscreen = true;
+
+            gameState.birds.forEach(b => {
+                // Tịnh tiến cơ sở X
+                b.baseX += b.speedX;
+                
+                // Toán học quỹ đạo bay lượn (Lissajous)
+                b.x = b.baseX + Math.sin(frameCount * b.freqX + b.frameOffset) * b.ampX;
+                b.y = b.baseY + Math.cos(frameCount * b.freqY + b.frameOffset) * b.ampY;
+
+                // Giới hạn để chim không bay quá khuất màn hình (Y)
+                if(b.y < 50) b.y = 50 + (50 - b.y)*0.5; 
+                if(b.y > height - 120) b.y = height - 120 - (b.y - (height - 120))*0.5;
+
+                drawBird(ctx, b.x, b.y, frameCount + b.frameOffset, b.answer);
+                
+                // Kể cả khi có giật lùi, kiểm tra xem toàn bộ khối lượng quỹ đạo đã ra khỏi màn hình chưa
+                if (b.baseX - b.ampX < width + 100) allOffscreen = false; 
+            });
+
+            if (allOffscreen && gameState.birds.length > 0) {
+                gameState.combo = 1; updateScoreDisplay(); generateQuestion();
+            }
+
+            // Hạt hiệu ứng
+            ctx.fillStyle = 'yellow';
+            for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                let p = gameState.particles[i];
+                p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+                if (p.life <= 0) gameState.particles.splice(i, 1);
+                else { ctx.globalAlpha = p.life; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1.0; }
+            }
+
+            // Hồng tâm
+            ctx.save(); ctx.translate(gameState.crosshair.x, gameState.crosshair.y);
+            ctx.strokeStyle = gameState.crosshair.isPinching ? 'red' : 'rgba(255, 204, 0, 0.8)';
+            ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI*2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2); ctx.fill(); ctx.restore();
+
+            if (gameState.crosshair.pinchCooldown > 0) gameState.crosshair.pinchCooldown--;
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    // --- KHỞI ĐỘNG TỪ CÁC NÚT CHỌN CHẾ ĐỘ ---
+    const modeButtons = document.querySelectorAll('.mode-btn');
+    modeButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            let nameInput = document.getElementById('player-name').value.trim();
+            if(nameInput) gameState.playerName = nameInput;
+
+            document.getElementById('display-name').innerText = gameState.playerName;
+
+            gameState.mode = e.target.getAttribute('data-mode');
+            gameState.level = parseInt(e.target.getAttribute('data-level'));
+
+            initAudio();
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('in-game-ui').classList.remove('hidden');
+            
+            // Reset trạng thái
+            gameState.score = 0; gameState.combo = 1; gameState.timeLeft = 60;
+            updateLevelBadge();
+            updateScoreDisplay();
+            
+            generateQuestion();
+            gameState.isPlaying = true;
+            
+            gameState.lastTime = 0;
+            requestAnimationFrame(gameLoop);
+        });
+    });
+
+    // Vẽ sẵn background trước khi vào game
+    renderBackgroundBuffer();
+    ctx.drawImage(bgCanvas, 0, 0);
+
+</script>
+</body>
+</html>

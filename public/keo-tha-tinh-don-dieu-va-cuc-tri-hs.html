@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Toán 12. Tính Đơn Điệu & Cực Trị </title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX Core & Auto-Render (CRITICAL FIX FOR MATH RENDERING) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --grid-color: rgba(255, 255, 255, 0.03);
+            --accent-cyan: #22d3ee;
+            --accent-glow: rgba(34, 211, 238, 0.5);
+            --glass-bg: rgba(15, 23, 42, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            overflow: hidden; 
+            margin: 0; 
+            padding: 0;
+            background-color: var(--bg-deep);
+            color: #f8fafc;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        /* Sci-Fi Grid Background */
+        .bg-cyber {
+            position: fixed; inset: 0; z-index: -2;
+            background-image: 
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+            animation: grid-move 20s linear infinite;
+        }
+        
+        .bg-nebula {
+            position: fixed; inset: 0; z-index: -1;
+            background: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.4) 0%, transparent 60%),
+                        radial-gradient(circle at 15% 80%, rgba(88, 28, 135, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 85% 90%, rgba(13, 148, 136, 0.3) 0%, transparent 50%);
+            filter: blur(40px);
+        }
+
+        @keyframes grid-move {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 40px; }
+        }
+
+        /* Typography & Math Fixes */
+        .math-text { 
+            font-size: 1rem; 
+            line-height: 1.6; 
+            color: #e2e8f0; /* Chữ trắng xám thanh lịch */
+            font-weight: 500;
+        }
+        /* Highlight công thức toán */
+        .math-text .katex { 
+            color: var(--accent-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            text-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
+            font-size: 1.1em;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .card-func {
+            position: relative;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            min-width: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(145deg, rgba(30,41,59,0.8) 0%, rgba(2,6,23,0.9) 100%);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 20px rgba(var(--theme-rgb), 0.2);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 30;
+        }
+        
+        .card-func::after {
+            content: ''; position: absolute; bottom: -2px; left: 10%; right: 10%; height: 3px;
+            background: var(--theme-color); border-radius: 10px;
+            box-shadow: 0 0 15px var(--theme-color);
+        }
+
+        .card-prop {
+            position: absolute;
+            will-change: transform;
+            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            max-width: 280px;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            transform-origin: center;
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
+            z-index: 20;
+        }
+
+        /* Hover & Selection Effects */
+        .card-prop:hover {
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(30, 41, 59, 0.95);
+            z-index: 40;
+        }
+
+        .card-selected {
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3), 0 0 30px rgba(245, 158, 11, 0.4) !important;
+            transform: scale(1.05) !important;
+            z-index: 50 !important;
+        }
+        
+        .merge-fly {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease !important;
+            z-index: 100 !important;
+            pointer-events: none;
+        }
+
+        @keyframes shake-error {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px) rotate(-2deg); }
+            40% { transform: translateX(10px) rotate(2deg); }
+            60% { transform: translateX(-5px) rotate(-1deg); }
+            80% { transform: translateX(5px) rotate(1deg); }
+        }
+        .animate-error {
+            animation: shake-error 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.5) !important;
+        }
+
+        .func-completed {
+            animation: pulse-success 2s infinite alternate;
+            border-color: #10b981 !important;
+            pointer-events: none;
+        }
+        .func-completed::after { background: #10b981; box-shadow: 0 0 20px #10b981; }
+
+        @keyframes pulse-success {
+            0% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+            100% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); }
+        }
+
+        /* Progress Bar */
+        .progress-slot { transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+        /* HUD Items */
+        .hud-icon { filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
+        .life-active { color: #f43f5e; text-shadow: 0 0 15px rgba(244, 63, 94, 0.8); }
+        .life-lost { color: #334155; opacity: 0.5; }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-cyber"></div>
+    <div class="bg-nebula"></div>
+
+    <div class="absolute top-0 left-0 w-full z-40 p-4 sm:p-6 flex justify-between items-start pointer-events-none">
+        
+        <!-- Logo -->
+        <div class="pointer-events-auto">
+            <div class="glass-panel px-5 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-3 border border-white/10" onclick="window.showOverlay('start')">
+                <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-600 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                    <span class="text-cyan-400 text-xl font-bold font-mono">∑</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-white text-base tracking-wide uppercase">TCMath<span class="text-cyan-400">Edu</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Panel -->
+        <div id="header-panel" class="pointer-events-auto glass-panel rounded-2xl p-2 flex flex-wrap justify-end sm:flex-nowrap items-center gap-2 sm:gap-3 hidden">
+            
+            <div id="level-badge" class="bg-indigo-500/20 border border-indigo-400/30 px-3 py-1.5 rounded-xl font-bold text-indigo-300 text-sm tracking-wide flex items-center gap-1.5 shadow-[0_0_10px_rgba(99,102,241,0.2)]">
+                <span class="text-base">🌌</span> Lvl 1
+            </div>
+            
+            <div class="bg-slate-800/50 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-1">
+                <div id="lives-container" class="flex gap-1.5 text-lg"></div>
+            </div>
+            
+            <div class="bg-slate-800/50 border border-slate-700 px-4 py-1.5 rounded-xl font-bold text-amber-400 flex items-center gap-2">
+                <span class="hud-icon">🎯</span> <span id="score-display">0/12</span>
+            </div>
+            
+            <div id="timer-container" class="bg-slate-800/50 border border-slate-700 px-4 py-1.5 rounded-xl font-bold text-emerald-400 flex items-center gap-2 min-w-[80px] justify-center transition-colors">
+                <span class="hud-icon">⏱</span> <span id="timer-display" class="font-mono text-lg">03:00</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-board" class="absolute inset-0 z-10 overflow-hidden hidden flex flex-col pt-24 sm:pt-28 pb-4">
+        <!-- Function Nodes (Cố định phía trên) -->
+        <div id="function-nodes" class="w-full flex flex-wrap justify-center gap-4 sm:gap-8 px-4 z-30 shrink-0"></div>
+        
+        <!-- Property Arena (Khu vực thẻ bay lơ lửng phía dưới) -->
+        <div id="property-arena" class="relative flex-1 w-full z-20 mt-4 overflow-hidden"></div>
+    </div>
+
+    <!-- Transition Overlay -->
+    <div id="transition-overlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-xl z-50 flex items-center justify-center p-4 hidden transition-opacity duration-500 opacity-0">
+        <div class="text-center transform transition-transform duration-500 scale-95" id="transition-content">
+            <div class="text-7xl mb-6 animate-pulse hud-icon text-cyan-400">⚡</div>
+            <h1 id="transition-title" class="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6 tracking-tight">Đồng bộ hoàn tất!</h1>
+            <div class="w-64 h-1.5 bg-slate-800 rounded-full mx-auto overflow-hidden">
+                <div class="h-full bg-cyan-400 animate-[pulse_1s_ease-in-out_infinite] w-full shadow-[0_0_15px_#22d3ee]"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-8">
+        <div id="overlay-content" class="glass-panel rounded-[2rem] w-full max-w-4xl border border-white/10 flex flex-col max-h-[95vh] relative overflow-hidden bg-slate-900/90 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div id="menu-dynamic-content" class="relative z-10 w-full p-6 sm:p-10 overflow-y-auto custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <script>
+        const COLOR_THEMES = {
+            blue: { hex: '#3b82f6', rgb: '59, 130, 246' },
+            emerald: { hex: '#10b981', rgb: '16, 185, 129' },
+            violet: { hex: '#8b5cf6', rgb: '139, 92, 246' },
+            amber: { hex: '#f59e0b', rgb: '245, 158, 11' },
+            rose: { hex: '#f43f5e', rgb: '244, 63, 94' },
+            cyan: { hex: '#06b6d4', rgb: '6, 182, 212' }
+        };
+
+        const GAME_LEVELS = {
+            1: {
+                title: "Hàm Bậc 3", time: 180,
+                funcs: [
+                    { id: 'f1', tex: 'y = x^3 - 3x', theme: 'blue' },
+                    { id: 'f2', tex: 'y = -x^3 + 3x^2', theme: 'emerald' },
+                    { id: 'f3', tex: 'y = x^3 + 3x + 1', theme: 'violet' },
+                    { id: 'f4', tex: 'y = \\frac{1}{3}x^3 - x^2 + x', theme: 'amber' },
+                    { id: 'f5', tex: 'y = -x^3 - x + 2', theme: 'rose' }
+                ],
+                props: [
+                    { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = -1$' },
+                    { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực tiểu tại $x = 1$' },
+                    { id: 'p1_3', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' },
+                    { id: 'p1_4', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(-1; 1)$' },
+                    { id: 'p1_5', funcId: 'f1', text: 'Giá trị cực tiểu của hàm số là $y_{CT} = -2$' },
+                    
+                    { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực đại tại $x = 2$' },
+                    { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                    { id: 'p2_3', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(0; 2)$' },
+                    { id: 'p2_4', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(2; +\\infty)$' },
+                    { id: 'p2_5', funcId: 'f2', text: 'Giá trị cực đại của hàm số bằng $4$' },
+                    
+                    { id: 'p3_1', funcId: 'f3', text: 'Hàm số không có cực trị' },
+                    { id: 'p3_2', funcId: 'f3', text: 'Hàm số luôn đồng biến trên $\\mathbb{R}$' },
+                    { id: 'p3_3', funcId: 'f3', text: 'Đạo hàm $y\' > 0, \\forall x \\in \\mathbb{R}$' },
+                    { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có điểm cực đại' },
+                    { id: 'p3_5', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(-\\infty; +\\infty)$' },
+                    
+                    { id: 'p4_1', funcId: 'f4', text: 'Hàm số đồng biến trên $\\mathbb{R}$' },
+                    { id: 'p4_2', funcId: 'f4', text: 'Đạo hàm $y\' \\ge 0, \\forall x \\in \\mathbb{R}$' },
+                    { id: 'p4_3', funcId: 'f4', text: 'Hàm số không đạt cực trị tại $x = 1$' },
+                    { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu' },
+                    { id: 'p4_5', funcId: 'f4', text: 'Đạo hàm của hàm số không đổi dấu' },
+                    
+                    { id: 'p5_1', funcId: 'f5', text: 'Hàm số luôn nghịch biến trên $\\mathbb{R}$' },
+                    { id: 'p5_2', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\in \\mathbb{R}$' },
+                    { id: 'p5_3', funcId: 'f5', text: 'Hàm số không có cực trị' },
+                    { id: 'p5_4', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; +\\infty)$' },
+                    { id: 'p5_5', funcId: 'f5', text: 'Hàm số không có điểm cực đại' }
+                ]
+            },
+            2: {
+                title: "Trùng Phương", time: 180,
+                funcs: [
+                    { id: 'f1', tex: 'y = x^4 - 2x^2 + 1', theme: 'cyan' },
+                    { id: 'f2', tex: 'y = -x^4 + 2x^2', theme: 'violet' },
+                    { id: 'f3', tex: 'y = x^4 + 2x^2 - 3', theme: 'emerald' },
+                    { id: 'f4', tex: 'y = -x^4 - x^2 + 2', theme: 'amber' },
+                    { id: 'f5', tex: 'y = \\frac{1}{2}x^4 - x^2', theme: 'rose' }
+                ],
+                props: [
+                    { id: 'p1_1', funcId: 'f1', text: 'Hàm số có $3$ điểm cực trị' },
+                    { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 0$' },
+                    { id: 'p1_3', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(-1; 0)$' },
+                    { id: 'p1_4', funcId: 'f1', text: 'Hàm số có $2$ điểm cực tiểu' },
+                    { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
+                    
+                    { id: 'p2_1', funcId: 'f2', text: 'Hàm số có $2$ điểm cực đại' },
+                    { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                    { id: 'p2_3', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(1; +\\infty)$' },
+                    { id: 'p2_4', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
+                    { id: 'p2_5', funcId: 'f2', text: 'Hàm số có đúng $1$ điểm cực tiểu' },
+                    
+                    { id: 'p3_1', funcId: 'f3', text: 'Hàm số chỉ có $1$ điểm cực trị' },
+                    { id: 'p3_2', funcId: 'f3', text: 'Hàm số không có điểm cực đại' },
+                    { id: 'p3_3', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(0; +\\infty)$' },
+                    { id: 'p3_4', funcId: 'f3', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                    { id: 'p3_5', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 0)$' },
+                    
+                    { id: 'p4_1', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu' },
+                    { id: 'p4_2', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 0$' },
+                    { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(0; +\\infty)$' },
+                    { id: 'p4_4', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(-\\infty; 0)$' },
+                    { id: 'p4_5', funcId: 'f4', text: 'Hàm số có đúng $1$ điểm cực đại' },
+                    
+                    { id: 'p5_1', funcId: 'f5', text: 'Đạo hàm $y\' = 2x^3 - 2x$' },
+                    { id: 'p5_2', funcId: 'f5', text: 'Hàm số có $2$ điểm cực tiểu' },
+                    { id: 'p5_3', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' },
+                    { id: 'p5_4', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
+                    { id: 'p5_5', funcId: 'f5', text: 'Hàm số đạt cực đại tại gốc tọa độ' }
+                ]
+            },
+            3: {
+                title: "Phân Thức Bậc 1/1", time: 180,
+                funcs: [
+                    { id: 'f1', tex: 'y = \\frac{2x+1}{x-1}', theme: 'blue' }, 
+                    { id: 'f2', tex: 'y = \\frac{x-2}{x+1}', theme: 'emerald' },
+                    { id: 'f3', tex: 'y = \\frac{-x+3}{2x-1}', theme: 'rose' }, 
+                    { id: 'f4', tex: 'y = \\frac{3x+1}{x+2}', theme: 'cyan' }, 
+                    { id: 'f5', tex: 'y = \\frac{2x}{x-3}', theme: 'violet' } 
+                ],
+                props: [
+                    { id: 'p1_1', funcId: 'f1', text: 'Hàm số không có cực trị' },
+                    { id: 'p1_2', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 1)$' },
+                    { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; +\\infty)$' },
+                    { id: 'p1_4', funcId: 'f1', text: 'Đạo hàm $y\' < 0, \\forall x \\ne 1$' },
+                    { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên từng khoảng xác định' },
+                    { id: 'p2_1', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-\\infty; -1)$' },
+                    { id: 'p2_2', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-1; +\\infty)$' },
+                    { id: 'p2_3', funcId: 'f2', text: 'Đạo hàm $y\' > 0, \\forall x \\ne -1$' },
+                    { id: 'p2_4', funcId: 'f2', text: 'Hàm số không đạt cực trị' },
+                    { id: 'p2_5', funcId: 'f2', text: 'Hàm số đồng biến trên từng khoảng xác định' },
+                    { id: 'p3_1', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; \\frac{1}{2})$' },
+                    { id: 'p3_2', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(\\frac{1}{2}; +\\infty)$' },
+                    { id: 'p3_3', funcId: 'f3', text: 'Đạo hàm $y\' = \\frac{-5}{(2x-1)^2}$' },
+                    { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có điểm cực đại hay cực tiểu' },
+                    { id: 'p3_5', funcId: 'f3', text: 'Đạo hàm của hàm số luôn âm trên tập xác định' },
+                    { id: 'p4_1', funcId: 'f4', text: 'Đạo hàm $y\' = \\frac{5}{(x+2)^2}$' },
+                    { id: 'p4_2', funcId: 'f4', text: 'Hàm số đồng biến trên từng khoảng xác định' },
+                    { id: 'p4_3', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(-2; +\\infty)$' },
+                    { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực trị' },
+                    { id: 'p4_5', funcId: 'f4', text: 'Đạo hàm của hàm số luôn dương trên tập xác định' },
+                    { id: 'p5_1', funcId: 'f5', text: 'Hàm số nghịch biến trên từng khoảng xác định' },
+                    { id: 'p5_2', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 3)$' },
+                    { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\ne 3$' },
+                    { id: 'p5_4', funcId: 'f5', text: 'Đồ thị hàm số không có điểm cực trị' },
+                    { id: 'p5_5', funcId: 'f5', text: 'Hàm số không đồng biến trên bất kỳ khoảng nào' }
+                ]
+            },
+            4: {
+                title: "Phân Thức Bậc 2/1", time: 180,
+                funcs: [
+                    { id: 'f1', tex: 'y = \\frac{x^2 - x + 1}{x - 1}', theme: 'rose' }, 
+                    { id: 'f2', tex: 'y = \\frac{x^2 + 2x + 2}{x + 1}', theme: 'blue' }, 
+                    { id: 'f3', tex: 'y = \\frac{-x^2 + 2x - 2}{x - 1}', theme: 'amber' }, 
+                    { id: 'f4', tex: 'y = \\frac{x^2 - 3x + 3}{x - 2}', theme: 'emerald' }, 
+                    { id: 'f5', tex: 'y = \\frac{x^2}{x-1}', theme: 'violet' } 
+                ],
+                props: [
+                    { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 0$' },
+                    { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực tiểu tại $x = 2$' },
+                    { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
+                    { id: 'p1_4', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
+                    { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
+                    { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực đại tại $x = -2$' },
+                    { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                    { id: 'p2_3', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-1; 0)$' },
+                    { id: 'p2_4', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-\\infty; -2)$' },
+                    { id: 'p2_5', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-2; -1)$' },
+                    { id: 'p3_1', funcId: 'f3', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                    { id: 'p3_2', funcId: 'f3', text: 'Hàm số đạt cực đại tại $x = 2$' },
+                    { id: 'p3_3', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(1; 2)$' },
+                    { id: 'p3_4', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(2; +\\infty)$' },
+                    { id: 'p3_5', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
+                    { id: 'p4_1', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 1$' },
+                    { id: 'p4_2', funcId: 'f4', text: 'Hàm số đạt cực tiểu tại $x = 3$' },
+                    { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
+                    { id: 'p4_4', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(2; 3)$' },
+                    { id: 'p4_5', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(3; +\\infty)$' },
+                    { id: 'p5_1', funcId: 'f5', text: 'Giá trị cực đại của hàm số là $y = 0$' },
+                    { id: 'p5_2', funcId: 'f5', text: 'Giá trị cực tiểu của hàm số là $y = 4$' },
+                    { id: 'p5_3', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
+                    { id: 'p5_4', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(-\\infty; 0)$' },
+                    { id: 'p5_5', funcId: 'f5', text: 'Hàm số đạt cực đại tại $x = 0$' }
+                ]
+            },
+            5: {
+                title: "Căn Thức Bậc 2", time: 180,
+                funcs: [
+                    { id: 'f1', tex: 'y = \\sqrt{2x - x^2}', theme: 'emerald' },
+                    { id: 'f2', tex: 'y = \\sqrt{x^2 - 4x + 5}', theme: 'rose' },
+                    { id: 'f3', tex: 'y = x + \\sqrt{4 - x^2}', theme: 'cyan' },
+                    { id: 'f4', tex: 'y = \\sqrt{x - 1} + \\sqrt{3 - x}', theme: 'violet' },
+                    { id: 'f5', tex: 'y = \\sqrt{x^2 + 1} - x', theme: 'amber' }
+                ],
+                props: [
+                    { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 1$' },
+                    { id: 'p1_2', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
+                    { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
+                    { id: 'p1_4', funcId: 'f1', text: 'Hàm số không có điểm cực tiểu' },
+                    { id: 'p1_5', funcId: 'f1', text: 'Hàm số có đúng $1$ điểm cực trị' },
+                    { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 2$' },
+                    { id: 'p2_2', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 2)$' },
+                    { id: 'p2_3', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
+                    { id: 'p2_4', funcId: 'f2', text: 'Hàm số không có điểm cực đại' },
+                    { id: 'p2_5', funcId: 'f2', text: 'Hàm số có đúng $1$ điểm cực tiểu' },
+                    { id: 'p3_1', funcId: 'f3', text: 'Hàm số đạt cực đại tại $x = \\sqrt{2}$' },
+                    { id: 'p3_2', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(-2; \\sqrt{2})$' },
+                    { id: 'p3_3', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(\\sqrt{2}; 2)$' },
+                    { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có cực tiểu trên khoảng $(-2; 2)$' },
+                    { id: 'p3_5', funcId: 'f3', text: 'Hàm số có đúng $1$ điểm cực đại' },
+                    { id: 'p4_1', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 2$' },
+                    { id: 'p4_2', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(1; 2)$' },
+                    { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(2; 3)$' },
+                    { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu trên $(1; 3)$' },
+                    { id: 'p4_5', funcId: 'f4', text: 'Hàm số có đúng $1$ điểm cực trị' },
+                    { id: 'p5_1', funcId: 'f5', text: 'Hàm số không có cực trị' },
+                    { id: 'p5_2', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; +\\infty)$' },
+                    { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\in \\mathbb{R}$' },
+                    { id: 'p5_4', funcId: 'f5', text: 'Hàm số không có điểm cực đại và cực tiểu' },
+                    { id: 'p5_5', funcId: 'f5', text: 'Hàm số luôn nghịch biến trên tập xác định' }
+                ]
+            }
+        };
+
+        function shuffle(array) {
+            let curId = array.length, randId;
+            while (curId > 0) {
+                randId = Math.floor(Math.random() * curId); curId--;
+                [array[curId], array[randId]] = [array[randId], array[curId]];
+            }
+            return array;
+        }
+
+        const sndMatch = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+        const sndError = new Audio('https://assets.mixkit.co/active_storage/sfx/2997/2997-preview.mp3');
+        const sndWin = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
+        sndMatch.volume = 0.4; sndError.volume = 0.3; sndWin.volume = 0.5;
+
+        let gameState = 'start', currentLevel = 1, isCampaign = false;
+        let activeFuncs = [], activeProps = [], movingCards = [];
+        let selectedCard = null, matchedPropsCount = 0, totalPropsInLevel = 12;
+        let lives = 5, timeLeft = 180, timerInterval, animationFrameId;
+        let isAnimating = false;
+
+        const DOM = {
+            overlay: document.getElementById('overlay'),
+            menuContent: document.getElementById('menu-dynamic-content'),
+            header: document.getElementById('header-panel'),
+            board: document.getElementById('game-board'),
+            funcNodes: document.getElementById('function-nodes'),
+            propArena: document.getElementById('property-arena'),
+            lives: document.getElementById('lives-container'),
+            score: document.getElementById('score-display'),
+            timer: document.getElementById('timer-display'),
+            timerContainer: document.getElementById('timer-container'),
+            badge: document.getElementById('level-badge')
+        };
+
+        window.showOverlay = function(type, message = "") {
+            DOM.overlay.classList.remove('hidden');
+            DOM.header.classList.add('hidden');
+            DOM.board.classList.add('hidden');
+            clearInterval(timerInterval); cancelAnimationFrame(animationFrameId);
+
+            if (type === 'start') {
+                const createBtn = (level, title, colorHex) => `
+                    <button onclick="window.startLevel(${level})" class="group relative overflow-hidden font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 w-full text-left bg-slate-800/50 hover:bg-slate-700/80 border border-slate-600 hover:border-slate-400 flex items-center justify-between" style="--btn-color: ${colorHex}">
+                        <div class="absolute inset-0 bg-gradient-to-r from-[var(--btn-color)]/0 to-[var(--btn-color)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="relative z-10 flex flex-col gap-1">
+                            <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Level ${level}</span>
+                            <span class="text-base sm:text-lg text-slate-100 group-hover:text-white transition-colors">${title}</span>
+                        </div>
+                        <span class="text-xl text-[var(--btn-color)] opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">✦</span>
+                    </button>
+                `;
+
+                DOM.menuContent.innerHTML = `
+                    <div class="flex flex-col items-center opacity-0 animate-[fadeIn_0.5s_ease_forwards]">
+                        <div class="text-center mb-8">
+                            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-3 tracking-tight pb-1 drop-shadow-lg">Tính Đơn Điệu<br class="block sm:hidden"/> & Cực Trị</h1>
+                            <p class="text-sm sm:text-base font-bold text-cyan-300 uppercase tracking-widest bg-cyan-950/40 border border-cyan-500/20 inline-block px-5 py-2 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.1)]">Chuyên Đề: Tính Đơn Điệu Và Cực Trị</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-4xl mx-auto">
+                            <div class="flex flex-col gap-3">
+                                ${createBtn(1, "Hàm Bậc 3", COLOR_THEMES.blue.hex)}
+                                ${createBtn(2, "Hàm Trùng Phương", COLOR_THEMES.cyan.hex)}
+                                ${createBtn(3, "Hàm Phân Thức Bậc 1/1", COLOR_THEMES.emerald.hex)}
+                                ${createBtn(4, "Hàm Phân Thức Bậc 2/1", COLOR_THEMES.amber.hex)}
+                                ${createBtn(5, "Hàm Căn Thức Bậc 2", COLOR_THEMES.rose.hex)}
+                            </div>
+                            
+                            <div class="flex flex-col h-full gap-3">
+                                <button onclick="window.startLevel('campaign')" class="w-full h-full min-h-[250px] bg-gradient-to-br from-indigo-900/80 to-slate-900/80 hover:from-indigo-800/90 hover:to-slate-800/90 border border-indigo-500/30 hover:border-indigo-400/60 text-white font-black py-4 px-6 rounded-3xl shadow-[0_15px_40px_rgba(99,102,241,0.2)] transition-all active:scale-95 flex flex-col items-center justify-center gap-4 group relative overflow-hidden backdrop-blur-md">
+                                    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                    <span class="text-6xl mb-2 group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">🪐</span>
+                                    <span class="text-xs uppercase tracking-widest text-indigo-300 relative z-10 font-bold">Thử Thách Cuối Cùng</span>
+                                    <span class="text-3xl relative z-10 text-center leading-tight">Phá Đảo<br/>5 Ải Liên Tiếp</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const isVic = type === 'victory';
+                const icon = isVic ? '✨' : '⚠️';
+                const title = isVic ? (isCampaign ? 'PHÁ ĐẢO THÀNH CÔNG!' : 'ĐÃ ĐỒNG BỘ!') : 'MÃ KHÔNG HỢP LỆ';
+                const color = isVic ? 'text-emerald-400' : 'text-rose-400';
+                
+                DOM.menuContent.innerHTML = `
+                    <div class="flex flex-col items-center opacity-0 animate-[fadeIn_0.5s_ease_forwards]">
+                        <div class="text-6xl sm:text-8xl mb-6 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] ${isVic?'animate-bounce':''}">${icon}</div>
+                        <h1 class="text-3xl sm:text-5xl font-black ${color} mb-4 tracking-tight text-center pb-2 uppercase">${title}</h1>
+                        <p class="text-slate-300 mb-10 font-medium text-lg sm:text-xl text-center max-w-2xl">${message}</p>
+                        
+                        <div class="flex flex-wrap justify-center gap-4 sm:gap-6 mb-12 w-full">
+                            <div class="bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-700 flex-1 min-w-[160px] max-w-[200px] flex flex-col items-center shadow-inner">
+                                <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Độ Chính Xác</p>
+                                <p class="text-4xl sm:text-5xl font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]">${Math.round((matchedPropsCount/totalPropsInLevel)*100)}%</p>
+                            </div>
+                            <div class="bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-700 flex-1 min-w-[160px] max-w-[200px] flex flex-col items-center shadow-inner">
+                                <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Sinh Mệnh Dư</p>
+                                <p class="text-4xl sm:text-5xl font-black text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.4)]">${lives}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md">
+                            <button onclick="window.showOverlay('start')" class="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold rounded-2xl text-lg transition-all active:scale-95">Trạm Chính</button>
+                            <button onclick="window.startLevel('${isCampaign ? 'campaign' : currentLevel}')" class="flex-1 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-2xl text-lg shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all active:scale-95">
+                                ${isVic && isCampaign ? 'Chơi Lại' : 'Khởi Động Lại 🚀'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        };
+
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `@keyframes fadeIn { to { opacity: 1; } }`;
+        document.head.appendChild(styleSheet);
+
+        window.startLevel = function(level) {
+            isCampaign = (level === 'campaign');
+            currentLevel = isCampaign ? 1 : parseInt(level);
+            initLevel(currentLevel);
+        };
+
+        function initLevel(levelNum) {
+            gameState = 'playing'; selectedCard = null; matchedPropsCount = 0; isAnimating = false;
+            lives = 5; timeLeft = 180;
+            
+            const levelData = GAME_LEVELS[levelNum];
+            activeFuncs = shuffle([...levelData.funcs]).slice(0, 3);
+            activeProps = [];
+            activeFuncs.forEach(func => {
+                activeProps.push(...shuffle(levelData.props.filter(p => p.funcId === func.id)).slice(0, 4));
+            });
+
+            DOM.badge.innerHTML = isCampaign ? `<span class="text-amber-400">🔥</span> Sector ${levelNum}/5` : `<span class="text-cyan-400">🌌</span> Lvl ${levelNum}`;
+            
+            updateHeader();
+            DOM.overlay.classList.add('hidden'); document.getElementById('transition-overlay').classList.add('hidden');
+            DOM.header.classList.remove('hidden'); DOM.board.classList.remove('hidden');
+            
+            renderNodesAndArena();
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--; updateHeader();
+                if (timeLeft <= 0) endGame('gameover', "Năng lượng cạn kiệt. Hệ thống ngắt kết nối.");
+            }, 1000);
+        }
+
+        function updateHeader() {
+            DOM.lives.innerHTML = Array(5).fill(0).map((_, i) => 
+                `<span class="${i < lives ? 'life-active' : 'life-lost'}">❤</span>`
+            ).join('');
+            
+            DOM.score.innerText = `${matchedPropsCount}/12`;
+            const m = Math.floor(timeLeft / 60); const s = timeLeft % 60;
+            DOM.timer.innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            
+            if (timeLeft <= 30) DOM.timerContainer.classList.replace('text-emerald-400', 'text-rose-500');
+            else DOM.timerContainer.classList.replace('text-rose-500', 'text-emerald-400');
+        }
+
+        function endGame(state, message) {
+            if (gameState !== 'playing') return;
+            gameState = state; clearInterval(timerInterval); cancelAnimationFrame(animationFrameId);
+            setTimeout(() => { showOverlay(state, message); }, 1000);
+        }
+
+        function renderNodesAndArena() {
+            DOM.funcNodes.innerHTML = ''; DOM.propArena.innerHTML = '';
+            movingCards = [];
+
+            // Render Functions
+            activeFuncs.forEach(func => {
+                const theme = COLOR_THEMES[func.theme];
+                const el = document.createElement('div');
+                el.dataset.type = 'func'; el.dataset.id = func.id; el.dataset.matched = "0";
+                el.className = `card-func transition-transform duration-300 flex-1 max-w-[300px]`;
+                el.style.setProperty('--theme-color', theme.hex);
+                el.style.setProperty('--theme-rgb', theme.rgb);
+                
+                el.innerHTML = `
+                    <div class="w-full flex justify-between items-center mb-4">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Dữ liệu Lõi</span>
+                        <div class="w-2 h-2 rounded-full bg-[var(--theme-color)] shadow-[0_0_10px_var(--theme-color)] animate-pulse"></div>
+                    </div>
+                    <div class="math-content text-2xl mb-6 w-full text-center text-white"></div>
+                    
+                    <div class="w-full flex gap-1.5 mt-auto">
+                        ${[1,2,3,4].map(i => `
+                            <div class="h-2 flex-1 bg-white/5 rounded-full overflow-hidden shadow-inner">
+                                <div class="h-full bg-[var(--theme-color)] w-0 progress-slot shadow-[0_0_10px_var(--theme-color)]" id="prog-${func.id}-${i}"></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                el.addEventListener('click', () => handleSelect(el));
+                DOM.funcNodes.appendChild(el);
+                
+                // Render hàm số bằng KaTeX chuẩn
+                katex.render(func.tex, el.querySelector('.math-content'), { throwOnError: false, displayMode: true });
+            });
+
+            // Render Properties
+            const arenaRect = DOM.propArena.getBoundingClientRect();
+            const isMobile = window.innerWidth < 768;
+            const speedMultiplier = isMobile ? 0.3 : 0.6;
+
+            activeProps.forEach(prop => {
+                const el = document.createElement('div');
+                el.dataset.type = 'prop'; el.dataset.id = prop.id; el.dataset.funcId = prop.funcId;
+                el.className = `card-prop`;
+                
+                // CRITICAL FIX: Dùng auto-render để phân biệt chữ tiếng Việt và công thức Toán
+                el.innerHTML = `<div class="relative z-10 pointer-events-none math-text">${prop.text}</div>`;
+                
+                el.addEventListener('click', () => handleSelect(el));
+                el.addEventListener('mouseenter', () => { if(gameState==='playing') el.dataset.hovered = 'true'; });
+                el.addEventListener('mouseleave', () => { el.dataset.hovered = 'false'; });
+                
+                DOM.propArena.appendChild(el);
+                
+                // Kích hoạt auto-render của KaTeX trên thẻ thuộc tính
+                renderMathInElement(el, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ],
+                    throwOnError: false
+                });
+                
+                movingCards.push({
+                    el: el, active: true,
+                    x: Math.random() * Math.max(0, arenaRect.width - 280),
+                    y: Math.random() * Math.max(0, arenaRect.height - 100),
+                    vx: (Math.random() - 0.5) * 2 * speedMultiplier,
+                    vy: (Math.random() - 0.5) * 2 * speedMultiplier,
+                    w: 0, h: 0
+                });
+            });
+
+            // Allow DOM paint to get precise dimensions
+            setTimeout(() => {
+                movingCards.forEach(c => { c.w = c.el.offsetWidth; c.h = c.el.offsetHeight; });
+                animationFrameId = requestAnimationFrame(physicsLoop);
+            }, 100);
+        }
+
+        function physicsLoop() {
+            if (gameState !== 'playing') return;
+            const rect = DOM.propArena.getBoundingClientRect();
+
+            movingCards.forEach(c => {
+                if (!c.active || c.el.dataset.hovered === 'true' || c.el.classList.contains('merge-fly')) return;
+
+                c.x += c.vx; c.y += c.vy;
+
+                // Bounce behavior
+                if (c.x <= 0) { c.x = 0; c.vx *= -1; }
+                if (c.x + c.w >= rect.width) { c.x = rect.width - c.w; c.vx *= -1; }
+                if (c.y <= 0) { c.y = 0; c.vy *= -1; }
+                if (c.y + c.h >= rect.height) { c.y = rect.height - c.h; c.vy *= -1; }
+
+                c.el.style.transform = `translate3d(${c.x}px, ${c.y}px, 0)`;
+            });
+            animationFrameId = requestAnimationFrame(physicsLoop);
+        }
+
+        function handleSelect(element) {
+            if (gameState !== 'playing' || isAnimating || element.classList.contains('pointer-events-none')) return;
+            const type = element.dataset.type;
+
+            if (!selectedCard) {
+                selectedCard = { el: element, type: type };
+                element.classList.add('card-selected');
+                return;
+            }
+
+            if (selectedCard.el === element) { 
+                element.classList.remove('card-selected');
+                selectedCard = null; return;
+            }
+
+            if (selectedCard.type === type) { 
+                selectedCard.el.classList.remove('card-selected');
+                selectedCard = { el: element, type: type };
+                element.classList.add('card-selected');
+                return;
+            }
+
+            let funcEl = type === 'func' ? element : selectedCard.el;
+            let propEl = type === 'prop' ? element : selectedCard.el;
+
+            evaluateMatch(funcEl, propEl);
+        }
+
+        function evaluateMatch(funcEl, propEl) {
+            isAnimating = true;
+            funcEl.classList.remove('card-selected'); propEl.classList.remove('card-selected');
+            selectedCard = null;
+
+            if (funcEl.dataset.id === propEl.dataset.funcId) {
+                // Correct
+                matchedPropsCount++; updateHeader();
+                let matches = parseInt(funcEl.dataset.matched) + 1;
+                funcEl.dataset.matched = matches;
+                
+                sndMatch.playbackRate = 0.8 + (matches * 0.1); sndMatch.currentTime = 0; sndMatch.play().catch(()=>{});
+
+                const physProp = movingCards.find(c => c.el === propEl);
+                if (physProp) physProp.active = false;
+
+                const fRect = funcEl.getBoundingClientRect();
+                const pRect = propEl.getBoundingClientRect();
+                
+                const tx = fRect.left + (fRect.width/2) - (pRect.left + pRect.width/2);
+                const ty = fRect.top + (fRect.height/2) - (pRect.top + pRect.height/2);
+
+                propEl.classList.add('merge-fly');
+                propEl.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(0.1)`;
+                propEl.style.opacity = '0';
+
+                funcEl.querySelector(`#prog-${funcEl.dataset.id}-${matches}`).style.width = '100%';
+                
+                setTimeout(() => {
+                    spawnParticles(fRect.left + fRect.width/2, fRect.top + fRect.height/2, funcEl.style.getPropertyValue('--theme-color'));
+                    funcEl.style.transform = 'scale(1.05)';
+                    setTimeout(() => funcEl.style.transform = '', 200);
+                    
+                    if (matches >= 4) {
+                        funcEl.classList.add('func-completed');
+                        funcEl.querySelector('.math-content').innerHTML = `<span class="text-3xl text-[var(--theme-color)] drop-shadow-[0_0_15px_var(--theme-color)] font-bold">Xác Thực ✓</span>`;
+                    }
+                    
+                    propEl.remove();
+                    checkWinCondition();
+                    isAnimating = false;
+                }, 500);
+
+            } else {
+                // Wrong
+                lives--; updateHeader();
+                sndError.currentTime = 0; sndError.play().catch(()=>{});
+                
+                funcEl.classList.add('animate-error'); propEl.classList.add('animate-error');
+                
+                const physProp = movingCards.find(c => c.el === propEl);
+                if (physProp) { physProp.vx *= -2; physProp.vy *= -2; }
+
+                if (lives <= 0) {
+                    setTimeout(() => endGame('gameover', "Hệ thống bị phá hủy do quá nhiều lỗi. Hãy thử lại!"), 600);
+                } else {
+                    setTimeout(() => {
+                        funcEl.classList.remove('animate-error'); propEl.classList.remove('animate-error');
+                        isAnimating = false;
+                    }, 500);
+                }
+            }
+        }
+
+        // Particle System
+        function spawnParticles(x, y, colorStr) {
+            for (let i = 0; i < 12; i++) {
+                const p = document.createElement('div');
+                p.style.position = 'absolute'; p.style.pointerEvents = 'none'; p.style.zIndex = '100';
+                p.style.borderRadius = '50%';
+                const size = Math.random() * 6 + 2;
+                p.style.width = size + 'px'; p.style.height = size + 'px';
+                p.style.backgroundColor = colorStr;
+                p.style.boxShadow = `0 0 15px ${colorStr}`;
+                p.style.left = x + 'px'; p.style.top = y + 'px';
+                document.body.appendChild(p);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 100 + 40;
+                const tx = Math.cos(angle) * velocity; const ty = Math.sin(angle) * velocity;
+                
+                p.animate([
+                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                    { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }
+                ], { duration: Math.random() * 500 + 300, easing: 'cubic-bezier(0, .9, .57, 1)' })
+                .onfinish = () => p.remove();
+            }
+        }
+
+        function checkWinCondition() {
+            if (matchedPropsCount === 12) {
+                if (isCampaign) setTimeout(processCampaignVictory, 800);
+                else setTimeout(() => endGame('victory', `Đồng bộ hóa dữ liệu Sector ${currentLevel} hoàn tất!`), 800);
+            }
+        }
+
+        function processCampaignVictory() {
+            gameState = 'level_transition'; clearInterval(timerInterval);
+            
+            if (currentLevel < 5) {
+                const transOverlay = document.getElementById('transition-overlay');
+                const transContent = document.getElementById('transition-content');
+                document.getElementById('transition-title').innerText = `Khu vực ${currentLevel} đã xóa!`;
+                
+                transOverlay.classList.remove('hidden');
+                setTimeout(() => { transOverlay.classList.remove('opacity-0'); transContent.classList.remove('scale-95'); transContent.classList.add('scale-100'); }, 50);
+                
+                sndWin.currentTime = 0; sndWin.play().catch(()=>{});
+                
+                setTimeout(() => {
+                    transOverlay.classList.add('opacity-0'); transContent.classList.remove('scale-100'); transContent.classList.add('scale-95');
+                    setTimeout(() => {
+                        transOverlay.classList.add('hidden');
+                        currentLevel++; initLevel(currentLevel);
+                    }, 500);
+                }, 2500);
+            } else {
+                endGame('victory', "XUẤT SẮC! Bạn đã đồng bộ hóa toàn bộ 5 khu vực dữ liệu. Master!");
+            }
+        }
+
+        window.showOverlay('start');
+    </script>
+</body>
+</html>

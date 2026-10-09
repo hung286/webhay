@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toán 11. Game Cyber dance_Đạo hàm cấp 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']], 
+                displayMath: [['$$', '$$']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' },
+            options: {
+                enableMenu: false
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Montserrat:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --royal-gold: #d4af37;
+            --royal-gold-bright: #f9d976;
+            --science-cyan: #22d3ee;
+            --deep-space: #020617;
+            --glass: rgba(15, 23, 42, 0.9);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--deep-space);
+            background-image: radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.05) 0%, transparent 50%);
+            color: white;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .cyber-font { font-family: 'Orbitron', sans-serif; }
+        .math-text { font-family: 'Playfair Display', serif; }
+
+        .royal-border-container {
+            position: relative;
+            background: var(--glass);
+            border: 3px solid var(--royal-gold);
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.15), inset 0 0 20px rgba(212, 175, 55, 0.05);
+            border-radius: 40px;
+        }
+
+        .ornament {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            pointer-events: none;
+            filter: drop-shadow(0 0 5px var(--royal-gold));
+        }
+        .flourish-tl { top: -10px; left: -10px; transform: rotate(0deg); }
+        .flourish-tr { top: -10px; right: -10px; transform: rotate(90deg); }
+        .flourish-bl { bottom: -10px; left: -10px; transform: rotate(-90deg); }
+        .flourish-br { bottom: -10px; right: -10px; transform: rotate(180deg); }
+        
+        .crown-top {
+            position: absolute;
+            top: -45px; left: 50%; transform: translateX(-50%);
+            width: 80px; height: 50px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d4af37'%3E%3Cpath d='M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5M19 19C19 19.55 18.55 20 18 20H6C5.45 20 5 19.55 5 19V18H19V19Z'/%3E%3C/svg%3E") no-repeat center;
+            background-size: contain;
+        }
+
+        .neon-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        .neon-card:hover {
+            border-color: var(--science-cyan);
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.4);
+            transform: translateY(-5px) scale(1.02);
+            background: rgba(34, 211, 238, 0.05);
+        }
+
+        .grid-tile {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+        }
+        .tile-red {
+            background: radial-gradient(circle, #ef4444 0%, #7f1d1d 100%) !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            border: none !important;
+        }
+        .tile-green {
+            background: radial-gradient(circle, #10b981 0%, #064e3b 100%) !important;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.7);
+            border: none !important;
+            animation: pulse-green 1.5s infinite;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .player-entity {
+            width: 75%; height: 75%;
+            background: white; border-radius: 50%;
+            box-shadow: 0 0 25px white, 0 0 50px var(--science-cyan);
+            transition: all 0.4s;
+        }
+        .player-entity.jumping { transform: scale(2.2); filter: brightness(1.5); }
+
+        .btn-imperial {
+            background: linear-gradient(135deg, #d4af37 0%, #aa8a2e 100%);
+            color: #020617; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 3px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .btn-imperial:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.3); }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: var(--royal-gold); border-radius: 10px; }
+
+        mjx-container {
+            font-size: 1.1em !important;
+            margin: 0 0.3em !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+
+        .quiz-content-wrapper {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="relative w-full h-screen flex flex-col items-center justify-center p-4">
+        
+        <div id="game-hud" class="fixed top-8 left-8 right-8 flex justify-between items-start z-50 hidden">
+            <div class="flex items-center gap-6">
+                <div class="relative w-20 h-20 rounded-full border-4 border-yellow-500/50 overflow-hidden bg-slate-900 shadow-2xl p-2 flex items-center justify-center">
+                    <img id="hud-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d4af37'%3E%3Cpath d='M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z'/%3E%3C/svg%3E" class="w-full h-full object-contain">
+                </div>
+                <div>
+                    <h2 id="hud-name" class="cyber-font text-white text-xl font-black tracking-widest uppercase">Scientist</h2>
+                    <p class="text-[10px] text-yellow-500 font-bold tracking-[0.5em] uppercase">Grand Academy Member</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="bg-slate-900/90 border-2 border-yellow-500/30 px-8 py-3 rounded-2xl shadow-2xl">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] block">Academy Score</span>
+                    <span id="score-val" class="cyber-font text-3xl text-yellow-500">0000</span>
+                </div>
+                <button onclick="toggleRank()" class="w-16 h-16 rounded-2xl border-3 border-yellow-500/30 bg-slate-900/90 flex items-center justify-center hover:bg-yellow-500/20 transition-all text-2xl shadow-2xl">🏆</button>
+            </div>
+        </div>
+
+        <div id="start-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950 p-6">
+            <div class="royal-border-container max-w-lg w-full text-center p-12">
+                <div class="crown-top"></div>
+                <div class="ornament flourish-tl"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" class="w-full h-full text-yellow-600/40"><path d="M10,10 Q50,10 50,50 Q50,90 90,90"/></svg></div>
+                <div class="ornament flourish-tr"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" class="w-full h-full text-yellow-600/40"><path d="M10,10 Q50,10 50,50 Q50,90 90,90"/></svg></div>
+                <div class="ornament flourish-bl"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" class="w-full h-full text-yellow-600/40"><path d="M10,10 Q50,10 50,50 Q50,90 90,90"/></svg></div>
+                <div class="ornament flourish-br"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" class="w-full h-full text-yellow-600/40"><path d="M10,10 Q50,10 50,50 Q50,90 90,90"/></svg></div>
+
+                <div class="relative inline-block mb-10 group cursor-pointer" onclick="document.getElementById('logo-input').click()">
+                    <div class="absolute -inset-10 bg-yellow-500/10 blur-3xl rounded-full"></div>
+                    <div class="relative w-44 h-44 rounded-full border-4 border-yellow-500/60 overflow-hidden bg-slate-900 p-2 flex items-center justify-center shadow-[0_0_40px_rgba(212,175,55,0.2)]">
+                        <img id="logo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d4af37'%3E%3Cpath d='M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z'/%3E%3C/svg%3E" class="w-full h-full object-contain p-2 rounded-full bg-slate-800 transition-transform group-hover:scale-110">
+                    </div>
+                    <input type="file" id="logo-input" class="hidden" accept="image/*">
+                </div>
+
+                <h1 class="cyber-font text-4xl font-black italic tracking-tighter text-white mb-2 uppercase">Cyber <span class="text-yellow-500">Academy</span></h1>
+                <p class="text-[11px] text-slate-500 font-bold uppercase tracking-[0.5em] mb-12">Imperial Derivative Science</p>
+                
+                <div class="space-y-6">
+                    <input id="player-name" type="text" placeholder="Tên của bạn..." maxlength="15" class="w-full bg-slate-900/50 border-b-2 border-yellow-500/30 py-4 text-center cyber-font text-white focus:outline-none focus:border-yellow-500 uppercase tracking-[0.3em] text-xl transition-all">
+                    <button onclick="startGame()" class="w-full btn-imperial py-5 rounded-2xl cyber-font text-lg">Kích hoạt quy trình</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz-modal" class="fixed inset-0 z-[200] bg-slate-950/98 backdrop-blur-3xl flex items-center justify-center p-4 md:p-8 hidden">
+            <div class="royal-border-container w-full max-w-7xl max-h-[95vh] overflow-y-auto custom-scroll flex flex-col p-8 md:p-16">
+                <div class="crown-top"></div>
+                
+                <div class="flex justify-between items-center mb-8 border-b border-white/5 pb-6">
+                    <span class="cyber-font text-[14px] text-yellow-500 font-bold tracking-[0.6em] uppercase">Imperial Challenge</span>
+                    <span id="quiz-level" class="text-[12px] font-black text-cyan-400 px-6 py-2 bg-cyan-500/10 rounded-full border border-cyan-500/30 uppercase tracking-[0.4em]">Tier: Easy</span>
+                </div>
+                
+                <div class="flex-grow flex flex-col justify-center items-center text-center">
+                    <div class="math-text text-white w-full">
+                        <div id="quiz-main-text" class="quiz-content-wrapper text-3xl md:text-5xl lg:text-7xl font-bold tracking-tight leading-tight mb-4">
+                            <!-- Chữ và công thức sẽ được nạp vào đây cùng 1 dòng -->
+                        </div>
+                    </div>
+
+                    <div id="quiz-opts" class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-12"></div>
+                </div>
+
+                <div id="quiz-feedback" class="h-20 flex items-center justify-center cyber-font font-black tracking-[0.8em] text-2xl md:text-3xl uppercase mt-8"></div>
+            </div>
+        </div>
+
+        <div id="game-screen" class="hidden flex flex-col items-center">
+            <div class="royal-border-container p-4">
+                <div class="crown-top"></div>
+                <div id="grid" class="grid grid-cols-8 grid-rows-8 gap-2 rounded-2xl overflow-hidden shadow-inner" style="width: min(85vw, 550px); height: min(85vw, 550px);"></div>
+            </div>
+        </div>
+
+        <div id="rank-modal" class="fixed inset-0 z-[250] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-8 hidden">
+            <div class="royal-border-container max-w-lg w-full p-12">
+                <div class="crown-top"></div>
+                <button onclick="toggleRank()" class="absolute top-8 right-8 text-slate-500 hover:text-white text-2xl transition-colors">✕</button>
+                <h2 class="cyber-font text-2xl font-bold text-white tracking-[0.4em] uppercase mb-10 border-b border-yellow-500/20 pb-6">Grand Ranking</h2>
+                <div id="leaderboard" class="space-y-6 max-h-[400px] overflow-y-auto pr-4 custom-scroll"></div>
+                
+                <div id="rank-admin-ctrl" class="mt-8 pt-6 border-t border-yellow-500/10 flex flex-col items-center gap-4">
+                    <button id="btn-show-reset" onclick="showResetInput()" class="text-slate-600 hover:text-red-500 transition-colors flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        Đặt lại bảng điểm
+                    </button>
+                    <div id="reset-confirm-box" class="hidden w-full space-y-3">
+                        <input id="admin-pass" type="password" placeholder="Mật mã quản trị..." class="w-full bg-slate-900 border border-red-500/30 rounded-xl py-3 px-4 text-center text-sm focus:outline-none focus:border-red-500 transition-all">
+                        <div class="flex gap-2">
+                            <button onclick="confirmResetRank()" class="flex-1 bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white py-2 rounded-lg text-[10px] font-black uppercase transition-all">Xác nhận</button>
+                            <button onclick="hideResetInput()" class="flex-1 bg-slate-800 text-slate-400 py-2 rounded-lg text-[10px] font-black uppercase transition-all">Hủy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="end-modal" class="fixed inset-0 z-[300] bg-slate-950/98 flex items-center justify-center p-8 text-center hidden">
+            <div class="royal-border-container max-w-md w-full p-14">
+                <div class="crown-top"></div>
+                <h2 class="cyber-font text-4xl font-black mb-4 text-white">MISSION FAILED</h2>
+                <p class="text-slate-500 italic mb-12 text-sm">"Kiến thức là nền tảng của quyền lực."</p>
+                <div class="bg-slate-900/50 border-2 border-yellow-500/20 p-10 mb-12 rounded-3xl shadow-inner">
+                    <div id="final-score" class="text-7xl font-black text-yellow-500 cyber-font">0000</div>
+                </div>
+                <button onclick="startGame()" class="w-full btn-imperial py-6 rounded-2xl cyber-font text-lg">Khởi động lại</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MathEngine = {
+            formatCoeff: (c, isLeading = false) => {
+                if (c === 1) return isLeading ? "" : "+";
+                if (c === -1) return "-";
+                if (c > 0) return isLeading ? c.toString() : "+" + c;
+                return c.toString();
+            },
+            formatTerm: (c, p, isLeading = false) => {
+                if (c === 0) return "";
+                let res = MathEngine.formatCoeff(c, isLeading);
+                if (p === 0) return Math.abs(c) === 1 ? res + "1" : res;
+                if (p === 1) return res + "x"; 
+                return res + "x^{" + p + "}";
+            },
+            randomInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+            
+            generate: (count) => {
+                const tier = count >= 35 ? 'hard' : (count >= 20 ? 'medium' : 'easy');
+                const types = ['poly', 'trig', 'exp', 'log'];
+                const type = tier === 'hard' ? types[MathEngine.randomInt(0, 3)] : (tier === 'medium' ? types[MathEngine.randomInt(0, 1)] : 'poly');
+
+                if (Math.random() > 0.8) {
+                    const a = MathEngine.randomInt(2, 5);
+                    const qStr = `y = x^{${a}}`;
+                    const correctVal = `${a*(a-1)}x^{${a-2}}`.replace('^{0}', '').replace('^{1}', '').replace('x^{0}', '1');
+                    const isTrue = Math.random() > 0.5;
+                    const displayVal = isTrue ? correctVal : `${a}x^{${a-1}}`.replace('^{1}', '');
+                    return {
+                        q: qStr,
+                        prefix: "Đạo hàm cấp hai của hàm số",
+                        suffix: `có đạo hàm cấp hai là $y'' = ${displayVal}$. Đúng hay Sai?`,
+                        a: ["Sai", "Đúng"],
+                        c: isTrue ? 1 : 0,
+                        type: 'TF'
+                    };
+                }
+
+                if (type === 'poly') {
+                    const a = MathEngine.randomInt(2, 6);
+                    const n = MathEngine.randomInt(3, 5);
+                    const q = `y = ${a}x^{${n}}`;
+                    const cVal = a*n*(n-1);
+                    const pVal = n-2;
+                    const correct = `${cVal}x^{${pVal}}`.replace('^{1}', '').replace('^{0}', '').replace('x^{0}', '1');
+                    const w1 = `${a*n}x^{${n-1}}`.replace('^{1}', '');
+                    const w2 = `${cVal}x^{${n-1}}`.replace('^{1}', '');
+                    const w3 = `${a*(n-1)}x^{${pVal}}`.replace('^{1}', '');
+                    return { q, prefix: "Đạo hàm cấp hai của hàm số", suffix: "là:", a: [correct, w1, w2, w3], c: 0, type: 'MCQ' };
+                } else if (type === 'trig') {
+                    const a = MathEngine.randomInt(2, 4);
+                    const q = `y = \\sin(${a}x)`;
+                    const correct = `-${a*a}\\sin(${a}x)`;
+                    const w1 = `${a}\\cos(${a}x)`;
+                    const w2 = `-${a}\\sin(${a}x)`;
+                    const w3 = `${a*a}\\cos(${a}x)`;
+                    return { q, prefix: "Đạo hàm cấp hai của hàm số", suffix: "là:", a: [correct, w1, w2, w3], c: 0, type: 'MCQ' };
+                } else if (type === 'exp') {
+                    const a = MathEngine.randomInt(2, 3);
+                    const q = `y = e^{${a}x}`;
+                    const correct = `${a*a}e^{${a}x}`;
+                    const w1 = `${a}e^{${a}x}`;
+                    const w2 = `e^{${a}x}`;
+                    const w3 = `${a*a}e^{x}`;
+                    return { q, prefix: "Đạo hàm cấp hai của hàm số", suffix: "là:", a: [correct, w1, w2, w3], c: 0, type: 'MCQ' };
+                } else {
+                    const q = `y = \\ln(x)`;
+                    const correct = `-\\frac{1}{x^2}`;
+                    const w1 = `\\frac{1}{x}`;
+                    const w2 = `\\frac{1}{x^2}`;
+                    const w3 = `-\\frac{1}{x}`;
+                    return { q, prefix: "Đạo hàm cấp hai của hàm số", suffix: "là:", a: [correct, w1, w2, w3], c: 0, type: 'MCQ' };
+                }
+            }
+        };
+
+        let player = { x: 0, y: 0, name: "Scientist", logo: null };
+        let score = 0, correctCount = 0, gameState = 'START', isJumping = false;
+        let reds = [], greens = [], enemyTimer = null;
+
+        const els = {
+            start: document.getElementById('start-screen'),
+            game: document.getElementById('game-screen'),
+            hud: document.getElementById('game-hud'),
+            grid: document.getElementById('grid'),
+            quiz: document.getElementById('quiz-modal'),
+            rank: document.getElementById('rank-modal'),
+            end: document.getElementById('end-modal'),
+            nameInp: document.getElementById('player-name'),
+            logoInp: document.getElementById('logo-input'),
+            logoPrev: document.getElementById('logo-preview'),
+            hudLogo: document.getElementById('hud-logo'),
+            hudName: document.getElementById('hud-name'),
+            scoreVal: document.getElementById('score-val'),
+            leaderboard: document.getElementById('leaderboard'),
+            quizMain: document.getElementById('quiz-main-text')
+        };
+
+        els.logoInp.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const size = 300; canvas.width = size; canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, size, size);
+                    const data = canvas.toDataURL('image/jpeg', 0.6);
+                    els.logoPrev.src = data; els.hudLogo.src = data;
+                    player.logo = data; saveLocal();
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        function saveLocal() { try { localStorage.setItem('royalCyberMathV4', JSON.stringify({ name: player.name, logo: player.logo })); } catch(e) {} }
+
+        window.onload = () => {
+            const saved = localStorage.getItem('royalCyberMathV4');
+            if (saved) {
+                const d = JSON.parse(saved);
+                if (d.name) { els.nameInp.value = d.name; player.name = d.name; }
+                if (d.logo) { els.logoPrev.src = d.logo; els.hudLogo.src = d.logo; player.logo = d.logo; }
+            }
+            updateLeaderboard();
+        };
+
+        function startGame() {
+            player.name = els.nameInp.value.trim() || "Scientist";
+            els.hudName.innerText = player.name;
+            saveLocal();
+            score = 0; correctCount = 0; player.x = 0; player.y = 0; gameState = 'PLAYING';
+            els.start.classList.add('hidden'); els.end.classList.add('hidden');
+            els.game.classList.remove('hidden'); els.hud.classList.remove('hidden');
+            generateTiles(); startEnemyAI(); updateStats();
+        }
+
+        function generateTiles() {
+            reds = []; greens = [];
+            while(reds.length < 9) {
+                let r = { x: MathEngine.randomInt(0, 7), y: MathEngine.randomInt(0, 7) };
+                if (r.x !== player.x || r.y !== player.y) reds.push(r);
+            }
+            while(greens.length < 2) {
+                let g = { x: MathEngine.randomInt(0, 7), y: MathEngine.randomInt(0, 7) };
+                if ((g.x !== player.x || g.y !== player.y) && !reds.some(r => r.x === g.x && r.y === g.y)) greens.push(g);
+            }
+            renderGrid();
+        }
+
+        function renderGrid() {
+            els.grid.innerHTML = '';
+            const range = 1 + correctCount;
+            for(let y=0; y<8; y++) {
+                for(let x=0; x<8; x++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'grid-tile rounded-xl cursor-pointer flex items-center justify-center transition-all duration-300';
+                    const dist = Math.abs(x - player.x) + Math.abs(y - player.y);
+                    if (dist > 0 && dist <= range) {
+                        tile.style.backgroundColor = 'rgba(34, 211, 238, 0.08)';
+                        tile.style.borderColor = 'rgba(34, 211, 238, 0.2)';
+                    }
+                    if (reds.some(r => r.x === x && r.y === y)) tile.classList.add('tile-red');
+                    if (greens.some(g => g.x === x && g.y === y)) tile.classList.add('tile-green');
+                    if (x === player.x && y === player.y) {
+                        const p = document.createElement('div');
+                        p.className = `player-entity ${isJumping ? 'jumping' : ''}`;
+                        tile.appendChild(p);
+                    }
+                    tile.onclick = () => move(x, y);
+                    els.grid.appendChild(tile);
+                }
+            }
+        }
+
+        function move(tx, ty) {
+            if (gameState !== 'PLAYING' || isJumping) return;
+            const dist = Math.abs(tx - player.x) + Math.abs(ty - player.y);
+            if (dist > 0 && dist <= (1 + correctCount)) {
+                if (dist > 1) {
+                    isJumping = true; renderGrid();
+                    setTimeout(() => { player.x = tx; player.y = ty; isJumping = false; checkCollision(); renderGrid(); }, 400);
+                } else {
+                    player.x = tx; player.y = ty; checkCollision(); renderGrid();
+                }
+            }
+        }
+
+        function checkCollision() {
+            if (reds.some(r => r.x === player.x && r.y === player.y)) { gameOver(); return; }
+            let gIdx = greens.findIndex(g => g.x === player.x && g.y === player.y);
+            if (gIdx !== -1) { greens.splice(gIdx, 1); openQuiz(); }
+        }
+
+        function openQuiz() {
+            gameState = 'QUIZ';
+            const q = MathEngine.generate(correctCount);
+            els.quiz.classList.remove('hidden');
+            
+            // Đưa toàn bộ nội dung câu dẫn và công thức vào 1 khối dòng chảy
+            els.quizMain.innerHTML = `${q.prefix} $${q.q}$ ${q.suffix}`;
+            
+            document.getElementById('quiz-level').innerText = `Tier: ${correctCount >= 35 ? 'Legendary' : (correctCount >= 20 ? 'Master' : 'Student')}`;
+
+            const opts = document.getElementById('quiz-opts');
+            opts.innerHTML = '';
+            const shuffle = q.a.map((v, i) => ({ v, i })).sort(() => Math.random() - 0.5);
+            
+            shuffle.forEach((item, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'neon-card p-6 md:p-10 rounded-[32px] flex items-center gap-6 group text-left shadow-2xl relative overflow-hidden';
+                const label = String.fromCharCode(65+index);
+                btn.innerHTML = `
+                    <div class="cyber-font w-16 h-16 flex-shrink-0 flex items-center justify-center bg-slate-900 border-2 border-yellow-500/30 rounded-2xl text-yellow-500 text-2xl group-hover:bg-yellow-500 group-hover:text-black transition-all">${label}</div>
+                    <div class="math-text text-3xl md:text-5xl font-bold flex-grow">
+                        ${q.type === 'TF' ? item.v : `$ ${item.v} $`}
+                    </div>
+                `;
+                btn.onclick = () => {
+                    const correct = item.i === q.c;
+                    const fb = document.getElementById('quiz-feedback');
+                    fb.innerHTML = correct ? '<span class="text-emerald-400">MISSION SUCCESS +100</span>' : '<span class="text-red-500">SYSTEM FAILURE</span>';
+                    if (correct) { score += 100; correctCount++; updateStats(); }
+                    setTimeout(() => { 
+                        els.quiz.classList.add('hidden'); 
+                        fb.innerHTML = ''; 
+                        gameState = 'PLAYING'; 
+                        if (greens.length === 0) generateTiles(); 
+                        startEnemyAI(); 
+                    }, 1500);
+                };
+                opts.appendChild(btn);
+            });
+
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise([els.quiz]).catch(err => console.log(err));
+            }
+        }
+
+        function startEnemyAI() {
+            if (enemyTimer) clearInterval(enemyTimer);
+            enemyTimer = setInterval(() => {
+                if (gameState !== 'PLAYING') return;
+                reds = reds.map(r => {
+                    const d = [{x:0,y:1},{x:0,y:-1},{x:1,y:0},{x:-1,y:0}][MathEngine.randomInt(0, 3)];
+                    return { x: Math.max(0, Math.min(7, r.x + d.x)), y: Math.max(0, Math.min(7, r.y + d.y)) };
+                });
+                if (!isJumping) checkCollision();
+                renderGrid();
+            }, Math.max(800, 2500 - (correctCount * 100)));
+        }
+
+        function updateStats() { els.scoreVal.innerText = score.toString().padStart(4, '0'); }
+        function gameOver() { gameState = 'OVER'; clearInterval(enemyTimer); saveRank(); document.getElementById('final-score').innerText = score.toString().padStart(4, '0'); els.end.classList.remove('hidden'); }
+        function saveRank() { try { let ranks = JSON.parse(localStorage.getItem('royalCyberRanks_V5') || '[]'); ranks.push({ name: player.name, score }); ranks.sort((a,b) => b.score - a.score); localStorage.setItem('royalCyberRanks_V5', JSON.stringify(ranks.slice(0, 10))); updateLeaderboard(); } catch(e) {} }
+        function updateLeaderboard() { const ranks = JSON.parse(localStorage.getItem('royalCyberRanks_V5') || '[]'); els.leaderboard.innerHTML = ranks.map((r, i) => `<div class="flex justify-between items-center bg-slate-900/60 p-6 rounded-2xl border-l-8 border-cyan-500 shadow-2xl transition-all hover:scale-[1.03]"><span class="cyber-font text-sm text-white tracking-widest">#${i+1} ${r.name}</span><span class="cyber-font text-3xl text-yellow-500">${r.score}</span></div>`).join('') || '<p class="text-slate-600 text-center italic py-12 uppercase tracking-widest text-xs">No data recorded</p>'; }
+        
+        function showResetInput() {
+            document.getElementById('btn-show-reset').classList.add('hidden');
+            document.getElementById('reset-confirm-box').classList.remove('hidden');
+        }
+
+        function hideResetInput() {
+            document.getElementById('btn-show-reset').classList.remove('hidden');
+            document.getElementById('reset-confirm-box').classList.add('hidden');
+            document.getElementById('admin-pass').value = '';
+        }
+
+        function confirmResetRank() {
+            const pass = document.getElementById('admin-pass').value;
+            if (pass === '55668899') {
+                localStorage.removeItem('royalCyberRanks_V5');
+                updateLeaderboard();
+                hideResetInput();
+                // Hiệu ứng phản hồi nhẹ
+                const lb = document.getElementById('leaderboard');
+                lb.style.opacity = '0';
+                setTimeout(() => lb.style.opacity = '1', 300);
+            } else {
+                const inp = document.getElementById('admin-pass');
+                inp.classList.add('border-red-600', 'animate-shake');
+                inp.value = '';
+                inp.placeholder = 'Mật mã sai!';
+                setTimeout(() => {
+                    inp.classList.remove('border-red-600', 'animate-shake');
+                    inp.placeholder = 'Mật mã quản trị...';
+                }, 1000);
+            }
+        }
+
+        function toggleRank() { 
+            els.rank.classList.toggle('hidden'); 
+            if (els.rank.classList.contains('hidden')) hideResetInput();
+        }
+    </script>
+</body>
+</html>

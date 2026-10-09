@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toán 10. Game đua xe F1_Ôn tập HK2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Thêm thư viện MathJax để hiển thị công thức toán học -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                enableMenu: false
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root { --road-speed: 2s; --car-color: #3b82f6; --car-stroke: #1e3a8a; }
+        body { font-family: 'Quicksand', sans-serif; background-color: #020617; overflow: hidden; touch-action: manipulation; }
+        .digital-font { font-family: 'Orbitron', sans-serif; }
+
+        /* Road Animation */
+        .racing-track {
+            background: #1e293b;
+            background-image: linear-gradient(90deg, transparent 50%, rgba(255,255,255,0.05) 50%), linear-gradient(0deg, #334155 2px, transparent 2px);
+            background-size: 100% 100%, 100% 50px;
+            animation: roadMove var(--road-speed) linear infinite;
+            position: relative; border-left: 6px solid #fbbf24; border-right: 6px solid #fbbf24;
+        }
+        @keyframes roadMove { from { background-position: 0 0, 0 0; } to { background-position: 0 0, 0 500px; } }
+        .lane-divider { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background-image: linear-gradient(to bottom, #fff 50%, transparent 50%); background-size: 4px 40px; animation: roadMove var(--road-speed) linear infinite; transform: translateX(-50%); }
+
+        /* Car & FX */
+        .car-container { transition: bottom 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); position: absolute; display: flex; flex-direction: column; align-items: center; }
+        .car-body { animation: carVibrate 0.1s infinite; }
+        @keyframes carVibrate { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(1px, 1px); } }
+        .smoke-particle { position: absolute; background: rgba(200, 200, 200, 0.4); border-radius: 50%; animation: smokeUp 0.6s ease-out infinite; }
+        @keyframes smokeUp { 0% { transform: translate(-50%, 0) scale(0.5); opacity: 0.6; } 100% { transform: translate(-50%, 40px) scale(2.5); opacity: 0; } }
+        .speed-up-text { position: absolute; color: #4ade80; font-weight: bold; font-size: 1.8rem; pointer-events: none; animation: flyUp 1s ease-out forwards; z-index: 50; text-shadow: 0 0 10px rgba(34, 197, 94, 0.8); }
+        @keyframes flyUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
+
+        /* Screens */
+        .screen { position: fixed; inset: 0; background: linear-gradient(to bottom, #0f172a, #020617); z-index: 300; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .option-card { transition: all 0.2s; cursor: pointer; border: 2px solid rgba(255,255,255,0.05); }
+        .option-card:hover { transform: scale(1.02); background: rgba(30, 41, 59, 1); border-color: #fbbf24; }
+        .finish-line { position: absolute; top: 20px; left: 0; width: 100%; height: 30px; background: repeating-conic-gradient(#fff 0% 25%, #000 0% 50%) 50% / 20px 20px; z-index: 5; border-top: 2px solid #fff; border-bottom: 2px solid #fff; }
+        
+        /* UI Components */
+        .color-dot { width: 44px; height: 44px; border-radius: 14px; cursor: pointer; transition: all 0.2s; border: 4px solid transparent; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .color-dot.active { border-color: white; transform: scale(1.15) rotate(5deg); }
+        .tf-btn { transition: all 0.2s; font-weight: bold; border-radius: 12px; }
+        .tf-btn.active-true { background-color: #22c55e; color: white; transform: scale(1.05); }
+        .tf-btn.active-false { background-color: #ef4444; color: white; transform: scale(1.05); }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col text-slate-200">
+
+    <!-- 1. MÀN HÌNH BẮT ĐẦU -->
+    <div id="start-screen" class="screen">
+        <div class="text-center w-full max-w-lg">
+            <div class="mb-8 relative inline-block">
+                <div class="w-32 h-32 bg-yellow-500 rounded-[2rem] rotate-6 flex flex-col items-center justify-center border-4 border-slate-900 shadow-2xl">
+                    <span class="text-slate-900 font-black text-5xl digital-font -rotate-6">F1</span>
+                </div>
+                <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-red-600 px-6 py-2 rounded-xl border-4 border-slate-950 text-white font-black whitespace-nowrap digital-font text-xs">
+                    TOÁN PRO - THẦY HÙNG
+                </div>
+            </div>
+            
+            <h1 class="text-4xl font-black mb-2 digital-font tracking-tighter text-yellow-500 uppercase italic">TOÁN 10 CHAMPIONSHIP</h1>
+            <p class="text-slate-400 mb-8 uppercase tracking-widest text-[10px] font-bold">Ôn tập học kỳ II - Mã đề 101</p>
+
+            <div class="bg-slate-900/80 p-8 rounded-[2.5rem] border border-slate-800 space-y-6 mb-8 shadow-2xl text-left">
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-widest text-center">Tên tay đua</label>
+                    <input type="text" id="player-name-input" placeholder="Nhập tên của bạn..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none text-center font-bold text-lg">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-3 tracking-widest text-center">Chọn màu xe F1</label>
+                    <div class="flex justify-center gap-4" id="color-picker">
+                        <div class="color-dot bg-blue-600 active" data-color="blue"></div>
+                        <div class="color-dot bg-red-600" data-color="red"></div>
+                        <div class="color-dot bg-green-600" data-color="green"></div>
+                        <div class="color-dot bg-yellow-500" data-color="yellow"></div>
+                        <div class="color-dot bg-purple-600" data-color="purple"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="checkAndStart()" class="group relative px-20 py-6 bg-yellow-500 rounded-2xl shadow-[0_8px_0_rgb(180,83,9)] hover:translate-y-[4px] hover:shadow-[0_4px_0_rgb(180,83,9)] active:translate-y-[8px] active:shadow-none transition-all w-full sm:w-auto">
+                <span class="relative z-10 text-slate-950 font-black text-2xl digital-font tracking-widest">START RACE</span>
+            </button>
+
+            <div id="mini-rank" class="mt-10 pt-6 border-t border-slate-800 w-full hidden">
+                <p class="text-[10px] uppercase font-bold text-slate-500 mb-4 tracking-widest">BXH Top 3 Tay Đua</p>
+                <div id="rank-list-mini" class="grid grid-cols-1 gap-2 text-sm"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. GIAO DIỆN CHƠI -->
+    <header class="p-4 flex justify-between items-center bg-slate-900 border-b border-slate-700 shadow-2xl z-50">
+        <div class="flex items-center gap-4">
+            <div class="px-3 py-1 bg-yellow-500 rounded-xl flex items-center justify-center font-black text-slate-950 digital-font text-[10px] text-center leading-tight shadow-lg italic">THẦY HÙNG<br>PRO</div>
+            <div>
+                <h1 class="text-xl font-bold uppercase tracking-widest text-yellow-500 digital-font italic" id="display-player">RACING</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest" id="q-counter">Câu hỏi 1/10</p>
+            </div>
+        </div>
+        <div class="flex gap-6 bg-slate-950/80 px-8 py-2 rounded-2xl border-2 border-slate-800 shadow-inner">
+            <div class="text-center">
+                <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Score</p>
+                <p class="text-2xl digital-font text-yellow-500" id="current-score">0</p>
+            </div>
+            <div class="w-px h-10 bg-slate-800 my-auto"></div>
+            <div class="text-center">
+                <p class="text-[10px] uppercase text-slate-500 font-bold mb-1">Speed</p>
+                <p class="text-2xl digital-font text-white" id="current-speed">0 <span class="text-xs">km/h</span></p>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden p-6 gap-8">
+        <!-- Bảng câu hỏi -->
+        <div class="flex-1 flex flex-col gap-6 bg-slate-900/60 rounded-[3rem] p-8 border border-slate-800 shadow-2xl relative overflow-hidden">
+            <div id="question-container" class="flex-1 flex flex-col overflow-y-auto pr-2 custom-scrollbar">
+                <div class="bg-slate-950/80 p-6 rounded-3xl border border-slate-800 text-lg sm:text-xl font-bold leading-relaxed shadow-xl text-center min-h-[120px] flex items-center justify-center text-slate-100 mb-6" id="q-text">
+                    ...
+                </div>
+                <div id="q-options" class="flex flex-col gap-4"></div>
+            </div>
+            <div id="pit-stop" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-md z-10 flex items-center justify-center rounded-[3rem]">
+                <div class="text-center"><p class="digital-font text-yellow-500 text-4xl tracking-widest italic animate-pulse">PIT STOP...</p></div>
+            </div>
+        </div>
+
+        <!-- Đường đua -->
+        <div class="w-56 racing-track rounded-[2.5rem] shadow-2xl overflow-hidden flex justify-center p-2 relative">
+            <div class="finish-line"></div>
+            <div class="lane-divider"></div>
+            <div class="relative h-full w-full flex flex-col items-center justify-end pb-24">
+                <div id="player-car" class="car-container" style="bottom: 20px;">
+                    <div class="car-body" id="car-svg-container"></div>
+                    <div class="exhaust-smoke" id="exhaust-smoke"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 3. MÀN HÌNH KẾT THÚC -->
+    <div id="victory-screen" class="screen hidden">
+        <div class="bg-slate-900 border-4 border-yellow-500 p-12 rounded-[4rem] text-center max-w-2xl w-full shadow-2xl relative overflow-hidden">
+            <div class="text-8xl mb-6">🏁</div>
+            <h2 class="text-5xl font-black mb-4 digital-font text-yellow-500 uppercase italic">FINISH!</h2>
+            
+            <div class="py-6 px-10 bg-slate-950 rounded-[2.5rem] border-2 border-slate-800 mb-8 shadow-inner">
+                <div class="flex justify-around items-center">
+                    <div><p class="text-xs text-slate-400 uppercase font-bold mb-1">Total Score</p><p class="text-4xl digital-font text-yellow-500" id="final-score">0</p></div>
+                    <div class="w-px h-12 bg-slate-800"></div>
+                    <div><p class="text-xs text-slate-400 uppercase font-bold mb-1">Max Speed</p><p class="text-4xl digital-font text-white" id="final-speed">0</p></div>
+                </div>
+            </div>
+
+            <div class="w-full mb-10 text-left">
+                <p class="text-[10px] uppercase font-bold text-slate-500 mb-4 tracking-widest text-center">Bảng xếp hạng Hall of Fame (Top 5)</p>
+                <div id="leaderboard-full" class="space-y-2"></div>
+            </div>
+
+            <button onclick="resetToStart()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-4 px-16 rounded-2xl text-xl shadow-xl transition-all hover:scale-105 active:scale-95 w-full sm:w-auto">
+                QUAY LẠI TRANG CHỦ
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- ÂM THANH (WEB AUDIO API) ---
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let engineNode, engineGain;
+
+        const bgMusicWaiting = new Audio('https://cdn.pixabay.com/audio/2022/10/24/audio_98363a8a30.mp3'); 
+        const bgMusicRace = new Audio('https://cdn.pixabay.com/audio/2022/03/10/audio_c361400e96.mp3'); 
+        bgMusicWaiting.loop = true; bgMusicRace.loop = true;
+        bgMusicWaiting.volume = 0.4; bgMusicRace.volume = 0.2;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioCtx();
+                engineNode = audioCtx.createOscillator(); engineGain = audioCtx.createGain();
+                engineNode.type = 'sawtooth'; engineNode.frequency.setValueAtTime(60, audioCtx.currentTime);
+                engineGain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+                engineNode.connect(engineGain); engineGain.connect(audioCtx.destination);
+                engineNode.start();
+            }
+        }
+        function playRev() { if(!audioCtx) initAudio(); const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sawtooth'; o.frequency.setValueAtTime(150, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime+0.1); o.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime+0.6); g.gain.setValueAtTime(0.12, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.6); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.6); }
+        function playWrong() { if(!audioCtx) initAudio(); const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='square'; o.frequency.setValueAtTime(100, audioCtx.currentTime); o.frequency.linearRampToValueAtTime(50, audioCtx.currentTime+0.3); g.gain.setValueAtTime(0.1, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.3); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.3); }
+        function playClick() { if(!audioCtx) initAudio(); const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(600, audioCtx.currentTime); g.gain.setValueAtTime(0.05, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.1); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.1); }
+        function playWin() { if(!audioCtx) initAudio(); const n=[440, 554, 659, 880]; n.forEach((f,i)=>{const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='triangle'; o.frequency.setValueAtTime(f, audioCtx.currentTime+i*0.15); g.gain.setValueAtTime(0.1, audioCtx.currentTime+i*0.15); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+i*0.15+1.5); o.connect(g); g.connect(audioCtx.destination); o.start(audioCtx.currentTime+i*0.15); o.stop(audioCtx.currentTime+i*0.15+1.5);});}
+
+        // --- DỮ LIỆU CÂU HỎI MỚI (CHUẨN LÁTEX) ---
+        const rawQuestionData = [
+            { type: "ABCD", q: "Tập xác định của hàm số $y = \\sqrt{x^2 - 4x + 3}$ là:", o: ["$(1;3)$", "$(-\\infty; 1] \\cup [3; +\\infty)$", "$[1; 3]$", "$\\mathbb{R} \\setminus \\{1; 3\\}$"], c: 1 },
+            { type: "ABCD", q: "Tọa độ đỉnh của Parabol $(P): y = x^2 - 4x + 5$ là:", o: ["$I(2; 1)$", "$I(-2; 17)$", "$I(2; 5)$", "$I(4; 5)$"], c: 0 },
+            { type: "ABCD", q: "Vectơ pháp tuyến của đường thẳng $d$ đi qua hai điểm $A(1; 2)$ và $B(3; -2)$ là:", o: ["$\\vec{n} = (2; 1)$", "$\\vec{n} = (1; 2)$", "$\\vec{n} = (2; -4)$", "$\\vec{n} = (4; -2)$"], c: 0 },
+            { type: "ABCD", q: "Số nghiệm nguyên của bất phương trình $x^2 - 5x + 4 \\le 0$ là:", o: ["$2$", "$3$", "$4$", "Vô số"], c: 2 },
+            { type: "ABCD", q: "Có bao nhiêu cách chọn $2$ học sinh từ một nhóm gồm $10$ học sinh?", o: ["$20$", "$90$", "$C_{10}^2 = 45$", "$100$"], c: 2 },
+            { type: "ABCD", q: "Xác suất để gieo một con xúc xắc cân đối xuất hiện mặt có số chấm chia hết cho $3$ là:", o: ["$1/6$", "$1/2$", "$1/3$", "$2/3$"], c: 2 },
+            
+            { 
+                type: "TF", 
+                q: "Cho đường thẳng $d_1: x - 2y + 1 = 0$ và $d_2: 2x + y - 5 = 0$. Khẳng định nào sau đây đúng?", 
+                sub: [
+                    { text: "Vectơ pháp tuyến của $d_1$ là $\\vec{n}_1 = (1; -2)$", res: true },
+                    { text: "Đường thẳng $d_1$ vuông góc với đường thẳng $d_2$", res: true },
+                    { text: "Điểm $M(1; 1)$ thuộc đường thẳng $d_1$", res: true },
+                    { text: "Giao điểm của $d_1$ và $d_2$ là $I(2; 1)$", res: false }
+                ]
+            },
+            { 
+                type: "TF", 
+                q: "Một hộp có $5$ quả cầu xanh và $4$ đỏ. Lấy ngẫu nhiên $2$ quả. Xét các khẳng định:", 
+                sub: [
+                    { text: "Số cách chọn $2$ quả cầu bất kì là $n(\\Omega) = C_9^2 = 36$", res: true },
+                    { text: "Số cách chọn $2$ quả cùng màu xanh là $10$", res: true },
+                    { text: "Số cách chọn $2$ quả khác màu là $20$", res: true },
+                    { text: "Xác suất để $2$ quả lấy ra cùng màu là $4/9$", res: false }
+                ]
+            },
+
+            { type: "SHORT", q: "Xếp $5$ nam và $4$ nữ thành hàng ngang sao cho các bạn nữ đứng cạnh nhau. Có bao nhiêu cách?", ans: "17280" },
+            { type: "SHORT", q: "Một cổng Parabol cao $10\\text{m}$, rộng $12\\text{m}$. Tính độ dài dây $MN$ căng ngang cách đỉnh $4\\text{m}$ (làm tròn đến hàng đơn vị).", ans: "8" }
+        ];
+
+        // --- GAME STATE ---
+        let carColors = { blue: "#3b82f6", red: "#ef4444", green: "#22c55e", yellow: "#eab308", purple: "#9333ea" };
+        let strokeColors = { blue: "#1e3a8a", red: "#7f1d1d", green: "#14532d", yellow: "#713f12", purple: "#581c87" };
+        let leaderboard = JSON.parse(localStorage.getItem('f1_leaderboard_toan10')) || [];
+        
+        let state = {
+            playerName: "", color: "blue", score: 0, speed: 0, qIdx: 0, 
+            questions: rawQuestionData, currentTfAnswers: [null, null, null, null], gameOver: false
+        };
+
+        function getCarSVG(color) {
+            const f = carColors[color], s = strokeColors[color];
+            return `<svg width="70" height="120" viewBox="0 0 70 120"><rect x="5" y="5" width="60" height="10" fill="${s}"/><rect x="10" y="105" width="50" height="10" fill="${s}"/><path d="M20 20 L50 20 L55 50 L50 110 L20 110 L15 50 Z" fill="${f}"/><rect x="25" y="40" width="20" height="30" rx="5" fill="#ffffff66"/><rect x="2" y="25" width="12" height="20" rx="3" fill="#000"/><rect x="56" y="25" width="12" height="20" rx="3" fill="#000"/><rect x="0" y="85" width="15" height="25" rx="3" fill="#000"/><rect x="55" y="85" width="15" height="25" rx="3" fill="#000"/></svg>`;
+        }
+
+        document.querySelectorAll('.color-dot').forEach(d => {
+            d.onclick = () => {
+                document.querySelectorAll('.color-dot').forEach(el => el.classList.remove('active'));
+                d.classList.add('active'); state.color = d.dataset.color;
+            }
+        });
+
+        function checkAndStart() {
+            const nameInput = document.getElementById('player-name-input');
+            if (!nameInput.value.trim()) { alert("Vui lòng nhập tên!"); return; }
+            state.playerName = nameInput.value.trim();
+            startGame();
+        }
+
+        function startGame() {
+            initAudio(); bgMusicWaiting.pause(); bgMusicRace.play().catch(()=>{});
+            state.score = 0; state.speed = 0; state.qIdx = 0; state.gameOver = false;
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('victory-screen').classList.add('hidden');
+            document.getElementById('display-player').innerText = state.playerName.toUpperCase();
+            document.getElementById('car-svg-container').innerHTML = getCarSVG(state.color);
+            updateUI(); renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = state.questions[state.qIdx];
+            document.getElementById('q-counter').innerText = `Câu hỏi ${state.qIdx + 1}/10`;
+            document.getElementById('q-text').innerHTML = q.q;
+            const optDiv = document.getElementById('q-options');
+            optDiv.innerHTML = '';
+
+            if (q.type === "ABCD") {
+                const labels = ["A", "B", "C", "D"];
+                q.o.forEach((txt, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = "option-card p-5 rounded-2xl bg-slate-950/40 flex items-center gap-5 text-left w-full";
+                    btn.innerHTML = `<span class="w-10 h-10 min-w-[40px] rounded-xl bg-yellow-500 text-slate-950 flex items-center justify-center font-black digital-font">${labels[i]}</span><span class="text-sm sm:text-base font-bold text-slate-200">${txt}</span>`;
+                    btn.onclick = () => handleAbcd(i);
+                    optDiv.appendChild(btn);
+                });
+            } else if (q.type === "TF") {
+                state.currentTfAnswers = [null, null, null, null];
+                q.sub.forEach((s, i) => {
+                    const row = document.createElement('div');
+                    row.className = "bg-slate-950/40 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4 border border-slate-800";
+                    row.innerHTML = `
+                        <div class="flex-1 text-sm font-bold text-slate-300">(${String.fromCharCode(97+i)}) ${s.text}</div>
+                        <div class="flex gap-2">
+                            <button id="tf-${i}-t" class="tf-btn px-6 py-2 bg-slate-800 text-xs uppercase" onclick="selectTf(${i}, true)">Đúng</button>
+                            <button id="tf-${i}-f" class="tf-btn px-6 py-2 bg-slate-800 text-xs uppercase" onclick="selectTf(${i}, false)">Sai</button>
+                        </div>
+                    `;
+                    optDiv.appendChild(row);
+                });
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = "mt-4 bg-yellow-500 text-slate-900 font-black py-4 rounded-2xl digital-font uppercase tracking-widest";
+                confirmBtn.innerText = "XÁC NHẬN";
+                confirmBtn.onclick = handleTf;
+                optDiv.appendChild(confirmBtn);
+            } else if (q.type === "SHORT") {
+                const input = document.createElement('input');
+                input.id = "short-ans"; input.type = "text"; input.placeholder = "Nhập đáp số nguyên...";
+                input.className = "w-full bg-slate-950 border-2 border-slate-700 rounded-2xl p-5 text-center text-xl font-bold text-white focus:border-yellow-500 outline-none mb-4";
+                optDiv.appendChild(input);
+                const btn = document.createElement('button');
+                btn.className = "w-full bg-yellow-500 text-slate-900 font-black py-4 rounded-2xl digital-font uppercase tracking-widest";
+                btn.innerText = "NỘP ĐÁP ÁN";
+                btn.onclick = handleShort;
+                optDiv.appendChild(btn);
+            }
+            // Gọi MathJax render lại sau khi đổi nội dung câu hỏi
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function selectTf(idx, val) {
+            playClick(); state.currentTfAnswers[idx] = val;
+            const t = document.getElementById(`tf-${idx}-t`), f = document.getElementById(`tf-${idx}-f`);
+            t.className = `tf-btn px-6 py-2 text-xs uppercase ${val === true ? 'active-true' : 'bg-slate-800'}`;
+            f.className = `tf-btn px-6 py-2 text-xs uppercase ${val === false ? 'active-false' : 'bg-slate-800'}`;
+        }
+
+        function nextQ() {
+            state.qIdx++;
+            document.getElementById('pit-stop').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('pit-stop').classList.add('hidden');
+                if (state.qIdx >= state.questions.length) finishGame(); else renderQuestion();
+            }, 700);
+        }
+
+        function handleAbcd(idx) {
+            const q = state.questions[state.qIdx];
+            if (idx === q.c) { state.score += 100; state.speed += 20; playRev(); showSpeedEffect("+100 PTS"); } else { playWrong(); }
+            updateUI(); nextQ();
+        }
+
+        function handleTf() {
+            if (state.currentTfAnswers.includes(null)) { alert("Vui lòng trả lời đủ 4 ý!"); return; }
+            const q = state.questions[state.qIdx];
+            let correctCount = 0;
+            state.currentTfAnswers.forEach((ans, i) => { if(ans === q.sub[i].res) correctCount++; });
+            let bonus = [0, 10, 25, 50, 100][correctCount];
+            state.score += bonus;
+            if (bonus > 0) { state.speed += 20; playRev(); showSpeedEffect(`+${bonus} PTS`); } else { playWrong(); }
+            updateUI(); nextQ();
+        }
+
+        function handleShort() {
+            const val = document.getElementById('short-ans').value.trim();
+            if (!val) return;
+            const q = state.questions[state.qIdx];
+            if (val === q.ans) { state.score += 150; state.speed += 30; playRev(); showSpeedEffect("+150 PTS"); } else { playWrong(); }
+            updateUI(); nextQ();
+        }
+
+        function updateUI() {
+            document.getElementById('current-score').innerText = state.score;
+            document.getElementById('current-speed').innerHTML = `${state.speed} <span class="text-xs">km/h</span>`;
+            const trackHeight = document.querySelector('.racing-track').clientHeight - 180;
+            const prog = Math.min(1, state.qIdx / state.questions.length) * trackHeight;
+            document.getElementById('player-car').style.bottom = (20 + prog) + 'px';
+            const rSpeed = Math.max(0.1, 2 - (state.speed / 100));
+            document.documentElement.style.setProperty('--road-speed', rSpeed + 's');
+        }
+
+        function showSpeedEffect(txt) {
+            const car = document.getElementById('player-car');
+            const el = document.createElement('div'); el.className = 'speed-up-text digital-font'; el.innerText = txt;
+            el.style.left = '50%'; el.style.transform = 'translateX(-50%)'; el.style.bottom = (parseInt(car.style.bottom) + 130) + 'px';
+            document.querySelector('.racing-track').appendChild(el); setTimeout(() => el.remove(), 1000);
+        }
+
+        function finishGame() {
+            state.gameOver = true; playWin();
+            leaderboard.push({ name: state.playerName, score: state.score, speed: state.speed });
+            leaderboard.sort((a,b) => b.score - a.score);
+            localStorage.setItem('f1_leaderboard_toan10', JSON.stringify(leaderboard.slice(0, 5)));
+            document.getElementById('victory-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = state.score;
+            document.getElementById('final-speed').innerText = state.speed + " km/h";
+            document.getElementById('leaderboard-full').innerHTML = leaderboard.slice(0, 5).map((it, i) => `
+                <div class="flex items-center justify-between bg-slate-800/80 p-4 rounded-2xl border ${it.name === state.playerName ? 'border-yellow-500' : 'border-slate-700'}">
+                    <div class="flex items-center gap-4"><span class="digital-font text-2xl ${i < 3 ? 'text-yellow-500' : 'text-slate-500'}">#${i+1}</span><span class="font-black uppercase">${it.name}</span></div>
+                    <div class="text-right"><p class="digital-font text-yellow-500">${it.score} pts</p></div>
+                </div>`).join('');
+        }
+
+        function resetToStart() { location.reload(); }
+        setInterval(() => { if (!state.gameOver && state.speed > 0) {
+            const container = document.getElementById('exhaust-smoke');
+            const p = document.createElement('div'); p.className = 'smoke-particle';
+            p.style.width = '12px'; p.style.height = '12px'; p.style.left = (Math.random()*20-10)+'px';
+            container.appendChild(p); setTimeout(()=>p.remove(), 600);
+        }}, 120);
+    </script>
+</body>
+</html>
