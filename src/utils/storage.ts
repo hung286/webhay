@@ -344,9 +344,19 @@ export function factoryResetSystem(): void {
     sessionStorage.removeItem(KEY_GEMINI_KEY);
   } catch {}
 }
-const KEY_TOOLS = 'edu_teaching_tools_v33';
+const KEY_TOOLS = 'edu_teaching_tools_v34';
 
 export const DEFAULT_TOOLS: TeachingTool[] = [
+  {
+    id: 'tool_khao_sat_ham_so_12',
+    name: 'Khảo sát hàm số',
+    type: 'iframe',
+    category: 'thao-tac',
+    url: '/khao_sat_ham_so_12.html',
+    description: 'Công cụ vẽ đồ thị và khảo sát hàm số',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
   {
     id: 'tool_default_geogebra_2',
     name: 'Giải toán phương trình mặt cầu',
