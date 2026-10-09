@@ -15,7 +15,8 @@ import {
   Swords,
   Stethoscope,
   BarChart2,
-  MonitorPlay
+  MonitorPlay,
+  Gamepad2
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -252,6 +253,18 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Swords className="w-4 h-4 text-amber-300" />
             <span>4. Đối kháng 2 đội (Phím A & L)</span>
+          </button>
+
+          <button
+            onClick={() => onSelectMode('Trò chơi')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shrink-0 ${
+              activeMode === 'Trò chơi'
+                ? 'bg-violet-600 text-white shadow-md shadow-violet-200'
+                : 'text-slate-600 hover:bg-violet-50 hover:text-violet-700'
+            }`}
+          >
+            <Gamepad2 className="w-4 h-4" />
+            <span>5. Trò chơi học tập</span>
           </button>
 
           <div className="w-px h-5 bg-slate-200 mx-1 shrink-0 hidden sm:block"></div>
