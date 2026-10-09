@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toán 10-12. Sơ Đồ Cây Xác Suất - Bản Máy Chiếu (PC)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Nunito', sans-serif; background-color: #f8fafc; overflow: hidden; margin: 0; user-select: none; -webkit-user-select: none; }
+        
+        /* Tối ưu thanh cuộn cho PC */
+        .custom-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        #workspace {
+            width: 100vw; height: 100vh;
+            background-image: radial-gradient(#94a3b8 1px, transparent 1px);
+            background-size: 40px 40px; /* Lưới to hơn cho PC */
+            cursor: grab;
+            position: relative;
+            overflow: hidden;
+        }
+        #workspace:active { cursor: grabbing; }
+
+        #canvas-layer {
+            position: absolute; top: 0; left: 0;
+            transform-origin: 0 0;
+            width: 0; height: 0;
+        }
+
+        /* Nút tròn - Phóng to cho Máy Chiếu */
+        .node-circle {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            width: 72px; height: 72px; /* Kích thước siêu to */
+            border: 4px solid #ffffff;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 900; font-size: 22px; /* Font to rõ */
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            z-index: 50; /* Đẩy z-index lên cao để không bị đè */
+        }
+        .node-circle:hover {
+            transform: translate(-50%, -50%) scale(1.15);
+            border-color: #fde047;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+        }
+
+        /* Ô nhập xác suất dọc mũi tên - Phóng to */
+        .branch-input-container {
+            position: absolute;
+            transform-origin: center center;
+            z-index: 5;
+            display: flex; justify-content: center; align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #cbd5e1; border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 4px 10px;
+            white-space: nowrap;
+            pointer-events: none; /* Xuyên click qua nền */
+        }
+        .branch-prefix {
+            font-size: 18px; font-weight: 800; color: #475569;
+            font-family: 'Times New Roman', serif; font-style: italic;
+            pointer-events: auto; 
+        }
+        .branch-input {
+            width: 60px; height: 30px;
+            text-align: center;
+            font-size: 20px; font-weight: 900; color: #0f172a;
+            background: transparent;
+            border: none; border-bottom: 2px dashed #94a3b8;
+            outline: none;
+            margin-left: 4px;
+            transition: width 0.2s;
+            pointer-events: auto;
+        }
+        .branch-input:focus { border-bottom-color: #3b82f6; width: 80px; }
+
+        /* Lớp CSS Ẩn Ký Hiệu */
+        body.hide-prefixes .branch-prefix { display: none !important; }
+        body.hide-prefixes .branch-input { margin-left: 0; border-bottom: none; width: auto; min-width: 40px; }
+        body.hide-prefixes .branch-input:focus { border-bottom: 2px dashed #3b82f6; min-width: 60px; }
+        body.hide-prefixes .branch-input-container { padding: 6px 12px; border-radius: 16px; }
+
+        /* Context Menu PC */
+        #context-menu {
+            position: absolute; z-index: 100;
+            background: white; border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+            padding: 10px; width: 240px;
+            display: none; flex-direction: column; gap: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .menu-btn {
+            text-align: left; padding: 12px 16px; font-size: 16px; font-weight: 800;
+            border-radius: 10px; cursor: pointer; color: #334155;
+            display: flex; align-items: center; gap: 10px; transition: all 0.2s;
+        }
+        .menu-btn:hover { background: #f1f5f9; color: #2563eb; padding-left: 20px; }
+        .menu-btn.delete:hover { background: #fef2f2; color: #dc2626; }
+
+        /* SVG Line */
+        #svg-layer {
+            position: absolute; top: 0; left: 0; overflow: visible; z-index: 1; pointer-events: none;
+        }
+        .branch-line { stroke-width: 4.5px; fill: none; transition: stroke 0.3s; }
+        
+    </style>
+</head>
+<body class="text-slate-800 bg-slate-100 relative">
+
+    <!-- KHUNG LOGO & THƯƠNG HIỆU TRÔI NỔI (Kèm nút Làm mới ẩn) -->
+    <div class="absolute top-6 left-6 z-40 bg-slate-900/90 backdrop-blur-md border border-slate-700 p-4 rounded-2xl shadow-2xl flex items-center gap-4">
+        <!-- Logo -->
+        <input type="file" id="logoUpload" accept="image/*" class="hidden">
+        <div class="relative flex-shrink-0 cursor-pointer group" onclick="document.getElementById('logoUpload').click()" title="Đổi Logo">
+            <img id="brandLogo" src="https://ui-avatars.com/api/?name=TC&background=0f172a&color=3b82f6&rounded=true&bold=true" alt="Logo" class="w-16 h-16 rounded-full border-2 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.4)] object-cover group-hover:scale-105 transition-all duration-300">
+            <div class="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.828-.566l-.5-1A1 1 0 0012.258 3H7.742a1 1 0 00-.894.553l-.5 1A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg>
+            </div>
+        </div>
+        <!-- Nội dung text -->
+        <div class="overflow-hidden">
+            <h1 class="text-[19px] font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 leading-tight uppercase tracking-wide truncate pr-4">
+                HUNG YEN MATHS
+            </h1>
+            <!-- NÚT LÀM MỚI ĐƯỢC GIẤU Ở ĐÂY -->
+            <p onclick="resetTree()" class="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-widest truncate cursor-pointer hover:text-white transition-colors w-max" title="Click để làm mới sơ đồ">
+                Cây Xác Suất - Bản PC
+            </p>
+        </div>
+    </div>
+
+    <!-- MAIN WORKSPACE -->
+    <div id="workspace">
+        <div id="canvas-layer">
+            <svg id="svg-layer">
+                <!-- Defs tự sinh bằng JS -->
+            </svg>
+            <div id="html-layer"></div>
+        </div>
+
+        <!-- CONTEXT MENU -->
+        <div id="context-menu">
+            <div class="menu-btn" onclick="event.stopPropagation(); menuAction('rename')">✏️ Đổi tên biến cố</div>
+            <div class="w-full h-px bg-slate-200 my-1"></div>
+            <div class="menu-btn" onclick="event.stopPropagation(); menuAction('add2')">🌿 Thêm 2 nhánh</div>
+            <div class="menu-btn" onclick="event.stopPropagation(); menuAction('add3')">🌳 Thêm 3 nhánh</div>
+            <div class="w-full h-px bg-slate-200 my-1"></div>
+            <div class="menu-btn delete" onclick="event.stopPropagation(); menuAction('delete')">🗑️ Xóa nhánh này</div>
+        </div>
+
+        <!-- RENAME MODAL -->
+        <div id="renameModal" class="hidden absolute inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center">
+            <div class="bg-white rounded-3xl p-8 shadow-2xl w-[400px] transform transition-all scale-95 opacity-0" id="renameModalContent">
+                <h3 class="text-2xl font-black text-slate-800 mb-6 text-center">Chỉnh sửa biến cố</h3>
+                
+                <input type="text" id="newNameInput" class="w-full bg-slate-50 text-slate-800 border-2 border-slate-300 rounded-2xl px-4 py-4 mb-5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-200 font-black text-3xl text-center uppercase" autocomplete="off" spellcheck="false" maxlength="4">
+                
+                <label class="flex items-center gap-4 mb-8 cursor-pointer text-slate-700 font-bold text-lg bg-slate-50 p-4 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">
+                    <input type="checkbox" id="isComplementCheckbox" class="w-6 h-6 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                    Biến cố đối (Gạch ngang đầu)
+                </label>
+
+                <div class="flex justify-end gap-4">
+                    <button onclick="closeRenameModal()" class="flex-1 py-3 rounded-xl text-slate-600 bg-slate-200 hover:bg-slate-300 font-bold text-xl transition-colors">Hủy</button>
+                    <button onclick="saveRename()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xl shadow-lg transition-colors">Lưu Tên</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGO UPLOAD ---
+        document.getElementById('logoUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const b64 = event.target.result;
+                    document.getElementById('brandLogo').src = b64;
+                    try { localStorage.setItem('probTree_logo_pc', b64); } catch(e){}
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+        const savedLogo = localStorage.getItem('probTree_logo_pc');
+        if(savedLogo) document.getElementById('brandLogo').src = savedLogo;
+
+        // --- STATE QUẢN LÝ CÂY & HIỂN THỊ ---
+        let treeData = {
+            id: 'root', label: 'Ω', isComplement: false,
+            x: 0, y: 0, children: []
+        };
+        let nodeIdCounter = 1;
+        let selectedNodeId = null;
+        let showPrefixes = true;
+
+        // Kích thước chuẩn cho PC/Projector
+        const NODE_RADIUS = 36; 
+        const VERTICAL_SPACING = 220; 
+        const HORIZONTAL_SPACING = 180;
+
+        const LEVEL_COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#a855f7', '#ec4899', '#06b6d4', '#f43f5e'];
+
+        // --- TOÁN HỌC CÂN BẰNG XÁC SUẤT ---
+        function parseProbability(str) {
+            str = str.trim();
+            if (str.includes('/')) {
+                const parts = str.split('/');
+                if (parts.length === 2) {
+                    const n = parseFloat(parts[0]); const d = parseFloat(parts[1]);
+                    if (!isNaN(n) && !isNaN(d) && d !== 0) return { type: 'frac', n, d, val: n/d };
+                }
+            } 
+            const val = parseFloat(str);
+            if (!isNaN(val)) return { type: 'dec', val, str: str };
+            if (/^[a-zA-Z]$/.test(str)) return { type: 'var', varName: str };
+            return null;
+        }
+
+        function formatComplement(parsedProb) {
+            if (!parsedProb) return '';
+            if (parsedProb.type === 'frac') return `${parsedProb.d - parsedProb.n}/${parsedProb.d}`;
+            if (parsedProb.type === 'dec') {
+                let comp = 1 - parsedProb.val;
+                return (Math.round(comp * 10000) / 10000).toString();
+            }
+            if (parsedProb.type === 'var') return `1-${parsedProb.varName}`;
+            return '';
+        }
+
+        function syncProbabilities(parent, changedChildId) {
+            if (!parent.children) return;
+            if (parent.children.length === 2) {
+                const changed = parent.children.find(c => c.id === changedChildId);
+                const other = parent.children.find(c => c.id !== changedChildId);
+                const parsed = parseProbability(changed.prob);
+                if (parsed) other.prob = formatComplement(parsed);
+            } 
+            else if (parent.children.length === 3) {
+                const parsedProbs = parent.children.map(c => parseProbability(c.prob));
+                const validCount = parsedProbs.filter(p => p !== null).length;
+                if (validCount === 2) {
+                    const blankIndex = parsedProbs.findIndex(p => p === null);
+                    if (blankIndex !== -1) {
+                        const validP = parsedProbs.filter(p => p !== null);
+                        if (validP[0].type === 'frac' && validP[1].type === 'frac' && validP[0].d === validP[1].d) {
+                            const compN = validP[0].d - validP[0].n - validP[1].n;
+                            parent.children[blankIndex].prob = `${compN}/${validP[0].d}`;
+                        } else if (validP[0].type === 'dec' || validP[0].type === 'frac') {
+                            const sumVal = (validP[0].val || 0) + (validP[1].val || 0);
+                            let comp = 1 - sumVal;
+                            parent.children[blankIndex].prob = (Math.round(comp * 10000) / 10000).toString();
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- PAN & ZOOM ---
+        const workspace = document.getElementById('workspace');
+        const canvasLayer = document.getElementById('canvas-layer');
+        let scale = 1;
+        let panX = 0, panY = 0;
+        let isDragging = false;
+        let startX, startY;
+
+        function updateTransform() {
+            canvasLayer.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+            document.getElementById('context-menu').style.display = 'none';
+        }
+
+        window.centerTree = function() {
+            const rect = workspace.getBoundingClientRect();
+            scale = 1; 
+            panX = rect.width / 2; 
+            panY = 120;
+            updateTransform();
+        }
+
+        workspace.addEventListener('mousedown', (e) => {
+            if (e.target.closest('#context-menu') || e.target.closest('.node-circle')) return;
+            isDragging = true; startX = e.clientX - panX; startY = e.clientY - panY;
+            document.getElementById('context-menu').style.display = 'none';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            panX = e.clientX - startX; panY = e.clientY - startY; updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => { isDragging = false; });
+        
+        workspace.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = workspace.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top;
+            const wheel = e.deltaY < 0 ? 1 : -1; const zoomFactor = 0.1;
+            let newScale = scale * (1 + wheel * zoomFactor);
+            newScale = Math.max(0.3, Math.min(newScale, 4)); 
+            panX = mouseX - (mouseX - panX) * (newScale / scale);
+            panY = mouseY - (mouseY - panY) * (newScale / scale);
+            scale = newScale; updateTransform();
+        }, { passive: false });
+
+        // --- THUẬT TOÁN TẠO CÂY ---
+        function getNextAvailableLabels(count) {
+            const alphabet = "ABCDEFGHMNXYZ".split('');
+            const used = new Set();
+            function traverse(n) { if (n.id !== 'root') used.add(n.label); if (n.children) n.children.forEach(traverse); }
+            traverse(treeData);
+            
+            let res = [];
+            for (let char of alphabet) {
+                if (!used.has(char)) { res.push(char); if (res.length === count) return res; }
+            }
+            while(res.length < count) { res.push('B' + Math.floor(Math.random()*100)); }
+            return res;
+        }
+
+        function calculateLayout(node) {
+            function calculateLeaves(n) {
+                if (!n.children || n.children.length === 0) n.leafCount = 1;
+                else {
+                    n.leafCount = 0;
+                    n.children.forEach(c => { calculateLeaves(c); n.leafCount += c.leafCount; });
+                }
+            }
+            calculateLeaves(node);
+
+            function assignCoordinates(n, depth, leftBound, rightBound) {
+                n.y = depth * VERTICAL_SPACING;
+                if (!n.children || n.children.length === 0) n.x = (leftBound + rightBound) / 2;
+                else {
+                    let currentLeft = leftBound;
+                    const totalLeaves = n.leafCount;
+                    const width = rightBound - leftBound;
+                    n.children.forEach(c => {
+                        const childWidth = (c.leafCount / totalLeaves) * width;
+                        assignCoordinates(c, depth + 1, currentLeft, currentLeft + childWidth);
+                        currentLeft += childWidth;
+                    });
+                    const firstChild = n.children[0];
+                    const lastChild = n.children[n.children.length - 1];
+                    n.x = (firstChild.x + lastChild.x) / 2;
+                }
+            }
+            const totalWidth = node.leafCount * HORIZONTAL_SPACING;
+            assignCoordinates(node, 0, -totalWidth / 2, totalWidth / 2);
+        }
+
+        function getLabelPrefixHTML(n) {
+            return n.isComplement 
+                ? `<span style="text-decoration: overline; text-decoration-thickness: 1.5px;">${n.label}</span>` 
+                : n.label;
+        }
+
+        function findNode(n, id) {
+            if (n.id === id) return n;
+            if (n.children) { for (let c of n.children) { let found = findNode(c, id); if (found) return found; } }
+            return null;
+        }
+
+        function findParent(n, id, parent = null) {
+            if (n.id === id) return parent;
+            if (n.children) { for (let c of n.children) { let found = findParent(c, id, n); if (found) return found; } }
+            return null;
+        }
+
+        // --- RENDER CÂY ---
+        function renderTree() {
+            calculateLayout(treeData);
+            
+            const svgLayer = document.getElementById('svg-layer');
+            const htmlLayer = document.getElementById('html-layer');
+            
+            let defsHTML = '';
+            LEVEL_COLORS.forEach((color, i) => {
+                defsHTML += `<marker id="arrowhead-${i}" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><polygon points="0 0, 10 4, 0 8" fill="${color}" /></marker>`;
+            });
+            svgLayer.innerHTML = `<defs>${defsHTML}</defs>`;
+            htmlLayer.innerHTML = '';
+
+            let minX = 0, maxX = 0, maxY = 0;
+            
+            function drawNode(n, parent = null, depth = 0) {
+                minX = Math.min(minX, n.x - 200); maxX = Math.max(maxX, n.x + 200); maxY = Math.max(maxY, n.y + 200);
+                const colorIdx = depth % LEVEL_COLORS.length;
+                const nodeColor = LEVEL_COLORS[colorIdx];
+
+                if (parent) {
+                    const dx = n.x - parent.x; const dy = n.y - parent.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    const startX = parent.x + (dx/dist) * (NODE_RADIUS + 2);
+                    const startY = parent.y + (dy/dist) * (NODE_RADIUS + 2);
+                    const endX = n.x - (dx/dist) * (NODE_RADIUS + 8);
+                    const endY = n.y - (dy/dist) * (NODE_RADIUS + 8);
+
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', startX); line.setAttribute('y1', startY);
+                    line.setAttribute('x2', endX); line.setAttribute('y2', endY);
+                    line.setAttribute('stroke', nodeColor); 
+                    line.setAttribute('marker-end', `url(#arrowhead-${colorIdx})`); 
+                    line.classList.add('branch-line');
+                    svgLayer.appendChild(line);
+
+                    const midX = (startX + endX) / 2;
+                    const midY = (startY + endY) / 2;
+                    let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+                    if (angle > 90 && angle < 270) angle -= 180;
+                    if (angle < -90 && angle > -270) angle += 180;
+
+                    const inputContainer = document.createElement('div');
+                    inputContainer.className = 'branch-input-container';
+                    inputContainer.style.left = `${midX}px`;
+                    inputContainer.style.top = `${midY}px`;
+                    
+                    inputContainer.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-26px)`;
+
+                    const prefixSpan = document.createElement('span');
+                    prefixSpan.className = 'branch-prefix';
+                    prefixSpan.style.color = nodeColor; 
+                    
+                    let childLabel = getLabelPrefixHTML(n);
+                    if (parent.id === 'root') {
+                        prefixSpan.innerHTML = `P(${childLabel})=`;
+                    } else {
+                        let parentLabel = getLabelPrefixHTML(parent);
+                        prefixSpan.innerHTML = `P(${childLabel}|${parentLabel})=`;
+                    }
+
+                    const input = document.createElement('input');
+                    input.className = 'branch-input';
+                    input.value = n.prob || '';
+                    input.placeholder = '?';
+                    
+                    input.onchange = (e) => { 
+                        n.prob = e.target.value; 
+                        syncProbabilities(parent, n.id);
+                        renderTree(); 
+                    };
+                    input.onmousedown = (e) => e.stopPropagation(); 
+                    input.ontouchstart = (e) => e.stopPropagation();
+                    
+                    inputContainer.appendChild(prefixSpan);
+                    inputContainer.appendChild(input);
+                    htmlLayer.appendChild(inputContainer);
+                }
+
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = `node-circle`;
+                nodeDiv.style.left = `${n.x}px`;
+                nodeDiv.style.top = `${n.y}px`;
+                nodeDiv.style.backgroundColor = nodeColor; 
+                nodeDiv.style.boxShadow = `0 6px 15px ${nodeColor}66`; 
+                
+                nodeDiv.textContent = n.label;
+                if (n.isComplement) {
+                    nodeDiv.style.textDecoration = 'overline';
+                    nodeDiv.style.textDecorationThickness = '3px';
+                }
+                
+                nodeDiv.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    openContextMenu(e, n.id, n.x, n.y);
+                });
+                nodeDiv.addEventListener('touchstart', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    openContextMenu(e, n.id, n.x, n.y);
+                }, {passive: false});
+
+                htmlLayer.appendChild(nodeDiv);
+
+                if (n.children) {
+                    n.children.forEach(c => drawNode(c, n, depth + 1));
+                }
+            }
+
+            drawNode(treeData, null, 0);
+
+            svgLayer.style.width = `${Math.max(window.innerWidth, maxX - minX)}px`;
+            svgLayer.style.height = `${Math.max(window.innerHeight, maxY)}px`;
+            svgLayer.style.left = `${minX}px`;
+            svgLayer.setAttribute('viewBox', `${minX} 0 ${Math.max(window.innerWidth, maxX - minX)} ${Math.max(window.innerHeight, maxY)}`);
+        }
+
+        // --- CONTEXT MENU THÔNG MINH ---
+        const contextMenu = document.getElementById('context-menu');
+        
+        function openContextMenu(e, id, nx, ny) {
+            selectedNodeId = id;
+            contextMenu.style.display = 'flex';
+            
+            const delBtn = contextMenu.querySelector('.delete');
+            if(id === 'root') delBtn.style.display = 'none';
+            else delBtn.style.display = 'flex';
+
+            const rect = workspace.getBoundingClientRect();
+            
+            const nodeCenterX = nx * scale + panX;
+            const nodeCenterY = ny * scale + panY;
+
+            let menuX = nodeCenterX + (NODE_RADIUS * scale) + 15;
+            let menuY = nodeCenterY;
+
+            const menuWidth = 240;
+            const menuHeight = 200;
+
+            if (menuX + menuWidth > workspace.clientWidth) {
+                menuX = nodeCenterX - (NODE_RADIUS * scale) - menuWidth - 15;
+            }
+            if (menuY + menuHeight > workspace.clientHeight) {
+                menuY = workspace.clientHeight - menuHeight - 15;
+            }
+            if (menuX < 10) menuX = 10;
+            if (menuY < 10) menuY = 10;
+
+            contextMenu.style.left = `${menuX}px`;
+            contextMenu.style.top = `${menuY}px`;
+        }
+
+        document.addEventListener('mousedown', (e) => {
+            if (!contextMenu.contains(e.target) && !e.target.closest('.node-circle')) {
+                contextMenu.style.display = 'none';
+            }
+        });
+
+        window.menuAction = function(action) {
+            contextMenu.style.display = 'none';
+            const node = findNode(treeData, selectedNodeId);
+            if (!node) return;
+
+            if (action === 'rename') {
+                openRenameModal(node);
+            } 
+            else if (action === 'add2') {
+                node.children = node.children || [];
+                const nextLabel = getNextAvailableLabels(1)[0];
+                node.children.push({ id: `n_${nodeIdCounter++}`, label: nextLabel, isComplement: false, prob: '', children: [] });
+                node.children.push({ id: `n_${nodeIdCounter++}`, label: nextLabel, isComplement: true, prob: '', children: [] });
+                renderTree();
+            }
+            else if (action === 'add3') {
+                node.children = node.children || [];
+                const labels = getNextAvailableLabels(3);
+                node.children.push({ id: `n_${nodeIdCounter++}`, label: labels[0], isComplement: false, prob: '', children: [] });
+                node.children.push({ id: `n_${nodeIdCounter++}`, label: labels[1], isComplement: false, prob: '', children: [] });
+                node.children.push({ id: `n_${nodeIdCounter++}`, label: labels[2], isComplement: false, prob: '', children: [] });
+                renderTree();
+            }
+            else if (action === 'delete') {
+                if (node.id === 'root') return;
+                const parent = findParent(treeData, node.id);
+                if (parent) {
+                    parent.children = parent.children.filter(c => c.id !== node.id);
+                    renderTree();
+                }
+            }
+        };
+
+        // --- RENAME MODAL ---
+        let editingNode = null;
+        window.openRenameModal = function(node) {
+            editingNode = node;
+            const modal = document.getElementById('renameModal');
+            const content = document.getElementById('renameModalContent');
+            
+            document.getElementById('newNameInput').value = node.label;
+            document.getElementById('isComplementCheckbox').checked = node.isComplement || false;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => { 
+                content.classList.remove('scale-95', 'opacity-0'); 
+                document.getElementById('newNameInput').focus(); 
+                document.getElementById('newNameInput').select(); 
+            }, 10);
+        };
+
+        window.closeRenameModal = function() {
+            const modal = document.getElementById('renameModal');
+            const content = document.getElementById('renameModalContent');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); editingNode = null; }, 200);
+        };
+
+        window.saveRename = function() {
+            if(!editingNode) return;
+            let newName = document.getElementById('newNameInput').value.trim();
+            if(newName) {
+                if (newName.length === 1) newName = newName.toUpperCase();
+
+                const oldName = editingNode.label;
+                editingNode.label = newName;
+                editingNode.isComplement = document.getElementById('isComplementCheckbox').checked;
+                
+                const parent = findParent(treeData, editingNode.id);
+                if (parent && parent.children) {
+                    parent.children.forEach(sibling => {
+                        if (sibling.id !== editingNode.id && sibling.label === oldName) {
+                            sibling.label = newName;
+                        }
+                    });
+                }
+                renderTree();
+            }
+            closeRenameModal();
+        };
+
+        document.getElementById('newNameInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') saveRename(); });
+
+        window.resetTree = function() {
+            if(confirm("Xóa toàn bộ sơ đồ hiện tại?")) {
+                treeData = { id: 'root', label: 'Ω', isComplement: false, x: 0, y: 0, children: [] };
+                nodeIdCounter = 1;
+                centerTree();
+                renderTree();
+            }
+        };
+
+        window.onload = () => {
+            centerTree();
+            renderTree();
+        };
+
+    </script>
+</body>
+</html>
