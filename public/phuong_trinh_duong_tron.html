@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toán 10.Trợ Lý Giải Toán - Phương Trình Đường Tròn</title>
+    
+    <!-- Tailwind CSS cho layout và style -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX CSS & JS cho công thức Toán học -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <!-- Nerdamer (Lõi Đại Số Máy Tính để giải phương trình giữ nguyên Căn Thức / Phân số) -->
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
+
+    <!-- Cấu hình CSS tuỳ chỉnh cho giao diện bảng phấn -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #1a422b;
+            color: #ffffff;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Tùy chỉnh thanh cuộn cho giống phấn */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.5); }
+
+        .bg-board-dark { background-color: #133320; }
+        .bg-board-main { background-color: #163d26; }
+        .chalk-border { border: 1px dashed rgba(255, 255, 255, 0.3); }
+        .chalk-border-solid { border: 1px solid rgba(255, 255, 255, 0.4); }
+
+        .title-glow {
+            color: #fde047; 
+            text-shadow: 0px 0px 8px rgba(253, 224, 71, 0.4);
+        }
+
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tối ưu ô input nhỏ gọn hơn */
+        .chalk-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(255,255,255,0.5);
+            color: #fde047;
+            text-align: center;
+            font-size: 1rem;
+            padding: 2px 0;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
+            width: 100%;
+        }
+        .chalk-input:focus, .chalk-input.active {
+            border-bottom: 2px solid #fde047;
+            background: rgba(255,255,255,0.05);
+        }
+        .katex { color: inherit; }
+
+        /* --- TOÁN PRO Branding --- */
+        .tc-header {
+            display: flex; align-items: center; gap: 12px;
+            padding-bottom: 12px; margin-bottom: 15px;
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+        }
+        .tc-logo-wrapper { position: relative; cursor: pointer; }
+        .tc-logo-wrapper::after {
+            content: '📸 Đổi ảnh'; position: absolute; bottom: -20px; left: 50%;
+            transform: translateX(-50%); background: rgba(0,0,0,0.8);
+            color: white; font-size: 11px; padding: 2px 6px; border-radius: 12px;
+            opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 10;
+        }
+        .tc-logo-wrapper:hover::after { opacity: 1; }
+        .tc-logo {
+            width: 50px; height: 50px; border-radius: 50%;
+            border: 2px solid #fde047; background: linear-gradient(135deg, #166534, #14532d);
+            background-size: cover; background-position: center;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; box-shadow: 0 0 10px rgba(253, 224, 71, 0.5);
+            animation: pulse-glow 2s infinite; z-index: 2; position: relative;
+        }
+        .tc-logo-ring {
+            position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border-radius: 50%; border: 2px solid transparent;
+            border-top-color: #fde047; border-bottom-color: #fde047;
+            animation: spin-ring 4s linear infinite;
+        }
+        @keyframes spin-ring { 100% { transform: rotate(360deg); } }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 8px rgba(253, 224, 71, 0.4); }
+            50% { box-shadow: 0 0 16px rgba(253, 224, 71, 0.8); }
+            100% { box-shadow: 0 0 8px rgba(253, 224, 71, 0.4); }
+        }
+        .tc-title {
+            font-size: 1.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+            background: linear-gradient(90deg, #fde047, #ffffff, #fde047); background-size: 200% auto;
+            color: transparent; -webkit-background-clip: text; background-clip: text;
+            animation: shine-text 3s linear infinite;
+        }
+        @keyframes shine-text { to { background-position: 200% center; } }
+        .tc-slogan { font-size: 0.8rem; color: #86efac; font-weight: 600; margin-top: -2px; }
+    </style>
+</head>
+<body class="flex h-screen w-full flex-row">
+
+    <!-- BÊN TRÁI: MENU & NHẬP LIỆU -->
+    <div class="w-[38%] bg-board-dark border-r-2 border-white/20 p-5 flex flex-col h-full shadow-[4px_0_15px_rgba(0,0,0,0.3)] z-10 relative">
+        <div class="tc-header">
+            <div class="tc-logo-wrapper" onclick="document.getElementById('logo-upload').click()">
+                <div class="tc-logo-ring"></div>
+                <div class="tc-logo" id="tc-logo-display">👨‍🏫</div>
+                <input type="file" id="logo-upload" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
+            </div>
+            <div>
+                <div class="tc-title">TOÁN PRO</div>
+                <div class="tc-slogan">Nay rèn luyện, mai vững vàng!</div>
+            </div>
+        </div>
+        <div id="left-panel-content" class="flex-1 overflow-y-auto pr-2 pb-2"></div>
+    </div>
+
+    <!-- BÊN PHẢI: HIỂN THỊ LỜI GIẢI -->
+    <div class="w-[62%] bg-board-main p-8 h-full overflow-y-auto relative" id="right-panel"></div>
+
+    <script>
+        const state = {
+            selectedType: null, inputs: {}, focusedInput: null,
+            showSolution: false, // True: đã bấm Thực hiện
+            showDetails: false,  // True: đã bấm Xem lời giải chi tiết
+            katexReady: false
+        };
+
+        let lastRenderState = ""; 
+
+        const problemTypes = [
+            { id: 1, title: "Dạng 1: Viết PT khi biết tâm và bán kính R", desc: "Xác định PT đường tròn tâm I(a, b) và bán kính R.", inputs: ['a', 'b', 'R'] },
+            { id: 2, title: "Dạng 2: Viết PT khi biết đường kính AB", desc: "Xác định PT đường tròn nhận đoạn thẳng AB làm đường kính.", inputs: ['xA', 'yA', 'xB', 'yB'] },
+            { id: 3, title: "Dạng 3: Tìm tâm & bán kính từ PT tổng quát", desc: "PT: x² + y² - 2ax - 2by + c = 0. Tìm tâm và bán kính.", inputs: ['a_coef', 'b_coef', 'c_coef'] },
+            { id: 4, title: "Dạng 4: Tâm thuộc trục Ox, đi qua A, biết R", desc: "Tìm PT đường tròn tâm nằm trên Ox, đi qua A và có bán kính R.", inputs: ['xA', 'yA', 'R'] },
+            { id: 5, title: "Dạng 5: Tâm I tiếp xúc đường thẳng Δ", desc: "Xác định PT đường tròn tâm I(a,b) tiếp xúc Δ: mx + ny + p = 0", inputs: ['a', 'b', 'm', 'n', 'p'] },
+            { id: 6, title: "Dạng 6: Đi qua 3 điểm A, B, C", desc: "Viết PT đường tròn đi qua 3 điểm phân biệt không thẳng hàng.", inputs: ['xA', 'yA', 'xB', 'yB', 'xC', 'yC'] }
+        ];
+
+        const virtualKeys = [
+            'm', '7', '8', '9', '/',
+            'a', '4', '5', '6', '-',
+            '+', '1', '2', '3', 'C',
+            '(', ')', '0', '√', 'Del'
+        ];
+
+        window.addEventListener('load', () => {
+            loadSavedLogo(); 
+            const checkLibs = setInterval(() => {
+                if (window.katex && window.nerdamer) {
+                    clearInterval(checkLibs);
+                    state.katexReady = true;
+                    renderApp();
+                }
+            }, 100);
+        });
+
+        // ----------------------------------------------------
+        // BỘ CÔNG CỤ TÍNH TOÁN ĐẠI SỐ CHÍNH XÁC (SYMBOLIC MATH)
+        // ----------------------------------------------------
+        const n_eval = (str) => {
+            if (!str) return nerdamer('0');
+            let s = str.replace(/√(\d+(\.\d+)?)/g, 'sqrt($1)');
+            s = s.replace(/√\(([^)]+)\)/g, 'sqrt($1)');
+            try { return nerdamer(s); } catch(e) { return nerdamer('0'); }
+        };
+
+        const kInline = (math) => state.katexReady ? window.katex.renderToString(math, { throwOnError: false }) : math;
+        const kBlock = (math) => state.katexReady ? `<div class="my-3 text-center text-xl overflow-x-auto pb-1">${window.katex.renderToString(math, { throwOnError: false, displayMode: true })}</div>` : math;
+
+        // Định dạng dạng chính tắc (x-a)^2, sửa lỗi lộn dấu (vd: (-\sqrt{2}+y)^2 -> (y-\sqrt{2})^2)
+        const formatSq = (v, valObj) => {
+            if (valObj.text() === '0') return `${v}^2`;
+            let valTex = valObj.toTeX().replace(/\\cdot/g, '').replace(/\s+/g, '');
+            if (valTex.startsWith('-') && !valTex.substring(1).includes('+') && !valTex.substring(1).includes('-')) {
+                return `(${v} + ${valTex.substring(1)})^2`;
+            }
+            if (!valTex.includes('+') && (!valTex.includes('-') || valTex.startsWith('\\frac'))) {
+                return `(${v} - ${valTex})^2`;
+            }
+            return `(${v} - (${valTex}))^2`;
+        };
+
+        // Định dạng riêng biệt từng hạng tử để ép biến đứng trước căn (vd: y\sqrt{2} thay vì \sqrt{2}y)
+        const formatCustomTerm = (coefObj, v) => {
+            if (coefObj.eq(0)) return '';
+            let tex = coefObj.toTeX().replace(/\\cdot/g, '').replace(/\s+/g, '');
+            
+            let isNeg = tex.startsWith('-');
+            let sign = isNeg ? '-' : '+';
+            let absTex = isNeg ? tex.substring(1) : tex;
+            
+            if (absTex === '1') return `${sign} ${v}`;
+            
+            // Xử lý hệ số phức tạp (có chứa phép cộng trừ)
+            if (/[\+\-]/.test(absTex) && !absTex.startsWith('\\frac') && !absTex.startsWith('(')) {
+               return `${sign} (${absTex})${v}`;
+            }
+
+            let termStr = "";
+            if (absTex.includes('\\sqrt')) {
+                termStr = absTex.replace('\\sqrt', v + '\\sqrt');
+            } else {
+                termStr = absTex + v;
+            }
+            
+            return `${sign} ${termStr}`;
+        };
+
+        // Dựng phương trình tổng quát x^2 + y^2 + Ax + By + C = 0 theo đúng thứ tự chuẩn SGK
+        const getGeneralCircleEq = (a, b, cTermObj) => {
+            const coefX = nerdamer(`simplify(-2 * (${a.text()}))`);
+            const coefY = nerdamer(`simplify(-2 * (${b.text()}))`);
+
+            let eq = 'x^2 + y^2';
+            
+            let texX = formatCustomTerm(coefX, 'x');
+            if (texX) eq += ` ${texX}`;
+            
+            let texY = formatCustomTerm(coefY, 'y');
+            if (texY) eq += ` ${texY}`;
+            
+            if (!cTermObj.eq(0)) {
+                let texC = cTermObj.toTeX().replace(/\\cdot/g, '').replace(/\s+/g, '');
+                if (texC.startsWith('-')) {
+                    eq += ` - ${texC.substring(1)}`;
+                } else {
+                    eq += ` + ${texC}`;
+                }
+            }
+            
+            eq += ' = 0';
+            return eq;
+        };
+
+        // Tính định thức cấp 3 (Cramer) giữ nguyên căn/phân số
+        const n_sub = (a, b) => nerdamer(`${a.text()} - (${b.text()})`);
+        const n_mul = (a, b) => nerdamer(`(${a.text()}) * (${b.text()})`);
+        const n_det3x3 = (m) => {
+            const p1 = n_mul(m[0][0], n_sub(n_mul(m[1][1], m[2][2]), n_mul(m[1][2], m[2][1])));
+            const p2 = n_mul(m[0][1], n_sub(n_mul(m[1][0], m[2][2]), n_mul(m[1][2], m[2][0])));
+            const p3 = n_mul(m[0][2], n_sub(n_mul(m[1][0], m[2][1]), n_mul(m[1][1], m[2][0])));
+            return nerdamer(`simplify(${p1.text()} - (${p2.text()}) + ${p3.text()})`);
+        };
+
+        // ----------------------------------------------------
+        // CÁC HÀM XỬ LÝ GIAO DIỆN / ĐIỀU KHIỂN
+        // ----------------------------------------------------
+        function selectType(id) { 
+            state.selectedType = id; 
+            state.inputs = {}; 
+            state.focusedInput = null; 
+            state.showSolution = false; 
+            state.showDetails = false;
+            renderApp(); 
+        }
+        function backToList() { 
+            state.selectedType = null; 
+            state.showSolution = false; 
+            state.showDetails = false;
+            renderApp(); 
+        }
+        function toggleSolution(isShowing) { 
+            state.showSolution = isShowing; 
+            if (isShowing) {
+                state.showDetails = false; 
+            } else {
+                state.focusedInput = problemTypes.find(t=>t.id===state.selectedType).inputs[0];
+            }
+            renderApp(); 
+        }
+        function revealDetails() {
+            state.showDetails = true;
+            renderRightPanel();
+        }
+
+        function setFocus(inputName) { state.focusedInput = inputName; renderLeftPanel(); }
+        
+        function handleKey(key) {
+            if (!state.focusedInput) return;
+            let currentVal = state.inputs[state.focusedInput] || '';
+            if (key === 'C') currentVal = '';
+            else if (key === 'Del') currentVal = currentVal.slice(0, -1);
+            else currentVal += key;
+            
+            state.inputs[state.focusedInput] = currentVal;
+            const inputEl = document.getElementById('input_' + state.focusedInput);
+            if (inputEl) inputEl.value = currentVal;
+        }
+
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    applyLogo(dataUrl);
+                    localStorage.setItem('savedTcLogo', dataUrl); 
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        function applyLogo(dataUrl) {
+            const logoEl = document.getElementById('tc-logo-display');
+            if (logoEl) { logoEl.style.backgroundImage = `url(${dataUrl})`; logoEl.innerHTML = ''; }
+        }
+        function loadSavedLogo() { const savedLogo = localStorage.getItem('savedTcLogo'); if (savedLogo) applyLogo(savedLogo); }
+
+        function renderApp() { renderLeftPanel(); renderRightPanel(); }
+
+        // ==========================================
+        // RENDER GIAO DIỆN BÊN TRÁI (BẢNG ĐIỀU KHIỂN)
+        // ==========================================
+        function renderLeftPanel() {
+            const leftEl = document.getElementById('left-panel-content');
+            const currentStateStr = `${state.selectedType}_${state.showSolution}`;
+            
+            if (!state.selectedType) {
+                if (lastRenderState !== "MENU") {
+                    leftEl.innerHTML = `
+                        <div class="fade-in flex flex-col h-full">
+                            <h2 class="text-lg font-bold text-green-300 mb-2 flex items-center border-b border-white/10 pb-2">
+                                <span class="mr-2">📝</span> Danh mục bài tập
+                            </h2>
+                            <div class="space-y-3 mt-2">
+                                ${problemTypes.map(type => `
+                                    <div onclick="selectType(${type.id})" class="p-3 rounded-lg chalk-border hover:bg-white/10 cursor-pointer transition-all duration-300 group">
+                                        <h3 class="font-bold text-yellow-300 text-base mb-1 group-hover:text-yellow-200">${type.title}</h3>
+                                        <p class="text-xs text-gray-300 opacity-80">${type.desc}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                    lastRenderState = "MENU";
+                }
+            } else {
+                const activeType = problemTypes.find(t => t.id === state.selectedType);
+                
+                if (lastRenderState !== currentStateStr) {
+                    let generalStepsHTML = '';
+                    if (activeType.id === 1) {
+                        generalStepsHTML = `<p>1. Định dạng PT: ${kBlock('(x - a)^2 + (y - b)^2 = R^2')}</p><p>2. Thay toạ độ tâm ${kInline('I(a; b)')} và bán kính ${kInline('R')}.</p><p>3. Khai triển nếu cần đưa về dạng tổng quát.</p>`;
+                    } else if (activeType.id === 2) {
+                        generalStepsHTML = `<p>1. Tìm tâm ${kInline('I')} là trung điểm ${kInline('AB')}: <br>${kBlock('x_I = \\frac{x_A+x_B}{2}, y_I = \\frac{y_A+y_B}{2}')}</p><p>2. Bán kính ${kInline('R = \\frac{AB}{2}')} suy ra ${kInline('R^2 = \\frac{AB^2}{4}')}.</p><p>3. Viết PT: ${kInline('(x-x_I)^2 + (y-y_I)^2 = R^2')}</p>`;
+                    } else if (activeType.id === 3) {
+                        generalStepsHTML = `<p>1. PT: ${kInline('x^2 + y^2 - 2ax - 2by + c = 0')}</p><p>2. Xác định tâm ${kInline('I(a; b)')}</p><p>3. Xét ĐK đường tròn: ${kInline('R^2 = a^2 + b^2 - c > 0')}</p><p>4. Tính bán kính ${kInline('R = \\sqrt{R^2}')}</p>`;
+                    } else if (activeType.id === 4) {
+                        generalStepsHTML = `<p>1. Tâm ${kInline('I \\in Ox \\Rightarrow I(a; 0)')}.</p><p>2. Đường tròn qua A nên ${kInline('IA^2 = R^2')}.</p><p>3. Lập phương trình: ${kBlock('(x_A - a)^2 + (y_A - 0)^2 = R^2')}</p><p>4. Giải phương trình tìm ${kInline('a')}, suy ra PT đường tròn.</p>`;
+                    } else if (activeType.id === 5) {
+                        generalStepsHTML = `<p>1. Bán kính bằng khoảng cách từ tâm ${kInline('I')} đến $\\Delta$.</p><p>2. Tính R: ${kBlock('R = d(I, \\Delta) = \\frac{|m x_I + n y_I + p|}{\\sqrt{m^2 + n^2}}')}</p><p>3. Viết PT: ${kInline('(x-a)^2 + (y-b)^2 = R^2')}</p>`;
+                    } else if (activeType.id === 6) {
+                        generalStepsHTML = `<p>1. Gọi PT đường tròn có dạng: ${kBlock('x^2 + y^2 - 2ax - 2by + c = 0')}</p><p>2. Thay lần lượt toạ độ 3 điểm ${kInline('A, B, C')} vào phương trình.</p><p>3. Giải hệ phương trình 3 ẩn tìm ${kInline('a, b, c')}.</p><p>4. Tính bán kính ${kInline('R = \\sqrt{a^2+b^2-c}')} và kết luận.</p>`;
+                    }
+
+                    if (state.showSolution) {
+                        leftEl.innerHTML = `
+                            <div class="fade-in flex flex-col h-full">
+                                <button onclick="backToList()" class="mb-3 text-gray-300 hover:text-white flex items-center font-bold text-sm w-fit transition-colors">
+                                    <span class="mr-1">←</span> Chọn bài khác
+                                </button>
+                                <h2 class="text-xl font-bold title-glow mb-4 leading-tight">${activeType.title}</h2>
+                                <div class="text-sm text-white chalk-border-solid bg-black/30 p-4 rounded-lg mb-4 shadow-inner flex-1">
+                                    <h3 class="font-bold text-yellow-300 mb-3 border-b border-yellow-300/30 pb-1 flex items-center"><span class="mr-2">📌</span> Các bước giải tổng quát:</h3>
+                                    <div class="space-y-3 text-gray-200">${generalStepsHTML}</div>
+                                </div>
+                                <button onclick="toggleSolution(false)" class="w-full bg-blue-600/80 border border-blue-400 hover:bg-blue-500 text-white font-bold text-base py-2.5 rounded-lg shadow-md transition-all">
+                                    ✏️ SỬA SỐ LIỆU
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        leftEl.innerHTML = `
+                            <div class="fade-in flex flex-col h-full">
+                                <button onclick="backToList()" class="mb-3 text-gray-300 hover:text-white flex items-center font-bold text-sm w-fit transition-colors">
+                                    <span class="mr-1">←</span> Quay lại
+                                </button>
+                                <h2 class="text-xl font-bold title-glow mb-3 leading-tight">${activeType.title}</h2>
+                                <div class="flex-1 flex flex-col">
+                                    <h3 class="text-sm font-bold text-green-300 mb-2 flex items-center"><span class="mr-1">✏️</span> Nhập số liệu:</h3>
+                                    <div class="grid grid-cols-2 gap-2 mb-3">
+                                        ${activeType.inputs.map(inputName => {
+                                            let labelHTML = inputName;
+                                            if (['a','b','R','xA','yA','xB','yB','xC','yC','m','n','p'].includes(inputName)) {
+                                                const mapping = {xA:'x_A', yA:'y_A', xB:'x_B', yB:'y_B', xC:'x_C', yC:'y_C'};
+                                                labelHTML = kInline(mapping[inputName] || inputName);
+                                            } else if (inputName.includes('_coef')) {
+                                                labelHTML = 'Hệ số ' + kInline(inputName[0]);
+                                            }
+                                            const val = state.inputs[inputName] || '';
+                                            return `
+                                            <div class="flex flex-col bg-black/20 p-1.5 rounded chalk-border">
+                                                <label class="text-xs font-bold text-gray-300 mb-0.5 text-center" onclick="setFocus('${inputName}')">${labelHTML}</label>
+                                                <input id="input_${inputName}" class="chalk-input text-sm" value="${val}" onclick="setFocus('${inputName}')" readonly placeholder="..."/>
+                                            </div>`;
+                                        }).join('')}
+                                    </div>
+                                    <div id="virtual-keyboard" class="opacity-0 transition-opacity duration-200 mb-3">
+                                        <div class="bg-black/30 p-2 rounded-lg grid grid-cols-5 gap-1.5">
+                                            ${virtualKeys.map(k => {
+                                                let btnClass = "bg-white/10 hover:bg-white/20 border border-white/20";
+                                                if (k === 'C') btnClass = "bg-red-500/20 hover:bg-red-500/40 text-red-200 border-red-500/30";
+                                                else if (k === 'Del') btnClass = "bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-200 border-yellow-500/30";
+                                                else if (['m','a','+','-','/','(',')','√'].includes(k)) btnClass = "bg-blue-500/20 hover:bg-blue-500/40 text-blue-200 border-blue-500/30";
+                                                return `<button onclick="handleKey('${k}')" class="py-1.5 rounded font-bold active:scale-95 text-sm shadow-sm ${btnClass}">${k}</button>`;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                    <button onclick="toggleSolution(true)" class="mt-auto w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-extrabold text-base py-2.5 rounded-lg shadow-lg active:scale-95 transition-transform">
+                                        THỰC HIỆN XEM LỜI GIẢI
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        if (!state.focusedInput && activeType.inputs.length > 0) state.focusedInput = activeType.inputs[0];
+                    }
+                    lastRenderState = currentStateStr;
+                }
+
+                if (!state.showSolution) {
+                    activeType.inputs.forEach(inputName => {
+                        const el = document.getElementById('input_' + inputName);
+                        if (el) {
+                            el.value = state.inputs[inputName] || '';
+                            state.focusedInput === inputName ? el.classList.add('active') : el.classList.remove('active');
+                        }
+                    });
+                    const kb = document.getElementById('virtual-keyboard');
+                    if (kb) state.focusedInput ? kb.classList.replace('opacity-0', 'opacity-100') : kb.classList.replace('opacity-100', 'opacity-0');
+                }
+            }
+        }
+
+        // ==========================================
+        // RENDER GIAO DIỆN BÊN PHẢI (BẢNG LỜI GIẢI ĐẠI SỐ)
+        // ==========================================
+        function renderRightPanel() {
+            const rightEl = document.getElementById('right-panel');
+            if (!state.katexReady) { rightEl.innerHTML = `<div class="h-full flex items-center justify-center text-xl text-yellow-200 animate-pulse">⏳ Đang chuẩn bị bảng...</div>`; return; }
+            if (!state.showSolution || !state.selectedType) {
+                rightEl.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center opacity-40 fade-in">
+                        <div class="text-6xl mb-6">👩‍🏫</div>
+                        <h2 class="text-2xl font-bold title-glow mb-2">Bảng Giáo Viên</h2>
+                        <p class="text-lg">Trò điền số liệu bên trái rồi bấm <b class="text-yellow-200">Thực Hiện</b> nhé!</p>
+                    </div>`;
+                return;
+            }
+
+            const activeType = problemTypes.find(t => t.id === state.selectedType);
+            let content = '';
+            let solutionContent = '';
+
+            const getRaw = (key) => state.inputs[key] || '0';
+
+            // --- HEADER BÀI TOÁN CHUNG ---
+            let descParams = '';
+            
+            // --- XỬ LÝ LỜI GIẢI SYMBOLIC TỪNG DẠNG BÀI BẰNG NERDAMER ---
+            if (activeType.id === 1) {
+                const a = n_eval(getRaw('a')), b = n_eval(getRaw('b')), R = n_eval(getRaw('R'));
+                descParams = `tâm ${kInline(`I(${a.toTeX()}; ${b.toTeX()})`)} và bán kính ${kInline(`R = ${R.toTeX()}`)}`;
+                
+                content += `<div class="bg-black/20 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-md fade-in">
+                                <h3 class="font-bold title-glow text-base uppercase mb-1">Bài toán:</h3>
+                                <p class="text-lg leading-relaxed">Viết phương trình đường tròn ${descParams}.</p>
+                            </div>`;
+                
+                solutionContent += `<div class="px-2">
+                                <h3 class="font-bold text-green-300 text-lg mb-4 border-b border-green-300/30 pb-2 flex items-center"><span class="mr-2">💡</span> Lời giải chi tiết:</h3>`;
+                                
+                const sqX = formatSq('x', a), sqY = formatSq('y', b);
+                const R2 = nerdamer(`expand((${R.text()})^2)`);
+                
+                solutionContent += `<p class="mb-2 text-lg">Đường tròn có phương trình dạng: ${kBlock(`(x - a)^2 + (y - b)^2 = R^2`)} Thay số ta được:</p>`;
+                solutionContent += `${kBlock(`${sqX} + ${sqY} = ${R2.toTeX()}`)}`;
+                
+                const cTerm = nerdamer(`expand((${a.text()})^2 + (${b.text()})^2 - (${R2.text()}))`);
+                const genEqTex = getGeneralCircleEq(a, b, cTerm);
+
+                solutionContent += `<div class="mt-4 p-4 chalk-border rounded-lg bg-white/5">
+                                <p class="mb-2 text-md italic text-yellow-200">Mở rộng: Khai triển để đưa về dạng tổng quát:</p>
+                                ${kBlock(genEqTex)}
+                            </div></div>`;
+            } 
+            else if (activeType.id === 2) {
+                const xA = n_eval(getRaw('xA')), yA = n_eval(getRaw('yA'));
+                const xB = n_eval(getRaw('xB')), yB = n_eval(getRaw('yB'));
+                descParams = `đường kính AB với ${kInline(`A(${xA.toTeX()}; ${yA.toTeX()})`)} và ${kInline(`B(${xB.toTeX()}; ${yB.toTeX()})`)}`;
+                
+                content += `<div class="bg-black/20 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-md fade-in">
+                                <h3 class="font-bold title-glow text-base uppercase mb-1">Bài toán:</h3>
+                                <p class="text-lg leading-relaxed">Viết phương trình đường tròn ${descParams}.</p>
+                            </div>`;
+
+                solutionContent += `<div class="px-2">
+                                <h3 class="font-bold text-green-300 text-lg mb-4 border-b border-green-300/30 pb-2 flex items-center"><span class="mr-2">💡</span> Lời giải chi tiết:</h3>`;
+
+                const xI = nerdamer(`simplify(((${xA.text()}) + (${xB.text()}))/2)`);
+                const yI = nerdamer(`simplify(((${yA.text()}) + (${yB.text()}))/2)`);
+                const AB2 = nerdamer(`simplify(((${xB.text()}) - (${xA.text()}))^2 + ((${yB.text()}) - (${yA.text()}))^2)`);
+                const R2 = nerdamer(`simplify((${AB2.text()})/4)`);
+
+                solutionContent += `<p>1. Tâm I là trung điểm AB: ${kInline(`x_I = ${xI.toTeX()}; y_I = ${yI.toTeX()} \\Rightarrow I(${xI.toTeX()}; ${yI.toTeX()})`)}</p>
+                            <p class="mt-2">2. Đường kính bình phương: ${kInline(`AB^2 = ${AB2.toTeX()} \\Rightarrow R^2 = \\frac{AB^2}{4} = ${R2.toTeX()}`)}</p>
+                            <p class="mt-2">3. Phương trình: ${kBlock(`${formatSq('x', xI)} + ${formatSq('y', yI)} = ${R2.toTeX()}`)}</div>`;
+            }
+            else if (activeType.id === 3) {
+                const a = n_eval(getRaw('a_coef')), b = n_eval(getRaw('b_coef')), c = n_eval(getRaw('c_coef'));
+                const eqStr = getGeneralCircleEq(a, b, c);
+
+                descParams = `phương trình: ${kBlock(eqStr)} <br>Tìm toạ độ tâm và bán kính.`;
+                
+                content += `<div class="bg-black/20 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-md fade-in">
+                                <h3 class="font-bold title-glow text-base uppercase mb-1">Bài toán:</h3>
+                                <p class="text-lg leading-relaxed">Cho ${descParams}</p>
+                            </div>`;
+
+                solutionContent += `<div class="px-2">
+                                <h3 class="font-bold text-green-300 text-lg mb-4 border-b border-green-300/30 pb-2 flex items-center"><span class="mr-2">💡</span> Lời giải chi tiết:</h3>`;
+
+                const R2 = nerdamer(`simplify((${a.text()})^2 + (${b.text()})^2 - (${c.text()}))`);
+
+                solutionContent += `<p>Ta có: ${kInline(`a = ${a.toTeX()}, b = ${b.toTeX()}, c = ${c.toTeX()}`)}</p>
+                            <p class="mt-2">Tâm giả định: ${kInline(`I(${a.toTeX()}; ${b.toTeX()})`)}</p>
+                            <p class="mt-2">Xét ${kInline(`R^2 = a^2 + b^2 - c = ${R2.toTeX()}`)}</p>`;
+                            
+                try {
+                    const R2_val = Number(R2.evaluate().text());
+                    if (isNaN(R2_val)) {
+                        solutionContent += `<p class="mt-2 text-yellow-200">Biểu thức chứa tham số. Điều kiện để là đường tròn: ${kInline(`${R2.toTeX()} > 0`)}</p></div>`;
+                    } else if (R2_val > 0) {
+                        const R = nerdamer(`simplify(sqrt(${R2.text()}))`);
+                        solutionContent += `<p class="mt-2 text-green-300 font-bold">=> Phương trình thoả mãn đường tròn với bán kính ${kInline(`R = ${R.toTeX()}`)}</p></div>`;
+                    } else {
+                        solutionContent += `<p class="mt-2 text-red-400 font-bold">=> ${kInline(`R^2 \\le 0`)}. KHÔNG phải là phương trình đường tròn!</p></div>`;
+                    }
+                } catch(e) {
+                     solutionContent += `<p class="mt-2 text-yellow-200">Biểu thức chứa tham số. Điều kiện để là đường tròn: ${kInline(`${R2.toTeX()} > 0`)}</p></div>`;
+                }
+            }
+            else if (activeType.id === 4) {
+                const xA = n_eval(getRaw('xA')), yA = n_eval(getRaw('yA')), R = n_eval(getRaw('R'));
+                descParams = `tâm nằm trên Ox, đi qua điểm ${kInline(`A(${xA.toTeX()}; ${yA.toTeX()})`)} và có bán kính ${kInline(`R = ${R.toTeX()}`)}`;
+                
+                content += `<div class="bg-black/20 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-md fade-in">
+                                <h3 class="font-bold title-glow text-base uppercase mb-1">Bài toán:</h3>
+                                <p class="text-lg leading-relaxed">Viết phương trình đường tròn ${descParams}.</p>
+                            </div>`;
+
+                solutionContent += `<div class="px-2">
+                                <h3 class="font-bold text-green-300 text-lg mb-4 border-b border-green-300/30 pb-2 flex items-center"><span class="mr-2">💡</span> Lời giải chi tiết:</h3>`;
+
+                const v = nerdamer(`simplify((${R.text()})^2 - (${yA.text()})^2)`);
+                const R2_tex = nerdamer(`(${R.text()})^2`).toTeX();
+
+                solutionContent += `<p class="mb-2 text-lg">Đường tròn qua A nên ${kInline(`IA^2 = R^2 \\Leftrightarrow (x_A - a)^2 + y_A^2 = R^2`)}</p>`;
+                solutionContent += `${kBlock(`(${xA.toTeX()} - a)^2 + (${yA.toTeX()})^2 = ${R2_tex}`)}`;
+                solutionContent += `${kBlock(`(a - ${xA.toTeX()})^2 = ${v.toTeX()}`)}`;
+                
+                try {
+                    const v_val = Number(v.evaluate().text());
+                    if (isNaN(v_val)) {
+                        solutionContent += `<p class="text-yellow-200">Biểu thức chứa tham số. Cần giải phương trình theo tham số để biện luận.</p></div>`;
+                    } else if (v_val < 0) {
+                        solutionContent += `<div class="bg-red-500/20 p-3 rounded text-red-200 font-bold border border-red-500/30">Vì ${kInline(`${v.toTeX()} < 0`)} nên không có giá trị ${kInline('a')} thực thoả mãn. Không tồn tại đường tròn!</div></div>`;
+                    } else if (Math.abs(v_val) < 1e-6) {
+                        const a = xA;
+                        solutionContent += `<p class="mb-2 text-lg">Suy ra ${kInline(`a = ${a.toTeX()}`)}. Toạ độ tâm ${kInline(`I(${a.toTeX()}; 0)`)}. Phương trình đường tròn:</p>
+                                    <div class="p-4 bg-white/5 chalk-border rounded">${kBlock(`${formatSq('x', a)} + y^2 = ${R2_tex}`)}</div></div>`;
+                    } else {
+                        const a1 = nerdamer(`simplify(${xA.text()} - sqrt(${v.text()}))`);
+                        const a2 = nerdamer(`simplify(${xA.text()} + sqrt(${v.text()}))`);
+                        solutionContent += `<p class="mb-2 text-lg">Ta tìm được 2 nghiệm: ${kInline(`a_1 = ${a1.toTeX()}`)} và ${kInline(`a_2 = ${a2.toTeX()}`)}. Tồn tại 2 đường tròn:</p>
+                                    <div class="p-4 bg-white/5 chalk-border rounded">
+                                    <p class="font-bold text-yellow-300">Đường tròn 1 tâm ${kInline(`I_1(${a1.toTeX()}; 0)`)}:</p>
+                                    ${kBlock(`${formatSq('x', a1)} + y^2 = ${R2_tex}`)}
+                                    <p class="font-bold text-yellow-300 border-t border-white/20 pt-3 mt-3">Đường tròn 2 tâm ${kInline(`I_2(${a2.toTeX()}; 0)`)}:</p>
+                                    ${kBlock(`${formatSq('x', a2)} + y^2 = ${R2_tex}`)}
+                                    </div></div>`;
+                    }
+                } catch(e) {
+                     solutionContent += `<p class="text-yellow-200">Biểu thức chứa tham số. Cần giải phương trình theo tham số để biện luận.</p></div>`;
+                }
+            }
+            else if (activeType.id === 5) {
+                const a = n_eval(getRaw('a')), b = n_eval(getRaw('b'));
+                const m = n_eval(getRaw('m')), n = n_eval(getRaw('n')), p = n_eval(getRaw('p'));
+                
+                // Khắc phục triệt để lỗi hiển thị phương trình Delta thừa dấu chấm
+                const lineExpr = nerdamer(`${m.text()}*x + ${n.text()}*y + (${p.text()})`);
+                const dLineTex = lineExpr.toTeX().replace(/\\cdot/g, '') + ' = 0';
+                descParams = `tâm ${kInline(`I(${a.toTeX()}; ${b.toTeX()})`)} và tiếp xúc với đường thẳng ${kInline(`\\Delta: ${dLineTex}`)}`;
+                
+                content += `<div class="bg-black/20 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-md fade-in">
+                                <h3 class="font-bold title-glow text-base uppercase mb-1">Bài toán:</h3>
+                                <p class="text-lg leading-relaxed">Viết phương trình đường tròn ${descParams}.</p>
+                            </div>`;
+
+                solutionContent += `<div class="px-2">
+                                <h3 class="font-bold text-green-300 text-lg mb-4 border-b border-green-300/30 pb-2 flex items-center"><span class="mr-2">💡</span> Lời giải chi tiết:</h3>`;
+
+                const tuSoInner = nerdamer(`simplify(${m.text()}*(${a.text()}) + ${n.text()}*(${b.text()}) + (${p.text()}))`);
+                const mauSoBinh = nerdamer(`simplify((${m.text()})^2 + (${n.text()})^2)`);
+                const R2 = nerdamer(`simplify((${tuSoInner.text()})^2 / (${mauSoBinh.text()}))`);
+
+                // Hàm hỗ trợ format phép thế bằng dấu \cdot, bỏ lỗi + - đi kèm
+                const fmtSubst = (coef, val) => {
+                    const valTex = val.toTeX();
+                    const needsParen = valTex.startsWith('-') || valTex.includes('+') || (valTex.includes('-') && !valTex.startsWith('-'));
+                    return `${coef.toTeX()} \\cdot ${needsParen ? `(${valTex})` : valTex}`;
+                };
+                let numStr = `|${fmtSubst(m, a)} + ${fmtSubst(n, b)} + ${p.toTeX()}|`.replace(/\+\s*-/g, '- ');
+
+                const fmtSqNum = (val) => {
+                    const tex = val.toTeX();
+                    if (tex.startsWith('-') || tex.startsWith('\\frac') || tex.includes('\\sqrt')) return `(${tex})^2`;
+                    return `${tex}^2`;
+                };
+                let denStr = `\\sqrt{${fmtSqNum(m)} + ${fmtSqNum(n)}}`;
+
+                solutionContent += `<p class="mb-2 text-lg">Bán kính ${kInline('R')} chính là khoảng cách từ tâm ${kInline('I')} đến đường thẳng ${kInline('\\Delta')}.</p>`;
+                solutionContent += `${kBlock(`R = d(I, \\Delta) = \\frac{${numStr}}{${denStr}} = \\frac{|${tuSoInner.toTeX()}|}{\\sqrt{${mauSoBinh.toTeX()}}}`)}`;
+                solutionContent += `<p class="mb-2 text-lg">Suy ra ${kInline(`R^2 = \\frac{(${tuSoInner.toTeX()})^2}{${mauSoBinh.toTeX()}} = ${R2.toTeX()}`)}.</p>`;
+                solutionContent += `<p class="mb-2 text-lg">Kết luận phương trình đường tròn:</p>
+                            <div class="p-4 bg-white/5 chalk-border rounded">${kBlock(`${formatSq('x',a)} + ${formatSq('y',b)} = ${R2.toTeX()}`)}</div></div>`;
+            }
+            else if (activeType.id === 6) {
+                const xA=n_eval(getRaw('xA')), yA=n_eval(getRaw('yA'));
+                const xB=n_eval(getRaw('xB')), yB=n_eval(getRaw('yB'));
+                const xC=n_eval(getRaw('xC')), yC=n_eval(getRaw('yC'));
+                descParams = `đi qua 3 điểm phân biệt ${kInline(`A(${xA.toTeX()}; ${yA.toTeX()})`)}, ${kInline(`B(${xB.toTeX()}; ${yB.toTeX()})`)}, ${kInline(`C(${xC.toTeX()}; ${yC.toTeX()})`)}`;
+                
+                content += `<div class="bg-black/20 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-md fade-in">
+                                <h3 class="font-bold title-glow text-base uppercase mb-1">Bài toán:</h3>
+                                <p class="text-lg leading-relaxed">Viết phương trình đường tròn ${descParams}.</p>
+                            </div>`;
+
+                solutionContent += `<div class="px-2">
+                                <h3 class="font-bold text-green-300 text-lg mb-4 border-b border-green-300/30 pb-2 flex items-center"><span class="mr-2">💡</span> Lời giải chi tiết:</h3>`;
+
+                const k11 = nerdamer(`simplify(-2*(${xA.text()}))`);
+                const k12 = nerdamer(`simplify(-2*(${yA.text()}))`);
+                const k13 = nerdamer('1');
+                const d1 = nerdamer(`simplify(-((${xA.text()})^2 + (${yA.text()})^2))`);
+
+                const k21 = nerdamer(`simplify(-2*(${xB.text()}))`);
+                const k22 = nerdamer(`simplify(-2*(${yB.text()}))`);
+                const k23 = nerdamer('1');
+                const d2 = nerdamer(`simplify(-((${xB.text()})^2 + (${yB.text()})^2))`);
+
+                const k31 = nerdamer(`simplify(-2*(${xC.text()}))`);
+                const k32 = nerdamer(`simplify(-2*(${yC.text()}))`);
+                const k33 = nerdamer('1');
+                const d3 = nerdamer(`simplify(-((${xC.text()})^2 + (${yC.text()})^2))`);
+
+                const M = [[k11, k12, k13], [k21, k22, k23], [k31, k32, k33]];
+                const D = n_det3x3(M);
+
+                const formatEq = (k1, k2, d) => nerdamer(`${k1.text()}*a + ${k2.text()}*b + c = ${d.text()}`).toTeX().replace(/\\cdot/g, '');
+
+                solutionContent += `<p class="mb-4 text-lg">Gọi phương trình đường tròn có dạng tổng quát:</p>
+                            ${kBlock(`x^2 + y^2 - 2ax - 2by + c = 0 \\quad (1)`)}`;
+                            
+                solutionContent += `<p class="mb-2 text-lg">Vì đường tròn đi qua 3 điểm ${kInline('A, B, C')}, thay toạ độ vào ${kInline('(1)')} ta có hệ phương trình:</p>
+                            <div class="ml-6 space-y-3 text-lg border-l border-white/20 pl-4 mb-6">
+                                <p>${kInline(formatEq(k11, k12, d1))}</p>
+                                <p>${kInline(formatEq(k21, k22, d2))}</p>
+                                <p>${kInline(formatEq(k31, k32, d3))}</p>
+                            </div>`;
+
+                try {
+                    const D_val = Number(D.evaluate().text());
+                    if (!isNaN(D_val) && Math.abs(D_val) < 1e-6) {
+                        solutionContent += `<div class="bg-red-500/20 p-4 rounded-lg text-red-100 font-bold border border-red-500/30">
+                                        Hệ phương trình vô nghiệm hoặc vô số nghiệm. 3 điểm A, B, C thẳng hàng, do đó <span class="text-yellow-300">không tồn tại</span> đường tròn đi qua 3 điểm này!
+                                    </div></div>`;
+                    } else {
+                        const Ma = [[d1, k12, k13], [d2, k22, k23], [d3, k32, k33]];
+                        const Mb = [[k11, d1, k13], [k21, d2, k23], [k31, d3, k33]];
+                        const Mc = [[k11, k12, d1], [k21, k22, d2], [k31, k32, d3]];
+                        
+                        const a = nerdamer(`simplify(${n_det3x3(Ma).text()} / (${D.text()}))`);
+                        const b = nerdamer(`simplify(${n_det3x3(Mb).text()} / (${D.text()}))`);
+                        const c = nerdamer(`simplify(${n_det3x3(Mc).text()} / (${D.text()}))`);
+                        const R2 = nerdamer(`simplify((${a.text()})^2 + (${b.text()})^2 - (${c.text()}))`);
+
+                        solutionContent += `<p class="mb-4 text-lg">Giải hệ phương trình bằng định thức, ta thu được:</p>
+                                    <div class="ml-6 space-y-2 text-lg bg-white/5 p-4 rounded-lg inline-block w-full mb-6 chalk-border">
+                                        <p>➤ ${kInline(`a = ${a.toTeX()}`)}</p>
+                                        <p>➤ ${kInline(`b = ${b.toTeX()}`)}</p>
+                                        <p>➤ ${kInline(`c = ${c.toTeX()}`)}</p>
+                                    </div>`;
+
+                        solutionContent += `<p class="mb-2 text-lg">Suy ra toạ độ tâm <span class="font-bold text-yellow-300">${kInline(`I(${a.toTeX()}; ${b.toTeX()})`)}</span> và bán kính ${kInline(`R^2 = ${R2.toTeX()}`)}.</p>`;
+                        
+                        const genEqTex = getGeneralCircleEq(a, b, c);
+                        
+                        solutionContent += `<p class="mb-2 text-lg mt-6">Vậy phương trình đường tròn là:</p>
+                                    <div class="p-4 bg-white/5 chalk-border rounded">
+                                        <p class="text-sm italic text-gray-300 mb-1">Dạng chính tắc:</p>
+                                        ${kBlock(`${formatSq('x', a)} + ${formatSq('y', b)} = ${R2.toTeX()}`)}
+                                        <p class="text-sm italic text-gray-300 mb-1 mt-4">Dạng tổng quát:</p>
+                                        ${kBlock(genEqTex)}
+                                    </div></div>`;
+                    }
+                } catch(e) {
+                     solutionContent += `<div class="bg-yellow-500/20 p-4 rounded-lg text-yellow-100 font-bold border border-yellow-500/30">
+                                    Có chứa tham số phức tạp nên không thể kết luận điểm thẳng hàng. Hãy giải tay hệ phương trình!
+                                </div></div>`;
+                }
+            }
+
+            // GIAO DIỆN HIỂN THỊ PHONG CÁCH TRÌNH CHIẾU
+            if (!state.showDetails) {
+                content += `
+                    <div class="flex justify-center mt-12 fade-in">
+                        <button onclick="revealDetails()" class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-slate-900 font-extrabold py-3 px-10 rounded-xl shadow-[0_0_20px_rgba(253,224,71,0.4)] hover:shadow-[0_0_30px_rgba(253,224,71,0.6)] transition-all transform hover:-translate-y-1 text-lg flex items-center border border-yellow-300">
+                            <span class="mr-2 text-2xl">👉</span> XEM LỜI GIẢI CHI TIẾT
+                        </button>
+                    </div>
+                `;
+            } else {
+                content += `<div class="fade-in">${solutionContent}</div>`;
+            }
+
+            rightEl.innerHTML = `<div class="fade-in max-w-4xl mx-auto">${content}</div>`;
+        }
+    </script>
+</body>
+</html>

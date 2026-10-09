@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOÁN PRO - Tính Thể Tích Không Gian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top, #0f172a, #020617);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        h1, h2, h3, .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 2px 10px rgba(252, 246, 186, 0.1);
+        }
+        .gold-bg {
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(252, 246, 186, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        }
+        .glass-input {
+            background: rgba(2, 6, 23, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            color: #fcf6ba;
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+            outline: none;
+        }
+        .glass-input::placeholder { color: #475569; }
+        
+        /* Main Tabs */
+        .main-tab {
+            position: relative;
+            transition: all 0.4s ease;
+            color: #64748b;
+        }
+        .main-tab.active {
+            color: #fcf6ba;
+            text-shadow: 0 0 10px rgba(252, 246, 186, 0.4);
+        }
+        .main-tab::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(to right, transparent, #d4af37, transparent);
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .main-tab.active::after { opacity: 1; }
+
+        /* Sub Tabs (Pill style) */
+        .sub-tab {
+            background: rgba(255,255,255,0.03);
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        .sub-tab.active {
+            background: rgba(212, 175, 55, 0.15);
+            color: #fcf6ba;
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        /* Formula Buttons */
+        .formula-btn {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #cbd5e1;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .formula-btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(212, 175, 55, 0.5);
+            background: rgba(30, 41, 59, 0.8);
+        }
+        .formula-btn.active {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+            color: #fcf6ba;
+            box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+        
+        .formula-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 0.5rem; text-align: center;}
+        .formula-btn.active .formula-title { color: #d4af37; }
+
+        .input-group {
+            display: none; opacity: 0; transform: translateY(5px); transition: all 0.4s ease;
+        }
+        .input-group.active {
+            display: block; opacity: 1; transform: translateY(0);
+        }
+
+        .btn-solve {
+            background: linear-gradient(135deg, #b38728 0%, #fcf6ba 50%, #bf953f 100%);
+            background-size: 200% auto;
+            color: #020617;
+            transition: 0.5s;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25);
+        }
+        .btn-solve:hover {
+            background-position: right center;
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            background: radial-gradient(ellipse at top, rgba(30, 41, 59, 0.9), rgba(2, 6, 23, 0.95));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.1);
+        }
+        
+        .coord-box {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: border-color 0.3s ease;
+        }
+        .coord-box:hover { border-color: rgba(212, 175, 55, 0.3); }
+    </style>
+</head>
+<body class="p-2 sm:p-4 md:p-6 lg:p-10 flex items-center justify-center">
+
+    <div class="max-w-6xl w-full glass-panel rounded-2xl md:rounded-[2rem] overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-full h-1 gold-bg"></div>
+        
+        <!-- Header -->
+        <div class="p-6 md:p-8 text-center border-b border-white/5 relative">
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-widest mb-2 uppercase gold-gradient-text">TOÁN PRO</h1>
+            <p class="text-slate-400 font-light tracking-wide text-xs md:text-sm uppercase">Hệ Thống Tính Thể Tích Không Gian Đa Chiều</p>
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="flex border-b border-white/10 bg-slate-900/50">
+            <button onclick="switchMainTab('chop')" id="main-tab-chop" class="flex-1 py-4 text-center main-tab active focus:outline-none uppercase tracking-widest text-sm font-bold">
+                Khối Chóp
+            </button>
+            <button onclick="switchMainTab('langtru')" id="main-tab-langtru" class="flex-1 py-4 text-center main-tab focus:outline-none uppercase tracking-widest text-sm font-bold">
+                Khối Lăng Trụ
+            </button>
+        </div>
+
+        <div class="p-4 sm:p-6 md:p-8 relative">
+            
+            <!-- ===================== KHỐI CHÓP (TAB 1) ===================== -->
+            <div id="content-chop" class="block space-y-6">
+                <!-- Sub Tabs for Chóp -->
+                <div class="flex justify-center mb-6">
+                    <div class="flex p-1 bg-black/40 rounded-xl border border-white/5 backdrop-blur-sm">
+                        <button onclick="switchSubTab('chop', 'formula')" id="sub-chop-formula" class="sub-tab active px-6 py-2.5 rounded-lg font-semibold text-xs md:text-sm tracking-widest uppercase">Công thức nhanh</button>
+                        <button onclick="switchSubTab('chop', 'oxyz')" id="sub-chop-oxyz" class="sub-tab px-6 py-2.5 rounded-lg font-semibold text-xs md:text-sm tracking-widest uppercase">Tọa độ Oxyz</button>
+                    </div>
+                </div>
+
+                <!-- Chóp: Công Thức -->
+                <div id="chop-formula-section" class="block space-y-6">
+                    <!-- Selector -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <button onclick="selectFormula('chop', 'cb')" class="formula-btn active rounded-xl p-3">
+                            <span class="formula-title">Nền tảng</span>
+                            <span class="text-sm md:text-base">$$V = \frac{1}{3}S_{đáy} \cdot h$$</span>
+                        </button>
+                        <button onclick="selectFormula('chop', 'td_deu')" class="formula-btn rounded-xl p-3">
+                            <span class="formula-title">Tứ diện đều</span>
+                            <span class="text-sm md:text-base">$$V = \frac{\sqrt{2}}{12}a^3$$</span>
+                        </button>
+                        <button onclick="selectFormula('chop', 'td_vuong')" class="formula-btn rounded-xl p-3">
+                            <span class="formula-title">3 cạnh góc vuông</span>
+                            <span class="text-sm md:text-base">$$V = \frac{abc}{6}$$</span>
+                        </button>
+                        <button onclick="selectFormula('chop', 'tg_deu')" class="formula-btn rounded-xl p-3">
+                            <span class="formula-title">Đáy tam giác đều</span>
+                            <span class="text-sm md:text-base">$$V = \frac{\sqrt{3}}{12}a^2h$$</span>
+                        </button>
+                        <button onclick="selectFormula('chop', 'hv')" class="formula-btn rounded-xl p-3">
+                            <span class="formula-title">Đáy hình vuông</span>
+                            <span class="text-sm md:text-base">$$V = \frac{1}{3}a^2h$$</span>
+                        </button>
+                        <button onclick="selectFormula('chop', 'cut')" class="formula-btn rounded-xl p-3">
+                            <span class="formula-title">Chóp cụt</span>
+                            <span class="text-xs md:text-sm text-center">$$V \sim (S_1+S_2+\sqrt{S_1S_2})$$</span>
+                        </button>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="bg-slate-900/60 p-5 rounded-2xl border border-white/5">
+                        <!-- Cơ bản -->
+                        <div id="inputs-chop-cb" class="input-group active">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: Khối chóp nền tảng</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Diện tích đáy ($S_{đáy}$)</label><input type="text" id="val-chop-cb-S" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: can(3) hoặc 10"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Chiều cao ($h$)</label><input type="text" id="val-chop-cb-h" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 5"></div>
+                            </div>
+                        </div>
+                        <!-- Tứ diện đều -->
+                        <div id="inputs-chop-td_deu" class="input-group">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: Tứ diện đều</h3>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Độ dài cạnh ($a$)</label><input type="text" id="val-chop-td-a" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 2"></div>
+                            </div>
+                        </div>
+                        <!-- 3 cạnh vuông -->
+                        <div id="inputs-chop-td_vuong" class="input-group">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: 3 cạnh xuất phát từ 1 đỉnh đôi một vuông góc</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Cạnh $a$</label><input type="text" id="val-chop-tdv-a" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 3"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Cạnh $b$</label><input type="text" id="val-chop-tdv-b" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 4"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Cạnh $c$</label><input type="text" id="val-chop-tdv-c" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 5"></div>
+                            </div>
+                        </div>
+                        <!-- Đáy tam giác đều -->
+                        <div id="inputs-chop-tg_deu" class="input-group">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: Chóp có đáy là tam giác đều</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Cạnh đáy ($a$)</label><input type="text" id="val-chop-tgd-a" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 2"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Chiều cao ($h$)</label><input type="text" id="val-chop-tgd-h" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: can(5)"></div>
+                            </div>
+                        </div>
+                        <!-- Đáy hình vuông -->
+                        <div id="inputs-chop-hv" class="input-group">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: Chóp có đáy là hình vuông</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Cạnh đáy ($a$)</label><input type="text" id="val-chop-hv-a" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 4"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Chiều cao ($h$)</label><input type="text" id="val-chop-hv-h" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 6"></div>
+                            </div>
+                        </div>
+                        <!-- Chóp cụt -->
+                        <div id="inputs-chop-cut" class="input-group">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: Khối chóp cụt</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Diện tích đáy lớn ($S_1$)</label><input type="text" id="val-chop-cut-s1" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 16"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Diện tích đáy nhỏ ($S_2$)</label><input type="text" id="val-chop-cut-s2" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 4"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Chiều cao ($h$)</label><input type="text" id="val-chop-cut-h" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm" placeholder="VD: 3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chóp: Oxyz -->
+                <div id="chop-oxyz-section" class="hidden space-y-4">
+                    <div class="text-xs text-blue-300 bg-blue-900/20 p-3 rounded-xl border border-blue-500/20 text-center mb-2">
+                        Tính thể tích tứ diện ABCD: $$V = \frac{1}{6} |[\vec{AB}, \vec{AC}] \cdot \vec{AD}|$$
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Tọa độ A, B, C, D -->
+                        <div class="coord-box p-4 rounded-xl relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-slate-500 group-hover:bg-yellow-500 transition-colors"></div>
+                            <h4 class="serif-font font-bold text-yellow-500 mb-3 text-center">Điểm A</h4>
+                            <div class="space-y-2">
+                                <input type="text" id="chop-xA" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="x">
+                                <input type="text" id="chop-yA" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="y">
+                                <input type="text" id="chop-zA" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="z">
+                            </div>
+                        </div>
+                        <div class="coord-box p-4 rounded-xl relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-slate-500 group-hover:bg-yellow-500 transition-colors"></div>
+                            <h4 class="serif-font font-bold text-yellow-500 mb-3 text-center">Điểm B</h4>
+                            <div class="space-y-2">
+                                <input type="text" id="chop-xB" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="x">
+                                <input type="text" id="chop-yB" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="y">
+                                <input type="text" id="chop-zB" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="z">
+                            </div>
+                        </div>
+                        <div class="coord-box p-4 rounded-xl relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-slate-500 group-hover:bg-yellow-500 transition-colors"></div>
+                            <h4 class="serif-font font-bold text-yellow-500 mb-3 text-center">Điểm C</h4>
+                            <div class="space-y-2">
+                                <input type="text" id="chop-xC" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="x">
+                                <input type="text" id="chop-yC" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="y">
+                                <input type="text" id="chop-zC" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="z">
+                            </div>
+                        </div>
+                        <div class="coord-box p-4 rounded-xl relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-slate-500 group-hover:bg-yellow-500 transition-colors"></div>
+                            <h4 class="serif-font font-bold text-yellow-500 mb-3 text-center">Điểm D</h4>
+                            <div class="space-y-2">
+                                <input type="text" id="chop-xD" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="x">
+                                <input type="text" id="chop-yD" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="y">
+                                <input type="text" id="chop-zD" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="z">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== KHỐI LĂNG TRỤ (TAB 2) ===================== -->
+            <div id="content-langtru" class="hidden space-y-6">
+                 <!-- Sub Tabs for Lăng Trụ -->
+                 <div class="flex justify-center mb-6">
+                    <div class="flex p-1 bg-black/40 rounded-xl border border-white/5 backdrop-blur-sm">
+                        <button onclick="switchSubTab('langtru', 'formula')" id="sub-langtru-formula" class="sub-tab active px-6 py-2.5 rounded-lg font-semibold text-xs md:text-sm tracking-widest uppercase">Công thức nhanh</button>
+                        <button onclick="switchSubTab('langtru', 'oxyz')" id="sub-langtru-oxyz" class="sub-tab px-6 py-2.5 rounded-lg font-semibold text-xs md:text-sm tracking-widest uppercase">Tọa độ Oxyz</button>
+                    </div>
+                </div>
+
+                <!-- Lăng Trụ: Công Thức -->
+                <div id="langtru-formula-section" class="block space-y-6">
+                    <!-- Selector -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <button onclick="selectFormula('langtru', 'cb')" class="formula-btn active rounded-xl p-3">
+                            <span class="formula-title">Nền tảng</span>
+                            <span class="text-sm md:text-base">$$V = S_{đáy} \cdot h$$</span>
+                        </button>
+                        <button onclick="selectFormula('langtru', 'hcn')" class="formula-btn rounded-xl p-3">
+                            <span class="formula-title">Hộp chữ nhật</span>
+                            <span class="text-sm md:text-base">$$V = abc$$</span>
+                        </button>
+                        <button onclick="selectFormula('langtru', 'lp')" class="formula-btn rounded-xl p-3">
+                            <span class="formula-title">Lập phương</span>
+                            <span class="text-sm md:text-base">$$V = a^3$$</span>
+                        </button>
+                        <button onclick="selectFormula('langtru', 'tg_deu')" class="formula-btn rounded-xl p-3">
+                            <span class="formula-title">Lăng trụ $\Delta$ đều</span>
+                            <span class="text-sm md:text-base">$$V = \frac{\sqrt{3}}{4}a^2h$$</span>
+                        </button>
+                        <button onclick="selectFormula('langtru', 'lg_deu')" class="formula-btn rounded-xl p-3">
+                            <span class="formula-title">Lăng trụ lục giác đều</span>
+                            <span class="text-sm md:text-base">$$V = \frac{3\sqrt{3}}{2}a^2h$$</span>
+                        </button>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="bg-slate-900/60 p-5 rounded-2xl border border-white/5">
+                        <!-- Cơ bản -->
+                        <div id="inputs-langtru-cb" class="input-group active">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: Khối lăng trụ cơ bản</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Diện tích đáy ($S_{đáy}$)</label><input type="text" id="val-lt-cb-S" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Chiều cao ($h$)</label><input type="text" id="val-lt-cb-h" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm"></div>
+                            </div>
+                        </div>
+                        <!-- Hộp chữ nhật -->
+                        <div id="inputs-langtru-hcn" class="input-group">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: Hình hộp chữ nhật</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Chiều dài ($a$)</label><input type="text" id="val-lt-hcn-a" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Chiều rộng ($b$)</label><input type="text" id="val-lt-hcn-b" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Chiều cao ($c$)</label><input type="text" id="val-lt-hcn-c" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm"></div>
+                            </div>
+                        </div>
+                        <!-- Lập phương -->
+                        <div id="inputs-langtru-lp" class="input-group">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: Hình lập phương</h3>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Độ dài cạnh ($a$)</label><input type="text" id="val-lt-lp-a" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm"></div>
+                            </div>
+                        </div>
+                        <!-- Lăng trụ tam giác đều -->
+                        <div id="inputs-langtru-tg_deu" class="input-group">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: Lăng trụ tam giác đều</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Cạnh đáy ($a$)</label><input type="text" id="val-lt-tgd-a" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Chiều cao ($h$)</label><input type="text" id="val-lt-tgd-h" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm"></div>
+                            </div>
+                        </div>
+                        <!-- Lăng trụ lục giác đều -->
+                        <div id="inputs-langtru-lg_deu" class="input-group">
+                            <h3 class="text-yellow-500/90 mb-4 text-xs tracking-widest uppercase font-semibold">Đại lượng: Lăng trụ lục giác đều</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div><label class="block text-xs text-slate-400 mb-1">Cạnh đáy ($a$)</label><input type="text" id="val-lt-lgd-a" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm"></div>
+                                <div><label class="block text-xs text-slate-400 mb-1">Chiều cao ($h$)</label><input type="text" id="val-lt-lgd-h" class="w-full glass-input rounded-lg px-4 py-2.5 text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lăng Trụ: Oxyz -->
+                <div id="langtru-oxyz-section" class="hidden space-y-4">
+                    <div class="text-xs text-blue-300 bg-blue-900/20 p-3 rounded-xl border border-blue-500/20 text-center mb-2">
+                        Lăng trụ tam giác $ABC.A'B'C'$: $$V = \frac{1}{2} |[\vec{AB}, \vec{AC}] \cdot \vec{AA'}|$$
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="coord-box p-4 rounded-xl relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-slate-500 group-hover:bg-yellow-500 transition-colors"></div>
+                            <h4 class="serif-font font-bold text-yellow-500 mb-3 text-center">Điểm A</h4>
+                            <div class="space-y-2">
+                                <input type="text" id="lt-xA" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="x">
+                                <input type="text" id="lt-yA" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="y">
+                                <input type="text" id="lt-zA" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="z">
+                            </div>
+                        </div>
+                        <div class="coord-box p-4 rounded-xl relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-slate-500 group-hover:bg-yellow-500 transition-colors"></div>
+                            <h4 class="serif-font font-bold text-yellow-500 mb-3 text-center">Điểm B</h4>
+                            <div class="space-y-2">
+                                <input type="text" id="lt-xB" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="x">
+                                <input type="text" id="lt-yB" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="y">
+                                <input type="text" id="lt-zB" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="z">
+                            </div>
+                        </div>
+                        <div class="coord-box p-4 rounded-xl relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-slate-500 group-hover:bg-yellow-500 transition-colors"></div>
+                            <h4 class="serif-font font-bold text-yellow-500 mb-3 text-center">Điểm C</h4>
+                            <div class="space-y-2">
+                                <input type="text" id="lt-xC" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="x">
+                                <input type="text" id="lt-yC" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="y">
+                                <input type="text" id="lt-zC" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="z">
+                            </div>
+                        </div>
+                        <div class="coord-box p-4 rounded-xl relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-slate-500 group-hover:bg-yellow-500 transition-colors"></div>
+                            <h4 class="serif-font font-bold text-yellow-500 mb-3 text-center">Điểm A'</h4>
+                            <div class="space-y-2">
+                                <input type="text" id="lt-xA_prime" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="x">
+                                <input type="text" id="lt-yA_prime" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="y">
+                                <input type="text" id="lt-zA_prime" class="w-full glass-input rounded px-3 py-2 text-sm" placeholder="z">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-6">
+                <button onclick="calculate()" class="w-full btn-solve font-extrabold text-xl md:text-2xl py-4 px-6 rounded-2xl uppercase tracking-[0.2em] shadow-lg">
+                    Giải
+                </button>
+            </div>
+
+            <!-- Kết quả chung -->
+            <div id="result-container" class="hidden result-box mt-6 p-6 md:p-8 rounded-2xl relative overflow-hidden">
+                <div class="absolute -right-16 -top-16 w-64 h-64 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-4 relative z-10 w-full">
+                    <div class="w-full">
+                        <div class="text-base text-slate-300 mb-5 font-sans tracking-normal bg-black/40 p-4 rounded-xl border border-white/5 w-full shadow-inner" id="formula-display-box">
+                            <span class="font-semibold text-yellow-500/90 uppercase text-[11px] tracking-widest mb-1 block">Cơ sở lý thuyết</span>
+                            <span id="formula-applied"></span>
+                        </div>
+                        <span class="text-lg md:text-2xl text-slate-200 serif-font block mb-3 font-normal tracking-wide" id="result-prefix"></span> 
+                        <div class="text-3xl md:text-5xl font-extrabold text-yellow-400 drop-shadow-md w-full overflow-x-auto pb-2" id="final-result">
+                            <!-- Kết quả -->
+                        </div>
+                    </div>
+                    <button onclick="toggleFormat()" id="toggle-btn" class="hidden glass-input text-yellow-300 font-medium py-2 px-5 rounded-lg text-sm flex items-center gap-2 hover:bg-yellow-500/10 whitespace-nowrap mt-2 sm:mt-0 shadow-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                        <span>V <=> Thập phân</span>
+                    </button>
+                </div>
+                <div id="error-msg" class="text-red-400 mt-4 font-medium hidden text-sm bg-red-950/60 p-4 rounded-xl border border-red-500/30 relative z-10 shadow-inner"></div>
+            </div>
+            
+        </div>
+        
+        <div class="bg-slate-950/80 p-4 text-center text-[10px] md:text-xs tracking-[0.2em] text-slate-500 uppercase border-t border-white/5">
+            © 2026 TOÁN PRO - BẢN QUYỀN TOÁN HỌC
+        </div>
+    </div>
+
+    <script>
+        // State variables
+        let currentMainTab = 'chop';
+        let subTabs = { chop: 'formula', langtru: 'formula' };
+        let activeFormulas = { chop: 'cb', langtru: 'cb' };
+        let currentResult = null; // { val, exactStr, showExact, formulaLatex, prefixText }
+
+        // Navigation Functions
+        function switchMainTab(tab) {
+            currentMainTab = tab;
+            document.getElementById('main-tab-chop').classList.remove('active');
+            document.getElementById('main-tab-langtru').classList.remove('active');
+            document.getElementById(`main-tab-${tab}`).classList.add('active');
+
+            document.getElementById('content-chop').style.display = tab === 'chop' ? 'block' : 'none';
+            document.getElementById('content-langtru').style.display = tab === 'langtru' ? 'block' : 'none';
+            
+            document.getElementById('result-container').classList.add('hidden');
+        }
+
+        function switchSubTab(mainTab, subTab) {
+            subTabs[mainTab] = subTab;
+            
+            document.getElementById(`sub-${mainTab}-formula`).classList.remove('active');
+            document.getElementById(`sub-${mainTab}-oxyz`).classList.remove('active');
+            document.getElementById(`sub-${mainTab}-${subTab}`).classList.add('active');
+
+            if (subTab === 'formula') {
+                document.getElementById(`${mainTab}-formula-section`).classList.remove('hidden');
+                document.getElementById(`${mainTab}-oxyz-section`).classList.add('hidden');
+            } else {
+                document.getElementById(`${mainTab}-formula-section`).classList.add('hidden');
+                document.getElementById(`${mainTab}-oxyz-section`).classList.remove('hidden');
+            }
+            document.getElementById('result-container').classList.add('hidden');
+        }
+
+        function selectFormula(mainTab, formulaId) {
+            activeFormulas[mainTab] = formulaId;
+            
+            const section = document.getElementById(`${mainTab}-formula-section`);
+            const btns = section.querySelectorAll('.formula-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            const groups = section.querySelectorAll('.input-group');
+            groups.forEach(g => g.classList.remove('active'));
+            document.getElementById(`inputs-${mainTab}-${formulaId}`).classList.add('active');
+            
+            document.getElementById('result-container').classList.add('hidden');
+        }
+
+        // Utility Functions
+        function parseInput(valStr) {
+            if (!valStr || valStr.trim() === '') return NaN;
+            try {
+                // Tự động chuyển đổi 'can(x)' thành 'sqrt(x)' để thư viện toán học hiểu được
+                let evalStr = valStr.replace(/can/gi, 'sqrt');
+                let result = math.evaluate(evalStr);
+                return Number(result);
+            } catch (e) {
+                return NaN;
+            }
+        }
+
+        function roundIfClose(val) {
+            const rounded = Math.round(val);
+            if (Math.abs(val - rounded) < 1e-10) return rounded;
+            return val;
+        }
+
+        // Helper cho căn bậc 2 và phân số
+        function gcd(a, b) {
+            if (!b) return a;
+            return gcd(b, a % b);
+        }
+
+        function getSqrtParts(inside) {
+            let outside = 1;
+            for (let i = 2; i * i <= inside; i++) {
+                while (inside % (i * i) === 0) {
+                    outside *= i;
+                    inside /= (i * i);
+                }
+            }
+            return { outside, inside };
+        }
+
+        // Tạo chuỗi hiển thị số vô tỉ (căn, phân số dạng chuẩn SGK)
+        function tryFormatExact(val) {
+            if (val === 0) return "0";
+            if (Number.isInteger(roundIfClose(val))) return `${roundIfClose(val)}`;
+            
+            // 1. Kiểm tra phân số chính xác (ví dụ 1/3, 10/3 cực kỳ phổ biến ở khối chóp)
+            try {
+                let roundedVal = Math.round(val * 1e10) / 1e10; 
+                let f = math.fraction(roundedVal);
+                if (f.d !== 1 && f.d < 1000) {
+                    return (val < 0 ? "-" : "") + `\\frac{${Math.abs(f.n)}}{${f.d}}`;
+                }
+            } catch (e) {}
+
+            let squared = val * val;
+            let squaredRounded = roundIfClose(squared);
+            
+            // 2. Kiểm tra nếu bình phương là số nguyên (ví dụ sqrt(3), 2sqrt(2))
+            if (Number.isInteger(squaredRounded) && squaredRounded > 0) {
+                let parts = getSqrtParts(squaredRounded);
+                if (parts.inside === 1) return `${parts.outside}`;
+                if (parts.outside === 1) return `\\sqrt{${parts.inside}}`;
+                return `${parts.outside}\\sqrt{${parts.inside}}`;
+            }
+
+            // 3. Kiểm tra nâng cao nếu bình phương là phân số (ví dụ sqrt(3)/3, 2sqrt(6)/5)
+            try {
+                let sqRounded = Math.round(squared * 1e10) / 1e10;
+                let sqF = math.fraction(sqRounded);
+                if (sqF.d !== 1 && sqF.d < 1000) {
+                    let parts = getSqrtParts(sqF.n * sqF.d);
+                    let divisor = gcd(parts.outside, sqF.d);
+                    
+                    let finalOutside = parts.outside / divisor;
+                    let finalBottom = sqF.d / divisor;
+                    
+                    let topStr = "";
+                    if (finalOutside === 1 && parts.inside === 1) topStr = "1";
+                    else if (finalOutside === 1) topStr = `\\sqrt{${parts.inside}}`;
+                    else if (parts.inside === 1) topStr = `${finalOutside}`;
+                    else topStr = `${finalOutside}\\sqrt{${parts.inside}}`;
+                    
+                    if (finalBottom === 1) return topStr;
+                    return (val < 0 ? "-" : "") + `\\frac{${topStr}}{${finalBottom}}`;
+                }
+            } catch(e) {}
+
+            // Trả về số thập phân làm tròn nếu không đưa được về dạng chuẩn
+            return `${Math.round(val * 10000) / 10000}`;
+        }
+
+        // Vector operations
+        function crossProduct(v1, v2) {
+            return [
+                v1[1]*v2[2] - v1[2]*v2[1],
+                v1[2]*v2[0] - v1[0]*v2[2],
+                v1[0]*v2[1] - v1[1]*v2[0]
+            ];
+        }
+        function dotProduct(v1, v2) {
+            return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+        }
+
+        function calculate() {
+            document.getElementById('error-msg').classList.add('hidden');
+            let volume = 0;
+            let isValid = true;
+            let errorMsg = "";
+            let formulaLatex = "";
+            let prefixText = "";
+
+            try {
+                if (currentMainTab === 'chop') {
+                    prefixText = "Vậy thể tích của khối chóp là:";
+                    if (subTabs['chop'] === 'formula') {
+                        let f = activeFormulas['chop'];
+                        if (f === 'cb') {
+                            formulaLatex = "V = \\frac{1}{3}S_{đáy} \\cdot h";
+                            let S = parseInput(document.getElementById('val-chop-cb-S').value);
+                            let h = parseInput(document.getElementById('val-chop-cb-h').value);
+                            if(isNaN(S) || isNaN(h) || S<=0 || h<=0) throw new Error("Dữ liệu không hợp lệ. Đảm bảo S > 0, h > 0.");
+                            volume = (1/3) * S * h;
+                        } 
+                        else if (f === 'td_deu') {
+                            formulaLatex = "V = \\frac{\\sqrt{2}}{12}a^3";
+                            let a = parseInput(document.getElementById('val-chop-td-a').value);
+                            if(isNaN(a) || a<=0) throw new Error("Cạnh a phải lớn hơn 0.");
+                            volume = (Math.sqrt(2)/12) * Math.pow(a, 3);
+                        }
+                        else if (f === 'td_vuong') {
+                            formulaLatex = "V = \\frac{1}{6}abc";
+                            let a = parseInput(document.getElementById('val-chop-tdv-a').value);
+                            let b = parseInput(document.getElementById('val-chop-tdv-b').value);
+                            let c = parseInput(document.getElementById('val-chop-tdv-c').value);
+                            if(isNaN(a) || isNaN(b) || isNaN(c) || a<=0||b<=0||c<=0) throw new Error("Các cạnh phải lớn hơn 0.");
+                            volume = (a*b*c)/6;
+                        }
+                        else if (f === 'tg_deu') {
+                            formulaLatex = "V = \\frac{\\sqrt{3}}{12}a^2h";
+                            let a = parseInput(document.getElementById('val-chop-tgd-a').value);
+                            let h = parseInput(document.getElementById('val-chop-tgd-h').value);
+                            if(isNaN(a) || isNaN(h) || a<=0||h<=0) throw new Error("Dữ liệu không hợp lệ.");
+                            volume = (Math.sqrt(3)/12) * a*a * h;
+                        }
+                        else if (f === 'hv') {
+                            formulaLatex = "V = \\frac{1}{3}a^2h";
+                            let a = parseInput(document.getElementById('val-chop-hv-a').value);
+                            let h = parseInput(document.getElementById('val-chop-hv-h').value);
+                            if(isNaN(a) || isNaN(h) || a<=0||h<=0) throw new Error("Dữ liệu không hợp lệ.");
+                            volume = (1/3) * a*a * h;
+                        }
+                        else if (f === 'cut') {
+                            formulaLatex = "V = \\frac{h}{3}(S_1 + S_2 + \\sqrt{S_1S_2})";
+                            let s1 = parseInput(document.getElementById('val-chop-cut-s1').value);
+                            let s2 = parseInput(document.getElementById('val-chop-cut-s2').value);
+                            let h = parseInput(document.getElementById('val-chop-cut-h').value);
+                            if(isNaN(s1) || isNaN(s2) || isNaN(h) || s1<=0||s2<=0||h<=0) throw new Error("Dữ liệu không hợp lệ.");
+                            volume = (h/3) * (s1 + s2 + Math.sqrt(s1*s2));
+                        }
+                    } 
+                    else { // Chóp Oxyz
+                        prefixText = "Vậy thể tích của khối tứ diện ABCD là:";
+                        formulaLatex = "V = \\frac{1}{6} |[\\vec{AB}, \\vec{AC}] \\cdot \\vec{AD}|";
+                        let pts = ['A','B','C','D'].map(pt => [
+                            parseInput(document.getElementById(`chop-x${pt}`).value),
+                            parseInput(document.getElementById(`chop-y${pt}`).value),
+                            parseInput(document.getElementById(`chop-z${pt}`).value)
+                        ]);
+                        if(pts.flat().some(isNaN)) throw new Error("Vui lòng nhập đầy đủ và chính xác tọa độ các đỉnh.");
+                        
+                        let AB = [pts[1][0]-pts[0][0], pts[1][1]-pts[0][1], pts[1][2]-pts[0][2]];
+                        let AC = [pts[2][0]-pts[0][0], pts[2][1]-pts[0][1], pts[2][2]-pts[0][2]];
+                        let AD = [pts[3][0]-pts[0][0], pts[3][1]-pts[0][1], pts[3][2]-pts[0][2]];
+                        
+                        let cross = crossProduct(AB, AC);
+                        let mixed = dotProduct(cross, AD);
+                        volume = (1/6) * Math.abs(mixed);
+                        
+                        if (volume === 0) throw new Error("Bốn điểm đồng phẳng, không tạo thành tứ diện hợp lệ.");
+                    }
+                } 
+                else { // Lăng trụ
+                    prefixText = "Vậy thể tích của khối lăng trụ là:";
+                    if (subTabs['langtru'] === 'formula') {
+                        let f = activeFormulas['langtru'];
+                        if (f === 'cb') {
+                            formulaLatex = "V = S_{đáy} \\cdot h";
+                            let S = parseInput(document.getElementById('val-lt-cb-S').value);
+                            let h = parseInput(document.getElementById('val-lt-cb-h').value);
+                            if(isNaN(S) || isNaN(h) || S<=0 || h<=0) throw new Error("Dữ liệu không hợp lệ.");
+                            volume = S * h;
+                        } 
+                        else if (f === 'hcn') {
+                            formulaLatex = "V = abc";
+                            let a = parseInput(document.getElementById('val-lt-hcn-a').value);
+                            let b = parseInput(document.getElementById('val-lt-hcn-b').value);
+                            let c = parseInput(document.getElementById('val-lt-hcn-c').value);
+                            if(isNaN(a) || isNaN(b) || isNaN(c) || a<=0||b<=0||c<=0) throw new Error("Dữ liệu không hợp lệ.");
+                            volume = a * b * c;
+                        }
+                        else if (f === 'lp') {
+                            formulaLatex = "V = a^3";
+                            let a = parseInput(document.getElementById('val-lt-lp-a').value);
+                            if(isNaN(a) || a<=0) throw new Error("Dữ liệu không hợp lệ.");
+                            volume = a * a * a;
+                        }
+                        else if (f === 'tg_deu') {
+                            formulaLatex = "V = \\frac{\\sqrt{3}}{4}a^2h";
+                            let a = parseInput(document.getElementById('val-lt-tgd-a').value);
+                            let h = parseInput(document.getElementById('val-lt-tgd-h').value);
+                            if(isNaN(a) || isNaN(h) || a<=0||h<=0) throw new Error("Dữ liệu không hợp lệ.");
+                            volume = (Math.sqrt(3)/4) * a*a * h;
+                        }
+                        else if (f === 'lg_deu') {
+                            formulaLatex = "V = \\frac{3\\sqrt{3}}{2}a^2h";
+                            let a = parseInput(document.getElementById('val-lt-lgd-a').value);
+                            let h = parseInput(document.getElementById('val-lt-lgd-h').value);
+                            if(isNaN(a) || isNaN(h) || a<=0||h<=0) throw new Error("Dữ liệu không hợp lệ.");
+                            volume = (3*Math.sqrt(3)/2) * a*a * h;
+                        }
+                    } 
+                    else { // Lăng trụ Oxyz
+                        prefixText = "Vậy thể tích của khối lăng trụ tam giác $ABC.A'B'C'$ là:";
+                        formulaLatex = "V = \\frac{1}{2} |[\\vec{AB}, \\vec{AC}] \\cdot \\vec{AA'}|";
+                        let pts = ['A','B','C','A_prime'].map(pt => [
+                            parseInput(document.getElementById(`lt-x${pt}`).value),
+                            parseInput(document.getElementById(`lt-y${pt}`).value),
+                            parseInput(document.getElementById(`lt-z${pt}`).value)
+                        ]);
+                        if(pts.flat().some(isNaN)) throw new Error("Vui lòng nhập đầy đủ tọa độ.");
+                        
+                        let AB = [pts[1][0]-pts[0][0], pts[1][1]-pts[0][1], pts[1][2]-pts[0][2]];
+                        let AC = [pts[2][0]-pts[0][0], pts[2][1]-pts[0][1], pts[2][2]-pts[0][2]];
+                        let AA_prime = [pts[3][0]-pts[0][0], pts[3][1]-pts[0][1], pts[3][2]-pts[0][2]];
+                        
+                        let cross = crossProduct(AB, AC);
+                        let mixed = dotProduct(cross, AA_prime);
+                        volume = 0.5 * Math.abs(mixed); // Lăng trụ tam giác bằng 1/2 hộp
+                        
+                        if (volume === 0) throw new Error("Các điểm không tạo thành lăng trụ hợp lệ.");
+                    }
+                }
+            } catch (e) {
+                isValid = false;
+                errorMsg = e.message || "Lỗi cú pháp nhập liệu. Kiểm tra lại.";
+            }
+
+            const resContainer = document.getElementById('result-container');
+            const toggleBtn = document.getElementById('toggle-btn');
+            const errorDiv = document.getElementById('error-msg');
+            const formulaAppliedDiv = document.getElementById('formula-applied');
+            const resultPrefixDiv = document.getElementById('result-prefix');
+            const finalResultDiv = document.getElementById('final-result');
+
+            resContainer.classList.remove('hidden');
+
+            if (!isValid) {
+                formulaAppliedDiv.innerHTML = "";
+                resultPrefixDiv.innerHTML = "";
+                finalResultDiv.innerHTML = "";
+                toggleBtn.classList.add('hidden');
+                document.getElementById('formula-display-box').style.display = 'none';
+                
+                errorDiv.innerText = errorMsg;
+                errorDiv.classList.remove('hidden');
+            } else {
+                errorDiv.classList.add('hidden');
+                document.getElementById('formula-display-box').style.display = 'block';
+                volume = roundIfClose(volume);
+                
+                currentResult = { 
+                    val: volume, 
+                    exactStr: tryFormatExact(volume), 
+                    showExact: true, 
+                    formulaLatex: formulaLatex,
+                    prefixText: prefixText
+                };
+                updateResultDisplay();
+            }
+        }
+
+        function toggleFormat() {
+            if (!currentResult) return;
+            currentResult.showExact = !currentResult.showExact;
+            updateResultDisplay();
+        }
+
+        function updateResultDisplay() {
+            if (!currentResult) return;
+            const toggleBtn = document.getElementById('toggle-btn');
+            
+            let isInteger = Number.isInteger(currentResult.val);
+            
+            // Hiển thị nút toggle nếu kết quả không phải là số nguyên
+            // Hoặc chuỗi hiển thị có chứa dạng phân số/căn đặc thù
+            if (!isInteger && (currentResult.exactStr.includes("frac{") || currentResult.exactStr.includes("sqrt{") || currentResult.exactStr !== currentResult.val.toString())) {
+                toggleBtn.classList.remove('hidden');
+            } else {
+                toggleBtn.classList.add('hidden');
+            }
+
+            document.getElementById('formula-applied').innerHTML = `Áp dụng công thức: $$${currentResult.formulaLatex}$$`;
+            document.getElementById('result-prefix').innerHTML = currentResult.prefixText;
+
+            let resultHtml = "";
+            if (currentResult.showExact && (currentResult.exactStr.includes('\\') || currentResult.exactStr.includes('/'))) {
+                resultHtml = `$$V = ${currentResult.exactStr}$$`;
+            } else {
+                let decStr = (Math.round(currentResult.val * 10000) / 10000).toString();
+                if(isInteger) {
+                    resultHtml = `$$V = ${decStr}$$`;
+                } else {
+                    resultHtml = `$$V \\approx ${decStr}$$`;
+                }
+            }
+
+            document.getElementById('final-result').innerHTML = resultHtml;
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise([
+                    document.getElementById('formula-applied'), 
+                    document.getElementById('result-prefix'),
+                    document.getElementById('final-result')
+                ]).catch(err => console.log('MathJax:', err.message));
+            }
+        }
+
+        // Init
+        window.onload = function() {
+            switchMainTab('chop');
+        }
+    </script>
+</body>
+</html>
