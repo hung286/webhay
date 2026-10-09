@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -63,21 +63,21 @@ background: rgba(255,255,255,0.05);
 }
 .katex { color: inherit; }
 /* --- TOÁN PRO - THẦY HÙNG Branding --- */
-.tc-header {
+.mh-header {
 display: flex; align-items: center; gap: 12px;
 padding-bottom: 12px; margin-bottom: 15px;
 border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
 flex-shrink: 0;
 }
-.tc-logo-wrapper { position: relative; cursor: pointer; }
-.tc-logo-wrapper::after {
+.mh-logo-wrapper { position: relative; cursor: pointer; }
+.mh-logo-wrapper::after {
 content: '📸 Đổi ảnh'; position: absolute; bottom: -20px; left: 50%;
 transform: translateX(-50%); background: rgba(0,0,0,0.8);
 color: white; font-size: 11px; padding: 2px 6px; border-radius: 12px;
 opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 10;
 }
-.tc-logo-wrapper:hover::after { opacity: 1; }
-.tc-logo {
+.mh-logo-wrapper:hover::after { opacity: 1; }
+.mh-logo {
 width: 50px; height: 50px; border-radius: 50%;
 border: 2px solid #fde047; background: linear-gradient(135deg, #166534, #14532d);
 background-size: cover; background-position: center;
@@ -85,7 +85,7 @@ display: flex; align-items: center; justify-content: center;
 font-size: 24px; box-shadow: 0 0 10px rgba(253, 224, 71, 0.5);
 animation: pulse-glow 2s infinite; z-index: 2; position: relative;
 }
-.tc-logo-ring {
+.mh-logo-ring {
 position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
 border-radius: 50%; border: 2px solid transparent;
 border-top-color: #fde047; border-bottom-color: #fde047;
@@ -97,28 +97,28 @@ animation: spin-ring 4s linear infinite;
 50% { box-shadow: 0 0 16px rgba(253, 224, 71, 0.8); }
 100% { box-shadow: 0 0 8px rgba(253, 224, 71, 0.4); }
 }
-.tc-title {
+.mh-title {
 font-size: 1.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
 background: linear-gradient(90deg, #fde047, #ffffff, #fde047); background-size: 200% auto;
 color: transparent; -webkit-background-clip: text; background-clip: text;
 animation: shine-text 3s linear infinite;
 }
 @keyframes shine-text { to { background-position: 200% center; } }
-.tc-slogan { font-size: 0.8rem; color: #86efac; font-weight: 600; margin-top: -2px; }
+.mh-slogan { font-size: 0.8rem; color: #86efac; font-weight: 600; margin-top: -2px; }
 </style>
 </head>
 <body class="flex h-screen w-full flex-row">
 <!-- BÊN TRÁI: MENU & NHẬP LIỆU -->
 <div class="w-[38%] bg-board-dark border-r-2 border-white/20 p-5 flex flex-col h-full shadow-[4px_0_15px_rgba(0,0,0,0.3)] z-10 relative">
-<div class="tc-header">
-<div class="tc-logo-wrapper" onclick="document.getElementById('logo-upload').click()">
-<div class="tc-logo-ring"></div>
-<div class="tc-logo" id="tc-logo-display">👨🏫</div>
+<div class="mh-header">
+<div class="mh-logo-wrapper" onclick="document.getElementById('logo-upload').click()">
+<div class="mh-logo-ring"></div>
+<div class="mh-logo" id="mh-logo-display">👨🏫</div>
 <input type="file" id="logo-upload" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
 </div>
 <div>
-<div class="tc-title">TOÁN PRO</div>
-<div class="tc-slogan">Mặt Cầu Trong Không Gian Oxyz</div>
+<div class="mh-title">TOÁN PRO</div>
+<div class="mh-slogan">Mặt Cầu Trong Không Gian Oxyz</div>
 </div>
 </div>
 <div id="left-panel-content" class="flex-1 overflow-y-auto pr-2 pb-2"></div>
@@ -302,7 +302,7 @@ reader.readAsDataURL(file);
 }
 }
 function applyLogo(dataUrl) {
-const logoEl = document.getElementById('tc-logo-display');
+const logoEl = document.getElementById('mh-logo-display');
 if (logoEl) { logoEl.style.backgroundImage = `url(${dataUrl})`; logoEl.innerHTML = ''; }
 }
 function loadSavedLogo() { const savedLogo = localStorage.getItem('savedTcLogo'); if (savedLogo) applyLogo(savedLogo); }
