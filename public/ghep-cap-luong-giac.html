@@ -86,9 +86,14 @@
             <span class="font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-700 tracking-wide text-sm sm:text-xl">Thầy Hùng Pro</span>
         </div>
 
-        <div class="pointer-events-auto flex items-center gap-2">
-            <button id="btn-admin-mode" onclick="window.promptAdminPin()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border-2 border-emerald-300 text-xs font-black text-emerald-700 shadow-[0_3px_10px_rgba(16,185,129,0.2)] hover:scale-105 transition" title="Dành cho Giáo viên: Nhập mã PIN để chỉnh sửa công thức">
+        <div class="pointer-events-auto flex items-center gap-2 flex-wrap">
+            <button id="btn-admin-mode" onclick="window.promptAdminPin()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border-2 border-emerald-300 text-xs font-black text-emerald-700 shadow-[0_3px_10px_rgba(16,185,129,0.2)] hover:scale-105 transition cursor-pointer" title="Dành cho Giáo viên: Nhập mã PIN 1234 để chỉnh sửa công thức">
                 🔒 <span id="admin-status-text">Chế độ Giáo viên</span>
+            </button>
+
+            <!-- Nút cam Thêm / Sửa Cặp Bài (Admin) xuất hiện trên màn hình khi ở quyền Admin -->
+            <button id="btn-edit-pairs-admin" onclick="window.openPairEditor()" class="hidden flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xs sm:text-sm shadow-[0_4px_15px_rgba(245,158,11,0.5)] border-2 border-amber-300 hover:scale-105 transition cursor-pointer active:scale-95 animate-pulse" title="Mở bảng thêm/sửa/xoá công thức cặp bài">
+                ⚙️ <span>Thêm / Sửa Cặp Bài (Admin)</span>
             </button>
         </div>
     
@@ -956,18 +961,31 @@
         showOverlay('start');
     </script>
 
-<script async="" src="./hud" data-nf-variant="public" data-netlify-site-id="5e51e807-cc05-4ed5-9e76-142c1084ee61" data-app-host="app.netlify.com"></script>
+    <!-- MODAL NHẬP MÃ PIN KHẨN CẤP CHO GIÁO VIÊN (KHÔNG BỊ TRÌNH DUYỆT CHẶN) -->
+    <div id="pin-modal" class="fixed inset-0 bg-black/75 backdrop-blur-xs hidden z-[300] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-7 max-w-sm w-full text-center shadow-2xl border-4 border-amber-300 text-gray-800 animate-in fade-in zoom-in duration-200">
+            <div class="text-4xl mb-2">🔐</div>
+            <h3 class="text-lg sm:text-xl font-black text-slate-800 mb-1">Xác Thực Giáo Viên</h3>
+            <p class="text-xs text-slate-500 mb-4">Nhập mã PIN để mở quyền thêm / bớt và sửa cặp công thức</p>
+            <input type="password" id="pin-modal-input" maxlength="10" placeholder="Nhập PIN (1234)" class="w-full text-center tracking-widest text-xl font-black py-2.5 px-4 rounded-xl border-2 border-slate-300 focus:border-amber-500 focus:outline-none mb-2 bg-slate-50 text-slate-800">
+            <div id="pin-modal-error" class="hidden text-xs text-rose-600 font-bold mb-3">Mã PIN không đúng! Vui lòng thử lại.</div>
+            <div class="flex gap-2 mt-2">
+                <button onclick="window.closePinModal()" class="flex-1 py-2.5 rounded-xl border border-slate-300 font-bold text-slate-600 hover:bg-slate-100 text-xs sm:text-sm">Hủy</button>
+                <button onclick="window.submitPinModal()" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 text-white font-black text-xs sm:text-sm shadow-md">Xác Nhận</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL QUẢN LÝ BỘ BÀI (DÀNH RIÊNG CHO ADMIN) -->
     <div id="admin-pair-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-[200] flex items-center justify-center p-3 sm:p-5">
-        <div class="bg-white rounded-3xl p-5 sm:p-7 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border-4 border-emerald-300 text-gray-800 animate-in fade-in zoom-in duration-200">
+        <div class="bg-white rounded-3xl p-5 sm:p-7 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border-4 border-amber-400 text-gray-800 animate-in fade-in zoom-in duration-200">
             <div class="flex justify-between items-center pb-3 border-b border-gray-200 mb-3">
                 <div>
-                    <h3 class="text-xl sm:text-2xl font-black text-emerald-700 flex items-center gap-2">
+                    <h3 class="text-xl sm:text-2xl font-black text-amber-700 flex items-center gap-2">
                         ⚙️ Quản Lý Cặp Bài - Thầy Hùng Pro
                     </h3>
                     <p class="text-xs text-gray-500 mt-0.5">
-                        Thêm bớt cặp công thức, hỗ trợ ký hiệu LaTeX như <code class="text-emerald-600">\sin(2x)</code>, <code class="text-emerald-600">\cos(x)</code>...
+                        Thêm bớt cặp công thức, hỗ trợ ký hiệu LaTeX như <code class="text-amber-600 font-bold">\sin(2x)</code>, <code class="text-amber-600 font-bold">\cos(x)</code>...
                     </p>
                 </div>
                 <button onclick="window.closePairEditor()" class="text-gray-400 hover:text-red-500 text-2xl font-black px-2">✕</button>
@@ -988,7 +1006,7 @@
                     <button onclick="window.closePairEditor()" class="px-4 py-2 border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-xl font-bold text-xs sm:text-sm transition">
                         Đóng
                     </button>
-                    <button onclick="window.saveCustomPairs()" class="px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white rounded-xl font-black text-xs sm:text-sm shadow-md transition">
+                    <button onclick="window.saveCustomPairs()" class="px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:brightness-110 text-white rounded-xl font-black text-xs sm:text-sm shadow-md transition">
                         💾 Lưu & Cập Nhật Game
                     </button>
                 </div>
@@ -1002,25 +1020,56 @@
         let isAdminActive = false;
         let editingList = [];
 
-        // Kiểm tra quyền Admin từ URL (?admin=1 hoặc ?mode=admin)
+        // Kiểm tra quyền Admin từ URL (?admin=1 hoặc ?mode=admin hoặc session)
         function checkAdmin() {
-            const p = new URLSearchParams(window.location.search);
-            if (p.get('admin') === '1' || p.get('admin') === 'true' || p.get('mode') === 'admin') {
-                isAdminActive = true;
-            }
+            try {
+                const p = new URLSearchParams(window.location.search);
+                const hash = window.location.hash || '';
+                const isParamAdmin = p.get('admin') === '1' || p.get('admin') === 'true' || p.get('mode') === 'admin' || hash.includes('admin=1');
+                const isSessionAdmin = sessionStorage.getItem('edu_game_admin_auth') === '1';
+
+                if (isParamAdmin || isSessionAdmin) {
+                    isAdminActive = true;
+                    sessionStorage.setItem('edu_game_admin_auth', '1');
+                }
+            } catch(e) {}
             updateUI();
         }
 
         function updateUI() {
-            const adminBtn = document.getElementById('admin-settings-btn');
+            const btnEditHeader = document.getElementById('btn-edit-pairs-admin');
+            const adminBtnMenu = document.getElementById('admin-settings-btn');
             const statusText = document.getElementById('admin-status-text');
             const btnMode = document.getElementById('btn-admin-mode');
+
             if (isAdminActive) {
-                if (adminBtn) adminBtn.classList.remove('hidden');
-                if (statusText) statusText.innerText = '👑 Admin Đang Bật';
-                if (btnMode) btnMode.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 border-2 border-amber-400 text-xs font-black text-amber-800 shadow-sm';
+                if (btnEditHeader) {
+                    btnEditHeader.classList.remove('hidden');
+                    btnEditHeader.style.display = 'inline-flex';
+                }
+                if (adminBtnMenu) {
+                    adminBtnMenu.classList.remove('hidden');
+                    adminBtnMenu.style.display = 'block';
+                }
+                if (statusText) statusText.innerText = '👑 Admin: Đã Kích Hoạt';
+                if (btnMode) {
+                    btnMode.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 border-2 border-amber-400 text-xs font-black text-amber-800 shadow-sm cursor-pointer hover:scale-105 transition';
+                    btnMode.title = 'Nhấn để mở bảng Thêm / Sửa Cặp Bài';
+                }
             } else {
-                if (adminBtn) adminBtn.classList.add('hidden');
+                if (btnEditHeader) {
+                    btnEditHeader.classList.add('hidden');
+                    btnEditHeader.style.display = 'none';
+                }
+                if (adminBtnMenu) {
+                    adminBtnMenu.classList.add('hidden');
+                    adminBtnMenu.style.display = 'none';
+                }
+                if (statusText) statusText.innerText = 'Chế độ Giáo viên';
+                if (btnMode) {
+                    btnMode.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border-2 border-emerald-300 text-xs font-black text-emerald-700 shadow-[0_3px_10px_rgba(16,185,129,0.2)] hover:scale-105 transition cursor-pointer';
+                    btnMode.title = 'Dành cho Giáo viên: Nhập mã PIN 1234 để chỉnh sửa công thức';
+                }
             }
         }
 
@@ -1029,25 +1078,80 @@
                 window.openPairEditor();
                 return;
             }
-            const pin = prompt("Nhập mã PIN Admin để mở quyền sửa cặp bài (Mặc định: 1234):");
-            if (pin === "1234") {
-                isAdminActive = true;
-                updateUI();
-                alert("Xác thực Giáo viên thành công! Nút 'Thêm/Sửa Cặp Bài' đã được mở.");
-                window.openPairEditor();
-            } else if (pin !== null) {
-                alert("Mã PIN không chính xác!");
+            window.openPinModal();
+        };
+
+        window.openPinModal = function() {
+            const modal = document.getElementById('pin-modal');
+            const input = document.getElementById('pin-modal-input');
+            const err = document.getElementById('pin-modal-error');
+            if (err) err.classList.add('hidden');
+            if (input) {
+                input.value = '';
+                setTimeout(() => input.focus(), 150);
+            }
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
             }
         };
+
+        window.closePinModal = function() {
+            const modal = document.getElementById('pin-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
+        };
+
+        window.submitPinModal = function() {
+            const input = document.getElementById('pin-modal-input');
+            const err = document.getElementById('pin-modal-error');
+            const val = (input ? input.value : '').trim();
+            if (val === '1234') {
+                isAdminActive = true;
+                sessionStorage.setItem('edu_game_admin_auth', '1');
+                window.closePinModal();
+                updateUI();
+                window.openPairEditor();
+            } else {
+                if (err) err.classList.remove('hidden');
+                if (input) {
+                    input.classList.add('border-rose-500');
+                    setTimeout(() => input.classList.remove('border-rose-500'), 1500);
+                }
+            }
+        };
+
+        // Bắt phím Enter trên ô nhập PIN
+        setTimeout(() => {
+            const pInput = document.getElementById('pin-modal-input');
+            if (pInput) {
+                pInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        window.submitPinModal();
+                    }
+                });
+            }
+        }, 300);
 
         window.openPairEditor = function() {
             loadEditingPairs();
             renderPairsList();
-            document.getElementById('admin-pair-modal').classList.remove('hidden');
+            const modal = document.getElementById('admin-pair-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+            }
         };
 
         window.closePairEditor = function() {
-            document.getElementById('admin-pair-modal').classList.add('hidden');
+            const modal = document.getElementById('admin-pair-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
         };
 
         function loadEditingPairs() {
@@ -1058,39 +1162,46 @@
                     if (Array.isArray(editingList) && editingList.length >= 2) return;
                 } catch(e) {}
             }
-            // Lấy từ level mặc định đầu tiên
-            if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS['1_F']) {
-                editingList = JSON.parse(JSON.stringify(GAME_LEVELS['1_F'].pairs));
-            } else {
-                editingList = [
-                    { id: 1, left: "\\sin^2 x + \\cos^2 x", right: "1" },
-                    { id: 2, left: "\\sin(2x)", right: "2\\sin x \\cos x" },
-                    { id: 3, left: "\\cos(2x)", right: "\\cos^2 x - \\sin^2 x" },
-                    { id: 4, left: "1 + \\tan^2 x", right: "\\frac{1}{\\cos^2 x}" },
-                    { id: 5, left: "\\tan x", right: "\\frac{\\sin x}{\\cos x}" }
-                ];
+            // Lấy từ level mặc định đầu tiên hoặc đang chơi
+            if (typeof GAME_LEVELS !== 'undefined') {
+                if (typeof currentMode !== 'undefined' && GAME_LEVELS[currentMode] && GAME_LEVELS[currentMode].pairs) {
+                    editingList = JSON.parse(JSON.stringify(GAME_LEVELS[currentMode].pairs));
+                    return;
+                }
+                if (GAME_LEVELS['1_F'] && GAME_LEVELS['1_F'].pairs) {
+                    editingList = JSON.parse(JSON.stringify(GAME_LEVELS['1_F'].pairs));
+                    return;
+                }
             }
+            editingList = [
+                { id: 1, left: "\\sin^2 x + \\cos^2 x", right: "1" },
+                { id: 2, left: "\\sin(2x)", right: "2\\sin x \\cos x" },
+                { id: 3, left: "\\cos(2x)", right: "\\cos^2 x - \\sin^2 x" },
+                { id: 4, left: "1 + \\tan^2 x", right: "\\frac{1}{\\cos^2 x}" },
+                { id: 5, left: "\\tan x", right: "\\frac{\\sin x}{\\cos x}" }
+            ];
         }
 
         function renderPairsList() {
             const container = document.getElementById('admin-pairs-list');
+            if (!container) return;
             container.innerHTML = '';
             editingList.forEach((pair, idx) => {
                 const row = document.createElement('div');
                 row.className = "flex gap-2 items-center bg-slate-50 p-2.5 rounded-xl border border-gray-200";
                 row.innerHTML = `
-                    <div class="font-bold text-emerald-700 w-6 text-center text-xs">${idx + 1}</div>
+                    <div class="font-bold text-amber-700 w-6 text-center text-xs">${idx + 1}</div>
                     <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
                             <span class="text-[10px] text-gray-500 font-bold block mb-0.5">Thẻ 1 (Vế trái / Đề bài)</span>
-                            <input type="text" class="pair-input-left w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold outline-none focus:border-emerald-500" value="${pair.left.replace(/"/g, '&quot;')}">
+                            <input type="text" class="pair-input-left w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold outline-none focus:border-amber-500" value="${(pair.left || '').replace(/"/g, '&quot;')}">
                         </div>
                         <div>
                             <span class="text-[10px] text-gray-500 font-bold block mb-0.5">Thẻ 2 (Vế phải / Đáp án)</span>
-                            <input type="text" class="pair-input-right w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold outline-none focus:border-emerald-500" value="${pair.right.replace(/"/g, '&quot;')}">
+                            <input type="text" class="pair-input-right w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold outline-none focus:border-amber-500" value="${(pair.right || '').replace(/"/g, '&quot;')}">
                         </div>
                     </div>
-                    <button onclick="window.removePairRow(${idx})" class="w-8 h-8 shrink-0 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-black text-sm flex items-center justify-center" title="Xóa">✕</button>
+                    <button onclick="window.removePairRow(${idx})" class="w-8 h-8 shrink-0 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg font-black text-sm flex items-center justify-center cursor-pointer" title="Xóa cặp này">✕</button>
                 `;
                 container.appendChild(row);
             });
@@ -1101,7 +1212,7 @@
             editingList.push({ id: Date.now(), left: "", right: "" });
             renderPairsList();
             const c = document.getElementById('admin-pairs-list');
-            c.scrollTop = c.scrollHeight;
+            if (c) c.scrollTop = c.scrollHeight;
         };
 
         window.removePairRow = function(idx) {
@@ -1146,28 +1257,36 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(valid));
             alert(`Đã lưu thành công ${valid.length} cặp bài vào hệ thống!`);
             window.closePairEditor();
-            // Nếu có hàm nạp lại level thì nạp
-            if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS['1_F']) {
-                GAME_LEVELS['1_F'].pairs = valid;
+
+            // Áp dụng dữ liệu mới ngay vào trò chơi
+            if (typeof GAME_LEVELS !== 'undefined') {
+                if (GAME_LEVELS['1_F']) GAME_LEVELS['1_F'].pairs = valid;
+                if (typeof currentMode !== 'undefined' && GAME_LEVELS[currentMode]) {
+                    GAME_LEVELS[currentMode].pairs = valid;
+                }
             }
             if (typeof window.startLevel === 'function') {
-                window.startLevel('1_F');
+                window.startLevel(typeof currentMode !== 'undefined' && currentMode ? currentMode : '1_F');
             }
         };
 
+        // Khởi chạy kiểm tra quyền và nạp dữ liệu tùy chỉnh
+        checkAdmin();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkAdmin);
+        }
+        window.addEventListener('load', checkAdmin);
+
         // Áp dụng custom pairs vào GAME_LEVELS khi khởi động
-        window.addEventListener('DOMContentLoaded', () => {
-            checkAdmin();
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved && typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS['1_F']) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    if (Array.isArray(parsed) && parsed.length >= 2) {
-                        GAME_LEVELS['1_F'].pairs = parsed;
-                    }
-                } catch(e) {}
-            }
-        });
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS['1_F']) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length >= 2) {
+                    GAME_LEVELS['1_F'].pairs = parsed;
+                }
+            } catch(e) {}
+        }
     })();
     </script>
     
