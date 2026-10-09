@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khảo Sát Hàm Số Lớp 12 - Trợ Lý Thầy Cô</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { brand: { dark: '#050B14', light: '#131e32', accent: '#00f6ff', primary: '#7000ff' } } }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <style>
+        body { background-color: #050B14; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+        .glass-panel { background: linear-gradient(135deg, rgba(19, 30, 50, 0.6) 0%, rgba(5, 11, 20, 0.8) 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; box-shadow: 0 20px 50px -10px rgba(0,0,0,0.7); backdrop-filter: blur(20px); }
+        .bbt-table { width: 100%; border-collapse: collapse; text-align: center; color: #fff; margin-top: 1rem; font-size: 1.1rem; }
+        .bbt-table th, .bbt-table td { border: 1px solid rgba(255,255,255,0.2); padding: 10px; }
+        .bbt-table td { position: relative; }
+        .text-glow { text-shadow: 0 0 15px rgba(0, 246, 255, 0.6); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050B14; }
+        ::-webkit-scrollbar-thumb { background: #131e32; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f6ff; }
+        
+        .dbl-line { position: relative; }
+        .dbl-line::before, .dbl-line::after { content: ''; position: absolute; top: -1px; bottom: -1px; width: 1px; background-color: rgba(255,255,255,0.5); }
+        .dbl-line::before { left: calc(50% - 2px); }
+        .dbl-line::after { left: calc(50% + 2px); }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col md:flex-row gap-6 h-screen">
+
+    <div class="glass-panel p-6 w-full md:w-1/3 flex flex-col gap-5 h-full overflow-y-auto">
+        <h2 class="text-3xl font-black text-brand-accent text-glow mb-2 uppercase">Khảo Sát Hàm Số</h2>
+        
+        <div>
+            <label class="block text-sm text-gray-400 mb-2 font-bold uppercase tracking-wider">Dạng hàm số</label>
+            <select id="funcType" onchange="updateInputs()" class="w-full p-3 bg-black/60 border border-brand-accent/40 rounded-xl text-white outline-none focus:border-brand-accent transition">
+                <option value="cubic">Bậc 3: y = ax³ + bx² + cx + d</option>
+                <option value="quartic">Bậc 4 trùng phương: y = ax⁴ + bx² + c</option>
+                <option value="rational11">Phân thức 1/1: y = (ax + b)/(cx + d)</option>
+                <option value="rational21">Phân thức 2/1: y = (ax² + bx + c)/(mx + n)</option>
+            </select>
+        </div>
+        
+        <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+            <h3 class="font-bold text-white mb-3 text-sm uppercase tracking-wider">Nhập hệ số</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col" id="grp-a"><label id="lbl-a" class="text-xs text-gray-400 mb-1">Hệ số a (x³)</label><input type="number" id="valA" value="1" class="w-full p-2 bg-black/50 rounded-lg text-white border border-gray-600 focus:border-brand-accent outline-none text-center font-bold"></div>
+                <div class="flex flex-col" id="grp-b"><label id="lbl-b" class="text-xs text-gray-400 mb-1">Hệ số b (x²)</label><input type="number" id="valB" value="-3" class="w-full p-2 bg-black/50 rounded-lg text-white border border-gray-600 focus:border-brand-accent outline-none text-center font-bold"></div>
+                <div class="flex flex-col" id="grp-c"><label id="lbl-c" class="text-xs text-gray-400 mb-1">Hệ số c (x)</label><input type="number" id="valC" value="0" class="w-full p-2 bg-black/50 rounded-lg text-white border border-gray-600 focus:border-brand-accent outline-none text-center font-bold"></div>
+                <div class="flex flex-col" id="grp-d"><label id="lbl-d" class="text-xs text-gray-400 mb-1">Hệ số d</label><input type="number" id="valD" value="2" class="w-full p-2 bg-black/50 rounded-lg text-white border border-gray-600 focus:border-brand-accent outline-none text-center font-bold"></div>
+                <div class="flex flex-col" id="grp-m" style="display:none;"><label id="lbl-m" class="text-xs text-gray-400 mb-1">Hệ số m (mẫu: x)</label><input type="number" id="valM" value="1" class="w-full p-2 bg-black/50 rounded-lg text-white border border-gray-600 focus:border-brand-accent outline-none text-center font-bold"></div>
+                <div class="flex flex-col" id="grp-n" style="display:none;"><label id="lbl-n" class="text-xs text-gray-400 mb-1">Hệ số n (mẫu)</label><input type="number" id="valN" value="-1" class="w-full p-2 bg-black/50 rounded-lg text-white border border-gray-600 focus:border-brand-accent outline-none text-center font-bold"></div>
+            </div>
+        </div>
+        
+        <button onclick="analyzeFunc()" class="mt-2 p-4 bg-gradient-to-r from-brand-primary to-brand-accent rounded-xl font-bold text-white uppercase tracking-widest hover:scale-105 hover:shadow-[0_0_20px_rgba(0,246,255,0.4)] transition-all">Khảo Sát Ngay</button>
+        <div class="mt-4 text-xs text-gray-500 italic">* Chuẩn SGK KNTT / Chương trình 2018</div>
+    </div>
+
+    <div class="glass-panel p-6 w-full md:w-2/3 flex flex-col gap-6 h-full overflow-y-auto" id="result-area">
+        <div class="flex justify-between items-center border-b border-white/10 pb-4">
+            <h2 class="text-2xl font-bold text-white">Kết quả phân tích</h2>
+            <div id="func-equation" class="text-xl text-brand-accent font-bold"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="flex flex-col gap-4">
+                <div id="step-domain" class="text-lg"></div>
+                <div id="step-derivative" class="text-lg"></div>
+                <div id="step-limits" class="text-lg"></div>
+                <div class="mt-4">
+                    <h3 class="text-xl font-bold text-purple-400 mb-2">Bảng biến thiên</h3>
+                    <div id="bbt-container" class="overflow-x-auto pb-2"></div>
+                </div>
+                <div id="step-conclusion" class="text-lg mt-2 text-green-300"></div>
+            </div>
+            
+            <div class="flex flex-col h-full">
+                <h3 class="text-xl font-bold text-purple-400 mb-3">Đồ thị hàm số</h3>
+                <div class="w-full h-80 lg:h-full min-h-[350px] rounded-xl overflow-hidden border border-white/20 shadow-[0_0_30px_rgba(0,246,255,0.1)] relative">
+                    <canvas id="graphCanvas" class="w-full h-full" style="cursor: crosshair;"></canvas>
+                    <div class="absolute bottom-2 right-2 flex gap-2">
+                        <button onclick="grapher.zoom(1.2)" class="bg-black/50 hover:bg-brand-accent hover:text-black text-white p-2 rounded border border-white/20">+</button>
+                        <button onclick="grapher.zoom(1/1.2)" class="bg-black/50 hover:bg-brand-accent hover:text-black text-white p-2 rounded border border-white/20">-</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CanvasGrapher {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.scale = 40;
+                this.origin = { x: this.canvas.clientWidth / 2, y: this.canvas.clientHeight / 2 };
+                this.drawQueue = [];
+                
+                this.canvas.width = this.canvas.clientWidth;
+                this.canvas.height = this.canvas.clientHeight;
+                
+                const resizeObserver = new ResizeObserver(() => {
+                    let rect = this.canvas.parentElement.getBoundingClientRect();
+                    this.canvas.width = rect.width;
+                    this.canvas.height = rect.height;
+                    this.origin = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
+                    this.redraw();
+                });
+                resizeObserver.observe(this.canvas.parentElement);
+                
+                let isDragging = false, lastPos = {x:0, y:0};
+                this.canvas.addEventListener('mousedown', e => { isDragging = true; lastPos = {x: e.clientX, y: e.clientY}; });
+                window.addEventListener('mouseup', () => isDragging = false);
+                window.addEventListener('mousemove', e => {
+                    if(!isDragging) return;
+                    this.origin.x += e.clientX - lastPos.x;
+                    this.origin.y += e.clientY - lastPos.y;
+                    lastPos = {x: e.clientX, y: e.clientY};
+                    this.redraw();
+                });
+                this.canvas.addEventListener('wheel', e => {
+                    e.preventDefault();
+                    let zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                    let rect = this.canvas.getBoundingClientRect();
+                    let mx = e.clientX - rect.left, my = e.clientY - rect.top;
+                    this.origin.x = mx - (mx - this.origin.x) * zoomFactor;
+                    this.origin.y = my - (my - this.origin.y) * zoomFactor;
+                    this.scale *= zoomFactor;
+                    this.redraw();
+                });
+            }
+
+            zoom(factor) {
+                this.origin.x = this.canvas.width/2 - (this.canvas.width/2 - this.origin.x) * factor;
+                this.origin.y = this.canvas.height/2 - (this.canvas.height/2 - this.origin.y) * factor;
+                this.scale *= factor;
+                this.redraw();
+            }
+
+            clear() {
+                this.drawQueue = [];
+                this.redraw();
+            }
+
+            redraw() {
+                const ctx = this.ctx, w = this.canvas.width, h = this.canvas.height, ox = this.origin.x, oy = this.origin.y;
+                ctx.clearRect(0, 0, w, h);
+                
+                // Grid
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                for(let x = ox % this.scale; x < w; x += this.scale) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
+                for(let y = oy % this.scale; y < h; y += this.scale) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
+                ctx.stroke();
+
+                // Axes
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, oy); ctx.lineTo(w, oy); // X
+                ctx.moveTo(ox, 0); ctx.lineTo(ox, h); // Y
+                ctx.stroke();
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '14px sans-serif';
+                ctx.fillText('O', ox - 15, oy + 18);
+                ctx.fillText('x', w - 15, oy - 10);
+                ctx.fillText('y', ox + 10, 15);
+
+                // Grid numbers
+                ctx.font = '11px sans-serif';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                let step = Math.max(1, Math.floor(50 / this.scale));
+                for(let i = step; i < w/this.scale; i+=step) {
+                    ctx.fillText(i, ox + i*this.scale - 3, oy + 15);
+                    ctx.fillText(-i, ox - i*this.scale - 8, oy + 15);
+                }
+                for(let i = step; i < h/this.scale; i+=step) {
+                    ctx.fillText(i, ox - 18, oy - i*this.scale + 4);
+                    ctx.fillText(-i, ox - 22, oy + i*this.scale + 4);
+                }
+
+                this.drawQueue.forEach(cmd => cmd());
+            }
+
+            addCurve(func, color = '#00f6ff') {
+                this.drawQueue.push(() => {
+                    const ctx = this.ctx;
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 3;
+                    ctx.shadowColor = color;
+                    ctx.shadowBlur = 15;
+                    ctx.beginPath();
+                    let isFirst = true;
+                    let lastPy = null;
+                    for(let px = -5; px <= this.canvas.width + 5; px += 2) {
+                        let mx = (px - this.origin.x) / this.scale;
+                        let my = func(mx);
+                        let py = this.origin.y - my * this.scale;
+                        
+                        if (isNaN(my) || Math.abs(my) > 5000) {
+                            isFirst = true;
+                            continue;
+                        }
+
+                        if(isFirst) { 
+                            ctx.moveTo(px, py); 
+                            isFirst = false; 
+                        } else { 
+                            if(lastPy !== null && Math.abs(py - lastPy) > this.canvas.height) {
+                                ctx.moveTo(px, py);
+                            } else {
+                                ctx.lineTo(px, py); 
+                            }
+                        }
+                        lastPy = py;
+                    }
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                });
+                this.redraw();
+            }
+
+            addPoint(mx, my, color = '#ff007f') {
+                this.drawQueue.push(() => {
+                    const ctx = this.ctx;
+                    let px = this.origin.x + mx * this.scale;
+                    let py = this.origin.y - my * this.scale;
+                    ctx.fillStyle = color;
+                    ctx.shadowColor = color;
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    
+                    // Draw coordinates next to point
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '12px sans-serif';
+                    ctx.fillText(`(${mx.toFixed(1)}, ${my.toFixed(1)})`, px + 10, py - 10);
+                });
+                this.redraw();
+            }
+
+            addAsymptote(type, val1, val2 = 0) {
+                this.drawQueue.push(() => {
+                    const ctx = this.ctx;
+                    ctx.strokeStyle = '#ff007f';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.beginPath();
+                    if(type === 'v') {
+                        let px = this.origin.x + val1 * this.scale;
+                        ctx.moveTo(px, 0); ctx.lineTo(px, this.canvas.height);
+                    } else if(type === 'h') {
+                        let py = this.origin.y - val1 * this.scale;
+                        ctx.moveTo(0, py); ctx.lineTo(this.canvas.width, py);
+                    } else if(type === 'o') { // y = val1*x + val2
+                        let py1 = this.origin.y - (val1 * ((0 - this.origin.x)/this.scale) + val2) * this.scale;
+                        let py2 = this.origin.y - (val1 * ((this.canvas.width - this.origin.x)/this.scale) + val2) * this.scale;
+                        ctx.moveTo(0, py1); ctx.lineTo(this.canvas.width, py2);
+                    }
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                });
+                this.redraw();
+            }
+        }
+
+        let grapher;
+
+        function updateInputs() {
+            let type = document.getElementById('funcType').value;
+            let gc = document.getElementById('grp-c'), gd = document.getElementById('grp-d');
+            let gm = document.getElementById('grp-m'), gn = document.getElementById('grp-n');
+            let la = document.getElementById('lbl-a'), lb = document.getElementById('lbl-b'), lc = document.getElementById('lbl-c'), ld = document.getElementById('lbl-d');
+            
+            if(type === 'cubic') {
+                gc.style.display = 'flex'; gd.style.display = 'flex'; gm.style.display = 'none'; gn.style.display = 'none';
+                la.innerText = 'Hệ số a (x³)'; lb.innerText = 'Hệ số b (x²)'; lc.innerText = 'Hệ số c (x)'; ld.innerText = 'Hệ số d';
+                document.getElementById('valA').value = "1"; document.getElementById('valB').value = "-3"; document.getElementById('valC').value = "0"; document.getElementById('valD').value = "2";
+            } else if(type === 'quartic') {
+                gc.style.display = 'flex'; gd.style.display = 'none'; gm.style.display = 'none'; gn.style.display = 'none';
+                la.innerText = 'Hệ số a (x⁴)'; lb.innerText = 'Hệ số b (x²)'; lc.innerText = 'Hệ số c';
+                document.getElementById('valA').value = "1"; document.getElementById('valB').value = "-2"; document.getElementById('valC').value = "1";
+            } else if(type === 'rational11') {
+                gc.style.display = 'flex'; gd.style.display = 'flex'; gm.style.display = 'none'; gn.style.display = 'none';
+                la.innerText = 'Hệ số a (tử: x)'; lb.innerText = 'Hệ số b (tử)'; lc.innerText = 'Hệ số c (mẫu: x)'; ld.innerText = 'Hệ số d (mẫu)';
+                document.getElementById('valA').value = "2"; document.getElementById('valB').value = "-1"; document.getElementById('valC').value = "1"; document.getElementById('valD').value = "1";
+            } else if(type === 'rational21') {
+                gc.style.display = 'flex'; gd.style.display = 'none'; gm.style.display = 'flex'; gn.style.display = 'flex';
+                la.innerText = 'Hệ số a (tử: x²)'; lb.innerText = 'Hệ số b (tử: x)'; lc.innerText = 'Hệ số c (tử)'; 
+                document.getElementById('lbl-m').innerText = 'Hệ số m (mẫu: x)'; document.getElementById('lbl-n').innerText = 'Hệ số n (mẫu)';
+                document.getElementById('valA').value = "1"; document.getElementById('valB').value = "-2"; document.getElementById('valC').value = "2"; 
+                document.getElementById('valM').value = "1"; document.getElementById('valN').value = "-1";
+            }
+        }
+
+        function formatCoeff(val, isFirst = false, includeX = true) {
+            if (val === 0) return "";
+            let sign = val > 0 ? (isFirst ? "" : " + ") : (isFirst ? "-" : " - ");
+            let absVal = Math.abs(val);
+            let num = (absVal === 1 && includeX) ? "" : absVal;
+            return sign + num;
+        }
+        
+        function renderMathNow() {
+            renderMathInElement(document.getElementById('result-area'), {
+                delimiters: [ {left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false} ], throwOnError: false
+            });
+        }
+
+        function analyzeFunc() {
+            let type = document.getElementById('funcType').value;
+            let a = parseFloat(document.getElementById('valA').value);
+            let b = parseFloat(document.getElementById('valB').value);
+            let c = parseFloat(document.getElementById('valC').value);
+            let d = parseFloat(document.getElementById('valD').value);
+            let m = parseFloat(document.getElementById('valM').value);
+            let n = parseFloat(document.getElementById('valN').value);
+            
+            grapher.clear();
+
+            if (type === 'cubic') analyzeCubic(a,b,c,d);
+            else if (type === 'quartic') analyzeQuartic(a,b,c);
+            else if (type === 'rational11') analyzeRational11(a,b,c,d);
+            else if (type === 'rational21') analyzeRational21(a,b,c,m,n);
+            
+            renderMathNow();
+        }
+
+        // ================= CUBIC =================
+        function analyzeCubic(a, b, c, d) {
+            if (a === 0) { alert("Hệ số a phải khác 0"); return; }
+            let eq = "y = ";
+            eq += formatCoeff(a, true, true) + "x^3";
+            if(b !== 0) eq += formatCoeff(b, a===0, true) + "x^2";
+            if(c !== 0) eq += formatCoeff(c, a===0 && b===0, true) + "x";
+            if(d !== 0) eq += formatCoeff(d, a===0 && b===0 && c===0, false);
+            document.getElementById('func-equation').innerText = `$${eq}$`;
+
+            document.getElementById('step-domain').innerHTML = `<b>1. Tập xác định:</b> $D = \\mathbb{R}$`;
+            
+            let yp = "y' = ";
+            yp += formatCoeff(3*a, true, true) + "x^2";
+            if(2*b !== 0) yp += formatCoeff(2*b, 3*a===0, true) + "x";
+            if(c !== 0) yp += formatCoeff(c, 3*a===0 && 2*b===0, false);
+            if(yp === "y' = ") yp = "y' = 0";
+
+            let stepDeriv = `<b>2. Sự biến thiên:</b><br/>- Đạo hàm: $${yp}$<br/>`;
+            let delta = (2*b)*(2*b) - 4*(3*a)*c;
+            let roots = [];
+
+            if (delta > 0) {
+                let x1 = (-(2*b) - Math.sqrt(delta)) / (2*(3*a));
+                let x2 = (-(2*b) + Math.sqrt(delta)) / (2*(3*a));
+                roots = [x1, x2].sort((i, j) => i - j);
+                stepDeriv += `- $y' = 0 \\Leftrightarrow x_1 \\approx ${roots[0].toFixed(2)}; x_2 \\approx ${roots[1].toFixed(2)}$`;
+            } else if (delta === 0) {
+                roots = [-(2*b) / (2*(3*a))];
+                stepDeriv += `- $y' = 0$ có nghiệm kép $x = ${roots[0].toFixed(2)}$`;
+            } else {
+                stepDeriv += `- $y' = 0$ vô nghiệm ($\\Delta < 0$)`;
+            }
+            document.getElementById('step-derivative').innerHTML = stepDeriv;
+            
+            let limPos = a > 0 ? "+\\infty" : "-\\infty";
+            let limNeg = a > 0 ? "-\\infty" : "+\\infty";
+            document.getElementById('step-limits').innerHTML = `<b>3. Giới hạn:</b> $\\lim\\limits_{x \\to +\\infty} y = ${limPos}; \\lim\\limits_{x \\to -\\infty} y = ${limNeg}$`;
+            
+            let html = '<table class="bbt-table">';
+            let getY = (x) => a*x*x*x + b*x*x + c*x + d;
+            if (roots.length === 2) {
+                let y1 = getY(roots[0]).toFixed(2), y2 = getY(roots[1]).toFixed(2);
+                let s1 = a>0?"+":"-", s2 = a>0?"-":"+", s3 = a>0?"+":"-";
+                if(a>0) {
+                    html += `<tr><td class="w-12 bg-white/5">$x$</td><td>$-\\infty$</td><td></td><td>$${roots[0].toFixed(2)}$</td><td></td><td>$${roots[1].toFixed(2)}$</td><td></td><td>$+\\infty$</td></tr>
+                             <tr><td class="bg-white/5">$y'$</td><td></td><td class="text-brand-accent">$${s1}$</td><td>$0$</td><td class="text-brand-accent">$${s2}$</td><td>$0$</td><td class="text-brand-accent">$${s3}$</td><td></td></tr>
+                             <tr class="h-24"><td class="bg-white/5">$y$</td><td class="align-bottom">$-\\infty$</td><td class="align-middle">$\\nearrow$</td><td class="align-top text-pink-400">$${y1}$</td><td class="align-middle">$\\searrow$</td><td class="align-bottom text-pink-400">$${y2}$</td><td class="align-middle">$\\nearrow$</td><td class="align-top">$+\\infty$</td></tr>`;
+                } else {
+                    html += `<tr><td class="w-12 bg-white/5">$x$</td><td>$-\\infty$</td><td></td><td>$${roots[0].toFixed(2)}$</td><td></td><td>$${roots[1].toFixed(2)}$</td><td></td><td>$+\\infty$</td></tr>
+                             <tr><td class="bg-white/5">$y'$</td><td></td><td class="text-brand-accent">$${s1}$</td><td>$0$</td><td class="text-brand-accent">$${s2}$</td><td>$0$</td><td class="text-brand-accent">$${s3}$</td><td></td></tr>
+                             <tr class="h-24"><td class="bg-white/5">$y$</td><td class="align-top">$+\\infty$</td><td class="align-middle">$\\searrow$</td><td class="align-bottom text-pink-400">$${y1}$</td><td class="align-middle">$\\nearrow$</td><td class="align-top text-pink-400">$${y2}$</td><td class="align-middle">$\\searrow$</td><td class="align-bottom">$-\\infty$</td></tr>`;
+                }
+            } else {
+                let s = a>0?"+":"-", ar = a>0?"\\nearrow":"\\searrow";
+                html += `<tr><td class="w-12 bg-white/5">$x$</td><td>$-\\infty$</td><td></td><td>$+\\infty$</td></tr>
+                         <tr><td class="bg-white/5">$y'$</td><td></td><td class="text-brand-accent">$${s}$</td><td></td></tr>
+                         <tr class="h-24"><td class="bg-white/5">$y$</td><td class="${a>0?'align-bottom':'align-top'}">$${limNeg}$</td><td class="align-middle">$${ar}$</td><td class="${a>0?'align-top':'align-bottom'}">$${limPos}$</td></tr>`;
+            }
+            html += '</table>';
+            document.getElementById('bbt-container').innerHTML = html;
+            document.getElementById('step-conclusion').innerHTML = '';
+
+            grapher.addCurve(getY, '#00f6ff');
+            if(roots.length===2) {
+                grapher.addPoint(roots[0], getY(roots[0]));
+                grapher.addPoint(roots[1], getY(roots[1]));
+            }
+        }
+
+        // ================= QUARTIC =================
+        function analyzeQuartic(a, b, c) {
+            if (a === 0) { alert("Hệ số a phải khác 0"); return; }
+            document.getElementById('func-equation').innerText = `$y = ${formatCoeff(a,true,true)}x^4 ${b!==0?formatCoeff(b,false,true)+'x^2':''} ${c!==0?formatCoeff(c,false,false):''}$`;
+            document.getElementById('step-domain').innerHTML = `<b>1. Tập xác định:</b> $D = \\mathbb{R}$`;
+            
+            let yp = `y' = ${formatCoeff(4*a,true,true)}x^3 ${2*b!==0?formatCoeff(2*b,false,true)+'x':''}`;
+            let stepDeriv = `<b>2. Sự biến thiên:</b><br/>- Đạo hàm: $${yp}$<br/>`;
+            stepDeriv += `- $y' = 0 \\Leftrightarrow x = 0 \\text{ hoặc } ${4*a}x^2 ${b>=0?'+':''} ${2*b} = 0$<br/>`;
+            
+            let roots = [0];
+            let k = -(2*b) / (4*a);
+            if (k > 0) {
+                roots.push(-Math.sqrt(k)); roots.push(Math.sqrt(k));
+                roots.sort((i, j) => i - j);
+                stepDeriv += `Có 3 nghiệm phân biệt: $x_1 \\approx ${roots[0].toFixed(2)}, x_2 = 0, x_3 \\approx ${roots[2].toFixed(2)}$`;
+            } else {
+                stepDeriv += `Có 1 nghiệm duy nhất: $x = 0$`;
+            }
+            document.getElementById('step-derivative').innerHTML = stepDeriv;
+            
+            let lim = a > 0 ? "+\\infty" : "-\\infty";
+            document.getElementById('step-limits').innerHTML = `<b>3. Giới hạn:</b> $\\lim\\limits_{x \\to \\pm\\infty} y = ${lim}$`;
+
+            let html = '<table class="bbt-table">';
+            let getY = (x) => a*x*x*x*x + b*x*x + c;
+            if (roots.length === 3) {
+                let y1 = getY(roots[0]).toFixed(2), y2 = getY(roots[1]).toFixed(2), y3 = getY(roots[2]).toFixed(2);
+                let s1 = a>0?"-":"+", s2 = a>0?"+":"-", s3 = a>0?"-":"+", s4 = a>0?"+":"-";
+                if(a>0) {
+                    html += `<tr><td class="bg-white/5 w-12">$x$</td><td>$-\\infty$</td><td></td><td>$${roots[0].toFixed(2)}$</td><td></td><td>$0$</td><td></td><td>$${roots[2].toFixed(2)}$</td><td></td><td>$+\\infty$</td></tr>
+                             <tr><td class="bg-white/5">$y'$</td><td></td><td class="text-brand-accent">$${s1}$</td><td>$0$</td><td class="text-brand-accent">$${s2}$</td><td>$0$</td><td class="text-brand-accent">$${s3}$</td><td>$0$</td><td class="text-brand-accent">$${s4}$</td><td></td></tr>
+                             <tr class="h-24"><td class="bg-white/5">$y$</td><td class="align-top">$+\\infty$</td><td class="align-middle">$\\searrow$</td><td class="align-bottom text-pink-400">$${y1}$</td><td class="align-middle">$\\nearrow$</td><td class="align-top text-pink-400">$${y2}$</td><td class="align-middle">$\\searrow$</td><td class="align-bottom text-pink-400">$${y3}$</td><td class="align-middle">$\\nearrow$</td><td class="align-top">$+\\infty$</td></tr>`;
+                } else {
+                    html += `<tr><td class="bg-white/5 w-12">$x$</td><td>$-\\infty$</td><td></td><td>$${roots[0].toFixed(2)}$</td><td></td><td>$0$</td><td></td><td>$${roots[2].toFixed(2)}$</td><td></td><td>$+\\infty$</td></tr>
+                             <tr><td class="bg-white/5">$y'$</td><td></td><td class="text-brand-accent">$${s1}$</td><td>$0$</td><td class="text-brand-accent">$${s2}$</td><td>$0$</td><td class="text-brand-accent">$${s3}$</td><td>$0$</td><td class="text-brand-accent">$${s4}$</td><td></td></tr>
+                             <tr class="h-24"><td class="bg-white/5">$y$</td><td class="align-bottom">$-\\infty$</td><td class="align-middle">$\\nearrow$</td><td class="align-top text-pink-400">$${y1}$</td><td class="align-middle">$\\searrow$</td><td class="align-bottom text-pink-400">$${y2}$</td><td class="align-middle">$\\nearrow$</td><td class="align-top text-pink-400">$${y3}$</td><td class="align-middle">$\\searrow$</td><td class="align-bottom">$-\\infty$</td></tr>`;
+                }
+            } else {
+                let y0 = getY(0).toFixed(2);
+                let s1 = a>0?"-":"+", s2 = a>0?"+":"-";
+                if(a>0) {
+                     html += `<tr><td class="bg-white/5 w-12">$x$</td><td>$-\\infty$</td><td></td><td>$0$</td><td></td><td>$+\\infty$</td></tr>
+                             <tr><td class="bg-white/5">$y'$</td><td></td><td class="text-brand-accent">$${s1}$</td><td>$0$</td><td class="text-brand-accent">$${s2}$</td><td></td></tr>
+                             <tr class="h-24"><td class="bg-white/5">$y$</td><td class="align-top">$+\\infty$</td><td class="align-middle">$\\searrow$</td><td class="align-bottom text-pink-400">$${y0}$</td><td class="align-middle">$\\nearrow$</td><td class="align-top">$+\\infty$</td></tr>`;
+                } else {
+                     html += `<tr><td class="bg-white/5 w-12">$x$</td><td>$-\\infty$</td><td></td><td>$0$</td><td></td><td>$+\\infty$</td></tr>
+                             <tr><td class="bg-white/5">$y'$</td><td></td><td class="text-brand-accent">$${s1}$</td><td>$0$</td><td class="text-brand-accent">$${s2}$</td><td></td></tr>
+                             <tr class="h-24"><td class="bg-white/5">$y$</td><td class="align-bottom">$-\\infty$</td><td class="align-middle">$\\nearrow$</td><td class="align-top text-pink-400">$${y0}$</td><td class="align-middle">$\\searrow$</td><td class="align-bottom">$-\\infty$</td></tr>`;
+                }
+            }
+            html += '</table>';
+            document.getElementById('bbt-container').innerHTML = html;
+            document.getElementById('step-conclusion').innerHTML = '';
+            
+            grapher.addCurve(getY, '#00f6ff');
+            roots.forEach(r => grapher.addPoint(r, getY(r)));
+        }
+
+        // ================= RATIONAL 1/1 =================
+        function analyzeRational11(a, b, c, d) {
+            if (c === 0) { alert("Hệ số c phải khác 0"); return; }
+            let D = a*d - b*c;
+            if (D === 0) { alert("ad - bc = 0 (hàm suy biến)"); return; }
+            let x0 = -d/c;
+            
+            document.getElementById('func-equation').innerText = `$y = \\frac{${a}x ${b>=0?'+'+b:b}}{${c}x ${d>=0?'+'+d:d}}$`;
+            document.getElementById('step-domain').innerHTML = `<b>1. Tập xác định:</b> $D = \\mathbb{R} \\setminus \\{${x0.toFixed(2)}\\}$`;
+            
+            let derivStr = `<b>2. Sự biến thiên:</b><br/>- Đạo hàm: $y' = \\frac{${D}}{(${c}x ${d>=0?'+':''}${d})^2}$<br/>`;
+            derivStr += D > 0 ? `- Vì $y' > 0$ nên hàm số đồng biến trên các khoảng xác định.` : `- Vì $y' < 0$ nên hàm số nghịch biến trên các khoảng xác định.`;
+            document.getElementById('step-derivative').innerHTML = derivStr;
+            
+            let y0 = a/c;
+            document.getElementById('step-limits').innerHTML = `<b>3. Tiệm cận:</b><br/>- Tiệm cận ngang: $y = ${y0.toFixed(2)}$<br/>- Tiệm cận đứng: $x = ${x0.toFixed(2)}$`;
+
+            let html = '<table class="bbt-table">';
+            let s = D>0?"+":"-", ar = D>0?"\\nearrow":"\\searrow";
+            html += `<tr><td class="bg-white/5 w-12">$x$</td><td>$-\\infty$</td><td></td><td class="w-16">$${x0.toFixed(2)}$</td><td></td><td>$+\\infty$</td></tr>`;
+            html += `<tr><td class="bg-white/5">$y'$</td><td></td><td class="text-brand-accent">$${s}$</td><td class="dbl-line"></td><td class="text-brand-accent">$${s}$</td><td></td></tr>`;
+            if (D>0) {
+                html += `<tr class="h-24"><td class="bg-white/5">$y$</td><td class="align-bottom">$${y0.toFixed(2)}$</td><td class="align-middle">$${ar}$</td><td class="dbl-line text-xs"><span class="absolute top-0 right-1">$+\\infty$</span><span class="absolute bottom-0 left-1">$-\\infty$</span></td><td class="align-middle">$${ar}$</td><td class="align-top">$${y0.toFixed(2)}$</td></tr>`;
+            } else {
+                html += `<tr class="h-24"><td class="bg-white/5">$y$</td><td class="align-top">$${y0.toFixed(2)}$</td><td class="align-middle">$${ar}$</td><td class="dbl-line text-xs"><span class="absolute bottom-0 right-1">$-\\infty$</span><span class="absolute top-0 left-1">$+\\infty$</span></td><td class="align-middle">$${ar}$</td><td class="align-bottom">$${y0.toFixed(2)}$</td></tr>`;
+            }
+            html += '</table>';
+            document.getElementById('bbt-container').innerHTML = html;
+            document.getElementById('step-conclusion').innerHTML = '';
+
+            let getY = (x) => (a*x+b)/(c*x+d);
+            grapher.addCurve(getY, '#00f6ff');
+            grapher.addAsymptote('v', x0);
+            grapher.addAsymptote('h', y0);
+        }
+
+        // ================= RATIONAL 2/1 =================
+        function analyzeRational21(a, b, c, m, n) {
+            if (a === 0 || m === 0) { alert("Hệ số a và m phải khác 0"); return; }
+            let x0 = -n/m;
+            document.getElementById('func-equation').innerText = `$y = \\frac{${a}x^2 ${b>=0?'+'+b:b}x ${c>=0?'+'+c:c}}{${m}x ${n>=0?'+'+n:n}}$`;
+            document.getElementById('step-domain').innerHTML = `<b>1. Tập xác định:</b> $D = \\mathbb{R} \\setminus \\{${x0.toFixed(2)}\\}$`;
+            
+            let A = a*m, B = 2*a*n, C = b*n - c*m;
+            let derivStr = `<b>2. Sự biến thiên:</b><br/>- Đạo hàm: $y' = \\frac{${A}x^2 ${B>=0?'+'+B:B}x ${C>=0?'+'+C:C}}{(${m}x ${n>=0?'+'+n:n})^2}$<br/>`;
+            
+            let delta = B*B - 4*A*C;
+            let roots = [];
+            if(delta > 0) {
+                let r1 = (-B - Math.sqrt(delta))/(2*A);
+                let r2 = (-B + Math.sqrt(delta))/(2*A);
+                roots = [r1, r2].sort((i,j)=>i-j);
+                derivStr += `- $y'=0 \\Leftrightarrow x_1 \\approx ${roots[0].toFixed(2)}; x_2 \\approx ${roots[1].toFixed(2)}$`;
+            } else {
+                derivStr += `- $y'=0$ vô nghiệm hoặc nghiệm kép.`;
+            }
+            document.getElementById('step-derivative').innerHTML = derivStr;
+            
+            let p = a/m, q = (b*m - a*n)/(m*m);
+            document.getElementById('step-limits').innerHTML = `<b>3. Tiệm cận:</b><br/>- Tiệm cận đứng: $x = ${x0.toFixed(2)}$<br/>- Tiệm cận xiên: $y = ${p.toFixed(2)}x ${q>=0?'+'+q.toFixed(2):q.toFixed(2)}$`;
+
+            let html = '<table class="bbt-table">';
+            let getY = (x) => (a*x*x + b*x + c)/(m*x + n);
+            
+            if (roots.length === 2) {
+                let y1 = getY(roots[0]).toFixed(2), y2 = getY(roots[1]).toFixed(2);
+                let s1 = A > 0 ? "+" : "-", s2 = A > 0 ? "-" : "+", s3 = A > 0 ? "-" : "+", s4 = A > 0 ? "+" : "-";
+                let ar1 = A > 0 ? "\\nearrow" : "\\searrow", ar2 = A > 0 ? "\\searrow" : "\\nearrow";
+                let inf_left = (a/m) > 0 ? "-\\infty" : "+\\infty", inf_right = (a/m) > 0 ? "+\\infty" : "-\\infty";
+                let lim_x0_left = A > 0 ? "-\\infty" : "+\\infty", lim_x0_right = A > 0 ? "+\\infty" : "-\\infty";
+
+                html += `
+                    <tr>
+                        <td class="bg-white/5 w-12">$x$</td>
+                        <td>$-\\infty$</td><td></td><td>$${roots[0].toFixed(2)}$</td><td></td>
+                        <td class="w-16">$${x0.toFixed(2)}$</td>
+                        <td></td><td>$${roots[1].toFixed(2)}$</td><td></td><td>$+\\infty$</td>
+                    </tr>
+                    <tr>
+                        <td class="bg-white/5">$y'$</td>
+                        <td></td><td class="text-brand-accent">$${s1}$</td><td>$0$</td><td class="text-brand-accent">$${s2}$</td>
+                        <td class="dbl-line"></td>
+                        <td class="text-brand-accent">$${s3}$</td><td>$0$</td><td class="text-brand-accent">$${s4}$</td><td></td>
+                    </tr>
+                    <tr class="h-24">
+                        <td class="bg-white/5">$y$</td>
+                        <td class="${A>0?'align-bottom':'align-top'}">$${inf_left}$</td>
+                        <td class="align-middle">$${ar1}$</td>
+                        <td class="${A>0?'align-top':'align-bottom'} text-pink-400 font-bold">$${y1}$</td>
+                        <td class="align-middle">$${ar2}$</td>
+                        <td class="dbl-line text-xs">
+                            <span class="absolute bottom-0 right-1">$${lim_x0_left}$</span>
+                            <span class="absolute top-0 left-1">$${lim_x0_right}$</span>
+                        </td>
+                        <td class="align-middle">$${ar2}$</td>
+                        <td class="${A>0?'align-bottom':'align-top'} text-pink-400 font-bold">$${y2}$</td>
+                        <td class="align-middle">$${ar1}$</td>
+                        <td class="${A>0?'align-top':'align-bottom'}">$${inf_right}$</td>
+                    </tr>
+                `;
+            } else {
+                let s = A > 0 ? "+" : "-", ar = A > 0 ? "\\nearrow" : "\\searrow";
+                let inf_left = (a/m) > 0 ? "-\\infty" : "+\\infty", inf_right = (a/m) > 0 ? "+\\infty" : "-\\infty";
+                let lim_x0_left = A > 0 ? "+\\infty" : "-\\infty", lim_x0_right = A > 0 ? "-\\infty" : "+\\infty";
+
+                html += `
+                    <tr>
+                        <td class="bg-white/5 w-12">$x$</td>
+                        <td>$-\\infty$</td><td></td><td class="w-16">$${x0.toFixed(2)}$</td><td></td><td>$+\\infty$</td>
+                    </tr>
+                    <tr>
+                        <td class="bg-white/5">$y'$</td>
+                        <td></td><td class="text-brand-accent">$${s}$</td>
+                        <td class="dbl-line"></td>
+                        <td class="text-brand-accent">$${s}$</td><td></td>
+                    </tr>
+                    <tr class="h-24">
+                        <td class="bg-white/5">$y$</td>
+                        <td class="${A>0?'align-bottom':'align-top'}">$${inf_left}$</td>
+                        <td class="align-middle">$${ar}$</td>
+                        <td class="dbl-line text-xs">
+                            <span class="absolute ${A>0?'top-0':'bottom-0'} right-1">$${lim_x0_left}$</span>
+                            <span class="absolute ${A>0?'bottom-0':'top-0'} left-1">$${lim_x0_right}$</span>
+                        </td>
+                        <td class="align-middle">$${ar}$</td>
+                        <td class="${A>0?'align-top':'align-bottom'}">$${inf_right}$</td>
+                    </tr>
+                `;
+            }
+            html += '</table>';
+            document.getElementById('bbt-container').innerHTML = html;
+            document.getElementById('step-conclusion').innerHTML = '';
+
+            grapher.addCurve(getY, '#00f6ff');
+            grapher.addAsymptote('v', x0);
+            grapher.addAsymptote('o', p, q);
+            roots.forEach(r => grapher.addPoint(r, getY(r)));
+        }
+
+        window.onload = () => { 
+            grapher = new CanvasGrapher('graphCanvas');
+            setTimeout(analyzeFunc, 100); 
+        };
+    </script>
+</body>
+</html>

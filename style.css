@@ -1,0 +1,163 @@
+:root {
+    --bg-dark: #050B14;
+    --panel-bg: rgba(19, 30, 50, 0.8);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --accent: #3b82f6; /* Đổi sang màu xanh giống nút web mẫu */
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --bbt-border: rgba(255,255,255,0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Segoe UI', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    padding: 15px;
+    gap: 15px;
+}
+
+.sidebar {
+    width: 420px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    backdrop-filter: blur(10px);
+    overflow-y: auto;
+}
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+.sidebar h2 {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.form-group select, .form-group input {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--border-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    width: 100%;
+    text-align: center;
+}
+.form-group label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.input-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+/* Các nút điều hướng */
+.step-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+.step-controls button {
+    flex: 1;
+    padding: 10px;
+    background: #475569;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+.step-controls button#btn-next { background: #2563eb; }
+.step-controls button#btn-next:hover { background: #1d4ed8; }
+.step-controls button#btn-all { background: #e2e8f0; color: #0f172a; }
+
+.equation-display {
+    text-align: center;
+    font-size: 1.3rem;
+    margin: 15px 0;
+    color: #fff;
+}
+
+#math-output {
+    font-size: 1rem;
+    line-height: 1.8;
+}
+#math-output .step-block {
+    margin-bottom: 15px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* CSS cho Bảng Biến Thiên */
+.bbt-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin: 10px 0;
+    border: 1px solid var(--bbt-border);
+}
+.bbt-table td {
+    border: 1px solid var(--bbt-border);
+    padding: 8px;
+    position: relative;
+}
+.dbl-line { position: relative; }
+.dbl-line::before, .dbl-line::after { content: ''; position: absolute; top: 0; bottom: 0; width: 1px; background-color: var(--bbt-border); }
+.dbl-line::before { left: calc(50% - 2px); }
+.dbl-line::after { left: calc(50% + 2px); }
+.h-24 { height: 80px; }
+.align-top { vertical-align: top; }
+.align-bottom { vertical-align: bottom; }
+.align-middle { vertical-align: middle; }
+
+.main-content {
+    flex: 1;
+    background: #0f172a;
+    border-radius: 12px;
+    position: relative;
+    border: 1px solid var(--border-color);
+}
+#plot {
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+.zoom-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+}
+.zoom-controls button {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
