@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khảo Sát Hàm Số THPT</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <!-- JSXGraph -->
+    <script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css" />
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 text-gray-800 p-0 m-0 w-full h-screen flex font-sans overflow-hidden">
+    <!-- Khung toàn màn hình dành cho Iframe -->
+    <div class="flex flex-1 gap-2 bg-white w-full h-full p-2 relative overflow-hidden">
+        
+        <!-- Cột trái: Điều khiển và Lời giải -->
+        <div class="w-2/5 flex flex-col gap-3 bg-white p-4 rounded-lg shadow-md border overflow-y-auto z-10 custom-scrollbar relative">
+            <div class="flex justify-between items-center text-blue-700 font-bold text-sm border-b pb-2">
+                <span>KHẢO SÁT HÀM SỐ (KNTT)</span>
+                <label class="flex items-center gap-2 cursor-pointer bg-blue-50 px-2 py-1 rounded border border-blue-200 text-blue-600 hover:bg-blue-100 transition">
+                    <input type="checkbox" id="show-tangent" class="w-4 h-4 cursor-pointer accent-blue-600">
+                    Tiếp tuyến
+                </label>
+            </div>
+            
+            <select id="func-type" class="w-full border p-2 rounded text-sm bg-gray-50 focus:outline-none focus:border-blue-500 font-medium">
+                <option value="linear">Hàm bậc 1: y = ax + b</option>
+                <option value="quadratic">Hàm bậc 2: y = ax² + bx + c</option>
+                <option value="cubic" selected>Hàm bậc 3: y = ax³ + bx² + cx + d</option>
+                <option value="quartic">Hàm bậc 4 (Trùng phương): y = ax⁴ + bx² + c</option>
+                <option value="rational11">Hàm phân thức (1/1): y = (ax + b)/(cx + d)</option>
+                <option value="rational21">Hàm phân thức (2/1): y = (ax² + bx + c)/(dx + e)</option>
+                <option value="exponential">Hàm số mũ: y = aˣ</option>
+                <option value="logarithmic">Hàm số logarit: y = logₐ(x)</option>
+            </select>
+            
+            <div id="coef-inputs" class="grid grid-cols-4 gap-2 text-center text-sm mb-1">
+                <!-- Inputs sẽ được render động -->
+            </div>
+            
+            <div class="flex gap-2 text-sm mt-1">
+                <button class="flex-1 bg-gray-500 text-white py-1.5 rounded opacity-80 cursor-not-allowed flex items-center justify-center gap-1">
+                    <span>⏮</span> Trước
+                </button>
+                <button class="flex-1 bg-blue-600 text-white py-1.5 rounded shadow hover:bg-blue-700 flex items-center justify-center gap-1 font-medium">
+                    Sau <span>⏭</span>
+                </button>
+                <button id="btn-show-all" class="flex-1 bg-gray-200 py-1.5 rounded text-gray-700 font-medium hover:bg-gray-300">Hiện tất cả</button>
+            </div>
+            
+            <!-- Bảng biến thiên -->
+            <div id="bbt-container" class="mt-2 w-full overflow-x-auto bg-white rounded-lg border border-gray-300 shadow-sm p-1">
+            </div>
+            
+            <!-- Lời giải -->
+            <div id="solution-output" class="text-sm space-y-2 mt-2 text-gray-800 leading-relaxed border-t pt-4 pb-4">
+            </div>
+        </div>
+        
+        <!-- Cột phải: Đồ thị JXG -->
+        <div class="w-3/5 relative bg-white rounded-lg shadow-md border overflow-hidden">
+            <div id="jxgbox" class="jxgbox w-full h-full"></div>
+            
+            <div id="tangent-info" class="hidden absolute top-4 right-4 bg-white border-red-200 border shadow-lg p-3 rounded-lg min-w-[160px] text-sm z-20">
+                <div class="text-red-500 font-bold border-b border-red-100 pb-1 mb-2 text-center">Tiếp tuyến</div>
+                <div id="tangent-math" class="text-gray-700 text-center flex flex-col gap-1"></div>
+            </div>
+
+            <div class="absolute bottom-4 right-4 flex bg-white shadow rounded border border-gray-200 overflow-hidden z-20">
+                <button id="zoom-in" class="px-3 py-1 border-r hover:bg-gray-100 text-lg font-bold text-gray-600">+</button>
+                <button id="zoom-out" class="px-3 py-1 border-r hover:bg-gray-100 text-lg font-bold text-gray-600">-</button>
+                <button id="reset-view" class="px-3 py-1 hover:bg-gray-100 text-lg font-bold text-gray-600">↺</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>
