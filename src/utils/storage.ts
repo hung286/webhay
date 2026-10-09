@@ -344,16 +344,109 @@ export function factoryResetSystem(): void {
     sessionStorage.removeItem(KEY_GEMINI_KEY);
   } catch {}
 }
-const KEY_TOOLS = 'edu_teaching_tools_v39';
+const KEY_TOOLS = 'edu_teaching_tools_v40';
 
 export const DEFAULT_TOOLS: TeachingTool[] = [
+  // --- NHÓM TRÒ CHƠI TOÁN 10 ---
+  {
+    id: 'tool_bao_ve_chien_hao_10',
+    name: 'Bảo Vệ Chiến Hào: Giá Trị Lượng Giác',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/Game-Bao-ve-chien-hao-gia-tri-luong-giac-tu-0-den-180.html',
+    description: 'Game phòng thủ chiến hào: Luyện tập giá trị lượng giác góc 0° đến 180° (Toán 10)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_sut_pen_luong_giac_10',
+    name: 'Sút Pen: Giá Trị Lượng Giác 0°-180°',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/sut-pen-gia-tri-luong-giac-cua-goc-tu-0-den-180.html',
+    description: 'Game bóng đá sút luân lưu: Giá trị lượng giác của một góc từ 0° đến 180° (Toán 10)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_ai_la_trieu_phu_menh_de_10',
+    name: 'Ai Là Triệu Phú: Mệnh Đề',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/ai_la_trieu_phu_menh_de.html',
+    description: 'Gameshow Ai Là Triệu Phú chuyên đề Mệnh đề & Tập hợp (Toán 10)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_ai_la_trieu_phu_on_tap_10',
+    name: 'Ai Là Triệu Phú: Ôn Tập 3 Chuyên Đề',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/Ai-la-trieu-phu-on-tap.html',
+    description: 'Gameshow Ai Là Triệu Phú ôn tập 3 chủ đề chuyên đề Toán 10',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_ban_chim_xac_suat_10',
+    name: 'Bắn Chim Xác Suất Lớp 10',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/ban-chim-xac-suat10.html',
+    description: 'Game bắn chim tính xác suất biến cố và hoán vị tổ hợp (Toán 10)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_dua_xe_f1_hk2_10',
+    name: 'Đua Xe F1: Ôn Tập Học Kỳ 2',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/game-dua-xe-F1-on-tap-HK2-toan10.html',
+    description: 'Game đua xe F1 tốc độ cao ôn tập kiến thức tổng hợp HK2 Toán 10',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_nghieng_dau_newton_10',
+    name: 'Nghiêng Đầu Chọn Đáp Án: Nhị Thức Newton',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/nghieng-dau-nhi-thuc-newton.html',
+    description: 'Game tương tác chuyển động/phím ôn tập công thức Nhị thức Newton (Toán 10)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_ran_san_tap_hop_10',
+    name: 'Rắn Săn Tập Hợp',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/ran-san-tap-hop-10.html',
+    description: 'Game rắn săn mồi cổ điển vượt chướng ngại vật lý thuyết Tập hợp (Toán 10)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_ran_san_xac_suat_10',
+    name: 'Rắn Săn Xác Suất Lớp 10',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/ran-san-xac-suat.html',
+    description: 'Game rắn săn mồi thu thập đáp án đúng xác suất cổ điển (Toán 10)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+
+  // --- NHÓM TRÒ CHƠI TOÁN 11 ---
   {
     id: 'tool_ghep_cap_luong_giac',
-    name: 'Ghép Cặp Lượng Giác',
+    name: 'Ghép Cặp Công Thức Lượng Giác',
     type: 'iframe',
     category: 'tro-choi',
     url: '/ghep-cap-luong-giac.html',
-    description: 'Trò chơi lật thẻ ghép cặp công thức lượng giác (Toán 11)',
+    description: 'Trò chơi lật thẻ ghép cặp công thức lượng giác (Toán 11) - Hỗ trợ Admin sửa cặp bài',
     isActive: true,
     createdAt: new Date().toISOString()
   },
@@ -363,7 +456,17 @@ export const DEFAULT_TOOLS: TeachingTool[] = [
     type: 'iframe',
     category: 'tro-choi',
     url: '/ghep-cap-phuong-trinh-luong-giac.html',
-    description: 'Trò chơi lật thẻ ghép cặp nghiệm phương trình lượng giác cơ bản',
+    description: 'Trò chơi lật thẻ ghép cặp nghiệm phương trình lượng giác cơ bản (Toán 11) - Hỗ trợ Admin',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_ghep_cap_trai_tim_dao_ham11',
+    name: 'Ghép Cặp Trái Tim: Đạo Hàm',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/ghep-cap-trai-tim-dao-ham11.html',
+    description: 'Trò chơi ghép đôi trái tim bay lượn: Công thức và quy tắc Đạo hàm (Toán 11) - Hỗ trợ Admin',
     isActive: true,
     createdAt: new Date().toISOString()
   },
@@ -374,6 +477,98 @@ export const DEFAULT_TOOLS: TeachingTool[] = [
     category: 'tro-choi',
     url: '/ca-ngua-dao-ham11.html',
     description: 'Trò chơi cờ cá ngựa luyện tập công thức và bài tập Đạo hàm Toán 11',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_cau_ca_mu_loga_11',
+    name: 'Câu Cá: Mũ & Logarit Full Chương',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/cau-ca-mu-loga11.html',
+    description: 'Game câu cá giải nhanh công thức hàm số mũ và logarit toàn bộ chương (Toán 11)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_dao_ham_cap2_dance_11',
+    name: 'Cyber Dance: Đạo Hàm Cấp 2',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/dao-ham-cap2-toan11.html',
+    description: 'Game nhịp điệu âm nhạc Cyber Dance rèn luyện phản xạ Đạo hàm cấp 2 (Toán 11)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_mario_xac_suat_11',
+    name: 'Mario: Biến Cố Giao & Biến Cố Độc Lập',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/Gamemario_bien-co-giao-bien-co-doc-lap.html',
+    description: 'Game phiêu lưu Mario thu thập nấm tính xác suất biến cố giao, độc lập (Toán 11)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_tetris_hai_mp_vuong_goc_11',
+    name: 'Xếp Gạch Tetris: Hai Mặt Phẳng Vuông Góc',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/Gametetris_Hai-mat-phang-vuong-goc.html',
+    description: 'Game xếp gạch Tetris giải câu hỏi hình học không gian hai mặt phẳng vuông góc (Toán 11)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_hai_tao_luan_phien_11',
+    name: 'Hội Thi Thu Hoạch Táo: Mũ & Logarit',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/hai-tao-luan-phien.html',
+    description: 'Hội thi thu hoạch táo thi đấu luân phiên giải toán Mũ và Logarit (Toán 11)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_keo_co_hai_mp_11',
+    name: 'Kéo Co: Hai Mặt Phẳng Vuông Góc',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/keo-co-hai.html',
+    description: 'Game kéo co đối kháng 2 đội thi đua tính chất hai mặt phẳng vuông góc (Toán 11)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_pikachu_dao_ham_11',
+    name: 'Pikachu Đạo Hàm',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/pikachu-dao-ham.html',
+    description: 'Game nối hình Pikachu kinh điển nối các cặp đạo hàm tương đương (Toán 11)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_yoga_xac_suat_11',
+    name: 'Yoga Xác Suất 11',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/yoga-xac-suat11.html',
+    description: 'Game vận động phản xạ tư thế Yoga rèn luyện xác suất có điều kiện (Toán 11)',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+
+  // --- NHÓM TRÒ CHƠI TOÁN 12 ---
+  {
+    id: 'tool_keo_tha_don_dieu_cuc_tri_12',
+    name: 'Kéo Thả: Tính Đơn Điệu & Cực Trị',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/keo-tha-tinh-don-dieu-va-cuc-tri-hs.html',
+    description: 'Tương tác kéo thả nhận diện khoảng đồng biến nghịch biến và cực trị hàm số (Toán 12)',
     isActive: true,
     createdAt: new Date().toISOString()
   },
