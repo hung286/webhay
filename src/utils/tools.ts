@@ -2,6 +2,11 @@ import { TeachingTool } from '../types';
 
 export const getToolEmbedUrl = (tool: TeachingTool): string => {
   let finalUrl = tool.url;
+
+  // CỨU CÁNH: Ép cứng đường dẫn đúng cho Khảo sát hàm số trong trường hợp URL trong DB bị sai
+  if (tool.id === 'tool_khao_sat_ham_so_12' || tool.name.includes('Khảo sát hàm số')) {
+    finalUrl = '/khao_sat_ham_so_12.html';
+  }
   
   if (finalUrl.includes('<iframe')) {
     const srcMatch = finalUrl.match(/src=["']([^"']+)["']/);
