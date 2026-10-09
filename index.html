@@ -1,57 +1,13 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khảo sát hàm số THPT - Động</title>
-    <link rel="stylesheet" href="style.css">
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-</head>
-<body>
-    <div class="app-container">
-        
-        <div class="sidebar">
-            <h2>Khảo sát hàm số (KNTT)</h2>
-            
-            <div class="form-group">
-                <select id="funcType">
-                    <option value="cubic">Hàm bậc 3: y = ax³ + bx² + cx + d</option>
-                    <option value="rational11">Phân thức 1/1: y = (ax+b)/(cx+d)</option>
-                </select>
-            </div>
-
-            <!-- Input động -->
-            <div id="dynamic-inputs" class="input-grid"></div>
-            
-            <!-- Phân bước -->
-            <div class="step-controls">
-                <button id="btn-prev">|&lt;&lt; Trước</button>
-                <button id="btn-next">Sau &gt;&gt;|</button>
-                <button id="btn-all">Hiện tất cả</button>
-            </div>
-
-            <!-- Kết quả khảo sát -->
-            <div class="math-result">
-                <div id="func-equation" class="equation-display"></div>
-                <div id="math-output">
-                    <!-- Nội dung các bước -->
-                </div>
-            </div>
-        </div>
-
-        <div class="main-content">
-            <canvas id="plot"></canvas>
-            <div class="zoom-controls">
-                <button onclick="grapherZoom(1.2)">+</button>
-                <button onclick="grapherZoom(1/1.2)">-</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="mathCoreTHPT.js"></script>
-    <script src="main.js"></script>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebHay</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
