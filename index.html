@@ -212,16 +212,7 @@
                     <p class="text-slate-400 text-sm">Vòng quay may mắn, gọi tên ngẫu nhiên</p>
                 </div>
 
-            
-                <!-- Nút 5: Trò chơi học tập -->
-                <div onclick="showCategory('tro-choi-hoc-sinh')" class="cat-card glass-panel p-8 text-center group">
-                    <div class="w-20 h-20 mx-auto bg-pink-500/10 rounded-[2rem] flex items-center justify-center mb-6 border border-pink-500/30 group-hover:bg-pink-500/20 transition-all duration-300 shadow-[0_0_30px_rgba(236,72,153,0.15)]">
-                        <span class="text-4xl drop-shadow-lg">🎓</span>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-white">Trò chơi học tập</h3>
-                    <p class="text-slate-400 text-sm">(Giao diện học sinh)</p>
-                </div>
-</div>
+            </div>
 
             <!-- NÚT 5: PHIẾU HỌC TẬP (Ở DƯỚI CÙNG, TRẢI DÀI NỔI BẬT) -->
             <div onclick="openTool('https://phieu-hoc-tap-mon-toanthpt.netlify.app/', 'Phiếu Học Tập')" class="cat-card glass-panel p-6 sm:p-8 text-center group flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 border-brand-accent/30 hover:border-brand-accent/70 shadow-[0_0_40px_rgba(0,246,255,0.1)] hover:shadow-[0_0_60px_rgba(0,246,255,0.3)] mb-12">
@@ -530,16 +521,14 @@
             'thao-tac': '🧮 Trợ lý Thao tác',
             'tro-choi': '🎮 Trò chơi Dạy học',
             'mo-phong': '📐 Mô phỏng & Thực tế',
-            'chon-hs': '🎯 Chọn học sinh',
-            'tro-choi-hoc-sinh': '🎓 Trò chơi học tập (Học sinh)'
+            'chon-hs': '🎯 Chọn học sinh'
         };
 
         const categoryIcons = {
             'thao-tac': ['🧮','📈','📐','✏️','♾️','📏','📊','🔍'],
             'tro-choi': ['🎮','🏆','🚀','⚡','🧩','🎲','🎯','🥇'],
             'mo-phong': ['🧊','🌌','🌐','🧭','🔭','🪐','🕋','🏗️'],
-            'chon-hs': ['🎯','🙋','🙋‍♂️','🎤','🎲','🎁','✨','🎫'],
-            'tro-choi-hoc-sinh': ['🎓','🧠','💡','📚','🏆','🌟','🏅','🚀']
+            'chon-hs': ['🎯','🙋','🙋‍♂️','🎤','🎲','🎁','✨','🎫']
         };
 
         const gradients = [
@@ -553,8 +542,7 @@
             'thao-tac': ['tro-ly-thong-ke-101112.html','khao-sat-ham-so-ve-do-thi-ProMax.html','tinh-dien-tich-tam-giac-bang-he-thuc-luong-hoac-toa-do-3-dinh.html','Tinh-the-tich-khoi-chop-va-khoi-lang-tru-bang-cong-thuc-tinh-nhanh-va-oxyz.html','Cac-phep-toan-cua-cac-tap-con-cua-R.html', 'phuong-trinh-duong-tron.html', 'phuong-trinh-mat-cau-co-ban.html', 'so-do-cay-xac-suat.html', 'So-phan-tu-cua-giao-hop-so-do-Venn.html', 'tiet-kiem-tra-gop.html', 'Tro-ly-ham-so-12.html', 'viet-ve-trongpdf.html'],
             'tro-choi': ['Game-Bao-ve-chien-hao-gia-tri-luong-giac-tu-0-den-180.html','sut-pen-gia-tri-luong-giac-cua-goc-tu-0-den-180.html','ai_la_trieu_phu_menh_de.html','keo-tha-tinh-don-dieu-va-cuc-tri-hs.html','ghep-cap-cong-thuc-luong-giac.html','ghep-cap-phuong-trinh-luong-giac-co-ban.html','Ai-la-trieu-phu-on-tap.html', 'ban-chim-xac-suat10.html', 'ca-ngua-dao-ham11.html', 'cau-ca-mu-loga11.html', 'dao-ham-cap2-toan11.html', 'game-dua-xe-F1-on-tap-HK2-toan10.html', 'Gamemario_bien-co-giao-bien-co-doc-lap.html', 'Gametetris_Hai-mat-phang-vuong-goc.html', 'ghep-cap-trai-tim-dao-ham11.html', 'hai-tao-luan-phien.html', 'keo-co-hai.html', 'nghieng-dau-nhi-thuc-newton.html', 'pikachu-dao-ham.html', 'ran-san-tap-hop-10.html', 'ran-san-xac-suat.html', 'yoga-xac-suat11.html'],
             'mo-phong': ['Mo-phong-ham-so-luong-giac.html','Mo-phong-goc-luong-giac.html','3den-sang-so-nghe-an.html', 'goc-nhi-dien.html', 'hinh-hoc-khong-gian-3D.html', 'mat-cau-vi-tri-tuong-doi.html', 'mien-nghiem-he-bpt-bac-nhat-2an.html', 'Mo-phong-bai-toan-goc-nho-nhat-Oxyz.html', 'Mo-phong-bai-toan-ha-san-doc-nuoc.html', 'Mo-phong-bai-toan-the-tich-bang-tich-phan-muc-nuoc-co-thiet-dien-HCN.html', 'Mo-phong-cac-buoc-xac-dinh-hinh-chieu-vuong-goc-cua-duong-thang-len-mat-phang-cat-nhau.html', 'Mo-phong-cac-buoc-xac-dinh-hinh-chieu-vuong-goc-cua-duong-thang-len-mat-phang-lay-2-diem.html', 'Mo-phong-cach-tim-goc-giua-duong-thang-va-mat-phang.html', 'Mo-phong-goc-giua-duong-thang-va-mat-phang-co-mat-troi.html', 'Mo-phong-tiep-tuyen-mat-cau-Tim-min-khoang-cach.html'],
-            'chon-hs': ['Banh-xe-so-dan-va-luu-ten-hs-them-nhac.html', 'Chon-hoac-Phan-cong-HS-lam-bai-tap-co-cho-diem-xuat-diem-excel.html'],
-            'tro-choi-hoc-sinh': ['ghep-cap-luong-giac.html', 'ghep-cap-phuong-trinh-luong-giac.html']
+            'chon-hs': ['Banh-xe-so-dan-va-luu-ten-hs-them-nhac.html', 'Chon-hoac-Phan-cong-HS-lam-bai-tap-co-cho-diem-xuat-diem-excel.html']
         };
 
         const exactVietnameseDictionary = {
@@ -596,9 +584,7 @@
             'Mo-phong-goc-giua-duong-thang-va-mat-phang-co-mat-troi.html': 'Góc giữa ĐT và MP (Có mặt trời)',
             'Mo-phong-tiep-tuyen-mat-cau-Tim-min-khoang-cach.html': 'Tiếp tuyến mặt cầu (Tìm Min khoảng cách)',
             'Banh-xe-so-dan-va-luu-ten-hs-them-nhac.html': 'Vòng quay gọi tên & Lưu học sinh',
-            'Chon-hoac-Phan-cong-HS-lam-bai-tap-co-cho-diem-xuat-diem-excel.html': 'Phân công học sinh & Xuất điểm Excel',
-            'ghep-cap-luong-giac.html': 'Ghép Cặp Lượng Giác',
-            'ghep-cap-phuong-trinh-luong-giac.html': 'Ghép Cặp Phương Trình Lượng Giác'
+            'Chon-hoac-Phan-cong-HS-lam-bai-tap-co-cho-diem-xuat-diem-excel.html': 'Phân công học sinh & Xuất điểm Excel'
         };
 
         let currentToolsList = []; 
