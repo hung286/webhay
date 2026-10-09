@@ -263,7 +263,7 @@ export const AdminStudio: React.FC<AdminStudioProps> = ({
           }`}
         >
           <Layers className="w-4 h-4" />
-          <span>Công cụ & Geogebra</span>
+          <span>Công cụ & Trò chơi</span>
         </button>
 
         <button
