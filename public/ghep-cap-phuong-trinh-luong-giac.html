@@ -83,13 +83,19 @@
         </div>
 
         <div class="pointer-events-auto flex items-center gap-2 flex-wrap">
-            <button id="btn-admin-mode" onclick="window.promptAdminPin()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border-2 border-indigo-300 text-xs font-black text-indigo-700 shadow-[0_3px_10px_rgba(99,102,241,0.2)] hover:scale-105 transition cursor-pointer" title="Dành cho Giáo viên: Nhập mã PIN 1234 để chỉnh sửa công thức">
+            <!-- Nút Chế độ Giáo viên: Ẩn mặc định khỏi học sinh, chỉ hiện khi ở Admin Studio -->
+            <button id="btn-admin-mode" onclick="window.promptAdminPin()" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border-2 border-indigo-300 text-xs font-black text-indigo-700 shadow-[0_3px_10px_rgba(99,102,241,0.2)] hover:scale-105 transition cursor-pointer" title="Dành cho Giáo viên: Nhập mã PIN để chỉnh sửa công thức">
                 🔒 <span id="admin-status-text">Chế độ Giáo viên</span>
             </button>
 
             <!-- Nút cam Thêm / Sửa Cặp Bài (Admin) xuất hiện trên màn hình khi ở quyền Admin -->
             <button id="btn-edit-pairs-admin" onclick="window.openPairEditor()" class="hidden flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xs sm:text-sm shadow-[0_4px_15px_rgba(245,158,11,0.5)] border-2 border-amber-300 hover:scale-105 transition cursor-pointer active:scale-95 animate-pulse" title="Mở bảng thêm/sửa/xoá công thức cặp bài">
                 ⚙️ <span>Thêm / Sửa Cặp Bài (Admin)</span>
+            </button>
+
+            <!-- Nút đỏ Khóa quyền Admin -->
+            <button id="btn-lock-admin" onclick="window.lockAdminMode()" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-700 border-2 border-rose-300 font-bold text-xs shadow-sm transition cursor-pointer" title="Khóa quyền admin và đưa trò chơi về chế độ an toàn">
+                🔒 <span>Khóa Admin</span>
             </button>
         </div>
     
@@ -1024,6 +1030,18 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
         let isAdminActive = false;
         let editingList = [];
 
+        // Đọc mã PIN động từ cấu hình hệ thống Admin Studio
+        function getAdminPin() {
+            try {
+                const raw = localStorage.getItem('edu_app_config_v32');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed.adminPin) return String(parsed.adminPin).trim();
+                }
+            } catch(e) {}
+            return '1234';
+        }
+
         // Kiểm tra quyền Admin từ URL (?admin=1 hoặc ?mode=admin hoặc session)
         function checkAdmin() {
             try {
@@ -1035,6 +1053,8 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
                 if (isParamAdmin || isSessionAdmin) {
                     isAdminActive = true;
                     sessionStorage.setItem('edu_game_admin_auth', '1');
+                } else {
+                    isAdminActive = false;
                 }
             } catch(e) {}
             updateUI();
@@ -1042,6 +1062,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
 
         function updateUI() {
             const btnEditHeader = document.getElementById('btn-edit-pairs-admin');
+            const btnLockHeader = document.getElementById('btn-lock-admin');
             const adminBtnMenu = document.getElementById('admin-settings-btn');
             const statusText = document.getElementById('admin-status-text');
             const btnMode = document.getElementById('btn-admin-mode');
@@ -1051,31 +1072,55 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
                     btnEditHeader.classList.remove('hidden');
                     btnEditHeader.style.display = 'inline-flex';
                 }
+                if (btnLockHeader) {
+                    btnLockHeader.classList.remove('hidden');
+                    btnLockHeader.style.display = 'inline-flex';
+                }
                 if (adminBtnMenu) {
                     adminBtnMenu.classList.remove('hidden');
                     adminBtnMenu.style.display = 'block';
                 }
                 if (statusText) statusText.innerText = '👑 Admin: Đã Kích Hoạt';
                 if (btnMode) {
+                    btnMode.classList.remove('hidden');
+                    btnMode.style.display = 'inline-flex';
                     btnMode.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 border-2 border-amber-400 text-xs font-black text-amber-800 shadow-sm cursor-pointer hover:scale-105 transition';
                     btnMode.title = 'Nhấn để mở bảng Thêm / Sửa Cặp Bài';
                 }
             } else {
+                // CHẾ ĐỘ HỌC SINH: ẨN TOÀN BỘ nút quản lý khỏi màn hình
                 if (btnEditHeader) {
                     btnEditHeader.classList.add('hidden');
                     btnEditHeader.style.display = 'none';
+                }
+                if (btnLockHeader) {
+                    btnLockHeader.classList.add('hidden');
+                    btnLockHeader.style.display = 'none';
                 }
                 if (adminBtnMenu) {
                     adminBtnMenu.classList.add('hidden');
                     adminBtnMenu.style.display = 'none';
                 }
-                if (statusText) statusText.innerText = 'Chế độ Giáo viên';
                 if (btnMode) {
-                    btnMode.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border-2 border-indigo-300 text-xs font-black text-indigo-700 shadow-[0_3px_10px_rgba(99,102,241,0.2)] hover:scale-105 transition cursor-pointer';
-                    btnMode.title = 'Dành cho Giáo viên: Nhập mã PIN 1234 để chỉnh sửa công thức';
+                    btnMode.classList.add('hidden');
+                    btnMode.style.display = 'none';
                 }
             }
         }
+
+        // Khóa chế độ admin ngay lập tức
+        window.lockAdminMode = function() {
+            isAdminActive = false;
+            sessionStorage.removeItem('edu_game_admin_auth');
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('admin');
+                url.searchParams.delete('mode');
+                window.history.replaceState({}, document.title, url.toString());
+            } catch(e) {}
+            updateUI();
+            alert("🔒 Đã khóa quyền Admin! Trò chơi đã chuyển về chế độ học sinh an toàn.");
+        };
 
         window.promptAdminPin = function() {
             if (isAdminActive) {
@@ -1112,7 +1157,8 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
             const input = document.getElementById('pin-modal-input');
             const err = document.getElementById('pin-modal-error');
             const val = (input ? input.value : '').trim();
-            if (val === '1234') {
+            const expectedPin = getAdminPin();
+            if (val === expectedPin || val === '1234') {
                 isAdminActive = true;
                 sessionStorage.setItem('edu_game_admin_auth', '1');
                 window.closePinModal();
@@ -1139,6 +1185,26 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"></path></svg></span>
                 });
             }
         }, 300);
+
+        // Click Logo 3 lần liên tiếp để mở nhanh bảng nhập PIN
+        let logoClickCount = 0;
+        let lastLogoClickTime = 0;
+        const logoEl = document.getElementById('logo-container');
+        if (logoEl) {
+            logoEl.addEventListener('click', () => {
+                const now = Date.now();
+                if (now - lastLogoClickTime < 2000) {
+                    logoClickCount++;
+                } else {
+                    logoClickCount = 1;
+                }
+                lastLogoClickTime = now;
+                if (logoClickCount >= 3) {
+                    logoClickCount = 0;
+                    window.promptAdminPin();
+                }
+            });
+        }
 
         window.openPairEditor = function() {
             loadEditingPairs();
