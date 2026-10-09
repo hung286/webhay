@@ -3,9 +3,11 @@ import { TeachingTool } from '../types';
 export const getToolEmbedUrl = (tool: TeachingTool): string => {
   let finalUrl = tool.url;
 
-  // CỨU CÁNH: Ép cứng đường dẫn đúng cho Khảo sát hàm số trong trường hợp URL trong DB bị sai
-  if (tool.id === 'tool_khao_sat_ham_so_12' || tool.name.includes('Khảo sát hàm số')) {
+  if (tool.id === 'tool_khao_sat_ham_so_12' || tool.name.includes('Khảo sát hàm số') || tool.name.includes('Kho sAt')) {
     finalUrl = '/khao_sat_ham_so_12.html';
+  }
+  if (tool.name.toLowerCase().includes('sơ đồ cây') || tool.name.toLowerCase().includes('sơ đ cAy') || tool.name.toLowerCase().includes('so do cay')) {
+    finalUrl = '/so_do_cay_xac_suat.html';
   }
   
   if (finalUrl.includes('<iframe')) {
