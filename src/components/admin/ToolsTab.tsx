@@ -347,7 +347,7 @@ export const ToolsTab: React.FC = () => {
                 className="text-xs font-bold text-violet-600 hover:text-violet-800 flex items-center gap-1.5 transition"
               >
                 <Eye className="w-3.5 h-3.5" />
-                <span>Xem thử</span>
+                <span>Xem thử & Cài đặt</span>
               </button>
 
               <div className="flex items-center gap-1">
@@ -358,7 +358,7 @@ export const ToolsTab: React.FC = () => {
                     soundFx.playClick();
                   }}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition"
-                  title="Chỉnh sửa"
+                  title="Chỉnh sửa cấu hình"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -382,13 +382,16 @@ export const ToolsTab: React.FC = () => {
         )}
       </div>
 
-      {/* Modal Xem trước Preview */}
+      {/* Modal Xem trước Preview ở Chế độ Quản trị */}
       {previewTool && (
         <div className="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-xs flex flex-col p-4 md:p-6 animate-in fade-in duration-200">
           <div className="flex justify-between items-center mb-3 max-w-6xl mx-auto w-full">
             <div className="flex items-center gap-2">
               <h3 className="text-white text-lg font-black truncate max-w-md">{previewTool.name}</h3>
               {getCategoryBadge(previewTool.category)}
+              <span className="hidden sm:inline text-[11px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
+                👑 Quyền Quản trị Admin
+              </span>
             </div>
             <button 
               onClick={() => { setPreviewTool(null); soundFx.playClick(); }} 
@@ -398,12 +401,21 @@ export const ToolsTab: React.FC = () => {
             </button>
           </div>
           <div className="flex-1 bg-slate-950 rounded-2xl overflow-hidden max-w-6xl mx-auto w-full relative shadow-2xl border border-slate-800">
-            <iframe 
-              src={getToolEmbedUrl(previewTool)} 
-              className="absolute inset-0 w-full h-full border-0" 
-              allowFullScreen
-              title={previewTool.name}
-            />
+            {(() => {
+              let url = getToolEmbedUrl(previewTool);
+              if (url && (url.includes('.html') || url.startsWith('/') || url.startsWith('http'))) {
+                const sep = url.includes('?') ? '&' : '?';
+                url = `${url}${sep}admin=1`;
+              }
+              return (
+                <iframe 
+                  src={url} 
+                  className="absolute inset-0 w-full h-full border-0" 
+                  allowFullScreen
+                  title={previewTool.name}
+                />
+              );
+            })()}
           </div>
         </div>
       )}
