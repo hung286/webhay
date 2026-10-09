@@ -33,6 +33,17 @@ const DEFAULT_PTLG_PAIRS: PairItem[] = [
   { id: 8, left: "\\sin x = 0", right: "x = k\\pi" }
 ];
 
+const DEFAULT_DAOHAM_PAIRS: PairItem[] = [
+  { id: 1, left: "\\left( C \\right)'", right: "0" },
+  { id: 2, left: "\\left( x^n \\right)'", right: "n \\cdot x^{n-1}" },
+  { id: 3, left: "\\left( \\sqrt{x} \\right)'", right: "\\frac{1}{2\\sqrt{x}}" },
+  { id: 4, left: "\\left( \\sin x \\right)'", right: "\\cos x" },
+  { id: 5, left: "\\left( \\cos x \\right)'", right: "-\\sin x" },
+  { id: 6, left: "\\left( e^x \\right)'", right: "e^x" },
+  { id: 7, left: "\\left( \\ln x \\right)'", right: "\\frac{1}{x}" },
+  { id: 8, left: "\\left( \\tan x \\right)'", right: "\\frac{1}{\\cos^2 x}" }
+];
+
 export const ToolsTab: React.FC = () => {
   const [tools, setTools] = useState<TeachingTool[]>([]);
   const [previewTool, setPreviewTool] = useState<TeachingTool | null>(null);
@@ -125,6 +136,9 @@ export const ToolsTab: React.FC = () => {
     if (tool.id === 'tool_ghep_cap_pt_luong_giac' || tool.url.includes('ghep-cap-phuong-trinh-luong-giac')) {
       return 'custom_pairs_ptlg';
     }
+    if (tool.id === 'tool_ghep_cap_trai_tim_dao_ham11' || tool.url.includes('ghep-cap-trai-tim-dao-ham11')) {
+      return 'custom_pairs_dao_ham_11';
+    }
     return null;
   };
 
@@ -133,7 +147,9 @@ export const ToolsTab: React.FC = () => {
     if (!key) return;
     soundFx.playClick();
 
-    let initialPairs: PairItem[] = key === 'custom_pairs_ctlg' ? DEFAULT_CTLG_PAIRS : DEFAULT_PTLG_PAIRS;
+    let initialPairs: PairItem[] = DEFAULT_CTLG_PAIRS;
+    if (key === 'custom_pairs_ptlg') initialPairs = DEFAULT_PTLG_PAIRS;
+    else if (key === 'custom_pairs_dao_ham_11') initialPairs = DEFAULT_DAOHAM_PAIRS;
     try {
       const saved = localStorage.getItem(key);
       if (saved) {
@@ -189,9 +205,9 @@ export const ToolsTab: React.FC = () => {
 
   const handleResetPairsDefault = () => {
     if (!editingPairsData) return;
-    if (!confirm('Khôi phục về các cặp bài mặc định SGK?')) return;
-    soundFx.playClick();
-    const defaults = editingPairsData.storageKey === 'custom_pairs_ctlg' ? DEFAULT_CTLG_PAIRS : DEFAULT_PTLG_PAIRS;
+    let defaults = DEFAULT_CTLG_PAIRS;
+    if (editingPairsData.storageKey === 'custom_pairs_ptlg') defaults = DEFAULT_PTLG_PAIRS;
+    else if (editingPairsData.storageKey === 'custom_pairs_dao_ham_11') defaults = DEFAULT_DAOHAM_PAIRS;
     localStorage.removeItem(editingPairsData.storageKey);
     setEditingPairsData({
       ...editingPairsData,
