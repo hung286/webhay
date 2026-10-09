@@ -5,6 +5,34 @@ import { getToolEmbedUrl } from '../../utils/tools';
 import { Plus, Trash2, Edit2, ExternalLink, Gamepad2, Wrench, CheckCircle, Eye, Search, Sparkles } from 'lucide-react';
 import { soundFx } from '../../utils/sound';
 
+export interface PairItem {
+  id: number;
+  left: string;
+  right: string;
+}
+
+const DEFAULT_CTLG_PAIRS: PairItem[] = [
+  { id: 1, left: "\\sin^2 x + \\cos^2 x", right: "1" },
+  { id: 2, left: "\\sin(2x)", right: "2\\sin x \\cos x" },
+  { id: 3, left: "\\cos(2x)", right: "\\cos^2 x - \\sin^2 x" },
+  { id: 4, left: "1 + \\tan^2 x", right: "\\frac{1}{\\cos^2 x}" },
+  { id: 5, left: "1 + \\cot^2 x", right: "\\frac{1}{\\sin^2 x}" },
+  { id: 6, left: "\\tan x", right: "\\frac{\\sin x}{\\cos x}" },
+  { id: 7, left: "\\cot x", right: "\\frac{\\cos x}{\\sin x}" },
+  { id: 8, left: "\\tan x \\cdot \\cot x", right: "1" }
+];
+
+const DEFAULT_PTLG_PAIRS: PairItem[] = [
+  { id: 1, left: "\\sin x = 3", right: "\\text{Vô nghiệm do } 3 > 1" },
+  { id: 2, left: "\\sin x = -2", right: "\\text{Vô nghiệm do } -2 < -1" },
+  { id: 3, left: "\\sin x = \\frac{1}{3}", right: "\\text{Có nghiệm do } \\left|\\frac{1}{3}\\right| \\le 1" },
+  { id: 4, left: "\\sin x = -\\frac{\\sqrt{2}}{2}", right: "\\text{Có nghiệm do } \\left|-\\frac{\\sqrt{2}}{2}\\right| \\le 1" },
+  { id: 5, left: "\\sin x = \\pi", right: "\\text{Vô nghiệm do } \\pi > 1" },
+  { id: 6, left: "\\sin x = 1", right: "x = \\frac{\\pi}{2} + k2\\pi" },
+  { id: 7, left: "\\sin x = -1", right: "x = -\\frac{\\pi}{2} + k2\\pi" },
+  { id: 8, left: "\\sin x = 0", right: "x = k\\pi" }
+];
+
 export const ToolsTab: React.FC = () => {
   const [tools, setTools] = useState<TeachingTool[]>([]);
   const [previewTool, setPreviewTool] = useState<TeachingTool | null>(null);
@@ -12,6 +40,13 @@ export const ToolsTab: React.FC = () => {
   const [currentTool, setCurrentTool] = useState<Partial<TeachingTool>>({});
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Quản lý sửa cặp bài trực tiếp ngay tại Admin Studio
+  const [editingPairsData, setEditingPairsData] = useState<{
+    toolName: string;
+    storageKey: string;
+    pairs: PairItem[];
+  } | null>(null);
 
   useEffect(() => {
     setTools(getTeachingTools());
@@ -80,6 +115,102 @@ export const ToolsTab: React.FC = () => {
       saveTeachingTools(updatedTools);
       soundFx.playClick();
     }
+  };
+
+  // Xác định game ghép cặp có hỗ trợ sửa dữ liệu
+  const getGameStorageKey = (tool: TeachingTool): string | null => {
+    if (tool.id === 'tool_ghep_cap_luong_giac' || tool.url.includes('ghep-cap-luong-giac')) {
+      return 'custom_pairs_ctlg';
+    }
+    if (tool.id === 'tool_ghep_cap_pt_luong_giac' || tool.url.includes('ghep-cap-phuong-trinh-luong-giac')) {
+      return 'custom_pairs_ptlg';
+    }
+    return null;
+  };
+
+  const handleOpenPairEditor = (tool: TeachingTool) => {
+    const key = getGameStorageKey(tool);
+    if (!key) return;
+    soundFx.playClick();
+
+    let initialPairs: PairItem[] = key === 'custom_pairs_ctlg' ? DEFAULT_CTLG_PAIRS : DEFAULT_PTLG_PAIRS;
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= 2) {
+          initialPairs = parsed;
+        }
+      }
+    } catch (e) {}
+
+    setEditingPairsData({
+      toolName: tool.name,
+      storageKey: key,
+      pairs: JSON.parse(JSON.stringify(initialPairs))
+    });
+  };
+
+  const handleAddPairRow = () => {
+    if (!editingPairsData) return;
+    soundFx.playClick();
+    setEditingPairsData({
+      ...editingPairsData,
+      pairs: [
+        ...editingPairsData.pairs,
+        { id: Date.now(), left: '', right: '' }
+      ]
+    });
+  };
+
+  const handleRemovePairRow = (index: number) => {
+    if (!editingPairsData) return;
+    if (editingPairsData.pairs.length <= 2) {
+      alert('Cần giữ lại ít nhất 2 cặp bài!');
+      return;
+    }
+    soundFx.playClick();
+    const nextPairs = editingPairsData.pairs.filter((_, i) => i !== index);
+    setEditingPairsData({
+      ...editingPairsData,
+      pairs: nextPairs
+    });
+  };
+
+  const handleUpdatePairField = (index: number, field: 'left' | 'right', value: string) => {
+    if (!editingPairsData) return;
+    const nextPairs = [...editingPairsData.pairs];
+    nextPairs[index] = { ...nextPairs[index], [field]: value };
+    setEditingPairsData({
+      ...editingPairsData,
+      pairs: nextPairs
+    });
+  };
+
+  const handleResetPairsDefault = () => {
+    if (!editingPairsData) return;
+    if (!confirm('Khôi phục về các cặp bài mặc định SGK?')) return;
+    soundFx.playClick();
+    const defaults = editingPairsData.storageKey === 'custom_pairs_ctlg' ? DEFAULT_CTLG_PAIRS : DEFAULT_PTLG_PAIRS;
+    localStorage.removeItem(editingPairsData.storageKey);
+    setEditingPairsData({
+      ...editingPairsData,
+      pairs: JSON.parse(JSON.stringify(defaults))
+    });
+    alert('Đã khôi phục dữ liệu gốc!');
+  };
+
+  const handleSavePairs = () => {
+    if (!editingPairsData) return;
+    const valid = editingPairsData.pairs.filter(p => p.left.trim() && p.right.trim());
+    if (valid.length < 2) {
+      alert('Vui lòng nhập ít nhất 2 cặp bài hoàn chỉnh!');
+      return;
+    }
+    soundFx.playCorrect();
+    localStorage.setItem(editingPairsData.storageKey, JSON.stringify(valid));
+    alert(`Đã lưu thành công ${valid.length} cặp bài cho "${editingPairsData.toolName}"! Trò chơi sẽ áp dụng ngay.`);
+    setEditingPairsData(null);
   };
 
   const filteredTools = tools.filter(t => {
@@ -338,17 +469,30 @@ export const ToolsTab: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex justify-between items-center pt-3 border-t border-slate-100">
-              <button
-                onClick={() => {
-                  setPreviewTool(tool);
-                  soundFx.playClick();
-                }}
-                className="text-xs font-bold text-violet-600 hover:text-violet-800 flex items-center gap-1.5 transition"
-              >
-                <Eye className="w-3.5 h-3.5" />
-                <span>Xem thử & Cài đặt</span>
-              </button>
+            <div className="flex justify-between items-center pt-3 border-t border-slate-100 flex-wrap gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  onClick={() => {
+                    setPreviewTool(tool);
+                    soundFx.playClick();
+                  }}
+                  className="text-xs font-bold text-violet-600 hover:text-violet-800 flex items-center gap-1.5 transition"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Xem thử & Cài đặt</span>
+                </button>
+
+                {getGameStorageKey(tool) && (
+                  <button
+                    onClick={() => handleOpenPairEditor(tool)}
+                    className="text-xs font-black text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition shadow-2xs"
+                    title="Chỉnh sửa trực tiếp danh sách cặp bài công thức"
+                  >
+                    <Sparkles className="w-3 h-3 text-amber-500" />
+                    <span>Sửa cặp bài</span>
+                  </button>
+                )}
+              </div>
 
               <div className="flex items-center gap-1">
                 <button
@@ -416,6 +560,106 @@ export const ToolsTab: React.FC = () => {
                 />
               );
             })()}
+          </div>
+        </div>
+      )}
+
+      {/* Modal Quản lý / Sửa Cặp Bài Trực Tiếp Trên Admin Studio */}
+      {editingPairsData && (
+        <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-5 sm:p-7 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border-4 border-amber-300">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-200 mb-3">
+              <div>
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2">
+                  <span>⚙️ Quản Lý Cặp Bài:</span>
+                  <span className="text-amber-600">{editingPairsData.toolName}</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Chỉnh sửa trực tiếp công thức. Hỗ trợ cú pháp LaTeX (ví dụ: <code className="text-amber-700 font-mono">\sin(2x)</code>, <code className="text-amber-700 font-mono">\cos(x)</code>).
+                </p>
+              </div>
+              <button
+                onClick={() => { setEditingPairsData(null); soundFx.playClick(); }}
+                className="text-slate-400 hover:text-slate-700 text-2xl font-black px-2 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Danh sách cặp bài */}
+            <div className="overflow-y-auto flex-grow mb-4 pr-1 space-y-2.5 custom-scrollbar max-h-[60vh]">
+              {editingPairsData.pairs.map((pair, idx) => (
+                <div key={pair.id || idx} className="flex gap-2 items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200 hover:border-amber-300 transition">
+                  <div className="font-black text-amber-700 w-6 text-center text-xs shrink-0">
+                    {idx + 1}
+                  </div>
+                  <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block mb-0.5">Thẻ 1 (Vế trái / Đề bài)</span>
+                      <input
+                        type="text"
+                        value={pair.left}
+                        onChange={e => handleUpdatePairField(idx, 'left', e.target.value)}
+                        placeholder="Ví dụ: \sin^2 x + \cos^2 x"
+                        className="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs font-mono font-bold outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block mb-0.5">Thẻ 2 (Vế phải / Đáp án)</span>
+                      <input
+                        type="text"
+                        value={pair.right}
+                        onChange={e => handleUpdatePairField(idx, 'right', e.target.value)}
+                        placeholder="Ví dụ: 1"
+                        className="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs font-mono font-bold outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleRemovePairRow(idx)}
+                    className="w-8 h-8 shrink-0 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-lg font-black text-sm flex items-center justify-center cursor-pointer transition"
+                    title="Xóa cặp bài này"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Thanh điều khiển dưới cùng */}
+            <div className="flex flex-wrap justify-between items-center pt-3 border-t border-slate-200 gap-2">
+              <button
+                type="button"
+                onClick={handleAddPairRow}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs sm:text-sm transition shadow-2xs cursor-pointer flex items-center gap-1.5"
+              >
+                <span>+ Thêm cặp mới</span>
+              </button>
+
+              <div className="flex gap-2 flex-wrap items-center">
+                <button
+                  type="button"
+                  onClick={handleResetPairsDefault}
+                  className="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-xs sm:text-sm transition cursor-pointer"
+                >
+                  Khôi phục gốc SGK
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEditingPairsData(null); soundFx.playClick(); }}
+                  className="px-4 py-2 border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl font-bold text-xs sm:text-sm transition cursor-pointer"
+                >
+                  Đóng
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSavePairs}
+                  className="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:brightness-110 text-white rounded-xl font-black text-xs sm:text-sm shadow-md transition cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>💾 Lưu & Cập Nhật Game</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
