@@ -256,6 +256,18 @@ export const WorksheetViewer: React.FC<WorksheetViewerProps> = ({
                 {activeWorksheet.description}
               </p>
             )}
+            {activeWorksheet.externalUrl && (
+              <div className="pt-2">
+                <a
+                  href={activeWorksheet.externalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-md transition-all hover:scale-105"
+                >
+                  <span>🌐 Mở chế độ trình chiếu tương tác (Gốc Netlify)</span>
+                </a>
+              </div>
+            )}
           </div>
 
           {/* PHẦN 1: TÓM TẮT LÝ THUYẾT */}

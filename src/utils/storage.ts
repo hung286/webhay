@@ -708,6 +708,16 @@ export function getWorksheets(): MathWorksheet[] {
       localStorage.setItem(KEY_WORKSHEETS, JSON.stringify(DEFAULT_WORKSHEETS));
       return DEFAULT_WORKSHEETS;
     }
+    // Nếu danh sách cũ có ít hơn danh sách mặc định (ví dụ vừa nâng cấp lên 44 bài), bổ sung các bài chưa có
+    if (parsed.length < DEFAULT_WORKSHEETS.length) {
+      const existingIds = new Set(parsed.map((p: MathWorksheet) => p.id));
+      const newItems = DEFAULT_WORKSHEETS.filter(dw => !existingIds.has(dw.id));
+      if (newItems.length > 0) {
+        const merged = [...parsed, ...newItems];
+        localStorage.setItem(KEY_WORKSHEETS, JSON.stringify(merged));
+        return merged;
+      }
+    }
     return parsed;
   } catch {
     return DEFAULT_WORKSHEETS;
