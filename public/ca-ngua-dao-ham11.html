@@ -63,7 +63,7 @@
         // ==========================================
         // 1. DATA ĐẠO HÀM LỚP 11 KNTT (30 CÂU)
         // ==========================================
-        const QUESTION_BANK = [
+        var QUESTION_BANK = [
             // --- 25 CÂU DỄ ---
             { q: "Biểu thức định nghĩa đạo hàm của hàm số $y = f(x)$ tại điểm $x_0$ (nếu giới hạn hữu hạn) là biểu thức nào dưới đây?", options: ["$\\lim_{x \\to x_0} \\frac{f(x) - f(x_0)}{x - x_0}$", "$\\lim_{x \\to x_0} \\frac{f(x) + f(x_0)}{x - x_0}$", "$\\lim_{x \\to x_0} \\frac{f(x) - f(x_0)}{x + x_0}$", "$\\lim_{x \\to x_0} \\frac{x - x_0}{f(x) - f(x_0)}$"], correct: 0, explanation: "Đạo hàm là giới hạn của tỉ số giữa độ thay đổi hàm số và độ thay đổi biến số." },
             { q: "Giới hạn $\\lim_{x \\to 3} \\frac{f(x) - f(3)}{x - 3}$ (nếu tồn tại hữu hạn) được gọi là gì?", options: ["Đạo hàm của hàm số $f(x)$ tại $x = 3$", "Đạo hàm của hàm số $f(x)$ tại $x = 0$", "Giới hạn của hàm số $f(x)$ tại $x = 3$", "Giá trị của hàm số $f(x)$ tại $x = 3$"], correct: 0, explanation: "Đây là định nghĩa đạo hàm $f'(3)$." },
@@ -581,7 +581,7 @@
                 if (++rolls > 10) {
                     clearInterval(int);
                     setTimeout(() => {
-                        state.activeQuestion = QUESTION_BANK[Math.floor(Math.random() * QUESTION_BANK.length)];
+                        state.activeQuestion = (typeof getNextQuestion !== "undefined" ? getNextQuestion() : QUESTION_BANK[Math.floor(Math.random() * QUESTION_BANK.length)]);
                         state.phase = 'question';
                         updateUI();
                     }, 500);
@@ -822,5 +822,6 @@
         // Mồi sẵn SafeMode Init
         try { initDOM(); } catch(err) { console.error(err); }
     </script>
+  <script src="/game-engine.js"></script>
 </body>
 </html>

@@ -191,7 +191,7 @@
            25 Dễ (100đ) - 15 Vừa (150đ) - 10 Khó (300đ)
            KHÔNG DÙNG: Đạo hàm. ĐÃ CÓ LỜI GIẢI CHI TIẾT.
         ========================================================================= */
-        const QUESTION_BANK = [
+        var QUESTION_BANK = [
             // 25 CÂU DỄ (100 điểm)
             { id: 1, level: 1, topic: "Hàm số logarit", points: 100, q: "Tập xác định của hàm số \\( y = \\log_2(x - 3) \\) là:", opts: ["\\( (3; +\\infty) \\)", "\\( [3; +\\infty) \\)", "\\( \\mathbb{R} \\setminus \\{3\\} \\)", "\\( (0; +\\infty) \\)"], ans: 0, expl: "Hàm số \\( y = \\log_a f(x) \\) xác định khi \\( f(x) > 0 \\). Ở đây \\( x - 3 > 0 \\Leftrightarrow x > 3 \\)." },
             { id: 2, level: 1, topic: "Hàm số logarit", points: 100, q: "Tập xác định của hàm số \\( y = \\ln(2x - 4) \\) là:", opts: ["\\( (2; +\\infty) \\)", "\\( [2; +\\infty) \\)", "\\( \\mathbb{R} \\)", "\\( (0; +\\infty) \\)"], ans: 0, expl: "Điều kiện xác định của hàm logarit tự nhiên (ln) là biểu thức bên trong lớn hơn 0: \\( 2x - 4 > 0 \\Leftrightarrow x > 2 \\)." },
@@ -620,5 +620,6 @@
         function showLeaderboard() { Sound.click(); let lb = JSON.parse(localStorage.getItem('fishingLB_Final6')) || []; let html = lb.length === 0 ? '<div class="text-center font-bold text-gray-500">Chưa có dữ liệu!</div>' : ''; lb.forEach((e, i) => { html += `<div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl mb-3 border-2 border-gray-200"><div class="font-black text-xl text-gray-700">#${i+1} ${e.name}</div><div class="text-[#2A6BB8] font-black text-2xl">${e.score}</div></div>`; }); document.getElementById('leaderboard-list').innerHTML = html; document.getElementById('modal-leaderboard').classList.add('active'); }
         function closeLeaderboard() { Sound.click(); document.getElementById('modal-leaderboard').classList.remove('active'); }
     </script>
+  <script src="/game-engine.js"></script>
 </body>
 </html>

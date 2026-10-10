@@ -171,7 +171,7 @@
         <div class="setup-panel">
             <div class="setup-row">
                 <span class="setup-label">Đội Bóng:</span>
-                <input type="text" id="setup-team" class="setup-input" value="HƯNG YÊN" maxlength="12" spellcheck="false" autocomplete="off">
+                <input type="text" id="setup-team" class="setup-input" value="TOÁN PRO" maxlength="12" spellcheck="false" autocomplete="off">
             </div>
             <div class="setup-row">
                 <span class="setup-label">Số Áo:</span>
@@ -218,7 +218,7 @@
     <script>
         /* CẤU HÌNH NHÂN VẬT TỪ UI */
         const playerSettings = {
-            teamName: "HƯNG YÊN",
+            teamName: "TOÁN PRO",
             color: "#ef4444",
             number: "7",
             foot: "right"
@@ -244,7 +244,7 @@
 
         function applySetupAndInitGame() {
             let tName = document.getElementById('setup-team').value.trim();
-            playerSettings.teamName = tName.length > 0 ? tName.toUpperCase() : "HƯNG YÊN";
+            playerSettings.teamName = tName.length > 0 ? tName.toUpperCase() : "TOÁN PRO";
             let pNum = document.getElementById('setup-num').value;
             playerSettings.number = pNum !== "" ? pNum.toString() : "7";
             

@@ -300,7 +300,7 @@
     <!-- SCRIPT LOGIC -->
     <script>
         // --- NGÂN HÀNG CÂU HỎI TĨNH (TRÍCH TỪ PDF) ---
-        const QUESTION_BANK = [
+        var QUESTION_BANK = [
             { qStr: "\\text{Câu 1: Cho } A=\\{x+1 | x\\in\\mathbb{N}, x\\le 3\\}. \\text{ Tập A là:}", target: "\\{1;2;3;4\\}", options: ["\\{1;2;3;4\\}", "\\{0;1;2;3\\}", "\\{1;2;3\\}", "\\{0;1;2;3;4\\}"] },
             { qStr: "\\text{Câu 2: Liệt kê phần tử tập } X=\\{x\\in\\mathbb{R} | 2x^2-5x+3=0\\}", target: "\\{1; \\frac{3}{2}\\}", options: ["\\{1; \\frac{3}{2}\\}", "\\{0\\}", "\\{1\\}", "\\{\\frac{3}{2}\\}"] },
             { qStr: "\\text{Câu 3: Cho } A=(2;+\\infty). \\text{ Tìm } C_{\\mathbb{R}}A", target: "(-\\infty;2]", options: ["(-\\infty;2]", "(-\\infty;2)", "[2;+\\infty)", "[-2;+\\infty)"] },
@@ -748,5 +748,6 @@
         switchScreen('screen-auth');
 
     </script>
+  <script src="/game-engine.js"></script>
 </body>
 </html>
