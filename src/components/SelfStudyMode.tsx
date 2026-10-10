@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Question, StudentProfile, Difficulty, SRSData } from '../types';
+import { Question, StudentProfile, Difficulty, SRSData, MathWorksheet } from '../types';
 import { soundFx } from '../utils/sound';
-import { addPlayHistory } from '../utils/storage';
+import { addPlayHistory, getWorksheets, getAppConfig } from '../utils/storage';
 import { getSRSData, saveSRSData, updateSRSWeight, getWeakCount, sortBySRSWeight } from '../utils/srs';
+import { WorksheetViewer } from './worksheets/WorksheetViewer';
 import confetti from 'canvas-confetti';
 import {
   BookOpen,
@@ -17,7 +18,8 @@ import {
   Flame,
   Award,
   Layers,
-  BrainCircuit
+  BrainCircuit,
+  FileText
 } from 'lucide-react';
 
 interface SelfStudyModeProps {
@@ -26,6 +28,16 @@ interface SelfStudyModeProps {
 }
 
 export const SelfStudyMode: React.FC<SelfStudyModeProps> = ({ questions, student }) => {
+  // Tab switcher: Luyện tập câu hỏi VS Phiếu học tập môn Toán
+  const [selfStudyTab, setSelfStudyTab] = useState<'questions' | 'worksheets'>('questions');
+  const [worksheets, setWorksheets] = useState<MathWorksheet[]>(() => getWorksheets());
+
+  // Reload worksheets when tab activates
+  useEffect(() => {
+    if (selfStudyTab === 'worksheets') {
+      setWorksheets(getWorksheets());
+    }
+  }, [selfStudyTab]);
   // Published questions only
   const publishedQuestions = useMemo(() => {
     return questions.filter(q => q.status === 'published');
@@ -198,43 +210,99 @@ export const SelfStudyMode: React.FC<SelfStudyModeProps> = ({ questions, student
     setCurrentIndex(0);
   };
 
+  const renderTabSwitcher = () => (
+    <div className="flex items-center justify-between gap-3 bg-white p-2 rounded-2xl border border-slate-200/90 shadow-2xs">
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => {
+            soundFx.playClick();
+            setSelfStudyTab('questions');
+          }}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${
+            selfStudyTab === 'questions'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+          }`}
+        >
+          <BookOpen className="w-4 h-4" />
+          <span>🎯 Luyện tập câu hỏi</span>
+        </button>
+
+        <button
+          onClick={() => {
+            soundFx.playClick();
+            setSelfStudyTab('worksheets');
+          }}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${
+            selfStudyTab === 'worksheets'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          <span>📑 Phiếu học tập môn Toán</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  // If in worksheets tab, render WorksheetViewer
+  if (selfStudyTab === 'worksheets') {
+    return (
+      <div className="space-y-6">
+        {renderTabSwitcher()}
+        <WorksheetViewer
+          worksheets={worksheets}
+          adminPin={getAppConfig().adminPin || '1234'}
+        />
+      </div>
+    );
+  }
+
   if (publishedQuestions.length === 0) {
     return (
-      <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">
-        <BookOpen className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-        <h3 className="text-xl font-bold text-slate-800 mb-2">Chưa có câu hỏi nào được xuất bản</h3>
-        <p className="text-sm text-slate-500 max-w-md mx-auto">
-          Vào mục <strong>Admin Studio &gt; Ngân hàng câu hỏi</strong> để duyệt hoặc xuất bản câu hỏi cho học sinh.
-        </p>
+      <div className="space-y-6">
+        {renderTabSwitcher()}
+        <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm">
+          <BookOpen className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-slate-800 mb-2">Chưa có câu hỏi nào được xuất bản</h3>
+          <p className="text-sm text-slate-500 max-w-md mx-auto">
+            Vào mục <strong>Admin Studio &gt; Ngân hàng câu hỏi</strong> để duyệt hoặc xuất bản câu hỏi cho học sinh.
+          </p>
+        </div>
       </div>
     );
   }
 
   if (filteredQuestions.length === 0) {
     return (
-      <div className="bg-white rounded-3xl p-10 text-center border border-slate-200 shadow-sm">
-        <Layers className="w-14 h-14 text-blue-400 mx-auto mb-3" />
-        <h3 className="text-lg font-bold text-slate-800 mb-2">Không tìm thấy câu hỏi phù hợp với bộ lọc</h3>
-        <p className="text-sm text-slate-500 mb-5">
-          Hãy thử chọn mức độ hoặc chủ đề khác, hoặc tắt chế độ ôn câu sai.
-        </p>
-        <button
-          onClick={() => {
-            setSelectedDifficulty('Tất cả');
-            setSelectedTopic('Tất cả');
-            setOnlyWrongMode(false);
-            setFocusWeakMode(false);
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition"
-        >
-          Xóa tất cả bộ lọc
-        </button>
+      <div className="space-y-6">
+        {renderTabSwitcher()}
+        <div className="bg-white rounded-3xl p-10 text-center border border-slate-200 shadow-sm">
+          <Layers className="w-14 h-14 text-blue-400 mx-auto mb-3" />
+          <h3 className="text-lg font-bold text-slate-800 mb-2">Không tìm thấy câu hỏi phù hợp với bộ lọc</h3>
+          <p className="text-sm text-slate-500 mb-5">
+            Hãy thử chọn mức độ hoặc chủ đề khác, hoặc tắt chế độ ôn câu sai.
+          </p>
+          <button
+            onClick={() => {
+              setSelectedDifficulty('Tất cả');
+              setSelectedTopic('Tất cả');
+              setOnlyWrongMode(false);
+              setFocusWeakMode(false);
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition"
+          >
+            Xóa tất cả bộ lọc
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {renderTabSwitcher()}
       {/* Control Bar: Filters & Shuffles */}
       <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-wrap text-xs">

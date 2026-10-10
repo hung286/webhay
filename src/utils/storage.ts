@@ -1,5 +1,6 @@
-import { AppConfig, Question, PlayHistory, StudentProfile, TeachingTool } from '../types';
+import { AppConfig, Question, PlayHistory, StudentProfile, TeachingTool, MathWorksheet } from '../types';
 import { DEFAULT_QUESTIONS_50 } from '../data/defaultQuestions';
+import { DEFAULT_WORKSHEETS } from '../data/defaultWorksheets';
 
 const KEY_CONFIG = 'edu_app_config_v32';
 const KEY_QUESTIONS = 'edu_question_bank_v32';
@@ -691,3 +692,71 @@ export function saveTeachingTools(tools: TeachingTool[]): boolean {
     return false;
   }
 }
+
+// --- MATH WORKSHEETS (PHIẾU HỌC TẬP MÔN TOÁN) ---
+const KEY_WORKSHEETS = 'edu_math_worksheets_v40';
+
+export function getWorksheets(): MathWorksheet[] {
+  try {
+    const raw = localStorage.getItem(KEY_WORKSHEETS);
+    if (!raw) {
+      localStorage.setItem(KEY_WORKSHEETS, JSON.stringify(DEFAULT_WORKSHEETS));
+      return DEFAULT_WORKSHEETS;
+    }
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      localStorage.setItem(KEY_WORKSHEETS, JSON.stringify(DEFAULT_WORKSHEETS));
+      return DEFAULT_WORKSHEETS;
+    }
+    return parsed;
+  } catch {
+    return DEFAULT_WORKSHEETS;
+  }
+}
+
+export function saveWorksheets(worksheets: MathWorksheet[]): boolean {
+  try {
+    localStorage.setItem(KEY_WORKSHEETS, JSON.stringify(worksheets));
+    return true;
+  } catch (e) {
+    console.error('Error saving worksheets:', e);
+    return false;
+  }
+}
+
+export function restoreDefaultWorksheets(): MathWorksheet[] {
+  saveWorksheets(DEFAULT_WORKSHEETS);
+  return DEFAULT_WORKSHEETS;
+}
+
+export function addOrUpdateWorksheet(ws: MathWorksheet): MathWorksheet[] {
+  const current = getWorksheets();
+  const index = current.findIndex(w => w.id === ws.id);
+  let updated: MathWorksheet[];
+  if (index >= 0) {
+    updated = [...current];
+    updated[index] = { ...ws, updatedAt: new Date().toISOString() };
+  } else {
+    updated = [
+      { ...ws, id: ws.id || `ws_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`, createdAt: new Date().toISOString() },
+      ...current
+    ];
+  }
+  saveWorksheets(updated);
+  return updated;
+}
+
+export function deleteWorksheet(id: string): MathWorksheet[] {
+  const current = getWorksheets();
+  const updated = current.filter(w => w.id !== id);
+  saveWorksheets(updated);
+  return updated;
+}
+
+export function togglePublishWorksheet(id: string): MathWorksheet[] {
+  const current = getWorksheets();
+  const updated = current.map(w => w.id === id ? { ...w, isPublished: !w.isPublished, updatedAt: new Date().toISOString() } : w);
+  saveWorksheets(updated);
+  return updated;
+}
+

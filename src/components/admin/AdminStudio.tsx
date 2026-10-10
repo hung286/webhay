@@ -8,6 +8,7 @@ import { HistoryTab } from './HistoryTab';
 import { BackupTab } from './BackupTab';
 import { DashboardTab } from './DashboardTab';
 import { ToolsTab } from './ToolsTab';
+import { WorksheetsTab } from './WorksheetsTab';
 import { soundFx } from '../../utils/sound';
 import {
   Settings,
@@ -22,7 +23,8 @@ import {
   KeyRound,
   ShieldCheck,
   Check,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 
 interface AdminStudioProps {
@@ -37,7 +39,7 @@ interface AdminStudioProps {
   onExitAdmin: () => void;
 }
 
-type AdminTab = 'dashboard' | 'config' | 'questions' | 'materials' | 'ai' | 'history' | 'backup' | 'tools';
+type AdminTab = 'dashboard' | 'config' | 'questions' | 'materials' | 'ai' | 'history' | 'backup' | 'tools' | 'worksheets';
 
 export const AdminStudio: React.FC<AdminStudioProps> = ({
   config,
@@ -267,6 +269,18 @@ export const AdminStudio: React.FC<AdminStudioProps> = ({
         </button>
 
         <button
+          onClick={() => setActiveTab('worksheets')}
+          className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition flex items-center gap-2 shrink-0 ${
+            activeTab === 'worksheets'
+              ? 'bg-blue-600 text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          <span>Phiếu học tập môn Toán</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('history')}
           className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition flex items-center gap-2 shrink-0 ${
             activeTab === 'history'
@@ -329,6 +343,10 @@ export const AdminStudio: React.FC<AdminStudioProps> = ({
 
         {activeTab === 'tools' && (
           <ToolsTab />
+        )}
+
+        {activeTab === 'worksheets' && (
+          <WorksheetsTab />
         )}
 
         {activeTab === 'backup' && (

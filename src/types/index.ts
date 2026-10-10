@@ -135,3 +135,26 @@ export interface TeachingTool {
   isActive: boolean;
   createdAt: string;
 }
+
+// --- MATH WORKSHEET (PHIẾU HỌC TẬP MÔN TOÁN) ---
+export interface MathWorksheetQuestion {
+  id: string;
+  question: string;
+  options?: [string, string, string, string];
+  correctIndex?: number;
+  solution?: string;
+}
+
+export interface MathWorksheet {
+  id: string;
+  title: string;
+  grade: 'Toán 10' | 'Toán 11' | 'Toán 12';
+  chapter: string;
+  description?: string;
+  theorySummary: string;
+  questions: MathWorksheetQuestion[];
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  externalUrl?: string;
+}
