@@ -1,8 +1,10 @@
+import { GameQuestionModal } from './GameQuestionModal';
+import { Question } from '../../types';
 import React, { useState, useEffect } from 'react';
 import { TeachingTool, ToolType, ToolCategory } from '../../types';
 import { getTeachingTools, saveTeachingTools } from '../../utils/storage';
 import { getToolEmbedUrl } from '../../utils/tools';
-import { Plus, Trash2, Edit2, ExternalLink, Gamepad2, Wrench, CheckCircle, Eye, Search, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Copy, Edit2, ExternalLink, Gamepad2, Wrench, CheckCircle, Eye, Search, Sparkles } from 'lucide-react';
 import { soundFx } from '../../utils/sound';
 
 export interface PairItem {
@@ -529,6 +531,16 @@ export const ToolsTab: React.FC = () => {
                     <span>Sửa cặp bài</span>
                   </button>
                 )}
+
+                  {tool.category === 'tro-choi' && (
+                    <button
+                      onClick={() => { setEditingGameQuestions(tool); soundFx.playClick(); }}
+                      className="text-xs font-black text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition shadow-2xs mt-2"
+                    >
+                      <Sparkles className="w-3 h-3 text-indigo-500" />
+                      <span>Questions</span>
+                    </button>
+                  )}
               </div>
 
               <div className="flex items-center gap-1">
@@ -543,6 +555,13 @@ export const ToolsTab: React.FC = () => {
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
+
+                  <button
+                    onClick={() => handleDuplicate(tool)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
                 <button
                   onClick={() => handleDelete(tool)}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
