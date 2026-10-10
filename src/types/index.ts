@@ -134,6 +134,7 @@ export interface TeachingTool {
   description: string;
   isActive: boolean;
   createdAt: string;
+  customQuestions?: Question[];
 }
 
 // --- MATH WORKSHEET (PHIẾU HỌC TẬP MÔN TOÁN) ---

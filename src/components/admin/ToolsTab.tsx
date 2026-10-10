@@ -47,6 +47,7 @@ const DEFAULT_DAOHAM_PAIRS: PairItem[] = [
 export const ToolsTab: React.FC = () => {
   const [tools, setTools] = useState<TeachingTool[]>([]);
   const [previewTool, setPreviewTool] = useState<TeachingTool | null>(null);
+    const [editingGameQuestions, setEditingGameQuestions] = useState<TeachingTool | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [currentTool, setCurrentTool] = useState<Partial<TeachingTool>>({});
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -76,6 +77,18 @@ export const ToolsTab: React.FC = () => {
     soundFx.playClick();
   };
 
+  
+  const handleDuplicate = (tool: TeachingTool) => {
+    const newTool = {
+      ...tool,
+      id: 'tool_copy_' + Date.now(),
+      name: tool.name + ' (Copy)'
+    };
+    setCurrentTool(newTool);
+    setIsEditing(true);
+    soundFx.playClick();
+  };
+
   const handleOpenAddTool = () => {
     setCurrentTool({
       type: 'iframe',
@@ -87,6 +100,14 @@ export const ToolsTab: React.FC = () => {
     });
     setIsEditing(true);
     soundFx.playClick();
+  };
+
+  
+  const handleSaveGameQuestions = (toolId: string, questions: Question[]) => {
+    const updatedTools = tools.map(t => t.id === toolId ? { ...t, customQuestions: questions } : t);
+    setTools(updatedTools);
+    saveTeachingTools(updatedTools);
+    setEditingGameQuestions(null);
   };
 
   const handleSave = () => {
@@ -679,6 +700,15 @@ export const ToolsTab: React.FC = () => {
           </div>
         </div>
       )}
+
+      {editingGameQuestions && (
+        <GameQuestionModal
+          tool={editingGameQuestions}
+          onClose={() => setEditingGameQuestions(null)}
+          onSave={handleSaveGameQuestions}
+        />
+      )}
+
     </div>
   );
 };

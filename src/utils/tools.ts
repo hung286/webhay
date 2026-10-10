@@ -67,6 +67,11 @@ export const getToolEmbedUrl = (tool: TeachingTool): string => {
   }
 
   // Hỗ trợ đường dẫn tương đối khi deploy GitHub Pages (subpath /zuizui2/...)
+  
+  if (finalUrl.includes('.html')) {
+    finalUrl += (finalUrl.includes('?') ? '&' : '?') + 'toolId=' + tool.id;
+  }
+
   const baseUrl = import.meta.env.BASE_URL || '/';
   if (finalUrl.startsWith('/') && baseUrl !== '/') {
     return baseUrl.endsWith('/') ? baseUrl + finalUrl.slice(1) : baseUrl + finalUrl;
