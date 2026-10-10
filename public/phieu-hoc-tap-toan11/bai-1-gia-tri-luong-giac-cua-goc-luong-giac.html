@@ -1,0 +1,967 @@
+﻿<!DOCTYPE html><html lang="vi"><head><meta charset='UTF-8'>
+        <meta http-equiv="Content-Security-Policy" content="default-src * data: blob: 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: blob: 'unsafe-inline';">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="theme-color" content="#2563eb">
+        
+            <style>
+:root{
+  --bg-1:#f8fbff;
+  --bg-2:#eef7ff;
+  --surface:#ffffff;
+  --surface-2:#f8fbff;
+  --text-1:#16324f;
+  --text-2:#49627d;
+  --line:#dbe7f3;
+  --line-strong:#bfd4e7;
+  --shadow:0 18px 50px rgba(38,70,108,.12);
+  --shadow-soft:0 8px 24px rgba(38,70,108,.08);
+  --primary:#2563eb;
+  --primary-2:#1d4ed8;
+  --accent:#0ea5e9;
+  --success:#16a34a;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --base-size:32px;
+  --opt-size:28px;
+  --badge-size:50px;
+  --math-scale:112%;
+  --radius-xl:24px;
+  --radius-lg:18px;
+  --radius-md:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background:
+    radial-gradient(circle at top left, #ffffff 0%, #f6fbff 32%, transparent 55%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  color:var(--text-1);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100dvh;
+  overflow-x:hidden;
+  overflow-y:auto;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.slide-container{
+  width:min(95%, 1480px);
+  height:calc(100dvh - 18px);
+  margin:9px auto;
+  background:linear-gradient(180deg,#ffffff 0%, #fbfdff 100%);
+  border:1px solid rgba(191,212,231,.85);
+  border-radius:var(--radius-xl);
+  box-shadow:var(--shadow);
+  padding:22px 28px 20px;
+  display:none;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
+}
+.slide-container::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto 0;
+  height:6px;
+  background:linear-gradient(90deg,var(--primary),var(--accent),#22c55e);
+}
+.slide-container.active{display:flex;animation:slideIn .28s ease-out}
+.q-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  padding-bottom:14px;
+  margin-bottom:14px;
+  border-bottom:1px solid var(--line);
+}
+.header-left,.header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.part-badge{
+  background:linear-gradient(135deg,var(--primary) 0%, var(--accent) 100%);
+  color:#fff;
+  padding:11px 22px;
+  border-radius:999px;
+  font-size:19px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+  box-shadow:0 10px 20px rgba(37,99,235,.24);
+}
+.zoom-btn,.timer,.btn-exit-html,.slide-counter,.btn-action,.btn-option,.btn-tf,input.answer-input{transition:all .2s ease}
+.zoom-btn{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line-strong);
+  background:#fff;color:var(--text-1);
+  font-size:22px;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-soft);
+}
+.zoom-btn:hover{transform:translateY(-1px);background:#f6fbff;border-color:#9fc1df}
+.zoom-btn:active{transform:translateY(1px) scale(.98)}
+.timer{
+  font-size:22px;color:var(--text-1);font-weight:800;
+  background:linear-gradient(180deg,#ffffff 0%, #f4f9ff 100%);
+  padding:10px 22px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line-strong);box-shadow:var(--shadow-soft);
+  display:flex;align-items:center;gap:8px;min-width:190px;justify-content:center;
+}
+.timer:hover{background:#edf6ff}
+.timer.running{
+  color:#b91c1c;
+  background:linear-gradient(180deg,#fff4f4 0%, #fee2e2 100%);
+  border-color:#fca5a5;
+  animation:pulse 1s infinite;
+}
+.btn-exit-html{
+  background:linear-gradient(135deg,#fb7185 0%, var(--danger) 100%);
+  color:#fff;border:none;padding:10px 22px;border-radius:999px;
+  font-size:18px;font-weight:800;cursor:pointer;
+  box-shadow:0 12px 24px rgba(239,68,68,.22);
+}
+.btn-exit-html:hover{transform:translateY(-1px);filter:saturate(1.05)}
+.content-wrapper{
+  flex-grow:1;overflow-y:auto;padding-right:10px;padding-bottom:20px;
+  display:flex;flex-direction:column;
+}
+.content-wrapper::-webkit-scrollbar{width:10px}
+.content-wrapper::-webkit-scrollbar-thumb{background:#cfe0ef;border-radius:999px;border:2px solid #f6fbff}
+.content-wrapper::-webkit-scrollbar-track{background:transparent}
+.question-content{
+  font-size:var(--base-size);font-weight:600;color:var(--text-1);
+  margin-bottom:12px;line-height:1.55;text-align:justify;
+}
+.q-label{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:86px;padding:6px 14px;margin-right:10px;border-radius:999px;
+  color:#fff;background:linear-gradient(135deg,#f59e0b 0%, #f97316 100%);
+  font-weight:900;box-shadow:0 8px 18px rgba(249,115,22,.24);
+}
+mjx-container{font-size:var(--math-scale)!important;margin:0 3px!important}
+.img-container{text-align:center;margin:8px 0 14px;width:100%;padding:10px 0}
+.real-image{
+  display:inline-block;max-width:92%;height:auto;max-height:410px;
+  border-radius:18px;border:1px solid #cfe0ef;background:#fff;
+  box-shadow:var(--shadow-soft);padding:6px;cursor:zoom-in;
+}
+.img-hint{font-size:13px;color:var(--text-2);font-style:italic;margin-top:6px}
+.table-container{
+  width:100%;overflow-x:auto;margin:18px 0;display:flex;justify-content:center;
+}
+.styled-table{
+  border-collapse:collapse;background:#fff;border:1px solid #cdddeb;min-width:60%;
+  text-align:center;box-shadow:var(--shadow-soft);border-radius:16px;overflow:hidden;
+}
+.styled-table th,.styled-table td{
+  border:1px solid #e2edf6;padding:12px 18px;font-size:var(--base-size);color:var(--text-1);
+}
+.styled-table th{background:linear-gradient(180deg,#f5faff 0%, #edf6ff 100%);font-weight:800}
+.options-grid-4,.options-grid-2,.options-grid-1{gap:16px;margin:10px 0 20px}
+.options-grid-4{display:grid;grid-template-columns:repeat(4,1fr)}
+.options-grid-2{display:grid;grid-template-columns:repeat(2,1fr)}
+.options-grid-1{display:grid;grid-template-columns:1fr}
+.btn-option{
+  background:linear-gradient(180deg,#ffffff 0%, #f9fcff 100%);
+  border:1px solid var(--line-strong);padding:16px 16px;font-size:var(--opt-size);
+  border-radius:18px;cursor:pointer;text-align:left;font-weight:600;color:var(--text-1);
+  display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-soft);
+}
+.btn-option:hover{transform:translateY(-2px);border-color:#9fc1df;background:#ffffff}
+.btn-option:active{transform:translateY(0)}
+.opt-badge{
+  width:var(--badge-size);height:var(--badge-size);
+  background:linear-gradient(135deg,var(--success) 0%, #22c55e 100%);
+  color:#fff;border-radius:14px;display:flex;justify-content:center;align-items:center;
+  font-weight:900;flex-shrink:0;box-shadow:0 10px 18px rgba(34,197,94,.18);
+}
+.btn-option.correct{
+  background:linear-gradient(180deg,#166534 0%, #14532d 100%)!important;
+  border-color:#14532d!important;color:#ffffff!important;
+}
+.btn-option.correct .opt-badge{background:linear-gradient(135deg,#052e16 0%, #166534 100%);color:#fff}
+.btn-option.wrong{
+  opacity:.72;background:linear-gradient(180deg,#fff5f5 0%, #fee2e2 100%)!important;
+  border-color:#fca5a5!important;
+}
+.btn-option.wrong .opt-badge{background:linear-gradient(135deg,#b91c1c 0%, #ef4444 100%)}
+.btn-option.disabled{pointer-events:none}
+.tf-container{display:flex;flex-direction:column;gap:14px;margin:8px 0 22px}
+.tf-row{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  background:linear-gradient(180deg,#ffffff 0%, #f9fcff 100%);
+  padding:16px 18px;border-radius:18px;border:1px solid #dbe7f3;box-shadow:var(--shadow-soft);
+}
+.tf-content{font-size:var(--opt-size);font-weight:600;color:var(--text-1);flex-grow:1}
+.tf-buttons{display:flex;gap:12px;min-width:180px}
+.btn-tf{
+  border:1px solid var(--line-strong);background:linear-gradient(180deg,#ffffff 0%, #f4f9ff 100%);
+  padding:11px 0;border-radius:12px;font-weight:900;cursor:pointer;flex:1;color:var(--text-2);
+  text-align:center;font-size:22px;box-shadow:var(--shadow-soft);
+}
+.btn-tf:hover{transform:translateY(-1px);border-color:#9fc1df}
+.btn-tf.user-correct{background:linear-gradient(135deg,#22c55e 0%, #16a34a 100%)!important;color:#fff!important;border-color:#16a34a!important}
+.btn-tf.user-wrong{background:linear-gradient(135deg,#f87171 0%, #ef4444 100%)!important;color:#fff!important;border-color:#dc2626!important}
+.btn-tf.reveal-true{border:2px solid #22c55e!important;color:#166534!important;background:#ecfdf5!important}
+.btn-tf.reveal-false{border:2px solid #ef4444!important;color:#b91c1c!important;background:#fef2f2!important}
+.short-answer-area{
+  display:flex;flex-direction:column;align-items:center;margin:6px 0 28px;width:100%;
+}
+.input-group{position:relative;width:min(74%, 820px)}
+input.answer-input{
+  width:100%;padding:18px 24px;font-size:30px;border:2px solid #cdddeb;border-radius:18px;
+  outline:none;text-align:center;font-weight:800;color:var(--text-1);
+  background:linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);box-shadow:var(--shadow-soft);
+}
+input.answer-input:focus{
+  border-color:#93c5fd;background:#fff;box-shadow:0 0 0 5px rgba(59,130,246,.12);
+}
+.explanation-box{
+  display:none;margin-top:18px;padding:22px 24px;
+  background:linear-gradient(180deg,#f4fbff 0%, #e9f7ff 100%);
+  border:1px solid #bae6fd;border-left:8px solid var(--accent);
+  border-radius:18px;animation:fadeIn .35s;box-shadow:var(--shadow-soft);
+}
+.explanation-title{
+  font-weight:900;color:#0369a1;margin-bottom:10px;font-size:26px;
+  display:flex;align-items:center;gap:10px;
+}
+.explanation-content{font-size:var(--opt-size);color:var(--text-1);line-height:1.65}
+.actions-area{
+  display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;
+  margin-top:auto;padding-top:16px;border-top:1px solid var(--line);
+}
+.btn-action{
+  color:#fff;border:none;padding:12px 22px;font-size:18px;font-weight:800;border-radius:14px;
+  cursor:pointer;min-width:170px;display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 12px 22px rgba(15,23,42,.12);
+}
+.btn-action:hover{transform:translateY(-2px)}
+.btn-action:active{transform:translateY(0)}
+.btn-reveal{background:linear-gradient(135deg,#f59e0b 0%, #f97316 100%)}
+.btn-check{background:linear-gradient(135deg,#3b82f6 0%, var(--primary-2) 100%)}
+.btn-explain{background:linear-gradient(135deg,#10b981 0%, #059669 100%)}
+.slide-counter{
+  font-size:18px;font-weight:900;color:var(--text-1);
+  background:linear-gradient(180deg,#ffffff 0%, #edf6ff 100%);
+  padding:10px 22px;border-radius:999px;border:1px solid #d7e6f3;box-shadow:var(--shadow-soft);
+}
+.nav-arrow{
+  position:fixed;top:50%;transform:translateY(-50%);
+  width:58px;height:74px;background:rgba(37,99,235,.16);color:#fff;font-size:34px;border:none;
+  border-radius:18px;cursor:pointer;transition:.25s;z-index:100;display:flex;justify-content:center;
+  align-items:center;backdrop-filter:blur(10px);box-shadow:0 12px 28px rgba(37,99,235,.18);
+}
+.nav-arrow:hover{background:rgba(37,99,235,.9);transform:translateY(-50%) scale(1.04)}
+.nav-prev{left:10px}
+.nav-next{right:10px}
+.feedback-popup{
+  position:absolute;top:45%;left:50%;transform:translate(-50%,-50%) scale(.75);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;z-index:9999;
+  pointer-events:none;transition:all .35s cubic-bezier(.175,.885,.32,1.275);
+  filter:drop-shadow(0 18px 30px rgba(15,23,42,.2));background:rgba(255,255,255,.96);
+  padding:20px 44px;border-radius:28px;text-align:center;border:4px solid transparent;backdrop-filter:blur(8px);
+}
+.feedback-popup.correct{border-color:#4ade80;color:#15803d}
+.feedback-popup.wrong{border-color:#f87171;color:#b91c1c}
+.feedback-popup .emoji{font-size:92px;line-height:1;margin-bottom:10px}
+.feedback-popup .message{font-size:36px;font-weight:900;white-space:nowrap}
+.feedback-popup.pop{transform:translate(-50%,-50%) scale(1);opacity:1}
+@keyframes slideIn{from{opacity:0;transform:translateY(18px) scale(.995)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(248,113,113,.35)}70%{box-shadow:0 0 0 14px rgba(248,113,113,0)}100%{box-shadow:0 0 0 0 rgba(248,113,113,0)}}
+@media (max-width:1024px){
+  :root{--base-size:26px;--opt-size:23px;--badge-size:44px;--math-scale:106%}
+  .options-grid-4{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:768px){
+  :root{--base-size:20px;--opt-size:18px;--badge-size:36px;--math-scale:100%}
+  .slide-container{width:100%;height:100dvh;padding:14px;border-radius:0;margin:0;border:none}
+  .q-header{flex-direction:column;align-items:streMHh}
+  .header-left,.header-right{justify-content:space-between;width:100%}
+  .part-badge{font-size:15px;padding:8px 14px}
+  .btn-exit-html,.timer{font-size:15px;padding:8px 14px;min-width:118px}
+  .zoom-btn{width:36px;height:36px;font-size:18px}
+  .table-container{justify-content:flex-start}
+  .styled-table{min-width:100%}
+  .styled-table th,.styled-table td{padding:8px 10px}
+  .options-grid-4,.options-grid-2{grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+  .btn-option{padding:12px}
+  .tf-row{flex-direction:column;align-items:streMHh}
+  .tf-content{margin-bottom:8px}
+  .tf-buttons{min-width:100%}
+  .input-group{width:100%}
+  input.answer-input{font-size:24px;padding:15px}
+  .nav-arrow{display:none}
+  .actions-area{gap:10px}
+  .btn-action{flex:1;min-width:130px;font-size:15px;padding:10px}
+  .slide-counter{font-size:15px;width:100%;text-align:center;order:3;margin-top:4px}
+  .slide-counter::after{
+    content:"👈 Vuốt ngang để chuyển câu 👉";
+    display:block;font-size:13px;font-weight:700;color:#0f766e;margin-top:5px;
+  }
+}
+
+.draw-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.draw-sep{width:1px;height:34px;background:#d6e3f0;margin:0 2px}
+.draw-btn,.color-btn{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line-strong);background:#fff;color:var(--text-1);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:var(--shadow-soft);font-size:22px;font-weight:800;transition:all .2s ease;
+}
+.draw-btn:hover,.color-btn:hover{transform:translateY(-1px);background:#f6fbff;border-color:#9fc1df}
+.draw-btn.active{background:linear-gradient(135deg,var(--primary) 0%, var(--accent) 100%);color:#fff;border-color:transparent}
+.color-btn{position:relative;font-size:0}
+.color-btn::after{content:"";width:28px;height:28px;border-radius:50%;display:block;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.color-btn.active{border:2px solid #111827;transform:translateY(-1px) scale(1.04)}
+.color-btn[data-color="red"]::after{background:#ff5a47}
+.color-btn[data-color="blue"]::after{background:#3b82f6}
+.color-btn[data-color="green"]::after{background:#16a34a}
+.slide-draw-canvas{
+  position:absolute;left:0;right:0;top:72px;bottom:0;width:100%;height:calc(100% - 72px);
+  z-index:12;background:transparent;display:block;pointer-events:none;touch-action:none;
+}
+.slide-container.draw-mode-pen .slide-draw-canvas,
+.slide-container.draw-mode-eraser .slide-draw-canvas{pointer-events:auto}
+.slide-container.draw-mode-pen .slide-draw-canvas{cursor:crosshair}
+.slide-container.draw-mode-eraser .slide-draw-canvas{cursor:cell}
+.q-header,.actions-area{position:relative;z-index:20}
+.content-wrapper{position:relative;z-index:5}
+@media (max-width:768px){
+  .draw-toolbar{gap:8px}
+  .draw-btn,.color-btn{width:36px;height:36px;font-size:18px}
+  .color-btn::after{width:22px;height:22px}
+  .slide-draw-canvas{top:112px;height:calc(100% - 112px)}
+}
+
+
+
+/* --- TIMER CHUYÊN NGHIỆP: NÚT ĐỒNG HỒ + MODAL NHẬP mm:ss --- */
+.timer-edit-btn{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line-strong);
+  background:linear-gradient(180deg,#ffffff 0%, #f4f9ff 100%);
+  color:var(--text-1);font-size:22px;font-weight:900;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-soft);transition:all .2s ease;
+}
+.timer-edit-btn:hover{transform:translateY(-1px);background:#edf6ff;border-color:#9fc1df}
+.timer-edit-btn:active{transform:translateY(1px) scale(.98)}
+.timer-modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.42);display:none;align-items:center;justify-content:center;z-index:10000;backdrop-filter:blur(8px);padding:18px}
+.timer-modal-backdrop.show{display:flex;animation:fadeIn .18s ease-out}
+.timer-modal{width:min(94vw,460px);background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);border:1px solid rgba(191,212,231,.95);border-radius:26px;box-shadow:0 26px 80px rgba(15,23,42,.22);padding:24px;position:relative;color:var(--text-1)}
+.timer-modal-title{font-size:26px;font-weight:900;margin:0 0 8px;display:flex;align-items:center;gap:10px}
+.timer-modal-subtitle{font-size:15px;color:var(--text-2);line-height:1.45;margin-bottom:16px}
+.timer-input-wrap{display:flex;align-items:center;gap:12px;margin:10px 0 8px}
+.timer-input-icon{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 12px 24px rgba(37,99,235,.22)}
+#timerModalInput{flex:1;min-width:0;padding:14px 16px;border-radius:18px;border:2px solid #cdddeb;outline:none;font-size:30px;font-weight:900;text-align:center;letter-spacing:1px;color:var(--text-1);background:#fff;box-shadow:var(--shadow-soft)}
+#timerModalInput:focus{border-color:#93c5fd;box-shadow:0 0 0 5px rgba(59,130,246,.12)}
+.timer-error{min-height:22px;color:#dc2626;font-size:14px;font-weight:700;margin-top:6px}
+.timer-quick-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}
+.timer-quick{border:1px solid #cdddeb;background:#fff;border-radius:999px;padding:8px 12px;color:var(--text-1);font-size:14px;font-weight:800;cursor:pointer;box-shadow:var(--shadow-soft)}
+.timer-quick:hover{background:#edf6ff;border-color:#9fc1df}
+.timer-modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px}
+.timer-modal-btn{border:none;border-radius:14px;padding:11px 15px;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 10px 20px rgba(15,23,42,.12)}
+.timer-modal-btn:hover{transform:translateY(-1px)}
+.timer-modal-cancel{background:#eef2f7;color:#334155}
+.timer-modal-current{background:linear-gradient(135deg,#3b82f6 0%, #1d4ed8 100%);color:#fff}
+.timer-modal-all{background:linear-gradient(135deg,#10b981 0%, #059669 100%);color:#fff}
+.timer-modal-close{position:absolute;right:16px;top:14px;width:36px;height:36px;border-radius:50%;border:1px solid #dbe7f3;background:#fff;cursor:pointer;font-size:20px;font-weight:900;color:#64748b;display:flex;align-items:center;justify-content:center}
+.timer-modal-close:hover{background:#f1f5f9;color:#0f172a}
+@media (max-width:768px){.timer-edit-btn{width:36px;height:36px;font-size:18px}.timer-modal{padding:20px;border-radius:22px}.timer-modal-title{font-size:22px}#timerModalInput{font-size:26px;padding:12px}.timer-modal-actions{flex-direction:column}.timer-modal-btn{width:100%}}
+
+</style>
+        
+        <script>
+        MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']], processEscapes: true }, chtml: { scale: 1, maMHhFontHeight: false } };
+        </script>
+        <script defer src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js'></script>
+        <style id="imath-options-stack-style">.options-stack{display:flex;flex-direction:column;gap:12px;width:100%;}.options-stack .btn-option{width:100%;display:flex;align-items:flex-start;}.options-stack .opt-text{flex:1;}</style></head><body>
+        
+            <button class="nav-arrow nav-prev" onclick="prevSlide()" title="Câu trước (Mũi tên trái)">❮</button>
+            <button class="nav-arrow nav-next" onclick="nextSlide()" title="Câu sau (Mũi tên phải hoặc Enter)">❯</button>
+        
+
+        <div class="timer-modal-backdrop" id="timerModalBackdrop" onclick="closeTimerModal(event)">
+            <div class="timer-modal" role="dialog" aria-modal="true" aria-labelledby="timerModalTitle" onclick="event.stopPropagation()">
+                <button class="timer-modal-close" type="button" onclick="closeTimerModal()" title="Đóng">×</button>
+                <h2 class="timer-modal-title" id="timerModalTitle">🕘 Thiết lập thời gian</h2>
+                <div class="timer-modal-subtitle">Nhập thời gian theo dạng <b>mm:ss</b>, ví dụ <b>05:00</b>, <b>01:30</b>, <b>00:45</b>.</div>
+                <div class="timer-input-wrap">
+                    <div class="timer-input-icon">⏱</div>
+                    <input id="timerModalInput" type="text" inputmode="numeric" autocomplete="off" placeholder="mm:ss" value="01:00">
+                </div>
+                <div class="timer-error" id="timerModalError"></div>
+                <div class="timer-quick-row">
+                    <button class="timer-quick" type="button" onclick="setTimerModalValue('00:30')">30 giây</button>
+                    <button class="timer-quick" type="button" onclick="setTimerModalValue('01:00')">1 phút</button>
+                    <button class="timer-quick" type="button" onclick="setTimerModalValue('03:00')">3 phút</button>
+                    <button class="timer-quick" type="button" onclick="setTimerModalValue('05:00')">5 phút</button>
+                    <button class="timer-quick" type="button" onclick="setTimerModalValue('10:00')">10 phút</button>
+                </div>
+                <div class="timer-modal-actions">
+                    <button class="timer-modal-btn timer-modal-cancel" type="button" onclick="closeTimerModal()">Hủy</button>
+                    <button class="timer-modal-btn timer-modal-current" type="button" onclick="applyTimerFromModal(false)">✓ Áp dụng câu này</button>
+                    <button class="timer-modal-btn timer-modal-all" type="button" onclick="applyTimerFromModal(true)">✓ Áp dụng tất cả câu</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide-0"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 1:</span> Tính $\cos \frac{5 \pi}{3}$.</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">${0}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">${- \frac{1}{5}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">${- \frac{2}{5}}$.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">${\frac{1}{2}}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-0">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Tính $\cos \frac{5 \pi}{3}$.<br>A. ${0}$.	   B. ${- \frac{1}{5}}$.	    C. ${- \frac{2}{5}}$.	     D. ${\frac{1}{2}}$.<br><br>Lời giải:<br> Chọn D <br> $\cos \frac{5 \pi}{3}=\frac{1}{2}$.</div></div></div></div><div class="slide-container" id="slide-1"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 2:</span> Tính $\sin - \frac{7 \pi}{3}$.</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">${- \frac{2}{5}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">${\frac{2}{5}}$.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">C</div> <div class="opt-text">${- \frac{\sqrt{3}}{2}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">${- \frac{1}{5}}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-1">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Tính $\sin - \frac{7 \pi}{3}$.<br>A. ${- \frac{2}{5}}$.	   B. ${\frac{2}{5}}$.	    C. ${- \frac{\sqrt{3}}{2}}$.	     D. ${- \frac{1}{5}}$.<br><br>Lời giải:<br> Chọn C <br> $\sin - \frac{7 \pi}{3}=- \frac{\sqrt{3}}{2}$.</div></div></div></div><div class="slide-container" id="slide-2"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 3:</span> Tính $\sin - \frac{\pi}{3}$.</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">${\frac{2}{5}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">${-1}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">${- \frac{9}{10}}$.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">${- \frac{\sqrt{3}}{2}}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-2">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Tính $\sin - \frac{\pi}{3}$.<br>A. ${\frac{2}{5}}$.	   B. ${-1}$.	    C. ${- \frac{9}{10}}$.	     D. ${- \frac{\sqrt{3}}{2}}$.<br><br>Lời giải:<br> Chọn D <br> $\sin - \frac{\pi}{3}=- \frac{\sqrt{3}}{2}$.</div></div></div></div><div class="slide-container" id="slide-3"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 4:</span> Cho góc lượng giác ${a}$ thỏa mãn $a\in \left( - \frac{3 \pi}{2};- \pi \right)$. Khẳng định nào sau đây là khẳng định đúng.</div><div class="options-stack"><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">A</div> <div class="opt-text">$\cos a &lt;0$ .</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">$\sin a &lt;0$ .</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">$\cot a &gt;0$ .</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">$\tan a &gt;0$ .</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-3">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${a}$ thỏa mãn $a\in \left( - \frac{3 \pi}{2};- \pi \right)$. Khẳng định nào sau đây là khẳng định đúng.<br>A. $\cos a &lt;0$ .	   B. $\sin a &lt;0$ .	    C. $\cot a &gt;0$ .	     D. $\tan a &gt;0$ .<br><br>Lời giải:<br> Chọn A <br> $\cos a &lt;0$  là khẳng định đúng</div></div></div></div><div class="slide-container" id="slide-4"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 5:</span> Cho góc lượng giác ${b}$ thỏa mãn $b\in \left( 2\pi;\frac{5 \pi}{2} \right)$. Khẳng định nào sau đây là khẳng định đúng.</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">$\tan b &lt;0$ .</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">$\cot b &lt;0$ .</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">$\cos b &lt;0$ .</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">$\cot b &gt;0$ .</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-4">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${b}$ thỏa mãn $b\in \left( 2\pi;\frac{5 \pi}{2} \right)$. Khẳng định nào sau đây là khẳng định đúng.<br>A. $\tan b &lt;0$ .	   B. $\cot b &lt;0$ .	    C. $\cos b &lt;0$ .	     D. $\cot b &gt;0$ .<br><br>Lời giải:<br> Chọn D <br> $\cot b &gt;0$  là khẳng định đúng</div></div></div></div><div class="slide-container" id="slide-5"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 6:</span> Cho góc lượng giác ${\alpha}$ thỏa mãn $\alpha\in \left( 2\pi;\frac{5 \pi}{2} \right)$. Khẳng định nào sau đây là khẳng định đúng.</div><div class="options-stack"><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">A</div> <div class="opt-text">$\cot \alpha &gt;0$ .</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">$\cot \alpha &lt;0$ .</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">$\sin \alpha &lt;0$ .</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">$\cos \alpha &lt;0$ .</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-5">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${\alpha}$ thỏa mãn $\alpha\in \left( 2\pi;\frac{5 \pi}{2} \right)$. Khẳng định nào sau đây là khẳng định đúng.<br>A. $\cot \alpha &gt;0$ .	   B. $\cot \alpha &lt;0$ .	    C. $\sin \alpha &lt;0$ .	     D. $\cos \alpha &lt;0$ .<br><br>Lời giải:<br> Chọn A <br> $\cot \alpha &gt;0$  là khẳng định đúng</div></div></div></div><div class="slide-container" id="slide-6"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 7:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=- \frac{2}{5}, \alpha \in \left( - \pi; - \frac{\pi}{2} \right)$. Tính $\sin\alpha$.</div><div class="options-stack"><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">A</div> <div class="opt-text">${- \frac{\sqrt{21}}{5}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">${\frac{\sqrt{10}}{7}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">${\frac{1}{7}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">${\frac{2 \sqrt{3}}{9}}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-6">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=- \frac{2}{5}, \alpha \in \left( - \pi; - \frac{\pi}{2} \right)$. Tính $\sin\alpha$.<br>A. ${- \frac{\sqrt{21}}{5}}$.	   B. ${\frac{\sqrt{10}}{7}}$.	    C. ${\frac{1}{7}}$.	     D. ${\frac{2 \sqrt{3}}{9}}$.<br><br>Lời giải:<br> Chọn A <br> Vì $\alpha \in \left( - \pi; - \frac{\pi}{2} \right)$ nên $\sin\alpha &lt; 0$.<br><br>$\sin\alpha =\sqrt{1-\frac{4}{25}}=- \frac{\sqrt{21}}{5}$.</div></div></div></div><div class="slide-container" id="slide-7"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 8:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=- \frac{11}{14}, \alpha \in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Tính $\sin\alpha$.</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">${\frac{\sqrt{2}}{8}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">${\frac{\sqrt{6}}{3}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">${\frac{\sqrt{3}}{14}}$.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">${- \frac{5 \sqrt{3}}{14}}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-7">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=- \frac{11}{14}, \alpha \in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Tính $\sin\alpha$.<br>A. ${\frac{\sqrt{2}}{8}}$.	   B. ${\frac{\sqrt{6}}{3}}$.	    C. ${\frac{\sqrt{3}}{14}}$.	     D. ${- \frac{5 \sqrt{3}}{14}}$.<br><br>Lời giải:<br> Chọn D <br> Vì $\alpha \in \left( 3 \pi;\frac{7 \pi}{2} \right)$ nên $\sin\alpha &lt; 0$.<br><br>$\sin\alpha =\sqrt{1-\frac{121}{196}}=- \frac{5 \sqrt{3}}{14}$.</div></div></div></div><div class="slide-container" id="slide-8"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 9:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=- \frac{3}{4}, \alpha \in \left( - \pi; - \frac{\pi}{2} \right)$. Tính $\sin\alpha$.</div><div class="options-stack"><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">A</div> <div class="opt-text">${- \frac{\sqrt{7}}{4}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">${\frac{1}{9}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">${\frac{\sqrt{14}}{16}}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">${\frac{\sqrt{11}}{9}}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-8">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=- \frac{3}{4}, \alpha \in \left( - \pi; - \frac{\pi}{2} \right)$. Tính $\sin\alpha$.<br>A. ${- \frac{\sqrt{7}}{4}}$.	   B. ${\frac{1}{9}}$.	    C. ${\frac{\sqrt{14}}{16}}$.	     D. ${\frac{\sqrt{11}}{9}}$.<br><br>Lời giải:<br> Chọn A <br> Vì $\alpha \in \left( - \pi; - \frac{\pi}{2} \right)$ nên $\sin\alpha &lt; 0$.<br><br>$\sin\alpha =\sqrt{1-\frac{9}{16}}=- \frac{\sqrt{7}}{4}$.</div></div></div></div><div class="slide-container" id="slide-9"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 10:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\sin \alpha=- \frac{8}{13}, \alpha \in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Tính $\cot\alpha$.</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">$\frac{\sqrt{3}}{10}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">$\frac{2 \sqrt{2}}{9}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">$\frac{\sqrt{10}}{20}$.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">$\frac{\sqrt{105}}{8}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-9">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\sin \alpha=- \frac{8}{13}, \alpha \in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Tính $\cot\alpha$.<br>A. $\frac{\sqrt{3}}{10}$.	   B. $\frac{2 \sqrt{2}}{9}$.	    C. $\frac{\sqrt{10}}{20}$.	     D. $\frac{\sqrt{105}}{8}$.<br><br>Lời giải:<br> Chọn D <br> Vì $\alpha \in \left( 3 \pi;\frac{7 \pi}{2} \right)$ nên $\cos\alpha &lt; 0$.<br><br>$\cos\alpha =-\sqrt{1-\frac{64}{169}}=- \frac{\sqrt{105}}{13}$.<br><br>$\cot\alpha=- \frac{\sqrt{105}}{13}:- \frac{8}{13}=\frac{\sqrt{105}}{8}$.</div></div></div></div><div class="slide-container" id="slide-10"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 11:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=- \frac{2}{3}, \alpha \in \left( \pi;\frac{3 \pi}{2} \right)$. Tính $\tan\alpha$ (kết quả làm tròn đến hàng phần mười).</div><div class="options-stack"><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">A</div> <div class="opt-text">$\frac{\sqrt{5}}{2}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">$\frac{\sqrt{2}}{9}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">$\frac{1}{8}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">$\frac{\sqrt{10}}{6}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-10">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=- \frac{2}{3}, \alpha \in \left( \pi;\frac{3 \pi}{2} \right)$. Tính $\tan\alpha$ (kết quả làm tròn đến hàng phần mười).<br>A. $\frac{\sqrt{5}}{2}$.	   B. $\frac{\sqrt{2}}{9}$.	    C. $\frac{1}{8}$.	     D. $\frac{\sqrt{10}}{6}$.<br><br>Lời giải:<br> Chọn A <br> Vì $\alpha \in \left( \pi;\frac{3 \pi}{2} \right)$ nên $\sin\alpha &lt; 0$.<br><br>$\sin\alpha =\sqrt{1-\frac{4}{9}}=- \frac{\sqrt{5}}{3}$.<br><br>$\tan\alpha=- \frac{\sqrt{5}}{3}:-0.666666666666667=\frac{\sqrt{5}}{2}$.</div></div></div></div><div class="slide-container" id="slide-11"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 12:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\sin \alpha=\frac{15}{17}, \alpha \in \left( 0;\frac{\pi}{2} \right)$. Tính $\tan\alpha$.</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">$\frac{\sqrt{3}}{4}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">$\frac{\sqrt{15}}{12}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">$\frac{\sqrt{2}}{3}$.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">$\frac{15}{8}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-11">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\sin \alpha=\frac{15}{17}, \alpha \in \left( 0;\frac{\pi}{2} \right)$. Tính $\tan\alpha$.<br>A. $\frac{\sqrt{3}}{4}$.	   B. $\frac{\sqrt{15}}{12}$.	    C. $\frac{\sqrt{2}}{3}$.	     D. $\frac{15}{8}$.<br><br>Lời giải:<br> Chọn D <br> Vì $\alpha \in \left( 0;\frac{\pi}{2} \right)$ nên $\cos\alpha &gt; 0$.<br><br>$\cos\alpha =\sqrt{1-\frac{225}{289}}=\frac{8}{17}$.<br><br>$\tan\alpha=\frac{15}{17}:\frac{8}{17}=\frac{15}{8}$.</div></div></div></div><div class="slide-container" id="slide-12"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 1:</span> Cho góc lượng giác $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> $\sin \alpha &lt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>b)</b> $\cos \alpha &gt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>c)</b> $\tan \alpha &gt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>d)</b> $\cot \alpha &gt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-12">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $\sin \alpha &lt; 0$.<br>b) $\cos \alpha &gt; 0$.<br>c) $\tan \alpha &gt; 0$.<br>d) $\cot \alpha &gt; 0$.<br><br>Lời giải:<br> a-đúng, b-đúng, c-sai, d-sai.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$ nên $\sin \alpha &lt; 0$.<br>b) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$ nên $\cos \alpha &lt; 0$.<br>c) Khẳng định đã cho là khẳng định sai.<br><br> Vì $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$ nên $\sin \alpha &lt; 0, \cos \alpha &gt; 0 \Rightarrow \tan \alpha &lt;0$.<br>d) Khẳng định đã cho là khẳng định sai.<br><br> Vì $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$ nên $\sin \alpha &lt; 0, \cos \alpha &gt; 0 \Rightarrow \cot \alpha &lt;0$.</div></div></div></div><div class="slide-container" id="slide-13"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 2:</span> Cho góc lượng giác $\alpha \in \left( 0;\frac{\pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> $\sin \alpha &gt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>b)</b> $\cos \alpha &gt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> $\tan \alpha &gt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> $\cot \alpha &gt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-13">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha \in \left( 0;\frac{\pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $\sin \alpha &gt; 0$.<br>b) $\cos \alpha &gt; 0$.<br>c) $\tan \alpha &gt; 0$.<br>d) $\cot \alpha &gt; 0$.<br><br>Lời giải:<br> a-đúng, b-đúng, c-đúng, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $\alpha \in \left( 0;\frac{\pi}{2} \right)$ nên $\sin \alpha &gt; 0$.<br>b) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $\alpha \in \left( 0;\frac{\pi}{2} \right)$ nên $\cos \alpha &gt; 0$.<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $\alpha \in \left( 0;\frac{\pi}{2} \right)$ nên $\sin \alpha &gt; 0, \cos \alpha &gt; 0 \Rightarrow \tan \alpha &gt;0$.<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $\alpha \in \left( 0;\frac{\pi}{2} \right)$ nên $\sin \alpha &gt; 0, \cos \alpha &gt; 0 \Rightarrow \cot \alpha &gt;0$.</div></div></div></div><div class="slide-container" id="slide-14"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 3:</span> Cho góc lượng giác $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="false"><div class="tf-content"><b>a)</b> $\sin \alpha &gt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>b)</b> $\cos \alpha &gt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>c)</b> $\tan \alpha &gt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> $\cot \alpha &lt; 0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-14">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $\sin \alpha &gt; 0$.<br>b) $\cos \alpha &gt; 0$.<br>c) $\tan \alpha &gt; 0$.<br>d) $\cot \alpha &lt; 0$.<br><br>Lời giải:<br> a-sai, b-đúng, c-sai, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định sai.<br><br> Vì $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$ nên $\sin \alpha &lt; 0$.<br>b) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$ nên $\cos \alpha &lt; 0$.<br>c) Khẳng định đã cho là khẳng định sai.<br><br> Vì $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$ nên $\sin \alpha &lt; 0, \cos \alpha &gt; 0 \Rightarrow \tan \alpha &lt;0$.<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $\alpha \in \left( \frac{7 \pi}{2}; 4\pi \right)$ nên $\sin \alpha &lt; 0, \cos \alpha &gt; 0 \Rightarrow \cot \alpha &lt;0$.</div></div></div></div><div class="slide-container" id="slide-15"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 4:</span> Cho góc lượng giác ${x}$ thỏa mãn $\tan x=3$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> $\cot x= \frac{1}{3}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>b)</b> $\cos^2x=\frac{1}{10}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> $\sin^2x=\frac{9}{10}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> $P=\frac{4 \cos x - 3 \sin x}{- 6 \cos x + \sin x}=\frac{5}{3}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-15">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${x}$ thỏa mãn $\tan x=3$. Xét tính đúng-sai của các khẳng định sau. <br><br>a) $\cot x= \frac{1}{3}$.<br>b) $\cos^2x=\frac{1}{10}$.<br>c) $\sin^2x=\frac{9}{10}$.<br>d) $P=\frac{4 \cos x - 3 \sin x}{- 6 \cos x + \sin x}=\frac{5}{3}$.<br><br>Lời giải:<br> a-đúng, b-đúng, c-đúng, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> $\cot x=\dfrac{1}{\tan x}=1:3=\frac{1}{3}$<br>b) Khẳng định đã cho là khẳng định đúng.<br><br> $1+\tan^2x=\dfrac{1}{\cos^2x} \Rightarrow \cos^2x=\dfrac{1}{1+\tan^2x}=\frac{1}{10}$<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> $\sin^2x=1-\cos^2x=1-\dfrac{1}{1+\tan^2x}=\frac{9}{10}$<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> $P=\frac{4 \cos x - 3 \sin x}{- 6 \cos x + \sin x}=\frac{4 - 3 \tan x}{\tan x - 6}=\frac{5}{3}$.</div></div></div></div><div class="slide-container" id="slide-16"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 5:</span> Cho góc lượng giác ${x}$ thỏa mãn $\tan x=5$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> $\cot x= \frac{1}{5}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> $\cos^2x=\frac{1}{6}$ .</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> $\sin^2x=\frac{25}{26}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> $P=\frac{- 5 \cos x - 2 \sin x}{5 \cos x - 2 \sin x}=3$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-16">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${x}$ thỏa mãn $\tan x=5$. Xét tính đúng-sai của các khẳng định sau. <br><br>a) $\cot x= \frac{1}{5}$.<br>b) $\cos^2x=\frac{1}{6}$ .<br>c) $\sin^2x=\frac{25}{26}$.<br>d) $P=\frac{- 5 \cos x - 2 \sin x}{5 \cos x - 2 \sin x}=3$.<br><br>Lời giải:<br> a-đúng, b-sai, c-đúng, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> $\cot x=\dfrac{1}{\tan x}=1:5=\frac{1}{5}$<br>b) Khẳng định đã cho là khẳng định sai.<br><br> $1+\tan^2x=\dfrac{1}{\cos^2x} \Rightarrow \cos^2x=\dfrac{1}{1+\tan^2x}=\frac{1}{26}$<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> $\sin^2x=1-\cos^2x=1-\dfrac{1}{1+\tan^2x}=\frac{25}{26}$<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> $P=\frac{- 5 \cos x - 2 \sin x}{5 \cos x - 2 \sin x}=\frac{- 2 \tan x - 5}{5 - 2 \tan x}=3$.</div></div></div></div><div class="slide-container" id="slide-17"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 6:</span> Cho góc lượng giác ${x}$ thỏa mãn $\tan x=2$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> $\cot x= \frac{1}{2}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> $\cos^2x=\frac{1}{3}$ .</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>c)</b> $\sin^2x=\frac{6}{5}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>d)</b> $P=\frac{\cos x + 4 \sin x}{6 \cos x + 2 \sin x}=\frac{29}{10}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-17">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${x}$ thỏa mãn $\tan x=2$. Xét tính đúng-sai của các khẳng định sau. <br><br>a) $\cot x= \frac{1}{2}$.<br>b) $\cos^2x=\frac{1}{3}$ .<br>c) $\sin^2x=\frac{6}{5}$.<br>d) $P=\frac{\cos x + 4 \sin x}{6 \cos x + 2 \sin x}=\frac{29}{10}$.<br><br>Lời giải:<br> a-đúng, b-sai, c-sai, d-sai.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> $\cot x=\dfrac{1}{\tan x}=1:2=\frac{1}{2}$<br>b) Khẳng định đã cho là khẳng định sai.<br><br> $1+\tan^2x=\dfrac{1}{\cos^2x} \Rightarrow \cos^2x=\dfrac{1}{1+\tan^2x}=\frac{1}{5}$<br>c) Khẳng định đã cho là khẳng định sai.<br><br> $\sin^2x=1-\cos^2x=1-\dfrac{1}{1+\tan^2x}=\frac{4}{5}$<br>d) Khẳng định đã cho là khẳng định sai.<br><br> $P=\frac{\cos x + 4 \sin x}{6 \cos x + 2 \sin x}=\frac{4 \tan x + 1}{2 \tan x + 6}=\frac{9}{10}$.</div></div></div></div><div class="slide-container" id="slide-18"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 7:</span> Cho $\sin x=\frac{\sqrt{10}}{11}, x\in \left( 2\pi;\frac{5 \pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> $\cos x &gt;0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>b)</b> $\cos x=\frac{\sqrt{111}}{11}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> $\sin\left(x+ \frac{5 \pi}{2} \right)=\frac{\sqrt{111}}{11}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> $P=\frac{\tan x}{4 \tan^2 x - 1}=- \frac{\sqrt{1110}}{71}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-18">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho $\sin x=\frac{\sqrt{10}}{11}, x\in \left( 2\pi;\frac{5 \pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $\cos x &gt;0$.<br>b) $\cos x=\frac{\sqrt{111}}{11}$.<br>c) $\sin\left(x+ \frac{5 \pi}{2} \right)=\frac{\sqrt{111}}{11}$.<br>d) $P=\frac{\tan x}{4 \tan^2 x - 1}=- \frac{\sqrt{1110}}{71}$.<br><br>Lời giải:<br> a-đúng, b-đúng, c-đúng, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> Với $x \in \left( 2\pi;\frac{5 \pi}{2} \right) $ thì $\cos x &gt;0$<br>b) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $x \in \left( 2\pi;\frac{5 \pi}{2} \right)$ nên $\cos x &gt; 0$.<br><br>$\cos x =\sqrt{1-\frac{10}{121}}=\frac{\sqrt{111}}{11}$.<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> $\sin\left(x+ \frac{5 \pi}{2} \right)=\sin \left( x+\frac{\pi}{2}+1.2\pi \right)=\sin\left(x+\frac{\pi}{2}\right)=\sin \left[ \frac{\pi}{2}-(-x) \right]=\cos (-x)=\cos x=\frac{\sqrt{111}}{11}$.<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> $\tan x=\frac{\sqrt{10}}{11}:\frac{\sqrt{111}}{11}=\frac{\sqrt{1110}}{111}$.<br><br>$\Rightarrow P=\frac{\tan x}{4 \tan^2 x - 1}=- \frac{\sqrt{1110}}{71}$.</div></div></div></div><div class="slide-container" id="slide-19"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 8:</span> Cho $\sin x=- \frac{\sqrt{10}}{11}, x\in \left( - \pi; - \frac{\pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="false"><div class="tf-content"><b>a)</b> $\cos x &gt;0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> $\cos x=\frac{\sqrt{111}}{11}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>c)</b> $\cos\left(x+ \frac{5 \pi}{2} \right)=- \frac{\sqrt{10}}{11}$ .</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>d)</b> $P=\frac{\sqrt{3} \tan x}{- 3 \tan^2 x - 5}=\frac{\sqrt{370}}{195}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-19">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho $\sin x=- \frac{\sqrt{10}}{11}, x\in \left( - \pi; - \frac{\pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $\cos x &gt;0$.<br>b) $\cos x=\frac{\sqrt{111}}{11}$.<br>c) $\cos\left(x+ \frac{5 \pi}{2} \right)=- \frac{\sqrt{10}}{11}$ .<br>d) $P=\frac{\sqrt{3} \tan x}{- 3 \tan^2 x - 5}=\frac{\sqrt{370}}{195}$.<br><br>Lời giải:<br> a-sai, b-sai, c-sai, d-sai.<br><br> a) Khẳng định đã cho là khẳng định sai.<br><br> Với $x \in \left( - \pi; - \frac{\pi}{2} \right) $ thì $\cos x &lt;0$<br>b) Khẳng định đã cho là khẳng định sai.<br><br> Vì $x \in \left( - \pi; - \frac{\pi}{2} \right)$ nên $\cos x &lt; 0$.<br><br>$\cos x=-\sqrt{1-\frac{10}{121}}=- \frac{\sqrt{111}}{11}$.<br>c) Khẳng định đã cho là khẳng định sai.<br><br> $\cos\left(x+ \frac{5 \pi}{2} \right)=\cos \left( x+\frac{\pi}{2}+1.2\pi \right)=\cos \left(x+\frac{\pi}{2}\right)=\cos \left[ \frac{\pi}{2}-(-x) \right]=\sin (-x)=-\sin x=\frac{\sqrt{10}}{11}$.<br>d) Khẳng định đã cho là khẳng định sai.<br><br> $\tan x=- \frac{\sqrt{10}}{11}:- \frac{\sqrt{111}}{11}=\frac{\sqrt{1110}}{111}$.<br><br>$\Rightarrow P=\frac{\sqrt{3} \tan x}{- 3 \tan^2 x - 5}=- \frac{\sqrt{370}}{195}$.</div></div></div></div><div class="slide-container" id="slide-20"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 9:</span> Cho $\sin x=- \frac{\sqrt{3}}{6}, x\in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="false"><div class="tf-content"><b>a)</b> $\cos x &gt;0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> $\cos x=\frac{\sqrt{33}}{6}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> $\cos\left(x+ \frac{17 \pi}{2} \right)= \frac{\sqrt{3}}{6}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>d)</b> $P=\frac{2 \sqrt{3} \tan x}{\tan^2 x + 1}=- \frac{\sqrt{33}}{6}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-20">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho $\sin x=- \frac{\sqrt{3}}{6}, x\in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $\cos x &gt;0$.<br>b) $\cos x=\frac{\sqrt{33}}{6}$.<br>c) $\cos\left(x+ \frac{17 \pi}{2} \right)= \frac{\sqrt{3}}{6}$.<br>d) $P=\frac{2 \sqrt{3} \tan x}{\tan^2 x + 1}=- \frac{\sqrt{33}}{6}$.<br><br>Lời giải:<br> a-sai, b-sai, c-đúng, d-sai.<br><br> a) Khẳng định đã cho là khẳng định sai.<br><br> Với $x \in \left( 3 \pi;\frac{7 \pi}{2} \right) $ thì $\cos x &lt;0$<br>b) Khẳng định đã cho là khẳng định sai.<br><br> Vì $x \in \left( 3 \pi;\frac{7 \pi}{2} \right)$ nên $\cos x &lt; 0$.<br><br>$\cos x=-\sqrt{1-\frac{1}{12}}=- \frac{\sqrt{33}}{6}$.<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> $\cos\left(x+ \frac{17 \pi}{2} \right)=\cos \left( x+\frac{\pi}{2}+4.2\pi \right)=\cos \left(x+\frac{\pi}{2}\right)=\cos \left[ \frac{\pi}{2}-(-x) \right]=\sin (-x)=-\sin x=\frac{\sqrt{3}}{6}$.<br>d) Khẳng định đã cho là khẳng định sai.<br><br> $\tan x=- \frac{\sqrt{3}}{6}:- \frac{\sqrt{33}}{6}=\frac{\sqrt{11}}{11}$.<br><br>$\Rightarrow P=\frac{2 \sqrt{3} \tan x}{\tan^2 x + 1}=\frac{\sqrt{33}}{6}$.</div></div></div></div><div class="slide-container" id="slide-21"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 10:</span> Cho $\cos x=- \frac{\sqrt{7}}{4}, x\in \left( \pi;\frac{3 \pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> $\sin x &lt;0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> $\sin x= \frac{3}{4}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> $\cos\left(x+ \frac{9 \pi}{2} \right)= \frac{3}{4}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>d)</b> $P=\frac{2 \sqrt{2} \tan x}{3 \tan^2 x - 5}=\frac{3 \sqrt{14}}{4}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-21">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho $\cos x=- \frac{\sqrt{7}}{4}, x\in \left( \pi;\frac{3 \pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $\sin x &lt;0$.<br>b) $\sin x= \frac{3}{4}$.<br>c) $\cos\left(x+ \frac{9 \pi}{2} \right)= \frac{3}{4}$.<br>d) $P=\frac{2 \sqrt{2} \tan x}{3 \tan^2 x - 5}=\frac{3 \sqrt{14}}{4}$.<br><br>Lời giải:<br> a-đúng, b-sai, c-đúng, d-sai.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> Với $x \in \left( \pi;\frac{3 \pi}{2} \right) $ thì $\sin x &gt;0$<br>b) Khẳng định đã cho là khẳng định sai.<br><br> Vì $x \in \left( \pi;\frac{3 \pi}{2} \right)$ nên $\sin x &gt; 0$.<br><br>$\sin x =-\sqrt{1-\frac{7}{16}}=- \frac{3}{4}$.<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> $\cos\left(x+ \frac{9 \pi}{2} \right)=\cos \left( x+\frac{\pi}{2}+2.2\pi \right)=\cos \left(x+\frac{\pi}{2}\right)=\cos \left[ \frac{\pi}{2}-(-x) \right]=\sin (-x)=-\sin x=0.75$.<br>d) Khẳng định đã cho là khẳng định sai.<br><br> $\tan x=- \frac{3}{4}:- \frac{\sqrt{7}}{4}=\frac{3 \sqrt{7}}{7}$.<br><br>$\Rightarrow P=\frac{2 \sqrt{2} \tan x}{3 \tan^2 x - 5}=- \frac{3 \sqrt{14}}{4}$.</div></div></div></div><div class="slide-container" id="slide-22"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 11:</span> Cho $\cos x=- \frac{6 \sqrt{2}}{11}, x\in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="false"><div class="tf-content"><b>a)</b> $\sin x &gt;0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> $\sin x= \frac{7}{11}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> $\sin\left(x+ \frac{13 \pi}{2} \right)=- \frac{6 \sqrt{2}}{11}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> $P=\frac{\sqrt{3} \tan x}{3 - 2 \tan^2 x}=\frac{21 \sqrt{6}}{59}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-22">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho $\cos x=- \frac{6 \sqrt{2}}{11}, x\in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $\sin x &gt;0$.<br>b) $\sin x= \frac{7}{11}$.<br>c) $\sin\left(x+ \frac{13 \pi}{2} \right)=- \frac{6 \sqrt{2}}{11}$.<br>d) $P=\frac{\sqrt{3} \tan x}{3 - 2 \tan^2 x}=\frac{21 \sqrt{6}}{59}$.<br><br>Lời giải:<br> a-sai, b-sai, c-đúng, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định sai.<br><br> Với $x \in \left( 3 \pi;\frac{7 \pi}{2} \right) $ thì $\sin x &gt;0$<br>b) Khẳng định đã cho là khẳng định sai.<br><br> Vì $x \in \left( 3 \pi;\frac{7 \pi}{2} \right)$ nên $\sin x &gt; 0$.<br><br>$\sin x =-\sqrt{1-\frac{72}{121}}=- \frac{7}{11}$.<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> $\sin\left(x+ \frac{13 \pi}{2} \right)=\sin \left( x+\frac{\pi}{2}+3.2\pi \right)=\sin\left(x+\frac{\pi}{2}\right)=\sin \left[ \frac{\pi}{2}-(-x) \right]=\cos (-x)=\cos x=- \frac{6 \sqrt{2}}{11}$.<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> $\tan x=- \frac{7}{11}:- \frac{6 \sqrt{2}}{11}=\frac{7 \sqrt{2}}{12}$.<br><br>$\Rightarrow P=\frac{\sqrt{3} \tan x}{3 - 2 \tan^2 x}=\frac{21 \sqrt{6}}{59}$.</div></div></div></div><div class="slide-container" id="slide-23"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 12:</span> Cho $\cos x=- \frac{\sqrt{185}}{14}, x\in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="false"><div class="tf-content"><b>a)</b> $\sin x &gt;0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>b)</b> $\sin x=- \frac{\sqrt{11}}{14}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>c)</b> $\cos\left(x+ \frac{9 \pi}{2} \right)=- \frac{\sqrt{11}}{14}$ .</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>d)</b> $P=\frac{2 \tan x}{3 \tan^2 x + 4}=- \frac{2 \sqrt{2035}}{773}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-23">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho $\cos x=- \frac{\sqrt{185}}{14}, x\in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $\sin x &gt;0$.<br>b) $\sin x=- \frac{\sqrt{11}}{14}$.<br>c) $\cos\left(x+ \frac{9 \pi}{2} \right)=- \frac{\sqrt{11}}{14}$ .<br>d) $P=\frac{2 \tan x}{3 \tan^2 x + 4}=- \frac{2 \sqrt{2035}}{773}$.<br><br>Lời giải:<br> a-sai, b-đúng, c-sai, d-sai.<br><br> a) Khẳng định đã cho là khẳng định sai.<br><br> Với $x \in \left( 3 \pi;\frac{7 \pi}{2} \right) $ thì $\sin x &gt;0$<br>b) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $x \in \left( 3 \pi;\frac{7 \pi}{2} \right)$ nên $\sin x &gt; 0$.<br><br>$\sin x =-\sqrt{1-\frac{185}{196}}=- \frac{\sqrt{11}}{14}$.<br>c) Khẳng định đã cho là khẳng định sai.<br><br> $\cos\left(x+ \frac{9 \pi}{2} \right)=\cos \left( x+\frac{\pi}{2}+2.2\pi \right)=\cos \left(x+\frac{\pi}{2}\right)=\cos \left[ \frac{\pi}{2}-(-x) \right]=\sin (-x)=-\sin x=\frac{\sqrt{11}}{14}$.<br>d) Khẳng định đã cho là khẳng định sai.<br><br> $\tan x=- \frac{\sqrt{11}}{14}:- \frac{\sqrt{185}}{14}=\frac{\sqrt{2035}}{185}$.<br><br>$\Rightarrow P=\frac{2 \tan x}{3 \tan^2 x + 4}=\frac{2 \sqrt{2035}}{773}$.</div></div></div></div><div class="slide-container" id="slide-24"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 1:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\sin \alpha=\frac{1}{2}, \alpha \in \left( 2\pi;\frac{5 \pi}{2} \right)$. Tính $\cos\alpha$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-24" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 24, 'MCw5')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-24" onclick="checkShort(this, 'MCw5')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'MCw5')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-24">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\sin \alpha=\frac{1}{2}, \alpha \in \left( 2\pi;\frac{5 \pi}{2} \right)$. Tính $\cos\alpha$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> Vì $\alpha \in \left( 2\pi;\frac{5 \pi}{2} \right)$ nên $\cos\alpha &gt; 0$.<br><br>$\cos\alpha =\sqrt{1-\frac{1}{4}}=\frac{\sqrt{3}}{2}=0,9$.<br><br>Đáp án: 0,9</div></div></div></div><div class="slide-container" id="slide-25"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 2:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\sin \alpha=- \frac{8}{13}, \alpha \in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Tính $|\cos\alpha|$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-25" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 25, 'MCw3OQ==')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-25" onclick="checkShort(this, 'MCw3OQ==')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'MCw3OQ==')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-25">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\sin \alpha=- \frac{8}{13}, \alpha \in \left( 3 \pi;\frac{7 \pi}{2} \right)$. Tính $|\cos\alpha|$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> Vì $\alpha \in \left( 3 \pi;\frac{7 \pi}{2} \right)$ nên $\cos\alpha &lt; 0$.<br><br>$|\cos\alpha| =|-\sqrt{1-\frac{64}{169}}|=|- \frac{\sqrt{105}}{13}|=0,79$.<br><br>Đáp án: 0,79</div></div></div></div><div class="slide-container" id="slide-26"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 3:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=\frac{3}{5}, \alpha \in \left( 0;\frac{\pi}{2} \right)$. Tính $\sin\alpha$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-26" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 26, 'MCw4')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-26" onclick="checkShort(this, 'MCw4')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'MCw4')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-26">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=\frac{3}{5}, \alpha \in \left( 0;\frac{\pi}{2} \right)$. Tính $\sin\alpha$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> Vì $\alpha \in \left( 0;\frac{\pi}{2} \right)$ nên $\sin\alpha &gt; 0$.<br><br>$\sin\alpha =\sqrt{1-\frac{9}{25}}=\frac{4}{5}=0,8$.<br><br>Đáp án: 0,8</div></div></div></div><div class="slide-container" id="slide-27"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 4:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=\frac{1}{2}, \alpha \in \left( 2\pi;\frac{5 \pi}{2} \right)$. Tính $\cot\alpha$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-27" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 27, 'MCw2')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-27" onclick="checkShort(this, 'MCw2')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'MCw2')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-27">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=\frac{1}{2}, \alpha \in \left( 2\pi;\frac{5 \pi}{2} \right)$. Tính $\cot\alpha$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> Vì $\alpha \in \left( 2\pi;\frac{5 \pi}{2} \right)$ nên $\sin\alpha &gt; 0$.<br><br>$\sin\alpha =\sqrt{1-\frac{1}{4}}=\frac{\sqrt{3}}{2}$.<br><br>$\cot\alpha=0.5:\frac{\sqrt{3}}{2}=0,6$.<br><br>Đáp án: 0,6</div></div></div></div><div class="slide-container" id="slide-28"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 5:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=- \frac{8}{13}, \alpha \in \left( - \frac{3 \pi}{2};- \pi \right)$. Tính $\tan\alpha$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-28" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 28, 'LTEsMw==')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-28" onclick="checkShort(this, 'LTEsMw==')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'LTEsMw==')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-28">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\cos \alpha=- \frac{8}{13}, \alpha \in \left( - \frac{3 \pi}{2};- \pi \right)$. Tính $\tan\alpha$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> Vì $\alpha \in \left( - \frac{3 \pi}{2};- \pi \right)$ nên $\sin\alpha &gt; 0$.<br><br>$\sin\alpha =\sqrt{1-\frac{64}{169}}=\frac{\sqrt{105}}{13}$.<br><br>$\tan\alpha=\frac{\sqrt{105}}{13}:- \frac{8}{13}=-1,3$.<br><br>Đáp án: -1,3</div></div></div></div><div class="slide-container" id="slide-29"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 6:</span> Cho góc lượng giác $\alpha$ thỏa mãn $\sin \alpha=\frac{8}{9}, \alpha \in \left( \frac{5 \pi}{2};3\pi \right)$. Tính $\tan\alpha$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-29" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 29, 'LTEsOQ==')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-29" onclick="checkShort(this, 'LTEsOQ==')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'LTEsOQ==')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-29">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác $\alpha$ thỏa mãn $\sin \alpha=\frac{8}{9}, \alpha \in \left( \frac{5 \pi}{2};3\pi \right)$. Tính $\tan\alpha$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> Vì $\alpha \in \left( \frac{5 \pi}{2};3\pi \right)$ nên $\cos\alpha &lt; 0$.<br><br>$\cos\alpha =-\sqrt{1-\frac{64}{81}}=- \frac{\sqrt{17}}{9}$.<br><br>$\tan\alpha=\frac{8}{9}:- \frac{\sqrt{17}}{9}=-1,9$.<br><br>Đáp án: -1,9</div></div></div></div><div class="slide-container" id="slide-30"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 7:</span> Cho góc lượng giác ${x}$ thỏa mãn $\tan x=-1$. Tính giá trị biểu thức $P=\frac{6 \cos x + 5 \sin x}{3 \cos x + 2 \sin x}$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-30" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 30, 'MSww')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-30" onclick="checkShort(this, 'MSww')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'MSww')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-30">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${x}$ thỏa mãn $\tan x=-1$. Tính giá trị biểu thức $P=\frac{6 \cos x + 5 \sin x}{3 \cos x + 2 \sin x}$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> $P=\frac{6 \cos x + 5 \sin x}{3 \cos x + 2 \sin x}=\frac{5 \tan x + 6}{2 \tan x + 3}=1=1,0$.<br><br>Đáp án: 1,0</div></div></div></div><div class="slide-container" id="slide-31"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 8:</span> Cho góc lượng giác ${x}$ thỏa mãn $\tan x=4$. Tính giá trị biểu thức $P=\frac{- \cos x + 6 \sin x}{3 \cos x - 2 \sin x}$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-31" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 31, 'LTQsNg==')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-31" onclick="checkShort(this, 'LTQsNg==')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'LTQsNg==')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-31">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${x}$ thỏa mãn $\tan x=4$. Tính giá trị biểu thức $P=\frac{- \cos x + 6 \sin x}{3 \cos x - 2 \sin x}$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> $P=\frac{- \cos x + 6 \sin x}{3 \cos x - 2 \sin x}=\frac{6 \tan x - 1}{3 - 2 \tan x}=- \frac{23}{5}=-4,6$.<br><br>Đáp án: -4,6</div></div></div></div><div class="slide-container" id="slide-32"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 9:</span> Cho góc lượng giác ${x}$ thỏa mãn $\tan x=-2$. Tính giá trị biểu thức $P=\frac{- 2 \cos x - 5 \sin x}{\cos x + 6 \sin x}$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-32" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 32, 'LTAsNw==')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-32" onclick="checkShort(this, 'LTAsNw==')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'LTAsNw==')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-32">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${x}$ thỏa mãn $\tan x=-2$. Tính giá trị biểu thức $P=\frac{- 2 \cos x - 5 \sin x}{\cos x + 6 \sin x}$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> $P=\frac{- 2 \cos x - 5 \sin x}{\cos x + 6 \sin x}=\frac{- 5 \tan x - 2}{6 \tan x + 1}=- \frac{8}{11}=-0,7$.<br><br>Đáp án: -0,7</div></div></div></div><div class="slide-container" id="slide-33"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 10:</span> Cho góc lượng giác ${x}$ thỏa mãn $\tan x=1$. Tính giá trị biểu thức $P=\dfrac{3\sin^2 x +2\sin x \cos x}{1\sin^2x-3\cos^2x}$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-33" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 33, 'LTIsNQ==')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-33" onclick="checkShort(this, 'LTIsNQ==')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'LTIsNQ==')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-33">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${x}$ thỏa mãn $\tan x=1$. Tính giá trị biểu thức $P=\dfrac{3\sin^2 x +2\sin x \cos x}{1\sin^2x-3\cos^2x}$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> $P=\dfrac{3\sin^2 x +2\sin x \cos x}{1\sin^2x-3\cos^2x}=\dfrac{3\tan^2x+2\tan x}{1\tan^2x -3}=- \frac{5}{2}=-2,5$.<br><br>Đáp án: -2,5</div></div></div></div><div class="slide-container" id="slide-34"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 11:</span> Cho góc lượng giác ${x}$ thỏa mãn $\tan x=6$. Tính giá trị biểu thức $P=\dfrac{-5\sin^2 x +5\sin x \cos x}{-6\sin^2x+5\cos^2x}$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-34" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 34, 'MCw3')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-34" onclick="checkShort(this, 'MCw3')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'MCw3')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-34">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${x}$ thỏa mãn $\tan x=6$. Tính giá trị biểu thức $P=\dfrac{-5\sin^2 x +5\sin x \cos x}{-6\sin^2x+5\cos^2x}$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> $P=\dfrac{-5\sin^2 x +5\sin x \cos x}{-6\sin^2x+5\cos^2x}=\dfrac{-5\tan^2x+5\tan x}{-6\tan^2x +5}=\frac{150}{211}=0,7$.<br><br>Đáp án: 0,7</div></div></div></div><div class="slide-container" id="slide-35"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN III (Trả lời ngắn)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 12:</span> Cho góc lượng giác ${x}$ thỏa mãn $\tan x=1$. Tính giá trị biểu thức $P=\dfrac{-4\sin^2 x +5\sin x \cos x}{6\sin^2x-5\cos^2x}$ (kết quả làm tròn đến hàng phần mười).</div><div class="short-answer-area"><div class="input-group"><input type="text" class="answer-input" id="input-35" placeholder="Nhập kết quả..." onkeyup="handleEnter(event, 35, 'MSww')"></div></div><div class="actions-area"><button class="btn-action btn-check" id="btn-chk-35" onclick="checkShort(this, 'MSww')">✓ KIỂM TRA</button><button class="btn-action btn-reveal" onclick="revealShort(this, 'MSww')">👁 ĐÁP ÁN</button><div class="slide-counter" id="counter-35">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho góc lượng giác ${x}$ thỏa mãn $\tan x=1$. Tính giá trị biểu thức $P=\dfrac{-4\sin^2 x +5\sin x \cos x}{6\sin^2x-5\cos^2x}$ (kết quả làm tròn đến hàng phần mười).<br><br>Lời giải:<br> $P=\dfrac{-4\sin^2 x +5\sin x \cos x}{6\sin^2x-5\cos^2x}=\dfrac{-4\tan^2x+5\tan x}{6\tan^2x -5}=1=1,0$.<br><br>Đáp án: 1,0</div></div></div></div>
+        
+            <script>
+                let currentSlide = 0; let slides = []; let timerInterval;
+                
+                let audioCtx = null;
+                function getAudioCtx(){
+                    if(!audioCtx){
+                        const Ctx = window.AudioContext || window.webkitAudioContext;
+                        if(Ctx) audioCtx = new Ctx();
+                    }
+                    return audioCtx;
+                }
+
+                function playSound(type) {
+                    const ctx = getAudioCtx();
+                    if (!ctx) return;
+                    if (ctx.state === 'suspended') ctx.resume();
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    const now = ctx.currentTime;
+                    
+                    if (type === 'correct') { 
+                        if(navigator.vibrate) navigator.vibrate([100, 50, 100]); // Rung 2 nhịp vui vẻ
+                        oscillator.type = 'sine';
+                        oscillator.frequency.setValueAtTime(800, now);
+                        oscillator.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                        gainNode.gain.setValueAtTime(1.5, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                        oscillator.start(now); oscillator.stop(now + 0.3);
+                    } else if (type === 'wrong') { 
+                        if(navigator.vibrate) navigator.vibrate(200); // Rung 1 nhịp dài cảnh báo
+                        oscillator.type = 'sawtooth';
+                        oscillator.frequency.setValueAtTime(150, now);
+                        oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+                        gainNode.gain.setValueAtTime(1.2, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                        oscillator.start(now); oscillator.stop(now + 0.3);
+                    } else if (type === 'timeup') { 
+                        oscillator.type = 'square';
+                        oscillator.frequency.setValueAtTime(400, now);
+                        gainNode.gain.setValueAtTime(1.5, now);
+                        gainNode.gain.setValueAtTime(1.5, now + 0.1);
+                        gainNode.gain.setValueAtTime(0, now + 0.15);
+                        gainNode.gain.setValueAtTime(1.5, now + 0.2);
+                        gainNode.gain.setValueAtTime(1.5, now + 0.3);
+                        gainNode.gain.setValueAtTime(0, now + 0.35);
+                        gainNode.gain.setValueAtTime(1.5, now + 0.4);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
+                        oscillator.start(now); oscillator.stop(now + 1.0);
+                    } else if (type === 'tick') { 
+                        oscillator.type = 'triangle';
+                        oscillator.frequency.setValueAtTime(1000, now);
+                        gainNode.gain.setValueAtTime(0.8, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                        oscillator.start(now); oscillator.stop(now + 0.1);
+                    }
+                }
+                
+                const msgCorrect = ["Tuyệt vời!", "Chính xác!", "Quá đỉnh!", "Xuất sắc!", "Giỏi quá!", "10 Điểm!"];
+                const msgWrong = ["Cố lên nhé!", "Chưa chính xác!", "Hãy thử lại!", "Cẩn thận hơn!", "Đừng nản chí!", "Suýt nữa thì đúng!"];
+
+                function showFeedback(isCorrect, slideElement) {
+                    let popup = document.createElement('div');
+                    popup.className = 'feedback-popup ' + (isCorrect ? 'correct' : 'wrong');
+                    let emoji = isCorrect ? '😄' : '😢';
+                    let textArr = isCorrect ? msgCorrect : msgWrong;
+                    let randomText = textArr[Math.floor(Math.random() * textArr.length)];
+                    popup.innerHTML = '<div class="emoji">' + emoji + '</div><div class="message">' + randomText + '</div>';
+                    slideElement.appendChild(popup);
+                    setTimeout(() => popup.classList.add('pop'), 10);
+                    setTimeout(() => { popup.classList.remove('pop'); setTimeout(() => popup.remove(), 400); }, 1500);
+                }
+
+                function changeFontSize(delta) {
+                    const root = document.documentElement; const style = geMHomputedStyle(root);
+                    let baseSize = parseInt(style.getPropertyValue('--base-size'));
+                    let optSize = parseInt(style.getPropertyValue('--opt-size'));
+                    let badgeSize = parseInt(style.getPropertyValue('--badge-size'));
+                    if ((delta < 0 && baseSize <= 24) || (delta > 0 && baseSize >= 60)) return;
+                    root.style.setProperty('--base-size', (baseSize + delta) + 'px');
+                    root.style.setProperty('--opt-size', (optSize + delta) + 'px');
+                    root.style.setProperty('--badge-size', (badgeSize + (delta > 0 ? 2 : -2)) + 'px');
+                }
+                function formatTime(seconds) {
+                    let m = Math.floor(seconds / 60); let s = seconds % 60;
+                    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+                }
+                function parseTime(input) {
+                    if (!input) return null;
+                    input = input.toString().trim();
+                    if (/^\d{1,3}:\d{1,2}$/.test(input)) {
+                        const parts = input.split(":");
+                        const minutes = parseInt(parts[0], 10);
+                        const seconds = parseInt(parts[1], 10);
+                        if (seconds >= 60) return null;
+                        return minutes * 60 + seconds;
+                    }
+                    if (/^\d+$/.test(input)) return parseInt(input, 10);
+                    return null;
+                }
+
+                let timerTargetEl = null;
+                function getTimerFromButton(btn) {
+                    const header = btn.closest('.header-right');
+                    return header ? header.querySelector('.timer') : null;
+                }
+                function openTimerModal(source) {
+                    let timer = source && source.classList && source.classList.contains('timer') ? source : getTimerFromButton(source);
+                    if (!timer) timer = document.querySelector('.slide-container.active .timer');
+                    if (!timer) return;
+                    if (timer.classList.contains('running')) {
+                        clearInterval(timerInterval);
+                        timer.classList.remove('running');
+                    }
+                    timerTargetEl = timer;
+                    const backdrop = document.getElementById('timerModalBackdrop');
+                    const input = document.getElementById('timerModalInput');
+                    const error = document.getElementById('timerModalError');
+                    input.value = formatTime(parseInt(timer.dataset.time || '60', 10));
+                    error.texMHontent = '';
+                    backdrop.classList.add('show');
+                    setTimeout(() => { input.focus(); input.select(); }, 60);
+                }
+                function closeTimerModal(evt) {
+                    if (evt && evt.target && evt.target.id !== 'timerModalBackdrop') return;
+                    const backdrop = document.getElementById('timerModalBackdrop');
+                    if (backdrop) backdrop.classList.remove('show');
+                }
+                function setTimerModalValue(value) {
+                    const input = document.getElementById('timerModalInput');
+                    input.value = value;
+                    input.focus();
+                    document.getElementById('timerModalError').texMHontent = '';
+                }
+                function updateTimerDisplay(timer, seconds) {
+                    if (!timer) return;
+                    timer.dataset.time = seconds;
+                    timer.dataset.remaining = seconds;
+                    timer.classList.remove('running');
+                    timer.innerText = '⏳ Bắt đầu (' + formatTime(seconds) + ')';
+                }
+                function applyTimerFromModal(applyAll) {
+                    const input = document.getElementById('timerModalInput');
+                    const error = document.getElementById('timerModalError');
+                    const seconds = parseTime(input.value);
+                    if (seconds == null || isNaN(seconds) || seconds <= 0) {
+                        error.texMHontent = 'Vui lòng nhập đúng dạng mm:ss, ví dụ 05:00 hoặc 01:30.';
+                        input.focus();
+                        input.select();
+                        return;
+                    }
+                    clearInterval(timerInterval);
+                    if (applyAll) {
+                        document.querySelectorAll('.timer').forEach(timer => updateTimerDisplay(timer, seconds));
+                    } else {
+                        updateTimerDisplay(timerTargetEl, seconds);
+                    }
+                    closeTimerModal();
+                }
+                document.addEventListener('keydown', function(e){
+                    const backdrop = document.getElementById('timerModalBackdrop');
+                    if (!backdrop || !backdrop.classList.contains('show')) return;
+                    if (e.key === 'Escape') closeTimerModal();
+                    if (e.key === 'Enter') applyTimerFromModal(false);
+                });
+                window.addEventListener("load", function(){ 
+                    document.addEventListener('keydown', function(e) {
+                        const tag = document.activeElement.tagName;
+                        if(tag === "INPUT" || tag === "TEXTAREA") return;
+                        if(e.key === "ArrowRight") nextSlide(); if(e.key === "ArrowLeft") prevSlide();
+                    });
+                });
+                function renderSlide(index) {
+                    document.querySelectorAll('.slide-container').forEach(el => el.classList.remove('active'));
+                    const activeSlide = document.getElementById('slide-' + index);
+                    if (activeSlide) {
+                        activeSlide.classList.add('active'); currentSlide = index;
+                        document.querySelectorAll('.slide-counter').forEach(el => el.innerText = `Câu ${index + 1} / ${slides.length}`);
+                        
+                        if (window.MathJax && !activeSlide.dataset.typeset) {
+                            MathJax.typesetPromise([activeSlide]).then(() => { activeSlide.dataset.typeset = "true"; }).caMHh((err) => console.log('MJ Error:', err));
+                        }
+                        clearInterval(timerInterval); const timerEl = activeSlide.querySelector('.timer');
+                        if(timerEl) {
+                            const def = parseInt(timerEl.dataset.time || '60', 10);
+                            timerEl.dataset.remaining = def;
+                            timerEl.innerText = '⏳ Bắt đầu (' + formatTime(def) + ')';
+                            timerEl.classList.remove('running');
+                        }
+                        resizeSlideCanvas(activeSlide);
+                        redrawSlideDrawing(activeSlide);
+                    }
+                }
+                function startTimer(el) {
+                    if (el.classList.contains('running')) {
+                        clearInterval(timerInterval);
+                        el.classList.remove('running');
+                        const paused = parseInt(el.dataset.remaining || el.dataset.time || '60', 10);
+                        el.innerText = "⏳ Bắt đầu (" + formatTime(paused) + ")";
+                        return;
+                    }
+                    let timeLeft = parseInt(el.dataset.remaining || el.dataset.time || '60', 10);
+                    if (timeLeft <= 0 || isNaN(timeLeft)) timeLeft = parseInt(el.dataset.time || '60', 10);
+                    el.classList.add('running');
+                    el.innerText = formatTime(timeLeft);
+                    clearInterval(timerInterval);
+                    timerInterval = setInterval(() => {
+                        timeLeft--;
+                        el.dataset.remaining = timeLeft;
+                        el.innerText = formatTime(timeLeft);
+                        if (timeLeft <= 5 && timeLeft > 0) { playSound('tick'); }
+                        else if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            el.classList.remove('running');
+                            el.dataset.remaining = el.dataset.time || '60';
+                            el.innerText = "Hết giờ!";
+                            playSound('timeup');
+                        }
+                    }, 1000);
+                }
+                function editTimer(el) {
+                    openTimerModal(el);
+                }
+                
+function exitPresentation(){
+    try{
+        if(document.fullscreenElement){document.exitFullscreen();}
+    }caMHh(e){}
+    try{ window.open('','_self'); }caMHh(e){}
+    try{ window.close(); }caMHh(e){}
+    setTimeout(function(){
+        try{ location.replace('about:blank'); }caMHh(e){}
+    },100);
+}
+
+function nextSlide() { if (currentSlide < slides.length - 1) renderSlide(currentSlide + 1); }
+                function prevSlide() { if (currentSlide > 0) renderSlide(currentSlide - 1); }
+                function openImage(src) { const w = window.open(""); w.document.write('<img src="' + src + '" style="max-width:100%;">'); }
+                
+                function checkChoice(btn, isCorrect) {
+                    if (btn.classList.contains('checked')) return; const slide = btn.closest('.slide-container');
+                    if (isCorrect) { 
+                        playSound('correct'); showFeedback(true, slide);
+                        btn.classList.add('correct', 'checked'); slide.querySelectorAll('.btn-option').forEach(b => b.classList.add('disabled')); slide.querySelector('.btn-reveal').style.display='none'; 
+                    } else { 
+                        playSound('wrong'); showFeedback(false, slide); btn.classList.add('wrong', 'checked'); 
+                    }
+                }
+                function revealAnswerMC(btn) {
+                    const slide = btn.closest('.slide-container'); const corr = slide.querySelector('.btn-option[data-correct="true"]');
+                    if(corr) corr.classList.add('correct', 'checked'); slide.querySelectorAll('.btn-option').forEach(b => b.classList.add('disabled')); btn.style.display='none';
+                }
+                
+                function checkTF(btn, userChoice) {
+                    const row = btn.closest('.tf-row'); row.querySelectorAll('.btn-tf').forEach(b => b.classList.remove('user-correct', 'user-wrong'));
+                    const slideContainer = btn.closest('.slide-container');
+                    if (userChoice === (row.getAttribute('data-correct') === 'true')) { 
+                        playSound('correct'); showFeedback(true, slideContainer); btn.classList.add('user-correct'); 
+                    } else { 
+                        playSound('wrong'); showFeedback(false, slideContainer); btn.classList.add('user-wrong'); 
+                    }
+                }
+                function revealAnswerTF(btn) {
+                    const slide = btn.closest('.slide-container');
+                    slide.querySelectorAll('.tf-row').forEach(row => {
+                        const isTrue = row.getAttribute('data-correct') === 'true';
+                        row.querySelectorAll('.btn-tf').forEach(b => {
+                            if(b.innerText==='Đ' && isTrue) b.classList.add('reveal-true');
+                            if(b.innerText==='S' && !isTrue) b.classList.add('reveal-false');
+                        });
+                    }); btn.style.display='none';
+                }
+                
+                function checkShort(btn, b64) {
+                    const slide = btn.closest('.slide-container'); const inp = slide.querySelector('input');
+                    let val = inp.value.trim().toLowerCase().replace(',', '.').replace(/\s+/g, '');
+                    let ans = decodeURIComponent(escape(atob(b64))).trim().toLowerCase().replace(',', '.');
+                    if (ans === "") { inp.style.borderColor='#f59e0b'; alert('Câu này không tìm thấy đáp án chuẩn.'); return; }
+                    if(val === ans) { 
+                        playSound('correct'); showFeedback(true, slide); inp.style.borderColor='#22c55e'; inp.style.color='#15803d'; 
+                    } else { 
+                        playSound('wrong'); showFeedback(false, slide); inp.style.borderColor='#ef4444'; 
+                    }
+                }
+                function revealShort(btn, b64) {
+                    const slide = btn.closest('.slide-container'); const input = slide.querySelector('input');
+                    let decoded = decodeURIComponent(escape(atob(b64)));
+                    input.value = decoded; btn.style.display='none';
+                }
+                function toggleExpl(btn) { const box = btn.closest('.slide-container').querySelector('.explanation-box'); box.style.display = box.style.display==='block' ? 'none' : 'block'; }
+                function handleEnter(e, id, b64) { if (e.key === "Enter") checkShort(document.getElementById('btn-chk-'+id), b64); }
+                function initSlides(data) { slides = data; initPresentationDrawTools(); renderSlide(0); }
+                function initImageZoom() {
+                    const images = document.querySelectorAll('.real-image');
+                    images.forEach(img => {
+                        img.addEventListener('wheel', function(e) {
+                            e.preventDefault(); let currentHeight = img.clientHeight; let delta = e.deltaY < 0 ? 40 : -40; let newHeight = currentHeight + delta;
+                            if (newHeight >= 150 && newHeight <= 1200) { img.style.maxHeight = 'none'; img.style.height = newHeight + 'px'; img.style.width = 'auto'; }
+                        });
+                    });
+                }
+
+
+                // --- CÔNG CỤ VẼ / CỤC TẨY CHO TRÌNH CHIẾU ---
+                const DRAW_COLORS = { red: '#ff5a47', blue: '#3b82f6', green: '#16a34a' };
+                function ensureDrawLayer(slide) {
+                    if (!slide || slide.__drawReady) return;
+                    slide.__drawReady = true;
+                    slide.__drawState = { paths: [], currentTool: 'pen', currenMHolor: 'red', drawing: false, currentPath: null, isDrawingMode: false };
+
+                    const headerRight = slide.querySelector('.header-right');
+                    if (headerRight) {
+                        const zoomPlus = headerRight.querySelector('.zoom-btn:last-of-type');
+                        const toolbar = document.createElement('div');
+                        toolbar.className = 'draw-toolbar';
+                        toolbar.innerHTML = `
+                            <div class="draw-sep"></div>
+                            <button class="draw-btn pen-btn active" type="button" title="Bút vẽ">✏️</button>
+                            <button class="draw-btn eraser-btn" type="button" title="Cục tẩy">🧽</button>
+                            <button class="color-btn active" type="button" data-color="red" title="Màu đỏ"></button>
+                            <button class="color-btn" type="button" data-color="blue" title="Màu xanh dương"></button>
+                            <button class="color-btn" type="button" data-color="green" title="Màu xanh lá"></button>
+                            <button class="draw-btn clear-btn" type="button" title="Xóa toàn bộ nét vẽ">🗑️</button>
+                        `;
+                        const timer = headerRight.querySelector('.timer');
+                        const timerEditBtn = headerRight.querySelector('.timer-edit-btn');
+                        headerRight.insertBefore(toolbar, timerEditBtn || timer || null);
+
+                        toolbar.querySelector('.pen-btn').addEventListener('click', () => toggleSlidePen(slide));
+                        toolbar.querySelector('.eraser-btn').addEventListener('click', () => setSlideTool(slide, 'eraser'));
+                        toolbar.querySelector('.clear-btn').addEventListener('click', () => clearSlideDrawing(slide));
+                        toolbar.querySelectorAll('.color-btn').forEach(btn => {
+                            btn.addEventListener('click', () => setSlideColor(slide, btn.dataset.color));
+                        });
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.className = 'slide-draw-canvas';
+                    slide.appendChild(canvas);
+                    slide.__drawCanvas = canvas;
+                    slide.__drawCtx = canvas.geMHontext('2d');
+
+                    const getPos = (evt) => {
+                        const rect = canvas.getBoundingClientRect();
+                        return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+                    };
+
+                    canvas.addEventListener('pointerdown', (evt) => {
+                        const state = slide.__drawState;
+                        if (!state.isDrawingMode || (!slide.classList.contains('draw-mode-pen') && !slide.classList.contains('draw-mode-eraser'))) return;
+                        evt.preventDefault();
+                        const pos = getPos(evt);
+                        state.drawing = true;
+                        try { canvas.setPointerCapture(evt.pointerId); } caMHh (e) {}
+                        if (state.currentTool === 'pen') {
+                            state.currentPath = { color: state.currenMHolor, points: [pos] };
+                            state.paths.push(state.currentPath);
+                            redrawSlideDrawing(slide);
+                        } else {
+                            eraseAtPoint(slide, pos.x, pos.y);
+                        }
+                    });
+
+                    canvas.addEventListener('pointermove', (evt) => {
+                        const state = slide.__drawState;
+                        if (!state.drawing || !state.isDrawingMode) return;
+                        evt.preventDefault();
+                        const pos = getPos(evt);
+                        if (state.currentTool === 'pen') {
+                            if (state.currentPath) state.currentPath.points.push(pos);
+                            redrawSlideDrawing(slide);
+                        } else {
+                            eraseAtPoint(slide, pos.x, pos.y);
+                        }
+                    });
+
+                    const stopDraw = (evt) => {
+                        const state = slide.__drawState;
+                        state.drawing = false;
+                        state.currentPath = null;
+                        if (evt) {
+                            try { canvas.releasePointerCapture(evt.pointerId); } caMHh (e) {}
+                        }
+                    };
+                    canvas.addEventListener('pointerup', stopDraw);
+                    canvas.addEventListener('pointercancel', stopDraw);
+                    canvas.addEventListener('pointerleave', stopDraw);
+
+                    resizeSlideCanvas(slide);
+                    setSlideColor(slide, 'red');
+                    disableSlideDrawing(slide);
+                }
+
+                function updateSlideToolUI(slide) {
+                    const state = slide.__drawState;
+                    const toolbar = slide.querySelector('.draw-toolbar');
+                    if (!toolbar) return;
+                    const penBtn = toolbar.querySelector('.pen-btn');
+                    const eraserBtn = toolbar.querySelector('.eraser-btn');
+                    if (penBtn) penBtn.classList.toggle('active', !!state.isDrawingMode && state.currentTool === 'pen');
+                    if (eraserBtn) eraserBtn.classList.toggle('active', !!state.isDrawingMode && state.currentTool === 'eraser');
+                }
+
+                function disableSlideDrawing(slide) {
+                    ensureDrawLayer(slide);
+                    const state = slide.__drawState;
+                    state.isDrawingMode = false;
+                    state.drawing = false;
+                    state.currentPath = null;
+                    slide.classList.remove('draw-mode-pen', 'draw-mode-eraser');
+                    updateSlideToolUI(slide);
+                }
+
+                function enableSlideDrawing(slide, tool = 'pen') {
+                    ensureDrawLayer(slide);
+                    const state = slide.__drawState;
+                    state.isDrawingMode = true;
+                    state.currentTool = tool;
+                    slide.classList.remove('draw-mode-pen', 'draw-mode-eraser');
+                    slide.classList.add(tool === 'eraser' ? 'draw-mode-eraser' : 'draw-mode-pen');
+                    updateSlideToolUI(slide);
+                }
+
+                function toggleSlidePen(slide) {
+                    ensureDrawLayer(slide);
+                    const state = slide.__drawState;
+                    if (state.isDrawingMode && state.currentTool === 'pen') {
+                        disableSlideDrawing(slide);
+                    } else {
+                        enableSlideDrawing(slide, 'pen');
+                    }
+                }
+
+                function setSlideTool(slide, tool) {
+                    ensureDrawLayer(slide);
+                    const state = slide.__drawState;
+                    if (tool === 'eraser') {
+                        if (!state.isDrawingMode) return;
+                        enableSlideDrawing(slide, 'eraser');
+                    } else {
+                        enableSlideDrawing(slide, 'pen');
+                    }
+                }
+
+                function setSlideColor(slide, colorName) {
+                    ensureDrawLayer(slide);
+                    const state = slide.__drawState;
+                    if (!DRAW_COLORS[colorName]) return;
+                    state.currenMHolor = colorName;
+                    const toolbar = slide.querySelector('.draw-toolbar');
+                    if (toolbar) {
+                        toolbar.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === colorName));
+                    }
+                    if (state.isDrawingMode) {
+                        enableSlideDrawing(slide, 'pen');
+                    } else {
+                        updateSlideToolUI(slide);
+                    }
+                }
+
+                function clearSlideDrawing(slide) {
+                    ensureDrawLayer(slide);
+                    slide.__drawState.paths = [];
+                    slide.__drawState.currentPath = null;
+                    redrawSlideDrawing(slide);
+                }
+
+                function eraseAtPoint(slide, x, y) {
+                    const state = slide.__drawState;
+                    const radius = 22;
+                    const radius2 = radius * radius;
+                    state.paths = state.paths.filter(path => {
+                        return !path.points.some(p => {
+                            const dx = p.x - x;
+                            const dy = p.y - y;
+                            return dx * dx + dy * dy <= radius2;
+                        });
+                    });
+                    redrawSlideDrawing(slide);
+                }
+
+                function resizeSlideCanvas(slide) {
+                    if (!slide || !slide.__drawCanvas) return;
+                    const canvas = slide.__drawCanvas;
+                    const rect = canvas.getBoundingClientRect();
+                    const dpr = window.devicePixelRatio || 1;
+                    const width = Math.max(1, Math.round(rect.width));
+                    const height = Math.max(1, Math.round(rect.height));
+                    canvas.width = Math.round(width * dpr);
+                    canvas.height = Math.round(height * dpr);
+                    const ctx = slide.__drawCtx;
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    redrawSlideDrawing(slide);
+                }
+
+                function redrawSlideDrawing(slide) {
+                    if (!slide || !slide.__drawCanvas) return;
+                    const canvas = slide.__drawCanvas;
+                    const ctx = slide.__drawCtx;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    slide.__drawState.paths.forEach(path => {
+                        if (!path.points || !path.points.length) return;
+                        ctx.beginPath();
+                        ctx.strokeStyle = DRAW_COLORS[path.color] || DRAW_COLORS.red;
+                        ctx.lineWidth = 3;
+                        ctx.lineCap = 'round';
+                        ctx.lineJoin = 'round';
+                        ctx.moveTo(path.points[0].x, path.points[0].y);
+                        for (let i = 1; i < path.points.length; i++) {
+                            ctx.lineTo(path.points[i].x, path.points[i].y);
+                        }
+                        if (path.points.length === 1) {
+                            ctx.lineTo(path.points[0].x + 0.01, path.points[0].y + 0.01);
+                        }
+                        ctx.stroke();
+                    });
+                }
+
+                function initPresentationDrawTools() {
+                    document.querySelectorAll('.slide-container').forEach(slide => ensureDrawLayer(slide));
+                }
+
+                window.addEventListener('resize', () => {
+                    document.querySelectorAll('.slide-container').forEach(slide => resizeSlideCanvas(slide));
+                });
+
+                // --- NÂNG CẤP VUỐT TRÊN MOBILE (SWIPE) ---
+                let touchStartX = 0; let touchEndX = 0;
+                document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+                document.addEventListener('touchend', e => {
+                    if(document.activeElement.tagName === "INPUT") return; // Chặn vuốt khi đang chạm vào ô nhập đáp án
+                    touchEndX = e.changedTouches[0].screenX;
+                    let diff = touchStartX - touchEndX;
+                    if (Math.abs(diff) > 60) { if (diff > 0) nextSlide(); else prevSlide(); }
+                }, {passive: true});
+            </script>
+        
+        <script>
+            window.addEventListener("DOMContentLoaded", function(){
+                // 🟢 HỆ THỐNG TỰ BÁO LỖI VÀ CHUYỂN HƯỚNG UX
+                try {
+                    const data = [{"title": "Câu 1", "part": 1, "type": "mc", "content": "Tính $\\cos \\frac{5 \\pi}{3}$.", "images": [], "explanation": "Tính $\\cos \\frac{5 \\pi}{3}$.\nA. ${0}$.\t   B. ${- \\frac{1}{5}}$.\t    C. ${- \\frac{2}{5}}$.\t     D. *${\\frac{1}{2}}$.\n\nLời giải:\n Chọn D \n $\\cos \\frac{5 \\pi}{3}=\\frac{1}{2}$. \n\n", "options": [{"label": "A", "text": "${0}$.", "is_correct": false}, {"label": "B", "text": "${- \\frac{1}{5}}$.", "is_correct": false}, {"label": "C", "text": "${- \\frac{2}{5}}$.", "is_correct": false}, {"label": "D", "text": "${\\frac{1}{2}}$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 2", "part": 1, "type": "mc", "content": "Tính $\\sin - \\frac{7 \\pi}{3}$.", "images": [], "explanation": "Tính $\\sin - \\frac{7 \\pi}{3}$.\nA. ${- \\frac{2}{5}}$.\t   B. ${\\frac{2}{5}}$.\t    C. *${- \\frac{\\sqrt{3}}{2}}$.\t     D. ${- \\frac{1}{5}}$.\n\nLời giải:\n Chọn C \n $\\sin - \\frac{7 \\pi}{3}=- \\frac{\\sqrt{3}}{2}$. \n\n", "options": [{"label": "A", "text": "${- \\frac{2}{5}}$.", "is_correct": false}, {"label": "B", "text": "${\\frac{2}{5}}$.", "is_correct": false}, {"label": "C", "text": "${- \\frac{\\sqrt{3}}{2}}$.", "is_correct": true}, {"label": "D", "text": "${- \\frac{1}{5}}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 3", "part": 1, "type": "mc", "content": "Tính $\\sin - \\frac{\\pi}{3}$.", "images": [], "explanation": "Tính $\\sin - \\frac{\\pi}{3}$.\nA. ${\\frac{2}{5}}$.\t   B. ${-1}$.\t    C. ${- \\frac{9}{10}}$.\t     D. *${- \\frac{\\sqrt{3}}{2}}$.\n\nLời giải:\n Chọn D \n $\\sin - \\frac{\\pi}{3}=- \\frac{\\sqrt{3}}{2}$. \n\n", "options": [{"label": "A", "text": "${\\frac{2}{5}}$.", "is_correct": false}, {"label": "B", "text": "${-1}$.", "is_correct": false}, {"label": "C", "text": "${- \\frac{9}{10}}$.", "is_correct": false}, {"label": "D", "text": "${- \\frac{\\sqrt{3}}{2}}$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 4", "part": 1, "type": "mc", "content": "Cho góc lượng giác ${a}$ thỏa mãn $a\\in \\left( - \\frac{3 \\pi}{2};- \\pi \\right)$. Khẳng định nào sau đây là khẳng định đúng.", "images": [], "explanation": "Cho góc lượng giác ${a}$ thỏa mãn $a\\in \\left( - \\frac{3 \\pi}{2};- \\pi \\right)$. Khẳng định nào sau đây là khẳng định đúng.\nA. *$\\cos a <0$ .\t   B. $\\sin a <0$ .\t    C. $\\cot a >0$ .\t     D. $\\tan a >0$ .\n\nLời giải:\n Chọn A \n $\\cos a <0$  là khẳng định đúng \n\n", "options": [{"label": "A", "text": "$\\cos a <0$ .", "is_correct": true}, {"label": "B", "text": "$\\sin a <0$ .", "is_correct": false}, {"label": "C", "text": "$\\cot a >0$ .", "is_correct": false}, {"label": "D", "text": "$\\tan a >0$ .", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 5", "part": 1, "type": "mc", "content": "Cho góc lượng giác ${b}$ thỏa mãn $b\\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$. Khẳng định nào sau đây là khẳng định đúng.", "images": [], "explanation": "Cho góc lượng giác ${b}$ thỏa mãn $b\\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$. Khẳng định nào sau đây là khẳng định đúng.\nA. $\\tan b <0$ .\t   B. $\\cot b <0$ .\t    C. $\\cos b <0$ .\t     D. *$\\cot b >0$ .\n\nLời giải:\n Chọn D \n $\\cot b >0$  là khẳng định đúng \n\n", "options": [{"label": "A", "text": "$\\tan b <0$ .", "is_correct": false}, {"label": "B", "text": "$\\cot b <0$ .", "is_correct": false}, {"label": "C", "text": "$\\cos b <0$ .", "is_correct": false}, {"label": "D", "text": "$\\cot b >0$ .", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 6", "part": 1, "type": "mc", "content": "Cho góc lượng giác ${\\alpha}$ thỏa mãn $\\alpha\\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$. Khẳng định nào sau đây là khẳng định đúng.", "images": [], "explanation": "Cho góc lượng giác ${\\alpha}$ thỏa mãn $\\alpha\\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$. Khẳng định nào sau đây là khẳng định đúng.\nA. *$\\cot \\alpha >0$ .\t   B. $\\cot \\alpha <0$ .\t    C. $\\sin \\alpha <0$ .\t     D. $\\cos \\alpha <0$ .\n\nLời giải:\n Chọn A \n $\\cot \\alpha >0$  là khẳng định đúng \n\n", "options": [{"label": "A", "text": "$\\cot \\alpha >0$ .", "is_correct": true}, {"label": "B", "text": "$\\cot \\alpha <0$ .", "is_correct": false}, {"label": "C", "text": "$\\sin \\alpha <0$ .", "is_correct": false}, {"label": "D", "text": "$\\cos \\alpha <0$ .", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 7", "part": 1, "type": "mc", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=- \\frac{2}{5}, \\alpha \\in \\left( - \\pi; - \\frac{\\pi}{2} \\right)$. Tính $\\sin\\alpha$.", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=- \\frac{2}{5}, \\alpha \\in \\left( - \\pi; - \\frac{\\pi}{2} \\right)$. Tính $\\sin\\alpha$.\nA. *${- \\frac{\\sqrt{21}}{5}}$.\t   B. ${\\frac{\\sqrt{10}}{7}}$.\t    C. ${\\frac{1}{7}}$.\t     D. ${\\frac{2 \\sqrt{3}}{9}}$.\n\nLời giải:\n Chọn A \n Vì $\\alpha \\in \\left( - \\pi; - \\frac{\\pi}{2} \\right)$ nên $\\sin\\alpha < 0$.\n\n$\\sin\\alpha =\\sqrt{1-\\frac{4}{25}}=- \\frac{\\sqrt{21}}{5}$. \n\n", "options": [{"label": "A", "text": "${- \\frac{\\sqrt{21}}{5}}$.", "is_correct": true}, {"label": "B", "text": "${\\frac{\\sqrt{10}}{7}}$.", "is_correct": false}, {"label": "C", "text": "${\\frac{1}{7}}$.", "is_correct": false}, {"label": "D", "text": "${\\frac{2 \\sqrt{3}}{9}}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 8", "part": 1, "type": "mc", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=- \\frac{11}{14}, \\alpha \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Tính $\\sin\\alpha$.", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=- \\frac{11}{14}, \\alpha \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Tính $\\sin\\alpha$.\nA. ${\\frac{\\sqrt{2}}{8}}$.\t   B. ${\\frac{\\sqrt{6}}{3}}$.\t    C. ${\\frac{\\sqrt{3}}{14}}$.\t     D. *${- \\frac{5 \\sqrt{3}}{14}}$.\n\nLời giải:\n Chọn D \n Vì $\\alpha \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$ nên $\\sin\\alpha < 0$.\n\n$\\sin\\alpha =\\sqrt{1-\\frac{121}{196}}=- \\frac{5 \\sqrt{3}}{14}$. \n\n", "options": [{"label": "A", "text": "${\\frac{\\sqrt{2}}{8}}$.", "is_correct": false}, {"label": "B", "text": "${\\frac{\\sqrt{6}}{3}}$.", "is_correct": false}, {"label": "C", "text": "${\\frac{\\sqrt{3}}{14}}$.", "is_correct": false}, {"label": "D", "text": "${- \\frac{5 \\sqrt{3}}{14}}$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 9", "part": 1, "type": "mc", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=- \\frac{3}{4}, \\alpha \\in \\left( - \\pi; - \\frac{\\pi}{2} \\right)$. Tính $\\sin\\alpha$.", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=- \\frac{3}{4}, \\alpha \\in \\left( - \\pi; - \\frac{\\pi}{2} \\right)$. Tính $\\sin\\alpha$.\nA. *${- \\frac{\\sqrt{7}}{4}}$.\t   B. ${\\frac{1}{9}}$.\t    C. ${\\frac{\\sqrt{14}}{16}}$.\t     D. ${\\frac{\\sqrt{11}}{9}}$.\n\nLời giải:\n Chọn A \n Vì $\\alpha \\in \\left( - \\pi; - \\frac{\\pi}{2} \\right)$ nên $\\sin\\alpha < 0$.\n\n$\\sin\\alpha =\\sqrt{1-\\frac{9}{16}}=- \\frac{\\sqrt{7}}{4}$. \n\n", "options": [{"label": "A", "text": "${- \\frac{\\sqrt{7}}{4}}$.", "is_correct": true}, {"label": "B", "text": "${\\frac{1}{9}}$.", "is_correct": false}, {"label": "C", "text": "${\\frac{\\sqrt{14}}{16}}$.", "is_correct": false}, {"label": "D", "text": "${\\frac{\\sqrt{11}}{9}}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 10", "part": 1, "type": "mc", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin \\alpha=- \\frac{8}{13}, \\alpha \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Tính $\\cot\\alpha$.", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin \\alpha=- \\frac{8}{13}, \\alpha \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Tính $\\cot\\alpha$.\nA. $\\frac{\\sqrt{3}}{10}$.\t   B. $\\frac{2 \\sqrt{2}}{9}$.\t    C. $\\frac{\\sqrt{10}}{20}$.\t     D. *$\\frac{\\sqrt{105}}{8}$.\n\nLời giải:\n Chọn D \n Vì $\\alpha \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$ nên $\\cos\\alpha < 0$.\n\n$\\cos\\alpha =-\\sqrt{1-\\frac{64}{169}}=- \\frac{\\sqrt{105}}{13}$.\n\n$\\cot\\alpha=- \\frac{\\sqrt{105}}{13}:- \\frac{8}{13}=\\frac{\\sqrt{105}}{8}$.\n\n \n\n", "options": [{"label": "A", "text": "$\\frac{\\sqrt{3}}{10}$.", "is_correct": false}, {"label": "B", "text": "$\\frac{2 \\sqrt{2}}{9}$.", "is_correct": false}, {"label": "C", "text": "$\\frac{\\sqrt{10}}{20}$.", "is_correct": false}, {"label": "D", "text": "$\\frac{\\sqrt{105}}{8}$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 11", "part": 1, "type": "mc", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=- \\frac{2}{3}, \\alpha \\in \\left( \\pi;\\frac{3 \\pi}{2} \\right)$. Tính $\\tan\\alpha$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=- \\frac{2}{3}, \\alpha \\in \\left( \\pi;\\frac{3 \\pi}{2} \\right)$. Tính $\\tan\\alpha$ (kết quả làm tròn đến hàng phần mười).\nA. *$\\frac{\\sqrt{5}}{2}$.\t   B. $\\frac{\\sqrt{2}}{9}$.\t    C. $\\frac{1}{8}$.\t     D. $\\frac{\\sqrt{10}}{6}$.\n\nLời giải:\n Chọn A \n Vì $\\alpha \\in \\left( \\pi;\\frac{3 \\pi}{2} \\right)$ nên $\\sin\\alpha < 0$.\n\n$\\sin\\alpha =\\sqrt{1-\\frac{4}{9}}=- \\frac{\\sqrt{5}}{3}$.\n\n$\\tan\\alpha=- \\frac{\\sqrt{5}}{3}:-0.666666666666667=\\frac{\\sqrt{5}}{2}$.\n\n \n\n", "options": [{"label": "A", "text": "$\\frac{\\sqrt{5}}{2}$.", "is_correct": true}, {"label": "B", "text": "$\\frac{\\sqrt{2}}{9}$.", "is_correct": false}, {"label": "C", "text": "$\\frac{1}{8}$.", "is_correct": false}, {"label": "D", "text": "$\\frac{\\sqrt{10}}{6}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 12", "part": 1, "type": "mc", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin \\alpha=\\frac{15}{17}, \\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$. Tính $\\tan\\alpha$.", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin \\alpha=\\frac{15}{17}, \\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$. Tính $\\tan\\alpha$.\nA. $\\frac{\\sqrt{3}}{4}$.\t   B. $\\frac{\\sqrt{15}}{12}$.\t    C. $\\frac{\\sqrt{2}}{3}$.\t     D. *$\\frac{15}{8}$.\n\nLời giải:\n Chọn D \n Vì $\\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$ nên $\\cos\\alpha > 0$.\n\n$\\cos\\alpha =\\sqrt{1-\\frac{225}{289}}=\\frac{8}{17}$.\n\n$\\tan\\alpha=\\frac{15}{17}:\\frac{8}{17}=\\frac{15}{8}$.\n\n \n\n", "options": [{"label": "A", "text": "$\\frac{\\sqrt{3}}{4}$.", "is_correct": false}, {"label": "B", "text": "$\\frac{\\sqrt{15}}{12}$.", "is_correct": false}, {"label": "C", "text": "$\\frac{\\sqrt{2}}{3}$.", "is_correct": false}, {"label": "D", "text": "$\\frac{15}{8}$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 1", "part": 2, "type": "tf", "content": "Cho góc lượng giác $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho góc lượng giác $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$. Xét tính đúng-sai của các khẳng định sau.\n\na) *$\\sin \\alpha < 0$.\nb) *$\\cos \\alpha > 0$.\nc) $\\tan \\alpha > 0$.\nd) $\\cot \\alpha > 0$.\n\nLời giải:\n a-đúng, b-đúng, c-sai, d-sai.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n Vì $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$ nên $\\sin \\alpha < 0$.\nb) Khẳng định đã cho là khẳng định đúng.\n\n Vì $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$ nên $\\cos \\alpha < 0$.\nc) Khẳng định đã cho là khẳng định sai.\n\n Vì $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$ nên $\\sin \\alpha < 0, \\cos \\alpha > 0 \\Rightarrow \\tan \\alpha <0$.\nd) Khẳng định đã cho là khẳng định sai.\n\n Vì $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$ nên $\\sin \\alpha < 0, \\cos \\alpha > 0 \\Rightarrow \\cot \\alpha <0$.\n \n\n", "options": [{"label": "a)", "text": "$\\sin \\alpha < 0$.", "is_correct": true}, {"label": "b)", "text": "$\\cos \\alpha > 0$.", "is_correct": true}, {"label": "c)", "text": "$\\tan \\alpha > 0$.", "is_correct": false}, {"label": "d)", "text": "$\\cot \\alpha > 0$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 2", "part": 2, "type": "tf", "content": "Cho góc lượng giác $\\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho góc lượng giác $\\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.\n\na) *$\\sin \\alpha > 0$.\nb) *$\\cos \\alpha > 0$.\nc) *$\\tan \\alpha > 0$.\nd) *$\\cot \\alpha > 0$.\n\nLời giải:\n a-đúng, b-đúng, c-đúng, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n Vì $\\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$ nên $\\sin \\alpha > 0$.\nb) Khẳng định đã cho là khẳng định đúng.\n\n Vì $\\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$ nên $\\cos \\alpha > 0$.\nc) Khẳng định đã cho là khẳng định đúng.\n\n Vì $\\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$ nên $\\sin \\alpha > 0, \\cos \\alpha > 0 \\Rightarrow \\tan \\alpha >0$.\nd) Khẳng định đã cho là khẳng định đúng.\n\n Vì $\\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$ nên $\\sin \\alpha > 0, \\cos \\alpha > 0 \\Rightarrow \\cot \\alpha >0$.\n \n\n", "options": [{"label": "a)", "text": "$\\sin \\alpha > 0$.", "is_correct": true}, {"label": "b)", "text": "$\\cos \\alpha > 0$.", "is_correct": true}, {"label": "c)", "text": "$\\tan \\alpha > 0$.", "is_correct": true}, {"label": "d)", "text": "$\\cot \\alpha > 0$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 3", "part": 2, "type": "tf", "content": "Cho góc lượng giác $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho góc lượng giác $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$. Xét tính đúng-sai của các khẳng định sau.\n\na) $\\sin \\alpha > 0$.\nb) *$\\cos \\alpha > 0$.\nc) $\\tan \\alpha > 0$.\nd) *$\\cot \\alpha < 0$.\n\nLời giải:\n a-sai, b-đúng, c-sai, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định sai.\n\n Vì $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$ nên $\\sin \\alpha < 0$.\nb) Khẳng định đã cho là khẳng định đúng.\n\n Vì $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$ nên $\\cos \\alpha < 0$.\nc) Khẳng định đã cho là khẳng định sai.\n\n Vì $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$ nên $\\sin \\alpha < 0, \\cos \\alpha > 0 \\Rightarrow \\tan \\alpha <0$.\nd) Khẳng định đã cho là khẳng định đúng.\n\n Vì $\\alpha \\in \\left( \\frac{7 \\pi}{2}; 4\\pi \\right)$ nên $\\sin \\alpha < 0, \\cos \\alpha > 0 \\Rightarrow \\cot \\alpha <0$.\n \n\n", "options": [{"label": "a)", "text": "$\\sin \\alpha > 0$.", "is_correct": false}, {"label": "b)", "text": "$\\cos \\alpha > 0$.", "is_correct": true}, {"label": "c)", "text": "$\\tan \\alpha > 0$.", "is_correct": false}, {"label": "d)", "text": "$\\cot \\alpha < 0$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 4", "part": 2, "type": "tf", "content": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=3$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=3$. Xét tính đúng-sai của các khẳng định sau. \n\na) *$\\cot x= \\frac{1}{3}$.\nb) *$\\cos^2x=\\frac{1}{10}$.\nc) *$\\sin^2x=\\frac{9}{10}$.\nd) *$P=\\frac{4 \\cos x - 3 \\sin x}{- 6 \\cos x + \\sin x}=\\frac{5}{3}$.\n\nLời giải:\n a-đúng, b-đúng, c-đúng, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n $\\cot x=\\dfrac{1}{\\tan x}=1:3=\\frac{1}{3}$\nb) Khẳng định đã cho là khẳng định đúng.\n\n $1+\\tan^2x=\\dfrac{1}{\\cos^2x} \\Rightarrow \\cos^2x=\\dfrac{1}{1+\\tan^2x}=\\frac{1}{10}$\nc) Khẳng định đã cho là khẳng định đúng.\n\n $\\sin^2x=1-\\cos^2x=1-\\dfrac{1}{1+\\tan^2x}=\\frac{9}{10}$\nd) Khẳng định đã cho là khẳng định đúng.\n\n $P=\\frac{4 \\cos x - 3 \\sin x}{- 6 \\cos x + \\sin x}=\\frac{4 - 3 \\tan x}{\\tan x - 6}=\\frac{5}{3}$.\n \n\n", "options": [{"label": "a)", "text": "$\\cot x= \\frac{1}{3}$.", "is_correct": true}, {"label": "b)", "text": "$\\cos^2x=\\frac{1}{10}$.", "is_correct": true}, {"label": "c)", "text": "$\\sin^2x=\\frac{9}{10}$.", "is_correct": true}, {"label": "d)", "text": "$P=\\frac{4 \\cos x - 3 \\sin x}{- 6 \\cos x + \\sin x}=\\frac{5}{3}$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 5", "part": 2, "type": "tf", "content": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=5$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=5$. Xét tính đúng-sai của các khẳng định sau. \n\na) *$\\cot x= \\frac{1}{5}$.\nb) $\\cos^2x=\\frac{1}{6}$ .\nc) *$\\sin^2x=\\frac{25}{26}$.\nd) *$P=\\frac{- 5 \\cos x - 2 \\sin x}{5 \\cos x - 2 \\sin x}=3$.\n\nLời giải:\n a-đúng, b-sai, c-đúng, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n $\\cot x=\\dfrac{1}{\\tan x}=1:5=\\frac{1}{5}$\nb) Khẳng định đã cho là khẳng định sai.\n\n $1+\\tan^2x=\\dfrac{1}{\\cos^2x} \\Rightarrow \\cos^2x=\\dfrac{1}{1+\\tan^2x}=\\frac{1}{26}$\nc) Khẳng định đã cho là khẳng định đúng.\n\n $\\sin^2x=1-\\cos^2x=1-\\dfrac{1}{1+\\tan^2x}=\\frac{25}{26}$\nd) Khẳng định đã cho là khẳng định đúng.\n\n $P=\\frac{- 5 \\cos x - 2 \\sin x}{5 \\cos x - 2 \\sin x}=\\frac{- 2 \\tan x - 5}{5 - 2 \\tan x}=3$.\n \n\n", "options": [{"label": "a)", "text": "$\\cot x= \\frac{1}{5}$.", "is_correct": true}, {"label": "b)", "text": "$\\cos^2x=\\frac{1}{6}$ .", "is_correct": false}, {"label": "c)", "text": "$\\sin^2x=\\frac{25}{26}$.", "is_correct": true}, {"label": "d)", "text": "$P=\\frac{- 5 \\cos x - 2 \\sin x}{5 \\cos x - 2 \\sin x}=3$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 6", "part": 2, "type": "tf", "content": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=2$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=2$. Xét tính đúng-sai của các khẳng định sau. \n\na) *$\\cot x= \\frac{1}{2}$.\nb) $\\cos^2x=\\frac{1}{3}$ .\nc) $\\sin^2x=\\frac{6}{5}$.\nd) $P=\\frac{\\cos x + 4 \\sin x}{6 \\cos x + 2 \\sin x}=\\frac{29}{10}$.\n\nLời giải:\n a-đúng, b-sai, c-sai, d-sai.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n $\\cot x=\\dfrac{1}{\\tan x}=1:2=\\frac{1}{2}$\nb) Khẳng định đã cho là khẳng định sai.\n\n $1+\\tan^2x=\\dfrac{1}{\\cos^2x} \\Rightarrow \\cos^2x=\\dfrac{1}{1+\\tan^2x}=\\frac{1}{5}$\nc) Khẳng định đã cho là khẳng định sai.\n\n $\\sin^2x=1-\\cos^2x=1-\\dfrac{1}{1+\\tan^2x}=\\frac{4}{5}$\nd) Khẳng định đã cho là khẳng định sai.\n\n $P=\\frac{\\cos x + 4 \\sin x}{6 \\cos x + 2 \\sin x}=\\frac{4 \\tan x + 1}{2 \\tan x + 6}=\\frac{9}{10}$.\n \n\n", "options": [{"label": "a)", "text": "$\\cot x= \\frac{1}{2}$.", "is_correct": true}, {"label": "b)", "text": "$\\cos^2x=\\frac{1}{3}$ .", "is_correct": false}, {"label": "c)", "text": "$\\sin^2x=\\frac{6}{5}$.", "is_correct": false}, {"label": "d)", "text": "$P=\\frac{\\cos x + 4 \\sin x}{6 \\cos x + 2 \\sin x}=\\frac{29}{10}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 7", "part": 2, "type": "tf", "content": "Cho $\\sin x=\\frac{\\sqrt{10}}{11}, x\\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho $\\sin x=\\frac{\\sqrt{10}}{11}, x\\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.\n\na) *$\\cos x >0$.\nb) *$\\cos x=\\frac{\\sqrt{111}}{11}$.\nc) *$\\sin\\left(x+ \\frac{5 \\pi}{2} \\right)=\\frac{\\sqrt{111}}{11}$.\nd) *$P=\\frac{\\tan x}{4 \\tan^2 x - 1}=- \\frac{\\sqrt{1110}}{71}$.\n\nLời giải:\n a-đúng, b-đúng, c-đúng, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n Với $x \\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right) $ thì $\\cos x >0$\nb) Khẳng định đã cho là khẳng định đúng.\n\n Vì $x \\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$ nên $\\cos x > 0$.\n\n$\\cos x =\\sqrt{1-\\frac{10}{121}}=\\frac{\\sqrt{111}}{11}$.\nc) Khẳng định đã cho là khẳng định đúng.\n\n $\\sin\\left(x+ \\frac{5 \\pi}{2} \\right)=\\sin \\left( x+\\frac{\\pi}{2}+1.2\\pi \\right)=\\sin\\left(x+\\frac{\\pi}{2}\\right)=\\sin \\left[ \\frac{\\pi}{2}-(-x) \\right]=\\cos (-x)=\\cos x=\\frac{\\sqrt{111}}{11}$.\nd) Khẳng định đã cho là khẳng định đúng.\n\n $\\tan x=\\frac{\\sqrt{10}}{11}:\\frac{\\sqrt{111}}{11}=\\frac{\\sqrt{1110}}{111}$.\n\n$\\Rightarrow P=\\frac{\\tan x}{4 \\tan^2 x - 1}=- \\frac{\\sqrt{1110}}{71}$.\n \n\n", "options": [{"label": "a)", "text": "$\\cos x >0$.", "is_correct": true}, {"label": "b)", "text": "$\\cos x=\\frac{\\sqrt{111}}{11}$.", "is_correct": true}, {"label": "c)", "text": "$\\sin\\left(x+ \\frac{5 \\pi}{2} \\right)=\\frac{\\sqrt{111}}{11}$.", "is_correct": true}, {"label": "d)", "text": "$P=\\frac{\\tan x}{4 \\tan^2 x - 1}=- \\frac{\\sqrt{1110}}{71}$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 8", "part": 2, "type": "tf", "content": "Cho $\\sin x=- \\frac{\\sqrt{10}}{11}, x\\in \\left( - \\pi; - \\frac{\\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho $\\sin x=- \\frac{\\sqrt{10}}{11}, x\\in \\left( - \\pi; - \\frac{\\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.\n\na) $\\cos x >0$.\nb) $\\cos x=\\frac{\\sqrt{111}}{11}$.\nc) $\\cos\\left(x+ \\frac{5 \\pi}{2} \\right)=- \\frac{\\sqrt{10}}{11}$ .\nd) $P=\\frac{\\sqrt{3} \\tan x}{- 3 \\tan^2 x - 5}=\\frac{\\sqrt{370}}{195}$.\n\nLời giải:\n a-sai, b-sai, c-sai, d-sai.\n\n\n a) Khẳng định đã cho là khẳng định sai.\n\n Với $x \\in \\left( - \\pi; - \\frac{\\pi}{2} \\right) $ thì $\\cos x <0$\nb) Khẳng định đã cho là khẳng định sai.\n\n Vì $x \\in \\left( - \\pi; - \\frac{\\pi}{2} \\right)$ nên $\\cos x < 0$.\n\n$\\cos x=-\\sqrt{1-\\frac{10}{121}}=- \\frac{\\sqrt{111}}{11}$.\nc) Khẳng định đã cho là khẳng định sai.\n\n $\\cos\\left(x+ \\frac{5 \\pi}{2} \\right)=\\cos \\left( x+\\frac{\\pi}{2}+1.2\\pi \\right)=\\cos \\left(x+\\frac{\\pi}{2}\\right)=\\cos \\left[ \\frac{\\pi}{2}-(-x) \\right]=\\sin (-x)=-\\sin x=\\frac{\\sqrt{10}}{11}$.\nd) Khẳng định đã cho là khẳng định sai.\n\n $\\tan x=- \\frac{\\sqrt{10}}{11}:- \\frac{\\sqrt{111}}{11}=\\frac{\\sqrt{1110}}{111}$.\n\n$\\Rightarrow P=\\frac{\\sqrt{3} \\tan x}{- 3 \\tan^2 x - 5}=- \\frac{\\sqrt{370}}{195}$.\n \n\n", "options": [{"label": "a)", "text": "$\\cos x >0$.", "is_correct": false}, {"label": "b)", "text": "$\\cos x=\\frac{\\sqrt{111}}{11}$.", "is_correct": false}, {"label": "c)", "text": "$\\cos\\left(x+ \\frac{5 \\pi}{2} \\right)=- \\frac{\\sqrt{10}}{11}$ .", "is_correct": false}, {"label": "d)", "text": "$P=\\frac{\\sqrt{3} \\tan x}{- 3 \\tan^2 x - 5}=\\frac{\\sqrt{370}}{195}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 9", "part": 2, "type": "tf", "content": "Cho $\\sin x=- \\frac{\\sqrt{3}}{6}, x\\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho $\\sin x=- \\frac{\\sqrt{3}}{6}, x\\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.\n\na) $\\cos x >0$.\nb) $\\cos x=\\frac{\\sqrt{33}}{6}$.\nc) *$\\cos\\left(x+ \\frac{17 \\pi}{2} \\right)= \\frac{\\sqrt{3}}{6}$.\nd) $P=\\frac{2 \\sqrt{3} \\tan x}{\\tan^2 x + 1}=- \\frac{\\sqrt{33}}{6}$.\n\nLời giải:\n a-sai, b-sai, c-đúng, d-sai.\n\n\n a) Khẳng định đã cho là khẳng định sai.\n\n Với $x \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right) $ thì $\\cos x <0$\nb) Khẳng định đã cho là khẳng định sai.\n\n Vì $x \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$ nên $\\cos x < 0$.\n\n$\\cos x=-\\sqrt{1-\\frac{1}{12}}=- \\frac{\\sqrt{33}}{6}$.\nc) Khẳng định đã cho là khẳng định đúng.\n\n $\\cos\\left(x+ \\frac{17 \\pi}{2} \\right)=\\cos \\left( x+\\frac{\\pi}{2}+4.2\\pi \\right)=\\cos \\left(x+\\frac{\\pi}{2}\\right)=\\cos \\left[ \\frac{\\pi}{2}-(-x) \\right]=\\sin (-x)=-\\sin x=\\frac{\\sqrt{3}}{6}$.\nd) Khẳng định đã cho là khẳng định sai.\n\n $\\tan x=- \\frac{\\sqrt{3}}{6}:- \\frac{\\sqrt{33}}{6}=\\frac{\\sqrt{11}}{11}$.\n\n$\\Rightarrow P=\\frac{2 \\sqrt{3} \\tan x}{\\tan^2 x + 1}=\\frac{\\sqrt{33}}{6}$.\n \n\n", "options": [{"label": "a)", "text": "$\\cos x >0$.", "is_correct": false}, {"label": "b)", "text": "$\\cos x=\\frac{\\sqrt{33}}{6}$.", "is_correct": false}, {"label": "c)", "text": "$\\cos\\left(x+ \\frac{17 \\pi}{2} \\right)= \\frac{\\sqrt{3}}{6}$.", "is_correct": true}, {"label": "d)", "text": "$P=\\frac{2 \\sqrt{3} \\tan x}{\\tan^2 x + 1}=- \\frac{\\sqrt{33}}{6}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 10", "part": 2, "type": "tf", "content": "Cho $\\cos x=- \\frac{\\sqrt{7}}{4}, x\\in \\left( \\pi;\\frac{3 \\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho $\\cos x=- \\frac{\\sqrt{7}}{4}, x\\in \\left( \\pi;\\frac{3 \\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.\n\na) *$\\sin x <0$.\nb) $\\sin x= \\frac{3}{4}$.\nc) *$\\cos\\left(x+ \\frac{9 \\pi}{2} \\right)= \\frac{3}{4}$.\nd) $P=\\frac{2 \\sqrt{2} \\tan x}{3 \\tan^2 x - 5}=\\frac{3 \\sqrt{14}}{4}$.\n\nLời giải:\n a-đúng, b-sai, c-đúng, d-sai.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n Với $x \\in \\left( \\pi;\\frac{3 \\pi}{2} \\right) $ thì $\\sin x >0$\nb) Khẳng định đã cho là khẳng định sai.\n\n Vì $x \\in \\left( \\pi;\\frac{3 \\pi}{2} \\right)$ nên $\\sin x > 0$.\n\n$\\sin x =-\\sqrt{1-\\frac{7}{16}}=- \\frac{3}{4}$.\nc) Khẳng định đã cho là khẳng định đúng.\n\n $\\cos\\left(x+ \\frac{9 \\pi}{2} \\right)=\\cos \\left( x+\\frac{\\pi}{2}+2.2\\pi \\right)=\\cos \\left(x+\\frac{\\pi}{2}\\right)=\\cos \\left[ \\frac{\\pi}{2}-(-x) \\right]=\\sin (-x)=-\\sin x=0.75$.\nd) Khẳng định đã cho là khẳng định sai.\n\n $\\tan x=- \\frac{3}{4}:- \\frac{\\sqrt{7}}{4}=\\frac{3 \\sqrt{7}}{7}$.\n\n$\\Rightarrow P=\\frac{2 \\sqrt{2} \\tan x}{3 \\tan^2 x - 5}=- \\frac{3 \\sqrt{14}}{4}$.\n \n\n", "options": [{"label": "a)", "text": "$\\sin x <0$.", "is_correct": true}, {"label": "b)", "text": "$\\sin x= \\frac{3}{4}$.", "is_correct": false}, {"label": "c)", "text": "$\\cos\\left(x+ \\frac{9 \\pi}{2} \\right)= \\frac{3}{4}$.", "is_correct": true}, {"label": "d)", "text": "$P=\\frac{2 \\sqrt{2} \\tan x}{3 \\tan^2 x - 5}=\\frac{3 \\sqrt{14}}{4}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 11", "part": 2, "type": "tf", "content": "Cho $\\cos x=- \\frac{6 \\sqrt{2}}{11}, x\\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho $\\cos x=- \\frac{6 \\sqrt{2}}{11}, x\\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.\n\na) $\\sin x >0$.\nb) $\\sin x= \\frac{7}{11}$.\nc) *$\\sin\\left(x+ \\frac{13 \\pi}{2} \\right)=- \\frac{6 \\sqrt{2}}{11}$.\nd) *$P=\\frac{\\sqrt{3} \\tan x}{3 - 2 \\tan^2 x}=\\frac{21 \\sqrt{6}}{59}$.\n\nLời giải:\n a-sai, b-sai, c-đúng, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định sai.\n\n Với $x \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right) $ thì $\\sin x >0$\nb) Khẳng định đã cho là khẳng định sai.\n\n Vì $x \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$ nên $\\sin x > 0$.\n\n$\\sin x =-\\sqrt{1-\\frac{72}{121}}=- \\frac{7}{11}$.\nc) Khẳng định đã cho là khẳng định đúng.\n\n $\\sin\\left(x+ \\frac{13 \\pi}{2} \\right)=\\sin \\left( x+\\frac{\\pi}{2}+3.2\\pi \\right)=\\sin\\left(x+\\frac{\\pi}{2}\\right)=\\sin \\left[ \\frac{\\pi}{2}-(-x) \\right]=\\cos (-x)=\\cos x=- \\frac{6 \\sqrt{2}}{11}$.\nd) Khẳng định đã cho là khẳng định đúng.\n\n $\\tan x=- \\frac{7}{11}:- \\frac{6 \\sqrt{2}}{11}=\\frac{7 \\sqrt{2}}{12}$.\n\n$\\Rightarrow P=\\frac{\\sqrt{3} \\tan x}{3 - 2 \\tan^2 x}=\\frac{21 \\sqrt{6}}{59}$.\n \n\n", "options": [{"label": "a)", "text": "$\\sin x >0$.", "is_correct": false}, {"label": "b)", "text": "$\\sin x= \\frac{7}{11}$.", "is_correct": false}, {"label": "c)", "text": "$\\sin\\left(x+ \\frac{13 \\pi}{2} \\right)=- \\frac{6 \\sqrt{2}}{11}$.", "is_correct": true}, {"label": "d)", "text": "$P=\\frac{\\sqrt{3} \\tan x}{3 - 2 \\tan^2 x}=\\frac{21 \\sqrt{6}}{59}$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 12", "part": 2, "type": "tf", "content": "Cho $\\cos x=- \\frac{\\sqrt{185}}{14}, x\\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho $\\cos x=- \\frac{\\sqrt{185}}{14}, x\\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Xét tính đúng-sai của các khẳng định sau.\n\na) $\\sin x >0$.\nb) *$\\sin x=- \\frac{\\sqrt{11}}{14}$.\nc) $\\cos\\left(x+ \\frac{9 \\pi}{2} \\right)=- \\frac{\\sqrt{11}}{14}$ .\nd) $P=\\frac{2 \\tan x}{3 \\tan^2 x + 4}=- \\frac{2 \\sqrt{2035}}{773}$.\n\nLời giải:\n a-sai, b-đúng, c-sai, d-sai.\n\n\n a) Khẳng định đã cho là khẳng định sai.\n\n Với $x \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right) $ thì $\\sin x >0$\nb) Khẳng định đã cho là khẳng định đúng.\n\n Vì $x \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$ nên $\\sin x > 0$.\n\n$\\sin x =-\\sqrt{1-\\frac{185}{196}}=- \\frac{\\sqrt{11}}{14}$.\nc) Khẳng định đã cho là khẳng định sai.\n\n $\\cos\\left(x+ \\frac{9 \\pi}{2} \\right)=\\cos \\left( x+\\frac{\\pi}{2}+2.2\\pi \\right)=\\cos \\left(x+\\frac{\\pi}{2}\\right)=\\cos \\left[ \\frac{\\pi}{2}-(-x) \\right]=\\sin (-x)=-\\sin x=\\frac{\\sqrt{11}}{14}$.\nd) Khẳng định đã cho là khẳng định sai.\n\n $\\tan x=- \\frac{\\sqrt{11}}{14}:- \\frac{\\sqrt{185}}{14}=\\frac{\\sqrt{2035}}{185}$.\n\n$\\Rightarrow P=\\frac{2 \\tan x}{3 \\tan^2 x + 4}=\\frac{2 \\sqrt{2035}}{773}$.\n \n\n", "options": [{"label": "a)", "text": "$\\sin x >0$.", "is_correct": false}, {"label": "b)", "text": "$\\sin x=- \\frac{\\sqrt{11}}{14}$.", "is_correct": true}, {"label": "c)", "text": "$\\cos\\left(x+ \\frac{9 \\pi}{2} \\right)=- \\frac{\\sqrt{11}}{14}$ .", "is_correct": false}, {"label": "d)", "text": "$P=\\frac{2 \\tan x}{3 \\tan^2 x + 4}=- \\frac{2 \\sqrt{2035}}{773}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 1", "part": 3, "type": "short", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin \\alpha=\\frac{1}{2}, \\alpha \\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$. Tính $\\cos\\alpha$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin \\alpha=\\frac{1}{2}, \\alpha \\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$. Tính $\\cos\\alpha$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n Vì $\\alpha \\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$ nên $\\cos\\alpha > 0$.\n\n$\\cos\\alpha =\\sqrt{1-\\frac{1}{4}}=\\frac{\\sqrt{3}}{2}=0,9$.\n\nĐáp án: 0,9 \n\n", "options": [], "correct_answer": "0,9", "image_paths": [], "image_lookup": {}}, {"title": "Câu 2", "part": 3, "type": "short", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin \\alpha=- \\frac{8}{13}, \\alpha \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Tính $|\\cos\\alpha|$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin \\alpha=- \\frac{8}{13}, \\alpha \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$. Tính $|\\cos\\alpha|$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n Vì $\\alpha \\in \\left( 3 \\pi;\\frac{7 \\pi}{2} \\right)$ nên $\\cos\\alpha < 0$.\n\n$|\\cos\\alpha| =|-\\sqrt{1-\\frac{64}{169}}|=|- \\frac{\\sqrt{105}}{13}|=0,79$.\n\nĐáp án: 0,79 \n\n", "options": [], "correct_answer": "0,79", "image_paths": [], "image_lookup": {}}, {"title": "Câu 3", "part": 3, "type": "short", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=\\frac{3}{5}, \\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$. Tính $\\sin\\alpha$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=\\frac{3}{5}, \\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$. Tính $\\sin\\alpha$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n Vì $\\alpha \\in \\left( 0;\\frac{\\pi}{2} \\right)$ nên $\\sin\\alpha > 0$.\n\n$\\sin\\alpha =\\sqrt{1-\\frac{9}{25}}=\\frac{4}{5}=0,8$.\n\nĐáp án: 0,8 \n\n", "options": [], "correct_answer": "0,8", "image_paths": [], "image_lookup": {}}, {"title": "Câu 4", "part": 3, "type": "short", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=\\frac{1}{2}, \\alpha \\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$. Tính $\\cot\\alpha$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=\\frac{1}{2}, \\alpha \\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$. Tính $\\cot\\alpha$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n Vì $\\alpha \\in \\left( 2\\pi;\\frac{5 \\pi}{2} \\right)$ nên $\\sin\\alpha > 0$.\n\n$\\sin\\alpha =\\sqrt{1-\\frac{1}{4}}=\\frac{\\sqrt{3}}{2}$.\n\n$\\cot\\alpha=0.5:\\frac{\\sqrt{3}}{2}=0,6$.\n\nĐáp án: 0,6 \n\n", "options": [], "correct_answer": "0,6", "image_paths": [], "image_lookup": {}}, {"title": "Câu 5", "part": 3, "type": "short", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=- \\frac{8}{13}, \\alpha \\in \\left( - \\frac{3 \\pi}{2};- \\pi \\right)$. Tính $\\tan\\alpha$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\cos \\alpha=- \\frac{8}{13}, \\alpha \\in \\left( - \\frac{3 \\pi}{2};- \\pi \\right)$. Tính $\\tan\\alpha$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n Vì $\\alpha \\in \\left( - \\frac{3 \\pi}{2};- \\pi \\right)$ nên $\\sin\\alpha > 0$.\n\n$\\sin\\alpha =\\sqrt{1-\\frac{64}{169}}=\\frac{\\sqrt{105}}{13}$.\n\n$\\tan\\alpha=\\frac{\\sqrt{105}}{13}:- \\frac{8}{13}=-1,3$.\n\nĐáp án: -1,3 \n\n", "options": [], "correct_answer": "-1,3", "image_paths": [], "image_lookup": {}}, {"title": "Câu 6", "part": 3, "type": "short", "content": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin \\alpha=\\frac{8}{9}, \\alpha \\in \\left( \\frac{5 \\pi}{2};3\\pi \\right)$. Tính $\\tan\\alpha$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác $\\alpha$ thỏa mãn $\\sin \\alpha=\\frac{8}{9}, \\alpha \\in \\left( \\frac{5 \\pi}{2};3\\pi \\right)$. Tính $\\tan\\alpha$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n Vì $\\alpha \\in \\left( \\frac{5 \\pi}{2};3\\pi \\right)$ nên $\\cos\\alpha < 0$.\n\n$\\cos\\alpha =-\\sqrt{1-\\frac{64}{81}}=- \\frac{\\sqrt{17}}{9}$.\n\n$\\tan\\alpha=\\frac{8}{9}:- \\frac{\\sqrt{17}}{9}=-1,9$.\n\nĐáp án: -1,9 \n\n", "options": [], "correct_answer": "-1,9", "image_paths": [], "image_lookup": {}}, {"title": "Câu 7", "part": 3, "type": "short", "content": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=-1$. Tính giá trị biểu thức $P=\\frac{6 \\cos x + 5 \\sin x}{3 \\cos x + 2 \\sin x}$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=-1$. Tính giá trị biểu thức $P=\\frac{6 \\cos x + 5 \\sin x}{3 \\cos x + 2 \\sin x}$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n $P=\\frac{6 \\cos x + 5 \\sin x}{3 \\cos x + 2 \\sin x}=\\frac{5 \\tan x + 6}{2 \\tan x + 3}=1=1,0$.\n\nĐáp án: 1,0 \n\n", "options": [], "correct_answer": "1,0", "image_paths": [], "image_lookup": {}}, {"title": "Câu 8", "part": 3, "type": "short", "content": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=4$. Tính giá trị biểu thức $P=\\frac{- \\cos x + 6 \\sin x}{3 \\cos x - 2 \\sin x}$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=4$. Tính giá trị biểu thức $P=\\frac{- \\cos x + 6 \\sin x}{3 \\cos x - 2 \\sin x}$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n $P=\\frac{- \\cos x + 6 \\sin x}{3 \\cos x - 2 \\sin x}=\\frac{6 \\tan x - 1}{3 - 2 \\tan x}=- \\frac{23}{5}=-4,6$.\n\nĐáp án: -4,6 \n\n", "options": [], "correct_answer": "-4,6", "image_paths": [], "image_lookup": {}}, {"title": "Câu 9", "part": 3, "type": "short", "content": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=-2$. Tính giá trị biểu thức $P=\\frac{- 2 \\cos x - 5 \\sin x}{\\cos x + 6 \\sin x}$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=-2$. Tính giá trị biểu thức $P=\\frac{- 2 \\cos x - 5 \\sin x}{\\cos x + 6 \\sin x}$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n $P=\\frac{- 2 \\cos x - 5 \\sin x}{\\cos x + 6 \\sin x}=\\frac{- 5 \\tan x - 2}{6 \\tan x + 1}=- \\frac{8}{11}=-0,7$.\n\nĐáp án: -0,7 \n\n", "options": [], "correct_answer": "-0,7", "image_paths": [], "image_lookup": {}}, {"title": "Câu 10", "part": 3, "type": "short", "content": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=1$. Tính giá trị biểu thức $P=\\dfrac{3\\sin^2 x +2\\sin x \\cos x}{1\\sin^2x-3\\cos^2x}$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=1$. Tính giá trị biểu thức $P=\\dfrac{3\\sin^2 x +2\\sin x \\cos x}{1\\sin^2x-3\\cos^2x}$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n $P=\\dfrac{3\\sin^2 x +2\\sin x \\cos x}{1\\sin^2x-3\\cos^2x}=\\dfrac{3\\tan^2x+2\\tan x}{1\\tan^2x -3}=- \\frac{5}{2}=-2,5$.\n\nĐáp án: -2,5 \n\n", "options": [], "correct_answer": "-2,5", "image_paths": [], "image_lookup": {}}, {"title": "Câu 11", "part": 3, "type": "short", "content": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=6$. Tính giá trị biểu thức $P=\\dfrac{-5\\sin^2 x +5\\sin x \\cos x}{-6\\sin^2x+5\\cos^2x}$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=6$. Tính giá trị biểu thức $P=\\dfrac{-5\\sin^2 x +5\\sin x \\cos x}{-6\\sin^2x+5\\cos^2x}$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n $P=\\dfrac{-5\\sin^2 x +5\\sin x \\cos x}{-6\\sin^2x+5\\cos^2x}=\\dfrac{-5\\tan^2x+5\\tan x}{-6\\tan^2x +5}=\\frac{150}{211}=0,7$.\n\nĐáp án: 0,7 \n\n", "options": [], "correct_answer": "0,7", "image_paths": [], "image_lookup": {}}, {"title": "Câu 12", "part": 3, "type": "short", "content": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=1$. Tính giá trị biểu thức $P=\\dfrac{-4\\sin^2 x +5\\sin x \\cos x}{6\\sin^2x-5\\cos^2x}$ (kết quả làm tròn đến hàng phần mười).", "images": [], "explanation": "Cho góc lượng giác ${x}$ thỏa mãn $\\tan x=1$. Tính giá trị biểu thức $P=\\dfrac{-4\\sin^2 x +5\\sin x \\cos x}{6\\sin^2x-5\\cos^2x}$ (kết quả làm tròn đến hàng phần mười).\n\nLời giải:\n $P=\\dfrac{-4\\sin^2 x +5\\sin x \\cos x}{6\\sin^2x-5\\cos^2x}=\\dfrac{-4\\tan^2x+5\\tan x}{6\\tan^2x -5}=1=1,0$.\n\nĐáp án: 1,0 \n\n", "options": [], "correct_answer": "1,0", "image_paths": [], "image_lookup": {}}];
+                    initSlides(data);
+                    initImageZoom(); 
+                } caMHh(err) {
+                    document.body.innerHTML = "<div style='padding:30px; text-align:center; font-family: sans-serif;'><h2 style='color:#dc2626; font-size:24px;'>⚠️ LỖI HIỂN THỊ TRÊN ZALO/MESSENGER</h2><p style='font-size:18px; color:#334155;'>Trình duyệt nội bộ đang chặn hệ thống Toán học.</p><p style='font-size:16px; color:#004b87; font-weight:bold; background:#e0f2fe; padding:15px; border-radius:10px;'>👉 Vui lòng bấm nút [Chia sẻ] (Góc trên bên phải) ➔ Chọn [Mở bằng Safari] (hoặc Chrome) để làm bài bình thường nhé!</p></div>";
+                }
+            });
+        </script>
+        </body></html>
