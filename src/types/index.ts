@@ -137,12 +137,25 @@ export interface TeachingTool {
 }
 
 // --- MATH WORKSHEET (PHIẾU HỌC TẬP MÔN TOÁN) ---
+export interface MathWorksheetQuestionOption {
+  label: string; // 'A', 'B', 'C', 'D' hoặc 'a)', 'b)'...
+  text: string;
+  isCorrect?: boolean;
+}
+
 export interface MathWorksheetQuestion {
   id: string;
+  title?: string;
+  part?: number; // 1: Trắc nghiệm 4 lựa chọn, 2: Đúng/Sai, 3: Trả lời ngắn
+  type?: 'mc' | 'tf' | 'short';
   question: string;
-  options?: [string, string, string, string];
+  options?: [string, string, string, string] | string[];
   correctIndex?: number;
   solution?: string;
+  // Cho câu hỏi Đúng/Sai (Part 2)
+  tfOptions?: { label: string; text: string; isCorrect: boolean }[];
+  // Cho câu hỏi Trả lời ngắn (Part 3)
+  correctAnswer?: string;
 }
 
 export interface MathWorksheet {
