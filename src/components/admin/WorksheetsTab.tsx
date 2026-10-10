@@ -579,9 +579,9 @@ export const WorksheetsTab: React.FC<WorksheetsTabProps> = ({ onOpenPreview }) =
                           {ws.title}
                         </div>
                         {ws.externalUrl && (
-                          <span className="text-[10px] text-emerald-600 font-normal flex items-center gap-1 mt-0.5">
+                          <span className="text-[10px] text-blue-600 font-bold flex items-center gap-1 mt-0.5">
                             <ExternalLink className="w-2.5 h-2.5" />
-                            <span>Link gốc Netlify</span>
+                            <span>Slide trình chiếu nội bộ</span>
                           </span>
                         )}
                       </td>
