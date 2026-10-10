@@ -694,7 +694,7 @@ export function saveTeachingTools(tools: TeachingTool[]): boolean {
 }
 
 // --- MATH WORKSHEETS (PHIẾU HỌC TẬP MÔN TOÁN) ---
-const KEY_WORKSHEETS = 'edu_math_worksheets_v40';
+const KEY_WORKSHEETS = 'edu_math_worksheets_v41';
 
 export function getWorksheets(): MathWorksheet[] {
   try {
@@ -708,7 +708,7 @@ export function getWorksheets(): MathWorksheet[] {
       localStorage.setItem(KEY_WORKSHEETS, JSON.stringify(DEFAULT_WORKSHEETS));
       return DEFAULT_WORKSHEETS;
     }
-    // Nếu danh sách cũ có ít hơn danh sách mặc định (ví dụ vừa nâng cấp lên 44 bài), bổ sung các bài chưa có
+    // Nếu danh sách cũ có ít bài hơn hoặc các bài cũ chưa đồng bộ câu hỏi đầy đủ từ file HTML
     if (parsed.length < DEFAULT_WORKSHEETS.length) {
       const existingIds = new Set(parsed.map((p: MathWorksheet) => p.id));
       const newItems = DEFAULT_WORKSHEETS.filter(dw => !existingIds.has(dw.id));
