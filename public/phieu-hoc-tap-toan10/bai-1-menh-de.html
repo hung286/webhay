@@ -1,0 +1,967 @@
+﻿<!DOCTYPE html><html lang="vi"><head><meta charset='UTF-8'>
+        <meta http-equiv="Content-Security-Policy" content="default-src * data: blob: 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: blob: 'unsafe-inline';">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="theme-color" content="#2563eb">
+        <title>Mệnh đề</title>
+            <style>
+:root{
+  --bg-1:#f8fbff;
+  --bg-2:#eef7ff;
+  --surface:#ffffff;
+  --surface-2:#f8fbff;
+  --text-1:#16324f;
+  --text-2:#49627d;
+  --line:#dbe7f3;
+  --line-strong:#bfd4e7;
+  --shadow:0 18px 50px rgba(38,70,108,.12);
+  --shadow-soft:0 8px 24px rgba(38,70,108,.08);
+  --primary:#2563eb;
+  --primary-2:#1d4ed8;
+  --accent:#0ea5e9;
+  --success:#16a34a;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --base-size:32px;
+  --opt-size:28px;
+  --badge-size:50px;
+  --math-scale:112%;
+  --radius-xl:24px;
+  --radius-lg:18px;
+  --radius-md:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background:
+    radial-gradient(circle at top left, #ffffff 0%, #f6fbff 32%, transparent 55%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  color:var(--text-1);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100dvh;
+  overflow-x:hidden;
+  overflow-y:auto;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.slide-container{
+  width:min(95%, 1480px);
+  height:calc(100dvh - 18px);
+  margin:9px auto;
+  background:linear-gradient(180deg,#ffffff 0%, #fbfdff 100%);
+  border:1px solid rgba(191,212,231,.85);
+  border-radius:var(--radius-xl);
+  box-shadow:var(--shadow);
+  padding:22px 28px 20px;
+  display:none;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
+}
+.slide-container::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto 0;
+  height:6px;
+  background:linear-gradient(90deg,var(--primary),var(--accent),#22c55e);
+}
+.slide-container.active{display:flex;animation:slideIn .28s ease-out}
+.q-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  padding-bottom:14px;
+  margin-bottom:14px;
+  border-bottom:1px solid var(--line);
+}
+.header-left,.header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.part-badge{
+  background:linear-gradient(135deg,var(--primary) 0%, var(--accent) 100%);
+  color:#fff;
+  padding:11px 22px;
+  border-radius:999px;
+  font-size:19px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+  box-shadow:0 10px 20px rgba(37,99,235,.24);
+}
+.zoom-btn,.timer,.btn-exit-html,.slide-counter,.btn-action,.btn-option,.btn-tf,input.answer-input{transition:all .2s ease}
+.zoom-btn{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line-strong);
+  background:#fff;color:var(--text-1);
+  font-size:22px;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-soft);
+}
+.zoom-btn:hover{transform:translateY(-1px);background:#f6fbff;border-color:#9fc1df}
+.zoom-btn:active{transform:translateY(1px) scale(.98)}
+.timer{
+  font-size:22px;color:var(--text-1);font-weight:800;
+  background:linear-gradient(180deg,#ffffff 0%, #f4f9ff 100%);
+  padding:10px 22px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line-strong);box-shadow:var(--shadow-soft);
+  display:flex;align-items:center;gap:8px;min-width:190px;justify-content:center;
+}
+.timer:hover{background:#edf6ff}
+.timer.running{
+  color:#b91c1c;
+  background:linear-gradient(180deg,#fff4f4 0%, #fee2e2 100%);
+  border-color:#fca5a5;
+  animation:pulse 1s infinite;
+}
+.btn-exit-html{
+  background:linear-gradient(135deg,#fb7185 0%, var(--danger) 100%);
+  color:#fff;border:none;padding:10px 22px;border-radius:999px;
+  font-size:18px;font-weight:800;cursor:pointer;
+  box-shadow:0 12px 24px rgba(239,68,68,.22);
+}
+.btn-exit-html:hover{transform:translateY(-1px);filter:saturate(1.05)}
+.content-wrapper{
+  flex-grow:1;overflow-y:auto;padding-right:10px;padding-bottom:20px;
+  display:flex;flex-direction:column;
+}
+.content-wrapper::-webkit-scrollbar{width:10px}
+.content-wrapper::-webkit-scrollbar-thumb{background:#cfe0ef;border-radius:999px;border:2px solid #f6fbff}
+.content-wrapper::-webkit-scrollbar-track{background:transparent}
+.question-content{
+  font-size:var(--base-size);font-weight:600;color:var(--text-1);
+  margin-bottom:12px;line-height:1.55;text-align:justify;
+}
+.q-label{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:86px;padding:6px 14px;margin-right:10px;border-radius:999px;
+  color:#fff;background:linear-gradient(135deg,#f59e0b 0%, #f97316 100%);
+  font-weight:900;box-shadow:0 8px 18px rgba(249,115,22,.24);
+}
+mjx-container{font-size:var(--math-scale)!important;margin:0 3px!important}
+.img-container{text-align:center;margin:8px 0 14px;width:100%;padding:10px 0}
+.real-image{
+  display:inline-block;max-width:92%;height:auto;max-height:410px;
+  border-radius:18px;border:1px solid #cfe0ef;background:#fff;
+  box-shadow:var(--shadow-soft);padding:6px;cursor:zoom-in;
+}
+.img-hint{font-size:13px;color:var(--text-2);font-style:italic;margin-top:6px}
+.table-container{
+  width:100%;overflow-x:auto;margin:18px 0;display:flex;justify-content:center;
+}
+.styled-table{
+  border-collapse:collapse;background:#fff;border:1px solid #cdddeb;min-width:60%;
+  text-align:center;box-shadow:var(--shadow-soft);border-radius:16px;overflow:hidden;
+}
+.styled-table th,.styled-table td{
+  border:1px solid #e2edf6;padding:12px 18px;font-size:var(--base-size);color:var(--text-1);
+}
+.styled-table th{background:linear-gradient(180deg,#f5faff 0%, #edf6ff 100%);font-weight:800}
+.options-grid-4,.options-grid-2,.options-grid-1{gap:16px;margin:10px 0 20px}
+.options-grid-4{display:grid;grid-template-columns:repeat(4,1fr)}
+.options-grid-2{display:grid;grid-template-columns:repeat(2,1fr)}
+.options-grid-1{display:grid;grid-template-columns:1fr}
+.btn-option{
+  background:linear-gradient(180deg,#ffffff 0%, #f9fcff 100%);
+  border:1px solid var(--line-strong);padding:16px 16px;font-size:var(--opt-size);
+  border-radius:18px;cursor:pointer;text-align:left;font-weight:600;color:var(--text-1);
+  display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-soft);
+}
+.btn-option:hover{transform:translateY(-2px);border-color:#9fc1df;background:#ffffff}
+.btn-option:active{transform:translateY(0)}
+.opt-badge{
+  width:var(--badge-size);height:var(--badge-size);
+  background:linear-gradient(135deg,var(--success) 0%, #22c55e 100%);
+  color:#fff;border-radius:14px;display:flex;justify-content:center;align-items:center;
+  font-weight:900;flex-shrink:0;box-shadow:0 10px 18px rgba(34,197,94,.18);
+}
+.btn-option.correct{
+  background:linear-gradient(180deg,#166534 0%, #14532d 100%)!important;
+  border-color:#14532d!important;color:#ffffff!important;
+}
+.btn-option.correct .opt-badge{background:linear-gradient(135deg,#052e16 0%, #166534 100%);color:#fff}
+.btn-option.wrong{
+  opacity:.72;background:linear-gradient(180deg,#fff5f5 0%, #fee2e2 100%)!important;
+  border-color:#fca5a5!important;
+}
+.btn-option.wrong .opt-badge{background:linear-gradient(135deg,#b91c1c 0%, #ef4444 100%)}
+.btn-option.disabled{pointer-events:none}
+.tf-container{display:flex;flex-direction:column;gap:14px;margin:8px 0 22px}
+.tf-row{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  background:linear-gradient(180deg,#ffffff 0%, #f9fcff 100%);
+  padding:16px 18px;border-radius:18px;border:1px solid #dbe7f3;box-shadow:var(--shadow-soft);
+}
+.tf-content{font-size:var(--opt-size);font-weight:600;color:var(--text-1);flex-grow:1}
+.tf-buttons{display:flex;gap:12px;min-width:180px}
+.btn-tf{
+  border:1px solid var(--line-strong);background:linear-gradient(180deg,#ffffff 0%, #f4f9ff 100%);
+  padding:11px 0;border-radius:12px;font-weight:900;cursor:pointer;flex:1;color:var(--text-2);
+  text-align:center;font-size:22px;box-shadow:var(--shadow-soft);
+}
+.btn-tf:hover{transform:translateY(-1px);border-color:#9fc1df}
+.btn-tf.user-correct{background:linear-gradient(135deg,#22c55e 0%, #16a34a 100%)!important;color:#fff!important;border-color:#16a34a!important}
+.btn-tf.user-wrong{background:linear-gradient(135deg,#f87171 0%, #ef4444 100%)!important;color:#fff!important;border-color:#dc2626!important}
+.btn-tf.reveal-true{border:2px solid #22c55e!important;color:#166534!important;background:#ecfdf5!important}
+.btn-tf.reveal-false{border:2px solid #ef4444!important;color:#b91c1c!important;background:#fef2f2!important}
+.short-answer-area{
+  display:flex;flex-direction:column;align-items:center;margin:6px 0 28px;width:100%;
+}
+.input-group{position:relative;width:min(74%, 820px)}
+input.answer-input{
+  width:100%;padding:18px 24px;font-size:30px;border:2px solid #cdddeb;border-radius:18px;
+  outline:none;text-align:center;font-weight:800;color:var(--text-1);
+  background:linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);box-shadow:var(--shadow-soft);
+}
+input.answer-input:focus{
+  border-color:#93c5fd;background:#fff;box-shadow:0 0 0 5px rgba(59,130,246,.12);
+}
+.explanation-box{
+  display:none;margin-top:18px;padding:22px 24px;
+  background:linear-gradient(180deg,#f4fbff 0%, #e9f7ff 100%);
+  border:1px solid #bae6fd;border-left:8px solid var(--accent);
+  border-radius:18px;animation:fadeIn .35s;box-shadow:var(--shadow-soft);
+}
+.explanation-title{
+  font-weight:900;color:#0369a1;margin-bottom:10px;font-size:26px;
+  display:flex;align-items:center;gap:10px;
+}
+.explanation-content{font-size:var(--opt-size);color:var(--text-1);line-height:1.65}
+.actions-area{
+  display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;
+  margin-top:auto;padding-top:16px;border-top:1px solid var(--line);
+}
+.btn-action{
+  color:#fff;border:none;padding:12px 22px;font-size:18px;font-weight:800;border-radius:14px;
+  cursor:pointer;min-width:170px;display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 12px 22px rgba(15,23,42,.12);
+}
+.btn-action:hover{transform:translateY(-2px)}
+.btn-action:active{transform:translateY(0)}
+.btn-reveal{background:linear-gradient(135deg,#f59e0b 0%, #f97316 100%)}
+.btn-check{background:linear-gradient(135deg,#3b82f6 0%, var(--primary-2) 100%)}
+.btn-explain{background:linear-gradient(135deg,#10b981 0%, #059669 100%)}
+.slide-counter{
+  font-size:18px;font-weight:900;color:var(--text-1);
+  background:linear-gradient(180deg,#ffffff 0%, #edf6ff 100%);
+  padding:10px 22px;border-radius:999px;border:1px solid #d7e6f3;box-shadow:var(--shadow-soft);
+}
+.nav-arrow{
+  position:fixed;top:50%;transform:translateY(-50%);
+  width:58px;height:74px;background:rgba(37,99,235,.16);color:#fff;font-size:34px;border:none;
+  border-radius:18px;cursor:pointer;transition:.25s;z-index:100;display:flex;justify-content:center;
+  align-items:center;backdrop-filter:blur(10px);box-shadow:0 12px 28px rgba(37,99,235,.18);
+}
+.nav-arrow:hover{background:rgba(37,99,235,.9);transform:translateY(-50%) scale(1.04)}
+.nav-prev{left:10px}
+.nav-next{right:10px}
+.feedback-popup{
+  position:absolute;top:45%;left:50%;transform:translate(-50%,-50%) scale(.75);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;z-index:9999;
+  pointer-events:none;transition:all .35s cubic-bezier(.175,.885,.32,1.275);
+  filter:drop-shadow(0 18px 30px rgba(15,23,42,.2));background:rgba(255,255,255,.96);
+  padding:20px 44px;border-radius:28px;text-align:center;border:4px solid transparent;backdrop-filter:blur(8px);
+}
+.feedback-popup.correct{border-color:#4ade80;color:#15803d}
+.feedback-popup.wrong{border-color:#f87171;color:#b91c1c}
+.feedback-popup .emoji{font-size:92px;line-height:1;margin-bottom:10px}
+.feedback-popup .message{font-size:36px;font-weight:900;white-space:nowrap}
+.feedback-popup.pop{transform:translate(-50%,-50%) scale(1);opacity:1}
+@keyframes slideIn{from{opacity:0;transform:translateY(18px) scale(.995)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(248,113,113,.35)}70%{box-shadow:0 0 0 14px rgba(248,113,113,0)}100%{box-shadow:0 0 0 0 rgba(248,113,113,0)}}
+@media (max-width:1024px){
+  :root{--base-size:26px;--opt-size:23px;--badge-size:44px;--math-scale:106%}
+  .options-grid-4{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:768px){
+  :root{--base-size:20px;--opt-size:18px;--badge-size:36px;--math-scale:100%}
+  .slide-container{width:100%;height:100dvh;padding:14px;border-radius:0;margin:0;border:none}
+  .q-header{flex-direction:column;align-items:streMHh}
+  .header-left,.header-right{justify-content:space-between;width:100%}
+  .part-badge{font-size:15px;padding:8px 14px}
+  .btn-exit-html,.timer{font-size:15px;padding:8px 14px;min-width:118px}
+  .zoom-btn{width:36px;height:36px;font-size:18px}
+  .table-container{justify-content:flex-start}
+  .styled-table{min-width:100%}
+  .styled-table th,.styled-table td{padding:8px 10px}
+  .options-grid-4,.options-grid-2{grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+  .btn-option{padding:12px}
+  .tf-row{flex-direction:column;align-items:streMHh}
+  .tf-content{margin-bottom:8px}
+  .tf-buttons{min-width:100%}
+  .input-group{width:100%}
+  input.answer-input{font-size:24px;padding:15px}
+  .nav-arrow{display:none}
+  .actions-area{gap:10px}
+  .btn-action{flex:1;min-width:130px;font-size:15px;padding:10px}
+  .slide-counter{font-size:15px;width:100%;text-align:center;order:3;margin-top:4px}
+  .slide-counter::after{
+    content:"👈 Vuốt ngang để chuyển câu 👉";
+    display:block;font-size:13px;font-weight:700;color:#0f766e;margin-top:5px;
+  }
+}
+
+.draw-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.draw-sep{width:1px;height:34px;background:#d6e3f0;margin:0 2px}
+.draw-btn,.color-btn{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line-strong);background:#fff;color:var(--text-1);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:var(--shadow-soft);font-size:22px;font-weight:800;transition:all .2s ease;
+}
+.draw-btn:hover,.color-btn:hover{transform:translateY(-1px);background:#f6fbff;border-color:#9fc1df}
+.draw-btn.active{background:linear-gradient(135deg,var(--primary) 0%, var(--accent) 100%);color:#fff;border-color:transparent}
+.color-btn{position:relative;font-size:0}
+.color-btn::after{content:"";width:28px;height:28px;border-radius:50%;display:block;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.color-btn.active{border:2px solid #111827;transform:translateY(-1px) scale(1.04)}
+.color-btn[data-color="red"]::after{background:#ff5a47}
+.color-btn[data-color="blue"]::after{background:#3b82f6}
+.color-btn[data-color="green"]::after{background:#16a34a}
+.slide-draw-canvas{
+  position:absolute;left:0;right:0;top:72px;bottom:0;width:100%;height:calc(100% - 72px);
+  z-index:12;background:transparent;display:block;pointer-events:none;touch-action:none;
+}
+.slide-container.draw-mode-pen .slide-draw-canvas,
+.slide-container.draw-mode-eraser .slide-draw-canvas{pointer-events:auto}
+.slide-container.draw-mode-pen .slide-draw-canvas{cursor:crosshair}
+.slide-container.draw-mode-eraser .slide-draw-canvas{cursor:cell}
+.q-header,.actions-area{position:relative;z-index:20}
+.content-wrapper{position:relative;z-index:5}
+@media (max-width:768px){
+  .draw-toolbar{gap:8px}
+  .draw-btn,.color-btn{width:36px;height:36px;font-size:18px}
+  .color-btn::after{width:22px;height:22px}
+  .slide-draw-canvas{top:112px;height:calc(100% - 112px)}
+}
+
+
+
+/* --- TIMER CHUYÊN NGHIỆP: NÚT ĐỒNG HỒ + MODAL NHẬP mm:ss --- */
+.timer-edit-btn{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line-strong);
+  background:linear-gradient(180deg,#ffffff 0%, #f4f9ff 100%);
+  color:var(--text-1);font-size:22px;font-weight:900;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-soft);transition:all .2s ease;
+}
+.timer-edit-btn:hover{transform:translateY(-1px);background:#edf6ff;border-color:#9fc1df}
+.timer-edit-btn:active{transform:translateY(1px) scale(.98)}
+.timer-modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.42);display:none;align-items:center;justify-content:center;z-index:10000;backdrop-filter:blur(8px);padding:18px}
+.timer-modal-backdrop.show{display:flex;animation:fadeIn .18s ease-out}
+.timer-modal{width:min(94vw,460px);background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);border:1px solid rgba(191,212,231,.95);border-radius:26px;box-shadow:0 26px 80px rgba(15,23,42,.22);padding:24px;position:relative;color:var(--text-1)}
+.timer-modal-title{font-size:26px;font-weight:900;margin:0 0 8px;display:flex;align-items:center;gap:10px}
+.timer-modal-subtitle{font-size:15px;color:var(--text-2);line-height:1.45;margin-bottom:16px}
+.timer-input-wrap{display:flex;align-items:center;gap:12px;margin:10px 0 8px}
+.timer-input-icon{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 12px 24px rgba(37,99,235,.22)}
+#timerModalInput{flex:1;min-width:0;padding:14px 16px;border-radius:18px;border:2px solid #cdddeb;outline:none;font-size:30px;font-weight:900;text-align:center;letter-spacing:1px;color:var(--text-1);background:#fff;box-shadow:var(--shadow-soft)}
+#timerModalInput:focus{border-color:#93c5fd;box-shadow:0 0 0 5px rgba(59,130,246,.12)}
+.timer-error{min-height:22px;color:#dc2626;font-size:14px;font-weight:700;margin-top:6px}
+.timer-quick-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}
+.timer-quick{border:1px solid #cdddeb;background:#fff;border-radius:999px;padding:8px 12px;color:var(--text-1);font-size:14px;font-weight:800;cursor:pointer;box-shadow:var(--shadow-soft)}
+.timer-quick:hover{background:#edf6ff;border-color:#9fc1df}
+.timer-modal-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:8px}
+.timer-modal-btn{border:none;border-radius:14px;padding:11px 15px;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 10px 20px rgba(15,23,42,.12)}
+.timer-modal-btn:hover{transform:translateY(-1px)}
+.timer-modal-cancel{background:#eef2f7;color:#334155}
+.timer-modal-current{background:linear-gradient(135deg,#3b82f6 0%, #1d4ed8 100%);color:#fff}
+.timer-modal-all{background:linear-gradient(135deg,#10b981 0%, #059669 100%);color:#fff}
+.timer-modal-close{position:absolute;right:16px;top:14px;width:36px;height:36px;border-radius:50%;border:1px solid #dbe7f3;background:#fff;cursor:pointer;font-size:20px;font-weight:900;color:#64748b;display:flex;align-items:center;justify-content:center}
+.timer-modal-close:hover{background:#f1f5f9;color:#0f172a}
+@media (max-width:768px){.timer-edit-btn{width:36px;height:36px;font-size:18px}.timer-modal{padding:20px;border-radius:22px}.timer-modal-title{font-size:22px}#timerModalInput{font-size:26px;padding:12px}.timer-modal-actions{flex-direction:column}.timer-modal-btn{width:100%}}
+
+</style>
+        
+        <script>
+        MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']], processEscapes: true }, chtml: { scale: 1, maMHhFontHeight: false } };
+        </script>
+        <script defer src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js'></script>
+        <style id="imath-options-stack-style">.options-stack{display:flex;flex-direction:column;gap:12px;width:100%;}.options-stack .btn-option{width:100%;display:flex;align-items:flex-start;}.options-stack .opt-text{flex:1;}</style></head><body>
+        
+            <button class="nav-arrow nav-prev" onclick="prevSlide()" title="Câu trước (Mũi tên trái)">❮</button>
+            <button class="nav-arrow nav-next" onclick="nextSlide()" title="Câu sau (Mũi tên phải hoặc Enter)">❯</button>
+        
+
+        <div class="timer-modal-backdrop" id="timerModalBackdrop" onclick="closeTimerModal(event)">
+            <div class="timer-modal" role="dialog" aria-modal="true" aria-labelledby="timerModalTitle" onclick="event.stopPropagation()">
+                <button class="timer-modal-close" type="button" onclick="closeTimerModal()" title="Đóng">×</button>
+                <h2 class="timer-modal-title" id="timerModalTitle">🕘 Thiết lập thời gian</h2>
+                <div class="timer-modal-subtitle">Nhập thời gian theo dạng <b>mm:ss</b>, ví dụ <b>05:00</b>, <b>01:30</b>, <b>00:45</b>.</div>
+                <div class="timer-input-wrap">
+                    <div class="timer-input-icon">⏱</div>
+                    <input id="timerModalInput" type="text" inputmode="numeric" autocomplete="off" placeholder="mm:ss" value="01:00">
+                </div>
+                <div class="timer-error" id="timerModalError"></div>
+                <div class="timer-quick-row">
+                    <button class="timer-quick" type="button" onclick="setTimerModalValue('00:30')">30 giây</button>
+                    <button class="timer-quick" type="button" onclick="setTimerModalValue('01:00')">1 phút</button>
+                    <button class="timer-quick" type="button" onclick="setTimerModalValue('03:00')">3 phút</button>
+                    <button class="timer-quick" type="button" onclick="setTimerModalValue('05:00')">5 phút</button>
+                    <button class="timer-quick" type="button" onclick="setTimerModalValue('10:00')">10 phút</button>
+                </div>
+                <div class="timer-modal-actions">
+                    <button class="timer-modal-btn timer-modal-cancel" type="button" onclick="closeTimerModal()">Hủy</button>
+                    <button class="timer-modal-btn timer-modal-current" type="button" onclick="applyTimerFromModal(false)">✓ Áp dụng câu này</button>
+                    <button class="timer-modal-btn timer-modal-all" type="button" onclick="applyTimerFromModal(true)">✓ Áp dụng tất cả câu</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slide-0"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 1:</span> Trong các phát biểu sau phát biểu nào là mệnh đề đúng?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Bạn Linh có thích học môn Tiếng Anh không?.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">B</div> <div class="opt-text">${7}$ là số nguyên tố.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">${64}$ chia hết cho ${6}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Phương trình ${3 x^{2} - 12 x + 9=0}$ vô nghiệm.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-0">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Trong các phát biểu sau phát biểu nào là mệnh đề đúng?<br><br>A. Bạn Linh có thích học môn Tiếng Anh không?.<br>   B. ${7}$ là số nguyên tố.<br>    C. ${64}$ chia hết cho ${6}$.<br>     D. Phương trình ${3 x^{2} - 12 x + 9=0}$ vô nghiệm.<br><br>Lời giải:<br> Chọn B <br> ${7}$ là số nguyên tố là khẳng định đúng.</div></div></div></div><div class="slide-container" id="slide-1"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 2:</span> Trong các phát biểu sau phát biểu nào là mệnh đề đúng?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Bạn Ngọc hát hay quá!.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">${343}$ chia hết cho ${5}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Phương trình ${2 x^{2} - 16 x + 30=0}$ vô nghiệm.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">${89}$ là số thực.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-1">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Trong các phát biểu sau phát biểu nào là mệnh đề đúng?<br><br>A. Bạn Ngọc hát hay quá!.<br>   B. ${343}$ chia hết cho ${5}$.<br>    C. Phương trình ${2 x^{2} - 16 x + 30=0}$ vô nghiệm.<br>     D. ${89}$ là số thực.<br><br>Lời giải:<br> Chọn D <br> ${89}$ là số thực là khẳng định đúng.</div></div></div></div><div class="slide-container" id="slide-2"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 3:</span> Trong các phát biểu sau phát biểu nào là mệnh đề đúng?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">${15625}$ chia hết cho ${8}$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">Bạn Lan có thích học môn Văn không?.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">C</div> <div class="opt-text">${17}$ là số tự nhiên.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Phương trình ${x^{2} - 1=0}$ có đúng 1 nghiệm.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-2">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Trong các phát biểu sau phát biểu nào là mệnh đề đúng?<br><br>A. ${15625}$ chia hết cho ${8}$.<br>   B. Bạn Lan có thích học môn Văn không?.<br>    C. ${17}$ là số tự nhiên.<br>     D. Phương trình ${x^{2} - 1=0}$ có đúng 1 nghiệm.<br><br>Lời giải:<br> Chọn C <br> ${17}$ là số tự nhiên là khẳng định đúng.</div></div></div></div><div class="slide-container" id="slide-3"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 4:</span> Trong các phát biểu sau phát biểu nào là mệnh đề sai?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">${47}$ là số tự nhiên.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">B</div> <div class="opt-text">Tỉnh Hải Dương thuộc miền Nam nước Việt Nam.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Phương trình $2 x^{2} - 20 x + 48=0$ có 2 nghiệm phân biệt.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">${125}$ chia hết cho ${5}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-3">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Trong các phát biểu sau phát biểu nào là mệnh đề sai?<br><br>A. ${47}$ là số tự nhiên.<br>   B. Tỉnh Hải Dương thuộc miền Nam nước Việt Nam.<br>    C. Phương trình $2 x^{2} - 20 x + 48=0$ có 2 nghiệm phân biệt.<br>     D. ${125}$ chia hết cho ${5}$.<br><br>Lời giải:<br> Chọn B <br> Tỉnh Hải Dương thuộc miền Nam nước Việt Nam là khẳng định sai.</div></div></div></div><div class="slide-container" id="slide-4"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 5:</span> Trong các phát biểu sau phát biểu nào là mệnh đề sai?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">${59}$ là số tự nhiên.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">Phương trình $2 x^{2} - 18 x + 40=0$ có 2 nghiệm phân biệt.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">C</div> <div class="opt-text">Tỉnh Đồng Tháp thuộc miền Bắc nước Việt Nam.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">${117649}$ chia hết cho ${7}$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-4">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Trong các phát biểu sau phát biểu nào là mệnh đề sai?<br><br>A. ${59}$ là số tự nhiên.<br>   B. Phương trình $2 x^{2} - 18 x + 40=0$ có 2 nghiệm phân biệt.<br>    C. Tỉnh Đồng Tháp thuộc miền Bắc nước Việt Nam.<br>     D. ${117649}$ chia hết cho ${7}$.<br><br>Lời giải:<br> Chọn C <br> Tỉnh Đồng Tháp thuộc miền Bắc nước Việt Nam là khẳng định sai.</div></div></div></div><div class="slide-container" id="slide-5"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 6:</span> Trong các phát biểu sau phát biểu nào là mệnh đề sai?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">${32}$ chia hết cho ${2}$.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">B</div> <div class="opt-text">${73}$ không phải là số nguyên.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">${97}$ là số hữu tỉ.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Phương trình $3 x^{2} - 6 x=0$ có 2 nghiệm phân biệt.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-5">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Trong các phát biểu sau phát biểu nào là mệnh đề sai?<br><br>A. ${32}$ chia hết cho ${2}$.<br>   B. ${73}$ không phải là số nguyên.<br>    C. ${97}$ là số hữu tỉ.<br>     D. Phương trình $3 x^{2} - 6 x=0$ có 2 nghiệm phân biệt.<br><br>Lời giải:<br> Chọn B <br> ${73}$ không phải là số nguyên là khẳng định sai.</div></div></div></div><div class="slide-container" id="slide-6"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 7:</span> Phủ định của mệnh đề "${55}$ là số chẵn" là</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">${55}$ không phải là số tự nhiên.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">B</div> <div class="opt-text">${55}$ là số lẻ.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">${55}$ là số nguyên tố.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">${55}$ là số hữu tỉ.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-6">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Phủ định của mệnh đề "${55}$ là số chẵn" là<br><br>A. ${55}$ không phải là số tự nhiên.	   B. ${55}$ là số lẻ.<br>    C. ${55}$ là số nguyên tố.	     D. ${55}$ là số hữu tỉ.<br><br>Lời giải:<br> Chọn B <br> Mệnh đề phủ định của mệnh đề đã cho là ${55}$ là số lẻ.</div></div></div></div><div class="slide-container" id="slide-7"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 8:</span> Mệnh đề phủ định của mệnh đề "$-13-21&gt; -16$" là</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">$-13-21 \ne -16$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">$-13-21 \ge -16$.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">C</div> <div class="opt-text">$-13-21 \le -16$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">$-13-21 \ge -16$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-7">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Mệnh đề phủ định của mệnh đề "$-13-21&gt; -16$" là<br><br>A. $-13-21 \ne -16$.	   B. $-13-21 \ge -16$.<br>    C. $-13-21 \le -16$.	     D. $-13-21 \ge -16$.<br><br>Lời giải:<br> Chọn C <br> Mệnh đề phủ định của mệnh đề đã cho là $-13-21 \le -16$.</div></div></div></div><div class="slide-container" id="slide-8"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 9:</span> Phủ định của mệnh đề "${100}$ là số nguyên tố" là</div><div class="options-stack"><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">A</div> <div class="opt-text">${100}$ không phải là số nguyên tố.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">${100}$ là số vô tỉ.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">${100}$ là số tự nhiên.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">${100}$ không phải là hợp số.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-8">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Phủ định của mệnh đề "${100}$ là số nguyên tố" là<br><br>A. ${100}$ không phải là số nguyên tố.	   B. ${100}$ là số vô tỉ.<br>    C. ${100}$ là số tự nhiên.	     D. ${100}$ không phải là hợp số.<br><br>Lời giải:<br> Chọn A <br> Mệnh đề phủ định của mệnh đề đã cho là ${100}$ không phải là số nguyên tố.</div></div></div></div><div class="slide-container" id="slide-9"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 10:</span> Mệnh đề phủ định của mệnh đề "P:$\exists x \in \mathbb{Q}: \sqrt{4 x + 4} = 9 x - 1$" là</div><div class="options-stack"><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">A</div> <div class="opt-text">$\forall x \in \mathbb{Q}: \sqrt{4 x + 4} \ne 9 x - 1$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">$\forall x \in \mathbb{Q}: \sqrt{4 x + 4} &gt; 9 x - 1$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">$\forall x \in \mathbb{Q}: \sqrt{4 x + 4} \le 9 x - 1$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">$\forall x \in \mathbb{Q}: \sqrt{4 x + 4} &lt; 9 x - 1$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-9">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Mệnh đề phủ định của mệnh đề "P:$\exists x \in \mathbb{Q}: \sqrt{4 x + 4} = 9 x - 1$" là<br><br>A. $\forall  x \in \mathbb{Q}: \sqrt{4 x + 4} \ne 9 x - 1$.	   B. $\forall  x \in \mathbb{Q}: \sqrt{4 x + 4} &gt; 9 x - 1$.<br>    C. $\forall  x \in \mathbb{Q}: \sqrt{4 x + 4} \le 9 x - 1$.	     D. $\forall  x \in \mathbb{Q}: \sqrt{4 x + 4} &lt; 9 x - 1$.<br><br>Lời giải:<br> Chọn A <br> Mệnh đề phủ định là: $\forall x \in \mathbb{Q}: \sqrt{4 x + 4} \ne 9 x - 1$.</div></div></div></div><div class="slide-container" id="slide-10"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 11:</span> Mệnh đề phủ định của mệnh đề "P:$\exists x \in \mathbb{N}: - 3 x^{2} - 5 x \ge 0$" là</div><div class="options-stack"><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">A</div> <div class="opt-text">$\forall x \in \mathbb{N}: - 3 x^{2} - 5 x &lt; 0$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">$\forall x \in \mathbb{N}: - 3 x^{2} - 5 x \ge 0$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">$\forall x \in \mathbb{N}: - 3 x^{2} - 5 x \le 0$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">$\forall x \in \mathbb{N}: - 3 x^{2} - 5 x &gt; 0$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-10">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Mệnh đề phủ định của mệnh đề "P:$\exists x \in \mathbb{N}: - 3 x^{2} - 5 x \ge 0$" là<br><br>A. $\forall  x \in \mathbb{N}: - 3 x^{2} - 5 x &lt; 0$.	   B. $\forall  x \in \mathbb{N}: - 3 x^{2} - 5 x \ge 0$.<br>    C. $\forall  x \in \mathbb{N}: - 3 x^{2} - 5 x \le 0$.	     D. $\forall  x \in \mathbb{N}: - 3 x^{2} - 5 x &gt; 0$.<br><br>Lời giải:<br> Chọn A <br> Mệnh đề phủ định là: $\forall x \in \mathbb{N}: - 3 x^{2} - 5 x &lt; 0$.</div></div></div></div><div class="slide-container" id="slide-11"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 12:</span> Mệnh đề phủ định của mệnh đề "P:$\forall x \in \mathbb{Q}: 6 - 3 x \ge 0$" là</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">$\exists x \in \mathbb{Q}: 6 - 3 x &gt; 0$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">$\exists x \in \mathbb{Q}: 6 - 3 x \ge 0$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">$\exists x \in \mathbb{Q}: 6 - 3 x \le 0$.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">$\exists x \in \mathbb{Q}: 6 - 3 x &lt; 0$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-11">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Mệnh đề phủ định của mệnh đề "P:$\forall x \in \mathbb{Q}: 6 - 3 x \ge 0$" là<br><br>A. $\exists  x \in \mathbb{Q}: 6 - 3 x &gt; 0$.	   B. $\exists  x \in \mathbb{Q}: 6 - 3 x \ge 0$.<br>    C. $\exists  x \in \mathbb{Q}: 6 - 3 x \le 0$.	     D. $\exists  x \in \mathbb{Q}: 6 - 3 x &lt; 0$.<br><br>Lời giải:<br> Chọn D <br> Mệnh đề phủ định là: $\exists x \in \mathbb{Q}: 6 - 3 x &lt; 0$.</div></div></div></div><div class="slide-container" id="slide-12"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 13:</span> Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Nếu ${11}$ là số nguyên tố thì ${6}$ là số lẻ.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">B</div> <div class="opt-text">Nếu ${8}$ là số chẵn thì ${73}$ là số nguyên tố.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Nếu ${13}$ là số tự nhiên thì ${53}$ là hợp số .</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Nếu ${39}$ là số lẻ thì ${40}$ là số lẻ.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-12">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng<br><br>A. Nếu ${11}$ là số nguyên tố thì ${6}$ là số lẻ.<br>   B. Nếu ${8}$ là số chẵn thì ${73}$ là số nguyên tố.<br>    C. Nếu ${13}$ là số tự nhiên thì ${53}$ là hợp số .<br>     D. Nếu ${39}$ là số lẻ thì ${40}$ là số lẻ.<br><br>Lời giải:<br> Chọn B <br> Nếu ${8}$ là số chẵn thì ${73}$ là số nguyên tố là khẳng định đúng</div></div></div></div><div class="slide-container" id="slide-13"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 14:</span> Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Nếu ${43}$ là số lẻ thì ${44}$ là số lẻ.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">Nếu ${17}$ là số nguyên tố thì ${36}$ là số lẻ.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Nếu ${26}$ là số tự nhiên thì ${97}$ là hợp số .</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">Nếu ${97}$ là số nguyên tố thì ${22}$ là số chẵn.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-13">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng<br><br>A. Nếu ${43}$ là số lẻ thì ${44}$ là số lẻ.<br>   B. Nếu ${17}$ là số nguyên tố thì ${36}$ là số lẻ.<br>    C. Nếu ${26}$ là số tự nhiên thì ${97}$ là hợp số .<br>     D. Nếu ${97}$ là số nguyên tố thì ${22}$ là số chẵn.<br><br>Lời giải:<br> Chọn D <br> Nếu ${97}$ là số nguyên tố thì ${22}$ là số chẵn là khẳng định đúng</div></div></div></div><div class="slide-container" id="slide-14"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 15:</span> Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Nếu ${96}$ là số nguyên thì ${17}$ là hợp số .</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">B</div> <div class="opt-text">Nếu ${4}$ chia hết cho ${2}$ thì ${19}$ là số lẻ.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Nếu ${5}$ là số lẻ thì ${6}$ là số lẻ.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Nếu ${29}$ là số nguyên tố thì ${28}$ là số lẻ.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-14">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng<br><br>A. Nếu ${96}$ là số nguyên thì ${17}$ là hợp số .<br>   B. Nếu ${4}$ chia hết cho ${2}$ thì ${19}$ là số lẻ.<br>    C. Nếu ${5}$ là số lẻ thì ${6}$ là số lẻ.<br>     D. Nếu ${29}$ là số nguyên tố thì ${28}$ là số lẻ.<br><br>Lời giải:<br> Chọn B <br> Nếu ${4}$ chia hết cho ${2}$ thì ${19}$ là số lẻ là khẳng định đúng</div></div></div></div><div class="slide-container" id="slide-15"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 16:</span> Cho tứ giác ${AKNP}$. Xét hai mệnh đề:<br><br>$P$: ''Tứ giác ${AKNP}$ là hình thoi''.<br><br>$Q$: ''Tứ giác ${AKNP}$ có hai đường chéo vuông góc''.<br><br>Mệnh đề nào sau đây là mệnh đề $P\Leftrightarrow Q$?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Tứ giác ${AKNP}$ là hình thoi nếu nó có hai đường chéo vuông góc.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">Nếu tứ giác ${AKNP}$ có hai đường chéo vuông góc thì nó không là hình thoi.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Tứ giác ${AKNP}$ có hai đường chéo vuông góc thì nó là hình thoi.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">Tứ giác ${AKNP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-15">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho tứ giác ${AKNP}$. Xét hai mệnh đề:<br><br>$P$: ''Tứ giác ${AKNP}$ là hình thoi''.<br><br>$Q$: ''Tứ giác ${AKNP}$ có hai đường chéo vuông góc''.<br><br>Mệnh đề nào sau đây là mệnh đề $P\Leftrightarrow Q$?<br>A. Tứ giác ${AKNP}$ là hình thoi nếu nó có hai đường chéo vuông góc.<br>B. Nếu tứ giác ${AKNP}$ có hai đường chéo vuông góc thì nó không là hình thoi.<br>C. Tứ giác ${AKNP}$ có hai đường chéo vuông góc thì nó là hình thoi.<br>D. Tứ giác ${AKNP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.<br><br>Lời giải:<br>Chọn D<br>Mệnh đề $P\Leftrightarrow Q$ là mệnh đề tương đương, được phát biểu dưới dạng ''$P$ là điều kiện cần và đủ để có $Q$'' hoặc ''$P$ khi và chỉ khi $Q$''.<br><br>Do đó mệnh đề đúng là: ''Tứ giác ${AKNP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.''</div></div></div></div><div class="slide-container" id="slide-16"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 17:</span> Cho tứ giác ${CJMO}$. Xét hai mệnh đề:<br><br>$P$: ''Tứ giác ${CJMO}$ là hình thoi''.<br><br>$Q$: ''Tứ giác ${CJMO}$ có hai đường chéo vuông góc''.<br><br>Mệnh đề nào sau đây là mệnh đề $P\Leftrightarrow Q$?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Tứ giác ${CJMO}$ có hai đường chéo vuông góc là điều kiện cần để nó là hình thoi.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">B</div> <div class="opt-text">Tứ giác ${CJMO}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Tứ giác ${CJMO}$ là hình thoi nếu nó có hai đường chéo vuông góc.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Tứ giác ${CJMO}$ là hình thoi thì nó có hai đường chéo vuông góc.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-16">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho tứ giác ${CJMO}$. Xét hai mệnh đề:<br><br>$P$: ''Tứ giác ${CJMO}$ là hình thoi''.<br><br>$Q$: ''Tứ giác ${CJMO}$ có hai đường chéo vuông góc''.<br><br>Mệnh đề nào sau đây là mệnh đề $P\Leftrightarrow Q$?<br>A. Tứ giác ${CJMO}$ có hai đường chéo vuông góc là điều kiện cần để nó là hình thoi.<br>B. Tứ giác ${CJMO}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.<br>C. Tứ giác ${CJMO}$ là hình thoi nếu nó có hai đường chéo vuông góc.<br>D. Tứ giác ${CJMO}$ là hình thoi thì nó có hai đường chéo vuông góc.<br><br>Lời giải:<br>Chọn B<br>Mệnh đề $P\Leftrightarrow Q$ là mệnh đề tương đương, được phát biểu dưới dạng ''$P$ là điều kiện cần và đủ để có $Q$'' hoặc ''$P$ khi và chỉ khi $Q$''.<br><br>Do đó mệnh đề đúng là: ''Tứ giác ${CJMO}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.''</div></div></div></div><div class="slide-container" id="slide-17"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 18:</span> Cho tứ giác ${EFOP}$. Xét hai mệnh đề:<br><br>$P$: ''Tứ giác ${EFOP}$ là hình thoi''.<br><br>$Q$: ''Tứ giác ${EFOP}$ có hai đường chéo vuông góc''.<br><br>Mệnh đề nào sau đây là mệnh đề $P\Leftrightarrow Q$?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Tứ giác ${EFOP}$ có hai đường chéo vuông góc thì nó là hình thoi.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">Nếu tứ giác ${EFOP}$ có hai đường chéo vuông góc thì nó không là hình thoi.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">C</div> <div class="opt-text">Tứ giác ${EFOP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Tứ giác ${EFOP}$ là hình thoi thì nó có hai đường chéo vuông góc.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-17">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho tứ giác ${EFOP}$. Xét hai mệnh đề:<br><br>$P$: ''Tứ giác ${EFOP}$ là hình thoi''.<br><br>$Q$: ''Tứ giác ${EFOP}$ có hai đường chéo vuông góc''.<br><br>Mệnh đề nào sau đây là mệnh đề $P\Leftrightarrow Q$?<br>A. Tứ giác ${EFOP}$ có hai đường chéo vuông góc thì nó là hình thoi.<br>B. Nếu tứ giác ${EFOP}$ có hai đường chéo vuông góc thì nó không là hình thoi.<br>C. Tứ giác ${EFOP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.<br>D. Tứ giác ${EFOP}$ là hình thoi thì nó có hai đường chéo vuông góc.<br><br>Lời giải:<br>Chọn C<br>Mệnh đề $P\Leftrightarrow Q$ là mệnh đề tương đương, được phát biểu dưới dạng ''$P$ là điều kiện cần và đủ để có $Q$'' hoặc ''$P$ khi và chỉ khi $Q$''.<br><br>Do đó mệnh đề đúng là: ''Tứ giác ${EFOP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.''</div></div></div></div><div class="slide-container" id="slide-18"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 19:</span> Cho tứ giác ${ABIK}$. Xét mệnh đề: ''Nếu tứ giác ${ABIK}$ là hình chữ nhật thì tứ giác ${ABIK}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?</div><div class="options-stack"><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">A</div> <div class="opt-text">Nếu tứ giác ${ABIK}$ có hai đường chéo bằng nhau thì tứ giác ${ABIK}$ là hình chữ nhật.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">Nếu tứ giác ${ABIK}$ không có hai đường chéo bằng nhau thì tứ giác ${ABIK}$ không là hình chữ nhật.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Mệnh đề đã cho không có mệnh đề đảo.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Nếu tứ giác ${ABIK}$ không là hình chữ nhật thì tứ giác ${ABIK}$ có hai đường chéo bằng nhau.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-18">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho tứ giác ${ABIK}$. Xét mệnh đề: ''Nếu tứ giác ${ABIK}$ là hình chữ nhật thì tứ giác ${ABIK}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?<br>A. Nếu tứ giác ${ABIK}$ có hai đường chéo bằng nhau thì tứ giác ${ABIK}$ là hình chữ nhật.<br>B. Nếu tứ giác ${ABIK}$ không có hai đường chéo bằng nhau thì tứ giác ${ABIK}$ không là hình chữ nhật.<br>C. Mệnh đề đã cho không có mệnh đề đảo.<br>D. Nếu tứ giác ${ABIK}$ không là hình chữ nhật thì tứ giác ${ABIK}$ có hai đường chéo bằng nhau.<br><br>Lời giải:<br>Chọn A<br>Mệnh đề đã cho có dạng $P\Rightarrow Q$ với:<br><br>$P$: ''tứ giác ${ABIK}$ là hình chữ nhật''.<br><br>$Q$: ''tứ giác ${ABIK}$ có hai đường chéo bằng nhau''.<br><br>Mệnh đề đảo của mệnh đề $P\Rightarrow Q$ là mệnh đề $Q\Rightarrow P$.<br><br>Do đó mệnh đề đảo là: ''Nếu tứ giác ${ABIK}$ có hai đường chéo bằng nhau thì tứ giác ${ABIK}$ là hình chữ nhật''.</div></div></div></div><div class="slide-container" id="slide-19"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 20:</span> Cho tứ giác ${BDEL}$. Xét mệnh đề: ''Nếu tứ giác ${BDEL}$ là hình chữ nhật thì tứ giác ${BDEL}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Nếu tứ giác ${BDEL}$ có hai đường chéo bằng nhau thì tứ giác ${BDEL}$ không là hình chữ nhật.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">Nếu tứ giác ${BDEL}$ không là hình chữ nhật thì tứ giác ${BDEL}$ có hai đường chéo bằng nhau.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Nếu tứ giác ${BDEL}$ là hình chữ nhật thì tứ giác ${BDEL}$ không có hai đường chéo bằng nhau.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">D</div> <div class="opt-text">Nếu tứ giác ${BDEL}$ có hai đường chéo bằng nhau thì tứ giác ${BDEL}$ là hình chữ nhật.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-19">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho tứ giác ${BDEL}$. Xét mệnh đề: ''Nếu tứ giác ${BDEL}$ là hình chữ nhật thì tứ giác ${BDEL}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?<br>A. Nếu tứ giác ${BDEL}$ có hai đường chéo bằng nhau thì tứ giác ${BDEL}$ không là hình chữ nhật.<br>B. Nếu tứ giác ${BDEL}$ không là hình chữ nhật thì tứ giác ${BDEL}$ có hai đường chéo bằng nhau.<br>C. Nếu tứ giác ${BDEL}$ là hình chữ nhật thì tứ giác ${BDEL}$ không có hai đường chéo bằng nhau.<br>D. Nếu tứ giác ${BDEL}$ có hai đường chéo bằng nhau thì tứ giác ${BDEL}$ là hình chữ nhật.<br><br>Lời giải:<br>Chọn D<br>Mệnh đề đã cho có dạng $P\Rightarrow Q$ với:<br><br>$P$: ''tứ giác ${BDEL}$ là hình chữ nhật''.<br><br>$Q$: ''tứ giác ${BDEL}$ có hai đường chéo bằng nhau''.<br><br>Mệnh đề đảo của mệnh đề $P\Rightarrow Q$ là mệnh đề $Q\Rightarrow P$.<br><br>Do đó mệnh đề đảo là: ''Nếu tứ giác ${BDEL}$ có hai đường chéo bằng nhau thì tứ giác ${BDEL}$ là hình chữ nhật''.</div></div></div></div><div class="slide-container" id="slide-20"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 21:</span> Cho tứ giác ${AFIM}$. Xét mệnh đề: ''Nếu tứ giác ${AFIM}$ là hình chữ nhật thì tứ giác ${AFIM}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Nếu tứ giác ${AFIM}$ không có hai đường chéo bằng nhau thì tứ giác ${AFIM}$ không là hình chữ nhật.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">Mệnh đề đã cho không có mệnh đề đảo.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">C</div> <div class="opt-text">Nếu tứ giác ${AFIM}$ có hai đường chéo bằng nhau thì tứ giác ${AFIM}$ là hình chữ nhật.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Nếu tứ giác ${AFIM}$ không là hình chữ nhật thì tứ giác ${AFIM}$ có hai đường chéo bằng nhau.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-20">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho tứ giác ${AFIM}$. Xét mệnh đề: ''Nếu tứ giác ${AFIM}$ là hình chữ nhật thì tứ giác ${AFIM}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?<br>A. Nếu tứ giác ${AFIM}$ không có hai đường chéo bằng nhau thì tứ giác ${AFIM}$ không là hình chữ nhật.<br>B. Mệnh đề đã cho không có mệnh đề đảo.<br>C. Nếu tứ giác ${AFIM}$ có hai đường chéo bằng nhau thì tứ giác ${AFIM}$ là hình chữ nhật.<br>D. Nếu tứ giác ${AFIM}$ không là hình chữ nhật thì tứ giác ${AFIM}$ có hai đường chéo bằng nhau.<br><br>Lời giải:<br>Chọn C<br>Mệnh đề đã cho có dạng $P\Rightarrow Q$ với:<br><br>$P$: ''tứ giác ${AFIM}$ là hình chữ nhật''.<br><br>$Q$: ''tứ giác ${AFIM}$ có hai đường chéo bằng nhau''.<br><br>Mệnh đề đảo của mệnh đề $P\Rightarrow Q$ là mệnh đề $Q\Rightarrow P$.<br><br>Do đó mệnh đề đảo là: ''Nếu tứ giác ${AFIM}$ có hai đường chéo bằng nhau thì tứ giác ${AFIM}$ là hình chữ nhật''.</div></div></div></div><div class="slide-container" id="slide-21"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 22:</span> Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: "Nếu một tam giác có một góc bằng $90^\circ$ thì tam giác đó là tam giác vuông"?</div><div class="options-stack"><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">A</div> <div class="opt-text">Tam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\circ$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">Tam giác đó là tam giác vuông là điều kiện cần để một tam giác có một góc bằng $90^\circ$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Tam giác đó là tam giác vuông là điều kiện cần và đủ để một tam giác có một góc bằng $90^\circ$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Một tam giác có một góc bằng $90^\circ$ là điều kiện đủ để tam giác đó là tam giác vuông.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-21">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: "Nếu một tam giác có một góc bằng $90^\circ$ thì tam giác đó là tam giác vuông"?<br>A. Tam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\circ$.	   B. Tam giác đó là tam giác vuông là điều kiện cần để một tam giác có một góc bằng $90^\circ$.<br>    C. Tam giác đó là tam giác vuông là điều kiện cần và đủ để một tam giác có một góc bằng $90^\circ$.<br>     D. Một tam giác có một góc bằng $90^\circ$ là điều kiện đủ để tam giác đó là tam giác vuông.<br><br>Lời giải:<br> Chọn A<br>Mệnh đề đảo là $Q\Rightarrow P$: ''Nếu tam giác đó là tam giác vuông thì một tam giác có một góc bằng $90^\circ$''.<br><br>Tam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\circ$.</div></div></div></div><div class="slide-container" id="slide-22"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 23:</span> Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: "Nếu một tam giác có một góc bằng $90^\circ$ thì tam giác đó là tam giác vuông"?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Tam giác đó là tam giác vuông là điều kiện cần và đủ để một tam giác có một góc bằng $90^\circ$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">B</div> <div class="opt-text">Một tam giác có một góc bằng $90^\circ$ là điều kiện đủ để tam giác đó là tam giác vuông.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">C</div> <div class="opt-text">Tam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\circ$.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Tam giác đó là tam giác vuông là điều kiện cần để một tam giác có một góc bằng $90^\circ$.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-22">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: "Nếu một tam giác có một góc bằng $90^\circ$ thì tam giác đó là tam giác vuông"?<br>A. Tam giác đó là tam giác vuông là điều kiện cần và đủ để một tam giác có một góc bằng $90^\circ$.	   B. Một tam giác có một góc bằng $90^\circ$ là điều kiện đủ để tam giác đó là tam giác vuông.<br>    C. Tam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\circ$.<br>     D. Tam giác đó là tam giác vuông là điều kiện cần để một tam giác có một góc bằng $90^\circ$.<br><br>Lời giải:<br> Chọn C<br>Mệnh đề đảo là $Q\Rightarrow P$: ''Nếu tam giác đó là tam giác vuông thì một tam giác có một góc bằng $90^\circ$''.<br><br>Tam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\circ$.</div></div></div></div><div class="slide-container" id="slide-23"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN I (Trắc nghiệm)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 24:</span> Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: "Nếu một tam giác có ba cạnh bằng nhau thì tam giác đó là tam giác đều"?</div><div class="options-stack"><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">A</div> <div class="opt-text">Một tam giác có ba cạnh bằng nhau là điều kiện đủ để tam giác đó là tam giác đều.</div></div><div class="btn-option" data-correct="true" onclick="checkChoice(this, true)"><div class="opt-badge">B</div> <div class="opt-text">Tam giác đó là tam giác đều là điều kiện đủ để một tam giác có ba cạnh bằng nhau.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">C</div> <div class="opt-text">Tam giác đó là tam giác đều là điều kiện cần và đủ để một tam giác có ba cạnh bằng nhau.</div></div><div class="btn-option" data-correct="false" onclick="checkChoice(this, false)"><div class="opt-badge">D</div> <div class="opt-text">Tam giác đó là tam giác đều là điều kiện cần để một tam giác có ba cạnh bằng nhau.</div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerMC(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-23">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: "Nếu một tam giác có ba cạnh bằng nhau thì tam giác đó là tam giác đều"?<br>A. Một tam giác có ba cạnh bằng nhau là điều kiện đủ để tam giác đó là tam giác đều.	   B. Tam giác đó là tam giác đều là điều kiện đủ để một tam giác có ba cạnh bằng nhau.<br>    C. Tam giác đó là tam giác đều là điều kiện cần và đủ để một tam giác có ba cạnh bằng nhau.<br>     D. Tam giác đó là tam giác đều là điều kiện cần để một tam giác có ba cạnh bằng nhau.<br><br>Lời giải:<br> Chọn B<br>Mệnh đề đảo là $Q\Rightarrow P$: ''Nếu tam giác đó là tam giác đều thì một tam giác có ba cạnh bằng nhau''.<br><br>Tam giác đó là tam giác đều là điều kiện đủ để một tam giác có ba cạnh bằng nhau.</div></div></div></div><div class="slide-container" id="slide-24"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 1:</span> Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> Mệnh đề "${223}$ là số lẻ" là mệnh đề đúng.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>b)</b> Mệnh đề "${216}$ chia hết cho ${6}$" là mệnh đề đúng.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> Mệnh đề "${5329}$ là số chính phương" là mệnh đề đúng.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> "${\sqrt{55}}$ là số vô tỉ" là mệnh đề đúng.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-24">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Xét tính đúng-sai của các khẳng định sau. <br><br>a) Mệnh đề "${223}$ là số lẻ" là mệnh đề đúng.<br>b) Mệnh đề "${216}$ chia hết cho ${6}$" là mệnh đề đúng.<br>c) Mệnh đề "${5329}$ là số chính phương" là mệnh đề đúng.<br>d) "${\sqrt{55}}$ là số vô tỉ" là mệnh đề đúng.<br><br>Lời giải:<br> a-đúng, b-đúng, c-đúng, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> Mệnh đề "${223}$ là số lẻ" là mệnh đề đúng<br>b) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $216=6^3$ nên ${216}$ chia hết cho ${6}$.<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $5329=73^2$ nên ${5329}$ là số chính phương.<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> ${\sqrt{55}}$ là số vô tỉ" là mệnh đề đúng</div></div></div></div><div class="slide-container" id="slide-25"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 2:</span> Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="false"><div class="tf-content"><b>a)</b> Mệnh đề "${512}$ chia hết cho ${8}$" là mệnh đề sai.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> "${\sqrt{38}}$ là số vô tỉ" là mệnh đề sai.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>c)</b> Mệnh đề "${27000}$ là số chính phương" là mệnh đề đúng.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> Mệnh đề "${33}$ là số lẻ" là mệnh đề đúng.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-25">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Xét tính đúng-sai của các khẳng định sau. <br><br>a) Mệnh đề "${512}$ chia hết cho ${8}$" là mệnh đề sai.<br>b) "${\sqrt{38}}$ là số vô tỉ" là mệnh đề sai.<br>c) Mệnh đề "${27000}$ là số chính phương" là mệnh đề đúng.<br>d) Mệnh đề "${33}$ là số lẻ" là mệnh đề đúng.<br><br>Lời giải:<br> a-sai, b-sai, c-sai, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định sai.<br><br> Vì $512=8^3$ nên ${512}$ chia hết cho ${8}$.<br>b) Khẳng định đã cho là khẳng định sai.<br><br> ${\sqrt{38}}$ là số vô tỉ" là mệnh đề đúng<br>c) Khẳng định đã cho là khẳng định sai.<br><br> Vì $27000=30^3$ nên ${27000}$ không là số chính phương.<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> Mệnh đề "${33}$ là số lẻ" là mệnh đề đúng</div></div></div></div><div class="slide-container" id="slide-26"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 3:</span> Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="false"><div class="tf-content"><b>a)</b> Mệnh đề "${2209}$ là số chính phương" là mệnh đề sai.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> Mệnh đề "${43}$ là số lẻ" là mệnh đề sai.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> Mệnh đề "${28}$ chia hết cho ${3}$" là mệnh đề sai.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>d)</b> "${\sqrt{83}}$ là số vô tỉ" là mệnh đề sai.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-26">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Xét tính đúng-sai của các khẳng định sau. <br><br>a) Mệnh đề "${2209}$ là số chính phương" là mệnh đề sai.<br>b) Mệnh đề "${43}$ là số lẻ" là mệnh đề sai.<br>c) Mệnh đề "${28}$ chia hết cho ${3}$" là mệnh đề sai.<br>d) "${\sqrt{83}}$ là số vô tỉ" là mệnh đề sai.<br><br>Lời giải:<br> a-sai, b-sai, c-đúng, d-sai.<br><br> a) Khẳng định đã cho là khẳng định sai.<br><br> Vì $2209=47^2$ nên ${2209}$ là số chính phương.<br>b) Khẳng định đã cho là khẳng định sai.<br><br> Mệnh đề "${43}$ là số lẻ" là mệnh đề đúng<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $28=3^3+1$ nên ${28}$ không chia hết cho ${3}$.<br>d) Khẳng định đã cho là khẳng định sai.<br><br> ${\sqrt{83}}$ là số vô tỉ" là mệnh đề đúng</div></div></div></div><div class="slide-container" id="slide-27"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 4:</span> Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> $65-91&lt;0$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>b)</b> ${5}$ là số nguyên tố.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> Mệnh đề phủ định của "$161\le 178$" là "$161 &gt; 178$".</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> $\exists x \in \mathbb{R}:x^{2} + 9 x + 6 &gt; 5 x + 1$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-27">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau. <br><br>a) $65-91&lt;0$.<br>b) ${5}$ là số nguyên tố.<br>c) Mệnh đề phủ định của "$161\le 178$" là "$161 &gt; 178$".<br>d) $\exists x \in \mathbb{R}:x^{2} + 9 x + 6 &gt; 5 x + 1$.<br><br>Lời giải:<br> a-đúng, b-đúng, c-đúng, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> <br>b) Khẳng định đã cho là khẳng định đúng.<br><br> <br>c) Khẳng định đã cho là khẳng định đúng.<br><br> Mệnh đề phủ định của "$161\le 178$" là "$161 &gt; 178$"<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> $\forall x \in \mathbb{R}:x^{2} + 9 x + 6-(5 x + 1)=x^{2} + 4 x + 5 =\left(x + 2\right)^{2} + 1 \ge 0$.</div></div></div></div><div class="slide-container" id="slide-28"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 5:</span> Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> $190=148+42$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>b)</b> ${20}$ không phải là số nguyên tố.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> Mệnh đề phủ định của "$52\le 89$" là "$52 &gt; 89$".</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> $\forall x \in \mathbb{R}:- 4 x^{2} + 11 x - 10 &lt; 3 x - 4$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-28">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau. <br><br>a) $190=148+42$.<br>b) ${20}$ không phải là số nguyên tố.<br>c) Mệnh đề phủ định của "$52\le 89$" là "$52 &gt; 89$".<br>d) $\forall x \in \mathbb{R}:- 4 x^{2} + 11 x - 10 &lt; 3 x - 4$.<br><br>Lời giải:<br> a-đúng, b-đúng, c-đúng, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> <br>b) Khẳng định đã cho là khẳng định đúng.<br><br> Vì $20=2^{2} \cdot 5$ nên ${b}$ không phải là số nguyên tố.<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> Mệnh đề phủ định của "$52\le 89$" là "$52 &gt; 89$"<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> $\forall x \in \mathbb{R}:- 4 x^{2} + 11 x - 10-(3 x - 4)=- 4 x^{2} + 8 x - 6 =- \left(2 x - 2\right)^{2} - 2 \le 0$.</div></div></div></div><div class="slide-container" id="slide-29"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 6:</span> Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau.</div><div class="tf-container"><div class="tf-row" data-correct="false"><div class="tf-content"><b>a)</b> $-81=-40$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> ${933}$ là số nguyên tố.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>c)</b> Mệnh đề phủ định của "$43&gt;75$" là "$43\ne 75$".</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>d)</b> $\forall x \in \mathbb{R}:4 x^{2} + 16 x + 9 &gt; 4 x - 2$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-29">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau. <br><br>a) $-81=-40$.<br>b) ${933}$ là số nguyên tố.<br>c) Mệnh đề phủ định của "$43&gt;75$" là "$43\ne 75$".<br>d) $\forall x \in \mathbb{R}:4 x^{2} + 16 x + 9 &gt; 4 x - 2$.<br><br>Lời giải:<br> a-sai, b-sai, c-sai, d-đúng.<br><br> a) Khẳng định đã cho là khẳng định sai.<br><br> <br>b) Khẳng định đã cho là khẳng định sai.<br><br> Vì $933=3 \cdot 311$ nên ${b}$ không phải là số nguyên tố.<br>c) Khẳng định đã cho là khẳng định sai.<br><br> Mệnh đề phủ định của "$43&gt;75$" là "$43 \le 75$"<br>d) Khẳng định đã cho là khẳng định đúng.<br><br> $\forall x \in \mathbb{R}:4 x^{2} + 16 x + 9-(4 x - 2)=4 x^{2} + 12 x + 11 =\left(2 x + 3\right)^{2} + 2 \ge 0$.</div></div></div></div><div class="slide-container" id="slide-30"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 7:</span> Cho $P(n)=- n^{2} + 2 n - 5$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="false"><div class="tf-content"><b>a)</b> $P(-4)$ là số dương.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> $P(0)&gt;9$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> $P(4a)-P(a)=- 15 a^{2} + 6 a$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>d)</b> Số các số nguyên n để $\dfrac{P(n)-2}{n - 1}$ là số nguyên là ${11}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-30">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho $P(n)=- n^{2} + 2 n - 5$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $P(-4)$ là số dương.<br>b) $P(0)&gt;9$.<br>c) $P(4a)-P(a)=- 15 a^{2} + 6 a$.<br>d) Số các số nguyên n để $\dfrac{P(n)-2}{n - 1}$ là số nguyên là ${11}$.<br><br>Lời giải:<br> a-sai, b-sai, c-đúng, d-sai.<br><br> a) Khẳng định đã cho là khẳng định sai.<br><br> $P(-4)=-29$ là số lẻ.<br>b) Khẳng định đã cho là khẳng định sai.<br><br> $P(0)=-5\le 0$<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> $P(4a)-P(a)=- 16 a^{2} + 8 a - 5-(- a^{2} + 2 a - 5)=- 15 a^{2} + 6 a$.<br>d) Khẳng định đã cho là khẳng định sai.<br><br> $A=\dfrac{P(n)-2}{n - 1}=\dfrac{- n^{2} + 2 n - 5-2}{n - 1}=\dfrac{- \left(n - 1\right)^{2} - 6 }{n - 1}=-1(n-1)+\dfrac{-6}{n - 1}$.<br><br>${A}$ là số nguyên khi $\dfrac{-6}{n - 1}$ là số nguyên.<br><br>Khi đó: $n\in \{0,-1,-2,-5,2,3,4,7\}$.<br><br>Số các số nguyên n để $\dfrac{P(n)-2}{n - 1}$ là số nguyên là ${8}$.</div></div></div></div><div class="slide-container" id="slide-31"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 8:</span> Cho $P(n)=n^{2} + 4 n + 5$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="false"><div class="tf-content"><b>a)</b> $P(6)$ không phải là số dương.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>b)</b> $P(-2)$ chia hết cho ${1}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> $P(4a)-P(a)=15 a^{2} + 12 a$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>d)</b> Số các số nguyên n để $\dfrac{P(n)+4}{n + 2}$ là số nguyên là ${6}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-31">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho $P(n)=n^{2} + 4 n + 5$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $P(6)$ không phải là số dương.<br>b) $P(-2)$ chia hết cho ${1}$.<br>c) $P(4a)-P(a)=15 a^{2} + 12 a$.<br>d) Số các số nguyên n để $\dfrac{P(n)+4}{n + 2}$ là số nguyên là ${6}$.<br><br>Lời giải:<br> a-sai, b-đúng, c-đúng, d-sai.<br><br> a) Khẳng định đã cho là khẳng định sai.<br><br> $P(6)=65$ là số chẵn.<br>b) Khẳng định đã cho là khẳng định đúng.<br><br> $P(-2)=1$ chia hết cho ${1}$<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> $P(4a)-P(a)=16 a^{2} + 16 a + 5-(a^{2} + 4 a + 5)=15 a^{2} + 12 a$.<br>d) Khẳng định đã cho là khẳng định sai.<br><br> $A=\dfrac{P(n)+4}{n + 2}=\dfrac{n^{2} + 4 n + 5+4}{n + 2}=\dfrac{\left(n + 2\right)^{2} + 5 }{n + 2}=1(n--2)+\dfrac{5}{n + 2}$.<br><br>${A}$ là số nguyên khi $\dfrac{5}{n + 2}$ là số nguyên.<br><br>Khi đó: $n\in \{-3,-7,-1,3\}$.<br><br>Số các số nguyên n để $\dfrac{P(n)+4}{n + 2}$ là số nguyên là ${4}$.</div></div></div></div><div class="slide-container" id="slide-32"><div class="q-header"><div class="header-left"><div class="part-badge">PHẦN II (Đúng-Sai)</div></div><div class="header-right"><button class="zoom-btn" onclick="changeFontSize(-2)" title="Giảm cỡ chữ">A-</button><button class="zoom-btn" onclick="changeFontSize(2)" title="Tăng cỡ chữ">A+</button><button class="timer-edit-btn" type="button" onclick="openTimerModal(this)" title="Thiết lập thời gian">🕘</button><div class="timer" onclick="startTimer(this)" ondblclick="editTimer(this)" data-time="60" title="Click: Chạy/Dừng. Click đúp: Thiết lập thời gian.">⏳ Bắt đầu (01:00)</div><button class="btn-exit-html" onclick="document.title='EXIT_FULL_SCREEN'" title="Thoát chế độ trình chiếu (Phím Esc)">❌ Thoát</button></div></div><div class="content-wrapper"><div class="question-content"><span class="q-label">Câu 9:</span> Cho $P(n)=- 4 n^{2} + 8 n - 1$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.</div><div class="tf-container"><div class="tf-row" data-correct="true"><div class="tf-content"><b>a)</b> $P(-3)$ không phải là số dương.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>b)</b> $P(1)$ không chia hết cho ${1}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="true"><div class="tf-content"><b>c)</b> $P(2a)-P(a)=- 12 a^{2} + 8 a$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div><div class="tf-row" data-correct="false"><div class="tf-content"><b>d)</b> Số các số nguyên n để $\dfrac{P(n)+1}{n - 1}$ là số nguyên là ${7}$.</div><div class="tf-buttons"><div class="btn-tf" onclick="checkTF(this, true)">Đ</div><div class="btn-tf" onclick="checkTF(this, false)">S</div></div></div></div><div class="actions-area"><button class="btn-action btn-reveal" onclick="revealAnswerTF(this)">👁 HIỆN ĐÁP ÁN</button><div class="slide-counter" id="counter-32">Câu ? / ?</div><button class="btn-action btn-explain" onclick="toggleExpl(this)">💡 XEM LỜI GIẢI</button></div><div class="explanation-box"><div class="explanation-title">📝 LỜI GIẢI CHI TIẾT:</div><div class="explanation-content">Cho $P(n)=- 4 n^{2} + 8 n - 1$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.<br><br>a) $P(-3)$ không phải là số dương.<br>b) $P(1)$ không chia hết cho ${1}$.<br>c) $P(2a)-P(a)=- 12 a^{2} + 8 a$.<br>d) Số các số nguyên n để $\dfrac{P(n)+1}{n - 1}$ là số nguyên là ${7}$.<br><br>Lời giải:<br> a-đúng, b-sai, c-đúng, d-sai.<br><br> a) Khẳng định đã cho là khẳng định đúng.<br><br> $P(-3)=-61$ là số lẻ.<br>b) Khẳng định đã cho là khẳng định sai.<br><br> $P(1)=3$ chia hết cho ${1}$<br>c) Khẳng định đã cho là khẳng định đúng.<br><br> $P(2a)-P(a)=- 16 a^{2} + 16 a - 1-(- 4 a^{2} + 8 a - 1)=- 12 a^{2} + 8 a$.<br>d) Khẳng định đã cho là khẳng định sai.<br><br> $A=\dfrac{P(n)+1}{n - 1}=\dfrac{- 4 n^{2} + 8 n - 1+1}{n - 1}=\dfrac{4 - 4 \left(n - 1\right)^{2} }{n - 1}=-4(n-1)+\dfrac{4}{n - 1}$.<br><br>${A}$ là số nguyên khi $\dfrac{4}{n - 1}$ là số nguyên.<br><br>Khi đó: $n\in \{0,-1,-3,2,3,5\}$.<br><br>Số các số nguyên n để $\dfrac{P(n)+1}{n - 1}$ là số nguyên là ${6}$.</div></div></div></div>
+        
+            <script>
+                let currentSlide = 0; let slides = []; let timerInterval;
+                
+                let audioCtx = null;
+                function getAudioCtx(){
+                    if(!audioCtx){
+                        const Ctx = window.AudioContext || window.webkitAudioContext;
+                        if(Ctx) audioCtx = new Ctx();
+                    }
+                    return audioCtx;
+                }
+
+                function playSound(type) {
+                    const ctx = getAudioCtx();
+                    if (!ctx) return;
+                    if (ctx.state === 'suspended') ctx.resume();
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    const now = ctx.currentTime;
+                    
+                    if (type === 'correct') { 
+                        if(navigator.vibrate) navigator.vibrate([100, 50, 100]); // Rung 2 nhịp vui vẻ
+                        oscillator.type = 'sine';
+                        oscillator.frequency.setValueAtTime(800, now);
+                        oscillator.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                        gainNode.gain.setValueAtTime(1.5, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                        oscillator.start(now); oscillator.stop(now + 0.3);
+                    } else if (type === 'wrong') { 
+                        if(navigator.vibrate) navigator.vibrate(200); // Rung 1 nhịp dài cảnh báo
+                        oscillator.type = 'sawtooth';
+                        oscillator.frequency.setValueAtTime(150, now);
+                        oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+                        gainNode.gain.setValueAtTime(1.2, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                        oscillator.start(now); oscillator.stop(now + 0.3);
+                    } else if (type === 'timeup') { 
+                        oscillator.type = 'square';
+                        oscillator.frequency.setValueAtTime(400, now);
+                        gainNode.gain.setValueAtTime(1.5, now);
+                        gainNode.gain.setValueAtTime(1.5, now + 0.1);
+                        gainNode.gain.setValueAtTime(0, now + 0.15);
+                        gainNode.gain.setValueAtTime(1.5, now + 0.2);
+                        gainNode.gain.setValueAtTime(1.5, now + 0.3);
+                        gainNode.gain.setValueAtTime(0, now + 0.35);
+                        gainNode.gain.setValueAtTime(1.5, now + 0.4);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
+                        oscillator.start(now); oscillator.stop(now + 1.0);
+                    } else if (type === 'tick') { 
+                        oscillator.type = 'triangle';
+                        oscillator.frequency.setValueAtTime(1000, now);
+                        gainNode.gain.setValueAtTime(0.8, now);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                        oscillator.start(now); oscillator.stop(now + 0.1);
+                    }
+                }
+                
+                const msgCorrect = ["Tuyệt vời!", "Chính xác!", "Quá đỉnh!", "Xuất sắc!", "Giỏi quá!", "10 Điểm!"];
+                const msgWrong = ["Cố lên nhé!", "Chưa chính xác!", "Hãy thử lại!", "Cẩn thận hơn!", "Đừng nản chí!", "Suýt nữa thì đúng!"];
+
+                function showFeedback(isCorrect, slideElement) {
+                    let popup = document.createElement('div');
+                    popup.className = 'feedback-popup ' + (isCorrect ? 'correct' : 'wrong');
+                    let emoji = isCorrect ? '😄' : '😢';
+                    let textArr = isCorrect ? msgCorrect : msgWrong;
+                    let randomText = textArr[Math.floor(Math.random() * textArr.length)];
+                    popup.innerHTML = '<div class="emoji">' + emoji + '</div><div class="message">' + randomText + '</div>';
+                    slideElement.appendChild(popup);
+                    setTimeout(() => popup.classList.add('pop'), 10);
+                    setTimeout(() => { popup.classList.remove('pop'); setTimeout(() => popup.remove(), 400); }, 1500);
+                }
+
+                function changeFontSize(delta) {
+                    const root = document.documentElement; const style = geMHomputedStyle(root);
+                    let baseSize = parseInt(style.getPropertyValue('--base-size'));
+                    let optSize = parseInt(style.getPropertyValue('--opt-size'));
+                    let badgeSize = parseInt(style.getPropertyValue('--badge-size'));
+                    if ((delta < 0 && baseSize <= 24) || (delta > 0 && baseSize >= 60)) return;
+                    root.style.setProperty('--base-size', (baseSize + delta) + 'px');
+                    root.style.setProperty('--opt-size', (optSize + delta) + 'px');
+                    root.style.setProperty('--badge-size', (badgeSize + (delta > 0 ? 2 : -2)) + 'px');
+                }
+                function formatTime(seconds) {
+                    let m = Math.floor(seconds / 60); let s = seconds % 60;
+                    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+                }
+                function parseTime(input) {
+                    if (!input) return null;
+                    input = input.toString().trim();
+                    if (/^\d{1,3}:\d{1,2}$/.test(input)) {
+                        const parts = input.split(":");
+                        const minutes = parseInt(parts[0], 10);
+                        const seconds = parseInt(parts[1], 10);
+                        if (seconds >= 60) return null;
+                        return minutes * 60 + seconds;
+                    }
+                    if (/^\d+$/.test(input)) return parseInt(input, 10);
+                    return null;
+                }
+
+                let timerTargetEl = null;
+                function getTimerFromButton(btn) {
+                    const header = btn.closest('.header-right');
+                    return header ? header.querySelector('.timer') : null;
+                }
+                function openTimerModal(source) {
+                    let timer = source && source.classList && source.classList.contains('timer') ? source : getTimerFromButton(source);
+                    if (!timer) timer = document.querySelector('.slide-container.active .timer');
+                    if (!timer) return;
+                    if (timer.classList.contains('running')) {
+                        clearInterval(timerInterval);
+                        timer.classList.remove('running');
+                    }
+                    timerTargetEl = timer;
+                    const backdrop = document.getElementById('timerModalBackdrop');
+                    const input = document.getElementById('timerModalInput');
+                    const error = document.getElementById('timerModalError');
+                    input.value = formatTime(parseInt(timer.dataset.time || '60', 10));
+                    error.texMHontent = '';
+                    backdrop.classList.add('show');
+                    setTimeout(() => { input.focus(); input.select(); }, 60);
+                }
+                function closeTimerModal(evt) {
+                    if (evt && evt.target && evt.target.id !== 'timerModalBackdrop') return;
+                    const backdrop = document.getElementById('timerModalBackdrop');
+                    if (backdrop) backdrop.classList.remove('show');
+                }
+                function setTimerModalValue(value) {
+                    const input = document.getElementById('timerModalInput');
+                    input.value = value;
+                    input.focus();
+                    document.getElementById('timerModalError').texMHontent = '';
+                }
+                function updateTimerDisplay(timer, seconds) {
+                    if (!timer) return;
+                    timer.dataset.time = seconds;
+                    timer.dataset.remaining = seconds;
+                    timer.classList.remove('running');
+                    timer.innerText = '⏳ Bắt đầu (' + formatTime(seconds) + ')';
+                }
+                function applyTimerFromModal(applyAll) {
+                    const input = document.getElementById('timerModalInput');
+                    const error = document.getElementById('timerModalError');
+                    const seconds = parseTime(input.value);
+                    if (seconds == null || isNaN(seconds) || seconds <= 0) {
+                        error.texMHontent = 'Vui lòng nhập đúng dạng mm:ss, ví dụ 05:00 hoặc 01:30.';
+                        input.focus();
+                        input.select();
+                        return;
+                    }
+                    clearInterval(timerInterval);
+                    if (applyAll) {
+                        document.querySelectorAll('.timer').forEach(timer => updateTimerDisplay(timer, seconds));
+                    } else {
+                        updateTimerDisplay(timerTargetEl, seconds);
+                    }
+                    closeTimerModal();
+                }
+                document.addEventListener('keydown', function(e){
+                    const backdrop = document.getElementById('timerModalBackdrop');
+                    if (!backdrop || !backdrop.classList.contains('show')) return;
+                    if (e.key === 'Escape') closeTimerModal();
+                    if (e.key === 'Enter') applyTimerFromModal(false);
+                });
+                window.addEventListener("load", function(){ 
+                    document.addEventListener('keydown', function(e) {
+                        const tag = document.activeElement.tagName;
+                        if(tag === "INPUT" || tag === "TEXTAREA") return;
+                        if(e.key === "ArrowRight") nextSlide(); if(e.key === "ArrowLeft") prevSlide();
+                    });
+                });
+                function renderSlide(index) {
+                    document.querySelectorAll('.slide-container').forEach(el => el.classList.remove('active'));
+                    const activeSlide = document.getElementById('slide-' + index);
+                    if (activeSlide) {
+                        activeSlide.classList.add('active'); currentSlide = index;
+                        document.querySelectorAll('.slide-counter').forEach(el => el.innerText = `Câu ${index + 1} / ${slides.length}`);
+                        
+                        if (window.MathJax && !activeSlide.dataset.typeset) {
+                            MathJax.typesetPromise([activeSlide]).then(() => { activeSlide.dataset.typeset = "true"; }).caMHh((err) => console.log('MJ Error:', err));
+                        }
+                        clearInterval(timerInterval); const timerEl = activeSlide.querySelector('.timer');
+                        if(timerEl) {
+                            const def = parseInt(timerEl.dataset.time || '60', 10);
+                            timerEl.dataset.remaining = def;
+                            timerEl.innerText = '⏳ Bắt đầu (' + formatTime(def) + ')';
+                            timerEl.classList.remove('running');
+                        }
+                        resizeSlideCanvas(activeSlide);
+                        redrawSlideDrawing(activeSlide);
+                    }
+                }
+                function startTimer(el) {
+                    if (el.classList.contains('running')) {
+                        clearInterval(timerInterval);
+                        el.classList.remove('running');
+                        const paused = parseInt(el.dataset.remaining || el.dataset.time || '60', 10);
+                        el.innerText = "⏳ Bắt đầu (" + formatTime(paused) + ")";
+                        return;
+                    }
+                    let timeLeft = parseInt(el.dataset.remaining || el.dataset.time || '60', 10);
+                    if (timeLeft <= 0 || isNaN(timeLeft)) timeLeft = parseInt(el.dataset.time || '60', 10);
+                    el.classList.add('running');
+                    el.innerText = formatTime(timeLeft);
+                    clearInterval(timerInterval);
+                    timerInterval = setInterval(() => {
+                        timeLeft--;
+                        el.dataset.remaining = timeLeft;
+                        el.innerText = formatTime(timeLeft);
+                        if (timeLeft <= 5 && timeLeft > 0) { playSound('tick'); }
+                        else if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            el.classList.remove('running');
+                            el.dataset.remaining = el.dataset.time || '60';
+                            el.innerText = "Hết giờ!";
+                            playSound('timeup');
+                        }
+                    }, 1000);
+                }
+                function editTimer(el) {
+                    openTimerModal(el);
+                }
+                
+function exitPresentation(){
+    try{
+        if(document.fullscreenElement){document.exitFullscreen();}
+    }caMHh(e){}
+    try{ window.open('','_self'); }caMHh(e){}
+    try{ window.close(); }caMHh(e){}
+    setTimeout(function(){
+        try{ location.replace('about:blank'); }caMHh(e){}
+    },100);
+}
+
+function nextSlide() { if (currentSlide < slides.length - 1) renderSlide(currentSlide + 1); }
+                function prevSlide() { if (currentSlide > 0) renderSlide(currentSlide - 1); }
+                function openImage(src) { const w = window.open(""); w.document.write('<img src="' + src + '" style="max-width:100%;">'); }
+                
+                function checkChoice(btn, isCorrect) {
+                    if (btn.classList.contains('checked')) return; const slide = btn.closest('.slide-container');
+                    if (isCorrect) { 
+                        playSound('correct'); showFeedback(true, slide);
+                        btn.classList.add('correct', 'checked'); slide.querySelectorAll('.btn-option').forEach(b => b.classList.add('disabled')); slide.querySelector('.btn-reveal').style.display='none'; 
+                    } else { 
+                        playSound('wrong'); showFeedback(false, slide); btn.classList.add('wrong', 'checked'); 
+                    }
+                }
+                function revealAnswerMC(btn) {
+                    const slide = btn.closest('.slide-container'); const corr = slide.querySelector('.btn-option[data-correct="true"]');
+                    if(corr) corr.classList.add('correct', 'checked'); slide.querySelectorAll('.btn-option').forEach(b => b.classList.add('disabled')); btn.style.display='none';
+                }
+                
+                function checkTF(btn, userChoice) {
+                    const row = btn.closest('.tf-row'); row.querySelectorAll('.btn-tf').forEach(b => b.classList.remove('user-correct', 'user-wrong'));
+                    const slideContainer = btn.closest('.slide-container');
+                    if (userChoice === (row.getAttribute('data-correct') === 'true')) { 
+                        playSound('correct'); showFeedback(true, slideContainer); btn.classList.add('user-correct'); 
+                    } else { 
+                        playSound('wrong'); showFeedback(false, slideContainer); btn.classList.add('user-wrong'); 
+                    }
+                }
+                function revealAnswerTF(btn) {
+                    const slide = btn.closest('.slide-container');
+                    slide.querySelectorAll('.tf-row').forEach(row => {
+                        const isTrue = row.getAttribute('data-correct') === 'true';
+                        row.querySelectorAll('.btn-tf').forEach(b => {
+                            if(b.innerText==='Đ' && isTrue) b.classList.add('reveal-true');
+                            if(b.innerText==='S' && !isTrue) b.classList.add('reveal-false');
+                        });
+                    }); btn.style.display='none';
+                }
+                
+                function checkShort(btn, b64) {
+                    const slide = btn.closest('.slide-container'); const inp = slide.querySelector('input');
+                    let val = inp.value.trim().toLowerCase().replace(',', '.').replace(/\s+/g, '');
+                    let ans = decodeURIComponent(escape(atob(b64))).trim().toLowerCase().replace(',', '.');
+                    if (ans === "") { inp.style.borderColor='#f59e0b'; alert('Câu này không tìm thấy đáp án chuẩn.'); return; }
+                    if(val === ans) { 
+                        playSound('correct'); showFeedback(true, slide); inp.style.borderColor='#22c55e'; inp.style.color='#15803d'; 
+                    } else { 
+                        playSound('wrong'); showFeedback(false, slide); inp.style.borderColor='#ef4444'; 
+                    }
+                }
+                function revealShort(btn, b64) {
+                    const slide = btn.closest('.slide-container'); const input = slide.querySelector('input');
+                    let decoded = decodeURIComponent(escape(atob(b64)));
+                    input.value = decoded; btn.style.display='none';
+                }
+                function toggleExpl(btn) { const box = btn.closest('.slide-container').querySelector('.explanation-box'); box.style.display = box.style.display==='block' ? 'none' : 'block'; }
+                function handleEnter(e, id, b64) { if (e.key === "Enter") checkShort(document.getElementById('btn-chk-'+id), b64); }
+                function initSlides(data) { slides = data; initPresentationDrawTools(); renderSlide(0); }
+                function initImageZoom() {
+                    const images = document.querySelectorAll('.real-image');
+                    images.forEach(img => {
+                        img.addEventListener('wheel', function(e) {
+                            e.preventDefault(); let currentHeight = img.clientHeight; let delta = e.deltaY < 0 ? 40 : -40; let newHeight = currentHeight + delta;
+                            if (newHeight >= 150 && newHeight <= 1200) { img.style.maxHeight = 'none'; img.style.height = newHeight + 'px'; img.style.width = 'auto'; }
+                        });
+                    });
+                }
+
+
+                // --- CÔNG CỤ VẼ / CỤC TẨY CHO TRÌNH CHIẾU ---
+                const DRAW_COLORS = { red: '#ff5a47', blue: '#3b82f6', green: '#16a34a' };
+                function ensureDrawLayer(slide) {
+                    if (!slide || slide.__drawReady) return;
+                    slide.__drawReady = true;
+                    slide.__drawState = { paths: [], currentTool: 'pen', currenMHolor: 'red', drawing: false, currentPath: null, isDrawingMode: false };
+
+                    const headerRight = slide.querySelector('.header-right');
+                    if (headerRight) {
+                        const zoomPlus = headerRight.querySelector('.zoom-btn:last-of-type');
+                        const toolbar = document.createElement('div');
+                        toolbar.className = 'draw-toolbar';
+                        toolbar.innerHTML = `
+                            <div class="draw-sep"></div>
+                            <button class="draw-btn pen-btn active" type="button" title="Bút vẽ">✏️</button>
+                            <button class="draw-btn eraser-btn" type="button" title="Cục tẩy">🧽</button>
+                            <button class="color-btn active" type="button" data-color="red" title="Màu đỏ"></button>
+                            <button class="color-btn" type="button" data-color="blue" title="Màu xanh dương"></button>
+                            <button class="color-btn" type="button" data-color="green" title="Màu xanh lá"></button>
+                            <button class="draw-btn clear-btn" type="button" title="Xóa toàn bộ nét vẽ">🗑️</button>
+                        `;
+                        const timer = headerRight.querySelector('.timer');
+                        const timerEditBtn = headerRight.querySelector('.timer-edit-btn');
+                        headerRight.insertBefore(toolbar, timerEditBtn || timer || null);
+
+                        toolbar.querySelector('.pen-btn').addEventListener('click', () => toggleSlidePen(slide));
+                        toolbar.querySelector('.eraser-btn').addEventListener('click', () => setSlideTool(slide, 'eraser'));
+                        toolbar.querySelector('.clear-btn').addEventListener('click', () => clearSlideDrawing(slide));
+                        toolbar.querySelectorAll('.color-btn').forEach(btn => {
+                            btn.addEventListener('click', () => setSlideColor(slide, btn.dataset.color));
+                        });
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.className = 'slide-draw-canvas';
+                    slide.appendChild(canvas);
+                    slide.__drawCanvas = canvas;
+                    slide.__drawCtx = canvas.geMHontext('2d');
+
+                    const getPos = (evt) => {
+                        const rect = canvas.getBoundingClientRect();
+                        return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+                    };
+
+                    canvas.addEventListener('pointerdown', (evt) => {
+                        const state = slide.__drawState;
+                        if (!state.isDrawingMode || (!slide.classList.contains('draw-mode-pen') && !slide.classList.contains('draw-mode-eraser'))) return;
+                        evt.preventDefault();
+                        const pos = getPos(evt);
+                        state.drawing = true;
+                        try { canvas.setPointerCapture(evt.pointerId); } caMHh (e) {}
+                        if (state.currentTool === 'pen') {
+                            state.currentPath = { color: state.currenMHolor, points: [pos] };
+                            state.paths.push(state.currentPath);
+                            redrawSlideDrawing(slide);
+                        } else {
+                            eraseAtPoint(slide, pos.x, pos.y);
+                        }
+                    });
+
+                    canvas.addEventListener('pointermove', (evt) => {
+                        const state = slide.__drawState;
+                        if (!state.drawing || !state.isDrawingMode) return;
+                        evt.preventDefault();
+                        const pos = getPos(evt);
+                        if (state.currentTool === 'pen') {
+                            if (state.currentPath) state.currentPath.points.push(pos);
+                            redrawSlideDrawing(slide);
+                        } else {
+                            eraseAtPoint(slide, pos.x, pos.y);
+                        }
+                    });
+
+                    const stopDraw = (evt) => {
+                        const state = slide.__drawState;
+                        state.drawing = false;
+                        state.currentPath = null;
+                        if (evt) {
+                            try { canvas.releasePointerCapture(evt.pointerId); } caMHh (e) {}
+                        }
+                    };
+                    canvas.addEventListener('pointerup', stopDraw);
+                    canvas.addEventListener('pointercancel', stopDraw);
+                    canvas.addEventListener('pointerleave', stopDraw);
+
+                    resizeSlideCanvas(slide);
+                    setSlideColor(slide, 'red');
+                    disableSlideDrawing(slide);
+                }
+
+                function updateSlideToolUI(slide) {
+                    const state = slide.__drawState;
+                    const toolbar = slide.querySelector('.draw-toolbar');
+                    if (!toolbar) return;
+                    const penBtn = toolbar.querySelector('.pen-btn');
+                    const eraserBtn = toolbar.querySelector('.eraser-btn');
+                    if (penBtn) penBtn.classList.toggle('active', !!state.isDrawingMode && state.currentTool === 'pen');
+                    if (eraserBtn) eraserBtn.classList.toggle('active', !!state.isDrawingMode && state.currentTool === 'eraser');
+                }
+
+                function disableSlideDrawing(slide) {
+                    ensureDrawLayer(slide);
+                    const state = slide.__drawState;
+                    state.isDrawingMode = false;
+                    state.drawing = false;
+                    state.currentPath = null;
+                    slide.classList.remove('draw-mode-pen', 'draw-mode-eraser');
+                    updateSlideToolUI(slide);
+                }
+
+                function enableSlideDrawing(slide, tool = 'pen') {
+                    ensureDrawLayer(slide);
+                    const state = slide.__drawState;
+                    state.isDrawingMode = true;
+                    state.currentTool = tool;
+                    slide.classList.remove('draw-mode-pen', 'draw-mode-eraser');
+                    slide.classList.add(tool === 'eraser' ? 'draw-mode-eraser' : 'draw-mode-pen');
+                    updateSlideToolUI(slide);
+                }
+
+                function toggleSlidePen(slide) {
+                    ensureDrawLayer(slide);
+                    const state = slide.__drawState;
+                    if (state.isDrawingMode && state.currentTool === 'pen') {
+                        disableSlideDrawing(slide);
+                    } else {
+                        enableSlideDrawing(slide, 'pen');
+                    }
+                }
+
+                function setSlideTool(slide, tool) {
+                    ensureDrawLayer(slide);
+                    const state = slide.__drawState;
+                    if (tool === 'eraser') {
+                        if (!state.isDrawingMode) return;
+                        enableSlideDrawing(slide, 'eraser');
+                    } else {
+                        enableSlideDrawing(slide, 'pen');
+                    }
+                }
+
+                function setSlideColor(slide, colorName) {
+                    ensureDrawLayer(slide);
+                    const state = slide.__drawState;
+                    if (!DRAW_COLORS[colorName]) return;
+                    state.currenMHolor = colorName;
+                    const toolbar = slide.querySelector('.draw-toolbar');
+                    if (toolbar) {
+                        toolbar.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.color === colorName));
+                    }
+                    if (state.isDrawingMode) {
+                        enableSlideDrawing(slide, 'pen');
+                    } else {
+                        updateSlideToolUI(slide);
+                    }
+                }
+
+                function clearSlideDrawing(slide) {
+                    ensureDrawLayer(slide);
+                    slide.__drawState.paths = [];
+                    slide.__drawState.currentPath = null;
+                    redrawSlideDrawing(slide);
+                }
+
+                function eraseAtPoint(slide, x, y) {
+                    const state = slide.__drawState;
+                    const radius = 22;
+                    const radius2 = radius * radius;
+                    state.paths = state.paths.filter(path => {
+                        return !path.points.some(p => {
+                            const dx = p.x - x;
+                            const dy = p.y - y;
+                            return dx * dx + dy * dy <= radius2;
+                        });
+                    });
+                    redrawSlideDrawing(slide);
+                }
+
+                function resizeSlideCanvas(slide) {
+                    if (!slide || !slide.__drawCanvas) return;
+                    const canvas = slide.__drawCanvas;
+                    const rect = canvas.getBoundingClientRect();
+                    const dpr = window.devicePixelRatio || 1;
+                    const width = Math.max(1, Math.round(rect.width));
+                    const height = Math.max(1, Math.round(rect.height));
+                    canvas.width = Math.round(width * dpr);
+                    canvas.height = Math.round(height * dpr);
+                    const ctx = slide.__drawCtx;
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    redrawSlideDrawing(slide);
+                }
+
+                function redrawSlideDrawing(slide) {
+                    if (!slide || !slide.__drawCanvas) return;
+                    const canvas = slide.__drawCanvas;
+                    const ctx = slide.__drawCtx;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    slide.__drawState.paths.forEach(path => {
+                        if (!path.points || !path.points.length) return;
+                        ctx.beginPath();
+                        ctx.strokeStyle = DRAW_COLORS[path.color] || DRAW_COLORS.red;
+                        ctx.lineWidth = 3;
+                        ctx.lineCap = 'round';
+                        ctx.lineJoin = 'round';
+                        ctx.moveTo(path.points[0].x, path.points[0].y);
+                        for (let i = 1; i < path.points.length; i++) {
+                            ctx.lineTo(path.points[i].x, path.points[i].y);
+                        }
+                        if (path.points.length === 1) {
+                            ctx.lineTo(path.points[0].x + 0.01, path.points[0].y + 0.01);
+                        }
+                        ctx.stroke();
+                    });
+                }
+
+                function initPresentationDrawTools() {
+                    document.querySelectorAll('.slide-container').forEach(slide => ensureDrawLayer(slide));
+                }
+
+                window.addEventListener('resize', () => {
+                    document.querySelectorAll('.slide-container').forEach(slide => resizeSlideCanvas(slide));
+                });
+
+                // --- NÂNG CẤP VUỐT TRÊN MOBILE (SWIPE) ---
+                let touchStartX = 0; let touchEndX = 0;
+                document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+                document.addEventListener('touchend', e => {
+                    if(document.activeElement.tagName === "INPUT") return; // Chặn vuốt khi đang chạm vào ô nhập đáp án
+                    touchEndX = e.changedTouches[0].screenX;
+                    let diff = touchStartX - touchEndX;
+                    if (Math.abs(diff) > 60) { if (diff > 0) nextSlide(); else prevSlide(); }
+                }, {passive: true});
+            </script>
+        
+        <script>
+            window.addEventListener("DOMContentLoaded", function(){
+                // 🟢 HỆ THỐNG TỰ BÁO LỖI VÀ CHUYỂN HƯỚNG UX
+                try {
+                    const data = [{"title": "Câu 1", "part": 1, "type": "mc", "content": "Trong các phát biểu sau phát biểu nào là mệnh đề đúng?", "images": [], "explanation": "Trong các phát biểu sau phát biểu nào là mệnh đề đúng?\n\nA. Bạn Linh có thích học môn Tiếng Anh không?.\n   B. *${7}$ là số nguyên tố.\n    C. ${64}$ chia hết cho ${6}$.\n     D. Phương trình ${3 x^{2} - 12 x + 9=0}$ vô nghiệm.\n\nLời giải:\n Chọn B \n ${7}$ là số nguyên tố là khẳng định đúng. \n\n", "options": [{"label": "A", "text": "Bạn Linh có thích học môn Tiếng Anh không?.", "is_correct": false}, {"label": "B", "text": "${7}$ là số nguyên tố.", "is_correct": true}, {"label": "C", "text": "${64}$ chia hết cho ${6}$.", "is_correct": false}, {"label": "D", "text": "Phương trình ${3 x^{2} - 12 x + 9=0}$ vô nghiệm.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 2", "part": 1, "type": "mc", "content": "Trong các phát biểu sau phát biểu nào là mệnh đề đúng?", "images": [], "explanation": "Trong các phát biểu sau phát biểu nào là mệnh đề đúng?\n\nA. Bạn Ngọc hát hay quá!.\n   B. ${343}$ chia hết cho ${5}$.\n    C. Phương trình ${2 x^{2} - 16 x + 30=0}$ vô nghiệm.\n     D. *${89}$ là số thực.\n\nLời giải:\n Chọn D \n ${89}$ là số thực là khẳng định đúng. \n\n", "options": [{"label": "A", "text": "Bạn Ngọc hát hay quá!.", "is_correct": false}, {"label": "B", "text": "${343}$ chia hết cho ${5}$.", "is_correct": false}, {"label": "C", "text": "Phương trình ${2 x^{2} - 16 x + 30=0}$ vô nghiệm.", "is_correct": false}, {"label": "D", "text": "${89}$ là số thực.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 3", "part": 1, "type": "mc", "content": "Trong các phát biểu sau phát biểu nào là mệnh đề đúng?", "images": [], "explanation": "Trong các phát biểu sau phát biểu nào là mệnh đề đúng?\n\nA. ${15625}$ chia hết cho ${8}$.\n   B. Bạn Lan có thích học môn Văn không?.\n    C. *${17}$ là số tự nhiên.\n     D. Phương trình ${x^{2} - 1=0}$ có đúng 1 nghiệm.\n\nLời giải:\n Chọn C \n ${17}$ là số tự nhiên là khẳng định đúng. \n\n", "options": [{"label": "A", "text": "${15625}$ chia hết cho ${8}$.", "is_correct": false}, {"label": "B", "text": "Bạn Lan có thích học môn Văn không?.", "is_correct": false}, {"label": "C", "text": "${17}$ là số tự nhiên.", "is_correct": true}, {"label": "D", "text": "Phương trình ${x^{2} - 1=0}$ có đúng 1 nghiệm.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 4", "part": 1, "type": "mc", "content": "Trong các phát biểu sau phát biểu nào là mệnh đề sai?", "images": [], "explanation": "Trong các phát biểu sau phát biểu nào là mệnh đề sai?\n\nA. ${47}$ là số tự nhiên.\n   B. *Tỉnh Hải Dương thuộc miền Nam nước Việt Nam.\n    C. Phương trình $2 x^{2} - 20 x + 48=0$ có 2 nghiệm phân biệt.\n     D. ${125}$ chia hết cho ${5}$.\n\nLời giải:\n Chọn B \n Tỉnh Hải Dương thuộc miền Nam nước Việt Nam là khẳng định sai. \n\n", "options": [{"label": "A", "text": "${47}$ là số tự nhiên.", "is_correct": false}, {"label": "B", "text": "Tỉnh Hải Dương thuộc miền Nam nước Việt Nam.", "is_correct": true}, {"label": "C", "text": "Phương trình $2 x^{2} - 20 x + 48=0$ có 2 nghiệm phân biệt.", "is_correct": false}, {"label": "D", "text": "${125}$ chia hết cho ${5}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 5", "part": 1, "type": "mc", "content": "Trong các phát biểu sau phát biểu nào là mệnh đề sai?", "images": [], "explanation": "Trong các phát biểu sau phát biểu nào là mệnh đề sai?\n\nA. ${59}$ là số tự nhiên.\n   B. Phương trình $2 x^{2} - 18 x + 40=0$ có 2 nghiệm phân biệt.\n    C. *Tỉnh Đồng Tháp thuộc miền Bắc nước Việt Nam.\n     D. ${117649}$ chia hết cho ${7}$.\n\nLời giải:\n Chọn C \n Tỉnh Đồng Tháp thuộc miền Bắc nước Việt Nam là khẳng định sai. \n\n", "options": [{"label": "A", "text": "${59}$ là số tự nhiên.", "is_correct": false}, {"label": "B", "text": "Phương trình $2 x^{2} - 18 x + 40=0$ có 2 nghiệm phân biệt.", "is_correct": false}, {"label": "C", "text": "Tỉnh Đồng Tháp thuộc miền Bắc nước Việt Nam.", "is_correct": true}, {"label": "D", "text": "${117649}$ chia hết cho ${7}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 6", "part": 1, "type": "mc", "content": "Trong các phát biểu sau phát biểu nào là mệnh đề sai?", "images": [], "explanation": "Trong các phát biểu sau phát biểu nào là mệnh đề sai?\n\nA. ${32}$ chia hết cho ${2}$.\n   B. *${73}$ không phải là số nguyên.\n    C. ${97}$ là số hữu tỉ.\n     D. Phương trình $3 x^{2} - 6 x=0$ có 2 nghiệm phân biệt.\n\nLời giải:\n Chọn B \n ${73}$ không phải là số nguyên là khẳng định sai. \n\n", "options": [{"label": "A", "text": "${32}$ chia hết cho ${2}$.", "is_correct": false}, {"label": "B", "text": "${73}$ không phải là số nguyên.", "is_correct": true}, {"label": "C", "text": "${97}$ là số hữu tỉ.", "is_correct": false}, {"label": "D", "text": "Phương trình $3 x^{2} - 6 x=0$ có 2 nghiệm phân biệt.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 7", "part": 1, "type": "mc", "content": "Phủ định của mệnh đề \"${55}$ là số chẵn\" là", "images": [], "explanation": "Phủ định của mệnh đề \"${55}$ là số chẵn\" là\n\nA. ${55}$ không phải là số tự nhiên.\t   B. *${55}$ là số lẻ.\n    C. ${55}$ là số nguyên tố.\t     D. ${55}$ là số hữu tỉ.\n\nLời giải:\n Chọn B \n Mệnh đề phủ định của mệnh đề đã cho là ${55}$ là số lẻ. \n\n", "options": [{"label": "A", "text": "${55}$ không phải là số tự nhiên.", "is_correct": false}, {"label": "B", "text": "${55}$ là số lẻ.", "is_correct": true}, {"label": "C", "text": "${55}$ là số nguyên tố.", "is_correct": false}, {"label": "D", "text": "${55}$ là số hữu tỉ.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 8", "part": 1, "type": "mc", "content": "Mệnh đề phủ định của mệnh đề \"$-13-21> -16$\" là", "images": [], "explanation": "Mệnh đề phủ định của mệnh đề \"$-13-21> -16$\" là\n\nA. $-13-21 \\ne -16$.\t   B. $-13-21 \\ge -16$.\n    C. *$-13-21 \\le -16$.\t     D. $-13-21 \\ge -16$.\n\nLời giải:\n Chọn C \n Mệnh đề phủ định của mệnh đề đã cho là $-13-21 \\le -16$. \n\n", "options": [{"label": "A", "text": "$-13-21 \\ne -16$.", "is_correct": false}, {"label": "B", "text": "$-13-21 \\ge -16$.", "is_correct": false}, {"label": "C", "text": "$-13-21 \\le -16$.", "is_correct": true}, {"label": "D", "text": "$-13-21 \\ge -16$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 9", "part": 1, "type": "mc", "content": "Phủ định của mệnh đề \"${100}$ là số nguyên tố\" là", "images": [], "explanation": "Phủ định của mệnh đề \"${100}$ là số nguyên tố\" là\n\nA. *${100}$ không phải là số nguyên tố.\t   B. ${100}$ là số vô tỉ.\n    C. ${100}$ là số tự nhiên.\t     D. ${100}$ không phải là hợp số.\n\nLời giải:\n Chọn A \n Mệnh đề phủ định của mệnh đề đã cho là ${100}$ không phải là số nguyên tố. \n\n", "options": [{"label": "A", "text": "${100}$ không phải là số nguyên tố.", "is_correct": true}, {"label": "B", "text": "${100}$ là số vô tỉ.", "is_correct": false}, {"label": "C", "text": "${100}$ là số tự nhiên.", "is_correct": false}, {"label": "D", "text": "${100}$ không phải là hợp số.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 10", "part": 1, "type": "mc", "content": "Mệnh đề phủ định của mệnh đề \"P:$\\exists x \\in \\mathbb{Q}: \\sqrt{4 x + 4} = 9 x - 1$\" là", "images": [], "explanation": "Mệnh đề phủ định của mệnh đề \"P:$\\exists x \\in \\mathbb{Q}: \\sqrt{4 x + 4} = 9 x - 1$\" là\n\nA. *$\\forall  x \\in \\mathbb{Q}: \\sqrt{4 x + 4} \\ne 9 x - 1$.\t   B. $\\forall  x \\in \\mathbb{Q}: \\sqrt{4 x + 4} > 9 x - 1$.\n    C. $\\forall  x \\in \\mathbb{Q}: \\sqrt{4 x + 4} \\le 9 x - 1$.\t     D. $\\forall  x \\in \\mathbb{Q}: \\sqrt{4 x + 4} < 9 x - 1$.\n\nLời giải:\n Chọn A \n Mệnh đề phủ định là: $\\forall x \\in \\mathbb{Q}: \\sqrt{4 x + 4} \\ne 9 x - 1$. \n\n", "options": [{"label": "A", "text": "$\\forall x \\in \\mathbb{Q}: \\sqrt{4 x + 4} \\ne 9 x - 1$.", "is_correct": true}, {"label": "B", "text": "$\\forall x \\in \\mathbb{Q}: \\sqrt{4 x + 4} > 9 x - 1$.", "is_correct": false}, {"label": "C", "text": "$\\forall x \\in \\mathbb{Q}: \\sqrt{4 x + 4} \\le 9 x - 1$.", "is_correct": false}, {"label": "D", "text": "$\\forall x \\in \\mathbb{Q}: \\sqrt{4 x + 4} < 9 x - 1$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 11", "part": 1, "type": "mc", "content": "Mệnh đề phủ định của mệnh đề \"P:$\\exists x \\in \\mathbb{N}: - 3 x^{2} - 5 x \\ge 0$\" là", "images": [], "explanation": "Mệnh đề phủ định của mệnh đề \"P:$\\exists x \\in \\mathbb{N}: - 3 x^{2} - 5 x \\ge 0$\" là\n\nA. *$\\forall  x \\in \\mathbb{N}: - 3 x^{2} - 5 x < 0$.\t   B. $\\forall  x \\in \\mathbb{N}: - 3 x^{2} - 5 x \\ge 0$.\n    C. $\\forall  x \\in \\mathbb{N}: - 3 x^{2} - 5 x \\le 0$.\t     D. $\\forall  x \\in \\mathbb{N}: - 3 x^{2} - 5 x > 0$.\n\nLời giải:\n Chọn A \n Mệnh đề phủ định là: $\\forall x \\in \\mathbb{N}: - 3 x^{2} - 5 x < 0$. \n\n", "options": [{"label": "A", "text": "$\\forall x \\in \\mathbb{N}: - 3 x^{2} - 5 x < 0$.", "is_correct": true}, {"label": "B", "text": "$\\forall x \\in \\mathbb{N}: - 3 x^{2} - 5 x \\ge 0$.", "is_correct": false}, {"label": "C", "text": "$\\forall x \\in \\mathbb{N}: - 3 x^{2} - 5 x \\le 0$.", "is_correct": false}, {"label": "D", "text": "$\\forall x \\in \\mathbb{N}: - 3 x^{2} - 5 x > 0$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 12", "part": 1, "type": "mc", "content": "Mệnh đề phủ định của mệnh đề \"P:$\\forall x \\in \\mathbb{Q}: 6 - 3 x \\ge 0$\" là", "images": [], "explanation": "Mệnh đề phủ định của mệnh đề \"P:$\\forall x \\in \\mathbb{Q}: 6 - 3 x \\ge 0$\" là\n\nA. $\\exists  x \\in \\mathbb{Q}: 6 - 3 x > 0$.\t   B. $\\exists  x \\in \\mathbb{Q}: 6 - 3 x \\ge 0$.\n    C. $\\exists  x \\in \\mathbb{Q}: 6 - 3 x \\le 0$.\t     D. *$\\exists  x \\in \\mathbb{Q}: 6 - 3 x < 0$.\n\nLời giải:\n Chọn D \n Mệnh đề phủ định là: $\\exists x \\in \\mathbb{Q}: 6 - 3 x < 0$. \n\n", "options": [{"label": "A", "text": "$\\exists x \\in \\mathbb{Q}: 6 - 3 x > 0$.", "is_correct": false}, {"label": "B", "text": "$\\exists x \\in \\mathbb{Q}: 6 - 3 x \\ge 0$.", "is_correct": false}, {"label": "C", "text": "$\\exists x \\in \\mathbb{Q}: 6 - 3 x \\le 0$.", "is_correct": false}, {"label": "D", "text": "$\\exists x \\in \\mathbb{Q}: 6 - 3 x < 0$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 13", "part": 1, "type": "mc", "content": "Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng", "images": [], "explanation": "Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng\n\nA. Nếu ${11}$ là số nguyên tố thì ${6}$ là số lẻ.\n   B. *Nếu ${8}$ là số chẵn thì ${73}$ là số nguyên tố.\n    C. Nếu ${13}$ là số tự nhiên thì ${53}$ là hợp số .\n     D. Nếu ${39}$ là số lẻ thì ${40}$ là số lẻ.\n\nLời giải:\n Chọn B \n Nếu ${8}$ là số chẵn thì ${73}$ là số nguyên tố là khẳng định đúng \n\n", "options": [{"label": "A", "text": "Nếu ${11}$ là số nguyên tố thì ${6}$ là số lẻ.", "is_correct": false}, {"label": "B", "text": "Nếu ${8}$ là số chẵn thì ${73}$ là số nguyên tố.", "is_correct": true}, {"label": "C", "text": "Nếu ${13}$ là số tự nhiên thì ${53}$ là hợp số .", "is_correct": false}, {"label": "D", "text": "Nếu ${39}$ là số lẻ thì ${40}$ là số lẻ.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 14", "part": 1, "type": "mc", "content": "Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng", "images": [], "explanation": "Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng\n\nA. Nếu ${43}$ là số lẻ thì ${44}$ là số lẻ.\n   B. Nếu ${17}$ là số nguyên tố thì ${36}$ là số lẻ.\n    C. Nếu ${26}$ là số tự nhiên thì ${97}$ là hợp số .\n     D. *Nếu ${97}$ là số nguyên tố thì ${22}$ là số chẵn.\n\nLời giải:\n Chọn D \n Nếu ${97}$ là số nguyên tố thì ${22}$ là số chẵn là khẳng định đúng \n\n", "options": [{"label": "A", "text": "Nếu ${43}$ là số lẻ thì ${44}$ là số lẻ.", "is_correct": false}, {"label": "B", "text": "Nếu ${17}$ là số nguyên tố thì ${36}$ là số lẻ.", "is_correct": false}, {"label": "C", "text": "Nếu ${26}$ là số tự nhiên thì ${97}$ là hợp số .", "is_correct": false}, {"label": "D", "text": "Nếu ${97}$ là số nguyên tố thì ${22}$ là số chẵn.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 15", "part": 1, "type": "mc", "content": "Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng", "images": [], "explanation": "Trong các mệnh đề kéo theo sau, mệnh đề nào là mệnh đề đúng\n\nA. Nếu ${96}$ là số nguyên thì ${17}$ là hợp số .\n   B. *Nếu ${4}$ chia hết cho ${2}$ thì ${19}$ là số lẻ.\n    C. Nếu ${5}$ là số lẻ thì ${6}$ là số lẻ.\n     D. Nếu ${29}$ là số nguyên tố thì ${28}$ là số lẻ.\n\nLời giải:\n Chọn B \n Nếu ${4}$ chia hết cho ${2}$ thì ${19}$ là số lẻ là khẳng định đúng \n\n", "options": [{"label": "A", "text": "Nếu ${96}$ là số nguyên thì ${17}$ là hợp số .", "is_correct": false}, {"label": "B", "text": "Nếu ${4}$ chia hết cho ${2}$ thì ${19}$ là số lẻ.", "is_correct": true}, {"label": "C", "text": "Nếu ${5}$ là số lẻ thì ${6}$ là số lẻ.", "is_correct": false}, {"label": "D", "text": "Nếu ${29}$ là số nguyên tố thì ${28}$ là số lẻ.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 16", "part": 1, "type": "mc", "content": "Cho tứ giác ${AKNP}$. Xét hai mệnh đề:\n\n$P$: ''Tứ giác ${AKNP}$ là hình thoi''.\n\n$Q$: ''Tứ giác ${AKNP}$ có hai đường chéo vuông góc''.\n\nMệnh đề nào sau đây là mệnh đề $P\\Leftrightarrow Q$?", "images": [], "explanation": "Cho tứ giác ${AKNP}$. Xét hai mệnh đề:\n\n$P$: ''Tứ giác ${AKNP}$ là hình thoi''.\n\n$Q$: ''Tứ giác ${AKNP}$ có hai đường chéo vuông góc''.\n\nMệnh đề nào sau đây là mệnh đề $P\\Leftrightarrow Q$?\nA. Tứ giác ${AKNP}$ là hình thoi nếu nó có hai đường chéo vuông góc.\nB. Nếu tứ giác ${AKNP}$ có hai đường chéo vuông góc thì nó không là hình thoi.\nC. Tứ giác ${AKNP}$ có hai đường chéo vuông góc thì nó là hình thoi.\nD. *Tứ giác ${AKNP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.\n\nLời giải:\nChọn D\nMệnh đề $P\\Leftrightarrow Q$ là mệnh đề tương đương, được phát biểu dưới dạng ''$P$ là điều kiện cần và đủ để có $Q$'' hoặc ''$P$ khi và chỉ khi $Q$''.\n\nDo đó mệnh đề đúng là: ''Tứ giác ${AKNP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.''\n\n", "options": [{"label": "A", "text": "Tứ giác ${AKNP}$ là hình thoi nếu nó có hai đường chéo vuông góc.", "is_correct": false}, {"label": "B", "text": "Nếu tứ giác ${AKNP}$ có hai đường chéo vuông góc thì nó không là hình thoi.", "is_correct": false}, {"label": "C", "text": "Tứ giác ${AKNP}$ có hai đường chéo vuông góc thì nó là hình thoi.", "is_correct": false}, {"label": "D", "text": "Tứ giác ${AKNP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 17", "part": 1, "type": "mc", "content": "Cho tứ giác ${CJMO}$. Xét hai mệnh đề:\n\n$P$: ''Tứ giác ${CJMO}$ là hình thoi''.\n\n$Q$: ''Tứ giác ${CJMO}$ có hai đường chéo vuông góc''.\n\nMệnh đề nào sau đây là mệnh đề $P\\Leftrightarrow Q$?", "images": [], "explanation": "Cho tứ giác ${CJMO}$. Xét hai mệnh đề:\n\n$P$: ''Tứ giác ${CJMO}$ là hình thoi''.\n\n$Q$: ''Tứ giác ${CJMO}$ có hai đường chéo vuông góc''.\n\nMệnh đề nào sau đây là mệnh đề $P\\Leftrightarrow Q$?\nA. Tứ giác ${CJMO}$ có hai đường chéo vuông góc là điều kiện cần để nó là hình thoi.\nB. *Tứ giác ${CJMO}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.\nC. Tứ giác ${CJMO}$ là hình thoi nếu nó có hai đường chéo vuông góc.\nD. Tứ giác ${CJMO}$ là hình thoi thì nó có hai đường chéo vuông góc.\n\nLời giải:\nChọn B\nMệnh đề $P\\Leftrightarrow Q$ là mệnh đề tương đương, được phát biểu dưới dạng ''$P$ là điều kiện cần và đủ để có $Q$'' hoặc ''$P$ khi và chỉ khi $Q$''.\n\nDo đó mệnh đề đúng là: ''Tứ giác ${CJMO}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.''\n\n", "options": [{"label": "A", "text": "Tứ giác ${CJMO}$ có hai đường chéo vuông góc là điều kiện cần để nó là hình thoi.", "is_correct": false}, {"label": "B", "text": "Tứ giác ${CJMO}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.", "is_correct": true}, {"label": "C", "text": "Tứ giác ${CJMO}$ là hình thoi nếu nó có hai đường chéo vuông góc.", "is_correct": false}, {"label": "D", "text": "Tứ giác ${CJMO}$ là hình thoi thì nó có hai đường chéo vuông góc.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 18", "part": 1, "type": "mc", "content": "Cho tứ giác ${EFOP}$. Xét hai mệnh đề:\n\n$P$: ''Tứ giác ${EFOP}$ là hình thoi''.\n\n$Q$: ''Tứ giác ${EFOP}$ có hai đường chéo vuông góc''.\n\nMệnh đề nào sau đây là mệnh đề $P\\Leftrightarrow Q$?", "images": [], "explanation": "Cho tứ giác ${EFOP}$. Xét hai mệnh đề:\n\n$P$: ''Tứ giác ${EFOP}$ là hình thoi''.\n\n$Q$: ''Tứ giác ${EFOP}$ có hai đường chéo vuông góc''.\n\nMệnh đề nào sau đây là mệnh đề $P\\Leftrightarrow Q$?\nA. Tứ giác ${EFOP}$ có hai đường chéo vuông góc thì nó là hình thoi.\nB. Nếu tứ giác ${EFOP}$ có hai đường chéo vuông góc thì nó không là hình thoi.\nC. *Tứ giác ${EFOP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.\nD. Tứ giác ${EFOP}$ là hình thoi thì nó có hai đường chéo vuông góc.\n\nLời giải:\nChọn C\nMệnh đề $P\\Leftrightarrow Q$ là mệnh đề tương đương, được phát biểu dưới dạng ''$P$ là điều kiện cần và đủ để có $Q$'' hoặc ''$P$ khi và chỉ khi $Q$''.\n\nDo đó mệnh đề đúng là: ''Tứ giác ${EFOP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.''\n\n", "options": [{"label": "A", "text": "Tứ giác ${EFOP}$ có hai đường chéo vuông góc thì nó là hình thoi.", "is_correct": false}, {"label": "B", "text": "Nếu tứ giác ${EFOP}$ có hai đường chéo vuông góc thì nó không là hình thoi.", "is_correct": false}, {"label": "C", "text": "Tứ giác ${EFOP}$ là hình thoi là điều kiện cần và đủ để tứ giác đó có hai đường chéo vuông góc.", "is_correct": true}, {"label": "D", "text": "Tứ giác ${EFOP}$ là hình thoi thì nó có hai đường chéo vuông góc.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 19", "part": 1, "type": "mc", "content": "Cho tứ giác ${ABIK}$. Xét mệnh đề: ''Nếu tứ giác ${ABIK}$ là hình chữ nhật thì tứ giác ${ABIK}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?", "images": [], "explanation": "Cho tứ giác ${ABIK}$. Xét mệnh đề: ''Nếu tứ giác ${ABIK}$ là hình chữ nhật thì tứ giác ${ABIK}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?\nA. *Nếu tứ giác ${ABIK}$ có hai đường chéo bằng nhau thì tứ giác ${ABIK}$ là hình chữ nhật.\nB. Nếu tứ giác ${ABIK}$ không có hai đường chéo bằng nhau thì tứ giác ${ABIK}$ không là hình chữ nhật.\nC. Mệnh đề đã cho không có mệnh đề đảo.\nD. Nếu tứ giác ${ABIK}$ không là hình chữ nhật thì tứ giác ${ABIK}$ có hai đường chéo bằng nhau.\n\nLời giải:\nChọn A\nMệnh đề đã cho có dạng $P\\Rightarrow Q$ với:\n\n$P$: ''tứ giác ${ABIK}$ là hình chữ nhật''.\n\n$Q$: ''tứ giác ${ABIK}$ có hai đường chéo bằng nhau''.\n\nMệnh đề đảo của mệnh đề $P\\Rightarrow Q$ là mệnh đề $Q\\Rightarrow P$.\n\nDo đó mệnh đề đảo là: ''Nếu tứ giác ${ABIK}$ có hai đường chéo bằng nhau thì tứ giác ${ABIK}$ là hình chữ nhật''.\n\n\n\n", "options": [{"label": "A", "text": "Nếu tứ giác ${ABIK}$ có hai đường chéo bằng nhau thì tứ giác ${ABIK}$ là hình chữ nhật.", "is_correct": true}, {"label": "B", "text": "Nếu tứ giác ${ABIK}$ không có hai đường chéo bằng nhau thì tứ giác ${ABIK}$ không là hình chữ nhật.", "is_correct": false}, {"label": "C", "text": "Mệnh đề đã cho không có mệnh đề đảo.", "is_correct": false}, {"label": "D", "text": "Nếu tứ giác ${ABIK}$ không là hình chữ nhật thì tứ giác ${ABIK}$ có hai đường chéo bằng nhau.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 20", "part": 1, "type": "mc", "content": "Cho tứ giác ${BDEL}$. Xét mệnh đề: ''Nếu tứ giác ${BDEL}$ là hình chữ nhật thì tứ giác ${BDEL}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?", "images": [], "explanation": "Cho tứ giác ${BDEL}$. Xét mệnh đề: ''Nếu tứ giác ${BDEL}$ là hình chữ nhật thì tứ giác ${BDEL}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?\nA. Nếu tứ giác ${BDEL}$ có hai đường chéo bằng nhau thì tứ giác ${BDEL}$ không là hình chữ nhật.\nB. Nếu tứ giác ${BDEL}$ không là hình chữ nhật thì tứ giác ${BDEL}$ có hai đường chéo bằng nhau.\nC. Nếu tứ giác ${BDEL}$ là hình chữ nhật thì tứ giác ${BDEL}$ không có hai đường chéo bằng nhau.\nD. *Nếu tứ giác ${BDEL}$ có hai đường chéo bằng nhau thì tứ giác ${BDEL}$ là hình chữ nhật.\n\nLời giải:\nChọn D\nMệnh đề đã cho có dạng $P\\Rightarrow Q$ với:\n\n$P$: ''tứ giác ${BDEL}$ là hình chữ nhật''.\n\n$Q$: ''tứ giác ${BDEL}$ có hai đường chéo bằng nhau''.\n\nMệnh đề đảo của mệnh đề $P\\Rightarrow Q$ là mệnh đề $Q\\Rightarrow P$.\n\nDo đó mệnh đề đảo là: ''Nếu tứ giác ${BDEL}$ có hai đường chéo bằng nhau thì tứ giác ${BDEL}$ là hình chữ nhật''.\n\n\n\n", "options": [{"label": "A", "text": "Nếu tứ giác ${BDEL}$ có hai đường chéo bằng nhau thì tứ giác ${BDEL}$ không là hình chữ nhật.", "is_correct": false}, {"label": "B", "text": "Nếu tứ giác ${BDEL}$ không là hình chữ nhật thì tứ giác ${BDEL}$ có hai đường chéo bằng nhau.", "is_correct": false}, {"label": "C", "text": "Nếu tứ giác ${BDEL}$ là hình chữ nhật thì tứ giác ${BDEL}$ không có hai đường chéo bằng nhau.", "is_correct": false}, {"label": "D", "text": "Nếu tứ giác ${BDEL}$ có hai đường chéo bằng nhau thì tứ giác ${BDEL}$ là hình chữ nhật.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 21", "part": 1, "type": "mc", "content": "Cho tứ giác ${AFIM}$. Xét mệnh đề: ''Nếu tứ giác ${AFIM}$ là hình chữ nhật thì tứ giác ${AFIM}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?", "images": [], "explanation": "Cho tứ giác ${AFIM}$. Xét mệnh đề: ''Nếu tứ giác ${AFIM}$ là hình chữ nhật thì tứ giác ${AFIM}$ có hai đường chéo bằng nhau''. Mệnh đề nào sau đây là mệnh đề đảo?\nA. Nếu tứ giác ${AFIM}$ không có hai đường chéo bằng nhau thì tứ giác ${AFIM}$ không là hình chữ nhật.\nB. Mệnh đề đã cho không có mệnh đề đảo.\nC. *Nếu tứ giác ${AFIM}$ có hai đường chéo bằng nhau thì tứ giác ${AFIM}$ là hình chữ nhật.\nD. Nếu tứ giác ${AFIM}$ không là hình chữ nhật thì tứ giác ${AFIM}$ có hai đường chéo bằng nhau.\n\nLời giải:\nChọn C\nMệnh đề đã cho có dạng $P\\Rightarrow Q$ với:\n\n$P$: ''tứ giác ${AFIM}$ là hình chữ nhật''.\n\n$Q$: ''tứ giác ${AFIM}$ có hai đường chéo bằng nhau''.\n\nMệnh đề đảo của mệnh đề $P\\Rightarrow Q$ là mệnh đề $Q\\Rightarrow P$.\n\nDo đó mệnh đề đảo là: ''Nếu tứ giác ${AFIM}$ có hai đường chéo bằng nhau thì tứ giác ${AFIM}$ là hình chữ nhật''.\n\n\n\n", "options": [{"label": "A", "text": "Nếu tứ giác ${AFIM}$ không có hai đường chéo bằng nhau thì tứ giác ${AFIM}$ không là hình chữ nhật.", "is_correct": false}, {"label": "B", "text": "Mệnh đề đã cho không có mệnh đề đảo.", "is_correct": false}, {"label": "C", "text": "Nếu tứ giác ${AFIM}$ có hai đường chéo bằng nhau thì tứ giác ${AFIM}$ là hình chữ nhật.", "is_correct": true}, {"label": "D", "text": "Nếu tứ giác ${AFIM}$ không là hình chữ nhật thì tứ giác ${AFIM}$ có hai đường chéo bằng nhau.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 22", "part": 1, "type": "mc", "content": "Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: \"Nếu một tam giác có một góc bằng $90^\\circ$ thì tam giác đó là tam giác vuông\"?", "images": [], "explanation": "Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: \"Nếu một tam giác có một góc bằng $90^\\circ$ thì tam giác đó là tam giác vuông\"?\nA. *Tam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\\circ$.\t   B. Tam giác đó là tam giác vuông là điều kiện cần để một tam giác có một góc bằng $90^\\circ$.\n    C. Tam giác đó là tam giác vuông là điều kiện cần và đủ để một tam giác có một góc bằng $90^\\circ$.\n     D. Một tam giác có một góc bằng $90^\\circ$ là điều kiện đủ để tam giác đó là tam giác vuông.\n\nLời giải:\n Chọn A\nMệnh đề đảo là $Q\\Rightarrow P$: ''Nếu tam giác đó là tam giác vuông thì một tam giác có một góc bằng $90^\\circ$''.\n\nTam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\\circ$.\n\n\n\n", "options": [{"label": "A", "text": "Tam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\\circ$.", "is_correct": true}, {"label": "B", "text": "Tam giác đó là tam giác vuông là điều kiện cần để một tam giác có một góc bằng $90^\\circ$.", "is_correct": false}, {"label": "C", "text": "Tam giác đó là tam giác vuông là điều kiện cần và đủ để một tam giác có một góc bằng $90^\\circ$.", "is_correct": false}, {"label": "D", "text": "Một tam giác có một góc bằng $90^\\circ$ là điều kiện đủ để tam giác đó là tam giác vuông.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 23", "part": 1, "type": "mc", "content": "Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: \"Nếu một tam giác có một góc bằng $90^\\circ$ thì tam giác đó là tam giác vuông\"?", "images": [], "explanation": "Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: \"Nếu một tam giác có một góc bằng $90^\\circ$ thì tam giác đó là tam giác vuông\"?\nA. Tam giác đó là tam giác vuông là điều kiện cần và đủ để một tam giác có một góc bằng $90^\\circ$.\t   B. Một tam giác có một góc bằng $90^\\circ$ là điều kiện đủ để tam giác đó là tam giác vuông.\n    C. *Tam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\\circ$.\n     D. Tam giác đó là tam giác vuông là điều kiện cần để một tam giác có một góc bằng $90^\\circ$.\n\nLời giải:\n Chọn C\nMệnh đề đảo là $Q\\Rightarrow P$: ''Nếu tam giác đó là tam giác vuông thì một tam giác có một góc bằng $90^\\circ$''.\n\nTam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\\circ$.\n\n\n\n", "options": [{"label": "A", "text": "Tam giác đó là tam giác vuông là điều kiện cần và đủ để một tam giác có một góc bằng $90^\\circ$.", "is_correct": false}, {"label": "B", "text": "Một tam giác có một góc bằng $90^\\circ$ là điều kiện đủ để tam giác đó là tam giác vuông.", "is_correct": false}, {"label": "C", "text": "Tam giác đó là tam giác vuông là điều kiện đủ để một tam giác có một góc bằng $90^\\circ$.", "is_correct": true}, {"label": "D", "text": "Tam giác đó là tam giác vuông là điều kiện cần để một tam giác có một góc bằng $90^\\circ$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 24", "part": 1, "type": "mc", "content": "Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: \"Nếu một tam giác có ba cạnh bằng nhau thì tam giác đó là tam giác đều\"?", "images": [], "explanation": "Phát biểu nào sau đây là mệnh đề đảo của mệnh đề: \"Nếu một tam giác có ba cạnh bằng nhau thì tam giác đó là tam giác đều\"?\nA. Một tam giác có ba cạnh bằng nhau là điều kiện đủ để tam giác đó là tam giác đều.\t   B. *Tam giác đó là tam giác đều là điều kiện đủ để một tam giác có ba cạnh bằng nhau.\n    C. Tam giác đó là tam giác đều là điều kiện cần và đủ để một tam giác có ba cạnh bằng nhau.\n     D. Tam giác đó là tam giác đều là điều kiện cần để một tam giác có ba cạnh bằng nhau.\n\nLời giải:\n Chọn B\nMệnh đề đảo là $Q\\Rightarrow P$: ''Nếu tam giác đó là tam giác đều thì một tam giác có ba cạnh bằng nhau''.\n\nTam giác đó là tam giác đều là điều kiện đủ để một tam giác có ba cạnh bằng nhau.\n\n\n\n", "options": [{"label": "A", "text": "Một tam giác có ba cạnh bằng nhau là điều kiện đủ để tam giác đó là tam giác đều.", "is_correct": false}, {"label": "B", "text": "Tam giác đó là tam giác đều là điều kiện đủ để một tam giác có ba cạnh bằng nhau.", "is_correct": true}, {"label": "C", "text": "Tam giác đó là tam giác đều là điều kiện cần và đủ để một tam giác có ba cạnh bằng nhau.", "is_correct": false}, {"label": "D", "text": "Tam giác đó là tam giác đều là điều kiện cần để một tam giác có ba cạnh bằng nhau.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 1", "part": 2, "type": "tf", "content": "Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Xét tính đúng-sai của các khẳng định sau. \n\na) *Mệnh đề \"${223}$ là số lẻ\" là mệnh đề đúng.\nb) *Mệnh đề \"${216}$ chia hết cho ${6}$\" là mệnh đề đúng.\nc) *Mệnh đề \"${5329}$ là số chính phương\" là mệnh đề đúng.\nd) *\"${\\sqrt{55}}$ là số vô tỉ\" là mệnh đề đúng.\n\nLời giải:\n a-đúng, b-đúng, c-đúng, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n Mệnh đề \"${223}$ là số lẻ\" là mệnh đề đúng\nb) Khẳng định đã cho là khẳng định đúng.\n\n Vì $216=6^3$ nên ${216}$ chia hết cho ${6}$.\nc) Khẳng định đã cho là khẳng định đúng.\n\n Vì $5329=73^2$ nên ${5329}$ là số chính phương.\nd) Khẳng định đã cho là khẳng định đúng.\n\n ${\\sqrt{55}}$ là số vô tỉ\" là mệnh đề đúng\n \n\n", "options": [{"label": "a)", "text": "Mệnh đề \"${223}$ là số lẻ\" là mệnh đề đúng.", "is_correct": true}, {"label": "b)", "text": "Mệnh đề \"${216}$ chia hết cho ${6}$\" là mệnh đề đúng.", "is_correct": true}, {"label": "c)", "text": "Mệnh đề \"${5329}$ là số chính phương\" là mệnh đề đúng.", "is_correct": true}, {"label": "d)", "text": "\"${\\sqrt{55}}$ là số vô tỉ\" là mệnh đề đúng.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 2", "part": 2, "type": "tf", "content": "Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Xét tính đúng-sai của các khẳng định sau. \n\na) Mệnh đề \"${512}$ chia hết cho ${8}$\" là mệnh đề sai.\nb) \"${\\sqrt{38}}$ là số vô tỉ\" là mệnh đề sai.\nc) Mệnh đề \"${27000}$ là số chính phương\" là mệnh đề đúng.\nd) *Mệnh đề \"${33}$ là số lẻ\" là mệnh đề đúng.\n\nLời giải:\n a-sai, b-sai, c-sai, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định sai.\n\n Vì $512=8^3$ nên ${512}$ chia hết cho ${8}$.\nb) Khẳng định đã cho là khẳng định sai.\n\n ${\\sqrt{38}}$ là số vô tỉ\" là mệnh đề đúng\nc) Khẳng định đã cho là khẳng định sai.\n\n Vì $27000=30^3$ nên ${27000}$ không là số chính phương.\nd) Khẳng định đã cho là khẳng định đúng.\n\n Mệnh đề \"${33}$ là số lẻ\" là mệnh đề đúng\n \n\n", "options": [{"label": "a)", "text": "Mệnh đề \"${512}$ chia hết cho ${8}$\" là mệnh đề sai.", "is_correct": false}, {"label": "b)", "text": "\"${\\sqrt{38}}$ là số vô tỉ\" là mệnh đề sai.", "is_correct": false}, {"label": "c)", "text": "Mệnh đề \"${27000}$ là số chính phương\" là mệnh đề đúng.", "is_correct": false}, {"label": "d)", "text": "Mệnh đề \"${33}$ là số lẻ\" là mệnh đề đúng.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 3", "part": 2, "type": "tf", "content": "Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Xét tính đúng-sai của các khẳng định sau. \n\na) Mệnh đề \"${2209}$ là số chính phương\" là mệnh đề sai.\nb) Mệnh đề \"${43}$ là số lẻ\" là mệnh đề sai.\nc) *Mệnh đề \"${28}$ chia hết cho ${3}$\" là mệnh đề sai.\nd) \"${\\sqrt{83}}$ là số vô tỉ\" là mệnh đề sai.\n\nLời giải:\n a-sai, b-sai, c-đúng, d-sai.\n\n\n a) Khẳng định đã cho là khẳng định sai.\n\n Vì $2209=47^2$ nên ${2209}$ là số chính phương.\nb) Khẳng định đã cho là khẳng định sai.\n\n Mệnh đề \"${43}$ là số lẻ\" là mệnh đề đúng\nc) Khẳng định đã cho là khẳng định đúng.\n\n Vì $28=3^3+1$ nên ${28}$ không chia hết cho ${3}$.\nd) Khẳng định đã cho là khẳng định sai.\n\n ${\\sqrt{83}}$ là số vô tỉ\" là mệnh đề đúng\n \n\n", "options": [{"label": "a)", "text": "Mệnh đề \"${2209}$ là số chính phương\" là mệnh đề sai.", "is_correct": false}, {"label": "b)", "text": "Mệnh đề \"${43}$ là số lẻ\" là mệnh đề sai.", "is_correct": false}, {"label": "c)", "text": "Mệnh đề \"${28}$ chia hết cho ${3}$\" là mệnh đề sai.", "is_correct": true}, {"label": "d)", "text": "\"${\\sqrt{83}}$ là số vô tỉ\" là mệnh đề sai.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 4", "part": 2, "type": "tf", "content": "Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau.", "images": [], "explanation": "Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau. \n\na) *$65-91<0$.\nb) *${5}$ là số nguyên tố.\nc) *Mệnh đề phủ định của \"$161\\le 178$\" là \"$161 > 178$\".\nd) *$\\exists x \\in \\mathbb{R}:x^{2} + 9 x + 6 > 5 x + 1$.\n\nLời giải:\n a-đúng, b-đúng, c-đúng, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n \nb) Khẳng định đã cho là khẳng định đúng.\n\n \nc) Khẳng định đã cho là khẳng định đúng.\n\n Mệnh đề phủ định của \"$161\\le 178$\" là \"$161 > 178$\"\nd) Khẳng định đã cho là khẳng định đúng.\n\n $\\forall x \\in \\mathbb{R}:x^{2} + 9 x + 6-(5 x + 1)=x^{2} + 4 x + 5 =\\left(x + 2\\right)^{2} + 1 \\ge 0$.\n \n\n", "options": [{"label": "a)", "text": "$65-91<0$.", "is_correct": true}, {"label": "b)", "text": "${5}$ là số nguyên tố.", "is_correct": true}, {"label": "c)", "text": "Mệnh đề phủ định của \"$161\\le 178$\" là \"$161 > 178$\".", "is_correct": true}, {"label": "d)", "text": "$\\exists x \\in \\mathbb{R}:x^{2} + 9 x + 6 > 5 x + 1$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 5", "part": 2, "type": "tf", "content": "Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau.", "images": [], "explanation": "Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau. \n\na) *$190=148+42$.\nb) *${20}$ không phải là số nguyên tố.\nc) *Mệnh đề phủ định của \"$52\\le 89$\" là \"$52 > 89$\".\nd) *$\\forall x \\in \\mathbb{R}:- 4 x^{2} + 11 x - 10 < 3 x - 4$.\n\nLời giải:\n a-đúng, b-đúng, c-đúng, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n \nb) Khẳng định đã cho là khẳng định đúng.\n\n Vì $20=2^{2} \\cdot 5$ nên ${b}$ không phải là số nguyên tố.\nc) Khẳng định đã cho là khẳng định đúng.\n\n Mệnh đề phủ định của \"$52\\le 89$\" là \"$52 > 89$\"\nd) Khẳng định đã cho là khẳng định đúng.\n\n $\\forall x \\in \\mathbb{R}:- 4 x^{2} + 11 x - 10-(3 x - 4)=- 4 x^{2} + 8 x - 6 =- \\left(2 x - 2\\right)^{2} - 2 \\le 0$.\n \n\n", "options": [{"label": "a)", "text": "$190=148+42$.", "is_correct": true}, {"label": "b)", "text": "${20}$ không phải là số nguyên tố.", "is_correct": true}, {"label": "c)", "text": "Mệnh đề phủ định của \"$52\\le 89$\" là \"$52 > 89$\".", "is_correct": true}, {"label": "d)", "text": "$\\forall x \\in \\mathbb{R}:- 4 x^{2} + 11 x - 10 < 3 x - 4$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 6", "part": 2, "type": "tf", "content": "Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau.", "images": [], "explanation": "Xét tính đúng-sai của các mệnh đề và mệnh đề chứa biến sau. \n\na) $-81=-40$.\nb) ${933}$ là số nguyên tố.\nc) Mệnh đề phủ định của \"$43>75$\" là \"$43\\ne 75$\".\nd) *$\\forall x \\in \\mathbb{R}:4 x^{2} + 16 x + 9 > 4 x - 2$.\n\nLời giải:\n a-sai, b-sai, c-sai, d-đúng.\n\n\n a) Khẳng định đã cho là khẳng định sai.\n\n \nb) Khẳng định đã cho là khẳng định sai.\n\n Vì $933=3 \\cdot 311$ nên ${b}$ không phải là số nguyên tố.\nc) Khẳng định đã cho là khẳng định sai.\n\n Mệnh đề phủ định của \"$43>75$\" là \"$43 \\le 75$\"\nd) Khẳng định đã cho là khẳng định đúng.\n\n $\\forall x \\in \\mathbb{R}:4 x^{2} + 16 x + 9-(4 x - 2)=4 x^{2} + 12 x + 11 =\\left(2 x + 3\\right)^{2} + 2 \\ge 0$.\n \n\n", "options": [{"label": "a)", "text": "$-81=-40$.", "is_correct": false}, {"label": "b)", "text": "${933}$ là số nguyên tố.", "is_correct": false}, {"label": "c)", "text": "Mệnh đề phủ định của \"$43>75$\" là \"$43\\ne 75$\".", "is_correct": false}, {"label": "d)", "text": "$\\forall x \\in \\mathbb{R}:4 x^{2} + 16 x + 9 > 4 x - 2$.", "is_correct": true}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 7", "part": 2, "type": "tf", "content": "Cho $P(n)=- n^{2} + 2 n - 5$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho $P(n)=- n^{2} + 2 n - 5$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.\n\na) $P(-4)$ là số dương.\nb) $P(0)>9$.\nc) *$P(4a)-P(a)=- 15 a^{2} + 6 a$.\nd) Số các số nguyên n để $\\dfrac{P(n)-2}{n - 1}$ là số nguyên là ${11}$.\n\nLời giải:\n a-sai, b-sai, c-đúng, d-sai.\n\n\n a) Khẳng định đã cho là khẳng định sai.\n\n $P(-4)=-29$ là số lẻ.\nb) Khẳng định đã cho là khẳng định sai.\n\n $P(0)=-5\\le 0$\nc) Khẳng định đã cho là khẳng định đúng.\n\n $P(4a)-P(a)=- 16 a^{2} + 8 a - 5-(- a^{2} + 2 a - 5)=- 15 a^{2} + 6 a$.\nd) Khẳng định đã cho là khẳng định sai.\n\n $A=\\dfrac{P(n)-2}{n - 1}=\\dfrac{- n^{2} + 2 n - 5-2}{n - 1}=\\dfrac{- \\left(n - 1\\right)^{2} - 6 }{n - 1}=-1(n-1)+\\dfrac{-6}{n - 1}$.\n\n${A}$ là số nguyên khi $\\dfrac{-6}{n - 1}$ là số nguyên.\n\nKhi đó: $n\\in \\{0,-1,-2,-5,2,3,4,7\\}$.\n\nSố các số nguyên n để $\\dfrac{P(n)-2}{n - 1}$ là số nguyên là ${8}$.\n \n\n", "options": [{"label": "a)", "text": "$P(-4)$ là số dương.", "is_correct": false}, {"label": "b)", "text": "$P(0)>9$.", "is_correct": false}, {"label": "c)", "text": "$P(4a)-P(a)=- 15 a^{2} + 6 a$.", "is_correct": true}, {"label": "d)", "text": "Số các số nguyên n để $\\dfrac{P(n)-2}{n - 1}$ là số nguyên là ${11}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 8", "part": 2, "type": "tf", "content": "Cho $P(n)=n^{2} + 4 n + 5$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho $P(n)=n^{2} + 4 n + 5$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.\n\na) $P(6)$ không phải là số dương.\nb) *$P(-2)$ chia hết cho ${1}$.\nc) *$P(4a)-P(a)=15 a^{2} + 12 a$.\nd) Số các số nguyên n để $\\dfrac{P(n)+4}{n + 2}$ là số nguyên là ${6}$.\n\nLời giải:\n a-sai, b-đúng, c-đúng, d-sai.\n\n\n a) Khẳng định đã cho là khẳng định sai.\n\n $P(6)=65$ là số chẵn.\nb) Khẳng định đã cho là khẳng định đúng.\n\n $P(-2)=1$ chia hết cho ${1}$\nc) Khẳng định đã cho là khẳng định đúng.\n\n $P(4a)-P(a)=16 a^{2} + 16 a + 5-(a^{2} + 4 a + 5)=15 a^{2} + 12 a$.\nd) Khẳng định đã cho là khẳng định sai.\n\n $A=\\dfrac{P(n)+4}{n + 2}=\\dfrac{n^{2} + 4 n + 5+4}{n + 2}=\\dfrac{\\left(n + 2\\right)^{2} + 5 }{n + 2}=1(n--2)+\\dfrac{5}{n + 2}$.\n\n${A}$ là số nguyên khi $\\dfrac{5}{n + 2}$ là số nguyên.\n\nKhi đó: $n\\in \\{-3,-7,-1,3\\}$.\n\nSố các số nguyên n để $\\dfrac{P(n)+4}{n + 2}$ là số nguyên là ${4}$.\n \n\n", "options": [{"label": "a)", "text": "$P(6)$ không phải là số dương.", "is_correct": false}, {"label": "b)", "text": "$P(-2)$ chia hết cho ${1}$.", "is_correct": true}, {"label": "c)", "text": "$P(4a)-P(a)=15 a^{2} + 12 a$.", "is_correct": true}, {"label": "d)", "text": "Số các số nguyên n để $\\dfrac{P(n)+4}{n + 2}$ là số nguyên là ${6}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}, {"title": "Câu 9", "part": 2, "type": "tf", "content": "Cho $P(n)=- 4 n^{2} + 8 n - 1$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.", "images": [], "explanation": "Cho $P(n)=- 4 n^{2} + 8 n - 1$ với ${n}$ là số nguyên. Xét tính đúng-sai của các khẳng định sau.\n\na) *$P(-3)$ không phải là số dương.\nb) $P(1)$ không chia hết cho ${1}$.\nc) *$P(2a)-P(a)=- 12 a^{2} + 8 a$.\nd) Số các số nguyên n để $\\dfrac{P(n)+1}{n - 1}$ là số nguyên là ${7}$.\n\nLời giải:\n a-đúng, b-sai, c-đúng, d-sai.\n\n\n a) Khẳng định đã cho là khẳng định đúng.\n\n $P(-3)=-61$ là số lẻ.\nb) Khẳng định đã cho là khẳng định sai.\n\n $P(1)=3$ chia hết cho ${1}$\nc) Khẳng định đã cho là khẳng định đúng.\n\n $P(2a)-P(a)=- 16 a^{2} + 16 a - 1-(- 4 a^{2} + 8 a - 1)=- 12 a^{2} + 8 a$.\nd) Khẳng định đã cho là khẳng định sai.\n\n $A=\\dfrac{P(n)+1}{n - 1}=\\dfrac{- 4 n^{2} + 8 n - 1+1}{n - 1}=\\dfrac{4 - 4 \\left(n - 1\\right)^{2} }{n - 1}=-4(n-1)+\\dfrac{4}{n - 1}$.\n\n${A}$ là số nguyên khi $\\dfrac{4}{n - 1}$ là số nguyên.\n\nKhi đó: $n\\in \\{0,-1,-3,2,3,5\\}$.\n\nSố các số nguyên n để $\\dfrac{P(n)+1}{n - 1}$ là số nguyên là ${6}$.\n \n\n", "options": [{"label": "a)", "text": "$P(-3)$ không phải là số dương.", "is_correct": true}, {"label": "b)", "text": "$P(1)$ không chia hết cho ${1}$.", "is_correct": false}, {"label": "c)", "text": "$P(2a)-P(a)=- 12 a^{2} + 8 a$.", "is_correct": true}, {"label": "d)", "text": "Số các số nguyên n để $\\dfrac{P(n)+1}{n - 1}$ là số nguyên là ${7}$.", "is_correct": false}], "correct_answer": "", "image_paths": [], "image_lookup": {}}];
+                    initSlides(data);
+                    initImageZoom(); 
+                } caMHh(err) {
+                    document.body.innerHTML = "<div style='padding:30px; text-align:center; font-family: sans-serif;'><h2 style='color:#dc2626; font-size:24px;'>⚠️ LỖI HIỂN THỊ TRÊN ZALO/MESSENGER</h2><p style='font-size:18px; color:#334155;'>Trình duyệt nội bộ đang chặn hệ thống Toán học.</p><p style='font-size:16px; color:#004b87; font-weight:bold; background:#e0f2fe; padding:15px; border-radius:10px;'>👉 Vui lòng bấm nút [Chia sẻ] (Góc trên bên phải) ➔ Chọn [Mở bằng Safari] (hoặc Chrome) để làm bài bình thường nhé!</p></div>";
+                }
+            });
+        </script>
+        </body></html>
