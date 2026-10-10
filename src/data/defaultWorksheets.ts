@@ -20430,6 +20430,10 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$2$',
           'Không tồn tại'
         ],
+          correctIndex: 0,
+          solution: 'Phân tích thành nhân tử: $\\lim_{x \\to 2} \\frac{(x-2)(x+2)}{x-2} = \\lim_{x \\to 2} (x+2) = 4$'
+        }
+      ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
