@@ -19,7 +19,10 @@ import {
   Sparkles,
   FileText,
   KeyRound,
-  GraduationCap
+  GraduationCap,
+  Monitor,
+  Maximize2,
+  X
 } from 'lucide-react';
 
 interface WorksheetViewerProps {
@@ -112,13 +115,32 @@ export const WorksheetViewer: React.FC<WorksheetViewerProps> = ({
   // Active viewing worksheet
   const [activeWorksheet, setActiveWorksheet] = useState<MathWorksheet | null>(null);
 
+  // Chế độ trình chiếu tương tác nội bộ (Interactive Presentation Slide Modal)
+  const [presentationUrl, setPresentationUrl] = useState<string | null>(null);
+
   // User interactive answers inside worksheet
   const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
+  const [tfAnswers, setTfAnswers] = useState<Record<string, Record<number, boolean>>>({});
+  const [shortAnswers, setShortAnswers] = useState<Record<string, string>>({});
+  const [shortChecked, setShortChecked] = useState<Record<string, boolean>>({});
   const [showSolutions, setShowSolutions] = useState<Record<string, boolean>>({});
 
   const handleSelectAnswer = (qId: string, optIdx: number) => {
     soundFx.playClick();
     setUserAnswers(prev => ({ ...prev, [qId]: optIdx }));
+  };
+
+  const handleSelectTfAnswer = (qId: string, optIdx: number, val: boolean) => {
+    soundFx.playClick();
+    setTfAnswers(prev => ({
+      ...prev,
+      [qId]: { ...(prev[qId] || {}), [optIdx]: val }
+    }));
+  };
+
+  const handleCheckShortAnswer = (qId: string) => {
+    soundFx.playClick();
+    setShortChecked(prev => ({ ...prev, [qId]: true }));
   };
 
   const toggleSolution = (qId: string) => {
@@ -256,16 +278,21 @@ export const WorksheetViewer: React.FC<WorksheetViewerProps> = ({
                 {activeWorksheet.description}
               </p>
             )}
+            {/* NÚT TRÌNH CHIẾU TƯƠNG TÁC SLIDE NỘI BỘ */}
             {activeWorksheet.externalUrl && (
               <div className="pt-2">
-                <a
-                  href={activeWorksheet.externalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-md transition-all hover:scale-105"
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundFx.playCorrect();
+                    setPresentationUrl(activeWorksheet.externalUrl || null);
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-black text-sm shadow-lg hover:shadow-cyan-500/20 transition-all hover:scale-105 cursor-pointer"
                 >
-                  <span>🌐 Mở chế độ trình chiếu tương tác (Gốc Netlify)</span>
-                </a>
+                  <Monitor className="w-4 h-4 text-cyan-200 animate-pulse" />
+                  <span>🖥️ Mở chế độ trình chiếu tương tác (Full Slide)</span>
+                  <Maximize2 className="w-3.5 h-3.5 text-white/80" />
+                </button>
               </div>
             )}
           </div>
@@ -291,15 +318,13 @@ export const WorksheetViewer: React.FC<WorksheetViewerProps> = ({
                 <span>II. CÂU HỎI & BÀI TẬP CỦNG CỐ ({activeWorksheet.questions.length} CÂU)</span>
               </div>
               <span className="text-xs text-slate-500 font-medium">
-                Chọn đáp án để kiểm tra nhanh
+                Tương tác trực tiếp • Có lời giải chi tiết
               </span>
             </div>
 
             <div className="space-y-6">
               {activeWorksheet.questions.map((q, idx) => {
-                const userChoice = userAnswers[q.id];
-                const hasAnswered = typeof userChoice === 'number';
-                const isCorrect = hasAnswered && userChoice === q.correctIndex;
+                const qType = q.type || (q.tfOptions ? 'tf' : q.correctAnswer ? 'short' : 'mc');
                 const isSolOpen = showSolutions[q.id];
 
                 return (
@@ -307,20 +332,44 @@ export const WorksheetViewer: React.FC<WorksheetViewerProps> = ({
                     key={q.id || idx}
                     className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-white transition-all space-y-4 shadow-2xs"
                   >
-                    {/* Câu hỏi */}
+                    {/* Header câu hỏi: Số thứ tự + Title part */}
                     <div className="flex items-start gap-3">
-                      <span className="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                         {idx + 1}
                       </span>
-                      <div className="flex-1 font-bold text-slate-900 text-sm sm:text-base leading-relaxed">
-                        <MathText text={q.question} />
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-slate-500">
+                            {q.title || `Câu ${idx + 1}`}
+                          </span>
+                          {q.part === 1 && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 text-blue-800">
+                              Trắc nghiệm 4 lựa chọn
+                            </span>
+                          )}
+                          {q.part === 2 && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-800">
+                              Trắc nghiệm Đúng / Sai
+                            </span>
+                          )}
+                          {q.part === 3 && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+                              Câu hỏi trả lời ngắn
+                            </span>
+                          )}
+                        </div>
+                        <div className="font-bold text-slate-900 text-sm sm:text-base leading-relaxed">
+                          <MathText text={q.question} />
+                        </div>
                       </div>
                     </div>
 
-                    {/* Các phương án nếu có */}
-                    {q.options && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 pl-10">
+                    {/* DẠNG 1: TRẮC NGHIỆM 4 PHƯƠNG ÁN (MC) */}
+                    {qType === 'mc' && q.options && q.options.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 pl-11">
                         {q.options.map((opt, optIdx) => {
+                          const userChoice = userAnswers[q.id];
+                          const hasAnswered = typeof userChoice === 'number';
                           const isSelected = userChoice === optIdx;
                           const isTargetCorrect = hasAnswered && optIdx === q.correctIndex;
                           let btnStyle = 'bg-white border-slate-200 hover:border-blue-400 text-slate-800';
@@ -353,8 +402,106 @@ export const WorksheetViewer: React.FC<WorksheetViewerProps> = ({
                       </div>
                     )}
 
+                    {/* DẠNG 2: ĐÚNG / SAI (TF) */}
+                    {qType === 'tf' && q.tfOptions && q.tfOptions.length > 0 && (
+                      <div className="pl-11 space-y-2 pt-1">
+                        {q.tfOptions.map((sub, sIdx) => {
+                          const chosenVal = tfAnswers[q.id]?.[sIdx];
+                          const hasChosen = typeof chosenVal === 'boolean';
+                          const isSubCorrect = hasChosen && chosenVal === sub.isCorrect;
+
+                          return (
+                            <div
+                              key={sIdx}
+                              className={`p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition ${
+                                hasChosen
+                                  ? isSubCorrect
+                                    ? 'bg-emerald-50/70 border-emerald-300'
+                                    : 'bg-rose-50/70 border-rose-300'
+                                  : 'bg-white border-slate-200'
+                              }`}
+                            >
+                              <div className="flex items-start gap-2 flex-1 text-xs sm:text-sm text-slate-800 font-medium">
+                                <span className="font-bold text-slate-700 shrink-0">
+                                  {sub.label || `${String.fromCharCode(97 + sIdx)})`}
+                                </span>
+                                <div>
+                                  <MathText text={sub.text} />
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                                <button
+                                  onClick={() => handleSelectTfAnswer(q.id, sIdx, true)}
+                                  className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                                    chosenVal === true
+                                      ? sub.isCorrect
+                                        ? 'bg-emerald-600 text-white'
+                                        : 'bg-rose-600 text-white'
+                                      : 'bg-slate-100 hover:bg-emerald-100 text-slate-700'
+                                  }`}
+                                >
+                                  Đúng
+                                </button>
+                                <button
+                                  onClick={() => handleSelectTfAnswer(q.id, sIdx, false)}
+                                  className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                                    chosenVal === false
+                                      ? !sub.isCorrect
+                                        ? 'bg-emerald-600 text-white'
+                                        : 'bg-rose-600 text-white'
+                                      : 'bg-slate-100 hover:bg-rose-100 text-slate-700'
+                                  }`}
+                                >
+                                  Sai
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* DẠNG 3: TRẢ LỜI NGẮN (SHORT ANSWER) */}
+                    {qType === 'short' && (
+                      <div className="pl-11 pt-1 space-y-2">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-md">
+                          <input
+                            type="text"
+                            value={shortAnswers[q.id] || ''}
+                            onChange={e => {
+                              setShortAnswers(prev => ({ ...prev, [q.id]: e.target.value }));
+                              setShortChecked(prev => ({ ...prev, [q.id]: false }));
+                            }}
+                            placeholder="Nhập kết quả số hoặc phân số..."
+                            className="flex-1 px-4 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm font-semibold focus:outline-none focus:border-blue-500 bg-white"
+                          />
+                          <button
+                            onClick={() => handleCheckShortAnswer(q.id)}
+                            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition cursor-pointer"
+                          >
+                            Kiểm tra kết quả
+                          </button>
+                        </div>
+                        {shortChecked[q.id] && (
+                          <div className="text-xs font-bold pt-1">
+                            {shortAnswers[q.id]?.trim() === q.correctAnswer?.trim() ? (
+                              <span className="text-emerald-600 flex items-center gap-1">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>Chúc mừng! Kết quả hoàn toàn chính xác ({q.correctAnswer})</span>
+                              </span>
+                            ) : (
+                              <span className="text-rose-600 flex items-center gap-1">
+                                <XCircle className="w-4 h-4" />
+                                <span>Chưa đúng! Đáp án chuẩn là: {q.correctAnswer}</span>
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Nút xem lời giải chi tiết */}
-                    <div className="pl-10 flex items-center justify-between pt-2">
+                    <div className="pl-11 flex items-center justify-between pt-2">
                       <button
                         onClick={() => toggleSolution(q.id)}
                         className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1.5 transition cursor-pointer"
@@ -372,17 +519,17 @@ export const WorksheetViewer: React.FC<WorksheetViewerProps> = ({
                         )}
                       </button>
 
-                      {hasAnswered && (
-                        <span className={`text-xs font-bold flex items-center gap-1 ${isCorrect ? 'text-emerald-600' : 'text-rose-600'}`}>
-                          {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-                          <span>{isCorrect ? 'Chính xác!' : 'Chưa đúng, xem lời giải nhé!'}</span>
+                      {qType === 'mc' && typeof userAnswers[q.id] === 'number' && (
+                        <span className={`text-xs font-bold flex items-center gap-1 ${userAnswers[q.id] === q.correctIndex ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {userAnswers[q.id] === q.correctIndex ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                          <span>{userAnswers[q.id] === q.correctIndex ? 'Chính xác!' : 'Chưa đúng, xem lời giải nhé!'}</span>
                         </span>
                       )}
                     </div>
 
                     {/* Hộp giải chi tiết */}
                     {isSolOpen && q.solution && (
-                      <div className="ml-10 p-4 rounded-xl bg-indigo-50/70 border border-indigo-200/80 text-xs text-slate-800 space-y-1.5 animate-in fade-in duration-150">
+                      <div className="ml-11 p-4 rounded-xl bg-indigo-50/70 border border-indigo-200/80 text-xs text-slate-800 space-y-1.5 animate-in fade-in duration-150">
                         <div className="font-bold text-indigo-900 flex items-center gap-1">
                           <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
                           <span>Hướng dẫn giải chi tiết:</span>
@@ -565,6 +712,74 @@ export const WorksheetViewer: React.FC<WorksheetViewerProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL TRÌNH CHIẾU TƯƠNG TÁC SLIDE (FULL MÀN HÌNH - 100% OFFLINE NỘI BỘ) */}
+      {presentationUrl && (
+        <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col animate-in fade-in duration-200">
+          {/* Top Control Bar */}
+          <div className="bg-slate-900 border-b border-slate-800 px-4 py-2 flex items-center justify-between text-white shrink-0 shadow-md">
+            <div className="flex items-center gap-3">
+              <span className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-black text-sm text-white">
+                MH
+              </span>
+              <div>
+                <h4 className="text-sm font-bold truncate text-slate-100">
+                  {activeWorksheet?.title || 'Trình chiếu tương tác Phiếu học tập'}
+                </h4>
+                <p className="text-[11px] text-slate-400">
+                  Toán Pro - Thầy Hùng • Trình chiếu Slide Tương Tác
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    if (!document.fullscreenElement) {
+                      document.documentElement.requestFullscreen();
+                    } else {
+                      document.exitFullscreen();
+                    }
+                  } catch {}
+                }}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition flex items-center gap-1.5 cursor-pointer"
+                title="Toàn màn hình"
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Toàn màn hình</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundFx.playClick();
+                  setPresentationUrl(null);
+                  if (document.fullscreenElement) {
+                    try { document.exitFullscreen(); } catch {}
+                  }
+                }}
+                className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                title="Đóng trình chiếu"
+              >
+                <X className="w-4 h-4" />
+                <span>Thoát</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Iframe trình chiếu file HTML cục bộ */}
+          <div className="flex-1 w-full h-full bg-slate-900 relative">
+            <iframe
+              src={presentationUrl}
+              title="Chế độ trình chiếu tương tác"
+              className="w-full h-full border-0 absolute inset-0 bg-white"
+              allow="fullscreen; autoplay; clipboard-write"
+            />
           </div>
         </div>
       )}
