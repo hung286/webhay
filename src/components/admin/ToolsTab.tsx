@@ -126,12 +126,13 @@ export const ToolsTab: React.FC = () => {
     soundFx.playClick();
   };
 
-  const handleSaveGameQuestions = (toolId: string, questions: Question[], newToolName?: string, customDragDrop?: DragDropCategory[]) => {
+  const handleSaveGameQuestions = (toolId: string, questions: Question[], newToolName?: string, customDragDrop?: DragDropCategory[], customDragDropRows?: DragDropTableRow[]) => {
     const updatedTools = tools.map(t => t.id === toolId ? {
       ...t,
       name: newToolName || t.name,
       customQuestions: questions,
-      ...(customDragDrop ? { customDragDrop } : {})
+      ...(customDragDrop ? { customDragDrop } : {}),
+      ...(customDragDropRows ? { customDragDropRows } : {})
     } : t);
     setTools(updatedTools);
     saveTeachingTools(updatedTools);

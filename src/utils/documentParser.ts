@@ -1,4 +1,4 @@
-import { Question, Difficulty, DragDropCategory } from '../types';
+import { Question, Difficulty, DragDropCategory, DragDropTableRow } from '../types';
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType } from 'docx';
 import { saveAs } from 'file-saver';
 
@@ -351,9 +351,11 @@ export function parseDocumentQuestions(rawText: string, defaultTopic: string = '
 }
 
 /**
- * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHUẨN 2 CỘT CHO GAME KÉO THẢ
- * Cột 1: Tên hộp / Phương trình
- * Cột 2: Các thuộc tính phân tách bằng dấu chấm phẩy hoặc dấu phẩy
+ * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHUẨN BẢNG 4 CỘT PHÂN CẤP
+ * Cột 1: Tên Chuyên Đề
+ * Cột 2: Cấp độ / Mức độ (Level 1 -> 5)
+ * Cột 3: Hộp Đề Bài / Phương Trình
+ * Cột 4: Các Nhãn Thuộc Tính Đúng (Phân tách bằng dấu phẩy)
  */
 export async function downloadWordTemplate(): Promise<void> {
   const tableRows: TableRow[] = [
@@ -361,13 +363,13 @@ export async function downloadWordTemplate(): Promise<void> {
       tableHeader: true,
       children: [
         new TableCell({
-          width: { size: 3500, type: WidthType.DXA },
+          width: { size: 2600, type: WidthType.DXA },
           shading: { fill: "1E3A8A" },
           children: [
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "Cột 1: Hộp Phân Loại / Phương Trình",
+                  text: "Cột 1: Tên Chuyên Đề",
                   bold: true,
                   color: "FFFFFF",
                   size: 20
@@ -377,13 +379,45 @@ export async function downloadWordTemplate(): Promise<void> {
           ]
         }),
         new TableCell({
-          width: { size: 6000, type: WidthType.DXA },
+          width: { size: 1400, type: WidthType.DXA },
+          shading: { fill: "4C1D95" },
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "Cột 2: Cấp Độ",
+                  bold: true,
+                  color: "FFFFFF",
+                  size: 20
+                })
+              ]
+            })
+          ]
+        }),
+        new TableCell({
+          width: { size: 2600, type: WidthType.DXA },
           shading: { fill: "0F766E" },
           children: [
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "Cột 2: Các Thuộc Tính Đúng (phân tách bằng dấu ; hoặc dấu phẩy)",
+                  text: "Cột 3: Hộp / Phương Trình",
+                  bold: true,
+                  color: "FFFFFF",
+                  size: 20
+                })
+              ]
+            })
+          ]
+        }),
+        new TableCell({
+          width: { size: 4400, type: WidthType.DXA },
+          shading: { fill: "065F46" },
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "Cột 4: Các Thuộc Tính Đúng (phân tách bằng dấu phẩy)",
                   bold: true,
                   color: "FFFFFF",
                   size: 20
@@ -394,94 +428,49 @@ export async function downloadWordTemplate(): Promise<void> {
         })
       ]
     }),
+    // HÀNG 1: CHUYÊN ĐỀ 1 - LEVEL 1
     new TableRow({
       children: [
-        new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: "y = x^3 - 3x", bold: true })] })]
-        }),
-        new TableCell({
-          children: [
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Hàm số đạt cực đại tại x = -1; Hàm số đạt cực tiểu tại x = 1; Hàm số đồng biến trên khoảng (1; +\\infty); Hàm số nghịch biến trên khoảng (-1; 1)"
-                })
-              ]
-            })
-          ]
-        })
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Chuyên đề 1: Tính Đơn Điệu & Cực Trị", bold: true })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Level 1" })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "y = x^3 - 3x", bold: true })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Đạt cực đại tại x = -1, Đạt cực tiểu tại x = 1, Đồng biến trên khoảng (1; +\\infty), Nghịch biến trên khoảng (-1; 1)" })] })] })
       ]
     }),
+    // HÀNG 2: CHUYÊN ĐỀ 1 - LEVEL 1
     new TableRow({
       children: [
-        new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: "y = -x^3 + 3x^2", bold: true })] })]
-        }),
-        new TableCell({
-          children: [
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Hàm số đạt cực đại tại x = 2; Hàm số đạt cực tiểu tại x = 0; Hàm số đồng biến trên khoảng (0; 2); Giá trị cực đại bằng 4"
-                })
-              ]
-            })
-          ]
-        })
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Chuyên đề 1: Tính Đơn Điệu & Cực Trị", bold: true })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Level 1" })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "y = -x^3 + 3x^2", bold: true })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Đạt cực đại tại x = 2, Đạt cực tiểu tại x = 0, Đồng biến trên khoảng (0; 2), Giá trị cực đại bằng 4" })] })] })
       ]
     }),
+    // HÀNG 3: CHUYÊN ĐỀ 1 - LEVEL 2
     new TableRow({
       children: [
-        new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: "y = x^4 - 2x^2 + 1", bold: true })] })]
-        }),
-        new TableCell({
-          children: [
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Hàm số có 3 điểm cực trị; Hàm số đạt cực đại tại x = 0; Hàm số có 2 điểm cực tiểu; Hàm số đồng biến trên khoảng (-1; 0)"
-                })
-              ]
-            })
-          ]
-        })
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Chuyên đề 1: Tính Đơn Điệu & Cực Trị", bold: true })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Level 2" })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "y = x^4 - 2x^2 + 1", bold: true })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Có 3 điểm cực trị, Đạt cực đại tại x = 0, Đạt cực tiểu tại x = \\pm 1, Đồng biến trên (-1; 0)" })] })] })
       ]
     }),
+    // HÀNG 4: CHUYÊN ĐỀ 2 - LEVEL 1
     new TableRow({
       children: [
-        new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: "y = \\frac{2x+1}{x-1}", bold: true })] })]
-        }),
-        new TableCell({
-          children: [
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Hàm số không có cực trị; Hàm số nghịch biến trên từng khoảng xác định; Tiệm cận đứng x = 1; Tiệm cận ngang y = 2"
-                })
-              ]
-            })
-          ]
-        })
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Chuyên đề 2: Tiệm Cận & Khảo Sát", bold: true })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Level 1" })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "y = \\frac{2x+1}{x-1}", bold: true })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Tiệm cận đứng x = 1, Tiệm cận ngang y = 2, Nghịch biến trên từng khoảng xác định, Không có cực trị" })] })] })
       ]
     }),
+    // HÀNG 5: CHUYÊN ĐỀ 3 - LEVEL 1
     new TableRow({
       children: [
-        new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: "y = \\sqrt{4 - x^2}", bold: true })] })]
-        }),
-        new TableCell({
-          children: [
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "Tập xác định D = [-2; 2]; Đạt giá trị lớn nhất y = 2 tại x = 0; Hàm số đồng biến trên khoảng (-2; 0); Hàm số nghịch biến trên khoảng (0; 2)"
-                })
-              ]
-            })
-          ]
-        })
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Chuyên đề 3: Min Max & Tập Xác Định", bold: true })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Level 1" })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "y = \\sqrt{4 - x^2}", bold: true })] })] }),
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Tập xác định D = [-2; 2], Giá trị lớn nhất y = 2 tại x = 0, Giá trị nhỏ nhất y = 0 tại x = \\pm 2, Đồng biến trên (-2; 0)" })] })] })
       ]
     })
   ];
@@ -494,7 +483,7 @@ export async function downloadWordTemplate(): Promise<void> {
           new Paragraph({
             children: [
               new TextRun({
-                text: "MẪU SOẠN ĐỀ GAME KÉO THẢ (CHUẨN 2 CỘT)",
+                text: "MẪU BẢNG SOẠN ĐỀ GAME KÉO THẢ (CHUẨN 4 CỘT PHÂN CẤP)",
                 bold: true,
                 size: 26,
                 color: "1E3A8A"
@@ -505,7 +494,7 @@ export async function downloadWordTemplate(): Promise<void> {
           new Paragraph({
             children: [
               new TextRun({
-                text: "Quy tắc: Cột 1 là Tên Hộp / Phương Trình / Khái Niệm. Cột 2 là Danh Sách Thuộc Tính Đúng (phân tách bằng dấu chấm phẩy ; hoặc dấu phẩy hoặc xuống dòng). Hệ thống tự động chuyển đổi công thức toán TeX sang KaTeX/MathJax trực quan 100%!",
+                text: "Hướng dẫn: Cột 1: Tên Chuyên Đề (Hệ thống tự động thêm/bớt chuyên đề theo file này). Cột 2: Cấp Độ (Level 1 đến Level 5). Cột 3: Hộp Đề Bài / Phương Trình. Cột 4: Các Nhãn Thuộc Tính Đúng (phân tách nhau bằng dấu phẩy). Thầy cô có thể gõ trực tiếp công thức TeX thô (\\frac{a}{b}, \\sqrt{x}, x^2...), hệ thống sẽ tự động chuyển đổi sang MathJax/KaTeX trực quan 100%!",
                 size: 19,
                 color: "4B5563"
               })
@@ -514,7 +503,7 @@ export async function downloadWordTemplate(): Promise<void> {
           }),
           new Table({
             rows: tableRows,
-            width: { size: 9500, type: WidthType.DXA }
+            width: { size: 11000, type: WidthType.DXA }
           })
         ]
       }
@@ -522,148 +511,382 @@ export async function downloadWordTemplate(): Promise<void> {
   });
 
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, "Mau_De_Thi_Keo_Tha_2_Cot.docx");
+  saveAs(blob, "Mau_De_Thi_Keo_Tha_4_Cot.docx");
 }
 
 /**
- * SINH VÀ TẢI FILE EXCEL (.XLSX) MẪU CHUẨN 2 CỘT
- * Cột 1: Tên hộp / Phương trình
- * Cột 2: Các thuộc tính đúng (phân tách bằng ;)
+ * SINH VÀ TẢI FILE EXCEL (.XLSX) MẪU CHUẨN BẢNG 4 CỘT PHÂN CẤP
+ * Cột 1: Tên Chuyên Đề
+ * Cột 2: Cấp độ / Mức độ (Level 1 -> 5)
+ * Cột 3: Hộp Đề Bài / Phương Trình (Category)
+ * Cột 4: Các Nhãn Thuộc Tính Đúng (Attributes - Phân tách bằng dấu phẩy)
  */
 export async function downloadExcelTemplate(): Promise<void> {
   const { XLSX } = await loadDocumentLibraries();
   const headers = [
-    "Hộp Phân Loại / Phương Trình / Khái Niệm",
-    "Các Thuộc Tính Đúng (Phân tách bằng dấu ;)"
+    "Tên Chuyên Đề",
+    "Cấp Độ (Level)",
+    "Hộp Đề Bài / Phương Trình (Category)",
+    "Các Nhãn Thuộc Tính Đúng (Attributes - Phân tách bằng dấu phẩy)"
   ];
 
   const sampleRows = [
     [
+      "Chuyên đề 1: Tính Đơn Điệu & Cực Trị",
+      "Level 1",
       "y = x^3 - 3x",
-      "Hàm số đạt cực đại tại x = -1; Hàm số đạt cực tiểu tại x = 1; Hàm số đồng biến trên khoảng (1; +\\infty); Hàm số nghịch biến trên khoảng (-1; 1)"
+      "Đạt cực đại tại x = -1, Đạt cực tiểu tại x = 1, Đồng biến trên khoảng (1; +\\infty), Nghịch biến trên khoảng (-1; 1)"
     ],
     [
+      "Chuyên đề 1: Tính Đơn Điệu & Cực Trị",
+      "Level 1",
       "y = -x^3 + 3x^2",
-      "Hàm số đạt cực đại tại x = 2; Hàm số đạt cực tiểu tại x = 0; Hàm số đồng biến trên khoảng (0; 2); Giá trị cực đại bằng 4"
+      "Đạt cực đại tại x = 2, Đạt cực tiểu tại x = 0, Đồng biến trên khoảng (0; 2), Giá trị cực đại bằng 4"
     ],
     [
+      "Chuyên đề 1: Tính Đơn Điệu & Cực Trị",
+      "Level 1",
+      "y = x^3 + 3x + 1",
+      "Hàm số luôn đồng biến trên R, Không có điểm cực trị, Đạo hàm y' = 3x^2 + 3 > 0, Điểm uốn I(0; 1)"
+    ],
+    [
+      "Chuyên đề 1: Tính Đơn Điệu & Cực Trị",
+      "Level 2",
       "y = x^4 - 2x^2 + 1",
-      "Hàm số có 3 điểm cực trị; Hàm số đạt cực đại tại x = 0; Hàm số có 2 điểm cực tiểu; Hàm số đồng biến trên khoảng (-1; 0)"
+      "Có 3 điểm cực trị, Đạt cực đại tại x = 0, Đạt cực tiểu tại x = \\pm 1, Đồng biến trên (-1; 0)"
     ],
     [
+      "Chuyên đề 1: Tính Đơn Điệu & Cực Trị",
+      "Level 2",
+      "y = -x^4 + 4x^2",
+      "Có 1 điểm cực đại, Đạt cực đại tại x = \\pm \\sqrt{2}, Đạt cực tiểu tại x = 0, Nghịch biến trên (\\sqrt{2}; +\\infty)"
+    ],
+    [
+      "Chuyên đề 2: Tiệm Cận & Khảo Sát Đồ Thị",
+      "Level 1",
       "y = \\frac{2x+1}{x-1}",
-      "Hàm số không có cực trị; Hàm số nghịch biến trên từng khoảng xác định; Tiệm cận đứng x = 1; Tiệm cận ngang y = 2"
+      "Tiệm cận đứng x = 1, Tiệm cận ngang y = 2, Nghịch biến trên từng khoảng xác định, Không có cực trị"
     ],
     [
+      "Chuyên đề 2: Tiệm Cận & Khảo Sát Đồ Thị",
+      "Level 1",
+      "y = \\frac{x-2}{x+1}",
+      "Tiệm cận đứng x = -1, Tiệm cận ngang y = 1, Đồng biến trên từng khoảng xác định, Giao trục Oy tại (0; -2)"
+    ],
+    [
+      "Chuyên đề 2: Tiệm Cận & Khảo Sát Đồ Thị",
+      "Level 2",
+      "y = \\frac{x^2 - 3x + 2}{x - 1}",
+      "Đồ thị là đường thẳng có lỗ thủng tại x = 1, Rút gọn y = x - 2, Cắt Ox tại x = 2, Không có đường tiệm cận"
+    ],
+    [
+      "Chuyên đề 3: Min Max & Tập Xác Định",
+      "Level 1",
       "y = \\sqrt{4 - x^2}",
-      "Tập xác định D = [-2; 2]; Đạt giá trị lớn nhất y = 2 tại x = 0; Đồng biến trên (-2; 0); Nghịch biến trên (0; 2)"
+      "Tập xác định D = [-2; 2], Giá trị lớn nhất y = 2 tại x = 0, Giá trị nhỏ nhất y = 0 tại x = \\pm 2, Đồng biến trên (-2; 0)"
+    ],
+    [
+      "Chuyên đề 3: Min Max & Tập Xác Định",
+      "Level 1",
+      "y = \\sqrt{x^2 - 2x + 5}",
+      "Tập xác định D = R, Giá trị nhỏ nhất y = 2 tại x = 1, Không có giá trị lớn nhất, Đồng biến trên (1; +\\infty)"
     ]
   ];
 
   const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
   ws['!cols'] = [
     { wch: 35 },
-    { wch: 80 }
+    { wch: 15 },
+    { wch: 35 },
+    { wch: 90 }
   ];
 
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Mau_Keo_Tha_2_Cot");
-  XLSX.writeFile(wb, "Mau_De_Thi_Keo_Tha_2_Cot.xlsx");
+  XLSX.utils.book_append_sheet(wb, ws, "Mau_Keo_Tha_4_Cot");
+  XLSX.writeFile(wb, "Mau_De_Thi_Keo_Tha_4_Cot.xlsx");
 }
 
 /**
- * BỘ PHÂN TÍCH CHUYÊN BIỆT CHO GAME KÉO THẢ (2 CỘT: HỘP & THUỘC TÍNH)
- * Tự động chuyển đổi công thức thô sang \\( ... \\) chuẩn KaTeX/MathJax
+ * BỘ PARSER FILE EXCEL (.XLSX) DẠNG BẢNG 4 CỘT PHÂN CẤP CHO GAME KÉO THẢ
+ * Tự động quét và chuẩn hóa toàn bộ công thức TeX thô sang MathJax/KaTeX
+ * Động hóa số lượng chuyên đề dựa trên các tên chuyên đề riêng biệt tại Cột 1
  */
-export function parseDragDropFromText(rawText: string): DragDropCategory[] {
-  if (!rawText || !rawText.trim()) return [];
-  const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-  const categories: DragDropCategory[] = [];
+export async function parseDragDropFromExcel(file: File): Promise<DragDropTableRow[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const firstSheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rows: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+  const result: DragDropTableRow[] = [];
   const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
 
-  lines.forEach((line, idx) => {
-    // Bỏ qua dòng tiêu đề nếu có
-    const lower = line.toLowerCase();
-    if (idx === 0 && (lower.includes('hộp phân loại') || (lower.includes('cột 1') && lower.includes('cột 2')) || (lower.includes('phương trình') && lower.includes('thuộc tính')))) {
+  rows.forEach((row, idx) => {
+    if (!row || row.length === 0) return;
+    const col0 = String(row[0] || '').trim();
+    const col1 = String(row[1] || '').trim();
+    const col2 = String(row[2] || '').trim();
+    const col3 = String(row[3] || '').trim();
+
+    // Bỏ qua dòng tiêu đề
+    const combined = (col0 + ' ' + col1 + ' ' + col2 + ' ' + col3).toLowerCase();
+    if (idx === 0 && (combined.includes('chuyên đề') || combined.includes('level') || combined.includes('cột') || combined.includes('phương trình'))) {
       return;
     }
 
-    let boxTitle = '';
-    let propsString = '';
+    let topic = 'Chuyên đề 1: Tính Đơn Điệu & Cực Trị';
+    let level = 1;
+    let category = '';
+    let attrsRaw = '';
 
-    // Trường hợp 1: Phân tách bằng tab (\t) từ Word/Excel copy ra
-    if (line.includes('\t')) {
-      const parts = line.split('\t').map(p => p.trim()).filter(Boolean);
-      boxTitle = parts[0] || '';
-      propsString = parts.slice(1).join(';');
-    }
-    // Trường hợp 2: Phân tách bằng dấu gạch đứng | (Markdown / Bảng)
-    else if (line.includes('|')) {
-      const parts = line.split('|').map(p => p.trim()).filter(Boolean);
-      if (parts.length >= 2) {
-        boxTitle = parts[0];
-        propsString = parts.slice(1).join(';');
-      }
-    }
-    // Trường hợp 3: Phân tách bằng dấu hai chấm :
-    else if (line.includes(':') && !line.startsWith('http')) {
-      const colonIdx = line.indexOf(':');
-      boxTitle = line.substring(0, colonIdx).trim();
-      propsString = line.substring(colonIdx + 1).trim();
-    }
-    // Trường hợp 4: Phân tách bằng dấu chấm phẩy ;
-    else if (line.includes(';')) {
-      const parts = line.split(';').map(p => p.trim()).filter(Boolean);
-      boxTitle = parts[0] || '';
-      propsString = parts.slice(1).join(';');
-    }
-    // Trường hợp 5: Phân tách bằng dấu phẩy CSV
-    else if (line.includes(',')) {
-      const parts = (line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(','))
-        .map(c => c.replace(/^"|"$/g, '').trim());
-      if (parts.length >= 2) {
-        boxTitle = parts[0];
-        propsString = parts.slice(1).join(';');
-      }
+    if (row.length >= 4) {
+      topic = col0 || 'Chuyên đề Tùy Chọn';
+      const lvlNum = parseInt(col1.replace(/[^0-9]/g, ''));
+      level = isNaN(lvlNum) || lvlNum < 1 ? 1 : Math.min(5, lvlNum);
+      category = col2;
+      attrsRaw = col3;
+    } else if (row.length === 3) {
+      topic = col0;
+      category = col1;
+      attrsRaw = col2;
+    } else if (row.length >= 2) {
+      category = col0;
+      attrsRaw = col1;
+    } else {
+      category = col0;
     }
 
-    if (!boxTitle) {
-      boxTitle = line;
-    }
+    if (!category) return;
 
-    // Tách các thuộc tính từ propsString (hỗ trợ phân tách bằng ;, \n hoặc dấu phẩy)
     let attributes: string[] = [];
-    if (propsString) {
-      attributes = propsString
-        .split(/[;\n]/)
-        .map(p => p.trim())
-        .filter(Boolean)
-        .map(p => normalizeMathFormulas(p));
+    if (attrsRaw.includes(';')) {
+      attributes = attrsRaw.split(';').map(a => a.trim()).filter(Boolean);
+    } else if (attrsRaw.includes(',')) {
+      attributes = attrsRaw.split(',').map(a => a.trim()).filter(Boolean);
+    } else if (attrsRaw.includes('\n')) {
+      attributes = attrsRaw.split('\n').map(a => a.trim()).filter(Boolean);
+    } else if (attrsRaw) {
+      attributes = [attrsRaw];
     }
 
-    // Nếu không có dấu ; mà các thuộc tính ngăn cách bằng dấu phẩy
-    if (attributes.length <= 1 && propsString.includes(',')) {
-      const commaSplit = propsString.split(',').map(p => p.trim()).filter(Boolean);
-      if (commaSplit.length > 1) {
-        attributes = commaSplit.map(p => normalizeMathFormulas(p));
+    const normCategory = normalizeMathFormulas(category);
+    const normAttrs = attributes.map(a => normalizeMathFormulas(a));
+
+    result.push({
+      id: `row_${Date.now()}_${result.length + 1}`,
+      topic,
+      level,
+      category: normCategory,
+      title: normCategory,
+      theme: themeColors[result.length % themeColors.length],
+      attributes: normAttrs.length > 0 ? normAttrs : [
+        'Thuộc tính 1 (Đúng)',
+        'Thuộc tính 2 (Đúng)',
+        'Thuộc tính 3 (Đúng)',
+        'Thuộc tính 4 (Đúng)'
+      ]
+    });
+  });
+
+  return result;
+}
+
+/**
+ * BỘ PARSER FILE WORD (.DOCX) DẠNG BẢNG 4 CỘT PHÂN CẤP CHO GAME KÉO THẢ
+ * Quét toàn bộ thẻ table từ Word, chuẩn hóa công thức TeX thô sang MathJax/KaTeX
+ */
+export async function parseDragDropFromDocx(file: File): Promise<DragDropTableRow[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+
+  const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
+  const result: DragDropTableRow[] = [];
+
+  if (html.includes('<tr')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const trElements = Array.from(doc.querySelectorAll('tr'));
+
+    trElements.forEach((tr, idx) => {
+      const cells = Array.from(tr.querySelectorAll('td, th')).map(c => c.textContent?.trim() || '');
+      if (cells.length === 0) return;
+
+      const combined = cells.join(' ').toLowerCase();
+      if (idx === 0 && (combined.includes('chuyên đề') || combined.includes('level') || combined.includes('cột') || combined.includes('phương trình'))) {
+        return;
       }
-    }
 
-    if (boxTitle) {
-      const normalizedTitle = normalizeMathFormulas(boxTitle);
-      categories.push({
-        id: `cat_${Date.now()}_${categories.length + 1}`,
-        title: normalizedTitle,
-        theme: themeColors[categories.length % themeColors.length],
-        attributes: attributes.length > 0 ? attributes : [
+      let topic = 'Chuyên đề 1: Tính Đơn Điệu & Cực Trị';
+      let level = 1;
+      let category = '';
+      let attrsRaw = '';
+
+      if (cells.length >= 4) {
+        topic = cells[0] || 'Chuyên đề Tùy Chọn';
+        const lvlNum = parseInt(cells[1].replace(/[^0-9]/g, ''));
+        level = isNaN(lvlNum) || lvlNum < 1 ? 1 : Math.min(5, lvlNum);
+        category = cells[2];
+        attrsRaw = cells[3];
+      } else if (cells.length === 3) {
+        topic = cells[0];
+        category = cells[1];
+        attrsRaw = cells[2];
+      } else if (cells.length >= 2) {
+        category = cells[0];
+        attrsRaw = cells[1];
+      } else {
+        category = cells[0];
+      }
+
+      if (!category) return;
+
+      let attributes: string[] = [];
+      if (attrsRaw.includes(';')) {
+        attributes = attrsRaw.split(';').map(a => a.trim()).filter(Boolean);
+      } else if (attrsRaw.includes(',')) {
+        attributes = attrsRaw.split(',').map(a => a.trim()).filter(Boolean);
+      } else if (attrsRaw.includes('\n')) {
+        attributes = attrsRaw.split('\n').map(a => a.trim()).filter(Boolean);
+      } else if (attrsRaw) {
+        attributes = [attrsRaw];
+      }
+
+      const normCategory = normalizeMathFormulas(category);
+      const normAttrs = attributes.map(a => normalizeMathFormulas(a));
+
+      result.push({
+        id: `row_${Date.now()}_${result.length + 1}`,
+        topic,
+        level,
+        category: normCategory,
+        title: normCategory,
+        theme: themeColors[result.length % themeColors.length],
+        attributes: normAttrs.length > 0 ? normAttrs : [
           'Thuộc tính 1 (Đúng)',
           'Thuộc tính 2 (Đúng)',
           'Thuộc tính 3 (Đúng)',
           'Thuộc tính 4 (Đúng)'
         ]
       });
+    });
+  }
+
+  // Fallback nếu không có bảng HTML
+  if (result.length === 0) {
+    const rawResult = await mammoth.extractRawText({ arrayBuffer });
+    return parseDragDropFromText(rawResult.value || '');
+  }
+
+  return result;
+}
+
+/**
+ * BỘ PHÂN TÍCH VĂN BẢN THÔ / DÁN DỮ LIỆU NHANH CHO GAME KÉO THẢ (HỖ TRỢ 4 CỘT VÀ 2 CỘT)
+ * Tự động chuyển đổi công thức thô sang \( ... \) chuẩn KaTeX/MathJax
+ */
+export function parseDragDropFromText(rawText: string): DragDropTableRow[] {
+  if (!rawText || !rawText.trim()) return [];
+  const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const result: DragDropTableRow[] = [];
+  const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
+
+  lines.forEach((line, idx) => {
+    const lower = line.toLowerCase();
+    if (idx === 0 && (lower.includes('hộp phân loại') || lower.includes('chuyên đề') || (lower.includes('cột 1') && lower.includes('cột 2')) || (lower.includes('phương trình') && lower.includes('thuộc tính')))) {
+      return;
     }
+
+    let topic = 'Chuyên đề 1: Tính Đơn Điệu & Cực Trị';
+    let level = 1;
+    let category = '';
+    let attrsRaw = '';
+
+    // Trường hợp 1: Phân tách bằng tab (\t) từ Excel/Word copy ra
+    if (line.includes('\t')) {
+      const parts = line.split('\t').map(p => p.trim()).filter(Boolean);
+      if (parts.length >= 4) {
+        topic = parts[0];
+        const lvlNum = parseInt(parts[1].replace(/[^0-9]/g, ''));
+        level = isNaN(lvlNum) || lvlNum < 1 ? 1 : Math.min(5, lvlNum);
+        category = parts[2];
+        attrsRaw = parts.slice(3).join(';');
+      } else if (parts.length === 3) {
+        topic = parts[0];
+        category = parts[1];
+        attrsRaw = parts[2];
+      } else if (parts.length >= 2) {
+        category = parts[0];
+        attrsRaw = parts.slice(1).join(';');
+      } else {
+        category = parts[0];
+      }
+    }
+    // Trường hợp 2: Phân tách bằng dấu gạch đứng | (Markdown / Bảng)
+    else if (line.includes('|')) {
+      const parts = line.split('|').map(p => p.trim()).filter(Boolean);
+      if (parts.length >= 4) {
+        topic = parts[0];
+        const lvlNum = parseInt(parts[1].replace(/[^0-9]/g, ''));
+        level = isNaN(lvlNum) || lvlNum < 1 ? 1 : Math.min(5, lvlNum);
+        category = parts[2];
+        attrsRaw = parts.slice(3).join(';');
+      } else if (parts.length >= 2) {
+        category = parts[0];
+        attrsRaw = parts.slice(1).join(';');
+      } else {
+        category = parts[0];
+      }
+    }
+    // Trường hợp 3: Phân tách bằng dấu hai chấm :
+    else if (line.includes(':') && !line.startsWith('http')) {
+      const colonIdx = line.indexOf(':');
+      category = line.substring(0, colonIdx).trim();
+      attrsRaw = line.substring(colonIdx + 1).trim();
+    }
+    // Trường hợp 4: Phân tách bằng dấu chấm phẩy ;
+    else if (line.includes(';')) {
+      const parts = line.split(';').map(p => p.trim()).filter(Boolean);
+      category = parts[0] || '';
+      attrsRaw = parts.slice(1).join(';');
+    } else {
+      category = line;
+    }
+
+    if (!category) return;
+
+    let attributes: string[] = [];
+    if (attrsRaw.includes(';')) {
+      attributes = attrsRaw.split(';').map(p => p.trim()).filter(Boolean);
+    } else if (attrsRaw.includes(',')) {
+      attributes = attrsRaw.split(',').map(p => p.trim()).filter(Boolean);
+    } else if (attrsRaw.includes('\n')) {
+      attributes = attrsRaw.split('\n').map(p => p.trim()).filter(Boolean);
+    } else if (attrsRaw) {
+      attributes = [attrsRaw];
+    }
+
+    const normCategory = normalizeMathFormulas(category);
+    const normAttrs = attributes.map(p => normalizeMathFormulas(p));
+
+    result.push({
+      id: `row_${Date.now()}_${result.length + 1}`,
+      topic,
+      level,
+      category: normCategory,
+      title: normCategory,
+      theme: themeColors[result.length % themeColors.length],
+      attributes: normAttrs.length > 0 ? normAttrs : [
+        'Thuộc tính 1 (Đúng)',
+        'Thuộc tính 2 (Đúng)',
+        'Thuộc tính 3 (Đúng)',
+        'Thuộc tính 4 (Đúng)'
+      ]
+    });
   });
 
-  return categories;
+  return result;
 }

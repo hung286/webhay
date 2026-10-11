@@ -132,6 +132,16 @@ export interface DragDropCategory {
   attributes: string[];
 }
 
+export interface DragDropTableRow {
+  id: string;
+  topic: string;       // Cột 1: Tên Chuyên Đề
+  level: number;       // Cột 2: Cấp độ (1 -> 5)
+  category: string;    // Cột 3: Hộp Đề Bài / Phương Trình
+  title?: string;      // Alias for category (backward compatibility)
+  attributes: string[]; // Cột 4: Các Nhãn Thuộc Tính Đúng
+  theme?: string;
+}
+
 export interface TeachingTool {
   id: string;
   name: string;
@@ -143,6 +153,7 @@ export interface TeachingTool {
   createdAt: string;
   customQuestions?: Question[];
   customDragDrop?: DragDropCategory[];
+  customDragDropRows?: DragDropTableRow[];
 }
 
 // --- MATH WORKSHEET (PHIẾU HỌC TẬP MÔN TOÁN) ---

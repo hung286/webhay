@@ -1,4 +1,4 @@
-import { Question, DragDropCategory } from '../types';
+import { Question, DragDropCategory, DragDropTableRow } from '../types';
 import { normalizeMathFormulas } from './documentParser';
 
 export interface GameTemplateOption {
@@ -179,13 +179,14 @@ export interface ExportGameOptions {
   teacherName?: string;
   questions: Question[];
   customCategories?: DragDropCategory[];
+  customDragDropRows?: DragDropTableRow[];
 }
 
 /**
  * DATA ADAPTER ENGINE: Dịch mảng câu hỏi và đóng gói vào file HTML gốc
  */
 export async function exportStandaloneGameHTML(options: ExportGameOptions): Promise<string> {
-  const { templateUrl, gameTitle, teacherName = 'LỚP TOÁN THẦY HÙNG', questions, customCategories } = options;
+  const { templateUrl, gameTitle, teacherName = 'LỚP TOÁN THẦY HÙNG', questions, customCategories, customDragDropRows } = options;
 
   // 1. Fetch file HTML gốc
   let cleanUrl = templateUrl;
@@ -570,8 +571,62 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
     const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
     const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
 
-    // Ưu tiên 1: Sử dụng customCategories từ Studio Quản trị Kéo Thả
-    if (customCategories && customCategories.length > 0) {
+    // Ưu tiên 1: Sử dụng customDragDropRows (Bảng Phân Cấp Đa Chuyên Đề & Đa Cấp Độ)
+    if (customDragDropRows && customDragDropRows.length > 0) {
+      const topicGroups: Record<string, DragDropTableRow[]> = {};
+      customDragDropRows.forEach(r => {
+        const t = r.topic?.trim() || defaultTopic;
+        if (!topicGroups[t]) topicGroups[t] = [];
+        topicGroups[t].push(r);
+      });
+
+      Object.keys(topicGroups).forEach(tName => {
+        const rowsInTopic = topicGroups[tName];
+        topicsMap[tName] = {};
+
+        // Nhóm các hàng theo Level
+        const levelGroups: Record<number, DragDropTableRow[]> = {};
+        rowsInTopic.forEach(r => {
+          const lvl = r.level && r.level >= 1 ? r.level : 1;
+          if (!levelGroups[lvl]) levelGroups[lvl] = [];
+          levelGroups[lvl].push(r);
+        });
+
+        const sortedLevels = Object.keys(levelGroups).map(Number).sort((a, b) => a - b);
+        sortedLevels.forEach(lvl => {
+          const rowsAtLvl = levelGroups[lvl];
+          const funcs: any[] = [];
+          const props: any[] = [];
+
+          rowsAtLvl.forEach((row, rIdx) => {
+            const funcId = `f${rIdx + 1}`;
+            funcs.push({
+              id: funcId,
+              tex: normalizeMathFormulas(row.category),
+              theme: row.theme || themeColors[rIdx % themeColors.length]
+            });
+
+            (row.attributes || []).forEach((attr, aIdx) => {
+              props.push({
+                id: `p${rIdx + 1}_${aIdx + 1}`,
+                funcId: funcId,
+                text: normalizeMathFormulas(attr)
+              });
+            });
+          });
+
+          topicsMap[tName][lvl] = {
+            title: `Cấp Độ ${lvl}: ${lvl === 1 ? 'Khởi Động' : (lvl >= 4 ? 'Nâng Cao' : 'Tiêu Chuẩn')}`,
+            diffBadge: lvl === 1 ? 'Dễ' : (lvl >= 4 ? 'Khó' : 'Vừa'),
+            colorTheme: themeColors[(lvl - 1) % themeColors.length],
+            time: 180,
+            funcs: funcs,
+            props: props
+          };
+        });
+      });
+    } else if (customCategories && customCategories.length > 0) {
+      // Ưu tiên 2: Sử dụng customCategories (Mẫu 2 cột phẳng)
       topicsMap[defaultTopic] = {};
       const chunkSize = 3;
       const totalLevels = Math.min(5, Math.max(1, Math.ceil(customCategories.length / chunkSize)));
@@ -611,7 +666,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
         };
       }
     } else {
-      // Ưu tiên 2: Chuyển đổi từ mảng questions tiêu chuẩn
+      // Ưu tiên 3: Chuyển đổi từ mảng questions tiêu chuẩn
       const groupedByTopic: Record<string, Question[]> = {};
       questions.forEach(q => {
         const tName = q.topic?.trim() || defaultTopic;
@@ -665,15 +720,15 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
 
     const keoThaScript = `
 <script>
-// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - KÉO THẢ TƯƠNG TÁC]
+// [ADAPTER ENGINE: DYNAMIC MULTI-TOPIC ARCHITECTURE - KÉO THẢ TƯƠNG TÁC]
 window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
 (function() {
   function syncKeoThaDb() {
-    if (typeof window.gameDatabase !== 'undefined' && window.__INJECTED_GAME_DATABASE__) {
-      Object.assign(window.gameDatabase, window.__INJECTED_GAME_DATABASE__);
+    if (typeof window.gameDatabase !== 'undefined' && window.__INJECTED_GAME_DATABASE__ && Object.keys(window.__INJECTED_GAME_DATABASE__).length > 0) {
+      window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_GAME_DATABASE__));
       window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
-      if (typeof window.renderTopicSelectionCards === 'function') {
-        window.renderTopicSelectionCards();
+      if (typeof window.showOverlay === 'function') {
+        window.showOverlay('start');
       }
     }
   }
