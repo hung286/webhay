@@ -20476,9 +20476,6 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           solution: 'Phân tích thành nhân tử: $\\lim_{x \\to 2} \\frac{(x-2)(x+2)}{x-2} = \\lim_{x \\to 2} (x+2) = 4$'
         }
       ],
-        correctIndex: 0
-      }
-    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
