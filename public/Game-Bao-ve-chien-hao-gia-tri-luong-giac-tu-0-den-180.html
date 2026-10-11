@@ -43,6 +43,11 @@
         }
 
         * { box-sizing: border-box; user-select: none; }
+        input, textarea, [contenteditable="true"] {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            cursor: text !important;
+        }
 
         body {
             font-family: 'Chakra Petch', sans-serif;
@@ -397,10 +402,16 @@
 <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
 <!-- ======================================================== -->
 <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #111827 0%, #030712 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Chakra Petch', sans-serif;">
-  <div style="max-width: 920px; width: 100%; background: rgba(15, 23, 42, 0.95); border: 2px solid #00f0ff; border-radius: 24px; padding: 32px; box-shadow: 0 0 50px rgba(0, 240, 255, 0.35); backdrop-filter: blur(20px); text-align: center;">
+  <div style="max-width: 920px; width: 100%; position: relative; background: rgba(15, 23, 42, 0.95); border: 2px solid #00f0ff; border-radius: 24px; padding: 32px; box-shadow: 0 0 50px rgba(0, 240, 255, 0.35); backdrop-filter: blur(20px); text-align: center;">
     
+    <!-- NÚT BÁNH RĂNG QUẢN TRỊ TRÊN MENU CHỌN CHỦ ĐỀ (ẨN MẶC ĐỊNH CHO HỌC SINH, CHỈ HIỆN KHI URL CÓ ?role=admin HOẶC ?admin=1) -->
+    <button id="btn-admin-gear-overlay" class="esport-panel flex items-center gap-2 hover:bg-amber-500/20 transition cursor-pointer text-amber-300 font-bold text-xs uppercase tracking-wider" style="display: none !important; position: absolute; top: 20px; right: 20px; border: 1px solid #f59e0b; border-radius: 8px; padding: 6px 14px; background: rgba(0,0,0,0.6);" title="Bảng quản trị giáo viên">
+      <i class="fa-solid fa-gear text-amber-400"></i>
+      <span>Quản Trị</span>
+    </button>
+
     <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 9999px; background: rgba(0, 240, 255, 0.12); border: 1px solid #00f0ff; color: #00f0ff; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
-      <i class="fa-solid fa-shield-halved"></i> LỚP TOÁN THẦY HÙNG | TOÁN PRO
+      <i class="fa-solid fa-shield-halved"></i> LỚP TOÁN THẦY HÙNG | TOÁN PRO | MH
     </div>
     
     <h1 style="color: #ffffff; font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0; text-shadow: 0 0 25px rgba(0, 240, 255, 0.5);">
@@ -444,7 +455,7 @@
         </button>
 
         <!-- NÚT BÁNH RĂNG QUẢN TRỊ ADMIN (ẨN MẶC ĐỊNH, CHỈ HIỆN KHI URL CÓ ?role=admin HOẶC ?admin=1) -->
-        <button id="btn-admin-gear" onclick="openAdminPinModal()" class="hidden esport-panel flex items-center gap-2 hover:bg-amber-500/20 transition cursor-pointer text-amber-300 font-bold text-xs uppercase tracking-wider" style="border-color: #f59e0b;" title="Bảng quản trị giáo viên">
+        <button id="btn-admin-gear" class="esport-panel flex items-center gap-2 hover:bg-amber-500/20 transition cursor-pointer text-amber-300 font-bold text-xs uppercase tracking-wider" style="display: none !important; border-color: #f59e0b;" title="Bảng quản trị giáo viên">
             <i class="fa-solid fa-gear text-amber-400"></i>
             <span>Quản Trị</span>
         </button>
@@ -1285,15 +1296,29 @@
         function cleanMathString(text) {
             if (!text || typeof text !== 'string') return text || '';
             let cleaned = text.trim();
-            cleaned = cleaned.replace(/\{\s*\\\(\s*(\\frac\{[^}]+\}\{[^}]+\})\s*\\\)\s*\}/g, '\\($1\\)');
-            if (!cleaned.includes('\\(') && !cleaned.includes('$') && /\\(frac|sqrt|alpha|beta|gamma|delta|pi|theta|sin|cos|tan|cot|pm|cdot|circ|degree|le|ge|ne|in)/.test(cleaned)) {
+            // Chuẩn hóa TeX: xử lý cặp ngoặc nhọn bao quanh delimiter hoặc phân số lạ
+            cleaned = cleaned.replace(/\{\s*\\\(\s*([^}]+)\s*\\\)\s*\}/g, '\\($1\\)');
+            cleaned = cleaned.replace(/\{\s*(\\frac\{[^}]+\}\{[^}]+\})\s*\}/g, '\\($1\\)');
+            if (cleaned.includes('\\(') || cleaned.includes('$')) {
+                return cleaned;
+            }
+            if (/[\\^_{}]|sin|cos|tan|cot|sqrt|frac|alpha|beta|pi|pm|cdot|circ|degree|le|ge|ne|in/.test(cleaned)) {
                 cleaned = `\\(${cleaned}\\)`;
             }
             return cleaned;
         }
 
-        // Bàn phím điều khiển
+        // Bàn phím điều khiển (Bảo vệ: không chặn phím khi người dùng đang nhập liệu văn bản hoặc mở bảng quản trị)
         document.addEventListener('keydown', (e) => {
+            const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+            if (activeTag === 'input' || activeTag === 'textarea' || (document.activeElement && document.activeElement.isContentEditable)) {
+                return; // Cho phép gõ bàn phím vật lý tự nhiên vào ô input/textarea
+            }
+            const adminPinModal = document.getElementById('admin-pin-modal');
+            const adminEditorModal = document.getElementById('admin-editor-modal');
+            if ((adminPinModal && !adminPinModal.classList.contains('hidden')) || (adminEditorModal && !adminEditorModal.classList.contains('hidden'))) {
+                return; // Bảng quản trị đang mở, không can thiệp phím
+            }
             if(!gameState.isPlaying) return;
             if(e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
                 e.preventDefault(); setPlayerLane(Math.max(0, gameState.currentLane - 1));
@@ -1886,69 +1911,116 @@
 // ========================================================
 // HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ (MULTI-TOPIC ARCHITECTURE)
 // ========================================================
-window.gameDatabase = window.gameDatabase || {
+const DEFAULT_BATTLEFIELD_DATABASE = {
   "Chiến Dịch 1: Góc Lượng Giác Cơ Bản (0° - 90°)": {
     "easy": [
-      { "q": "Giá trị của \(\sin 30^\circ\) bằng bao nhiêu?", "options": ["\(\frac{1}{2}\)", "\(\frac{\sqrt{3}}{2}\)", "\(\frac{\sqrt{2}}{2}\)", "1"], "correct": 0 },
-      { "q": "Giá trị của \(\cos 60^\circ\) bằng bao nhiêu?", "options": ["\(\frac{1}{2}\)", "0", "\(\frac{\sqrt{3}}{2}\)", "-1"], "correct": 0 },
-      { "q": "Giá trị của \(\tan 45^\circ\) bằng bao nhiêu?", "options": ["1", "0", "\(\sqrt{3}\)", "\(\frac{\sqrt{3}}{3}\)"], "correct": 0 },
-      { "q": "Giá trị của \(\sin 90^\circ\) bằng bao nhiêu?", "options": ["1", "0", "-1", "\(\frac{1}{2}\)"], "correct": 0 },
-      { "q": "Giá trị của \(\cos 0^\circ\) bằng bao nhiêu?", "options": ["1", "0", "-1", "\(\frac{\sqrt{2}}{2}\)"], "correct": 0 }
+      { "q": "Giá trị của \\(\\sin 30^\\circ\\) bằng bao nhiêu?", "options": ["\\(\\frac{1}{2}\\)", "\\(\\frac{\\sqrt{3}}{2}\\)", "\\(\\frac{\\sqrt{2}}{2}\\)", "1"], "correct": 0 },
+      { "q": "Giá trị của \\(\\cos 60^\\circ\\) bằng bao nhiêu?", "options": ["\\(\\frac{1}{2}\\)", "0", "\\(\\frac{\\sqrt{3}}{2}\\)", "-1"], "correct": 0 },
+      { "q": "Giá trị của \\(\\tan 45^\\circ\\) bằng bao nhiêu?", "options": ["1", "0", "\\(\\sqrt{3}\\)", "\\(\\frac{\\sqrt{3}}{3}\\)"], "correct": 0 },
+      { "q": "Giá trị của \\(\\sin 90^\\circ\\) bằng bao nhiêu?", "options": ["1", "0", "-1", "\\(\\frac{1}{2}\\)"], "correct": 0 },
+      { "q": "Giá trị của \\(\\cos 0^\\circ\\) bằng bao nhiêu?", "options": ["1", "0", "-1", "\\(\\frac{\\sqrt{2}}{2}\\)"], "correct": 0 }
     ],
     "medium": [
-      { "q": "Giá trị của \(\sin 60^\circ\) bằng bao nhiêu?", "options": ["\(\frac{\sqrt{3}}{2}\)", "\(\frac{1}{2}\)", "0", "1"], "correct": 0 },
-      { "q": "Giá trị của \(\cos 45^\circ\) bằng bao nhiêu?", "options": ["\(\frac{\sqrt{2}}{2}\)", "\(\frac{1}{2}\)", "1", "0"], "correct": 0 },
-      { "q": "Giá trị của \(\cot 30^\circ\) bằng bao nhiêu?", "options": ["\(\sqrt{3}\)", "1", "\(\frac{\sqrt{3}}{3}\)", "0"], "correct": 0 },
-      { "q": "Giá trị của \(\tan 60^\circ\) bằng bao nhiêu?", "options": ["\(\sqrt{3}\)", "\(\frac{\sqrt{3}}{3}\)", "1", "0"], "correct": 0 },
-      { "q": "Giá trị của \(\sin 45^\circ\) bằng bao nhiêu?", "options": ["\(\frac{\sqrt{2}}{2}\)", "\(\frac{1}{2}\)", "0", "\(\frac{\sqrt{3}}{2}\)"], "correct": 0 }
+      { "q": "Giá trị của \\(\\sin 60^\\circ\\) bằng bao nhiêu?", "options": ["\\(\\frac{\\sqrt{3}}{2}\\)", "\\(\\frac{1}{2}\\)", "0", "1"], "correct": 0 },
+      { "q": "Giá trị của \\(\\cos 45^\\circ\\) bằng bao nhiêu?", "options": ["\\(\\frac{\\sqrt{2}}{2}\\)", "\\(\\frac{1}{2}\\)", "1", "0"], "correct": 0 },
+      { "q": "Giá trị của \\(\\cot 30^\\circ\\) bằng bao nhiêu?", "options": ["\\(\\sqrt{3}\\)", "1", "\\(\\frac{\\sqrt{3}}{3}\\)", "0"], "correct": 0 },
+      { "q": "Giá trị của \\(\\tan 60^\\circ\\) bằng bao nhiêu?", "options": ["\\(\\sqrt{3}\\)", "\\(\\frac{\\sqrt{3}}{3}\\)", "1", "0"], "correct": 0 },
+      { "q": "Giá trị của \\(\\sin 45^\\circ\\) bằng bao nhiêu?", "options": ["\\(\\frac{\\sqrt{2}}{2}\\)", "\\(\\frac{1}{2}\\)", "0", "\\(\\frac{\\sqrt{3}}{2}\\)"], "correct": 0 }
     ],
     "hard": [
-      { "q": "Tính giá trị biểu thức \(P = \sin^2 30^\circ + \cos^2 30^\circ\):", "options": ["1", "0", "2", "\(\frac{1}{2}\)"], "correct": 0 },
-      { "q": "Tính \(A = \tan 30^\circ \cdot \cot 30^\circ\):", "options": ["1", "\(\sqrt{3}\)", "0", "-1"], "correct": 0 },
-      { "q": "Tính \(B = 2\sin 30^\circ + \cos 60^\circ\):", "options": ["\(\frac{3}{2}\)", "1", "2", "\(\frac{1}{2}\)"], "correct": 0 },
-      { "q": "Tính \(C = \sin^2 45^\circ + \cos^2 60^\circ\):", "options": ["\(\frac{3}{4}\)", "1", "\(\frac{1}{2}\)", "\(\frac{5}{4}\)"], "correct": 0 },
-      { "q": "Khẳng định nào sau đây ĐÚNG?", "options": ["\(\tan 45^\circ = \cot 45^\circ\)", "\(\sin 30^\circ = \cos 30^\circ\)", "\(\sin 60^\circ = \cos 60^\circ\)", "\(\tan 30^\circ = \cot 30^\circ\)"], "correct": 0 }
+      { "q": "Tính giá trị biểu thức \\(P = \\sin^2 30^\\circ + \\cos^2 30^\\circ\\):", "options": ["1", "0", "2", "\\(\\frac{1}{2}\\)"], "correct": 0 },
+      { "q": "Tính \\(A = \\tan 30^\\circ \\cdot \\cot 30^\\circ\\):", "options": ["1", "\\(\\sqrt{3}\\)", "0", "-1"], "correct": 0 },
+      { "q": "Tính \\(B = 2\\sin 30^\\circ + \\cos 60^\\circ\\):", "options": ["\\(\\frac{3}{2}\\)", "1", "2", "\\(\\frac{1}{2}\\)"], "correct": 0 },
+      { "q": "Tính \\(C = \\sin^2 45^\\circ + \\cos^2 60^\\circ\\):", "options": ["\\(\\frac{3}{4}\\)", "1", "\\(\\frac{1}{2}\\)", "\\(\\frac{5}{4}\\)"], "correct": 0 },
+      { "q": "Khẳng định nào sau đây ĐÚNG?", "options": ["\\(\\tan 45^\\circ = \\cot 45^\\circ\\)", "\\(\\sin 30^\\circ = \\cos 30^\\circ\\)", "\\(\\sin 60^\\circ = \\cos 60^\\circ\\)", "\\(\\tan 30^\\circ = \\cot 30^\\circ\\)"], "correct": 0 }
     ]
   },
   "Chiến Dịch 2: Góc Tù & Góc Bù (90° - 180°)": {
     "easy": [
-      { "q": "Giá trị của \(\sin 150^\circ\) bằng bao nhiêu?", "options": ["\(\frac{1}{2}\)", "-\(\frac{1}{2}\)", "\(\frac{\sqrt{3}}{2}\)", "0"], "correct": 0 },
-      { "q": "Giá trị của \(\cos 120^\circ\) bằng bao nhiêu?", "options": ["-\(\frac{1}{2}\)", "\(\frac{1}{2}\)", "-\(\frac{\sqrt{3}}{2}\)", "0"], "correct": 0 },
-      { "q": "Giá trị của \(\sin 180^\circ\) bằng bao nhiêu?", "options": ["0", "1", "-1", "\(\frac{1}{2}\)"], "correct": 0 },
-      { "q": "Giá trị của \(\cos 180^\circ\) bằng bao nhiêu?", "options": ["-1", "0", "1", "-\(\frac{1}{2}\)"], "correct": 0 },
-      { "q": "Giá trị của \(\tan 135^\circ\) bằng bao nhiêu?", "options": ["-1", "1", "0", "-\(\sqrt{3}\)"], "correct": 0 }
+      { "q": "Giá trị của \\(\\sin 150^\\circ\\) bằng bao nhiêu?", "options": ["\\(\\frac{1}{2}\\)", "-\\(\\frac{1}{2}\\)", "\\(\\frac{\\sqrt{3}}{2}\\)", "0"], "correct": 0 },
+      { "q": "Giá trị của \\(\\cos 120^\\circ\\) bằng bao nhiêu?", "options": ["-\\(\\frac{1}{2}\\)", "\\(\\frac{1}{2}\\)", "-\\(\\frac{\\sqrt{3}}{2}\\)", "0"], "correct": 0 },
+      { "q": "Giá trị của \\(\\sin 180^\\circ\\) bằng bao nhiêu?", "options": ["0", "1", "-1", "\\(\\frac{1}{2}\\)"], "correct": 0 },
+      { "q": "Giá trị của \\(\\cos 180^\\circ\\) bằng bao nhiêu?", "options": ["-1", "0", "1", "-\\(\\frac{1}{2}\\)"], "correct": 0 },
+      { "q": "Giá trị của \\(\\tan 135^\\circ\\) bằng bao nhiêu?", "options": ["-1", "1", "0", "-\\(\\sqrt{3}\\)"], "correct": 0 }
     ],
     "medium": [
-      { "q": "Giá trị của \(\sin 135^\circ\) bằng bao nhiêu?", "options": ["\(\frac{\sqrt{2}}{2}\)", "-\(\frac{\sqrt{2}}{2}\)", "1", "0"], "correct": 0 },
-      { "q": "Giá trị của \(\cos 150^\circ\) bằng bao nhiêu?", "options": ["-\(\frac{\sqrt{3}}{2}\)", "\(\frac{\sqrt{3}}{2}\)", "-\(\frac{1}{2}\)", "0"], "correct": 0 },
-      { "q": "Giá trị của \(\cos 135^\circ\) bằng bao nhiêu?", "options": ["-\(\frac{\sqrt{2}}{2}\)", "\(\frac{\sqrt{2}}{2}\)", "-\(\frac{1}{2}\)", "0"], "correct": 0 },
-      { "q": "Giá trị của \(\cot 135^\circ\) bằng bao nhiêu?", "options": ["-1", "1", "0", "\(-\sqrt{3}\)"], "correct": 0 },
-      { "q": "Giá trị của \(\tan 120^\circ\) bằng bao nhiêu?", "options": ["-\(\sqrt{3}\)", "\(\sqrt{3}\)", "-1", "-\(\frac{\sqrt{3}}{3}\)"], "correct": 0 }
+      { "q": "Giá trị của \\(\\sin 135^\\circ\\) bằng bao nhiêu?", "options": ["\\(\\frac{\\sqrt{2}}{2}\\)", "-\\(\\frac{\\sqrt{2}}{2}\\)", "1", "0"], "correct": 0 },
+      { "q": "Giá trị của \\(\\cos 150^\\circ\\) bằng bao nhiêu?", "options": ["-\\(\\frac{\\sqrt{3}}{2}\\)", "\\(\\frac{\\sqrt{3}}{2}\\)", "-\\(\\frac{1}{2}\\)", "0"], "correct": 0 },
+      { "q": "Giá trị của \\(\\cos 135^\\circ\\) bằng bao nhiêu?", "options": ["-\\(\\frac{\\sqrt{2}}{2}\\)", "\\(\\frac{\\sqrt{2}}{2}\\)", "-\\(\\frac{1}{2}\\)", "0"], "correct": 0 },
+      { "q": "Giá trị của \\(\\cot 135^\\circ\\) bằng bao nhiêu?", "options": ["-1", "1", "0", "\\(-\\sqrt{3}\\)"], "correct": 0 },
+      { "q": "Giá trị của \\(\\tan 120^\\circ\\) bằng bao nhiêu?", "options": ["-\\(\\sqrt{3}\\)", "\\(\\sqrt{3}\\)", "-1", "-\\(\\frac{\\sqrt{3}}{3}\\)"], "correct": 0 }
     ],
     "hard": [
-      { "q": "Cho góc tù \(\alpha\) có \(\sin \alpha = \frac{3}{5}\). Tính \(\cos \alpha\):", "options": ["-\(\frac{4}{5}\)", "\(\frac{4}{5}\)", "\(\frac{1}{5}\)", "-\(\frac{3}{5}\)"], "correct": 0 },
-      { "q": "Khẳng định nào ĐÚNG với mọi góc tù \(90^\circ < \alpha < 180^\circ\)?", "options": ["\(\sin \alpha > 0, \cos \alpha < 0\)", "\(\sin \alpha < 0, \cos \alpha < 0\)", "\(\sin \alpha > 0, \cos \alpha > 0\)", "\(\tan \alpha > 0\)"], "correct": 0 },
-      { "q": "Tính \(S = \sin 120^\circ + \cos 150^\circ\):", "options": ["0", "1", "\(\sqrt{3}\)", "-\(\sqrt{3}\)"], "correct": 0 },
-      { "q": "Tính \(M = \sin(180^\circ - \alpha) + \sin \alpha\):", "options": ["\(2\sin \alpha\)", "0", "\(2\cos \alpha\)", "1"], "correct": 0 },
-      { "q": "Tính \(N = \cos(180^\circ - \alpha) + \cos \alpha\):", "options": ["0", "\(2\cos \alpha\)", "-1", "\(2\sin \alpha\)"], "correct": 0 }
+      { "q": "Cho góc tù \\(\\alpha\\) có \\(\\sin \\alpha = \\frac{3}{5}\\). Tính \\(\\cos \\alpha\\):", "options": ["-\\(\\frac{4}{5}\\)", "\\(\\frac{4}{5}\\)", "\\(\\frac{1}{5}\\)", "-\\(\\frac{3}{5}\\)"], "correct": 0 },
+      { "q": "Khẳng định nào ĐÚNG với mọi góc tù \\(90^\\circ < \\alpha < 180^\\circ\\)?", "options": ["\\(\\sin \\alpha > 0, \\cos \\alpha < 0\\)", "\\(\\sin \\alpha < 0, \\cos \\alpha < 0\\)", "\\(\\sin \\alpha > 0, \\cos \\alpha > 0\\)", "\\(\\tan \\alpha > 0\\)"], "correct": 0 },
+      { "q": "Tính \\(S = \\sin 120^\\circ + \\cos 150^\\circ\\):", "options": ["0", "1", "\\(\\sqrt{3}\\)", "-\\(\\sqrt{3}\\)"], "correct": 0 },
+      { "q": "Tính \\(M = \\sin(180^\\circ - \\alpha) + \\sin \\alpha\\):", "options": ["\\(2\\sin \\alpha\\)", "0", "\\(2\\cos \\alpha\\)", "1"], "correct": 0 },
+      { "q": "Tính \\(N = \\cos(180^\\circ - \\alpha) + \\cos \\alpha\\):", "options": ["0", "\\(2\\cos \\alpha\\)", "-1", "\\(2\\sin \\alpha\\)"], "correct": 0 }
     ]
   },
+  "Chiến Dịch 3: Định Lý Sin - Cos & Hệ Thức Lượng": {
+    "easy": [
+      { "q": "Trong tam giác \\(ABC\\), định lý côsin khẳng định \\(a^2\\) bằng:", "options": ["\\(b^2 + c^2 - 2bc\\cos A\\)", "\\(b^2 + c^2 + 2bc\\cos A\\)", "\\(b^2 + c^2 - bc\\cos A\\)", "\\(b^2 + c^2 - 2bc\\sin A\\)"], "correct": 0 },
+      { "q": "Trong tam giác \\(ABC\\), định lý sin khẳng định \\(\\frac{a}{\\sin A}\\) bằng:", "options": ["\\(2R\\)", "\\(R\\)", "\\(\\frac{R}{2}\\)", "\\(4R\\)"], "correct": 0 },
+      { "q": "Công thức tính diện tích tam giác theo hai cạnh và góc xen giữa:", "options": ["\\(S = \\frac{1}{2}ab\\sin C\\)", "\\(S = ab\\sin C\\)", "\\(S = \\frac{1}{2}ab\\cos C\\)", "\\(S = 2ab\\sin C\\)"], "correct": 0 },
+      { "q": "Công thức tính diện tích tam giác theo bán kính đường tròn nội tiếp \\(r\\):", "options": ["\\(S = p \\cdot r\\)", "\\(S = 2p \\cdot r\\)", "\\(S = \\frac{p \\cdot r}{2}\\)", "\\(S = \\frac{p}{r}\\)"], "correct": 0 },
+      { "q": "Cho tam giác \\(ABC\\) vuông tại \\(A\\). Khẳng định nào sau đây ĐÚNG?", "options": ["\\(a^2 = b^2 + c^2\\)", "\\(b^2 = a^2 + c^2\\)", "\\(a = b + c\\)", "\\(a^2 = b^2 - c^2\\)"], "correct": 0 }
+    ],
+    "medium": [
+      { "q": "Cho tam giác \\(ABC\\) có \\(b = 6, c = 8, \\widehat{A} = 60^\\circ\\). Tính cạnh \\(a\\):", "options": ["\\(2\\sqrt{13}\\)", "\\(2\\sqrt{37}\\)", "\\(10\\)", "\\(2\\sqrt{19}\\)"], "correct": 0 },
+      { "q": "Cho tam giác \\(ABC\\) có \\(a = 10, \\widehat{A} = 30^\\circ\\). Bán kính \\(R\\) đường tròn ngoại tiếp là:", "options": ["10", "5", "20", "15"], "correct": 0 },
+      { "q": "Cho tam giác \\(ABC\\) có \\(a = 4, b = 5, \\widehat{C} = 30^\\circ\\). Diện tích tam giác \\(ABC\\) là:", "options": ["5", "10", "\\(5\\sqrt{3}\\)", "20"], "correct": 0 },
+      { "q": "Cho tam giác \\(ABC\\) có ba cạnh 3, 4, 5. Bán kính đường tròn ngoại tiếp \\(R\\) là:", "options": ["2.5", "5", "2", "3"], "correct": 0 },
+      { "q": "Cho tam giác \\(ABC\\) có \\(a = 7, b = 8, c = 5\\). Tính \\(\\cos A\\):", "options": ["\\(\\frac{1}{2}\\)", "\\(\\frac{2}{3}\\)", "\\(\\frac{3}{5}\\)", "\\(\\frac{\\sqrt{3}}{2}\\)"], "correct": 0 }
+    ],
+    "hard": [
+      { "q": "Cho tam giác \\(ABC\\) có ba cạnh 13, 14, 15. Diện tích tam giác \\(ABC\\) bằng:", "options": ["84", "42", "168", "90"], "correct": 0 },
+      { "q": "Cho tam giác \\(ABC\\) có ba cạnh 13, 14, 15. Bán kính đường tròn nội tiếp \\(r\\) bằng:", "options": ["4", "2", "3", "5"], "correct": 0 },
+      { "q": "Cho tam giác \\(ABC\\) thỏa mãn \\(a^2 + b^2 - c^2 > 0\\). Góc \\(\\widehat{C}\\) là góc:", "options": ["Nhọn (\\(< 90^\\circ\\))", "Tù (\\(> 90^\\circ\\))", "Vuông (\\(= 90^\\circ\\))", "Bẹt (\\(= 180^\\circ\\))"], "correct": 0 },
+      { "q": "Cho tam giác \\(ABC\\) có \\(\\frac{a}{\\cos A} = \\frac{b}{\\cos B}\\). Tam giác \\(ABC\\) là tam giác:", "options": ["Cân tại \\(C\\)", "Đều", "Vuông tại \\(C\\)", "Vuông tại \\(A\\)"], "correct": 0 },
+      { "q": "Cho tam giác \\(ABC\\) có diện tích \\(S = 24\\) và nửa chu vi \\(p = 12\\). Bán kính \\(r\\) bằng:", "options": ["2", "4", "3", "1"], "correct": 0 }
+    ]
+  }
 };
 
-if (window.battlefieldData) {
-  const customTitle = window.__GAME_TITLE__ || "Chiến Dịch: Tác Chiến Căn Cứ";
-  window.gameDatabase = {
-    [customTitle]: {
-      easy: window.battlefieldData.level1 || [],
-      medium: window.battlefieldData.level2 || [],
-      hard: window.battlefieldData.level3 || []
-    },
-    ...window.gameDatabase
-  };
-}
+// Cơ chế đồng bộ và Fallback dữ liệu bắt buộc (Data Fallback Guard)
+function ensureBattlefieldData() {
+  if (window.battlefieldData && typeof window.battlefieldData === 'object') {
+    const customTitle = window.__GAME_TITLE__ || "Chiến Dịch: Tác Chiến Căn Cứ";
+    if (!window.gameDatabase) window.gameDatabase = {};
+    window.gameDatabase[customTitle] = {
+      easy: window.battlefieldData.level1 || window.battlefieldData.easy || [],
+      medium: window.battlefieldData.level2 || window.battlefieldData.medium || [],
+      hard: window.battlefieldData.level3 || window.battlefieldData.hard || []
+    };
+  }
 
-window.selectedTopic = Object.keys(window.gameDatabase)[0];
-window.useStaticTopic = true;
+  let hasValid = false;
+  if (window.gameDatabase && typeof window.gameDatabase === 'object') {
+    const keys = Object.keys(window.gameDatabase);
+    if (keys.length > 0) {
+      for (const k of keys) {
+        const item = window.gameDatabase[k];
+        if (item && ((item.easy && item.easy.length > 0) || (item.level1 && item.level1.length > 0))) {
+          hasValid = true;
+          break;
+        }
+      }
+    }
+  }
+
+  // FALLBACK BẮT BUỘC: Nếu dữ liệu rỗng hoặc undefined, tự động nạp kho 3 chiến dịch chuẩn
+  if (!hasValid) {
+    console.warn('[Battlefield] Dữ liệu động bị rỗng. Tự động nạp DEFAULT_BATTLEFIELD_DATABASE!');
+    window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_BATTLEFIELD_DATABASE));
+  }
+
+  const keys = Object.keys(window.gameDatabase);
+  if (!window.selectedTopic || !window.gameDatabase[window.selectedTopic]) {
+    window.selectedTopic = keys[0];
+  }
+  window.useStaticTopic = true;
+}
 
 // Hàm bốc ngẫu nhiên đúng 5 câu hỏi từ kho câu hỏi của mỗi cấp độ (Random Sampling)
 function sampleFiveQuestions(arr) {
@@ -1959,10 +2031,10 @@ function sampleFiveQuestions(arr) {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy.slice(0, 5).map(q => ({
-    q: q.q || q.question,
-    options: q.options || ['A', 'B', 'C', 'D'],
+    q: cleanMathString(q.q || q.question || ''),
+    options: (q.options || ['A', 'B', 'C', 'D']).map(o => cleanMathString(o)),
     correct: typeof q.correct === 'number' ? q.correct : (typeof q.correctIndex === 'number' ? q.correctIndex : 0),
-    explanation: q.explanation || q.solution || '',
+    explanation: cleanMathString(q.explanation || q.solution || ''),
     imageUrl: q.imageUrl || q.image || ''
   }));
 }
@@ -1976,10 +2048,11 @@ function openTopicMenu() {
   }
 }
 
-// Render các thẻ chủ đề
+// Render các thẻ chủ đề ra giao diện
 function renderTopicMenuCards() {
   const container = document.getElementById('topics-grid');
   if (!container) return;
+  ensureBattlefieldData();
   container.innerHTML = '';
 
   const topics = Object.keys(window.gameDatabase);
@@ -2030,7 +2103,7 @@ function renderTopicMenuCards() {
     container.appendChild(card);
   });
 
-  if (window.MathJax) MathJax.typesetPromise().catch(e => {});
+  typesetMath();
 }
 
 // Xử lý khi học sinh click chọn chủ đề (Random Sampling đúng 5 câu mỗi cấp độ)
@@ -2085,14 +2158,56 @@ let editorWorkingData = {
 };
 
 // Kiểm tra quyền Admin qua URL param (?role=admin hoặc ?admin=1)
+// Mặc định ẩn 100% nút bánh răng quản trị khỏi học sinh
 function checkAdminAccessFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  const role = params.get('role');
-  const admin = params.get('admin');
-  if (role === 'admin' || admin === '1' || admin === 'true') {
-    const btnGear = document.getElementById('btn-admin-gear');
-    if (btnGear) btnGear.classList.remove('hidden');
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const role = params.get('role');
+    const admin = params.get('admin');
+    const isAdmin = (role === 'admin' || admin === '1' || admin === 'true');
+    const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-admin-gear-overlay, [data-admin-control="true"]');
+    adminBtns.forEach(btn => {
+      if (isAdmin) {
+        btn.style.setProperty('display', 'inline-flex', 'important');
+      } else {
+        btn.style.setProperty('display', 'none', 'important');
+      }
+    });
+  } catch (e) {
+    console.warn('Lỗi kiểm tra quyền Admin:', e);
   }
+}
+
+// Thiết lập lắng nghe sự kiện click cho nút quản trị
+function setupAdminGearListener() {
+  const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-admin-gear-overlay');
+  adminBtns.forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openAdminPinModal();
+    };
+  });
+}
+
+// Tự động xóa chữ gợi ý (Placeholder) khi click vào ô nhập liệu và khôi phục khi bỏ focus nếu trống
+function setupInputPlaceholderHandlers() {
+  document.querySelectorAll('input, textarea').forEach(el => {
+    if (!el.dataset.placeholderBound) {
+      el.dataset.placeholderBound = "true";
+      el.addEventListener('focus', () => {
+        if (el.placeholder) {
+          el.dataset.origPlaceholder = el.placeholder;
+          el.placeholder = '';
+        }
+      });
+      el.addEventListener('blur', () => {
+        if (!el.value && el.dataset.origPlaceholder) {
+          el.placeholder = el.dataset.origPlaceholder;
+        }
+      });
+    }
+  });
 }
 
 // Khởi tạo dữ liệu câu hỏi từ LocalStorage nếu có
@@ -2160,7 +2275,6 @@ function submitAdminPin() {
 
 // Mở modal Editor
 function openAdminEditorModal() {
-  // Lấy dữ liệu nguồn hiện tại
   let src = window.battlefieldData;
   if (!src && window.gameDatabase && window.selectedTopic && window.gameDatabase[window.selectedTopic]) {
     const tData = window.gameDatabase[window.selectedTopic];
@@ -2171,10 +2285,15 @@ function openAdminEditorModal() {
     };
   }
   if (!src) {
-    src = DEFAULT_BATTLEFIELD_STATIC_DATA;
+    const firstKey = Object.keys(DEFAULT_BATTLEFIELD_DATABASE)[0];
+    const defaultData = DEFAULT_BATTLEFIELD_DATABASE[firstKey];
+    src = {
+      level1: defaultData.easy,
+      level2: defaultData.medium,
+      level3: defaultData.hard
+    };
   }
 
-  // Clone dữ liệu sâu để sửa đổi
   editorWorkingData = {
     level1: JSON.parse(JSON.stringify(src.level1 || [])),
     level2: JSON.parse(JSON.stringify(src.level2 || [])),
@@ -2185,6 +2304,7 @@ function openAdminEditorModal() {
   renderEditorUI();
   const modal = document.getElementById('admin-editor-modal');
   if (modal) modal.classList.remove('hidden');
+  setupInputPlaceholderHandlers();
 }
 
 // Đóng modal Editor
@@ -2196,7 +2316,6 @@ function closeAdminEditorModal() {
 // Chuyển Tab Level trong Editor
 function switchEditorLevel(lvl) {
   currentEditorLevel = lvl;
-  // Cập nhật giao diện tab buttons
   [1, 2, 3].forEach(l => {
     const btn = document.getElementById(`tab-btn-lvl${l}`);
     if (btn) {
@@ -2282,6 +2401,8 @@ function renderEditorQuestionsList() {
       </div>
     `;
   }).join('');
+
+  setupInputPlaceholderHandlers();
 }
 
 function escapeHtml(text) {
@@ -2358,7 +2479,6 @@ function saveAdminQuestions() {
     };
     window.selectedTopic = customTitle;
 
-    // Tái cấu trúc lại câu hỏi phiên chơi
     if (typeof generateSessionQuestions === 'function') {
       generateSessionQuestions();
     }
@@ -2376,7 +2496,6 @@ function exportCurrentBattlefieldHTML() {
     const clonedData = JSON.parse(JSON.stringify(editorWorkingData));
     const currentHtml = document.documentElement.outerHTML;
     
-    // Tạo đoạn mã tiêm dữ liệu tĩnh vào đầu HTML
     const injectDataScript = `
 <script>
 window.__GAME_TITLE__ = "Chiến Dịch: Bảo Vệ Chiến Hào (Bản Tùy Biến)";
@@ -2405,13 +2524,25 @@ window.battlefieldData = ${JSON.stringify(clonedData, null, 2)};
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+// Khởi chạy ứng dụng toàn diện (Kiểm tra readyState chống race condition)
+function initBattlefieldApp() {
   initCustomQuestionsFromStorage();
+  ensureBattlefieldData();
   checkAdminAccessFromURL();
+  setupAdminGearListener();
+  setupInputPlaceholderHandlers();
   renderTopicMenuCards();
-  // Khởi tạo chủ đề đầu tiên
-  selectTopic(window.selectedTopic);
-});
+  if (window.selectedTopic) {
+    selectTopic(window.selectedTopic);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initBattlefieldApp);
+} else {
+  initBattlefieldApp();
+}
+window.addEventListener('load', initBattlefieldApp);
 </script>
 
 </body>

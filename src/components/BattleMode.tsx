@@ -90,6 +90,10 @@ export const BattleMode: React.FC<BattleModeProps> = ({ questions, student }) =>
   // Global Keyboard Listener for A, L and 1-4
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
       if (gameState !== 'battle') return;
 
       const key = e.key.toLowerCase();
