@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { TeachingTool, Question, Difficulty } from '../../types';
-import { X, FileUp, Plus, Trash2, Save, FileDown, Sparkles, Download, Shuffle, FileText, CheckCircle2 } from 'lucide-react';
+import { X, FileUp, Plus, Trash2, Save, FileDown, Sparkles, Download, Shuffle, FileText, CheckCircle2, Calculator, Loader2 } from 'lucide-react';
 import { soundFx } from '../../utils/sound';
 import { GAME_TEMPLATES, exportStandaloneGameHTML, downloadFile } from '../../utils/gameExporter';
+import { VirtualMathKeyboard } from '../common/VirtualMathKeyboard';
+import { extractTextFromDocx, extractTextFromExcel, parseDocumentQuestions } from '../../utils/documentParser';
 
 interface GameQuestionModalProps {
   tool: TeachingTool;
@@ -23,6 +25,14 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [rawTextToParse, setRawTextToParse] = useState('');
+  const [showKeyboard, setShowKeyboard] = useState(false);
+  const [isParsingDoc, setIsParsingDoc] = useState(false);
+  const [activeTarget, setActiveTarget] = useState<{
+    id: string;
+    field: 'question' | 'explanation' | 'option';
+    optIndex?: number;
+    fieldName: string;
+  } | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -164,6 +174,97 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       }
     };
     reader.readAsText(file);
+  };
+
+  // --- SMART IMPORT WORD (.DOCX) & EXCEL (.XLSX) THEO MẪU PHÂN CẤP ---
+  const handleImportDocumentFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsParsingDoc(true);
+    soundFx.playClick();
+
+    try {
+      let rawText = '';
+      const ext = file.name.split('.').pop()?.toLowerCase();
+
+      if (ext === 'docx') {
+        rawText = await extractTextFromDocx(file);
+      } else if (ext === 'xlsx' || ext === 'xls') {
+        rawText = await extractTextFromExcel(file);
+      } else if (ext === 'csv') {
+        rawText = await file.text();
+      } else {
+        throw new Error('Định dạng file không được hỗ trợ. Vui lòng chọn .docx, .xlsx, .xls hoặc .csv');
+      }
+
+      const parsedQuestions = parseDocumentQuestions(rawText, gameTitle);
+      if (parsedQuestions.length === 0) {
+        throw new Error('Không bóc tách được câu hỏi hoặc cấu trúc ghép đôi hợp lệ từ file.');
+      }
+
+      setQuestions(prev => [...prev, ...parsedQuestions]);
+      soundFx.playCorrect();
+      alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI / CẶP THẺ TỪ FILE:\n"${file.name}"!\n\nCấu trúc Chuyên đề, Cấp độ và Công thức toán học đã được giữ nguyên vẹn.`);
+    } catch (err: any) {
+      console.error(err);
+      alert(`Lỗi đọc file tài liệu: ${err?.message || 'Có lỗi xảy ra khi xử lý tài liệu.'}`);
+    } finally {
+      setIsParsingDoc(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  // --- BÀN PHÍM CÔNG THỨC TOÁN HỌC ẢO (VIRTUAL MATH KEYBOARD LOGIC) ---
+  const handleInsertMath = (snippet: string) => {
+    if (!activeTarget) return;
+    const { id, field, optIndex } = activeTarget;
+
+    if (field === 'question') {
+      const q = questions.find(item => item.id === id);
+      if (!q) return;
+      handleUpdate(id, 'question', q.question + snippet);
+    } else if (field === 'explanation') {
+      const q = questions.find(item => item.id === id);
+      if (!q) return;
+      handleUpdate(id, 'explanation', (q.explanation || '') + snippet);
+    } else if (field === 'option' && typeof optIndex === 'number') {
+      const q = questions.find(item => item.id === id);
+      if (!q) return;
+      const currentOpt = q.options[optIndex] || '';
+      handleUpdateOption(id, optIndex, currentOpt + snippet);
+    }
+  };
+
+  const handleBackspace = () => {
+    if (!activeTarget) return;
+    const { id, field, optIndex } = activeTarget;
+
+    if (field === 'question') {
+      const q = questions.find(item => item.id === id);
+      if (!q || !q.question) return;
+      handleUpdate(id, 'question', q.question.slice(0, -1));
+    } else if (field === 'explanation') {
+      const q = questions.find(item => item.id === id);
+      if (!q || !q.explanation) return;
+      handleUpdate(id, 'explanation', q.explanation.slice(0, -1));
+    } else if (field === 'option' && typeof optIndex === 'number') {
+      const q = questions.find(item => item.id === id);
+      if (!q) return;
+      const currentOpt = q.options[optIndex] || '';
+      handleUpdateOption(id, optIndex, currentOpt.slice(0, -1));
+    }
+  };
+
+  const getCurrentTargetValue = (): string => {
+    if (!activeTarget) return '';
+    const { id, field, optIndex } = activeTarget;
+    const q = questions.find(item => item.id === id);
+    if (!q) return '';
+    if (field === 'question') return q.question;
+    if (field === 'explanation') return q.explanation || '';
+    if (field === 'option' && typeof optIndex === 'number') return q.options[optIndex] || '';
+    return '';
   };
 
   // --- CSV TEMPLATE ---
@@ -379,10 +480,34 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
             <FileDown className="w-4 h-4 text-slate-500" /> Tải CSV mẫu
           </button>
           
-          <label className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border border-blue-200 shadow-2xs">
-            <FileUp className="w-4 h-4" /> Nhập từ CSV
-            <input type="file" accept=".csv" ref={fileInputRef} onChange={handleImportCsv} className="hidden" />
+          <label className={`px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border shadow-2xs ${
+            isParsingDoc 
+              ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse' 
+              : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200'
+          }`}>
+            {isParsingDoc ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileUp className="w-4 h-4" />}
+            <span>{isParsingDoc ? 'Đang bóc tách file...' : 'Nhập Word (.docx) / Excel (.xlsx)'}</span>
+            <input 
+              type="file" 
+              accept=".docx,.xlsx,.xls,.csv" 
+              ref={fileInputRef} 
+              onChange={handleImportDocumentFile} 
+              className="hidden" 
+              disabled={isParsingDoc}
+            />
           </label>
+
+          <button
+            onClick={() => setShowKeyboard(!showKeyboard)}
+            className={`px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 border shadow-2xs cursor-pointer ${
+              showKeyboard 
+                ? 'bg-violet-600 text-white border-violet-500 shadow-[0_0_15px_rgba(124,58,237,0.35)]' 
+                : 'bg-violet-50 hover:bg-violet-100 text-violet-700 border-violet-200'
+            }`}
+            title="Bật/Tắt Bàn Phím Công Thức Toán Học Ảo"
+          >
+            <Calculator className="w-4 h-4" /> Bàn Phím Toán Ảo
+          </button>
 
           <button 
             onClick={() => setShowPasteModal(true)} 
@@ -459,6 +584,10 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                   <textarea
                     value={q.question}
                     onChange={(e) => handleUpdate(q.id, 'question', e.target.value)}
+                    onFocus={() => {
+                      setActiveTarget({ id: q.id, field: 'question', fieldName: `Đề bài Câu ${index + 1}` });
+                      setShowKeyboard(true);
+                    }}
                     className="w-full p-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none min-h-[64px]"
                     placeholder="Nhập nội dung câu hỏi (hỗ trợ công thức LaTeX: \sin x, \frac{a}{b}...)..."
                   />
@@ -491,6 +620,10 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                           type="text"
                           value={opt}
                           onChange={(e) => handleUpdateOption(q.id, oIdx, e.target.value)}
+                          onFocus={() => {
+                            setActiveTarget({ id: q.id, field: 'option', optIndex: oIdx, fieldName: `Câu ${index + 1} - Đáp án ${String.fromCharCode(65 + oIdx)}` });
+                            setShowKeyboard(true);
+                          }}
                           className={`flex-1 p-2 rounded-lg text-xs font-medium outline-none bg-transparent ${
                             isCorrect ? 'text-emerald-900 font-bold' : 'text-slate-800'
                           }`}
@@ -507,6 +640,10 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                     type="text"
                     value={q.explanation || ''}
                     onChange={(e) => handleUpdate(q.id, 'explanation', e.target.value)}
+                    onFocus={() => {
+                      setActiveTarget({ id: q.id, field: 'explanation', fieldName: `Câu ${index + 1} - Lời giải chi tiết` });
+                      setShowKeyboard(true);
+                    }}
                     className="w-full p-2 border border-slate-200 rounded-xl text-xs text-slate-600 focus:border-violet-400 outline-none"
                     placeholder="Lời giải / giải thích chi tiết (tùy chọn)..."
                   />
@@ -618,6 +755,16 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
           </div>
         </div>
       )}
+
+      {/* BÀN PHÍM CÔNG THỨC TOÁN HỌC ẢO (VIRTUAL MATH KEYBOARD) */}
+      <VirtualMathKeyboard
+        isOpen={showKeyboard}
+        onClose={() => setShowKeyboard(false)}
+        onInsert={handleInsertMath}
+        onBackspace={handleBackspace}
+        currentValue={getCurrentTargetValue()}
+        targetFieldName={activeTarget?.fieldName || 'Ô nhập liệu'}
+      />
 
     </div>
   );

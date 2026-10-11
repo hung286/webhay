@@ -577,32 +577,41 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
     Object.keys(groupedByTopic).forEach(tName => {
       const qList = groupedByTopic[tName];
       topicsMap[tName] = {};
-      const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose'];
-      const funcs: any[] = [];
-      const props: any[] = [];
+      const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
 
-      qList.slice(0, 5).forEach((q, idx) => {
-        const funcId = `f${idx + 1}`;
-        funcs.push({
-          id: funcId,
-          tex: q.question,
-          theme: themeColors[idx % themeColors.length]
-        });
+      // Phân bổ câu hỏi vào các cấp độ (3-5 hàm số mỗi cấp độ)
+      const chunkSize = 3;
+      const totalLevels = Math.min(5, Math.max(1, Math.ceil(qList.length / chunkSize)));
 
-        (q.options || []).forEach((opt, pIdx) => {
-          props.push({
-            id: `p${idx + 1}_${pIdx + 1}`,
-            funcId: funcId,
-            text: opt
+      for (let lvl = 1; lvl <= totalLevels; lvl++) {
+        const sliceStart = (lvl - 1) * chunkSize;
+        const sliceQuestions = qList.slice(sliceStart, sliceStart + chunkSize);
+        if (sliceQuestions.length === 0) break;
+
+        const funcs: any[] = [];
+        const props: any[] = [];
+
+        sliceQuestions.forEach((q, idx) => {
+          const funcId = `f${idx + 1}`;
+          funcs.push({
+            id: funcId,
+            tex: q.question,
+            theme: themeColors[idx % themeColors.length]
+          });
+
+          (q.options || []).forEach((opt, pIdx) => {
+            props.push({
+              id: `p${idx + 1}_${pIdx + 1}`,
+              funcId: funcId,
+              text: opt
+            });
           });
         });
-      });
 
-      if (funcs.length > 0) {
-        topicsMap[tName][1] = {
-          title: 'Cấp Độ 1 (Tùy Chỉnh)',
-          diffBadge: 'Tiêu chuẩn',
-          colorTheme: 'blue',
+        topicsMap[tName][lvl] = {
+          title: `Cấp Độ ${lvl}: ${sliceQuestions[0]?.difficulty || 'Tùy Chỉnh'}`,
+          diffBadge: lvl === 1 ? 'Dễ' : (lvl >= 4 ? 'Khó' : 'Vừa'),
+          colorTheme: themeColors[(lvl - 1) % themeColors.length],
           time: 180,
           funcs: funcs,
           props: props
