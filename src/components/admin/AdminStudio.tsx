@@ -258,14 +258,14 @@ export const AdminStudio: React.FC<AdminStudioProps> = ({
 
         <button
           onClick={() => setActiveTab('tools')}
-          className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition flex items-center gap-2 shrink-0 ${
+          className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition flex items-center gap-2 shrink-0 ${
             activeTab === 'tools'
-              ? 'bg-blue-600 text-white shadow-xs'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-200'
+              : 'text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200'
           }`}
         >
-          <Layers className="w-4 h-4" />
-          <span>Công cụ & Trò chơi</span>
+          <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+          <span>⚡ Tạo Game (1 Nút Bấm) & Công cụ</span>
         </button>
 
         <button

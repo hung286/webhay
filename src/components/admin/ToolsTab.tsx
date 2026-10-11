@@ -1,10 +1,12 @@
-import { GameQuestionModal } from './GameQuestionModal';
-import { Question } from '../../types';
 import React, { useState, useEffect } from 'react';
-import { TeachingTool, ToolType, ToolCategory } from '../../types';
+import { TeachingTool, ToolType, ToolCategory, Question } from '../../types';
 import { getTeachingTools, saveTeachingTools } from '../../utils/storage';
 import { getToolEmbedUrl } from '../../utils/tools';
-import { Plus, Trash2, Copy, Edit2, ExternalLink, Gamepad2, Wrench, CheckCircle, Eye, Search, Sparkles } from 'lucide-react';
+import { GameQuestionModal } from './GameQuestionModal';
+import { 
+  Plus, Trash2, Copy, Edit2, ExternalLink, Gamepad2, Wrench, 
+  CheckCircle, Eye, Search, Sparkles, Download, ArrowRight, Zap 
+} from 'lucide-react';
 import { soundFx } from '../../utils/sound';
 
 export interface PairItem {
@@ -49,7 +51,7 @@ const DEFAULT_DAOHAM_PAIRS: PairItem[] = [
 export const ToolsTab: React.FC = () => {
   const [tools, setTools] = useState<TeachingTool[]>([]);
   const [previewTool, setPreviewTool] = useState<TeachingTool | null>(null);
-    const [editingGameQuestions, setEditingGameQuestions] = useState<TeachingTool | null>(null);
+  const [editingGameQuestions, setEditingGameQuestions] = useState<TeachingTool | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [currentTool, setCurrentTool] = useState<Partial<TeachingTool>>({});
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -66,6 +68,27 @@ export const ToolsTab: React.FC = () => {
     setTools(getTeachingTools());
   }, []);
 
+  // Mở Studio Tạo Game 1 Nút Bấm
+  const handleOpenOneClickStudio = (preferredTool?: TeachingTool) => {
+    soundFx.playClick();
+    if (preferredTool) {
+      setEditingGameQuestions(preferredTool);
+      return;
+    }
+    const defaultTemplateGame = tools.find(t => t.category === 'tro-choi') || {
+      id: 'tool_custom_' + Date.now(),
+      name: 'Đua xe F1 - Chủ đề mới',
+      type: 'iframe' as ToolType,
+      category: 'tro-choi' as ToolCategory,
+      url: '/game-dua-xe-F1-on-tap-HK2-toan10.html',
+      description: 'Trò chơi học tập tùy chỉnh câu hỏi',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      customQuestions: []
+    };
+    setEditingGameQuestions(defaultTemplateGame);
+  };
+
   const handleOpenAddGame = () => {
     setCurrentTool({
       type: 'iframe',
@@ -79,7 +102,6 @@ export const ToolsTab: React.FC = () => {
     soundFx.playClick();
   };
 
-  
   const handleDuplicate = (tool: TeachingTool) => {
     const newTool = {
       ...tool,
@@ -104,7 +126,6 @@ export const ToolsTab: React.FC = () => {
     soundFx.playClick();
   };
 
-  
   const handleSaveGameQuestions = (toolId: string, questions: Question[], newToolName?: string) => {
     const updatedTools = tools.map(t => t.id === toolId ? {
       ...t,
@@ -286,34 +307,51 @@ export const ToolsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
+
+      {/* 🌟 HERO BANNER: STUDIO TỰ ĐỘNG TẠO GAME 1 NÚT BẤM (CỰC KỲ NỔI BẬT) 🌟 */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-900 via-indigo-900 to-purple-950 p-6 sm:p-8 text-white shadow-2xl border-2 border-violet-400/30">
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-violet-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute right-20 top-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-black tracking-wider uppercase">
+              <Zap className="w-3.5 h-3.5" />
+              Tính Năng Tự Động Hóa Độc Quyền v3.8
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
+              <span>Studio Tạo Trò Chơi Toán Học (1 Nút Bấm)</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-violet-200/90 leading-relaxed font-medium">
+              Chỉ cần tải file câu hỏi lên (hoặc dán đề bài Word/Text), chọn 1 trong 23 trò chơi và bấm nút: Hệ thống tự động chuyển đổi định dạng (Data Adapter) và xuất ra file HTML trò chơi hoàn chỉnh cho bạn!
+            </p>
+          </div>
+
+          <button
+            onClick={() => handleOpenOneClickStudio()}
+            className="w-full md:w-auto px-6 py-4 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 rounded-2xl text-sm sm:text-base font-black shadow-xl shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 cursor-pointer shrink-0 border-2 border-amber-200"
+          >
+            <Sparkles className="w-5 h-5 text-slate-950 animate-spin" />
+            <span>⚡ BẤM TẠO GAME 1 NÚT BẤM NGAY</span>
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
       {/* Header & Quick Action Buttons */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
         <div>
           <h3 className="text-xl font-extrabold text-slate-800 flex items-center gap-2">
-            <span>Quản lý Công cụ & Trò chơi Học tập</span>
+            <span>Kho Công Cụ & 23 Trò Chơi Học Tập</span>
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            Thêm, chỉnh sửa hoặc xóa các trò chơi và công cụ hiển thị cho học sinh và giáo viên
+            Quản lý, chỉnh sửa câu hỏi hoặc nhân bản các trò chơi cho các chủ đề và môn học khác nhau
           </p>
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
           <button
-            onClick={() => {
-              const defaultTemplateGame = tools.find(t => t.category === 'tro-choi') || {
-                id: 'tool_custom_' + Date.now(),
-                name: 'Đua xe F1 - Chủ đề mới',
-                type: 'iframe' as ToolType,
-                category: 'tro-choi' as ToolCategory,
-                url: '/game-dua-xe-F1-on-tap-HK2-toan10.html',
-                description: 'Trò chơi học tập tùy chỉnh câu hỏi',
-                isActive: true,
-                createdAt: new Date().toISOString(),
-                customQuestions: []
-              };
-              setEditingGameQuestions(defaultTemplateGame);
-              soundFx.playClick();
-            }}
+            onClick={() => handleOpenOneClickStudio()}
             className="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-md shadow-emerald-200 transition cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
@@ -547,7 +585,7 @@ export const ToolsTab: React.FC = () => {
                     setPreviewTool(tool);
                     soundFx.playClick();
                   }}
-                  className="text-xs font-bold text-violet-600 hover:text-violet-800 flex items-center gap-1.5 transition"
+                  className="text-xs font-bold text-violet-600 hover:text-violet-800 flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Xem thử & Cài đặt</span>
@@ -556,7 +594,7 @@ export const ToolsTab: React.FC = () => {
                 {getGameStorageKey(tool) && (
                   <button
                     onClick={() => handleOpenPairEditor(tool)}
-                    className="text-xs font-black text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition shadow-2xs"
+                    className="text-xs font-black text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
                     title="Chỉnh sửa trực tiếp danh sách cặp bài công thức"
                   >
                     <Sparkles className="w-3 h-3 text-amber-500" />
@@ -564,16 +602,16 @@ export const ToolsTab: React.FC = () => {
                   </button>
                 )}
 
-                  {tool.category === 'tro-choi' && (
-                    <button
-                      onClick={() => { setEditingGameQuestions(tool); soundFx.playClick(); }}
-                      className="text-xs font-black text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-300 px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition shadow-2xs mt-2 cursor-pointer"
-                      title="Mở Studio tạo câu hỏi và xuất file HTML trò chơi"
-                    >
-                      <Sparkles className="w-3 h-3 text-violet-500 animate-pulse" />
-                      <span>⚡ Tạo Đề & Xuất Game (1 Nút Bấm)</span>
-                    </button>
-                  )}
+                {tool.category === 'tro-choi' && (
+                  <button
+                    onClick={() => handleOpenOneClickStudio(tool)}
+                    className="text-xs font-black text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-300 px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition shadow-2xs mt-2 cursor-pointer"
+                    title="Mở Studio tạo câu hỏi và xuất file HTML trò chơi"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-violet-500 animate-pulse" />
+                    <span>⚡ Tạo Đề & Xuất Game (1 Nút Bấm)</span>
+                  </button>
+                )}
               </div>
 
               <div className="flex items-center gap-1">
@@ -583,21 +621,22 @@ export const ToolsTab: React.FC = () => {
                     setIsEditing(true);
                     soundFx.playClick();
                   }}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition cursor-pointer"
                   title="Chỉnh sửa cấu hình"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
 
-                  <button
-                    onClick={() => handleDuplicate(tool)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </button>
+                <button
+                  onClick={() => handleDuplicate(tool)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition cursor-pointer"
+                  title="Nhân bản công cụ này"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
                 <button
                   onClick={() => handleDelete(tool)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
                   title="Xóa vĩnh viễn"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -628,7 +667,7 @@ export const ToolsTab: React.FC = () => {
             </div>
             <button 
               onClick={() => { setPreviewTool(null); soundFx.playClick(); }} 
-              className="px-4 py-2 bg-rose-600 text-white rounded-xl font-bold text-sm hover:bg-rose-700 transition"
+              className="px-4 py-2 bg-rose-600 text-white rounded-xl font-bold text-sm hover:bg-rose-700 transition cursor-pointer"
             >
               ✕ Đóng xem thử
             </button>
@@ -753,6 +792,7 @@ export const ToolsTab: React.FC = () => {
         </div>
       )}
 
+      {/* MODAL STUDIO TẠO GAME TỰ ĐỘNG (1 NÚT BẤM) */}
       {editingGameQuestions && (
         <GameQuestionModal
           tool={editingGameQuestions}
