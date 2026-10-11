@@ -16,7 +16,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   appName: 'TOÁN PRO',
   shortDesc: 'Không để ai bị bỏ lại phía sau',
   orgName: 'LỚP TOÁN THẦY HÙNG',
-  topBadge: 'EDUCATION APP v3.1 STABLE',
+  topBadge: 'MH MATHEDU',
   themeColor: 'blue',
   logoUrl: '',
   adminPin: SYSTEM_ADMIN_PIN,

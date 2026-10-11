@@ -194,6 +194,33 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   } | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const activeInputElRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
+
+  // Auto-clear placeholder khi click/focus vào ô nhập liệu và khôi phục khi blur nếu trống
+  const handleFieldFocus = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+    targetMeta: {
+      id: string;
+      field: 'question' | 'explanation' | 'option' | 'row_category' | 'row_attribute' | 'row_topic';
+      optIndex?: number;
+      attrIndex?: number;
+      fieldName: string;
+    }
+  ) => {
+    activeInputElRef.current = e.target;
+    if (e.target.placeholder) {
+      e.target.dataset.origPlaceholder = e.target.placeholder;
+      e.target.placeholder = '';
+    }
+    setActiveTarget(targetMeta);
+    setShowKeyboard(true);
+  };
+
+  const handleFieldBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (!e.target.value && e.target.dataset.origPlaceholder) {
+      e.target.placeholder = e.target.dataset.origPlaceholder;
+    }
+  };
 
   // Tìm template hiện tại
   const currentTemplate = GAME_TEMPLATES.find(t => t.file === selectedTemplateUrl) || GAME_TEMPLATES[0];
@@ -475,65 +502,95 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   };
 
   // --- BÀN PHÍM CÔNG THỨC TOÁN HỌC ẢO (VIRTUAL MATH KEYBOARD LOGIC) ---
-  const handleInsertMath = (snippet: string) => {
+  const handleInsertMath = (snippet: string, replaceCount: number = 0) => {
     if (!activeTarget) return;
     const { id, field, optIndex, attrIndex } = activeTarget;
+    const inputEl = activeInputElRef.current;
+
+    let currentVal = getCurrentTargetValue();
+    let start = currentVal.length;
+    let end = currentVal.length;
+
+    if (inputEl) {
+      start = inputEl.selectionStart ?? currentVal.length;
+      end = inputEl.selectionEnd ?? currentVal.length;
+    }
+
+    if (replaceCount > 0 && start >= replaceCount) {
+      start -= replaceCount;
+    }
+
+    const newVal = currentVal.slice(0, start) + snippet + currentVal.slice(end);
+    const newCursor = start + snippet.length;
 
     if (field === 'row_category') {
-      setTableRows(prev => prev.map(r => r.id === id ? { ...r, category: r.category + snippet, title: r.category + snippet } : r));
+      handleUpdateRow(id, 'category', newVal);
     } else if (field === 'row_attribute' && typeof attrIndex === 'number') {
-      setTableRows(prev => prev.map(r => {
-        if (r.id !== id) return r;
-        const nextAttrs = [...r.attributes];
-        nextAttrs[attrIndex] = (nextAttrs[attrIndex] || '') + snippet;
-        return { ...r, attributes: nextAttrs };
-      }));
+      handleUpdateAttributeInRow(id, attrIndex, newVal);
     } else if (field === 'row_topic') {
-      setTableRows(prev => prev.map(r => r.id === id ? { ...r, topic: r.topic + snippet } : r));
+      handleUpdateRow(id, 'topic', newVal);
     } else if (field === 'question') {
-      const q = questions.find(item => item.id === id);
-      if (!q) return;
-      handleUpdate(id, 'question', q.question + snippet);
+      handleUpdate(id, 'question', newVal);
     } else if (field === 'explanation') {
-      const q = questions.find(item => item.id === id);
-      if (!q) return;
-      handleUpdate(id, 'explanation', (q.explanation || '') + snippet);
+      handleUpdate(id, 'explanation', newVal);
     } else if (field === 'option' && typeof optIndex === 'number') {
-      const q = questions.find(item => item.id === id);
-      if (!q) return;
-      const currentOpt = q.options[optIndex] || '';
-      handleUpdateOption(id, optIndex, currentOpt + snippet);
+      handleUpdateOption(id, optIndex, newVal);
+    }
+
+    if (inputEl) {
+      requestAnimationFrame(() => {
+        inputEl.focus();
+        inputEl.setSelectionRange(newCursor, newCursor);
+      });
     }
   };
 
   const handleBackspace = () => {
     if (!activeTarget) return;
     const { id, field, optIndex, attrIndex } = activeTarget;
+    const inputEl = activeInputElRef.current;
+
+    let currentVal = getCurrentTargetValue();
+    let start = currentVal.length;
+    let end = currentVal.length;
+
+    if (inputEl) {
+      start = inputEl.selectionStart ?? currentVal.length;
+      end = inputEl.selectionEnd ?? currentVal.length;
+    }
+
+    if (start === 0 && end === 0) return;
+
+    let newVal = '';
+    let newCursor = start;
+
+    if (start < end) {
+      newVal = currentVal.slice(0, start) + currentVal.slice(end);
+      newCursor = start;
+    } else {
+      newVal = currentVal.slice(0, start - 1) + currentVal.slice(start);
+      newCursor = start - 1;
+    }
 
     if (field === 'row_category') {
-      setTableRows(prev => prev.map(r => r.id === id ? { ...r, category: r.category.slice(0, -1), title: r.category.slice(0, -1) } : r));
+      handleUpdateRow(id, 'category', newVal);
     } else if (field === 'row_attribute' && typeof attrIndex === 'number') {
-      setTableRows(prev => prev.map(r => {
-        if (r.id !== id) return r;
-        const nextAttrs = [...r.attributes];
-        nextAttrs[attrIndex] = (nextAttrs[attrIndex] || '').slice(0, -1);
-        return { ...r, attributes: nextAttrs };
-      }));
+      handleUpdateAttributeInRow(id, attrIndex, newVal);
     } else if (field === 'row_topic') {
-      setTableRows(prev => prev.map(r => r.id === id ? { ...r, topic: r.topic.slice(0, -1) } : r));
+      handleUpdateRow(id, 'topic', newVal);
     } else if (field === 'question') {
-      const q = questions.find(item => item.id === id);
-      if (!q || !q.question) return;
-      handleUpdate(id, 'question', q.question.slice(0, -1));
+      handleUpdate(id, 'question', newVal);
     } else if (field === 'explanation') {
-      const q = questions.find(item => item.id === id);
-      if (!q || !q.explanation) return;
-      handleUpdate(id, 'explanation', q.explanation.slice(0, -1));
+      handleUpdate(id, 'explanation', newVal);
     } else if (field === 'option' && typeof optIndex === 'number') {
-      const q = questions.find(item => item.id === id);
-      if (!q) return;
-      const currentOpt = q.options[optIndex] || '';
-      handleUpdateOption(id, optIndex, currentOpt.slice(0, -1));
+      handleUpdateOption(id, optIndex, newVal);
+    }
+
+    if (inputEl) {
+      requestAnimationFrame(() => {
+        inputEl.focus();
+        inputEl.setSelectionRange(newCursor, newCursor);
+      });
     }
   };
 
@@ -566,8 +623,8 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
     setQuestions([
       {
         id: `q_${Date.now()}`,
-        question: 'Câu hỏi toán học mới...',
-        options: ['Lựa chọn A', 'Lựa chọn B', 'Lựa chọn C', 'Lựa chọn D'],
+        question: '',
+        options: ['', '', '', ''],
         correctIndex: 0,
         explanation: '',
         difficulty: 'Trung bình',
@@ -1076,14 +1133,12 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                                 type="text"
                                 value={row.topic}
                                 onChange={(e) => handleUpdateRow(row.id, 'topic', e.target.value)}
-                                onFocus={() => {
-                                  setActiveTarget({
-                                    id: row.id,
-                                    field: 'row_topic',
-                                    fieldName: `Dòng ${rIdx + 1}: Chuyên Đề`
-                                  });
-                                  setShowKeyboard(true);
-                                }}
+                                onFocus={(e) => handleFieldFocus(e, {
+                                  id: row.id,
+                                  field: 'row_topic',
+                                  fieldName: `Dòng ${rIdx + 1}: Chuyên Đề`
+                                })}
+                                onBlur={handleFieldBlur}
                                 placeholder="Hoặc gõ tên chuyên đề mới..."
                                 className="w-full p-1.5 bg-white border border-slate-200 rounded text-[11px] text-slate-600 outline-none focus:border-cyan-500 font-medium"
                               />
@@ -1114,14 +1169,12 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                                   type="text"
                                   value={row.category}
                                   onChange={(e) => handleUpdateRow(row.id, 'category', e.target.value)}
-                                  onFocus={() => {
-                                    setActiveTarget({
-                                      id: row.id,
-                                      field: 'row_category',
-                                      fieldName: `Dòng ${rIdx + 1}: Hộp Đề Bài / Phương Trình`
-                                    });
-                                    setShowKeyboard(true);
-                                  }}
+                                  onFocus={(e) => handleFieldFocus(e, {
+                                    id: row.id,
+                                    field: 'row_category',
+                                    fieldName: `Dòng ${rIdx + 1}: Hộp Đề Bài / Phương Trình`
+                                  })}
+                                  onBlur={handleFieldBlur}
                                   placeholder="VD: y = x^3 - 3x hoặc f(x) = \frac{1}{x}..."
                                   className="flex-1 p-2 bg-slate-50 border border-slate-300 rounded-lg font-mono font-bold text-slate-900 text-xs outline-none focus:border-cyan-500 focus:bg-white"
                                 />
@@ -1165,15 +1218,13 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                                         type="text"
                                         value={attr}
                                         onChange={(e) => handleUpdateAttributeInRow(row.id, aIdx, e.target.value)}
-                                        onFocus={() => {
-                                          setActiveTarget({
-                                            id: row.id,
-                                            field: 'row_attribute',
-                                            attrIndex: aIdx,
-                                            fieldName: `Dòng ${rIdx + 1} - Nhãn #${aIdx + 1}`
-                                          });
-                                          setShowKeyboard(true);
-                                        }}
+                                        onFocus={(e) => handleFieldFocus(e, {
+                                          id: row.id,
+                                          field: 'row_attribute',
+                                          attrIndex: aIdx,
+                                          fieldName: `Dòng ${rIdx + 1} - Nhãn #${aIdx + 1}`
+                                        })}
+                                        onBlur={handleFieldBlur}
                                         placeholder="Thuộc tính đúng..."
                                         className="flex-1 p-1 bg-white border border-slate-300 rounded text-xs text-slate-800 outline-none focus:border-cyan-500"
                                       />
@@ -1278,10 +1329,8 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                     <textarea
                       value={q.question}
                       onChange={(e) => handleUpdate(q.id, 'question', e.target.value)}
-                      onFocus={() => {
-                        setActiveTarget({ id: q.id, field: 'question', fieldName: `Đề bài Câu ${index + 1}` });
-                        setShowKeyboard(true);
-                      }}
+                      onFocus={(e) => handleFieldFocus(e, { id: q.id, field: 'question', fieldName: `Đề bài Câu ${index + 1}` })}
+                      onBlur={handleFieldBlur}
                       className="w-full p-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none min-h-[64px]"
                       placeholder="Nhập nội dung câu hỏi (hỗ trợ công thức LaTeX: \sin x, \frac{a}{b}...)..."
                     />
@@ -1330,10 +1379,8 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                             type="text"
                             value={opt}
                             onChange={(e) => handleUpdateOption(q.id, oIdx, e.target.value)}
-                            onFocus={() => {
-                              setActiveTarget({ id: q.id, field: 'option', optIndex: oIdx, fieldName: `Câu ${index + 1} - Đáp án ${String.fromCharCode(65 + oIdx)}` });
-                              setShowKeyboard(true);
-                            }}
+                            onFocus={(e) => handleFieldFocus(e, { id: q.id, field: 'option', optIndex: oIdx, fieldName: `Câu ${index + 1} - Đáp án ${String.fromCharCode(65 + oIdx)}` })}
+                            onBlur={handleFieldBlur}
                             className={`flex-1 p-2 rounded-lg text-xs font-medium outline-none bg-transparent ${
                               isCorrect ? 'text-emerald-900 font-bold' : 'text-slate-800'
                             }`}
@@ -1350,10 +1397,8 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                       type="text"
                       value={q.explanation || ''}
                       onChange={(e) => handleUpdate(q.id, 'explanation', e.target.value)}
-                      onFocus={() => {
-                        setActiveTarget({ id: q.id, field: 'explanation', fieldName: `Câu ${index + 1} - Lời giải chi tiết` });
-                        setShowKeyboard(true);
-                      }}
+                      onFocus={(e) => handleFieldFocus(e, { id: q.id, field: 'explanation', fieldName: `Câu ${index + 1} - Lời giải chi tiết` })}
+                      onBlur={handleFieldBlur}
                       className="w-full p-2 border border-slate-200 rounded-xl text-xs text-slate-600 focus:border-violet-400 outline-none"
                       placeholder="Lời giải / giải thích chi tiết (tùy chọn)..."
                     />

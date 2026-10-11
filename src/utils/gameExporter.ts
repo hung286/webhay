@@ -198,15 +198,20 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
   }
   let htmlContent = await response.text();
 
-  // 2. WHITE-LABEL TOÀN DIỆN (Bảo tồn 100% thương hiệu Thầy Phạm Trịnh Cương Chính - THPT Phạm Ngũ Lão đối với Game Chiến Hào)
-  if (!cleanUrl.includes('chien-hao') && !cleanUrl.includes('Bao-ve-chien-hao')) {
-    if (teacherName && !teacherName.includes('Cương Chính')) {
-      htmlContent = htmlContent.replace(/Thầy Chính/gi, teacherName);
-      htmlContent = htmlContent.replace(/THẦY CHÍNH/gi, teacherName.toUpperCase());
-      htmlContent = htmlContent.replace(/Hưng Yên/gi, 'TOÁN PRO');
-      htmlContent = htmlContent.replace(/HƯNG YÊN/gi, 'TOÁN PRO');
-    }
-  }
+  // 2. WHITE-LABEL TOÀN DIỆN (Thương hiệu chuẩn: TOÁN PRO | LỚP TOÁN THẦY HÙNG | Ký hiệu MH, xóa bỏ triệt để Hưng Yên / HY / Cương Chính trên mọi game)
+  const brandOrg = teacherName || 'LỚP TOÁN THẦY HÙNG';
+  htmlContent = htmlContent.replace(/Thầy Phạm Trịnh Cương Chính/gi, brandOrg);
+  htmlContent = htmlContent.replace(/Phạm Trịnh Cương Chính/gi, brandOrg);
+  htmlContent = htmlContent.replace(/Thầy Cương Chính/gi, brandOrg);
+  htmlContent = htmlContent.replace(/Thầy Chính/gi, brandOrg);
+  htmlContent = htmlContent.replace(/THẦY CHÍNH/gi, brandOrg.toUpperCase());
+  htmlContent = htmlContent.replace(/THPT Phạm Ngũ Lão/gi, 'TOÁN PRO');
+  htmlContent = htmlContent.replace(/Phạm Ngũ Lão/gi, 'TOÁN PRO');
+  htmlContent = htmlContent.replace(/Hưng Yên/gi, 'TOÁN PRO');
+  htmlContent = htmlContent.replace(/HƯNG YÊN/gi, 'TOÁN PRO');
+  htmlContent = htmlContent.replace(/\bTC\b/g, 'MH');
+  htmlContent = htmlContent.replace(/\btc\b/g, 'mh');
+  htmlContent = htmlContent.replace(/TC MATHEDU/gi, 'MH MATHEDU');
   
   // Thay đổi thẻ <title>
   if (htmlContent.includes('<title>')) {

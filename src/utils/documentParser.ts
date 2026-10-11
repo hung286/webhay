@@ -104,40 +104,50 @@ export function normalizeMathFormulas(text: string): string {
   if (!text || typeof text !== 'string') return '';
   let str = text.trim();
 
+  // 0. Sửa chữa các chuỗi lỗi font/TeX đã bị hỏng trước đó (ví dụ: {\(\frac\){sqrt{3}}{2}})
+  str = str.replace(/\{\s*\\?\(\\?frac\\?\)\s*\{/gi, '\\frac{');
+  str = str.replace(/\{\s*\\?\(\\?sqrt\\?\)\s*\{/gi, '\\sqrt{');
+  str = str.replace(/\{\s*\\?\((\\[a-zA-Z]+)\\?\)\s*/gi, '$1');
+  str = str.replace(/\{\s*\\frac\s*([^{}]+)\s*\}\s*\{\s*([^{}]+)\s*\}/gi, '\\frac{$1}{$2}');
+
   // 1. Chuyển đổi $$...$$ thành \(...\) tránh làm vỡ layout thẻ game
   str = str.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
 
   // 2. Chuyển đổi $...$ thành \(...\)
   str = str.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
 
-  // 3. Nếu toàn bộ chuỗi là phương trình/hàm số toán học chưa có delimiter:
-  // Ví dụ: y = x^3 - 3x hoặc f(x) = x^2 - 1 hoặc y' = 3x^2 - 6x
-  if (!str.includes('\\(') && !str.includes('$')) {
-    if (/^(?:y|f\(x\)|g\(x\)|s\(t\)|v\(t\)|a\(t\)|h\(t\)|Q\(t\)|u_n)\s*=/i.test(str)) {
+  // 3. Nếu chuỗi đã được bọc hoàn chỉnh trong \(...\)
+  if (/^\\\([\s\S]*?\\\)$/.test(str)) {
+    return str;
+  }
+
+  // 4. Nếu toàn bộ chuỗi là phương trình hoặc phân số/căn thức toán học thuần
+  // Ví dụ: \frac{1}{2}, \frac{\sqrt{3}}{2}, -\frac{1}{2}, y = x^3 - 3x, \sin 30^\circ, \sqrt{3}
+  const isPureMath = /^[-+]?(?:\\frac\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}\{[^{}]*\}|\\sqrt(?:\[[^\]]+\])?\{[^{}]*\}|\\?[a-zA-Z]+(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)?|[0-9a-zA-Z\s+\-*\/=^_{}\\()[\]|.,;:<>!])+$/;
+  const hasTexSymbol = /\\[a-zA-Z]+|\^|_|\/|√|π|α|β|Delta|sin|cos|tan|cot/.test(str);
+
+  if (!str.includes('\\(') && (str.startsWith('\\') || (hasTexSymbol && isPureMath.test(str)))) {
+    // Không chứa chữ tiếng Việt có dấu
+    if (!/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(str)) {
       return `\\(${str}\\)`;
-    }
-    // Dạng phương trình: \frac{x-1}{2} = ... hoặc 2x + 3y - z = 0
-    if (/^[xyz\d\s+\-*\/=^_{}\\()[\],.;:><|]+$/.test(str) && (str.includes('=') || str.includes('\\frac') || str.includes('^'))) {
-      if (!str.includes(' ') || str.split(' ').length <= 5) {
-        return `\\(${str}\\)`;
-      }
     }
   }
 
-  // 4. Quét các lệnh TeX trần còn sót lại bên trong văn bản tiếng Việt
-  // Ví dụ: \frac{a}{b}, \sqrt{x}, \alpha, \beta, \Delta, \sin x, \cos x, \log_a(b), \ln x...
-  const latexCommands = /\\(?:frac\{[^{}]+\}\{[^{}]+\}|sqrt(?:\[[^\]]+\])?\{[^{}]+\}|log(?:_[a-zA-Z0-9{}]+)?|ln|lg|mathbb\{[^{}]+\}|vec\{[^{}]+\}|sin|cos|tan|cot|lim|int|sum|pi|alpha|beta|theta|gamma|infty|Delta|pm|times|le|ge|ne|in|notin|forall|exists|cup|cap|emptyset)(?:[^\s,;.()]*)/g;
-  if (!str.includes('\\(') && latexCommands.test(str)) {
-    str = str.replace(/(?:(?:y'|y''|x|k)\s*=\s*)?(\\(?:frac|sqrt|sin|cos|tan|cot|log|ln|lg|mathbb|vec|alpha|beta|Delta|theta|pi|int|lim)[^,\n]+?)(?=[\s,;.]|$)/g, (match) => {
-      if (match.startsWith('\\(')) return match;
-      return `\\(${match.trim()}\\)`;
+  // 5. Nếu chuỗi là câu hỏi tiếng Việt có chứa công thức TeX trần
+  // Ví dụ: "Giá trị của \sin 30^\circ bằng bao nhiêu?"
+  if (!str.includes('\\(') && /\\[a-zA-Z]+/.test(str)) {
+    // Bọc an toàn các lệnh TeX độc lập
+    str = str.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (match) => {
+      const trimmed = match.trim();
+      if (!trimmed || trimmed.startsWith('\\(')) return match;
+      return `\\(${trimmed}\\)`;
     });
   }
 
-  // 5. Chuẩn hóa làm sạch các dấu ngoặc kép lặp lại nếu có
-  str = str.replace(/\\\(\s*\\\((.*?)\\\)\s*\\\)/g, '\\($1\\)');
-  str = str.replace(/\\\(\s*\$(.*?)\$\s*\\\)/g, '\\($1\\)');
-  str = str.replace(/\\\(\s*\\\((.*?)\\\)\s*\)/g, '\\($1\\)');
+  // 6. Chuẩn hóa làm sạch các dấu ngoặc kép lặp lại nếu có
+  str = str.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
+  str = str.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
+  str = str.replace(/\\\(\s*\$([\s\S]*?)\$\s*\\\)/g, '\\($1\\)');
 
   return str;
 }
@@ -640,7 +650,7 @@ export async function downloadExcelTemplate(): Promise<void> {
 }
 
 /**
- * TẠO BẢNG CÂU HỎI 7 DÒNG x 2 CỘT CHO GAME BẢO VỆ CHIẾN HÀO (DOCX)
+ * TẠO BẢNG CÂU HỎI 7 DÒNG x 2 CỘT CHO GAME BẢO VỆ CHIẾN HÀO (DOCX) - ĐEN TRẮNG TIÊU CHUẨN
  */
 function createChienHaoQuestionTable(qNum: number, qText: string, optA: string, optB: string, optC: string, optD: string, exp: string, ans: string): Table {
   return new Table({
@@ -651,12 +661,11 @@ function createChienHaoQuestionTable(qNum: number, qText: string, optA: string, 
         children: [
           new TableCell({
             width: { size: 2000, type: WidthType.DXA },
-            shading: { fill: "1E293B" },
-            children: [new Paragraph({ children: [new TextRun({ text: `Câu ${qNum}`, bold: true, color: "FFFFFF", size: 21 })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: `Câu ${qNum}`, bold: true, color: "000000", size: 21 })] })]
           }),
           new TableCell({
             width: { size: 8000, type: WidthType.DXA },
-            children: [new Paragraph({ children: [new TextRun({ text: qText, bold: true, size: 21 })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: qText, color: "000000", size: 21 })] })]
           })
         ]
       }),
@@ -665,12 +674,11 @@ function createChienHaoQuestionTable(qNum: number, qText: string, optA: string, 
         children: [
           new TableCell({
             width: { size: 2000, type: WidthType.DXA },
-            shading: { fill: "334155" },
-            children: [new Paragraph({ children: [new TextRun({ text: "A)", bold: true, color: "FFFFFF" })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: "A)", bold: true, color: "000000" })] })]
           }),
           new TableCell({
             width: { size: 8000, type: WidthType.DXA },
-            children: [new Paragraph({ children: [new TextRun({ text: optA })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: optA, color: "000000" })] })]
           })
         ]
       }),
@@ -679,12 +687,11 @@ function createChienHaoQuestionTable(qNum: number, qText: string, optA: string, 
         children: [
           new TableCell({
             width: { size: 2000, type: WidthType.DXA },
-            shading: { fill: "334155" },
-            children: [new Paragraph({ children: [new TextRun({ text: "B)", bold: true, color: "FFFFFF" })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: "B)", bold: true, color: "000000" })] })]
           }),
           new TableCell({
             width: { size: 8000, type: WidthType.DXA },
-            children: [new Paragraph({ children: [new TextRun({ text: optB })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: optB, color: "000000" })] })]
           })
         ]
       }),
@@ -693,12 +700,11 @@ function createChienHaoQuestionTable(qNum: number, qText: string, optA: string, 
         children: [
           new TableCell({
             width: { size: 2000, type: WidthType.DXA },
-            shading: { fill: "334155" },
-            children: [new Paragraph({ children: [new TextRun({ text: "C)", bold: true, color: "FFFFFF" })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: "C)", bold: true, color: "000000" })] })]
           }),
           new TableCell({
             width: { size: 8000, type: WidthType.DXA },
-            children: [new Paragraph({ children: [new TextRun({ text: optC })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: optC, color: "000000" })] })]
           })
         ]
       }),
@@ -707,12 +713,11 @@ function createChienHaoQuestionTable(qNum: number, qText: string, optA: string, 
         children: [
           new TableCell({
             width: { size: 2000, type: WidthType.DXA },
-            shading: { fill: "334155" },
-            children: [new Paragraph({ children: [new TextRun({ text: "D)", bold: true, color: "FFFFFF" })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: "D)", bold: true, color: "000000" })] })]
           }),
           new TableCell({
             width: { size: 8000, type: WidthType.DXA },
-            children: [new Paragraph({ children: [new TextRun({ text: optD })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: optD, color: "000000" })] })]
           })
         ]
       }),
@@ -721,12 +726,11 @@ function createChienHaoQuestionTable(qNum: number, qText: string, optA: string, 
         children: [
           new TableCell({
             width: { size: 2000, type: WidthType.DXA },
-            shading: { fill: "0F766E" },
-            children: [new Paragraph({ children: [new TextRun({ text: "Lời giải", bold: true, color: "FFFFFF" })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: "Lời giải", bold: true, color: "000000" })] })]
           }),
           new TableCell({
             width: { size: 8000, type: WidthType.DXA },
-            children: [new Paragraph({ children: [new TextRun({ text: exp, italic: true })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: exp, color: "000000" })] })]
           })
         ]
       }),
@@ -735,12 +739,11 @@ function createChienHaoQuestionTable(qNum: number, qText: string, optA: string, 
         children: [
           new TableCell({
             width: { size: 2000, type: WidthType.DXA },
-            shading: { fill: "DC2626" },
-            children: [new Paragraph({ children: [new TextRun({ text: "Đáp án", bold: true, color: "FFFFFF" })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: "Đáp án", bold: true, color: "000000" })] })]
           }),
           new TableCell({
             width: { size: 8000, type: WidthType.DXA },
-            children: [new Paragraph({ children: [new TextRun({ text: ans, bold: true, color: "DC2626" })] })]
+            children: [new Paragraph({ children: [new TextRun({ text: ans, bold: true, color: "000000" })] })]
           })
         ]
       })
@@ -758,8 +761,8 @@ export async function downloadChienHaoWordTemplate(): Promise<void> {
         new TextRun({
           text: "MẪU ĐỀ GAME BẢO VỆ CHIẾN HÀO (CHUẨN BẢNG 7 DÒNG x 2 CỘT)",
           bold: true,
-          size: 28,
-          color: "0F172A"
+          size: 26,
+          color: "000000"
         })
       ],
       spacing: { after: 120 }
@@ -767,9 +770,9 @@ export async function downloadChienHaoWordTemplate(): Promise<void> {
     new Paragraph({
       children: [
         new TextRun({
-          text: "Chỉ thị cấu trúc bảng: Mỗi câu hỏi tương ứng 1 bảng gồm 2 cột và 7 dòng. Dòng 1: Câu [Số] | Nội dung đề bài (chấp nhận mã TeX và Link ảnh [img:URL]). Dòng 2, 3, 4, 5: A), B), C), D) | Nội dung các đáp án. Dòng 6: Lời giải | Hướng dẫn giải chi tiết. Dòng 7: Đáp án | Ký tự A, B, C hoặc D.",
+          text: "Chỉ thị cấu trúc bảng: Mỗi câu hỏi tương ứng 1 bảng gồm 2 cột x 7 dòng. Dòng 1: Câu [Số] | Đề bài (chấp nhận mã TeX và Link ảnh <img>). Dòng 2, 3, 4, 5: A), B), C), D) | Nội dung các đáp án. Dòng 6: Lời giải | Hướng dẫn giải chi tiết. Dòng 7: Đáp án | Ký tự duy nhất (A, B, C hoặc D).",
           size: 19,
-          color: "475569"
+          color: "333333"
         })
       ],
       spacing: { after: 200 }
@@ -777,7 +780,7 @@ export async function downloadChienHaoWordTemplate(): Promise<void> {
 
     // HEADING LEVEL 1
     new Paragraph({
-      children: [new TextRun({ text: "=== PHẦN 1: MỨC ĐỘ 1 (DỄ / NHẬN BIẾT) ===", bold: true, color: "0284C7", size: 23 })],
+      children: [new TextRun({ text: "PHẦN 1: MỨC ĐỘ 1 (DỄ)", bold: true, color: "000000", size: 24 })],
       spacing: { before: 200, after: 120 }
     }),
     createChienHaoQuestionTable(
@@ -793,7 +796,7 @@ export async function downloadChienHaoWordTemplate(): Promise<void> {
     new Paragraph({ text: "", spacing: { after: 150 } }),
     createChienHaoQuestionTable(
       2,
-      "Giá trị của \\cos 60^\\circ + \\sin 30^\\circ bằng bao nhiêu? [img:https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600]",
+      "Giá trị của \\cos 60^\\circ + \\sin 30^\\circ bằng bao nhiêu?",
       "1",
       "\\frac{1}{2}",
       "\\frac{\\sqrt{3}}{2}",
@@ -804,44 +807,44 @@ export async function downloadChienHaoWordTemplate(): Promise<void> {
 
     // HEADING LEVEL 2
     new Paragraph({
-      children: [new TextRun({ text: "=== PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH / THÔNG HIỂU) ===", bold: true, color: "D97706", size: 23 })],
+      children: [new TextRun({ text: "PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH)", bold: true, color: "000000", size: 24 })],
       spacing: { before: 250, after: 120 }
     }),
     createChienHaoQuestionTable(
       3,
-      "Cho tam giác ABC có \\(AB=3, AC=4, \\widehat{A}=90^\\circ\\). Độ dài cạnh BC bằng:",
+      "Cho tam giác ABC có AB = 3, AC = 4, góc A = 90 độ. Độ dài cạnh BC bằng:",
       "5",
       "7",
       "\\sqrt{7}",
       "25",
-      "Áp dụng định lý Pytago: \\(BC = \\sqrt{AB^2 + AC^2} = \\sqrt{3^2 + 4^2} = 5\\).",
+      "Áp dụng định lý Pytago: BC = \\sqrt{AB^2 + AC^2} = \\sqrt{3^2 + 4^2} = 5.",
       "A"
     ),
     new Paragraph({ text: "", spacing: { after: 150 } }),
     createChienHaoQuestionTable(
       4,
-      "Tính diện tích tam giác ABC có \\(a=4, b=5\\) và góc \\(\\widehat{C}=30^\\circ\\):",
+      "Tính diện tích tam giác ABC có a = 4, b = 5 và góc C = 30 độ:",
       "5",
       "10",
       "20",
       "5\\sqrt{3}",
-      "Diện tích \\(S = \\frac{1}{2}ab\\sin C = \\frac{1}{2} \\cdot 4 \\cdot 5 \\cdot \\sin 30^\\circ = 10 \\cdot \\frac{1}{2} = 5\\).",
+      "Diện tích S = \\frac{1}{2}ab\\sin C = \\frac{1}{2} \\cdot 4 \\cdot 5 \\cdot \\sin 30^\\circ = 10 \\cdot \\frac{1}{2} = 5.",
       "A"
     ),
 
     // HEADING LEVEL 3
     new Paragraph({
-      children: [new TextRun({ text: "=== PHẦN 3: MỨC ĐỘ 3 (KHÓ / VẬN DỤNG CAO) ===", bold: true, color: "DC2626", size: 23 })],
+      children: [new TextRun({ text: "PHẦN 3: MỨC ĐỘ 3 (KHÓ)", bold: true, color: "000000", size: 24 })],
       spacing: { before: 250, after: 120 }
     }),
     createChienHaoQuestionTable(
       5,
-      "Kéo một vật nặng với lực \\(F = 2000\\text{ N}\\), dây cáp hợp góc \\(60^\\circ\\) so với phương ngang. Công thực hiện khi vật đi được quãng đường \\(500\\text{ m}\\) là:",
+      "Kéo một vật nặng với lực F = 2000 N, dây cáp hợp góc 60 độ so với phương ngang. Công thực hiện khi vật đi được quãng đường 500 m là:",
       "0.5 \\cdot 10^6\\text{ J}",
       "1.0 \\cdot 10^6\\text{ J}",
       "0.5\\sqrt{3} \\cdot 10^6\\text{ J}",
       "2.0 \\cdot 10^6\\text{ J}",
-      "Công \\(A = F \\cdot s \\cdot \\cos \\alpha = 2000 \\cdot 500 \\cdot \\cos 60^\\circ = 10^6 \\cdot 0.5 = 0.5 \\cdot 10^6\\text{ J}\\).",
+      "Công A = F \\cdot s \\cdot \\cos \\alpha = 2000 \\cdot 500 \\cdot \\cos 60^\\circ = 10^6 \\cdot 0.5 = 0.5 \\cdot 10^6\\text{ J}.",
       "A"
     )
   ];

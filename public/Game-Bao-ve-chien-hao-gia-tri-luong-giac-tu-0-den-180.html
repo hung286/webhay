@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảo vệ chiến hào: Giá trị lượng giác - Ultra Esport</title>
+    <title>BẢO VỆ CHIẾN HÀO: GIÁ TRỊ LƯỢNG GIÁC - TOÁN PRO</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,8 +17,18 @@
     <!-- Tone.js for Sound Effects -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
-    <!-- MathJax for rendering math equations -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <!-- MathJax for rendering math equations (Cấu hình chuẩn không qua polyfill lỗi) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
@@ -433,6 +443,12 @@
             <span id="active-topic-badge">Đổi Chủ Đề</span>
         </button>
 
+        <!-- NÚT BÁNH RĂNG QUẢN TRỊ ADMIN (ẨN MẶC ĐỊNH, CHỈ HIỆN KHI URL CÓ ?role=admin HOẶC ?admin=1) -->
+        <button id="btn-admin-gear" onclick="openAdminPinModal()" class="hidden esport-panel flex items-center gap-2 hover:bg-amber-500/20 transition cursor-pointer text-amber-300 font-bold text-xs uppercase tracking-wider" style="border-color: #f59e0b;" title="Bảng quản trị giáo viên">
+            <i class="fa-solid fa-gear text-amber-400"></i>
+            <span>Quản Trị</span>
+        </button>
+
 
             <div class="esport-panel flex items-center gap-4">
                 <i class="fa-solid fa-user-astronaut text-4xl text-cyan-400 drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]"></i>
@@ -741,6 +757,85 @@
                 <button onclick="closeExplanationModal()" class="btn-glitch" style="padding: 10px 28px; font-size: 14px; color: #38bdf8; border-color: #38bdf8;">
                     <i class="fa-solid fa-shield-halved mr-2"></i> ĐÃ HIỂU - TIẾP TỤC CHIẾN ĐẤU
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nhập PIN Quản Trị In-Game -->
+    <div id="admin-pin-modal" class="modal-screen hidden" style="z-index: 1060;">
+        <div class="esport-box border-amber-500 text-center" style="max-width: 460px; width: 90vw; padding: 32px; box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(245,158,11,0.4);">
+            <div class="flex flex-col items-center gap-2 mb-4">
+                <div class="w-14 h-14 rounded-full bg-amber-500/20 border-2 border-amber-500 flex items-center justify-center text-amber-400 text-2xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h2 class="text-xl font-black text-amber-400 tracking-wider uppercase">Xác Thực Quản Trị Viên</h2>
+                <p class="text-xs text-gray-400">Nhập mã PIN để truy cập bảng hiệu chỉnh câu hỏi</p>
+            </div>
+
+            <div class="mb-5">
+                <input id="admin-pin-input" type="password" maxlength="10" class="tactical-input text-center text-2xl tracking-[8px]" style="padding: 12px; margin-bottom: 0;" autocomplete="off" onkeydown="if(event.key==='Enter') submitAdminPin();" />
+                <p id="admin-pin-error" class="text-xs text-red-400 font-bold mt-2 hidden">MÃ PIN KHÔNG CHÍNH XÁC</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeAdminPinModal()" class="btn-glitch text-sm py-2 px-4" style="color: #94a3b8; border-color: #64748b; font-size: 14px;">
+                    HỦY
+                </button>
+                <button onclick="submitAdminPin()" class="btn-glitch text-sm py-2 px-4" style="color: #f59e0b; border-color: #f59e0b; font-size: 14px;">
+                    <i class="fa-solid fa-key mr-1.5"></i> XÁC NHẬN
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Quản Trị Biên Tập Câu Hỏi In-Game (3 Cấp Độ) -->
+    <div id="admin-editor-modal" class="modal-screen hidden" style="z-index: 1070; overflow-y: auto; padding: 20px;">
+        <div class="esport-box border-cyan-500 text-left" style="max-width: 900px; width: 95vw; max-height: 90vh; display: flex; flex-direction: column; padding: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.95), 0 0 40px rgba(0,240,255,0.3);">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-3 border-b border-cyan-500/30 mb-4 shrink-0">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-sliders text-2xl text-cyan-400"></i>
+                    <div>
+                        <h2 class="text-lg font-black text-cyan-300 uppercase tracking-wider">BẢNG QUẢN TRỊ CÂU HỎI IN-GAME</h2>
+                        <p class="text-xs text-gray-400">Chỉnh sửa, thêm/xóa câu hỏi theo 3 cấp độ tác chiến</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminEditorModal()" class="text-gray-400 hover:text-white text-xl p-2 transition cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Level Tabs -->
+            <div class="flex gap-2 mb-4 shrink-0">
+                <button id="tab-btn-lvl1" onclick="switchEditorLevel(1)" class="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition cursor-pointer bg-cyan-500 text-black shadow-[0_0_10px_#00f0ff]">
+                    MỨC ĐỘ 1: DỄ (<span id="editor-count-lvl1">0</span>)
+                </button>
+                <button id="tab-btn-lvl2" onclick="switchEditorLevel(2)" class="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition cursor-pointer bg-slate-800 text-gray-300 hover:bg-slate-700">
+                    MỨC ĐỘ 2: TRUNG BÌNH (<span id="editor-count-lvl2">0</span>)
+                </button>
+                <button id="tab-btn-lvl3" onclick="switchEditorLevel(3)" class="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition cursor-pointer bg-slate-800 text-gray-300 hover:bg-slate-700">
+                    MỨC ĐỘ 3: KHÓ (<span id="editor-count-lvl3">0</span>)
+                </button>
+            </div>
+
+            <!-- Question List Container (Scrollable) -->
+            <div id="editor-questions-list" class="flex-1 overflow-y-auto pr-2 space-y-4 mb-4" style="max-height: 55vh;">
+                <!-- JavaScript renders questions dynamically -->
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="flex items-center justify-between pt-3 border-t border-cyan-500/30 shrink-0 flex-wrap gap-2">
+                <button onclick="addNewQuestionToActiveLevel()" class="px-4 py-2 rounded-lg bg-green-500/20 border border-green-500 text-green-400 font-bold text-xs uppercase hover:bg-green-500/30 transition cursor-pointer">
+                    <i class="fa-solid fa-plus mr-1"></i> THÊM CÂU HỎI MỚI
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="exportCurrentBattlefieldHTML()" class="px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500 text-purple-300 font-bold text-xs uppercase hover:bg-purple-500/30 transition cursor-pointer" title="Tải file HTML chứa đề tùy biến này">
+                        <i class="fa-solid fa-download mr-1"></i> XUẤT FILE HTML
+                    </button>
+                    <button onclick="saveAdminQuestions()" class="px-5 py-2 rounded-lg bg-cyan-500 text-black font-black text-xs uppercase hover:bg-cyan-400 transition cursor-pointer shadow-[0_0_15px_#00f0ff]">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> LƯU VÀO TRÌNH DUYỆT
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1166,8 +1261,35 @@
 
         const topPositions = ['12.5%', '37.5%', '62.5%', '87.5%'];
 
+        let isTypesetting = false;
+        let pendingTypeset = false;
+
         function typesetMath() {
-            if (window.MathJax) MathJax.typesetPromise().catch(err => console.log(err));
+            if (!window.MathJax || !window.MathJax.typesetPromise) return;
+            if (isTypesetting) {
+                pendingTypeset = true;
+                return;
+            }
+            isTypesetting = true;
+            window.MathJax.typesetPromise()
+                .catch(err => console.warn('MathJax typeset error:', err))
+                .finally(() => {
+                    isTypesetting = false;
+                    if (pendingTypeset) {
+                        pendingTypeset = false;
+                        typesetMath();
+                    }
+                });
+        }
+
+        function cleanMathString(text) {
+            if (!text || typeof text !== 'string') return text || '';
+            let cleaned = text.trim();
+            cleaned = cleaned.replace(/\{\s*\\\(\s*(\\frac\{[^}]+\}\{[^}]+\})\s*\\\)\s*\}/g, '\\($1\\)');
+            if (!cleaned.includes('\\(') && !cleaned.includes('$') && /\\(frac|sqrt|alpha|beta|gamma|delta|pi|theta|sin|cos|tan|cot|pm|cdot|circ|degree|le|ge|ne|in)/.test(cleaned)) {
+                cleaned = `\\(${cleaned}\\)`;
+            }
+            return cleaned;
         }
 
         // Bàn phím điều khiển
@@ -1293,12 +1415,13 @@
             
             const panel = document.getElementById('question-panel');
             panel.classList.remove('glow-correct', 'glow-wrong');
-            let qHtml = gameState.currentQuestion.q;
+            let qHtml = cleanMathString(gameState.currentQuestion.q);
             if (gameState.currentQuestion.imageUrl) {
                 qHtml += `<div class="mt-2 text-center"><img src="${gameState.currentQuestion.imageUrl}" alt="Minh họa" class="max-h-36 max-w-full mx-auto rounded border border-cyan-500/40 shadow-lg object-contain" /></div>`;
             }
             document.getElementById('question-text').innerHTML = qHtml;
-            typesetMath(); spawnTargets();
+            spawnTargets();
+            typesetMath();
         }
 
         function clearTargets() {
@@ -1335,6 +1458,7 @@
             options.forEach((optText, originalIdx) => {
                 const isCorrect = (originalIdx === correctIndex);
                 const laneIdx = lanes[originalIdx];
+                const cleanOpt = cleanMathString(optText);
                 
                 const targetDiv = document.createElement('div');
                 targetDiv.className = 'target-entity'; targetDiv.style.top = topPositions[laneIdx];
@@ -1345,7 +1469,7 @@
 
                 targetDiv.innerHTML = `
                     ${zombieSVG}
-                    <div class="answer-banner"><div class="label-circle">${labels[laneIdx]}</div><div class="answer-text">${optText}</div></div>
+                    <div class="answer-banner"><div class="label-circle">${labels[laneIdx]}</div><div class="answer-text">${cleanOpt}</div></div>
                 `;
                 
                 targetDiv.onclick = () => { setPlayerLane(laneIdx); shootCurrentLane(); };
@@ -1949,7 +2073,341 @@ generateSessionQuestions = function() {
   _nativeGenerateSession();
 };
 
+// ==========================================
+// IN-GAME ADMIN EDITOR ENGINE (PIN: "2806")
+// ==========================================
+const ADMIN_HARDCODED_PIN = "2806";
+let currentEditorLevel = 1;
+let editorWorkingData = {
+  level1: [],
+  level2: [],
+  level3: []
+};
+
+// Kiểm tra quyền Admin qua URL param (?role=admin hoặc ?admin=1)
+function checkAdminAccessFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const role = params.get('role');
+  const admin = params.get('admin');
+  if (role === 'admin' || admin === '1' || admin === 'true') {
+    const btnGear = document.getElementById('btn-admin-gear');
+    if (btnGear) btnGear.classList.remove('hidden');
+  }
+}
+
+// Khởi tạo dữ liệu câu hỏi từ LocalStorage nếu có
+function initCustomQuestionsFromStorage() {
+  if (!window.battlefieldData) {
+    try {
+      const saved = localStorage.getItem('chien_hao_custom_questions');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && (parsed.level1 || parsed.level2 || parsed.level3)) {
+          window.battlefieldData = parsed;
+          const customTitle = window.__GAME_TITLE__ || "Chiến Dịch: Tác Chiến Căn Cứ";
+          window.gameDatabase = {
+            [customTitle]: {
+              easy: window.battlefieldData.level1 || [],
+              medium: window.battlefieldData.level2 || [],
+              hard: window.battlefieldData.level3 || []
+            },
+            ...window.gameDatabase
+          };
+          window.selectedTopic = customTitle;
+        }
+      }
+    } catch (e) {
+      console.warn('Lỗi đọc câu hỏi tùy biến từ LocalStorage:', e);
+    }
+  }
+}
+
+// Mở modal nhập PIN
+function openAdminPinModal() {
+  const modal = document.getElementById('admin-pin-modal');
+  const pinInput = document.getElementById('admin-pin-input');
+  const errEl = document.getElementById('admin-pin-error');
+  if (errEl) errEl.classList.add('hidden');
+  if (pinInput) pinInput.value = '';
+  if (modal) modal.classList.remove('hidden');
+  setTimeout(() => pinInput && pinInput.focus(), 100);
+}
+
+// Đóng modal nhập PIN
+function closeAdminPinModal() {
+  const modal = document.getElementById('admin-pin-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+// Xác thực PIN
+function submitAdminPin() {
+  const pinInput = document.getElementById('admin-pin-input');
+  const errEl = document.getElementById('admin-pin-error');
+  const enteredPin = (pinInput ? pinInput.value : '').trim();
+  const validPin = window.__ADMIN_PIN__ || ADMIN_HARDCODED_PIN;
+
+  if (enteredPin === validPin) {
+    closeAdminPinModal();
+    openAdminEditorModal();
+  } else {
+    if (errEl) errEl.classList.remove('hidden');
+    if (pinInput) {
+      pinInput.classList.add('shake-light');
+      setTimeout(() => pinInput.classList.remove('shake-light'), 300);
+    }
+  }
+}
+
+// Mở modal Editor
+function openAdminEditorModal() {
+  // Lấy dữ liệu nguồn hiện tại
+  let src = window.battlefieldData;
+  if (!src && window.gameDatabase && window.selectedTopic && window.gameDatabase[window.selectedTopic]) {
+    const tData = window.gameDatabase[window.selectedTopic];
+    src = {
+      level1: tData.easy || tData.level1 || [],
+      level2: tData.medium || tData.level2 || [],
+      level3: tData.hard || tData.level3 || []
+    };
+  }
+  if (!src) {
+    src = DEFAULT_BATTLEFIELD_STATIC_DATA;
+  }
+
+  // Clone dữ liệu sâu để sửa đổi
+  editorWorkingData = {
+    level1: JSON.parse(JSON.stringify(src.level1 || [])),
+    level2: JSON.parse(JSON.stringify(src.level2 || [])),
+    level3: JSON.parse(JSON.stringify(src.level3 || []))
+  };
+
+  currentEditorLevel = 1;
+  renderEditorUI();
+  const modal = document.getElementById('admin-editor-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+// Đóng modal Editor
+function closeAdminEditorModal() {
+  const modal = document.getElementById('admin-editor-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+// Chuyển Tab Level trong Editor
+function switchEditorLevel(lvl) {
+  currentEditorLevel = lvl;
+  // Cập nhật giao diện tab buttons
+  [1, 2, 3].forEach(l => {
+    const btn = document.getElementById(`tab-btn-lvl${l}`);
+    if (btn) {
+      if (l === lvl) {
+        btn.className = "px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition cursor-pointer bg-cyan-500 text-black shadow-[0_0_10px_#00f0ff]";
+      } else {
+        btn.className = "px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition cursor-pointer bg-slate-800 text-gray-300 hover:bg-slate-700";
+      }
+    }
+  });
+  renderEditorQuestionsList();
+}
+
+// Render toàn bộ UI Editor (cập nhật số lượng và danh sách)
+function renderEditorUI() {
+  const c1 = document.getElementById('editor-count-lvl1');
+  const c2 = document.getElementById('editor-count-lvl2');
+  const c3 = document.getElementById('editor-count-lvl3');
+  if (c1) c1.innerText = (editorWorkingData.level1 || []).length;
+  if (c2) c2.innerText = (editorWorkingData.level2 || []).length;
+  if (c3) c3.innerText = (editorWorkingData.level3 || []).length;
+
+  switchEditorLevel(currentEditorLevel);
+}
+
+// Render danh sách câu hỏi của level hiện tại
+function renderEditorQuestionsList() {
+  const container = document.getElementById('editor-questions-list');
+  if (!container) return;
+  const list = editorWorkingData[`level${currentEditorLevel}`] || [];
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-12 text-gray-500 border-2 border-dashed border-slate-700 rounded-xl">
+        <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+        <p class="font-bold">Chưa có câu hỏi nào ở mức độ này.</p>
+        <button onclick="addNewQuestionToActiveLevel()" class="mt-3 text-cyan-400 underline text-xs font-bold">Thêm câu hỏi mới ngay</button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = list.map((q, idx) => {
+    const qText = q.q || q.question || '';
+    const opts = q.options || ['', '', '', ''];
+    const correctIdx = typeof q.correct === 'number' ? q.correct : (typeof q.correctIndex === 'number' ? q.correctIndex : 0);
+    const expText = q.explanation || q.solution || '';
+
+    return `
+      <div class="p-4 bg-slate-900/90 border border-slate-700 rounded-xl space-y-3 relative group hover:border-cyan-500/50 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black uppercase text-cyan-400 tracking-wider">
+            Câu ${idx + 1}
+          </span>
+          <button onclick="deleteQuestionFromActiveLevel(${idx})" class="text-xs text-red-400 hover:text-red-300 font-bold px-2 py-1 rounded bg-red-950/40 border border-red-800/60 hover:bg-red-900/50 transition cursor-pointer" title="Xóa câu hỏi này">
+            <i class="fa-solid fa-trash-can mr-1"></i> Xóa
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Nội dung câu hỏi (chấp nhận mã TeX):</label>
+          <textarea rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-white focus:border-cyan-400 outline-none" onchange="updateEditorQuestionText(${idx}, this.value)">${escapeHtml(qText)}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          ${opts.map((opt, oIdx) => {
+            const letter = ['A', 'B', 'C', 'D'][oIdx];
+            const isChecked = (oIdx === correctIdx);
+            return `
+              <div class="flex items-center gap-2 bg-slate-950/60 p-2 rounded-lg border ${isChecked ? 'border-amber-400 bg-amber-950/10' : 'border-slate-800'}">
+                <input type="radio" name="correct_ans_${currentEditorLevel}_${idx}" ${isChecked ? 'checked' : ''} onchange="updateEditorCorrectAns(${idx}, ${oIdx})" class="accent-amber-400 cursor-pointer" title="Chọn làm đáp án đúng" />
+                <span class="text-xs font-bold ${isChecked ? 'text-amber-400' : 'text-gray-400'}">${letter})</span>
+                <input type="text" value="${escapeHtml(opt)}" class="flex-1 bg-transparent border-none text-xs text-white focus:outline-none" onchange="updateEditorOptionText(${idx}, ${oIdx}, this.value)" placeholder="Nhập đáp án ${letter}..." />
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <div>
+          <label class="block text-[11px] text-gray-400 uppercase font-bold mb-1">Lời giải / Hướng dẫn giải chi tiết:</label>
+          <input type="text" value="${escapeHtml(expText)}" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-1.5 text-xs text-gray-300 focus:border-cyan-400 outline-none" onchange="updateEditorExplanationText(${idx}, this.value)" placeholder="Nhập lời giải..." />
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function updateEditorQuestionText(idx, val) {
+  const list = editorWorkingData[`level${currentEditorLevel}`];
+  if (list && list[idx]) list[idx].q = val;
+}
+
+function updateEditorOptionText(qIdx, optIdx, val) {
+  const list = editorWorkingData[`level${currentEditorLevel}`];
+  if (list && list[qIdx]) {
+    if (!list[qIdx].options) list[qIdx].options = ['', '', '', ''];
+    list[qIdx].options[optIdx] = val;
+  }
+}
+
+function updateEditorCorrectAns(qIdx, optIdx) {
+  const list = editorWorkingData[`level${currentEditorLevel}`];
+  if (list && list[qIdx]) {
+    list[qIdx].correct = optIdx;
+    renderEditorQuestionsList();
+  }
+}
+
+function updateEditorExplanationText(idx, val) {
+  const list = editorWorkingData[`level${currentEditorLevel}`];
+  if (list && list[idx]) list[idx].explanation = val;
+}
+
+function addNewQuestionToActiveLevel() {
+  const list = editorWorkingData[`level${currentEditorLevel}`];
+  if (list) {
+    list.push({
+      q: 'Câu hỏi mới \\( ... \\)',
+      options: ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'],
+      correct: 0,
+      explanation: 'Lời giải chi tiết'
+    });
+    renderEditorUI();
+    const container = document.getElementById('editor-questions-list');
+    if (container) container.scrollTop = container.scrollHeight;
+  }
+}
+
+function deleteQuestionFromActiveLevel(idx) {
+  if (confirm(`Bạn có chắc chắn muốn xóa câu hỏi số ${idx + 1} này không?`)) {
+    const list = editorWorkingData[`level${currentEditorLevel}`];
+    if (list) {
+      list.splice(idx, 1);
+      renderEditorUI();
+    }
+  }
+}
+
+// Lưu dữ liệu vào LocalStorage và cập nhật phiên chơi hiện tại
+function saveAdminQuestions() {
+  try {
+    localStorage.setItem('chien_hao_custom_questions', JSON.stringify(editorWorkingData));
+    window.battlefieldData = JSON.parse(JSON.stringify(editorWorkingData));
+    
+    // Cập nhật vào gameDatabase
+    const customTitle = window.__GAME_TITLE__ || "Chiến Dịch Tùy Biến (Admin)";
+    window.gameDatabase = {
+      [customTitle]: {
+        easy: window.battlefieldData.level1 || [],
+        medium: window.battlefieldData.level2 || [],
+        hard: window.battlefieldData.level3 || []
+      },
+      ...window.gameDatabase
+    };
+    window.selectedTopic = customTitle;
+
+    // Tái cấu trúc lại câu hỏi phiên chơi
+    if (typeof generateSessionQuestions === 'function') {
+      generateSessionQuestions();
+    }
+    renderTopicMenuCards();
+    closeAdminEditorModal();
+    alert('ĐÃ LƯU THÀNH CÔNG!\nBộ câu hỏi mới đã được lưu vào trình duyệt và đồng bộ với trận đấu.');
+  } catch (e) {
+    alert('Lỗi lưu dữ liệu: ' + e.message);
+  }
+}
+
+// Xuất file HTML độc lập chứa toàn bộ câu hỏi đã sửa
+function exportCurrentBattlefieldHTML() {
+  try {
+    const clonedData = JSON.parse(JSON.stringify(editorWorkingData));
+    const currentHtml = document.documentElement.outerHTML;
+    
+    // Tạo đoạn mã tiêm dữ liệu tĩnh vào đầu HTML
+    const injectDataScript = `
+<script>
+window.__GAME_TITLE__ = "Chiến Dịch: Bảo Vệ Chiến Hào (Bản Tùy Biến)";
+window.__ADMIN_PIN__ = "2806";
+window.battlefieldData = ${JSON.stringify(clonedData, null, 2)};
+</script>
+`;
+    let exported = currentHtml;
+    if (exported.includes('<head>')) {
+      exported = exported.replace('<head>', '<head>\n' + injectDataScript);
+    } else {
+      exported = injectDataScript + '\n' + exported;
+    }
+
+    const blob = new Blob([exported], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Bao-ve-chien-hao-custom-${Date.now()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Lỗi xuất file HTML: ' + e.message);
+  }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+  initCustomQuestionsFromStorage();
+  checkAdminAccessFromURL();
   renderTopicMenuCards();
   // Khởi tạo chủ đề đầu tiên
   selectTopic(window.selectedTopic);

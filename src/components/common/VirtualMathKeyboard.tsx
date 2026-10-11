@@ -10,11 +10,50 @@ declare global {
 interface VirtualMathKeyboardProps {
   isOpen: boolean;
   onClose: () => void;
-  onInsert: (snippet: string) => void;
+  onInsert: (snippet: string, replaceCount?: number) => void;
   onBackspace?: () => void;
   currentValue?: string;
   targetFieldName?: string;
 }
+
+// BẢNG QUY TẮC GÕ TIẾNG VIỆT CHUẨN TELEX
+const TELEX_VOWEL_MAP: Record<string, string[]> = {
+  'a': ['á', 'à', 'ả', 'ã', 'ạ'],
+  'ă': ['ắ', 'ằ', 'ẳ', 'ẵ', 'ặ'],
+  'â': ['ấ', 'ầ', 'ẩ', 'ẫ', 'ậ'],
+  'e': ['é', 'è', 'ẻ', 'ẽ', 'ẹ'],
+  'ê': ['ế', 'ề', 'ể', 'ễ', 'ệ'],
+  'i': ['í', 'ì', 'ỉ', 'ĩ', 'ị'],
+  'o': ['ó', 'ò', 'ỏ', 'õ', 'ọ'],
+  'ô': ['ố', 'ồ', 'ổ', 'ỗ', 'ộ'],
+  'ơ': ['ớ', 'ờ', 'ở', 'ỡ', 'ợ'],
+  'u': ['ú', 'ù', 'ủ', 'ũ', 'ụ'],
+  'ư': ['ứ', 'ừ', 'ử', 'ữ', 'ự'],
+  'y': ['ý', 'ỳ', 'ỷ', 'ỹ', 'ỵ'],
+  'A': ['Á', 'À', 'Ả', 'Ã', 'Ạ'],
+  'Ă': ['Ắ', 'Ằ', 'Ẳ', 'Ẵ', 'Ặ'],
+  'Â': ['Ấ', 'Ầ', 'Ẩ', 'Ẫ', 'Ậ'],
+  'E': ['É', 'È', 'Ẻ', 'Ẽ', 'Ẹ'],
+  'Ê': ['Ế', 'Ề', 'Ể', 'Ễ', 'Ệ'],
+  'I': ['Í', 'Ì', 'Ỉ', 'Ĩ', 'Ị'],
+  'O': ['Ó', 'Ò', 'Ỏ', 'Õ', 'Ọ'],
+  'Ô': ['Ố', 'Ồ', 'Ổ', 'Ỗ', 'Ộ'],
+  'Ơ': ['Ớ', 'Ờ', 'Ở', 'Ỡ', 'Ợ'],
+  'U': ['Ú', 'Ù', 'Ủ', 'Ũ', 'Ụ'],
+  'Ư': ['Ứ', 'Ừ', 'Ử', 'Ữ', 'Ự'],
+  'Y': ['Ý', 'Ỳ', 'Ỷ', 'Ỹ', 'Ỵ']
+};
+
+const TELEX_TONE_KEYS: Record<string, number> = {
+  's': 0, 'f': 1, 'r': 2, 'x': 3, 'j': 4,
+  'S': 0, 'F': 1, 'R': 2, 'X': 3, 'J': 4
+};
+
+const TELEX_PAIR_MAP: Record<string, string> = {
+  'aa': 'â', 'aw': 'ă', 'ee': 'ê', 'oo': 'ô', 'ow': 'ơ', 'uw': 'ư', 'dd': 'đ', 'w': 'ư',
+  'AA': 'Â', 'AW': 'Ă', 'EE': 'Ê', 'OO': 'Ô', 'OW': 'Ơ', 'UW': 'Ư', 'DD': 'Đ', 'W': 'Ư',
+  'Aa': 'Â', 'Aw': 'Ă', 'Ee': 'Ê', 'Oo': 'Ô', 'Ow': 'Ơ', 'Uw': 'Ư', 'Dd': 'Đ'
+};
 
 export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
   isOpen,
@@ -26,8 +65,59 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'basic' | 'advanced' | 'trig' | 'functions' | 'qwerty'>('basic');
   const [isShift, setIsShift] = useState<boolean>(false);
+  const [isTelex, setIsTelex] = useState<boolean>(true);
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const previewRef = useRef<HTMLDivElement>(null);
+
+  const handleKeyInput = (char: string) => {
+    if (!isTelex || activeTab !== 'qwerty') {
+      onInsert(char);
+      return;
+    }
+
+    const match = currentValue.match(/([a-zA-ZăâđêôơưĂÂĐÊÔƠƯáàảãạắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵÁÀẢÃẠẮẰẲẴẶẤẦẨẪẬÉÈẺẼẸẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌỐỒỔỖỘỚỜỞỠỢÚÙỦŨỤỨỪỬỮỰÝỲỶỸỴ]+)$/);
+    if (!match) {
+      if (char === 'w' || char === 'W') {
+        onInsert(char === 'W' ? 'Ư' : 'ư');
+        return;
+      }
+      onInsert(char);
+      return;
+    }
+
+    const currentWord = match[1];
+    const lastChar = currentWord[currentWord.length - 1];
+
+    const pairKey = lastChar + char;
+    if (TELEX_PAIR_MAP[pairKey]) {
+      onInsert(TELEX_PAIR_MAP[pairKey], 1);
+      return;
+    }
+
+    const toneIndex = TELEX_TONE_KEYS[char];
+    if (toneIndex !== undefined) {
+      let targetVowelIdx = -1;
+      for (let i = currentWord.length - 1; i >= 0; i--) {
+        const c = currentWord[i];
+        if (TELEX_VOWEL_MAP[c]) {
+          targetVowelIdx = i;
+          if (['ê', 'ơ', 'ư', 'â', 'ă', 'ô', 'Ê', 'Ơ', 'Ư', 'Â', 'Ă', 'Ô'].includes(c)) {
+            break;
+          }
+        }
+      }
+
+      if (targetVowelIdx !== -1) {
+        const vowelChar = currentWord[targetVowelIdx];
+        const accentedVowel = TELEX_VOWEL_MAP[vowelChar][toneIndex];
+        const newWord = currentWord.substring(0, targetVowelIdx) + accentedVowel + currentWord.substring(targetVowelIdx + 1);
+        onInsert(newWord, currentWord.length);
+        return;
+      }
+    }
+
+    onInsert(char);
+  };
 
   // Load KaTeX dynamic from CDN for Live Preview
   useEffect(() => {
@@ -176,6 +266,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
 
           <div className="flex items-center gap-1.5 self-end sm:self-auto flex-wrap">
             <button
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => setActiveTab(activeTab === 'qwerty' ? 'basic' : 'qwerty')}
               className="px-2.5 py-1 bg-cyan-900/80 hover:bg-cyan-700 text-cyan-200 hover:text-white rounded-lg text-xs font-black border border-cyan-500/50 transition flex items-center gap-1 cursor-pointer"
               title="Chuyển đổi nhanh giữa Chế độ Toán và Bàn phím QWERTY"
@@ -183,6 +274,19 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
               {activeTab === 'qwerty' ? '∑ Sang Phím Toán' : '🔤 Sang Phím QWERTY'}
             </button>
             <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => setIsTelex(!isTelex)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-black border transition flex items-center gap-1 cursor-pointer ${
+                isTelex
+                  ? 'bg-emerald-900/80 hover:bg-emerald-700 text-emerald-200 border-emerald-500/50'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-400 border-slate-700'
+              }`}
+              title="Bật/Tắt chế độ gõ tiếng Việt Telex"
+            >
+              {isTelex ? '🇻🇳 TELEX: BẬT' : '🔤 TELEX: TẮT'}
+            </button>
+            <button
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => onInsert('$')}
               className="px-2.5 py-1 bg-violet-950/80 hover:bg-violet-700 text-violet-300 hover:text-white rounded-lg text-xs font-bold border border-violet-500/40 transition cursor-pointer"
               title="Chèn dấu bao bọc công thức Toán $"
@@ -190,15 +294,17 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
               Kẹp thẻ $...$
             </button>
             <button
+              onMouseDown={(e) => e.preventDefault()}
               onClick={onBackspace}
-              className="px-2.5 py-1 bg-rose-950/80 hover:bg-rose-700 text-rose-300 hover:text-white rounded-lg text-xs font-bold border border-rose-500/40 flex items-center gap-1 transition"
+              className="px-2.5 py-1 bg-rose-950/80 hover:bg-rose-700 text-rose-300 hover:text-white rounded-lg text-xs font-bold border border-rose-500/40 flex items-center gap-1 transition cursor-pointer"
               title="Xóa 1 ký tự phía trước"
             >
               <Delete className="w-3.5 h-3.5" /> Xóa lùi
             </button>
             <button
+              onMouseDown={(e) => e.preventDefault()}
               onClick={onClose}
-              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition ml-1"
+              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition ml-1 cursor-pointer"
               title="Đóng bàn phím"
             >
               <X className="w-4 h-4" />
@@ -221,8 +327,9 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
         {/* CÁC TAB CHỦ ĐỀ PHÍM */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-bold custom-scrollbar">
           <button
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setActiveTab('basic')}
-            className={`px-3 py-1.5 rounded-lg transition shrink-0 ${
+            className={`px-3 py-1.5 rounded-lg transition shrink-0 cursor-pointer ${
               activeTab === 'basic' 
                 ? 'bg-violet-600 text-white shadow-md' 
                 : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
@@ -231,8 +338,9 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
             Số & Biến số
           </button>
           <button
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setActiveTab('advanced')}
-            className={`px-3 py-1.5 rounded-lg transition shrink-0 ${
+            className={`px-3 py-1.5 rounded-lg transition shrink-0 cursor-pointer ${
               activeTab === 'advanced' 
                 ? 'bg-violet-600 text-white shadow-md' 
                 : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
@@ -241,8 +349,9 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
             Phép tính & Log & Mũ
           </button>
           <button
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setActiveTab('trig')}
-            className={`px-3 py-1.5 rounded-lg transition shrink-0 ${
+            className={`px-3 py-1.5 rounded-lg transition shrink-0 cursor-pointer ${
               activeTab === 'trig' 
                 ? 'bg-violet-600 text-white shadow-md' 
                 : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
@@ -251,8 +360,9 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
             Lượng giác & Ký hiệu
           </button>
           <button
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setActiveTab('functions')}
-            className={`px-3 py-1.5 rounded-lg transition shrink-0 ${
+            className={`px-3 py-1.5 rounded-lg transition shrink-0 cursor-pointer ${
               activeTab === 'functions' 
                 ? 'bg-emerald-600 text-white shadow-md' 
                 : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
@@ -261,8 +371,9 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
             Mẫu Hàm Số
           </button>
           <button
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setActiveTab('qwerty')}
-            className={`px-3.5 py-1.5 rounded-lg transition shrink-0 font-black flex items-center gap-1 ${
+            className={`px-3.5 py-1.5 rounded-lg transition shrink-0 font-black flex items-center gap-1 cursor-pointer ${
               activeTab === 'qwerty' 
                 ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30' 
                 : 'bg-cyan-950/70 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-900/80 hover:text-white'
@@ -279,6 +390,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
               {basicKeys.map((k, idx) => (
                 <button
                   key={idx}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => onInsert(k.val)}
                   className="py-2.5 px-1 bg-slate-800 hover:bg-violet-600 active:scale-95 text-slate-100 font-black text-sm rounded-xl border border-slate-700/60 shadow-sm transition-all text-center flex items-center justify-center cursor-pointer"
                 >
@@ -293,6 +405,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
               {advancedKeys.map((k, idx) => (
                 <button
                   key={idx}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => onInsert(k.val)}
                   className="py-2.5 px-2 bg-slate-800 hover:bg-violet-600 active:scale-95 text-slate-100 font-bold text-xs rounded-xl border border-slate-700/60 shadow-sm transition-all text-center truncate cursor-pointer"
                   title={k.val}
@@ -308,6 +421,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
               {trigKeys.map((k, idx) => (
                 <button
                   key={idx}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => onInsert(k.val)}
                   className="py-2.5 px-2 bg-slate-800 hover:bg-violet-600 active:scale-95 text-slate-100 font-bold text-xs rounded-xl border border-slate-700/60 shadow-sm transition-all text-center truncate cursor-pointer"
                   title={k.val}
@@ -323,6 +437,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
               {functionTemplates.map((k, idx) => (
                 <button
                   key={idx}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => onInsert(k.val)}
                   className="py-2.5 px-3 bg-slate-800/90 hover:bg-emerald-600 active:scale-95 text-slate-100 font-semibold text-xs rounded-xl border border-emerald-500/30 shadow-sm transition-all text-left flex items-center justify-between cursor-pointer"
                   title={k.val}
@@ -342,6 +457,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((digit) => (
                   <button
                     key={digit}
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => onInsert(digit)}
                     className="py-2 bg-slate-800 hover:bg-cyan-600 active:scale-95 text-slate-100 font-bold text-xs sm:text-sm rounded-lg border border-slate-700 transition cursor-pointer"
                   >
@@ -357,7 +473,8 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
                   return (
                     <button
                       key={char}
-                      onClick={() => onInsert(displayChar)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleKeyInput(displayChar)}
                       className="py-2.5 bg-slate-800 hover:bg-cyan-600 active:scale-95 text-slate-100 font-bold text-xs sm:text-sm rounded-lg border border-slate-700 transition cursor-pointer"
                     >
                       {displayChar}
@@ -373,7 +490,8 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
                   return (
                     <button
                       key={char}
-                      onClick={() => onInsert(displayChar)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleKeyInput(displayChar)}
                       className="py-2.5 bg-slate-800 hover:bg-cyan-600 active:scale-95 text-slate-100 font-bold text-xs sm:text-sm rounded-lg border border-slate-700 transition cursor-pointer"
                     >
                       {displayChar}
@@ -385,6 +503,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
               {/* Hàng QWERTY 3 với Shift & Backspace */}
               <div className="flex items-center gap-1">
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => setIsShift(!isShift)}
                   className={`px-3 py-2.5 rounded-lg text-xs font-black transition cursor-pointer border ${
                     isShift 
@@ -401,7 +520,8 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
                     return (
                       <button
                         key={char}
-                        onClick={() => onInsert(displayChar)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleKeyInput(displayChar)}
                         className="py-2.5 bg-slate-800 hover:bg-cyan-600 active:scale-95 text-slate-100 font-bold text-xs sm:text-sm rounded-lg border border-slate-700 transition cursor-pointer"
                       >
                         {displayChar}
@@ -410,6 +530,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
                   })}
                 </div>
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={onBackspace}
                   className="px-3 py-2.5 bg-rose-950/80 hover:bg-rose-700 text-rose-300 hover:text-white rounded-lg text-xs font-bold border border-rose-500/40 transition flex items-center gap-1 cursor-pointer"
                   title="Xóa 1 ký tự"
@@ -426,6 +547,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
                   return (
                     <button
                       key={vnChar}
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={() => onInsert(displayChar)}
                       className="px-2 py-1 bg-slate-800/90 hover:bg-cyan-600 text-slate-200 font-bold text-xs rounded-md border border-slate-700 transition cursor-pointer"
                     >
@@ -440,6 +562,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
                 {['.', ',', ':', ';', '(', ')', '+', '-', '=', '/'].map((punc) => (
                   <button
                     key={punc}
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => onInsert(punc)}
                     className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-lg border border-slate-700 transition cursor-pointer"
                   >
@@ -447,6 +570,7 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
                   </button>
                 ))}
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => onInsert(' ')}
                   className="flex-2 py-2 bg-slate-700 hover:bg-cyan-600 active:scale-95 text-white font-bold text-xs rounded-lg border border-slate-600 transition cursor-pointer text-center"
                 >
