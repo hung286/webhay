@@ -125,6 +125,13 @@ export interface LeaderboardEntry {
 export type ToolType = 'geogebra' | 'url' | 'iframe';
 export type ToolCategory = 'thao-tac' | 'tro-choi' | 'mo-phong' | 'chon-hs' | 'khac';
 
+export interface DragDropCategory {
+  id: string;
+  title: string;
+  theme?: string;
+  attributes: string[];
+}
+
 export interface TeachingTool {
   id: string;
   name: string;
@@ -135,6 +142,7 @@ export interface TeachingTool {
   isActive: boolean;
   createdAt: string;
   customQuestions?: Question[];
+  customDragDrop?: DragDropCategory[];
 }
 
 // --- MATH WORKSHEET (PHIẾU HỌC TẬP MÔN TOÁN) ---

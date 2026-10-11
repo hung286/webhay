@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TeachingTool, ToolType, ToolCategory, Question } from '../../types';
+import { TeachingTool, ToolType, ToolCategory, Question, DragDropCategory } from '../../types';
 import { getTeachingTools, saveTeachingTools } from '../../utils/storage';
 import { getToolEmbedUrl } from '../../utils/tools';
 import { GameQuestionModal } from './GameQuestionModal';
@@ -126,11 +126,12 @@ export const ToolsTab: React.FC = () => {
     soundFx.playClick();
   };
 
-  const handleSaveGameQuestions = (toolId: string, questions: Question[], newToolName?: string) => {
+  const handleSaveGameQuestions = (toolId: string, questions: Question[], newToolName?: string, customDragDrop?: DragDropCategory[]) => {
     const updatedTools = tools.map(t => t.id === toolId ? {
       ...t,
       name: newToolName || t.name,
-      customQuestions: questions
+      customQuestions: questions,
+      ...(customDragDrop ? { customDragDrop } : {})
     } : t);
     setTools(updatedTools);
     saveTeachingTools(updatedTools);

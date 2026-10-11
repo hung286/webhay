@@ -1,4 +1,4 @@
-import { Question } from '../types';
+import { Question, DragDropCategory } from '../types';
 import { normalizeMathFormulas } from './documentParser';
 
 export interface GameTemplateOption {
@@ -178,13 +178,14 @@ export interface ExportGameOptions {
   gameTitle: string;
   teacherName?: string;
   questions: Question[];
+  customCategories?: DragDropCategory[];
 }
 
 /**
  * DATA ADAPTER ENGINE: Dịch mảng câu hỏi và đóng gói vào file HTML gốc
  */
 export async function exportStandaloneGameHTML(options: ExportGameOptions): Promise<string> {
-  const { templateUrl, gameTitle, teacherName = 'LỚP TOÁN THẦY HÙNG', questions } = options;
+  const { templateUrl, gameTitle, teacherName = 'LỚP TOÁN THẦY HÙNG', questions, customCategories } = options;
 
   // 1. Fetch file HTML gốc
   let cleanUrl = templateUrl;
@@ -567,50 +568,41 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
   else if (cleanUrl.includes('keo-tha')) {
     const topicsMap: Record<string, any> = {};
     const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
+    const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
 
-    const groupedByTopic: Record<string, Question[]> = {};
-    questions.forEach(q => {
-      const tName = q.topic?.trim() || defaultTopic;
-      if (!groupedByTopic[tName]) groupedByTopic[tName] = [];
-      groupedByTopic[tName].push(q);
-    });
-
-    Object.keys(groupedByTopic).forEach(tName => {
-      const qList = groupedByTopic[tName];
-      topicsMap[tName] = {};
-      const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
-
-      // Phân bổ câu hỏi vào các cấp độ (3-5 hàm số mỗi cấp độ)
+    // Ưu tiên 1: Sử dụng customCategories từ Studio Quản trị Kéo Thả
+    if (customCategories && customCategories.length > 0) {
+      topicsMap[defaultTopic] = {};
       const chunkSize = 3;
-      const totalLevels = Math.min(5, Math.max(1, Math.ceil(qList.length / chunkSize)));
+      const totalLevels = Math.min(5, Math.max(1, Math.ceil(customCategories.length / chunkSize)));
 
       for (let lvl = 1; lvl <= totalLevels; lvl++) {
         const sliceStart = (lvl - 1) * chunkSize;
-        const sliceQuestions = qList.slice(sliceStart, sliceStart + chunkSize);
-        if (sliceQuestions.length === 0) break;
+        const sliceCats = customCategories.slice(sliceStart, sliceStart + chunkSize);
+        if (sliceCats.length === 0) break;
 
         const funcs: any[] = [];
         const props: any[] = [];
 
-        sliceQuestions.forEach((q, idx) => {
+        sliceCats.forEach((cat, idx) => {
           const funcId = `f${idx + 1}`;
           funcs.push({
             id: funcId,
-            tex: normalizeMathFormulas(q.question),
-            theme: themeColors[idx % themeColors.length]
+            tex: normalizeMathFormulas(cat.title),
+            theme: cat.theme || themeColors[idx % themeColors.length]
           });
 
-          (q.options || []).forEach((opt, pIdx) => {
+          (cat.attributes || []).forEach((attr, pIdx) => {
             props.push({
               id: `p${idx + 1}_${pIdx + 1}`,
               funcId: funcId,
-              text: normalizeMathFormulas(opt)
+              text: normalizeMathFormulas(attr)
             });
           });
         });
 
-        topicsMap[tName][lvl] = {
-          title: `Cấp Độ ${lvl}: ${sliceQuestions[0]?.difficulty || 'Tùy Chỉnh'}`,
+        topicsMap[defaultTopic][lvl] = {
+          title: `Cấp Độ ${lvl}: ${lvl === 1 ? 'Khởi Động' : (lvl >= 4 ? 'Nâng Cao' : 'Tiêu Chuẩn')}`,
           diffBadge: lvl === 1 ? 'Dễ' : (lvl >= 4 ? 'Khó' : 'Vừa'),
           colorTheme: themeColors[(lvl - 1) % themeColors.length],
           time: 180,
@@ -618,7 +610,58 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
           props: props
         };
       }
-    });
+    } else {
+      // Ưu tiên 2: Chuyển đổi từ mảng questions tiêu chuẩn
+      const groupedByTopic: Record<string, Question[]> = {};
+      questions.forEach(q => {
+        const tName = q.topic?.trim() || defaultTopic;
+        if (!groupedByTopic[tName]) groupedByTopic[tName] = [];
+        groupedByTopic[tName].push(q);
+      });
+
+      Object.keys(groupedByTopic).forEach(tName => {
+        const qList = groupedByTopic[tName];
+        topicsMap[tName] = {};
+
+        const chunkSize = 3;
+        const totalLevels = Math.min(5, Math.max(1, Math.ceil(qList.length / chunkSize)));
+
+        for (let lvl = 1; lvl <= totalLevels; lvl++) {
+          const sliceStart = (lvl - 1) * chunkSize;
+          const sliceQuestions = qList.slice(sliceStart, sliceStart + chunkSize);
+          if (sliceQuestions.length === 0) break;
+
+          const funcs: any[] = [];
+          const props: any[] = [];
+
+          sliceQuestions.forEach((q, idx) => {
+            const funcId = `f${idx + 1}`;
+            funcs.push({
+              id: funcId,
+              tex: normalizeMathFormulas(q.question),
+              theme: themeColors[idx % themeColors.length]
+            });
+
+            (q.options || []).forEach((opt, pIdx) => {
+              props.push({
+                id: `p${idx + 1}_${pIdx + 1}`,
+                funcId: funcId,
+                text: normalizeMathFormulas(opt)
+              });
+            });
+          });
+
+          topicsMap[tName][lvl] = {
+            title: `Cấp Độ ${lvl}: ${sliceQuestions[0]?.difficulty || 'Tùy Chỉnh'}`,
+            diffBadge: lvl === 1 ? 'Dễ' : (lvl >= 4 ? 'Khó' : 'Vừa'),
+            colorTheme: themeColors[(lvl - 1) % themeColors.length],
+            time: 180,
+            funcs: funcs,
+            props: props
+          };
+        }
+      });
+    }
 
     const keoThaScript = `
 <script>
@@ -634,12 +677,38 @@ window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
       }
     }
   }
+
+  // [BƯỚC 3: SECURITY GATE - KHÓA BẢO MẬT NÚT ADMIN CHO HỌC SINH]
+  function applyAdminSecurity() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, [data-admin-control="true"]');
+      adminBtns.forEach(btn => {
+        if (isAdmin) {
+          btn.classList.remove('hidden');
+          btn.style.display = '';
+        } else {
+          btn.classList.add('hidden');
+          btn.style.display = 'none';
+        }
+      });
+    } catch(e) {}
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncKeoThaDb);
+    document.addEventListener('DOMContentLoaded', function() {
+      syncKeoThaDb();
+      applyAdminSecurity();
+    });
   } else {
     syncKeoThaDb();
+    applyAdminSecurity();
   }
-  window.addEventListener('load', syncKeoThaDb);
+  window.addEventListener('load', function() {
+    syncKeoThaDb();
+    applyAdminSecurity();
+  });
 })();
 </script>
 `;

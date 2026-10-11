@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { TeachingTool, Question, Difficulty } from '../../types';
+import { TeachingTool, Question, Difficulty, DragDropCategory } from '../../types';
 import { X, FileUp, Plus, Trash2, Save, FileDown, Sparkles, Download, Shuffle, FileText, CheckCircle2, Calculator, Loader2 } from 'lucide-react';
 import { soundFx } from '../../utils/sound';
 import { GAME_TEMPLATES, exportStandaloneGameHTML, downloadFile } from '../../utils/gameExporter';
@@ -8,15 +8,38 @@ import {
   extractTextFromDocx, 
   extractTextFromExcel, 
   parseDocumentQuestions, 
+  parseDragDropFromText,
   normalizeMathFormulas, 
   downloadWordTemplate, 
   downloadExcelTemplate 
 } from '../../utils/documentParser';
 
+// Bộ xem trước công thức KaTeX thời gian thực
+const MathLivePreview: React.FC<{ formula: string }> = ({ formula }) => {
+  if (!formula || !formula.trim()) return null;
+  let html = '';
+  if (typeof window !== 'undefined' && (window as any).katex) {
+    try {
+      const clean = formula.replace(/^\\\(/, '').replace(/\\\)$/, '').replace(/^\$/, '').replace(/\$$/, '');
+      html = (window as any).katex.renderToString(clean, { throwOnError: false });
+    } catch (e) {}
+  }
+  return (
+    <div className="mt-1 px-2.5 py-1 bg-cyan-950/40 border border-cyan-500/30 rounded-lg flex items-center gap-2">
+      <span className="text-[10px] uppercase font-bold text-cyan-400 shrink-0">Hiển thị KaTeX:</span>
+      {html ? (
+        <span className="text-xs text-cyan-200" dangerouslySetInnerHTML={{ __html: html }} />
+      ) : (
+        <span className="text-xs font-mono text-cyan-200 font-bold">{formula}</span>
+      )}
+    </div>
+  );
+};
+
 interface GameQuestionModalProps {
   tool: TeachingTool;
   onClose: () => void;
-  onSave: (toolId: string, questions: Question[], newToolName?: string) => void;
+  onSave: (toolId: string, questions: Question[], newToolName?: string, customDragDrop?: DragDropCategory[]) => void;
   onDuplicateAsNewGame?: (newTool: TeachingTool) => void;
 }
 
@@ -34,10 +57,65 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const [rawTextToParse, setRawTextToParse] = useState('');
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [isParsingDoc, setIsParsingDoc] = useState(false);
+
+  // Nhận diện chế độ Kéo Thả Phân Loại Thuộc Tính
+  const isDragDropMode = selectedTemplateUrl.includes('keo-tha');
+
+  // Quản lý cấu trúc Phân Loại Động (Category - Attributes) chuẩn game Kéo Thả
+  const [categories, setCategories] = useState<DragDropCategory[]>(() => {
+    if (tool.customDragDrop && tool.customDragDrop.length > 0) {
+      return tool.customDragDrop;
+    }
+    if (tool.customQuestions && tool.customQuestions.length > 0) {
+      return tool.customQuestions.map((q, idx) => ({
+        id: `cat_${idx + 1}`,
+        title: q.question,
+        theme: ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'][idx % 6],
+        attributes: (q.options || []).filter(Boolean)
+      }));
+    }
+    return [
+      {
+        id: 'cat_1',
+        title: 'y = x^3 - 3x',
+        theme: 'blue',
+        attributes: [
+          'Hàm số đạt cực đại tại x = -1',
+          'Hàm số đạt cực tiểu tại x = 1',
+          'Hàm số đồng biến trên khoảng (1; +\\infty)',
+          'Hàm số nghịch biến trên khoảng (-1; 1)'
+        ]
+      },
+      {
+        id: 'cat_2',
+        title: 'y = -x^3 + 3x^2',
+        theme: 'emerald',
+        attributes: [
+          'Hàm số đạt cực đại tại x = 2',
+          'Hàm số đạt cực tiểu tại x = 0',
+          'Hàm số đồng biến trên khoảng (0; 2)',
+          'Giá trị cực đại bằng 4'
+        ]
+      },
+      {
+        id: 'cat_3',
+        title: 'y = x^4 - 2x^2 + 1',
+        theme: 'violet',
+        attributes: [
+          'Hàm số có 3 điểm cực trị',
+          'Hàm số đạt cực đại tại x = 0',
+          'Hàm số có 2 điểm cực tiểu',
+          'Hàm số đồng biến trên khoảng (-1; 0)'
+        ]
+      }
+    ];
+  });
+
   const [activeTarget, setActiveTarget] = useState<{
     id: string;
-    field: 'question' | 'explanation' | 'option';
+    field: 'question' | 'explanation' | 'option' | 'category_title' | 'category_attribute';
     optIndex?: number;
+    attrIndex?: number;
     fieldName: string;
   } | null>(null);
   
@@ -46,154 +124,164 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   // Tìm template hiện tại
   const currentTemplate = GAME_TEMPLATES.find(t => t.file === selectedTemplateUrl) || GAME_TEMPLATES[0];
 
-  // --- SMART TEXT PARSER (Nhận diện đề bài văn bản thô / Word) ---
+  // --- CRUD CHO HỘP PHÂN LOẠI & THUỘC TÍNH (KÉO THẢ MODE) ---
+  const handleAddCategory = () => {
+    const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
+    setCategories(prev => [
+      ...prev,
+      {
+        id: `cat_${Date.now()}`,
+        title: 'y = x^2 - 1',
+        theme: themeColors[prev.length % themeColors.length],
+        attributes: [
+          'Thuộc tính đúng 1',
+          'Thuộc tính đúng 2'
+        ]
+      }
+    ]);
+    soundFx.playClick();
+  };
+
+  const handleRemoveCategory = (id: string) => {
+    setCategories(prev => prev.filter(c => c.id !== id));
+    soundFx.playClick();
+  };
+
+  const handleUpdateCategoryTitle = (id: string, title: string) => {
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, title } : c));
+  };
+
+  const handleUpdateCategoryTheme = (id: string, theme: string) => {
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, theme } : c));
+  };
+
+  const handleAddAttribute = (catId: string) => {
+    setCategories(prev => prev.map(c => {
+      if (c.id === catId) {
+        return {
+          ...c,
+          attributes: [...c.attributes, `Thuộc tính đúng ${c.attributes.length + 1}`]
+        };
+      }
+      return c;
+    }));
+    soundFx.playClick();
+  };
+
+  const handleRemoveAttribute = (catId: string, attrIdx: number) => {
+    setCategories(prev => prev.map(c => {
+      if (c.id === catId) {
+        return {
+          ...c,
+          attributes: c.attributes.filter((_, idx) => idx !== attrIdx)
+        };
+      }
+      return c;
+    }));
+    soundFx.playClick();
+  };
+
+  const handleUpdateAttribute = (catId: string, attrIdx: number, val: string) => {
+    setCategories(prev => prev.map(c => {
+      if (c.id === catId) {
+        const nextAttrs = [...c.attributes];
+        nextAttrs[attrIdx] = val;
+        return { ...c, attributes: nextAttrs };
+      }
+      return c;
+    }));
+  };
+
+  // --- SMART TEXT PARSER (Nhận diện đề bài văn bản thô / Word / 2 Cột) ---
   const handleParseRawText = () => {
     if (!rawTextToParse.trim()) {
-      alert('Vui lòng dán nội dung câu hỏi vào khung!');
+      alert('Vui lòng dán nội dung vào khung!');
       return;
     }
 
     try {
-      const parsedList: Question[] = [];
-      // Tách theo Câu 1, Câu 2... hoặc 1. 2.
-      const blocks = rawTextToParse.split(/(?:^|\n)(?:Câu\s+\d+|[0-9]{1,3}\.)[:.]?/gi).filter(b => b.trim().length > 0);
-
-      blocks.forEach((block, idx) => {
-        const lines = block.trim().split('\n').map(l => l.trim()).filter(Boolean);
-        if (lines.length === 0) return;
-
-        let questionText = lines[0];
-        let options = ['A', 'B', 'C', 'D'];
-        let correctIndex = 0;
-        let explanation = '';
-        const fullBlock = lines.join(' ');
-
-        // Tìm lời giải nếu có
-        const solMatch = fullBlock.match(/(?:Lời giải|Giải thích|Hướng dẫn)[:\s]+([\s\S]*)$/i);
-        if (solMatch) {
-          explanation = solMatch[1].trim();
+      if (isDragDropMode) {
+        // Phân tích văn bản 2 cột cho game Kéo Thả
+        const parsedCats = parseDragDropFromText(rawTextToParse);
+        if (parsedCats.length > 0) {
+          setCategories(prev => [...prev, ...parsedCats]);
+          setShowPasteModal(false);
+          setRawTextToParse('');
+          soundFx.playCorrect();
+          alert(`🎉 Phân tích thành công ${parsedCats.length} hộp phân loại và các thuộc tính! Đã nạp vào bảng.`);
+        } else {
+          alert('Không nhận diện được định dạng Kéo Thả. Thầy vui lòng định dạng: Cột 1: Tên hộp / Phương trình, Cột 2: Các thuộc tính phân tách bằng dấu chấm phẩy ; hoặc dấu phẩy!');
         }
-
-        // Tìm các đáp án A, B, C, D
-        const optA = fullBlock.match(/[A][\.:\)]\s*(\*?)(.*?)(?=[B][\.:\)]|$)/i);
-        const optB = fullBlock.match(/[B][\.:\)]\s*(\*?)(.*?)(?=[C][\.:\)]|$)/i);
-        const optC = fullBlock.match(/[C][\.:\)]\s*(\*?)(.*?)(?=[D][\.:\)]|$)/i);
-        const optD = fullBlock.match(/[D][\.:\)]\s*(\*?)(.*?)(?=(?:Lời giải|Giải thích|$))/i);
-
-        if (optA && optB && optC && optD) {
-          options = [optA[2].trim(), optB[2].trim(), optC[2].trim(), optD[2].trim()];
-          if (optA[1] === '*') correctIndex = 0;
-          else if (optB[1] === '*') correctIndex = 1;
-          else if (optC[1] === '*') correctIndex = 2;
-          else if (optD[1] === '*') correctIndex = 3;
-          else if (/chọn\s+A/i.test(explanation)) correctIndex = 0;
-          else if (/chọn\s+B/i.test(explanation)) correctIndex = 1;
-          else if (/chọn\s+C/i.test(explanation)) correctIndex = 2;
-          else if (/chọn\s+D/i.test(explanation)) correctIndex = 3;
-        }
-
-        parsedList.push({
-          id: `raw_${Date.now()}_${idx}`,
-          question: normalizeMathFormulas(questionText),
-          options: [
-            normalizeMathFormulas(options[0]),
-            normalizeMathFormulas(options[1]),
-            normalizeMathFormulas(options[2]),
-            normalizeMathFormulas(options[3])
-          ],
-          correctIndex,
-          explanation: normalizeMathFormulas(explanation),
-          difficulty: idx < 5 ? 'Dễ' : (idx < 12 ? 'Trung bình' : 'Khó'),
-          topic: 'Toán học',
-          source: gameTitle,
-          status: 'published',
-          createdAt: new Date().toISOString()
-        });
-      });
-
-      if (parsedList.length > 0) {
-        setQuestions([...questions, ...parsedList]);
-        setShowPasteModal(false);
-        setRawTextToParse('');
-        soundFx.playCorrect();
-        alert(`🎉 Phân tích thành công ${parsedList.length} câu hỏi! Dữ liệu đã được nạp vào bảng.`);
       } else {
-        alert('Không nhận diện được cấu trúc câu hỏi. Thầy hãy kiểm tra định dạng Câu 1. ... A. ... B. ...');
+        // Phân tích trắc nghiệm A, B, C, D cho các game khác
+        const parsedList: Question[] = [];
+        const blocks = rawTextToParse.split(/(?:^|\n)(?:Câu\s+\d+|[0-9]{1,3}\.)[:.]?/gi).filter(b => b.trim().length > 0);
+
+        blocks.forEach((block, idx) => {
+          const lines = block.trim().split('\n').map(l => l.trim()).filter(Boolean);
+          if (lines.length === 0) return;
+
+          let questionText = lines[0];
+          let options = ['A', 'B', 'C', 'D'];
+          let correctIndex = 0;
+          let explanation = '';
+          const fullBlock = lines.join(' ');
+
+          const solMatch = fullBlock.match(/(?:Lời giải|Giải thích|Hướng dẫn)[:\s]+([\s\S]*)$/i);
+          if (solMatch) explanation = solMatch[1].trim();
+
+          const optA = fullBlock.match(/[A][\.:\)]\s*(\*?)(.*?)(?=[B][\.:\)]|$)/i);
+          const optB = fullBlock.match(/[B][\.:\)]\s*(\*?)(.*?)(?=[C][\.:\)]|$)/i);
+          const optC = fullBlock.match(/[C][\.:\)]\s*(\*?)(.*?)(?=[D][\.:\)]|$)/i);
+          const optD = fullBlock.match(/[D][\.:\)]\s*(\*?)(.*?)(?=(?:Lời giải|Giải thích|$))/i);
+
+          if (optA && optB && optC && optD) {
+            options = [optA[2].trim(), optB[2].trim(), optC[2].trim(), optD[2].trim()];
+            if (optA[1] === '*') correctIndex = 0;
+            else if (optB[1] === '*') correctIndex = 1;
+            else if (optC[1] === '*') correctIndex = 2;
+            else if (optD[1] === '*') correctIndex = 3;
+            else if (/chọn\s+A/i.test(explanation)) correctIndex = 0;
+            else if (/chọn\s+B/i.test(explanation)) correctIndex = 1;
+            else if (/chọn\s+C/i.test(explanation)) correctIndex = 2;
+            else if (/chọn\s+D/i.test(explanation)) correctIndex = 3;
+          }
+
+          parsedList.push({
+            id: `raw_${Date.now()}_${idx}`,
+            question: normalizeMathFormulas(questionText),
+            options: [
+              normalizeMathFormulas(options[0]),
+              normalizeMathFormulas(options[1]),
+              normalizeMathFormulas(options[2]),
+              normalizeMathFormulas(options[3])
+            ],
+            correctIndex,
+            explanation: normalizeMathFormulas(explanation),
+            difficulty: idx < 5 ? 'Dễ' : (idx < 12 ? 'Trung bình' : 'Khó'),
+            topic: 'Toán học',
+            source: gameTitle,
+            status: 'published',
+            createdAt: new Date().toISOString()
+          });
+        });
+
+        if (parsedList.length > 0) {
+          setQuestions([...questions, ...parsedList]);
+          setShowPasteModal(false);
+          setRawTextToParse('');
+          soundFx.playCorrect();
+          alert(`🎉 Phân tích thành công ${parsedList.length} câu hỏi! Dữ liệu đã được nạp vào bảng.`);
+        } else {
+          alert('Không nhận diện được cấu trúc câu hỏi. Thầy hãy kiểm tra định dạng Câu 1. ... A. ... B. ...');
+        }
       }
     } catch (e: any) {
       alert(`Lỗi phân tích: ${e?.message}`);
     }
   };
 
-  // --- CSV IMPORT ---
-  const handleImportCsv = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const text = event.target?.result as string;
-        const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
-        if (lines.length <= 1) throw new Error('File rỗng hoặc không có dữ liệu');
-
-        const newQuestions: Question[] = [];
-        for (let i = 1; i < lines.length; i++) {
-          const row = lines[i];
-          const match = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || row.split(',');
-          const clean = match.map(m => m.replace(/^"|"$/g, '').trim());
-
-          if (clean.length >= 6) {
-            const questionText = clean[0];
-            const optA = clean[1] || 'A';
-            const optB = clean[2] || 'B';
-            const optC = clean[3] || 'C';
-            const optD = clean[4] || 'D';
-            const corStr = clean[5]?.toUpperCase();
-            const explanation = clean[6] || '';
-            const difficulty: Difficulty = (clean[7] === 'Dễ' || clean[7] === 'Khó') ? clean[7] as Difficulty : 'Trung bình';
-            const topic = clean[8] || 'Chung';
-
-            let correctIndex = 0;
-            if (corStr === 'B' || corStr === '1') correctIndex = 1;
-            if (corStr === 'C' || corStr === '2') correctIndex = 2;
-            if (corStr === 'D' || corStr === '3') correctIndex = 3;
-
-            newQuestions.push({
-              id: `csv_${Date.now()}_${i}`,
-              question: normalizeMathFormulas(questionText),
-              options: [
-                normalizeMathFormulas(optA),
-                normalizeMathFormulas(optB),
-                normalizeMathFormulas(optC),
-                normalizeMathFormulas(optD)
-              ],
-              correctIndex,
-              explanation: normalizeMathFormulas(explanation),
-              difficulty,
-              topic,
-              source: gameTitle,
-              status: 'published',
-              createdAt: new Date().toISOString()
-            });
-          }
-        }
-
-        if (newQuestions.length > 0) {
-          setQuestions([...questions, ...newQuestions]);
-          soundFx.playCorrect();
-          alert(`Đã nhập thành công ${newQuestions.length} câu hỏi từ file CSV!`);
-        } else {
-          alert('Không tìm thấy câu hỏi hợp lệ trong file CSV.');
-        }
-      } catch (err: any) {
-        alert(`Lỗi đọc file CSV: ${err?.message}`);
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  // --- SMART IMPORT WORD (.DOCX) & EXCEL (.XLSX) THEO MẪU PHÂN CẤP ---
+  // --- SMART IMPORT WORD (.DOCX) & EXCEL (.XLSX) THEO MẪU 2 CỘT ---
   const handleImportDocumentFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -215,14 +303,38 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         throw new Error('Định dạng file không được hỗ trợ. Vui lòng chọn .docx, .xlsx, .xls hoặc .csv');
       }
 
-      const parsedQuestions = parseDocumentQuestions(rawText, gameTitle);
-      if (parsedQuestions.length === 0) {
-        throw new Error('Không bóc tách được câu hỏi hoặc cấu trúc ghép đôi hợp lệ từ file.');
+      if (isDragDropMode) {
+        const parsedCats = parseDragDropFromText(rawText);
+        if (parsedCats.length > 0) {
+          setCategories(prev => [...prev, ...parsedCats]);
+          soundFx.playCorrect();
+          alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedCats.length} HỘP PHÂN LOẠI & THUỘC TÍNH TỪ FILE:\n"${file.name}"!\n\nToàn bộ công thức toán học TeX đã được chuẩn hóa KaTeX tự động.`);
+        } else {
+          // Thử chuyển đổi từ câu hỏi trắc nghiệm nếu file có dạng cũ
+          const parsedQuestions = parseDocumentQuestions(rawText, gameTitle);
+          if (parsedQuestions.length > 0) {
+            const convertedCats: DragDropCategory[] = parsedQuestions.map((q, idx) => ({
+              id: `cat_${idx + 1}`,
+              title: q.question,
+              theme: ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'][idx % 6],
+              attributes: q.options || []
+            }));
+            setCategories(prev => [...prev, ...convertedCats]);
+            soundFx.playCorrect();
+            alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${convertedCats.length} HỘP PHÂN LOẠI TỪ FILE "${file.name}"!`);
+          } else {
+            throw new Error('Không bóc tách được dữ liệu phân loại hợp lệ từ file.');
+          }
+        }
+      } else {
+        const parsedQuestions = parseDocumentQuestions(rawText, gameTitle);
+        if (parsedQuestions.length === 0) {
+          throw new Error('Không bóc tách được câu hỏi hoặc cấu trúc ghép đôi hợp lệ từ file.');
+        }
+        setQuestions(prev => [...prev, ...parsedQuestions]);
+        soundFx.playCorrect();
+        alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI TỪ FILE:\n"${file.name}"!`);
       }
-
-      setQuestions(prev => [...prev, ...parsedQuestions]);
-      soundFx.playCorrect();
-      alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI / CẶP THẺ TỪ FILE:\n"${file.name}"!\n\nCấu trúc Chuyên đề, Cấp độ và Công thức toán học đã được giữ nguyên vẹn.`);
     } catch (err: any) {
       console.error(err);
       alert(`Lỗi đọc file tài liệu: ${err?.message || 'Có lỗi xảy ra khi xử lý tài liệu.'}`);
@@ -235,9 +347,18 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   // --- BÀN PHÍM CÔNG THỨC TOÁN HỌC ẢO (VIRTUAL MATH KEYBOARD LOGIC) ---
   const handleInsertMath = (snippet: string) => {
     if (!activeTarget) return;
-    const { id, field, optIndex } = activeTarget;
+    const { id, field, optIndex, attrIndex } = activeTarget;
 
-    if (field === 'question') {
+    if (field === 'category_title') {
+      setCategories(prev => prev.map(c => c.id === id ? { ...c, title: c.title + snippet } : c));
+    } else if (field === 'category_attribute' && typeof attrIndex === 'number') {
+      setCategories(prev => prev.map(c => {
+        if (c.id !== id) return c;
+        const nextAttrs = [...c.attributes];
+        nextAttrs[attrIndex] = (nextAttrs[attrIndex] || '') + snippet;
+        return { ...c, attributes: nextAttrs };
+      }));
+    } else if (field === 'question') {
       const q = questions.find(item => item.id === id);
       if (!q) return;
       handleUpdate(id, 'question', q.question + snippet);
@@ -255,9 +376,18 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
   const handleBackspace = () => {
     if (!activeTarget) return;
-    const { id, field, optIndex } = activeTarget;
+    const { id, field, optIndex, attrIndex } = activeTarget;
 
-    if (field === 'question') {
+    if (field === 'category_title') {
+      setCategories(prev => prev.map(c => c.id === id ? { ...c, title: c.title.slice(0, -1) } : c));
+    } else if (field === 'category_attribute' && typeof attrIndex === 'number') {
+      setCategories(prev => prev.map(c => {
+        if (c.id !== id) return c;
+        const nextAttrs = [...c.attributes];
+        nextAttrs[attrIndex] = (nextAttrs[attrIndex] || '').slice(0, -1);
+        return { ...c, attributes: nextAttrs };
+      }));
+    } else if (field === 'question') {
       const q = questions.find(item => item.id === id);
       if (!q || !q.question) return;
       handleUpdate(id, 'question', q.question.slice(0, -1));
@@ -275,7 +405,16 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
   const getCurrentTargetValue = (): string => {
     if (!activeTarget) return '';
-    const { id, field, optIndex } = activeTarget;
+    const { id, field, optIndex, attrIndex } = activeTarget;
+
+    if (field === 'category_title') {
+      const cat = categories.find(c => c.id === id);
+      return cat ? cat.title : '';
+    }
+    if (field === 'category_attribute' && typeof attrIndex === 'number') {
+      const cat = categories.find(c => c.id === id);
+      return cat ? (cat.attributes[attrIndex] || '') : '';
+    }
     const q = questions.find(item => item.id === id);
     if (!q) return '';
     if (field === 'question') return q.question;
@@ -284,21 +423,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
     return '';
   };
 
-  // --- CSV TEMPLATE ---
-  const exportTemplate = () => {
-    const headers = ['Câu hỏi', 'Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D', 'Đúng (A/B/C/D)', 'Giải thích', 'Độ khó (Dễ/Trung bình/Khó)', 'Chủ đề'];
-    const sample = ['1 + 1 bằng mấy?', '1', '2', '3', '4', 'B', 'Vì 1+1=2', 'Dễ', 'Toán học'];
-    const csvContent = '\uFEFF' + headers.join(',') + '\n' + sample.join(',');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Mau_Cau_Hoi_${gameTitle.replace(/\s+/g, '_')}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // --- CRUD CÂU HỎI ---
+  // --- CRUD CÂU HỎI TRẮC NGHIỆM TIÊU CHUẨN ---
   const handleAddEmpty = () => {
     setQuestions([
       {
@@ -348,13 +473,43 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
   // --- HÀNH ĐỘNG 1: LƯU VÀO WEB QUẢN TRỊ ---
   const handleSaveToWeb = () => {
-    if (questions.length === 0) {
-      if (!confirm('Bộ câu hỏi hiện đang trống. Trò chơi sẽ chạy bằng ngân hàng câu hỏi mặc định. Bạn có muốn tiếp tục?')) {
-        return;
+    if (isDragDropMode) {
+      if (categories.length === 0) {
+        if (!confirm('Chưa có hộp phân loại nào. Trò chơi sẽ chạy bằng ngân hàng chuyên đề mặc định. Bạn có muốn tiếp tục?')) {
+          return;
+        }
       }
+      // Đồng bộ sang Question[] để tương thích toàn hệ thống
+      const mappedQuestions: Question[] = categories.map((cat, idx) => {
+        const opts = [...cat.attributes];
+        while (opts.length < 4) {
+          opts.push(`Thuộc tính mở rộng ${opts.length + 1}`);
+        }
+        return {
+          id: cat.id || `q_cat_${idx + 1}`,
+          question: normalizeMathFormulas(cat.title),
+          options: opts.slice(0, 4).map(o => normalizeMathFormulas(o)) as [string, string, string, string],
+          correctIndex: 0,
+          explanation: cat.attributes.map(a => normalizeMathFormulas(a)).join('; '),
+          difficulty: idx === 0 ? 'Dễ' : (idx < 3 ? 'Trung bình' : 'Khó'),
+          topic: gameTitle,
+          source: gameTitle,
+          status: 'published',
+          createdAt: new Date().toISOString()
+        };
+      });
+
+      soundFx.playCorrect();
+      onSave(tool.id, mappedQuestions, gameTitle, categories);
+    } else {
+      if (questions.length === 0) {
+        if (!confirm('Bộ câu hỏi hiện đang trống. Trò chơi sẽ chạy bằng ngân hàng câu hỏi mặc định. Bạn có muốn tiếp tục?')) {
+          return;
+        }
+      }
+      soundFx.playCorrect();
+      onSave(tool.id, questions, gameTitle);
     }
-    soundFx.playCorrect();
-    onSave(tool.id, questions, gameTitle);
   };
 
   // --- HÀNH ĐỘNG 2: SAO CHÉP TẠO GAME MỚI CHO CHỦ ĐỀ KHÁC ---
@@ -366,10 +521,11 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       type: 'iframe',
       category: 'tro-choi',
       url: selectedTemplateUrl,
-      description: `Trò chơi ${currentTemplate.name} với bộ câu hỏi chủ đề tùy chỉnh.`,
+      description: `Trò chơi ${currentTemplate.name} với dữ liệu tùy chỉnh.`,
       isActive: true,
       createdAt: new Date().toISOString(),
-      customQuestions: questions
+      customQuestions: questions,
+      customDragDrop: isDragDropMode ? categories : undefined
     };
     onDuplicateAsNewGame(newTool);
     soundFx.playCorrect();
@@ -379,7 +535,11 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
   // --- HÀNH ĐỘNG 3: XUẤT FILE HTML TRÒ CHƠI ĐỘC LẬP 1 NÚT BẤM (STANDALONE HTML) ---
   const handleExportStandaloneHTML = async () => {
-    if (questions.length === 0) {
+    if (isDragDropMode && categories.length === 0) {
+      alert('Vui lòng thêm ít nhất 1 hộp phân loại trước khi xuất file!');
+      return;
+    }
+    if (!isDragDropMode && questions.length === 0) {
       alert('Vui lòng thêm ít nhất 1 câu hỏi trước khi xuất file!');
       return;
     }
@@ -388,12 +548,13 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
     soundFx.playClick();
 
     try {
-      // Chạy Data Adapter Engine tự động phân tích và nhúng dữ liệu
+      // Chạy Data Adapter Engine tự động phân tích và nhúng dữ liệu kèm Security Gate
       const htmlString = await exportStandaloneGameHTML({
         templateUrl: selectedTemplateUrl,
         gameTitle: gameTitle,
         teacherName: 'LỚP TOÁN THẦY HÙNG',
-        questions: questions
+        questions: questions,
+        customCategories: isDragDropMode ? categories : undefined
       });
 
       // Tải tệp xuống máy tính
@@ -401,7 +562,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       downloadFile(htmlString, safeFilename, 'text/html');
 
       soundFx.playCorrect();
-      alert(`⚡ XUẤT FILE THÀNH CÔNG!\n\nĐã tải xuống file: ${safeFilename}\n\nThầy có thể:\n1. Mở trực tiếp trên máy tính để chơi ngay (không cần mạng).\n2. Kéo thả file này đè lên Vercel để cập nhật vĩnh viễn!`);
+      alert(`⚡ XUẤT FILE THÀNH CÔNG!\n\nĐã tải xuống file: ${safeFilename}\n\nThầy có thể:\n1. Mở trực tiếp trên máy tính để chơi ngay.\n2. Kéo thả file này đè lên Vercel để cập nhật vĩnh viễn!\n(Nút Quản trị ⚙️ được tự động khóa bảo mật, chỉ hiện khi thêm ?role=admin).`);
     } catch (err: any) {
       console.error(err);
       alert(`Lỗi xuất file HTML: ${err?.message || 'Không thể tải template trò chơi gốc.'}`);
@@ -426,11 +587,13 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                   Studio Tạo Trò Chơi Tự Động (1 Nút Bấm)
                 </h3>
                 <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 tracking-wider">
-                  Pro Engine v3.8
+                  {isDragDropMode ? 'Drag & Drop Engine' : 'Pro Engine v3.8'}
                 </span>
               </div>
               <p className="text-xs text-violet-200/80 font-medium mt-0.5">
-                Tự động đóng gói câu hỏi, chuyển đổi cấu trúc (Data Adapter) và xuất bản game độc lập
+                {isDragDropMode 
+                  ? 'Quản trị Hộp Phân Loại (Category) & Nhãn Thuộc Tính Đúng chuẩn kiến trúc Game Kéo Thả'
+                  : 'Tự động đóng gói câu hỏi, chuyển đổi cấu trúc (Data Adapter) và xuất bản game độc lập'}
               </p>
             </div>
           </div>
@@ -446,14 +609,14 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         <div className="p-4 bg-slate-50 border-b border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-3.5">
           <div>
             <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <span>1. Tên Trò Chơi Mới Cho Chủ Đề Này</span>
+              <span>1. Tên Trò Chơi / Chuyên Đề Mới</span>
             </label>
             <input
               type="text"
               value={gameTitle}
               onChange={(e) => setGameTitle(e.target.value)}
               className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:border-violet-600 focus:ring-2 focus:ring-violet-200 outline-none"
-              placeholder="VD: Đua xe F1 - Ôn tập Lượng giác Lớp 10..."
+              placeholder="VD: Kéo Thả Đơn Điệu & Cực Trị..."
             />
           </div>
 
@@ -489,16 +652,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
         {/* THANH CÔNG CỤ SOẠN & NHẬP DỮ LIỆU */}
         <div className="flex gap-2 p-3 sm:p-4 border-b border-slate-200 bg-white items-center flex-wrap">
-          <button 
-            type="button"
-            onClick={exportTemplate} 
-            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
-            title="Tải file Excel/CSV mẫu chuẩn để điền câu hỏi"
-          >
-            <FileDown className="w-4 h-4 text-slate-500" /> Tải CSV mẫu
-          </button>
-
-          {/* NÚT TẢI FILE MẪU WORD (.DOCX) - YÊU CẦU 3 */}
+          {/* NÚT TẢI FILE MẪU WORD (.DOCX) CHUẨN 2 CỘT */}
           <button
             type="button"
             onClick={async () => {
@@ -511,13 +665,13 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
               }
             }}
             className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border border-blue-200 shadow-2xs active:scale-95"
-            title="Tải file Word (.docx) mẫu chuẩn cấu trúc phân cấp: Chuyên đề -> Cấp độ -> Cặp ghép đôi"
+            title="Tải file Word (.docx) mẫu chuẩn 2 cột: Cột 1: Tên hộp/Phương trình, Cột 2: Các thuộc tính đúng"
           >
             <FileDown className="w-4 h-4 text-blue-600" />
             <span>📥 Tải File Word (.docx) Mẫu</span>
           </button>
 
-          {/* NÚT TẢI FILE MẪU EXCEL (.XLSX) - YÊU CẦU 3 */}
+          {/* NÚT TẢI FILE MẪU EXCEL (.XLSX) CHUẨN 2 CỘT */}
           <button
             type="button"
             onClick={async () => {
@@ -530,18 +684,19 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
               }
             }}
             className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border border-emerald-200 shadow-2xs active:scale-95"
-            title="Tải file Excel (.xlsx) mẫu chuẩn cấu trúc phân cấp: Chuyên đề, Cấp độ, Thẻ gốc, Thuộc tính 1-4"
+            title="Tải file Excel (.xlsx) mẫu chuẩn 2 cột: Cột 1: Tên hộp/Phương trình, Cột 2: Các thuộc tính đúng"
           >
             <FileDown className="w-4 h-4 text-emerald-600" />
             <span>📥 Tải File Excel (.xlsx) Mẫu</span>
           </button>
           
+          {/* NÚT NHẬP WORD / EXCEL */}
           <label className={`px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border shadow-2xs ${
             isParsingDoc 
               ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse' 
-              : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200'
+              : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200'
           }`}>
-            {isParsingDoc ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileUp className="w-4 h-4" />}
+            {isParsingDoc ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileUp className="w-4 h-4 text-indigo-600" />}
             <span>{isParsingDoc ? 'Đang bóc tách file...' : 'Nhập Word (.docx) / Excel (.xlsx)'}</span>
             <input 
               type="file" 
@@ -553,6 +708,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
             />
           </label>
 
+          {/* BẬT BÀN PHÍM CÔNG THỨC TOÁN HỌC ẢO */}
           <button
             onClick={() => setShowKeyboard(!showKeyboard)}
             className={`px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 border shadow-2xs cursor-pointer ${
@@ -565,154 +721,292 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
             <Calculator className="w-4 h-4" /> Bàn Phím Toán Ảo
           </button>
 
+          {/* DÁN ĐỀ BÀI NHANH */}
           <button 
             onClick={() => setShowPasteModal(true)} 
             className="px-3.5 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 border border-purple-200 cursor-pointer shadow-2xs"
-            title="Dán nhanh đề bài Word, văn bản thô theo dạng Câu 1. A. B. C. D."
+            title="Dán nhanh nội dung 2 cột hoặc văn bản để hệ thống tự động bóc tách"
           >
-            <FileText className="w-4 h-4" /> Dán đề bài nhanh (Parser)
+            <FileText className="w-4 h-4" /> Dán dữ liệu nhanh (Parser)
           </button>
 
-          <button 
-            onClick={handleShuffle} 
-            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer"
-            title="Trộn thứ tự câu hỏi chống học vẹt"
-          >
-            <Shuffle className="w-4 h-4" /> Xáo trộn
-          </button>
-
-          <button 
-            onClick={handleAddEmpty} 
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm shadow-emerald-200 ml-auto cursor-pointer"
-          >
-            <Plus className="w-4 h-4" /> + Thêm câu hỏi
-          </button>
+          {/* NÚT THÊM NỘI DUNG MỚI */}
+          {isDragDropMode ? (
+            <button 
+              onClick={handleAddCategory} 
+              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm shadow-cyan-200 ml-auto cursor-pointer"
+            >
+              <Plus className="w-4 h-4" /> + Thêm Hộp Phân Loại
+            </button>
+          ) : (
+            <>
+              <button 
+                onClick={handleShuffle} 
+                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer"
+                title="Trộn thứ tự câu hỏi chống học vẹt"
+              >
+                <Shuffle className="w-4 h-4" /> Xáo trộn
+              </button>
+              <button 
+                onClick={handleAddEmpty} 
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm shadow-emerald-200 ml-auto cursor-pointer"
+              >
+                <Plus className="w-4 h-4" /> + Thêm câu hỏi
+              </button>
+            </>
+          )}
         </div>
 
-        {/* DANH SÁCH CÂU HỎI */}
+        {/* THÂN BẢNG SOẠN THẢO */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-slate-50 space-y-4 custom-scrollbar">
-          {questions.length === 0 ? (
-            <div className="text-center py-16 text-slate-400 bg-white rounded-2xl border-2 border-dashed border-slate-200 p-8">
-              <Sparkles className="w-12 h-12 text-violet-300 mx-auto mb-3" />
-              <p className="font-bold text-base text-slate-600">Chưa có câu hỏi tùy chỉnh nào</p>
-              <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
-                Thầy có thể bấm <b>"Dán đề bài nhanh (Parser)"</b>, <b>"Nhập từ CSV"</b> hoặc <b>"+ Thêm câu hỏi"</b> để thiết kế bộ câu hỏi riêng cho chủ đề bài giảng!
-              </p>
-            </div>
-          ) : (
-            questions.map((q, index) => (
-              <div key={q.id || index} className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs relative group hover:border-violet-300 transition">
-                <button 
-                  onClick={() => handleRemove(q.id)} 
-                  className="absolute top-4 right-4 p-2 text-slate-300 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition cursor-pointer"
-                  title="Xóa câu hỏi này"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                
-                <div className="mb-3 pr-10 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-black text-xs px-2.5 py-1 rounded-lg bg-violet-100 text-violet-800">
-                      CÂU {index + 1}
-                    </span>
-                    <select
-                      value={q.difficulty}
-                      onChange={(e) => handleUpdate(q.id, 'difficulty', e.target.value)}
-                      className={`text-xs font-bold px-2 py-1 rounded-lg border outline-none cursor-pointer ${
-                        q.difficulty === 'Dễ' 
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                          : q.difficulty === 'Khó' 
-                          ? 'bg-rose-50 text-rose-700 border-rose-200' 
-                          : 'bg-amber-50 text-amber-700 border-amber-200'
-                      }`}
+          {/* CHẾ ĐỘ 1: KÉO THẢ PHÂN LOẠI THUỘC TÍNH (CATEGORY & ATTRIBUTES) */}
+          {isDragDropMode ? (
+            categories.length === 0 ? (
+              <div className="text-center py-16 text-slate-400 bg-white rounded-2xl border-2 border-dashed border-slate-200 p-8">
+                <Sparkles className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
+                <p className="font-bold text-base text-slate-700">Chưa có Hộp Phân Loại nào</p>
+                <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                  Thầy hãy bấm <b>"+ Thêm Hộp Phân Loại"</b>, <b>"Nhập Word / Excel"</b> hoặc <b>"Dán dữ liệu nhanh"</b> để tạo các cặp hộp phân loại và thuộc tính!
+                </p>
+              </div>
+            ) : (
+              categories.map((cat, cIdx) => (
+                <div key={cat.id || cIdx} className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm relative hover:border-cyan-400 transition-all">
+                  <div className="flex items-center justify-between mb-3 border-b pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-black text-xs px-2.5 py-1 rounded-lg bg-cyan-100 text-cyan-800 uppercase tracking-wide">
+                        HỘP {cIdx + 1}
+                      </span>
+                      <select
+                        value={cat.theme || 'blue'}
+                        onChange={(e) => handleUpdateCategoryTheme(cat.id, e.target.value)}
+                        className="text-xs font-bold px-2 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 outline-none cursor-pointer"
+                      >
+                        <option value="blue">🎨 Màu: Xanh Dương (Blue)</option>
+                        <option value="emerald">🎨 Màu: Xanh Ngọc (Emerald)</option>
+                        <option value="violet">🎨 Màu: Tím (Violet)</option>
+                        <option value="amber">🎨 Màu: Vàng Cam (Amber)</option>
+                        <option value="rose">🎨 Màu: Hồng Đỏ (Rose)</option>
+                        <option value="cyan">🎨 Màu: Lam Sáng (Cyan)</option>
+                      </select>
+                    </div>
+
+                    <button
+                      onClick={() => handleRemoveCategory(cat.id)}
+                      className="p-1.5 text-slate-300 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition cursor-pointer"
+                      title="Xóa hộp này"
                     >
-                      <option value="Dễ">Mức độ: Dễ</option>
-                      <option value="Trung bình">Mức độ: Trung bình</option>
-                      <option value="Khó">Mức độ: Khó</option>
-                    </select>
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <span className="text-[11px] text-slate-400 font-medium">
-                    (Click chọn hình tròn để đặt đáp án đúng)
-                  </span>
-                </div>
 
-                <div className="mb-3">
-                  <textarea
-                    value={q.question}
-                    onChange={(e) => handleUpdate(q.id, 'question', e.target.value)}
-                    onFocus={() => {
-                      setActiveTarget({ id: q.id, field: 'question', fieldName: `Đề bài Câu ${index + 1}` });
-                      setShowKeyboard(true);
-                    }}
-                    className="w-full p-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none min-h-[64px]"
-                    placeholder="Nhập nội dung câu hỏi (hỗ trợ công thức LaTeX: \sin x, \frac{a}{b}...)..."
-                  />
-                </div>
+                  {/* TÊN HỘP / PHƯƠNG TRÌNH */}
+                  <div className="mb-4">
+                    <label className="block text-xs font-black text-slate-700 mb-1">
+                      Tên Hộp / Phương Trình / Khái Niệm:
+                    </label>
+                    <input
+                      type="text"
+                      value={cat.title}
+                      onChange={(e) => handleUpdateCategoryTitle(cat.id, e.target.value)}
+                      onFocus={() => {
+                        setActiveTarget({
+                          id: cat.id,
+                          field: 'category_title',
+                          fieldName: `Hộp ${cIdx + 1}: Tên Hộp / Phương Trình`
+                        });
+                        setShowKeyboard(true);
+                      }}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:border-cyan-500 focus:bg-white outline-none font-mono"
+                      placeholder="VD: y = x^3 - 3x hoặc f(x) = ... (hỗ trợ TeX \frac, \sqrt)"
+                    />
+                    <MathLivePreview formula={cat.title} />
+                  </div>
 
-                {/* 4 LỰA CHỌN TRẮC NGHIỆM */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
-                  {q.options.map((opt, oIdx) => {
-                    const isCorrect = q.correctIndex === oIdx;
-                    return (
-                      <div 
-                        key={oIdx} 
-                        className={`flex items-center gap-2 p-1.5 rounded-xl border transition ${
-                          isCorrect ? 'border-emerald-400 bg-emerald-50/60' : 'border-slate-200 bg-white'
+                  {/* DANH SÁCH THUỘC TÍNH ĐÚNG */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-black text-slate-600 uppercase tracking-wide">
+                        Các Nhãn Thuộc Tính Đúng Thuộc Về Hộp Này ({cat.attributes.length}):
+                      </span>
+                      <button
+                        onClick={() => handleAddAttribute(cat.id)}
+                        className="text-xs font-bold text-cyan-600 hover:text-cyan-700 flex items-center gap-1 cursor-pointer bg-cyan-50 px-2 py-1 rounded-lg border border-cyan-200"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Thêm thuộc tính
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {cat.attributes.map((attr, aIdx) => (
+                        <div key={aIdx} className="flex flex-col bg-slate-50 p-2 rounded-xl border border-slate-200">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-200 shrink-0">
+                              #{aIdx + 1}
+                            </span>
+                            <input
+                              type="text"
+                              value={attr}
+                              onChange={(e) => handleUpdateAttribute(cat.id, aIdx, e.target.value)}
+                              onFocus={() => {
+                                setActiveTarget({
+                                  id: cat.id,
+                                  field: 'category_attribute',
+                                  attrIndex: aIdx,
+                                  fieldName: `Hộp ${cIdx + 1} - Thuộc tính #${aIdx + 1}`
+                                });
+                                setShowKeyboard(true);
+                              }}
+                              className="flex-1 p-1.5 text-xs text-slate-800 bg-white border border-slate-300 rounded-lg outline-none focus:border-cyan-500 font-medium"
+                              placeholder="Nhập nội dung thuộc tính đúng..."
+                            />
+                            <button
+                              onClick={() => handleRemoveAttribute(cat.id, aIdx)}
+                              className="text-slate-300 hover:text-rose-500 p-1 rounded hover:bg-white transition"
+                              title="Xóa thuộc tính này"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                          <MathLivePreview formula={attr} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )
+          ) : (
+            /* CHẾ ĐỘ 2: TRẮC NGHIỆM TIÊU CHUẨN (A, B, C, D CHO CÁC GAME KHÁC) */
+            questions.length === 0 ? (
+              <div className="text-center py-16 text-slate-400 bg-white rounded-2xl border-2 border-dashed border-slate-200 p-8">
+                <Sparkles className="w-12 h-12 text-violet-300 mx-auto mb-3" />
+                <p className="font-bold text-base text-slate-600">Chưa có câu hỏi tùy chỉnh nào</p>
+                <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                  Thầy có thể bấm <b>"Dán dữ liệu nhanh"</b>, <b>"Nhập Word / Excel"</b> hoặc <b>"+ Thêm câu hỏi"</b> để thiết kế bộ câu hỏi riêng!
+                </p>
+              </div>
+            ) : (
+              questions.map((q, index) => (
+                <div key={q.id || index} className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs relative group hover:border-violet-300 transition">
+                  <button 
+                    onClick={() => handleRemove(q.id)} 
+                    className="absolute top-4 right-4 p-2 text-slate-300 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition cursor-pointer"
+                    title="Xóa câu hỏi này"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  
+                  <div className="mb-3 pr-10 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-black text-xs px-2.5 py-1 rounded-lg bg-violet-100 text-violet-800">
+                        CÂU {index + 1}
+                      </span>
+                      <select
+                        value={q.difficulty}
+                        onChange={(e) => handleUpdate(q.id, 'difficulty', e.target.value)}
+                        className={`text-xs font-bold px-2 py-1 rounded-lg border outline-none cursor-pointer ${
+                          q.difficulty === 'Dễ' 
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                            : q.difficulty === 'Khó' 
+                            ? 'bg-rose-50 text-rose-700 border-rose-200' 
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
                         }`}
                       >
-                        <label className="flex items-center gap-1.5 cursor-pointer pl-1">
-                          <input
-                            type="radio"
-                            name={`correct_${q.id}`}
-                            checked={isCorrect}
-                            onChange={() => handleUpdate(q.id, 'correctIndex', oIdx)}
-                            className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                          />
-                          <span className={`text-xs font-black w-4 text-center ${isCorrect ? 'text-emerald-700' : 'text-slate-500'}`}>
-                            {String.fromCharCode(65 + oIdx)}.
-                          </span>
-                        </label>
-                        <input
-                          type="text"
-                          value={opt}
-                          onChange={(e) => handleUpdateOption(q.id, oIdx, e.target.value)}
-                          onFocus={() => {
-                            setActiveTarget({ id: q.id, field: 'option', optIndex: oIdx, fieldName: `Câu ${index + 1} - Đáp án ${String.fromCharCode(65 + oIdx)}` });
-                            setShowKeyboard(true);
-                          }}
-                          className={`flex-1 p-2 rounded-lg text-xs font-medium outline-none bg-transparent ${
-                            isCorrect ? 'text-emerald-900 font-bold' : 'text-slate-800'
-                          }`}
-                          placeholder={`Lựa chọn ${String.fromCharCode(65 + oIdx)}...`}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+                        <option value="Dễ">Mức độ: Dễ</option>
+                        <option value="Trung bình">Mức độ: Trung bình</option>
+                        <option value="Khó">Mức độ: Khó</option>
+                      </select>
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      (Click chọn hình tròn để đặt đáp án đúng)
+                    </span>
+                  </div>
 
-                {/* GIẢI THÍCH CHI TIẾT */}
-                <div>
-                  <input
-                    type="text"
-                    value={q.explanation || ''}
-                    onChange={(e) => handleUpdate(q.id, 'explanation', e.target.value)}
-                    onFocus={() => {
-                      setActiveTarget({ id: q.id, field: 'explanation', fieldName: `Câu ${index + 1} - Lời giải chi tiết` });
-                      setShowKeyboard(true);
-                    }}
-                    className="w-full p-2 border border-slate-200 rounded-xl text-xs text-slate-600 focus:border-violet-400 outline-none"
-                    placeholder="Lời giải / giải thích chi tiết (tùy chọn)..."
-                  />
+                  <div className="mb-3">
+                    <textarea
+                      value={q.question}
+                      onChange={(e) => handleUpdate(q.id, 'question', e.target.value)}
+                      onFocus={() => {
+                        setActiveTarget({ id: q.id, field: 'question', fieldName: `Đề bài Câu ${index + 1}` });
+                        setShowKeyboard(true);
+                      }}
+                      className="w-full p-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none min-h-[64px]"
+                      placeholder="Nhập nội dung câu hỏi (hỗ trợ công thức LaTeX: \sin x, \frac{a}{b}...)..."
+                    />
+                    <MathLivePreview formula={q.question} />
+                  </div>
+
+                  {/* 4 PHƯƠNG ÁN LỰA CHỌN */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
+                    {q.options.map((opt, oIdx) => {
+                      const isCorrect = q.correctIndex === oIdx;
+                      return (
+                        <div 
+                          key={oIdx} 
+                          className={`flex items-center gap-2 p-2 rounded-xl border transition ${
+                            isCorrect 
+                              ? 'bg-emerald-50/70 border-emerald-400 ring-2 ring-emerald-100' 
+                              : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleUpdate(q.id, 'correctIndex', oIdx)}
+                            className={`w-6 h-6 rounded-full flex items-center justify-center font-black text-xs transition cursor-pointer shrink-0 ${
+                              isCorrect 
+                                ? 'bg-emerald-600 text-white shadow-sm' 
+                                : 'bg-white border-2 border-slate-300 text-slate-400 hover:border-emerald-400'
+                            }`}
+                          >
+                            {String.fromCharCode(65 + oIdx)}
+                          </button>
+                          <input
+                            type="text"
+                            value={opt}
+                            onChange={(e) => handleUpdateOption(q.id, oIdx, e.target.value)}
+                            onFocus={() => {
+                              setActiveTarget({ id: q.id, field: 'option', optIndex: oIdx, fieldName: `Câu ${index + 1} - Đáp án ${String.fromCharCode(65 + oIdx)}` });
+                              setShowKeyboard(true);
+                            }}
+                            className={`flex-1 p-2 rounded-lg text-xs font-medium outline-none bg-transparent ${
+                              isCorrect ? 'text-emerald-900 font-bold' : 'text-slate-800'
+                            }`}
+                            placeholder={`Lựa chọn ${String.fromCharCode(65 + oIdx)}...`}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* GIẢI THÍCH CHI TIẾT */}
+                  <div>
+                    <input
+                      type="text"
+                      value={q.explanation || ''}
+                      onChange={(e) => handleUpdate(q.id, 'explanation', e.target.value)}
+                      onFocus={() => {
+                        setActiveTarget({ id: q.id, field: 'explanation', fieldName: `Câu ${index + 1} - Lời giải chi tiết` });
+                        setShowKeyboard(true);
+                      }}
+                      className="w-full p-2 border border-slate-200 rounded-xl text-xs text-slate-600 focus:border-violet-400 outline-none"
+                      placeholder="Lời giải / giải thích chi tiết (tùy chọn)..."
+                    />
+                  </div>
                 </div>
-              </div>
-            ))
+              ))
+            )
           )}
         </div>
 
         {/* FOOTER ĐIỀU KHIỂN & 2 NÚT HÀNH ĐỘNG 1 BẤM */}
         <div className="p-4 sm:p-5 border-t border-slate-200 bg-white flex flex-col sm:flex-row justify-between items-center gap-3">
           <div className="text-xs text-slate-500 font-bold">
-            Tổng cộng: <span className="text-violet-700 text-sm">{questions.length}</span> câu hỏi đã cấu hình
+            {isDragDropMode ? (
+              <>Tổng cộng: <span className="text-cyan-700 text-sm font-black">{categories.length}</span> hộp phân loại ({categories.reduce((acc, c) => acc + c.attributes.length, 0)} thuộc tính)</>
+            ) : (
+              <>Tổng cộng: <span className="text-violet-700 text-sm font-black">{questions.length}</span> câu hỏi đã cấu hình</>
+            )}
           </div>
           
           <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-end">
@@ -762,10 +1056,12 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
               <div>
                 <h4 className="text-base sm:text-lg font-black text-slate-800 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-violet-600" />
-                  <span>Dán Đề Bài Văn Bản Thô (Smart Parser)</span>
+                  <span>{isDragDropMode ? 'Dán Dữ Liệu 2 Cột Kéo Thả (Smart Parser)' : 'Dán Đề Bài Văn Bản Thô (Smart Parser)'}</span>
                 </h4>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Tự động nhận diện câu hỏi trắc nghiệm từ file Word, văn bản hoặc tài liệu có sẵn.
+                  {isDragDropMode 
+                    ? 'Tự động nhận diện Hộp Phân Loại và Thuộc Tính từ dữ liệu 2 cột hoặc dấu chấm phẩy ;'
+                    : 'Tự động nhận diện câu hỏi trắc nghiệm từ file Word, văn bản hoặc tài liệu có sẵn.'}
                 </p>
               </div>
               <button 
@@ -778,19 +1074,25 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
             <div className="mb-3 text-[11px] text-slate-500 bg-violet-50 p-3 rounded-xl border border-violet-100">
               💡 <b>Mẫu định dạng hỗ trợ:</b><br />
-              <code className="text-violet-800 font-mono">
-                Câu 1. Tìm khẳng định đúng?<br />
-                A. *cos80 &gt; 0 &nbsp;&nbsp; B. cos80 &lt; 0 &nbsp;&nbsp; C. tan80 &lt; 0 &nbsp;&nbsp; D. cot80 &lt; 0<br />
-                Lời giải: Chọn A...
-              </code>
-              <br /><span className="text-slate-400 font-italic">(Dấu * đứng trước phương án sẽ được nhận diện là đáp án đúng)</span>
+              {isDragDropMode ? (
+                <code className="text-violet-800 font-mono">
+                  y = x^3 - 3x ; Đạt cực đại tại x = -1 ; Đạt cực tiểu tại x = 1 ; Đồng biến trên (1; +\infty)<br />
+                  y = x^4 - 2x^2 ; Có 3 điểm cực trị ; Đạt cực đại tại x = 0
+                </code>
+              ) : (
+                <code className="text-violet-800 font-mono">
+                  Câu 1. Tìm khẳng định đúng?<br />
+                  A. *cos80 &gt; 0 &nbsp;&nbsp; B. cos80 &lt; 0 &nbsp;&nbsp; C. tan80 &lt; 0 &nbsp;&nbsp; D. cot80 &lt; 0<br />
+                  Lời giải: Chọn A...
+                </code>
+              )}
             </div>
 
             <textarea
               rows={10}
               value={rawTextToParse}
               onChange={(e) => setRawTextToParse(e.target.value)}
-              placeholder="Dán nội dung câu hỏi từ Word / Text vào đây..."
+              placeholder={isDragDropMode ? "Dán dữ liệu 2 cột (Tên hộp ; Các thuộc tính)..." : "Dán nội dung câu hỏi từ Word / Text vào đây..."}
               className="w-full p-3 border border-slate-300 rounded-xl text-xs font-mono focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none mb-4"
             />
 
@@ -805,7 +1107,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                 onClick={handleParseRawText}
                 className="px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5"
               >
-                <CheckCircle2 className="w-4 h-4" /> Phân Tích & Nạp Vào Game
+                <CheckCircle2 className="w-4 h-4" /> Phân Tích & Nạp Vào Bảng
               </button>
             </div>
           </div>

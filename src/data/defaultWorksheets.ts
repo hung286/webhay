@@ -36047,3 +36047,5 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
     createdAt: new Date().toISOString()
   },
 ];
+
+export { DEFAULT_KEO_THA_DATABASE } from './defaultKeoThaDatabase';
