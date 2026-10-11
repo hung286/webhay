@@ -105,11 +105,21 @@ export const ToolsTab: React.FC = () => {
   };
 
   
-  const handleSaveGameQuestions = (toolId: string, questions: Question[]) => {
-    const updatedTools = tools.map(t => t.id === toolId ? { ...t, customQuestions: questions } : t);
+  const handleSaveGameQuestions = (toolId: string, questions: Question[], newToolName?: string) => {
+    const updatedTools = tools.map(t => t.id === toolId ? {
+      ...t,
+      name: newToolName || t.name,
+      customQuestions: questions
+    } : t);
     setTools(updatedTools);
     saveTeachingTools(updatedTools);
     setEditingGameQuestions(null);
+  };
+
+  const handleDuplicateAsNewGame = (newTool: TeachingTool) => {
+    const updatedTools = [newTool, ...tools];
+    setTools(updatedTools);
+    saveTeachingTools(updatedTools);
   };
 
   const handleSave = () => {
@@ -287,7 +297,29 @@ export const ToolsTab: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+          <button
+            onClick={() => {
+              const defaultTemplateGame = tools.find(t => t.category === 'tro-choi') || {
+                id: 'tool_custom_' + Date.now(),
+                name: 'Đua xe F1 - Chủ đề mới',
+                type: 'iframe' as ToolType,
+                category: 'tro-choi' as ToolCategory,
+                url: '/game-dua-xe-F1-on-tap-HK2-toan10.html',
+                description: 'Trò chơi học tập tùy chỉnh câu hỏi',
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                customQuestions: []
+              };
+              setEditingGameQuestions(defaultTemplateGame);
+              soundFx.playClick();
+            }}
+            className="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-md shadow-emerald-200 transition cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+            ⚡ Tạo Game Tự Động (1 Nút Bấm)
+          </button>
+
           <button
             onClick={handleOpenAddGame}
             className="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-md shadow-violet-200 transition"
@@ -535,10 +567,11 @@ export const ToolsTab: React.FC = () => {
                   {tool.category === 'tro-choi' && (
                     <button
                       onClick={() => { setEditingGameQuestions(tool); soundFx.playClick(); }}
-                      className="text-xs font-black text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition shadow-2xs mt-2"
+                      className="text-xs font-black text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-300 px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition shadow-2xs mt-2 cursor-pointer"
+                      title="Mở Studio tạo câu hỏi và xuất file HTML trò chơi"
                     >
-                      <Sparkles className="w-3 h-3 text-indigo-500" />
-                      <span>Questions</span>
+                      <Sparkles className="w-3 h-3 text-violet-500 animate-pulse" />
+                      <span>⚡ Tạo Đề & Xuất Game (1 Nút Bấm)</span>
                     </button>
                   )}
               </div>
@@ -725,6 +758,7 @@ export const ToolsTab: React.FC = () => {
           tool={editingGameQuestions}
           onClose={() => setEditingGameQuestions(null)}
           onSave={handleSaveGameQuestions}
+          onDuplicateAsNewGame={handleDuplicateAsNewGame}
         />
       )}
 
