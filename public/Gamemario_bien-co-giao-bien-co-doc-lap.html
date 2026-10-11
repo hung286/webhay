@@ -555,7 +555,7 @@
         let selectedBankIndex = availableBanks[Math.floor(Math.random() * availableBanks.length)];
         localStorage.setItem('mario_lastBankIndex_t11', selectedBankIndex);
 
-        const questions = questionBanks[selectedBankIndex].sort(() => Math.random() - 0.5);
+        var questions = questionBanks[selectedBankIndex].sort(() => Math.random() - 0.5);
         let currentQuestionIndex = 0;
         let score = 0;
         let lastQuestionAttempts = 0; 
@@ -857,5 +857,6 @@
 
         document.fonts.ready.then(() => { requestAnimationFrame(loop); });
     </script>
+<script src="/game-engine.js"></script>
 </body>
 </html>

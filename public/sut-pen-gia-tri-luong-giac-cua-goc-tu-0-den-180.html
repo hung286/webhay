@@ -215,7 +215,371 @@
         <button class="play-btn" onclick="showStartScreen()">LÀM LẠI</button>
     </div>
 
-    <script>
+    
+<script>
+// [GIAI ĐOẠN 2: CHUẨN HÓA DỮ LIỆU]
+window.quizData = [
+    {
+        "id": "q1_0",
+        "type": "mc",
+        "q": "Tìm khẳng định đúng trong các khẳng định sau.",
+        "options": [
+            "cos80∘>0.",
+            "cos80∘<0.",
+            "tan80∘<0.",
+            "cot80∘<0."
+        ],
+        "correct": 0,
+        "explanation": "Chọn A",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_1",
+        "type": "mc",
+        "q": "Tính tan120∘.",
+        "options": [
+            "−12.",
+            "−33.",
+            "−3.",
+            "32."
+        ],
+        "correct": 2,
+        "explanation": "Chọn C",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_2",
+        "type": "mc",
+        "q": "Biết cosα=22. Tìm góc α.",
+        "options": [
+            "α=55∘.",
+            "α=54∘.",
+            "α=45∘.",
+            "α=38∘."
+        ],
+        "correct": 2,
+        "explanation": "Chọn C",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_3",
+        "type": "mc",
+        "q": "Khẳng định nào sau đây là khẳng định đúng?",
+        "options": [
+            "sin180∘=1.",
+            "sin90∘=1.",
+            "cos120∘=22.",
+            "tan15∘=33."
+        ],
+        "correct": 1,
+        "explanation": "Chọn B sin90∘=1 là khẳng định đúng.",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_4",
+        "type": "mc",
+        "q": "Biết rằng α,β là hai góc bù nhau. Trong các khẳng định sau, khẳng định nào là khẳng định sai (giả thiết rằng các biểu thức đều có nghĩa)?",
+        "options": [
+            "tanα=−tanβ.",
+            "cotα=−cotβ.",
+            "tanα=sinβ.",
+            "sin2α+sin2β=2sin2α."
+        ],
+        "correct": 2,
+        "explanation": "Chọn C tanα=sinβ là khẳng định sai.",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_5",
+        "type": "mc",
+        "q": "Biết rằng γ,β là hai góc phụ nhau. Trong các khẳng định sau, khẳng định nào là khẳng định sai (giả thiết rằng các biểu thức đều có nghĩa)?",
+        "options": [
+            "cosγ⋅cosβ=sinγcosγ.",
+            "cosγ=−sinβ.",
+            "cosγ=sinβ.",
+            "sinγ=cosβ."
+        ],
+        "correct": 1,
+        "explanation": "Chọn B cosγ=−sinβ là khẳng định sai.",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_6",
+        "type": "mc",
+        "q": "Tìm mệnh đề đúng trong các mệnh đề sau",
+        "options": [
+            "sin90∘−x=sinx.",
+            "sin2x−cos2x=1.",
+            "sin20∘−x=cosx.",
+            "cot180∘−x=−cotx,0∘<x<180∘."
+        ],
+        "correct": 3,
+        "explanation": "Chọn D cot180∘−x=−cotx,0∘<x<180∘ là khẳng định đúng.",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_7",
+        "type": "mc",
+        "q": "Cho sinα=35 và 90∘<α<180∘, giá trị cosα là:",
+        "options": [
+            "−65.",
+            "−15.",
+            "−1.",
+            "−45."
+        ],
+        "correct": 3,
+        "explanation": "Chọn D Ta có sin2α+cos2α=1 và 90∘<α<180∘ nên cosα=−45",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_8",
+        "type": "mc",
+        "q": "Cho sinα=35 và 0<α<90∘, giá trị tanα là:",
+        "options": [
+            "2710.",
+            "235.",
+            "8110.",
+            "34."
+        ],
+        "correct": 3,
+        "explanation": "Chọn D Ta có sin2α+cos2α=1 và 0<α<90∘ nên cosα=45 suy ra tanα=34",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_9",
+        "type": "mc",
+        "q": "Cho cosα=2029 và 0<α<90∘, giá trị sinα là:",
+        "options": [
+            "2129.",
+            "4910.",
+            "445.",
+            "7310."
+        ],
+        "correct": 0,
+        "explanation": "Chọn A Ta có sin2α+cos2α=1 và 0<α<180∘ nên sinα=2129",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_10",
+        "type": "mc",
+        "q": "Cho cosα=35 và 0<α<90∘, giá trị tanα là:",
+        "options": [
+            "43.",
+            "6.",
+            "2110.",
+            "325."
+        ],
+        "correct": 0,
+        "explanation": "Chọn A Ta có sin2α+cos2α=1 và 0<α<90∘ nên sinα=45 suy ra tanα=43",
+        "difficulty": 1
+    },
+    {
+        "id": "q1_11",
+        "type": "mc",
+        "q": "Cho tanα=4, giá trị của biểu thức A=−3sinα−2cosαsinα−7cosα",
+        "options": [
+            "173.",
+            "83.",
+            "203.",
+            "143."
+        ],
+        "correct": 3,
+        "explanation": "Chọn D A=−3tanα−2−tanα−7=143",
+        "difficulty": 1
+    },
+    {
+        "id": "q2_0",
+        "type": "tf",
+        "q": "Cho góc x thỏa mãn cosx=23. Xét tính đúng-sai của các khẳng định sau:",
+        "statements": [
+            {
+                "text": "sinx>0.",
+                "isTrue": true
+            },
+            {
+                "text": "sinx=133.",
+                "isTrue": false
+            },
+            {
+                "text": "sin180∘−x=53.",
+                "isTrue": true
+            },
+            {
+                "text": "cot90∘−x=52.",
+                "isTrue": true
+            }
+        ],
+        "explanation": "a-đúng, b-sai, c-đúng, d-đúng.",
+        "difficulty": 2
+    },
+    {
+        "id": "q2_1",
+        "type": "tf",
+        "q": "Cho góc a0∘<a<90∘ thỏa mãn sina=16. Xét tính đúng-sai của các khẳng định sau:",
+        "statements": [
+            {
+                "text": "cosa<0.",
+                "isTrue": false
+            },
+            {
+                "text": "cosa=356.",
+                "isTrue": true
+            },
+            {
+                "text": "cos180∘−a=356.",
+                "isTrue": false
+            },
+            {
+                "text": "tan90∘−a=35.",
+                "isTrue": true
+            }
+        ],
+        "explanation": "a-sai, b-đúng, c-sai, d-đúng.",
+        "difficulty": 2
+    },
+    {
+        "id": "q2_2",
+        "type": "tf",
+        "q": "Cho góc x0∘<x<90∘ thỏa mãn sinx=18 . Xét tính đúng-sai của các khẳng định sau:",
+        "statements": [
+            {
+                "text": "cosx=378.",
+                "isTrue": true
+            },
+            {
+                "text": "tanx=−721.",
+                "isTrue": false
+            },
+            {
+                "text": "cotx=−37.",
+                "isTrue": false
+            },
+            {
+                "text": "tan90∘−x=−37.",
+                "isTrue": false
+            }
+        ],
+        "explanation": "a-đúng, b-sai, c-sai, d-sai.",
+        "difficulty": 2
+    },
+    {
+        "id": "q2_3",
+        "type": "tf",
+        "q": "Cho góc β90∘<β<180∘ thỏa mãn sinβ=34 . Xét tính đúng-sai của các khẳng định sau:",
+        "statements": [
+            {
+                "text": "cosβ=74.",
+                "isTrue": false
+            },
+            {
+                "text": "tanβ=−377.",
+                "isTrue": true
+            },
+            {
+                "text": "cotβ=73.",
+                "isTrue": false
+            },
+            {
+                "text": "tan90∘−β=73.",
+                "isTrue": false
+            }
+        ],
+        "explanation": "a-sai, b-đúng, c-sai, d-sai.",
+        "difficulty": 2
+    },
+    {
+        "id": "q2_4",
+        "type": "tf",
+        "q": "Cho góc α0∘<α<90∘ thỏa mãn sinα=16 . Xét tính đúng-sai của các khẳng định sau:",
+        "statements": [
+            {
+                "text": "cosα=−356.",
+                "isTrue": false
+            },
+            {
+                "text": "tanα=−3535.",
+                "isTrue": false
+            },
+            {
+                "text": "cotα=−35.",
+                "isTrue": false
+            },
+            {
+                "text": "sin180∘−α=−16.",
+                "isTrue": false
+            }
+        ],
+        "explanation": "a-sai, b-sai, c-sai, d-sai.",
+        "difficulty": 2
+    },
+    {
+        "id": "q2_5",
+        "type": "tf",
+        "q": "Cho góc x90∘<x<180∘ thỏa mãn sinx=34 . Xét tính đúng-sai của các khẳng định sau:",
+        "statements": [
+            {
+                "text": "cosx=−74.",
+                "isTrue": true
+            },
+            {
+                "text": "tanx=377.",
+                "isTrue": false
+            },
+            {
+                "text": "cotx=−73.",
+                "isTrue": true
+            },
+            {
+                "text": "cot180∘−x=73.",
+                "isTrue": true
+            }
+        ],
+        "explanation": "a-đúng, b-sai, c-đúng, d-đúng.",
+        "difficulty": 2
+    },
+    {
+        "id": "q3_0",
+        "type": "short",
+        "q": "Cho góc x là góc tù và thỏa mãn sinx=45. Tính giá trị biểu thức P=−cosx+3sinx (kết quả làm tròn đến hàng phần mười)",
+        "correctAnswer": "3,0",
+        "explanation": "cosx=−1−1625=−35. −cosx+3sinx=3,0.",
+        "difficulty": 3
+    },
+    {
+        "id": "q3_1",
+        "type": "short",
+        "q": "Cho góc α thỏa mãn tanα=−5. Tính giá trị biểu thức P=−3cosα−sinα5cosα+3sinα (kết quả làm tròn đến hàng phần mười).",
+        "correctAnswer": "-0,2",
+        "explanation": "",
+        "difficulty": 3
+    },
+    {
+        "id": "q3_2",
+        "type": "short",
+        "q": "Cho góc α thỏa mãn cotα=14. Tính giá trị biểu thức P=3cosα−4sinα2cosα+sinα (kết quả làm tròn đến hàng phần mười).",
+        "correctAnswer": "-2,2",
+        "explanation": "",
+        "difficulty": 3
+    },
+    {
+        "id": "q3_3",
+        "type": "short",
+        "q": "Cho góc x thỏa mãn cosx=25. Tính giá trị biểu thức P=−2cotx−2tanx4cotx+2tanx (kết quả làm tròn đến hàng phần mười).",
+        "correctAnswer": "-0,9",
+        "explanation": "",
+        "difficulty": 3
+    },
+    {
+        "id": "q3_4",
+        "type": "short",
+        "q": "Cho góc a thỏa mãn sina=267. Tính giá trị biểu thức P=3cota+tana3cota−5tana (kết quả làm tròn đến hàng phần mười).",
+        "correctAnswer": "-2,2",
+        "explanation": "",
+        "difficulty": 3
+    }
+];
+</script>
+<script>
         /* CẤU HÌNH NHÂN VẬT TỪ UI */
         const playerSettings = {
             teamName: "TOÁN PRO",
@@ -1031,5 +1395,187 @@
 
         window.onload = () => { resizeCanvas(); requestAnimationFrame(gameLoop); };
     </script>
+<script src="/game-engine.js"></script>
+
+<!-- BỘ SỬA CÂU HỎI TRỰC TIẾP (IN-GAME EDITOR UI) -->
+<button id="admin-gear-btn" onclick="toggleAdminModal()" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #1f2937; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">⚙️</button>
+
+<div id="admin-editor-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; overflow-y: auto; padding: 20px; font-family: sans-serif;">
+    <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 8px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #1f2937; font-size: 24px;">⚙️ Quản Trị Câu Hỏi (In-game Editor)</h2>
+            <button onclick="toggleAdminModal()" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">Đóng</button>
+        </div>
+        
+        <div id="editor-questions-container" style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Questions will be rendered here via JS -->
+        </div>
+        
+        <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; display: flex; gap: 10px;">
+            <button id="btn-save-questions" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px;">💾 Lưu Thay Đổi</button>
+            <button id="btn-export-html" style="background: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px;">📦 Xuất File HTML Mới</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleAdminModal() {
+        const modal = document.getElementById('admin-editor-modal');
+        if (modal.style.display === 'none') {
+            modal.style.display = 'block';
+            renderAdminEditor();
+        } else {
+            modal.style.display = 'none';
+        }
+    }
+
+    function renderAdminEditor() {
+        const container = document.getElementById('editor-questions-container');
+        container.innerHTML = '';
+        
+        if (!window.quizData || window.quizData.length === 0) {
+            container.innerHTML = '<p style="color: #666;">Chưa có dữ liệu câu hỏi.</p>';
+            return;
+        }
+
+        window.quizData.forEach((q, index) => {
+            const qDiv = document.createElement('div');
+            qDiv.style.cssText = 'border: 1px solid #ccc; padding: 15px; border-radius: 6px; background: #f9fafb;';
+            
+            let html = <div style="font-weight: bold; margin-bottom: 10px; color: #374151;">Câu  (Độ khó: )</div>;
+            html += <textarea style="width: 100%; min-height: 60px; margin-bottom: 10px; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-family: inherit;" onchange="updateQ(, 'q', this.value)"></textarea>;
+            
+            if (q.type === 'mc') {
+                q.options.forEach((opt, oIdx) => {
+                    const isCorrect = q.correct === oIdx;
+                    html += <div style="display: flex; gap: 10px; margin-bottom: 5px; align-items: center;">
+                        <input type="radio" name="correct_"  onchange="updateQ(, 'correct', )">
+                        <input type="text" style="flex: 1; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px;" value="" onchange="updateQ(, 'option', this.value, )">
+                    </div>;
+                });
+            } else if (q.type === 'tf') {
+                q.statements.forEach((stmt, sIdx) => {
+                    html += <div style="display: flex; gap: 10px; margin-bottom: 5px; align-items: center;">
+                        <select onchange="updateQ(, 'tf', this.value === 'true', )" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="true" >Đúng</option>
+                            <option value="false" >Sai</option>
+                        </select>
+                        <input type="text" style="flex: 1; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px;" value="" onchange="updateQ(, 'stmt', this.value, )">
+                    </div>;
+                });
+            } else if (q.type === 'short') {
+                html += <div style="display: flex; gap: 10px; margin-bottom: 5px; align-items: center;">
+                    <span style="font-weight: bold;">Đáp án đúng:</span>
+                    <input type="text" style="flex: 1; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px;" value="" onchange="updateQ(, 'short', this.value)">
+                </div>;
+            }
+
+            html += <div style="margin-top: 10px;"><input type="text" style="width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px;" placeholder="Giải thích (nếu có)" value="" onchange="updateQ(, 'explanation', this.value)"></div>;
+            
+            qDiv.innerHTML = html;
+            container.appendChild(qDiv);
+        });
+    }
+
+    function updateQ(qIndex, field, value, subIndex = null) {
+        if (!window.quizData || !window.quizData[qIndex]) return;
+        const q = window.quizData[qIndex];
+        
+        if (field === 'q') q.q = value;
+        else if (field === 'correct') q.correct = value;
+        else if (field === 'option') q.options[subIndex] = value;
+        else if (field === 'tf') q.statements[subIndex].isTrue = value;
+        else if (field === 'stmt') q.statements[subIndex].text = value;
+        else if (field === 'short') q.correctAnswer = value;
+        else if (field === 'explanation') q.explanation = value;
+    }
+    
+    
+    document.getElementById('btn-save-questions').addEventListener('click', () => {
+        // Lưu vào LocalStorage
+        localStorage.setItem('sut_pen_quiz_data', JSON.stringify(window.quizData));
+        
+        // Cập nhật vào logic Game thật
+        // Game Sút Pen lưu câu hỏi trong mảng 'levels'
+        if (typeof levels !== 'undefined') {
+            // Lọc theo độ khó
+            const d1 = window.quizData.filter(q => q.difficulty === 1);
+            const d2 = window.quizData.filter(q => q.difficulty === 2);
+            const d3 = window.quizData.filter(q => q.difficulty === 3);
+            
+            if (levels.length >= 1 && d1.length > 0) levels[0].questions = d1;
+            if (levels.length >= 2 && d2.length > 0) levels[1].questions = d2;
+            if (levels.length >= 3 && d3.length > 0) levels[2].questions = d3;
+        }
+        
+        alert('Đã lưu thành công! Dữ liệu đã được áp dụng vào trò chơi hiện tại.');
+        toggleAdminModal();
+    });
+
+    document.getElementById('btn-export-html').addEventListener('click', () => {
+        // 1. Tạo bản sao của HTML hiện tại
+        const htmlCopy = document.documentElement.outerHTML;
+        
+        // 2. Thay thế mảng window.quizData cũ bằng dữ liệu mới nhất
+        const newDataStr = JSON.stringify(window.quizData, null, 2);
+        
+        // Dùng Regex hoặc replace thủ công đoạn script Giai đoạn 2
+        const startMarker = "// [GIAI ĐOẠN 2: CHUẨN HÓA DỮ LIỆU]\nwindow.quizData = ";
+        const endMarker = "\n</script>";
+        
+        let newHtml = "<!DOCTYPE html>\n<html lang=\"vi\">\n" + htmlCopy + "\n</html>";
+        
+        // Tìm và thay thế chính xác khối dữ liệu
+        // Tuy nhiên cách đơn giản và an toàn nhất với HTML tĩnh là replace thẳng
+        const regex = /\/\/ \[GIAI ĐOẠN 2: CHUẨN HÓA DỮ LIỆU\]\nwindow\.quizData = [\s\S]*?\n<\/script>/;
+        newHtml = newHtml.replace(regex, "// [GIAI ĐOẠN 2: CHUẨN HÓA DỮ LIỆU]\nwindow.quizData = " + newDataStr + ";\n</script>");
+
+        // 3. Tạo file tải xuống
+        const blob = new Blob([newHtml], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sut-pen-custom-' + new Date().getTime() + '.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert('Đã tải xuống file HTML mới. Thầy có thể kéo thả file này đè lên Vercel để cập nhật vĩnh viễn!');
+    });
+
+    // Khởi chạy: Nếu có data trong LocalStorage thì đè lên lúc load
+    window.addEventListener('DOMContentLoaded', () => {
+        const saved = localStorage.getItem('sut_pen_quiz_data');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed && parsed.length > 0) {
+                    window.quizData = parsed;
+                    // Apply ngay
+                    if (typeof levels !== 'undefined') {
+                        const d1 = window.quizData.filter(q => q.difficulty === 1);
+                        const d2 = window.quizData.filter(q => q.difficulty === 2);
+                        const d3 = window.quizData.filter(q => q.difficulty === 3);
+                        if (levels.length >= 1 && d1.length > 0) levels[0].questions = d1;
+                        if (levels.length >= 2 && d2.length > 0) levels[1].questions = d2;
+                        if (levels.length >= 3 && d3.length > 0) levels[2].questions = d3;
+                    }
+                }
+            } catch (e) {
+                console.error('Invalid local storage data', e);
+            }
+        }
+    });
+
+    // Support external React wrapper invoking it
+    window.addEventListener('message', (e) => {
+        if (e.data && e.data.action === 'openAdminModal') {
+            toggleAdminModal();
+        }
+    });
+</script>
+<!-- KẾT THÚC BỘ SỬA -->
+
 </body>
 </html>

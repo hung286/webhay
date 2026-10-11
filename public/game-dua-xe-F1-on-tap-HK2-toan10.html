@@ -8,6 +8,49 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <!-- Thêm thư viện MathJax để hiển thị công thức toán học -->
     <script>
+// [GIAI ĐOẠN 1: BỘ CHUYỂN ĐỔI DỮ LIỆU THÔNG MINH (ADAPTER ENGINE)]
+window.quizData = [];
+const _legacyData = [
+            { type: "ABCD", q: "Tập xác định của hàm số $y = \\sqrt{x^2 - 4x + 3}$ là:", o: ["$(1;3)$", "$(-\\infty; 1] \\cup [3; +\\infty)$", "$[1; 3]$", "$\\mathbb{R} \\setminus \\{1; 3\\}$"], c: 1 },
+            { type: "ABCD", q: "Tọa độ đỉnh của Parabol $(P): y = x^2 - 4x + 5$ là:", o: ["$I(2; 1)$", "$I(-2; 17)$", "$I(2; 5)$", "$I(4; 5)$"], c: 0 },
+            { type: "ABCD", q: "Vectơ pháp tuyến của đường thẳng $d$ đi qua hai điểm $A(1; 2)$ và $B(3; -2)$ là:", o: ["$\\vec{n} = (2; 1)$", "$\\vec{n} = (1; 2)$", "$\\vec{n} = (2; -4)$", "$\\vec{n} = (4; -2)$"], c: 0 },
+            { type: "ABCD", q: "Số nghiệm nguyên của bất phương trình $x^2 - 5x + 4 \\le 0$ là:", o: ["$2$", "$3$", "$4$", "Vô số"], c: 2 },
+            { type: "ABCD", q: "Có bao nhiêu cách chọn $2$ học sinh từ một nhóm gồm $10$ học sinh?", o: ["$20$", "$90$", "$C_{10}^2 = 45$", "$100$"], c: 2 },
+            { type: "ABCD", q: "Xác suất để gieo một con xúc xắc cân đối xuất hiện mặt có số chấm chia hết cho $3$ là:", o: ["$1/6$", "$1/2$", "$1/3$", "$2/3$"], c: 2 },
+            
+            { 
+                type: "TF", 
+                q: "Cho đường thẳng $d_1: x - 2y + 1 = 0$ và $d_2: 2x + y - 5 = 0$. Khẳng định nào sau đây đúng?", 
+                sub: [
+                    { text: "Vectơ pháp tuyến của $d_1$ là $\\vec{n}_1 = (1; -2)$", res: true },
+                    { text: "Đường thẳng $d_1$ vuông góc với đường thẳng $d_2$", res: true },
+                    { text: "Điểm $M(1; 1)$ thuộc đường thẳng $d_1$", res: true },
+                    { text: "Giao điểm của $d_1$ và $d_2$ là $I(2; 1)$", res: false }
+                ]
+            },
+            { 
+                type: "TF", 
+                q: "Một hộp có $5$ quả cầu xanh và $4$ đỏ. Lấy ngẫu nhiên $2$ quả. Xét các khẳng định:", 
+                sub: [
+                    { text: "Số cách chọn $2$ quả cầu bất kì là $n(\\Omega) = C_9^2 = 36$", res: true },
+                    { text: "Số cách chọn $2$ quả cùng màu xanh là $10$", res: true },
+                    { text: "Số cách chọn $2$ quả khác màu là $20$", res: true },
+                    { text: "Xác suất để $2$ quả lấy ra cùng màu là $4/9$", res: false }
+                ]
+            },
+
+            { type: "SHORT", q: "Xếp $5$ nam và $4$ nữ thành hàng ngang sao cho các bạn nữ đứng cạnh nhau. Có bao nhiêu cách?", ans: "17280" },
+            { type: "SHORT", q: "Một cổng Parabol cao $10\\text{m}$, rộng $12\\text{m}$. Tính độ dài dây $MN$ căng ngang cách đỉnh $4\\text{m}$ (làm tròn đến hàng đơn vị).", ans: "8" }
+        ];
+_legacyData.forEach(q => {
+    if (q.type === 'ABCD') {
+        window.quizData.push({ type: 'mc', difficulty: 1, q: q.q, options: q.o, correct: q.c, explanation: q.explanation || "" });
+    } else if (q.type === 'TF') {
+        window.quizData.push({ type: 'tf', difficulty: 2, q: q.q, statements: q.sub.map(s => ({ text: s.text, isTrue: s.res })), explanation: q.explanation || "" });
+    }
+});
+
+
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -208,38 +251,16 @@
         function playWin() { if(!audioCtx) initAudio(); const n=[440, 554, 659, 880]; n.forEach((f,i)=>{const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='triangle'; o.frequency.setValueAtTime(f, audioCtx.currentTime+i*0.15); g.gain.setValueAtTime(0.1, audioCtx.currentTime+i*0.15); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+i*0.15+1.5); o.connect(g); g.connect(audioCtx.destination); o.start(audioCtx.currentTime+i*0.15); o.stop(audioCtx.currentTime+i*0.15+1.5);});}
 
         // --- DỮ LIỆU CÂU HỎI MỚI (CHUẨN LÁTEX) ---
-        const rawQuestionData = [
-            { type: "ABCD", q: "Tập xác định của hàm số $y = \\sqrt{x^2 - 4x + 3}$ là:", o: ["$(1;3)$", "$(-\\infty; 1] \\cup [3; +\\infty)$", "$[1; 3]$", "$\\mathbb{R} \\setminus \\{1; 3\\}$"], c: 1 },
-            { type: "ABCD", q: "Tọa độ đỉnh của Parabol $(P): y = x^2 - 4x + 5$ là:", o: ["$I(2; 1)$", "$I(-2; 17)$", "$I(2; 5)$", "$I(4; 5)$"], c: 0 },
-            { type: "ABCD", q: "Vectơ pháp tuyến của đường thẳng $d$ đi qua hai điểm $A(1; 2)$ và $B(3; -2)$ là:", o: ["$\\vec{n} = (2; 1)$", "$\\vec{n} = (1; 2)$", "$\\vec{n} = (2; -4)$", "$\\vec{n} = (4; -2)$"], c: 0 },
-            { type: "ABCD", q: "Số nghiệm nguyên của bất phương trình $x^2 - 5x + 4 \\le 0$ là:", o: ["$2$", "$3$", "$4$", "Vô số"], c: 2 },
-            { type: "ABCD", q: "Có bao nhiêu cách chọn $2$ học sinh từ một nhóm gồm $10$ học sinh?", o: ["$20$", "$90$", "$C_{10}^2 = 45$", "$100$"], c: 2 },
-            { type: "ABCD", q: "Xác suất để gieo một con xúc xắc cân đối xuất hiện mặt có số chấm chia hết cho $3$ là:", o: ["$1/6$", "$1/2$", "$1/3$", "$2/3$"], c: 2 },
-            
-            { 
-                type: "TF", 
-                q: "Cho đường thẳng $d_1: x - 2y + 1 = 0$ và $d_2: 2x + y - 5 = 0$. Khẳng định nào sau đây đúng?", 
-                sub: [
-                    { text: "Vectơ pháp tuyến của $d_1$ là $\\vec{n}_1 = (1; -2)$", res: true },
-                    { text: "Đường thẳng $d_1$ vuông góc với đường thẳng $d_2$", res: true },
-                    { text: "Điểm $M(1; 1)$ thuộc đường thẳng $d_1$", res: true },
-                    { text: "Giao điểm của $d_1$ và $d_2$ là $I(2; 1)$", res: false }
-                ]
-            },
-            { 
-                type: "TF", 
-                q: "Một hộp có $5$ quả cầu xanh và $4$ đỏ. Lấy ngẫu nhiên $2$ quả. Xét các khẳng định:", 
-                sub: [
-                    { text: "Số cách chọn $2$ quả cầu bất kì là $n(\\Omega) = C_9^2 = 36$", res: true },
-                    { text: "Số cách chọn $2$ quả cùng màu xanh là $10$", res: true },
-                    { text: "Số cách chọn $2$ quả khác màu là $20$", res: true },
-                    { text: "Xác suất để $2$ quả lấy ra cùng màu là $4/9$", res: false }
-                ]
-            },
+        
+// Adapter mapping window.quizData -> Game format
+let rawQuestionData = window.quizData.map(q => {
+    if (q.type === 'mc' || q.options) {
+        return { type: 'ABCD', q: q.q, o: q.options, c: q.correct, explanation: q.explanation };
+    } else if (q.type === 'tf' || q.statements) {
+        return { type: 'TF', q: q.q, sub: q.statements.map(s => ({ text: s.text, res: s.isTrue })), explanation: q.explanation };
+    }
+});
 
-            { type: "SHORT", q: "Xếp $5$ nam và $4$ nữ thành hàng ngang sao cho các bạn nữ đứng cạnh nhau. Có bao nhiêu cách?", ans: "17280" },
-            { type: "SHORT", q: "Một cổng Parabol cao $10\\text{m}$, rộng $12\\text{m}$. Tính độ dài dây $MN$ căng ngang cách đỉnh $4\\text{m}$ (làm tròn đến hàng đơn vị).", ans: "8" }
-        ];
 
         // --- GAME STATE ---
         let carColors = { blue: "#3b82f6", red: "#ef4444", green: "#22c55e", yellow: "#eab308", purple: "#9333ea" };
@@ -413,5 +434,117 @@
             container.appendChild(p); setTimeout(()=>p.remove(), 600);
         }}, 120);
     </script>
+<script src="/game-engine.js"></script>
+
+<!-- BỘ SỬA CÂU HỎI TRỰC TIẾP (IN-GAME EDITOR UI) -->
+<button id="admin-gear-btn" onclick="toggleAdminModal()" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #1f2937; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">⚙️</button>
+<div id="admin-editor-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; overflow-y: auto; padding: 20px; font-family: sans-serif;">
+    <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 8px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #1f2937; font-size: 24px;">⚙️ Quản Trị Câu Hỏi (Adapter: Đua Xe F1)</h2>
+            <button onclick="toggleAdminModal()" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">Đóng</button>
+        </div>
+        <div id="editor-questions-container" style="display: flex; flex-direction: column; gap: 20px;"></div>
+        <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; display: flex; gap: 10px;">
+            <button id="btn-save-questions" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px;">💾 Lưu Thay Đổi</button>
+            <button id="btn-export-html" style="background: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px;">📦 Xuất File HTML Mới</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleAdminModal() {
+        const m = document.getElementById('admin-editor-modal');
+        if (m.style.display === 'none') { m.style.display = 'block'; renderAdminEditor(); }
+        else m.style.display = 'none';
+    }
+    function renderAdminEditor() {
+        const container = document.getElementById('editor-questions-container');
+        container.innerHTML = '';
+        if (!window.quizData) return;
+        window.quizData.forEach((q, index) => {
+            const qDiv = document.createElement('div');
+            qDiv.style.cssText = 'border: 1px solid #ccc; padding: 15px; border-radius: 6px; background: #f9fafb;';
+            let html = <div style="font-weight: bold; margin-bottom: 10px;">Câu  (Độ khó: ) - </div>;
+            html += <textarea style="width: 100%; min-height: 60px; margin-bottom: 10px; padding: 8px;" onchange="updateQ(, 'q', this.value)"></textarea>;
+            
+            if (q.type === 'mc' || q.options) {
+                q.options.forEach((opt, oIdx) => {
+                    const isCorrect = q.correct === oIdx;
+                    html += <div style="display: flex; gap: 10px; margin-bottom: 5px;"><input type="radio" name="correct_"  onchange="updateQ(, 'correct', )"><input type="text" style="flex: 1; padding: 6px;" value="" onchange="updateQ(, 'option', this.value, )"></div>;
+                });
+            } else if (q.type === 'tf' || q.statements) {
+                q.statements.forEach((stmt, sIdx) => {
+                    html += <div style="display: flex; gap: 10px; margin-bottom: 5px;"><select onchange="updateQ(, 'tf', this.value==='true', )"><option value="true" >Đúng</option><option value="false" >Sai</option></select><input type="text" style="flex: 1; padding: 6px;" value="" onchange="updateQ(, 'stmt', this.value, )"></div>;
+                });
+            }
+            qDiv.innerHTML = html;
+            container.appendChild(qDiv);
+        });
+    }
+    function updateQ(qIndex, field, value, subIndex = null) {
+        const q = window.quizData[qIndex];
+        if (field === 'q') q.q = value;
+        else if (field === 'correct') q.correct = value;
+        else if (field === 'option') q.options[subIndex] = value;
+        else if (field === 'tf') q.statements[subIndex].isTrue = value;
+        else if (field === 'stmt') q.statements[subIndex].text = value;
+    }
+
+    document.getElementById('btn-save-questions').addEventListener('click', () => {
+        localStorage.setItem('f1_game_quiz', JSON.stringify(window.quizData));
+        
+        // ADAPTER ENGINE: Sync changes back to rawQuestionData and state.questions
+        rawQuestionData = window.quizData.map(q => {
+            if (q.type === 'mc' || q.options) {
+                return { type: 'ABCD', q: q.q, o: q.options, c: q.correct, explanation: q.explanation };
+            } else if (q.type === 'tf' || q.statements) {
+                return { type: 'TF', q: q.q, sub: q.statements.map(s => ({ text: s.text, res: s.isTrue })), explanation: q.explanation };
+            }
+        });
+        if (typeof state !== 'undefined') {
+            state.questions = rawQuestionData;
+        }
+        
+        alert('Đã lưu thành công (qua Adapter)!');
+        toggleAdminModal();
+    });
+
+    document.getElementById('btn-export-html').addEventListener('click', () => {
+        const htmlCopy = document.documentElement.outerHTML;
+        const newDataStr = JSON.stringify(window.quizData, null, 2);
+        
+        const regex = /\/\/ \[GIAI ĐOẠN 1: BỘ CHUYỂN ĐỔI DỮ LIỆU THÔNG MINH \(ADAPTER ENGINE\)\][\s\S]*?window\.quizData = \[\];/;
+        let newHtml = "<!DOCTYPE html>\n<html lang=\"vi\">\n" + htmlCopy.replace(regex, "// [GIAI ĐOẠN 1: BỘ CHUYỂN ĐỔI DỮ LIỆU THÔNG MINH (ADAPTER ENGINE)]\nwindow.quizData = " + newDataStr + ";\n//");
+        // Clean up the _legacyData part for aesthetics
+        newHtml = newHtml.replace(/const _legacyData = \[.*?\];\n_legacyData\.forEach.*\}\);/s, '');
+
+        const blob = new Blob([newHtml], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'game-dua-xe-F1-custom.html';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        alert('Đã xuất file HTML thành công!');
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const saved = localStorage.getItem('f1_game_quiz');
+        if (saved) {
+            try {
+                window.quizData = JSON.parse(saved);
+                // Run Adapter again
+                rawQuestionData = window.quizData.map(q => {
+                    if (q.type === 'mc' || q.options) {
+                        return { type: 'ABCD', q: q.q, o: q.options, c: q.correct };
+                    } else if (q.type === 'tf' || q.statements) {
+                        return { type: 'TF', q: q.q, sub: q.statements.map(s => ({ text: s.text, res: s.isTrue })) };
+                    }
+                });
+                if (typeof state !== 'undefined') state.questions = rawQuestionData;
+            } catch(e) {}
+        }
+    });
+</script>
+
 </body>
 </html>
