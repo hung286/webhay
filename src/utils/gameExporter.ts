@@ -1,4 +1,5 @@
 import { Question } from '../types';
+import { normalizeMathFormulas } from './documentParser';
 
 export interface GameTemplateOption {
   id: string;
@@ -595,7 +596,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
           const funcId = `f${idx + 1}`;
           funcs.push({
             id: funcId,
-            tex: q.question,
+            tex: normalizeMathFormulas(q.question),
             theme: themeColors[idx % themeColors.length]
           });
 
@@ -603,7 +604,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
             props.push({
               id: `p${idx + 1}_${pIdx + 1}`,
               funcId: funcId,
-              text: opt
+              text: normalizeMathFormulas(opt)
             });
           });
         });
@@ -622,10 +623,24 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
     const keoThaScript = `
 <script>
 // [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - KÉO THẢ TƯƠNG TÁC]
-if (typeof window.gameDatabase !== 'undefined') {
-  Object.assign(window.gameDatabase, ${JSON.stringify(topicsMap, null, 2)});
-  window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
-}
+window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
+(function() {
+  function syncKeoThaDb() {
+    if (typeof window.gameDatabase !== 'undefined' && window.__INJECTED_GAME_DATABASE__) {
+      Object.assign(window.gameDatabase, window.__INJECTED_GAME_DATABASE__);
+      window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+      if (typeof window.renderTopicSelectionCards === 'function') {
+        window.renderTopicSelectionCards();
+      }
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncKeoThaDb);
+  } else {
+    syncKeoThaDb();
+  }
+  window.addEventListener('load', syncKeoThaDb);
+})();
 </script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, keoThaScript);

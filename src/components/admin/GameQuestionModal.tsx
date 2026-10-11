@@ -4,7 +4,14 @@ import { X, FileUp, Plus, Trash2, Save, FileDown, Sparkles, Download, Shuffle, F
 import { soundFx } from '../../utils/sound';
 import { GAME_TEMPLATES, exportStandaloneGameHTML, downloadFile } from '../../utils/gameExporter';
 import { VirtualMathKeyboard } from '../common/VirtualMathKeyboard';
-import { extractTextFromDocx, extractTextFromExcel, parseDocumentQuestions } from '../../utils/documentParser';
+import { 
+  extractTextFromDocx, 
+  extractTextFromExcel, 
+  parseDocumentQuestions, 
+  normalizeMathFormulas, 
+  downloadWordTemplate, 
+  downloadExcelTemplate 
+} from '../../utils/documentParser';
 
 interface GameQuestionModalProps {
   tool: TeachingTool;
@@ -87,10 +94,15 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
         parsedList.push({
           id: `raw_${Date.now()}_${idx}`,
-          question: questionText,
-          options: [options[0], options[1], options[2], options[3]],
+          question: normalizeMathFormulas(questionText),
+          options: [
+            normalizeMathFormulas(options[0]),
+            normalizeMathFormulas(options[1]),
+            normalizeMathFormulas(options[2]),
+            normalizeMathFormulas(options[3])
+          ],
           correctIndex,
-          explanation,
+          explanation: normalizeMathFormulas(explanation),
           difficulty: idx < 5 ? 'Dễ' : (idx < 12 ? 'Trung bình' : 'Khó'),
           topic: 'Toán học',
           source: gameTitle,
@@ -149,10 +161,15 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
             newQuestions.push({
               id: `csv_${Date.now()}_${i}`,
-              question: questionText,
-              options: [optA, optB, optC, optD],
+              question: normalizeMathFormulas(questionText),
+              options: [
+                normalizeMathFormulas(optA),
+                normalizeMathFormulas(optB),
+                normalizeMathFormulas(optC),
+                normalizeMathFormulas(optD)
+              ],
               correctIndex,
-              explanation,
+              explanation: normalizeMathFormulas(explanation),
               difficulty,
               topic,
               source: gameTitle,
@@ -473,11 +490,50 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         {/* THANH CÔNG CỤ SOẠN & NHẬP DỮ LIỆU */}
         <div className="flex gap-2 p-3 sm:p-4 border-b border-slate-200 bg-white items-center flex-wrap">
           <button 
+            type="button"
             onClick={exportTemplate} 
             className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
             title="Tải file Excel/CSV mẫu chuẩn để điền câu hỏi"
           >
             <FileDown className="w-4 h-4 text-slate-500" /> Tải CSV mẫu
+          </button>
+
+          {/* NÚT TẢI FILE MẪU WORD (.DOCX) - YÊU CẦU 3 */}
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                soundFx.playClick();
+                await downloadWordTemplate();
+              } catch (err: any) {
+                console.error(err);
+                alert(`Lỗi tạo file Word mẫu: ${err?.message || 'Không thể tạo file docx'}`);
+              }
+            }}
+            className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border border-blue-200 shadow-2xs active:scale-95"
+            title="Tải file Word (.docx) mẫu chuẩn cấu trúc phân cấp: Chuyên đề -> Cấp độ -> Cặp ghép đôi"
+          >
+            <FileDown className="w-4 h-4 text-blue-600" />
+            <span>📥 Tải File Word (.docx) Mẫu</span>
+          </button>
+
+          {/* NÚT TẢI FILE MẪU EXCEL (.XLSX) - YÊU CẦU 3 */}
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                soundFx.playClick();
+                await downloadExcelTemplate();
+              } catch (err: any) {
+                console.error(err);
+                alert(`Lỗi tạo file Excel mẫu: ${err?.message || 'Không thể tạo file xlsx'}`);
+              }
+            }}
+            className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border border-emerald-200 shadow-2xs active:scale-95"
+            title="Tải file Excel (.xlsx) mẫu chuẩn cấu trúc phân cấp: Chuyên đề, Cấp độ, Thẻ gốc, Thuộc tính 1-4"
+          >
+            <FileDown className="w-4 h-4 text-emerald-600" />
+            <span>📥 Tải File Excel (.xlsx) Mẫu</span>
           </button>
           
           <label className={`px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border shadow-2xs ${

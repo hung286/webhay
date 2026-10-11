@@ -685,6 +685,60 @@ export const ToolsTab: React.FC = () => {
                   className="absolute inset-0 w-full h-full border-0" 
                   allowFullScreen
                   title={previewTool.name}
+                  onLoad={(e) => {
+                    const iframe = e.currentTarget;
+                    if (previewTool.customQuestions && previewTool.customQuestions.length > 0) {
+                      const topicsMap: Record<string, any> = {};
+                      const tName = previewTool.name || 'Chuyên đề Tùy Chọn';
+                      topicsMap[tName] = {};
+                      const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
+                      const chunkSize = 3;
+                      const qList = previewTool.customQuestions;
+                      const totalLevels = Math.min(5, Math.max(1, Math.ceil(qList.length / chunkSize)));
+
+                      for (let lvl = 1; lvl <= totalLevels; lvl++) {
+                        const sliceStart = (lvl - 1) * chunkSize;
+                        const sliceQuestions = qList.slice(sliceStart, sliceStart + chunkSize);
+                        if (sliceQuestions.length === 0) break;
+
+                        const funcs = sliceQuestions.map((q, idx) => ({
+                          id: `f${idx + 1}`,
+                          tex: q.question,
+                          theme: themeColors[idx % themeColors.length]
+                        }));
+
+                        const props: any[] = [];
+                        sliceQuestions.forEach((q, idx) => {
+                          const funcId = `f${idx + 1}`;
+                          (q.options || []).forEach((opt, pIdx) => {
+                            props.push({
+                              id: `p${idx + 1}_${pIdx + 1}`,
+                              funcId: funcId,
+                              text: opt
+                            });
+                          });
+                        });
+
+                        topicsMap[tName][lvl] = {
+                          title: `Cấp Độ ${lvl}: ${sliceQuestions[0]?.difficulty || 'Tùy Chỉnh'}`,
+                          diffBadge: lvl === 1 ? 'Dễ' : (lvl >= 4 ? 'Khó' : 'Vừa'),
+                          colorTheme: themeColors[(lvl - 1) % themeColors.length],
+                          time: 180,
+                          funcs: funcs,
+                          props: props
+                        };
+                      }
+
+                      try {
+                        iframe.contentWindow?.postMessage({
+                          type: 'SYNC_GAME_DATA',
+                          gameDatabase: topicsMap
+                        }, '*');
+                      } catch (err) {
+                        console.error('Error posting message to game iframe:', err);
+                      }
+                    }
+                  }}
                 />
               );
             })()}

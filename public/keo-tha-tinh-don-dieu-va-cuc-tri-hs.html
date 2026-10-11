@@ -266,9 +266,16 @@
                 <!-- Rendered dynamically -->
             </div>
 
-            <div class="p-4 sm:p-5 border-t border-white/10 bg-slate-950/50 flex flex-wrap justify-between items-center text-xs text-slate-400 font-semibold px-8">
-                <span>⭐ Hỗ trợ thử thách theo từng Level hoặc Chiến dịch phá đảo liên hoàn</span>
-                <span class="text-cyan-400 font-mono">Interactive Drag & Drop Engine v3.5</span>
+            <div class="p-4 sm:p-5 border-t border-white/10 bg-slate-950/50 flex flex-wrap justify-between items-center text-xs text-slate-400 font-semibold px-6 sm:px-8 gap-3">
+                <div class="flex items-center gap-2">
+                    <span>⭐ Hỗ trợ thử thách theo từng Level hoặc Chiến dịch phá đảo liên hoàn</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="window.openInGameEditorModal()" class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 text-xs font-black flex items-center gap-1.5 transition active:scale-95 shadow-sm">
+                        <span>⚙️</span> Quản Trị & Sửa Dữ Liệu
+                    </button>
+                    <span class="text-cyan-400 font-mono">Interactive Drag & Drop Engine v3.5</span>
+                </div>
             </div>
         </div>
     </div>
@@ -276,18 +283,21 @@
 
     <div class="absolute top-0 left-0 w-full z-40 p-4 sm:p-6 flex justify-between items-start pointer-events-none">
         
-        <!-- Logo & Topic Switcher -->
-        <div class="pointer-events-auto flex items-center gap-3">
-            <div class="glass-panel px-5 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-3 border border-white/10" onclick="window.openTopicSelectMenu()">
+        <!-- Logo & Topic Switcher & Admin Button -->
+        <div class="pointer-events-auto flex items-center gap-2 sm:gap-3 flex-wrap">
+            <div class="glass-panel px-4 sm:px-5 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-3 border border-white/10" onclick="window.openTopicSelectMenu()">
                 <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-600 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                     <span class="text-cyan-400 text-xl font-bold font-mono">∑</span>
                 </div>
                 <div class="flex flex-col">
-                    <span class="font-bold text-white text-base tracking-wide uppercase">TOÁN PRO<span class="text-cyan-400"> - THẦY HÙNG</span></span>
+                    <span class="font-bold text-white text-sm sm:text-base tracking-wide uppercase">TOÁN PRO<span class="text-cyan-400"> - THẦY HÙNG</span></span>
                 </div>
             </div>
-            <button onclick="window.openTopicSelectMenu()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-amber-300/40">
+            <button onclick="window.openTopicSelectMenu()" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-amber-300/40">
                 📚 Đổi Chuyên Đề
+            </button>
+            <button onclick="window.openInGameEditorModal()" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-cyan-300/40" title="Quyền Quản Trị - Thêm, xóa, sửa chuyên đề và xuất file HTML mới">
+                <span>⚙️</span> Sửa Dữ Liệu
             </button>
         </div>
 
@@ -352,9 +362,17 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <select id="editor-topic-select" onchange="window.onEditorChangeTopic(this.value)" class="bg-slate-800 border border-slate-600 text-slate-200 text-xs font-bold px-3 py-1.5 rounded-xl outline-none cursor-pointer">
-                    </select>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <div class="flex items-center gap-1.5">
+                        <select id="editor-topic-select" onchange="window.onEditorChangeTopic(this.value)" class="bg-slate-800 border border-slate-600 text-slate-200 text-xs font-bold px-3 py-1.5 rounded-xl outline-none cursor-pointer max-w-[200px] truncate">
+                        </select>
+                        <button onclick="window.editorAddNewTopic()" class="px-2.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow transition active:scale-95 flex items-center gap-1" title="Thêm chuyên đề mới">
+                            <span>+</span> Thêm CĐ
+                        </button>
+                        <button onclick="window.editorDeleteTopic()" class="p-1.5 rounded-xl bg-rose-900/60 hover:bg-rose-700 text-rose-300 font-bold text-xs border border-rose-500/40 transition active:scale-95" title="Xóa chuyên đề đang chọn">
+                            🗑️
+                        </button>
+                    </div>
                     
                     <div class="flex gap-1" id="editor-level-buttons">
                         <!-- Rendered dynamically -->
@@ -488,7 +506,7 @@
         // ========================================================
         // HỆ THỐNG ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE ARCHITECTURE)
         // ========================================================
-        window.gameDatabase = {
+        const DEFAULT_GAME_DATABASE = {
             "Chuyên đề 1: Tính Đơn Điệu & Cực Trị Hàm Số": {
                 1: {
                     title: "Hàm Bậc 3", diffBadge: "Dễ", colorTheme: "blue", time: 180,
@@ -1102,17 +1120,55 @@
 
         
         // ========================================================
-        // 1. AUTO-RESTORE CUSTOM DATABASE FROM LOCALSTORAGE
+        // 1. AUTO-RESTORE CUSTOM DATABASE, GUARANTEED FALLBACK & LIVE SYNC (YÊU CẦU 1)
         // ========================================================
+        window.gameDatabase = {};
+
+        // Ưu tiên 1: Dữ liệu nhúng trực tiếp qua script (nếu có window.__INJECTED_GAME_DATABASE__)
+        if (typeof window.__INJECTED_GAME_DATABASE__ !== 'undefined' && window.__INJECTED_GAME_DATABASE__ && typeof window.__INJECTED_GAME_DATABASE__ === 'object') {
+            Object.assign(window.gameDatabase, window.__INJECTED_GAME_DATABASE__);
+        }
+
+        // Ưu tiên 2: Khôi phục từ LocalStorage (phiên chơi tùy chỉnh trước đó)
         try {
             const savedCustomDB = localStorage.getItem('keo_tha_custom_db');
             if (savedCustomDB) {
                 const parsed = JSON.parse(savedCustomDB);
-                if (parsed && typeof parsed === 'object') {
+                if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
                     Object.assign(window.gameDatabase, parsed);
                 }
             }
         } catch(e) {}
+
+        // Ưu tiên 3 & Fallback cứu hộ: Nếu chưa có chuyên đề nào, hồi phục 100% về DEFAULT_GAME_DATABASE
+        if (Object.keys(window.gameDatabase).length === 0) {
+            window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_GAME_DATABASE));
+        } else {
+            // Giữ lại các chuyên đề SGK gốc để học sinh luôn có nhiều lựa chọn phong phú
+            Object.keys(DEFAULT_GAME_DATABASE).forEach(k => {
+                if (!window.gameDatabase[k]) {
+                    window.gameDatabase[k] = DEFAULT_GAME_DATABASE[k];
+                }
+            });
+        }
+
+        // ĐỒNG BỘ THỜI GIAN THỰC QUA POSTMESSAGE VỚI WEB REACT QUẢN TRỊ (YÊU CẦU 1)
+        window.addEventListener('message', function(event) {
+            if (!event.data) return;
+            if (event.data.type === 'SYNC_GAME_DATA') {
+                const incomingDb = event.data.gameDatabase;
+                if (incomingDb && typeof incomingDb === 'object' && Object.keys(incomingDb).length > 0) {
+                    Object.assign(window.gameDatabase, incomingDb);
+                    window.selectedTopic = Object.keys(window.gameDatabase)[0] || window.selectedTopic;
+                    GAME_LEVELS = window.gameDatabase[window.selectedTopic];
+                    window.renderTopicSelectionCards();
+                    if (window.openInGameEditorModal && document.getElementById('ingame-editor-modal') && !document.getElementById('ingame-editor-modal').classList.contains('hidden')) {
+                        window.openInGameEditorModal();
+                    }
+                    console.log('✅ Đã đồng bộ dữ liệu game mới qua postMessage thành công!');
+                }
+            }
+        });
 
         // ========================================================
         // 2. TRUE TOUCH & MOUSE DRAG AND DROP ENGINE (YÊU CẦU 4)
@@ -1447,8 +1503,65 @@
             window.renderEditorLevelData();
         };
 
+        window.editorAddNewTopic = function() {
+            const newName = prompt("Nhập tên Chuyên Đề Mới:");
+            if (!newName || !newName.trim()) return;
+            const trimmed = newName.trim();
+            if (window.gameDatabase[trimmed]) {
+                alert("Chuyên đề này đã tồn tại!");
+                return;
+            }
+            window.gameDatabase[trimmed] = {
+                1: {
+                    title: "Cấp Độ 1: Khởi Động", diffBadge: "Dễ", colorTheme: "blue", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 'y = x^3 - 3x', theme: 'blue' },
+                        { id: 'f2', tex: 'y = -x^3 + 3x^2', theme: 'emerald' },
+                        { id: 'f3', tex: 'y = x^4 - 2x^2 + 1', theme: 'violet' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = -1$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' },
+                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực đại tại $x = 2$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số có 3 điểm cực trị' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số đạt cực đại tại $x = 0$' }
+                    ]
+                }
+            };
+            window.editorCurrentTopic = trimmed;
+            window.editorCurrentLevel = 1;
+            window.openInGameEditorModal();
+            window.renderTopicSelectionCards();
+            alert(`🎉 Đã thêm chuyên đề mới: "${trimmed}"!`);
+        };
+
+        window.editorDeleteTopic = function() {
+            const topicKeys = Object.keys(window.gameDatabase);
+            if (topicKeys.length <= 1) {
+                alert("Không thể xóa chuyên đề duy nhất còn lại!");
+                return;
+            }
+            if (confirm(`Bạn có chắc muốn xóa vĩnh viễn chuyên đề:\n"${window.editorCurrentTopic}"?`)) {
+                delete window.gameDatabase[window.editorCurrentTopic];
+                try {
+                    localStorage.setItem('keo_tha_custom_db', JSON.stringify(window.gameDatabase));
+                } catch(e) {}
+                window.editorCurrentTopic = Object.keys(window.gameDatabase)[0];
+                window.editorCurrentLevel = 1;
+                window.openInGameEditorModal();
+                window.renderTopicSelectionCards();
+            }
+        };
+
         window.editorSaveAndPlay = function() {
-            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
+            const topicObj = window.gameDatabase[window.editorCurrentTopic];
+            if (!topicObj) return;
+            let lvl = topicObj[window.editorCurrentLevel];
+            if (!lvl) {
+                lvl = { title: `Cấp Độ ${window.editorCurrentLevel}`, diffBadge: "Tiêu chuẩn", colorTheme: "blue", time: 180, funcs: [], props: [] };
+                topicObj[window.editorCurrentLevel] = lvl;
+            }
             lvl.title = document.getElementById('editor-level-title').value;
             lvl.diffBadge = document.getElementById('editor-level-badge').value;
             lvl.time = parseInt(document.getElementById('editor-level-time').value) || 180;
@@ -1461,21 +1574,37 @@
             window.selectedTopic = window.editorCurrentTopic;
             GAME_LEVELS = window.gameDatabase[window.selectedTopic];
 
-            alert("🎉 ĐÃ LƯU THÀNH CÔNG VÀO GAME!
-Bản game sẽ khởi chạy lại cấp độ vừa chỉnh sửa ngay bây giờ.");
+            window.renderTopicSelectionCards();
+            alert("🎉 ĐÃ LƯU THÀNH CÔNG VÀO GAME!\nBản game sẽ khởi chạy lại cấp độ vừa chỉnh sửa ngay bây giờ.");
             window.closeInGameEditorModal();
             window.startLevel(window.editorCurrentLevel);
         };
 
         window.editorExportStandaloneHTML = function() {
-            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
-            lvl.title = document.getElementById('editor-level-title').value;
-            lvl.diffBadge = document.getElementById('editor-level-badge').value;
-            lvl.time = parseInt(document.getElementById('editor-level-time').value) || 180;
+            const topicObj = window.gameDatabase[window.editorCurrentTopic];
+            if (topicObj && topicObj[window.editorCurrentLevel]) {
+                const lvl = topicObj[window.editorCurrentLevel];
+                lvl.title = document.getElementById('editor-level-title').value;
+                lvl.diffBadge = document.getElementById('editor-level-badge').value;
+                lvl.time = parseInt(document.getElementById('editor-level-time').value) || 180;
+            }
 
-            // Lấy toàn bộ HTML hiện tại và cập nhật đoạn window.gameDatabase
+            try {
+                localStorage.setItem('keo_tha_custom_db', JSON.stringify(window.gameDatabase));
+            } catch(e) {}
+
+            // Lấy toàn bộ HTML hiện tại và nhúng khối window.__INJECTED_GAME_DATABASE__
             let docHtml = document.documentElement.outerHTML;
+            const injectBlock = `<script>\nwindow.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(window.gameDatabase, null, 2)};\n</script>`;
             
+            if (docHtml.includes('window.__INJECTED_GAME_DATABASE__')) {
+                docHtml = docHtml.replace(/<script>[\s\S]*?window\.__INJECTED_GAME_DATABASE__[\s\S]*?<\/script>/i, injectBlock);
+            } else if (docHtml.includes('</head>')) {
+                docHtml = docHtml.replace('</head>', `${injectBlock}\n</head>`);
+            } else {
+                docHtml = `${injectBlock}\n${docHtml}`;
+            }
+
             // Tải tệp HTML về máy tính
             const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -1485,10 +1614,7 @@ Bản game sẽ khởi chạy lại cấp độ vừa chỉnh sửa ngay bây gi
             a.click();
             URL.revokeObjectURL(url);
 
-            alert("📥 ĐÃ XUẤT BẢN THÀNH CÔNG!
-
-Tệp 'keo-tha-tinh-don-dieu-va-cuc-tri-hs_custom.html' đã được tải về máy tính.
-Thầy có thể mở chơi offline hoặc kéo thả lên Vercel để cập nhật vĩnh viễn!");
+            alert("📥 ĐÃ XUẤT BẢN THÀNH CÔNG!\n\nTệp 'keo-tha-tinh-don-dieu-va-cuc-tri-hs_custom.html' đã được tải về máy tính.\nThầy có thể mở chơi offline hoặc kéo thả lên Vercel để cập nhật vĩnh viễn!");
         };
 
         // ========================================================
@@ -1667,8 +1793,8 @@ Thầy có thể mở chơi offline hoặc kéo thả lên Vercel để cập nh
             }
         };
 
-        window.selectedTopic = Object.keys(window.gameDatabase)[0];
-        let GAME_LEVELS = window.gameDatabase[window.selectedTopic];
+        window.selectedTopic = (window.gameDatabase && Object.keys(window.gameDatabase)[0]) || "Chuyên đề 1: Tính Đơn Điệu & Cực Trị Hàm Số";
+        let GAME_LEVELS = (window.gameDatabase && window.gameDatabase[window.selectedTopic]) || (window.gameDatabase && window.gameDatabase[Object.keys(window.gameDatabase)[0]]) || DEFAULT_GAME_DATABASE[Object.keys(DEFAULT_GAME_DATABASE)[0]];
 
         window.openTopicSelectMenu = function() {
             const overlay = document.getElementById('topic-selection-overlay');
@@ -2185,7 +2311,22 @@ function shuffle(array) {
             }
         }
 
-        window.openTopicSelectMenu();
+        // Khởi động an toàn: Tự động render danh sách chuyên đề ngay khi trang tải xong (Đảm bảo không bao giờ trống)
+        function initTopicSelectionSafely() {
+            if (typeof window.renderTopicSelectionCards === 'function') {
+                window.renderTopicSelectionCards();
+            }
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.classList.remove('hidden');
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initTopicSelectionSafely);
+        } else {
+            initTopicSelectionSafely();
+        }
+        window.addEventListener('load', initTopicSelectionSafely);
+        initTopicSelectionSafely();
     </script>
 <script src="/game-engine.js"></script>
 </body>
