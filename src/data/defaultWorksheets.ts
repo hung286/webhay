@@ -10758,6 +10758,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$\\vec{AD} = \\vec{CB}$',
           '$\\vec{AC} = \\vec{BD}$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -10784,6 +10787,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$2\\vec{AC}$',
           '$\\vec{AA}$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -10811,6 +10817,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$\\vec{MA} + \\vec{MB} = -2\\vec{MI}$',
           '$\\vec{MA} - \\vec{MB} = 2\\vec{MI}$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -10838,6 +10847,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$(3; 1)$',
           '$(-4; 4)$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -10865,6 +10877,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$-12$',
           '$6$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -10892,6 +10907,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$3.142$',
           '$3.1$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -10921,6 +10939,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$9$',
           '$7.7$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -10948,6 +10969,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$5$',
           '$14$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -20293,6 +20317,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '2 mặt phẳng',
           'Không có mặt phẳng nào'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -20315,6 +20342,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           'Chắc chắn chéo nhau',
           'Cắt nhau'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -20337,6 +20367,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$d$ vuông góc với $(\\alpha)$',
           '$d$ chứa trong $(\\alpha)$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -20359,6 +20392,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           'Vuông góc với $(Q)$',
           'Nằm trong $(Q)$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -20383,6 +20419,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           'Hình thang vuông',
           'Đường tròn'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -20407,6 +20446,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           '$0$',
           '$+\\infty$'
         ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
@@ -20434,6 +20476,9 @@ export const DEFAULT_WORKSHEETS: MathWorksheet[] = [
           solution: 'Phân tích thành nhân tử: $\\lim_{x \\to 2} \\frac{(x-2)(x+2)}{x-2} = \\lim_{x \\to 2} (x+2) = 4$'
         }
       ],
+        correctIndex: 0
+      }
+    ],
     isPublished: true,
     createdAt: new Date().toISOString()
   },
