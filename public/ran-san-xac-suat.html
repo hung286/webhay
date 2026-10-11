@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TOÁN 10. GAME RẮN SĂN XÁC SUẤT LỚP 10</title>
+    <title>Toán 10 - Game Rắn Săn Mồi Xác Suất | TOÁN PRO - THẦY HÙNG</title>
     
     <!-- Tailwind & Fonts & KaTeX -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -147,6 +147,40 @@
 </head>
 <body>
 
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" class="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-slate-950/90 backdrop-blur-2xl transition-all duration-300">
+        <div class="rounded-3xl w-full max-w-5xl border-2 border-emerald-400/40 flex flex-col max-h-[92vh] overflow-hidden bg-gradient-to-br from-slate-950/95 via-slate-900/95 to-slate-950/95 shadow-[0_0_60px_rgba(16,185,129,0.3)]">
+            
+            <div class="p-6 border-b border-white/10 text-center relative">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-black tracking-widest uppercase mb-2 font-orbitron">
+                    🎲 ĐẤU TRƯỜNG RẮN SĂN XÁC SUẤT | TOÁN PRO - THẦY HÙNG
+                </div>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 tracking-tight mb-2 font-orbitron">
+                    CHỌN CHUYÊN ĐỀ RẮN SĂN XÁC SUẤT
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base font-semibold max-w-2xl mx-auto">
+                    Điều khiển rắn săn các quả cầu năng lượng và giải các bài toán xác suất từ Dễ đến Khó.
+                </p>
+                <button onclick="document.getElementById('topic-selection-overlay').classList.add('hidden')" class="absolute top-6 right-6 text-gray-400 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-2xl transition-colors">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Grid danh sách chuyên đề -->
+            <div id="snake-topics-grid" class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-5 flex-1">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <div class="p-4 border-t border-white/10 bg-black/40 flex flex-wrap justify-between items-center text-xs text-slate-400 font-semibold px-8">
+                <span>⭐ Hỗ trợ thử thách Toàn Diện (Dễ ➡️ Khó) hoặc luyện tập từng cấp độ</span>
+                <span class="text-emerald-400 font-mono">ProbSnake Engine v3.8</span>
+            </div>
+        </div>
+    </div>
+
+
     <!-- LỚP GAME CANVA -->
     <canvas id="gameCanvas"></canvas>
 
@@ -157,7 +191,12 @@
                 <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-950 font-black text-xl font-orbitron">MH</div>
                 <div>
                     <h1 class="text-white font-black text-sm uppercase font-orbitron tracking-wide">TOÁN PRO - THẦY HÙNG</h1>
-                    <p class="text-emerald-400 text-[10px] font-bold tracking-[0.1em] uppercase mt-1">XÁC SUẤT LỚP 10</p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <p id="hud-topic-label" class="text-emerald-400 text-[10px] font-bold tracking-[0.1em] uppercase">Xác Suất Lớp 10</p>
+                        <button onclick="window.openTopicSelectMenu()" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[9px] font-bold uppercase hover:bg-emerald-500/40">
+                            Đổi 📚
+                        </button>
+                    </div>
                 </div>
             </div>
             <div id="lives-box" class="glass-panel px-5 py-2 rounded-2xl flex gap-2 pointer-events-auto border border-slate-700 w-fit">
@@ -206,7 +245,12 @@
                 </div>
                 <h1 class="text-5xl md:text-7xl font-black text-white mb-6 font-orbitron leading-tight">MATH<br/><span class="text-emerald-500">SNAKE.IO</span></h1>
                 <p class="text-slate-400 mb-10 text-base md:text-lg max-w-md mx-auto md:mx-0">Vượt qua 25 câu hỏi về <strong class="text-white">Xác Suất Lớp 10</strong> cực cuốn cùng <strong class="text-emerald-400 font-orbitron">TOÁN PRO - THẦY HÙNG</strong>.</p>
-                <button id="btn-start-game" class="w-full md:w-auto px-12 py-5 btn-primary rounded-2xl text-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)]">BẮT ĐẦU CHIẾN</button>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <button id="btn-start-game" class="px-10 py-5 btn-primary rounded-2xl text-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)]">BẮT ĐẦU CHIẾN</button>
+                    <button onclick="window.openTopicSelectMenu()" class="px-6 py-5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl text-base border border-slate-600 shadow-lg flex items-center justify-center gap-2 transition-all">
+                        📚 Đổi Chuyên Đề
+                    </button>
+                </div>
             </div>
             <div class="flex-1 w-full bg-slate-900 border border-slate-700 rounded-[32px] p-8 max-h-[450px] flex flex-col shadow-2xl">
                 <div class="flex justify-between items-center mb-6">
@@ -308,6 +352,234 @@
 
     <!-- LOGIC TRÒ CHƠI -->
     <script>
+        
+        // ========================================================
+        // HỆ THỐNG ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE ARCHITECTURE)
+        // ========================================================
+        window.gameDatabase = {
+            "Chủ đề 1: Xác Suất Cổ Điển & Biến Cố": {
+                "easy": [
+                    { qStr: "Lấy ngẫu nhiên $1$ lá bài từ bộ bài $52$ lá. Xác suất lấy được lá Át (A) là?", target: "\\frac{1}{13}", options: ["\\frac{1}{13}", "\\frac{1}{52}", "\\frac{1}{4}", "\\frac{2}{13}"] },
+                    { qStr: "Lấy ngẫu nhiên $1$ lá bài từ bộ bài $52$ lá. Xác suất lấy được lá bài màu đỏ là?", target: "\\frac{1}{2}", options: ["\\frac{1}{2}", "\\frac{1}{4}", "\\frac{1}{13}", "\\frac{2}{13}"] },
+                    { qStr: "Gieo $1$ con xúc xắc cân đối. Xác suất để xuất hiện mặt có số chấm chẵn là?", target: "\\frac{1}{2}", options: ["\\frac{1}{2}", "\\frac{1}{3}", "\\frac{1}{6}", "\\frac{2}{3}"] },
+                    { qStr: "Gieo $1$ con xúc xắc cân đối. Xác suất để xuất hiện mặt có số chấm là số nguyên tố là?", target: "\\frac{1}{2}", options: ["\\frac{1}{2}", "\\frac{1}{3}", "\\frac{2}{3}", "\\frac{1}{6}"] },
+                    { qStr: "Gieo $2$ đồng xu cân đối. Xác suất để cả $2$ đồng xu đều xuất hiện mặt sấp là?", target: "\\frac{1}{4}", options: ["\\frac{1}{4}", "\\frac{1}{2}", "\\frac{3}{4}", "\\frac{1}{8}"] },
+                    { qStr: "Một hộp có $5$ viên bi xanh và $3$ viên bi đỏ. Lấy ngẫu nhiên $1$ viên bi. Xác suất được bi đỏ là?", target: "\\frac{3}{8}", options: ["\\frac{3}{8}", "\\frac{5}{8}", "\\frac{1}{8}", "\\frac{3}{5}"] },
+                    { qStr: "Hộp có $10$ thẻ đánh số từ $1$ đến $10$. Rút ngẫu nhiên $1$ thẻ. Xác suất rút được thẻ chia hết cho $5$ là?", target: "\\frac{1}{5}", options: ["\\frac{1}{5}", "\\frac{1}{10}", "\\frac{2}{5}", "\\frac{1}{2}"] },
+                    { qStr: "Xác suất của biến cố chắc chắn $P(\\Omega)$ luôn có giá trị bằng bao nhiêu?", target: "1", options: ["1", "0", "100", "0.5"] },
+                    { qStr: "Xác suất của biến cố không thể $P(\\emptyset)$ luôn có giá trị bằng bao nhiêu?", target: "0", options: ["0", "1", "-1", "0.5"] },
+                    { qStr: "Cho biến cố $A$ có $P(A) = 0.35$. Xác suất của biến cố đối $P(\\overline{A})$ bằng?", target: "0.65", options: ["0.65", "0.35", "1", "0.75"] }
+                ],
+                "medium": [
+                    { qStr: "Rút ngẫu nhiên $2$ viên bi từ hộp có $4$ bi đỏ và $5$ bi xanh. Xác suất để $2$ bi cùng màu đỏ là?", target: "\\frac{1}{6}", options: ["\\frac{1}{6}", "\\frac{5}{18}", "\\frac{4}{9}", "\\frac{2}{9}"] },
+                    { qStr: "Rút ngẫu nhiên $2$ viên bi từ hộp có $4$ bi đỏ và $5$ bi xanh. Xác suất để $2$ bi cùng màu là?", target: "\\frac{4}{9}", options: ["\\frac{4}{9}", "\\frac{5}{9}", "\\frac{1}{6}", "\\frac{5}{18}"] },
+                    { qStr: "Gieo $2$ con xúc xắc cân đối. Xác suất để tổng số chấm trên $2$ mặt bằng $8$ là?", target: "\\frac{5}{36}", options: ["\\frac{5}{36}", "\\frac{1}{6}", "\\frac{7}{36}", "\\frac{1}{9}"] },
+                    { qStr: "Gieo $2$ con xúc xắc cân đối. Xác suất để tổng số chấm trên $2$ mặt bằng $7$ là?", target: "\\frac{1}{6}", options: ["\\frac{1}{6}", "\\frac{5}{36}", "\\frac{7}{36}", "\\frac{1}{12}"] },
+                    { qStr: "Rút ngẫu nhiên $2$ thẻ từ hộp có $20$ thẻ đánh số $1..20$. Xác suất cả $2$ thẻ đều là số lẻ là?", target: "\\frac{9}{38}", options: ["\\frac{9}{38}", "\\frac{1}{4}", "\\frac{1}{2}", "\\frac{10}{38}"] },
+                    { qStr: "Gieo $3$ đồng xu cân đối phân biệt. Xác suất để có ít nhất $1$ đồng xu xuất hiện mặt ngửa là?", target: "\\frac{7}{8}", options: ["\\frac{7}{8}", "\\frac{1}{8}", "\\frac{3}{8}", "\\frac{1}{2}"] },
+                    { qStr: "Rút $1$ lá bài từ bộ $52$ lá. Xác suất rút được lá bài màu đỏ HOẶC lá bài K (King) là?", target: "\\frac{7}{13}", options: ["\\frac{7}{13}", "\\frac{1}{2}", "\\frac{15}{26}", "\\frac{2}{13}"] },
+                    { qStr: "Hai biến cố $A, B$ xung khắc có $P(A) = 0.3, P(B) = 0.4$. Giá trị $P(A \\cup B)$ bằng?", target: "0.7", options: ["0.7", "0.12", "0.1", "0.8"] },
+                    { qStr: "Hai xạ thủ bắn độc lập vào bia, xác suất trúng là $0.8$ và $0.7$. Xác suất cả $2$ cùng trúng là?", target: "0.56", options: ["0.56", "0.94", "0.24", "0.5"] },
+                    { qStr: "Hai xạ thủ bắn độc lập, xác suất trúng là $0.8$ và $0.7$. Xác suất có ít nhất một người trúng là?", target: "0.94", options: ["0.94", "0.56", "0.24", "0.8"] }
+                ],
+                "hard": [
+                    { qStr: "Bắn $3$ phát đạn độc lập, xác suất trúng mỗi phát là $0.6$. Xác suất trúng đúng $2$ phát là?", target: "0.432", options: ["0.432", "0.216", "0.288", "0.144"] },
+                    { qStr: "Một hộp có $6$ bi đỏ và $4$ bi xanh. Lấy ngẫu nhiên $3$ bi. Xác suất để có ít nhất $2$ bi đỏ là?", target: "\\frac{2}{3}", options: ["\\frac{2}{3}", "\\frac{1}{2}", "\\frac{3}{5}", "\\frac{7}{10}"] },
+                    { qStr: "Lập số tự nhiên có $3$ chữ số khác nhau từ $\\{1;2;3;4;5\\}$. Xác suất số lập được là số chẵn là?", target: "\\frac{2}{5}", options: ["\\frac{2}{5}", "\\frac{3}{5}", "\\frac{1}{2}", "\\frac{1}{3}"] },
+                    { qStr: "Gieo $2$ con xúc xắc. Xác suất để tích số chấm trên $2$ mặt là một số lẻ bằng?", target: "\\frac{1}{4}", options: ["\\frac{1}{4}", "\\frac{3}{4}", "\\frac{1}{2}", "\\frac{1}{3}"] },
+                    { qStr: "Gieo $2$ con xúc xắc. Xác suất để tích số chấm trên $2$ mặt là một số chẵn bằng?", target: "\\frac{3}{4}", options: ["\\frac{3}{4}", "\\frac{1}{4}", "\\frac{1}{2}", "\\frac{2}{3}"] },
+                    { qStr: "Một tổ có $5$ bạn nam và $5$ bạn nữ. Xếp ngẫu nhiên thành hàng dọc. Xác suất nam nữ đứng xen kẽ là?", target: "\\frac{1}{126}", options: ["\\frac{1}{126}", "\\frac{1}{252}", "\\frac{1}{42}", "\\frac{1}{63}"] },
+                    { qStr: "Đội $10$ học sinh có An và Bình. Chọn ngẫu nhiên $3$ bạn. Xác suất cả An và Bình cùng được chọn là?", target: "\\frac{1}{15}", options: ["\\frac{1}{15}", "\\frac{1}{30}", "\\frac{1}{10}", "\\frac{2}{15}"] },
+                    { qStr: "Hai người hẹn gặp từ 8h đến 9h, người đến trước chờ tối đa 15 phút. Xác suất 2 người gặp nhau là?", target: "\\frac{7}{16}", options: ["\\frac{7}{16}", "\\frac{9}{16}", "\\frac{1}{4}", "\\frac{1}{2}"] },
+                    { qStr: "Chọn ngẫu nhiên $1$ số tự nhiên từ $1$ đến $100$. Xác suất chọn được số chia hết cho $3$ hoặc $5$ là?", target: "\\frac{47}{100}", options: ["\\frac{47}{100}", "\\frac{53}{100}", "\\frac{1}{2}", "\\frac{40}{100}"] },
+                    { qStr: "Chọn ngẫu nhiên $3$ đỉnh từ $10$ đỉnh của một đa giác đều $10$ cạnh. Xác suất tạo thành tam giác vuông là?", target: "\\frac{1}{3}", options: ["\\frac{1}{3}", "\\frac{1}{4}", "\\frac{2}{5}", "\\frac{1}{2}"] }
+                ]
+            },
+            "Chủ đề 2: Xác Suất Có Điều Kiện & Biến Cố Độc Lập": {
+                "easy": [
+                    { qStr: "Hai biến cố $A$ và $B$ độc lập khi và chỉ khi $P(AB)$ bằng?", target: "P(A) \\cdot P(B)", options: ["P(A) \\cdot P(B)", "P(A) + P(B)", "P(A) / P(B)", "P(A) - P(B)"] },
+                    { qStr: "Cho $P(A) = 0.5$, $P(B) = 0.6$, $A$ và $B$ độc lập. Giá trị $P(AB)$ là?", target: "0.3", options: ["0.3", "0.1", "1.1", "0.8"] },
+                    { qStr: "Công thức xác suất có điều kiện $P(A|B)$ khi $P(B) > 0$ là?", target: "\\frac{P(AB)}{P(B)}", options: ["\\frac{P(AB)}{P(B)}", "\\frac{P(AB)}{P(A)}", "\\frac{P(A)}{P(B)}", "P(AB) \\cdot P(B)"] },
+                    { qStr: "Nếu $A$ và $B$ là hai biến cố độc lập thì $P(A|B)$ bằng?", target: "P(A)", options: ["P(A)", "P(B)", "P(AB)", "1"] },
+                    { qStr: "Gieo $2$ đồng xu. Biết đồng xu thứ nhất ngửa, xác suất đồng xu thứ hai cũng ngửa là?", target: "\\frac{1}{2}", options: ["\\frac{1}{2}", "\\frac{1}{4}", "\\frac{3}{4}", "1"] },
+                    { qStr: "Cho $P(AB) = 0.2$ và $P(B) = 0.5$. Giá trị xác suất có điều kiện $P(A|B)$ là?", target: "0.4", options: ["0.4", "0.1", "0.7", "0.25"] },
+                    { qStr: "Cho $P(AB) = 0.15$ và $P(A) = 0.3$. Giá trị xác suất có điều kiện $P(B|A)$ là?", target: "0.5", options: ["0.5", "0.2", "0.045", "0.45"] },
+                    { qStr: "Gieo $1$ xúc xắc. Biết mặt xuất hiện có số chấm chẵn, xác suất mặt đó là số 2 là?", target: "\\frac{1}{3}", options: ["\\frac{1}{3}", "\\frac{1}{6}", "\\frac{1}{2}", "\\frac{2}{3}"] },
+                    { qStr: "Biết $P(A|B) + P(\\overline{A}|B)$ luôn có giá trị bằng bao nhiêu?", target: "1", options: ["1", "0", "P(B)", "P(A)"] },
+                    { qStr: "Biến cố $A$ độc lập với $B$ thì $A$ có độc lập với $\\overline{B}$ không?", target: "\\text{Có độc lập}", options: ["\\text{Có độc lập}", "\\text{Không độc lập}", "\\text{Tùy trường hợp}", "\\text{Xung khắc}"] }
+                ],
+                "medium": [
+                    { qStr: "Gieo $2$ xúc xắc. Biết tổng số chấm bằng $7$, xác suất có ít nhất $1$ mặt $2$ chấm là?", target: "\\frac{1}{3}", options: ["\\frac{1}{3}", "\\frac{1}{6}", "\\frac{2}{3}", "\\frac{5}{36}"] },
+                    { qStr: "Gieo $2$ xúc xắc. Biết có ít nhất $1$ mặt $6$ chấm, xác suất cả $2$ mặt cùng $6$ chấm là?", target: "\\frac{1}{11}", options: ["\\frac{1}{11}", "\\frac{1}{12}", "\\frac{1}{36}", "\\frac{2}{11}"] },
+                    { qStr: "Một gia đình có $2$ con. Biết có ít nhất $1$ con trai, xác suất cả $2$ là con trai là?", target: "\\frac{1}{3}", options: ["\\frac{1}{3}", "\\frac{1}{2}", "\\frac{1}{4}", "\\frac{2}{3}"] },
+                    { qStr: "Một hộp có $3$ bi đỏ, $2$ bi xanh. Rút không hoàn lại $2$ bi. Biết bi thứ nhất đỏ, xác suất bi thứ hai xanh là?", target: "\\frac{1}{2}", options: ["\\frac{1}{2}", "\\frac{2}{5}", "\\frac{3}{5}", "\\frac{1}{4}"] },
+                    { qStr: "Xác suất người thứ nhất bắn trúng là $0.7$, người thứ hai là $0.8$. Biết có đúng $1$ người trúng, xác suất đó là người thứ nhất?", target: "\\frac{7}{19}", options: ["\\frac{7}{19}", "\\frac{12}{19}", "\\frac{7}{25}", "\\frac{1}{2}"] },
+                    { qStr: "Công thức xác suất toàn phần: $P(A) = P(B)P(A|B) + P(\\overline{B})P(A|\\overline{B})$ đúng hay sai?", target: "\\text{Đúng}", options: ["\\text{Đúng}", "\\text{Sai}", "\\text{Chỉ khi A, B độc lập}", "\\text{Không xác định}"] },
+                    { qStr: "Nhà máy có máy I sản xuất 60% sản phẩm (tỉ lệ lỗi 1%), máy II 40% (lỗi 2%). Tỉ lệ phế phẩm chung là?", target: "0.014", options: ["0.014", "0.015", "0.03", "0.012"] },
+                    { qStr: "Một lớp có 60% nam và 40% nữ. 20% nam giỏi Toán, 10% nữ giỏi Toán. Chọn 1 bạn, xác suất giỏi Toán là?", target: "0.16", options: ["0.16", "0.15", "0.30", "0.18"] },
+                    { qStr: "Hộp I có 4 bi đỏ, 2 bi xanh. Hộp II có 3 bi đỏ, 5 bi xanh. Chọn ngẫu nhiên 1 hộp rồi lấy 1 bi đỏ. Xác suất là?", target: "\\frac{25}{48}", options: ["\\frac{25}{48}", "\\frac{7}{14}", "\\frac{1}{2}", "\\frac{11}{24}"] },
+                    { qStr: "Cho $P(A) = 0.4$, $P(B|A) = 0.6$, $P(B|\\overline{A}) = 0.3$. Giá trị $P(B)$ bằng?", target: "0.42", options: ["0.42", "0.36", "0.48", "0.50"] }
+                ],
+                "hard": [
+                    { qStr: "Tỉ lệ mắc bệnh hiếm là 0.1%. Xét nghiệm chính xác 99%. Một người dương tính, xác suất thực sự mắc bệnh là?", target: "\\approx 9%", options: ["\\approx 9%", "99%", "50%", "\\approx 1%"] },
+                    { qStr: "Công thức Bayes dùng để tính xác suất nào?", target: "P(B_i | A)", options: ["P(B_i | A)", "P(A)", "P(AB)", "P(A \\cup B)"] },
+                    { qStr: "Hộp I có 5 đỏ, 3 trắng. Hộp II có 4 đỏ, 4 trắng. Chuyển 1 bi từ I sang II rồi lấy 1 bi từ II. Xác suất được bi đỏ?", target: "\\frac{37}{72}", options: ["\\frac{37}{72}", "\\frac{1}{2}", "\\frac{9}{16}", "\\frac{5}{9}"] },
+                    { qStr: "Ba xạ thủ bắn độc lập có xác suất trúng 0.6; 0.7; 0.8. Biết bia trúng đúng 2 viên, xác suất người 1 trượt là?", target: "\\frac{28}{47}", options: ["\\frac{28}{47}", "\\frac{12}{47}", "\\frac{7}{47}", "\\frac{1}{3}"] },
+                    { qStr: "Một người có 3 chìa khóa giống nhau, trong đó có 1 chìa mở được cửa. Thử từng chìa bỏ ra ngoài. Xác suất mở được ở lần thứ 2?", target: "\\frac{1}{3}", options: ["\\frac{1}{3}", "\\frac{1}{2}", "\\frac{2}{3}", "\\frac{1}{6}"] },
+                    { qStr: "Hai biến cố độc lập $A, B$ có $P(A \\cup B) = 0.7$, $P(A) = 0.4$. Giá trị $P(B)$ là?", target: "0.5", options: ["0.5", "0.3", "0.4", "0.6"] },
+                    { qStr: "Biết $P(A) = 0.5, P(B) = 0.3, P(A \\cap B) = 0.1$. Giá trị $P(A \\cup B)$ là?", target: "0.7", options: ["0.7", "0.8", "0.6", "0.9"] },
+                    { qStr: "Giá trị $P(A|B) + P(\\overline{A}|\\overline{B}) = 1$ có luôn đúng với mọi biến cố không?", target: "\\text{Không luôn đúng}", options: ["\\text{Không luôn đúng}", "\\text{Luôn đúng}", "\\text{Chỉ đúng khi độc lập}", "\\text{Đúng khi xung khắc}"] },
+                    { qStr: "Một kỳ thi trắc nghiệm 4 lựa chọn có 10 câu. Học sinh đoán mò toàn bộ. Xác suất đúng hết 10 câu là?", target: "\\frac{1}{4^{10}}", options: ["\\frac{1}{4^{10}}", "\\frac{1}{10^4}", "\\frac{1}{40}", "\\frac{1}{4}"] },
+                    { qStr: "Cho $P(A) = 0.6, P(B) = 0.7$. Giá trị nhỏ nhất của $P(AB)$ là?", target: "0.3", options: ["0.3", "0.42", "0", "0.1"] }
+                ]
+            },
+            "Chủ đề 3: Quy Tắc Đếm - Hoán Vị, Chỉnh Hợp & Tổ Hợp": {
+                "easy": [
+                    { qStr: "Có 5 bạn nam và 4 bạn nữ. Có bao nhiêu cách chọn ra 1 bạn tham gia đội cờ đỏ?", target: "9", options: ["9", "20", "5", "4"] },
+                    { qStr: "Có 5 bạn nam và 4 bạn nữ. Có bao nhiêu cách chọn 1 cặp gồm 1 nam và 1 nữ khiêu vũ?", target: "20", options: ["20", "9", "10", "25"] },
+                    { qStr: "Số hoán vị của tập hợp có 4 phần tử $P_4$ bằng?", target: "24", options: ["24", "12", "16", "4"] },
+                    { qStr: "Quy ước toán học $0!$ bằng bao nhiêu?", target: "1", options: ["1", "0", "Vô cùng", "-1"] },
+                    { qStr: "Công thức tính số chỉnh hợp chập $k$ của $n$ phần tử $A_n^k$ là?", target: "\\frac{n!}{(n-k)!}", options: ["\\frac{n!}{(n-k)!}", "\\frac{n!}{k!(n-k)!}", "\\frac{n!}{k!}", "n! \\cdot k!"] },
+                    { qStr: "Công thức tính số tổ hợp chập $k$ của $n$ phần tử $C_n^k$ là?", target: "\\frac{n!}{k!(n-k)!}", options: ["\\frac{n!}{k!(n-k)!}", "\\frac{n!}{(n-k)!}", "\\frac{n!}{k!}", "n! + k!"] },
+                    { qStr: "Giá trị của $C_5^2$ bằng bao nhiêu?", target: "10", options: ["10", "20", "12", "5"] },
+                    { qStr: "Giá trị của $A_5^2$ bằng bao nhiêu?", target: "20", options: ["20", "10", "25", "12"] },
+                    { qStr: "Số tập hợp con gồm 3 phần tử của một tập hợp có 6 phần tử là?", target: "20", options: ["20", "120", "18", "30"] },
+                    { qStr: "Có bao nhiêu cách xếp 5 bạn học sinh vào 5 ghế xếp thành một hàng ngang?", target: "120", options: ["120", "24", "25", "60"] }
+                ],
+                "medium": [
+                    { qStr: "Từ các chữ số $\\{1;2;3;4;5\\}$, lập được bao nhiêu số tự nhiên có 3 chữ số khác nhau?", target: "60", options: ["60", "125", "20", "120"] },
+                    { qStr: "Từ các chữ số $\\{0;1;2;3;4\\}$, lập được bao nhiêu số tự nhiên có 3 chữ số khác nhau?", target: "48", options: ["48", "60", "100", "24"] },
+                    { qStr: "Có 10 đội bóng đá thi đấu vòng tròn 1 lượt. Tổng số trận đấu của giải là?", target: "45", options: ["45", "90", "100", "50"] },
+                    { qStr: "Có 8 bạn học sinh. Có bao nhiêu cách chọn 1 ban đại diện gồm 1 Trưởng, 1 Phó và 1 Thư ký?", target: "336", options: ["336", "56", "512", "120"] },
+                    { qStr: "Một đa giác đều có 10 cạnh. Số đường chéo của đa giác đó là?", target: "35", options: ["35", "45", "70", "20"] },
+                    { qStr: "Cho 8 điểm phân biệt không có 3 điểm nào thẳng hàng. Có bao nhiêu tam giác có đỉnh từ các điểm đó?", target: "56", options: ["56", "336", "24", "112"] },
+                    { qStr: "Từ các chữ số $\\{1;2;3;4;5;6\\}$, lập được bao nhiêu số tự nhiên chẵn có 3 chữ số khác nhau?", target: "60", options: ["60", "120", "30", "90"] },
+                    { qStr: "Số cách chọn 4 học sinh từ một tổ gồm 7 nam và 5 nữ sao cho có 2 nam và 2 nữ là?", target: "210", options: ["210", "495", "105", "35"] },
+                    { qStr: "Có 6 quyển sách Toán khác nhau và 4 quyển sách Văn khác nhau. Số cách xếp lên kệ thành 1 hàng sao cho các sách cùng môn đứng cạnh nhau?", target: "34560", options: ["34560", "17280", "10!", "240"] },
+                    { qStr: "Số cách chia 6 người thành 3 cặp đôi bất kỳ là?", target: "15", options: ["15", "90", "20", "45"] }
+                ],
+                "hard": [
+                    { qStr: "Xếp 4 nam và 4 nữ vào 1 bàn tròn 8 ghế. Số cách xếp để nam nữ ngồi xen kẽ là?", target: "144", options: ["144", "288", "576", "720"] },
+                    { qStr: "Từ $\\{0;1;2;3;4;5\\}$, có bao nhiêu số tự nhiên chẵn có 4 chữ số khác nhau?", target: "156", options: ["156", "180", "144", "300"] },
+                    { qStr: "Có bao nhiêu số tự nhiên có 5 chữ số mà các chữ số tăng dần từ trái sang phải?", target: "126", options: ["126", "252", "120", "720"] },
+                    { qStr: "Có bao nhiêu số tự nhiên có 5 chữ số mà các chữ số giảm dần từ trái sang phải?", target: "252", options: ["252", "126", "210", "504"] },
+                    { qStr: "Một hộp có 6 bi đỏ, 5 bi xanh, 4 bi vàng. Chọn 4 bi sao cho có đủ cả 3 màu. Số cách chọn là?", target: "645", options: ["645", "1365", "720", "840"] },
+                    { qStr: "Tìm số nguyên dương $n$ thỏa mãn $A_n^3 = 24C_n^1$:", target: "n = 6", options: ["n = 6", "n = 5", "n = 7", "n = 8"] },
+                    { qStr: "Tìm $n$ thỏa mãn $C_n^2 + C_n^1 = 28$:", target: "n = 7", options: ["n = 7", "n = 8", "n = 6", "n = 9"] },
+                    { qStr: "Có bao nhiêu số tự nhiên gồm 6 chữ số khác nhau có chữ số 1 và 2 luôn đứng cạnh nhau?", target: "28800", options: ["28800", "14400", "57600", "72000"] },
+                    { qStr: "Có bao nhiêu số tự nhiên gồm 5 chữ số khác nhau trong đó có chữ số 0 và 1?", target: "7056", options: ["7056", "5880", "8400", "9000"] },
+                    { qStr: "Cho tập $X = \\{1;2;3;4;5;6;7\\}$. Số tập con của $X$ chứa phần tử 1 nhưng không chứa phần tử 2 là?", target: "32", options: ["32", "64", "16", "48"] }
+                ]
+            }
+        };
+
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+        window.selectedDiff = 'all';
+        window.selectedQuestions = null;
+
+        window.openTopicSelectMenu = function() {
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (!overlay) return;
+            window.renderSnakeTopicCards();
+            overlay.classList.remove('hidden');
+        };
+
+        window.renderSnakeTopicCards = function() {
+            const container = document.getElementById('snake-topics-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.keys(window.gameDatabase).forEach((topicName, idx) => {
+                const topicData = window.gameDatabase[topicName];
+                const totalEasy = (topicData.easy || []).length;
+                const totalMed = (topicData.medium || []).length;
+                const totalHard = (topicData.hard || []).length;
+                const totalAll = totalEasy + totalMed + totalHard;
+                const isSelected = topicName === window.selectedTopic;
+
+                const card = document.createElement('div');
+                card.className = `rounded-2xl p-5 border-2 transition-all flex flex-col justify-between ${
+                    isSelected 
+                        ? 'border-emerald-400 bg-emerald-950/40 shadow-[0_0_25px_rgba(16,185,129,0.35)]' 
+                        : 'border-white/10 bg-slate-900/60 hover:border-emerald-400/50 hover:bg-slate-900/90'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-orbitron">
+                                Chuyên đề ${idx + 1}
+                            </span>
+                            <span class="text-xs font-bold text-gray-300 font-orbitron">${totalAll} Câu Hỏi</span>
+                        </div>
+                        <h2 class="text-xl font-black text-white mb-2 leading-snug">
+                            ${topicName}
+                        </h2>
+                        <p class="text-xs text-slate-300 mb-4">
+                            Săn mồi và giải các câu hỏi xác suất theo 3 mức độ Dễ, Vừa, Khó.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 mt-4 pt-4 border-t border-white/10">
+                        <button onclick="window.selectSnakeTopic('${topicName.replace(/'/g, "\\'")}', 'all')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-95 font-orbitron">
+                            ⚡ Chơi Toàn Diện (${totalAll} câu)
+                        </button>
+                        
+                        <div class="grid grid-cols-3 gap-1.5 pt-1">
+                            <button onclick="window.selectSnakeTopic('${topicName.replace(/'/g, "\\'")}', 'easy')" class="py-2 px-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Dễ (${totalEasy})
+                            </button>
+                            <button onclick="window.selectSnakeTopic('${topicName.replace(/'/g, "\\'")}', 'medium')" class="py-2 px-1 rounded-lg bg-blue-950/60 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Vừa (${totalMed})
+                            </button>
+                            <button onclick="window.selectSnakeTopic('${topicName.replace(/'/g, "\\'")}', 'hard')" class="py-2 px-1 rounded-lg bg-rose-950/60 hover:bg-rose-600 border border-rose-500/40 text-rose-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Khó (${totalHard})
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        window.selectSnakeTopic = function(topicName, diffMode) {
+            const topicData = window.gameDatabase[topicName];
+            if (!topicData) return;
+            window.selectedTopic = topicName;
+            window.selectedDiff = diffMode;
+
+            let selectedList = [];
+            if (diffMode === 'all') {
+                selectedList = [
+                    ...(topicData.easy || []),
+                    ...(topicData.medium || []),
+                    ...(topicData.hard || [])
+                ];
+            } else {
+                selectedList = [...(topicData[diffMode] || [])];
+            }
+
+            if (selectedList.length === 0) return;
+            window.selectedQuestions = selectedList;
+
+            // Cập nhật nhãn HUD
+            const diffLabel = diffMode === 'all' ? 'Toàn diện' : (diffMode === 'easy' ? 'Dễ' : (diffMode === 'medium' ? 'Vừa' : 'Khó'));
+            const topicEl = document.getElementById('hud-topic-label');
+            if (topicEl) topicEl.innerText = `${topicName} (${diffLabel})`;
+
+            const hudQuest = document.getElementById('hud-quest');
+            if (hudQuest) hudQuest.innerText = `1/${window.selectedQuestions.length}`;
+
+            // Đóng overlay
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.classList.add('hidden');
+
+            // Reset game data
+            gameData.qIndex = 0;
+            gameData.score = 0;
+            document.getElementById('hud-score').innerText = '0';
+        };
+
         // --- 1. LOCAL STORAGE LEADERBOARD ---
         const LOCAL_STORAGE_KEY = 'snake_math_xacsuat_v7';
 
@@ -406,6 +678,20 @@
 
         // --- 4. ENGINE TOÁN HỌC - XÁC SUẤT 10 (KNTT) ---
         function generateMath() {
+            // [QUY TẮC 4: NẾU CÓ DỮ LIỆU TĨNH ĐƯỢC CHỌN -> GHI ĐÈ GENERATOR TỰ ĐỘNG]
+            if (window.selectedQuestions && window.selectedQuestions.length > 0) {
+                if (gameData.qIndex >= window.selectedQuestions.length) {
+                    gameData.qIndex = 0;
+                }
+                const qData = window.selectedQuestions[gameData.qIndex];
+                let shuffledOptions = [...qData.options].sort(() => Math.random() - 0.5);
+                currentQuestion = {
+                    qStr: qData.qStr,
+                    target: qData.target,
+                    options: shuffledOptions
+                };
+                return;
+            }
             let diff = 1;
             if (gameData.qIndex < 15) diff = 1;
             else if (gameData.qIndex < 20) diff = 2;
@@ -753,7 +1039,8 @@
             generateMath();
             
             switchScreen('screen-quiz');
-            document.getElementById('quiz-badge').innerText = `CÂU HỎI ${gameData.qIndex + 1}/25`;
+            const totalQ = window.selectedQuestions ? window.selectedQuestions.length : 25;
+            document.getElementById('quiz-badge').innerText = `CÂU HỎI ${gameData.qIndex + 1}/${totalQ}`;
             
             const qWrap = document.getElementById('quiz-question');
             qWrap.innerHTML = '';
@@ -797,13 +1084,15 @@
                 snakeBaseSize = Math.min(1.5, snakeBaseSize + 0.02); 
                 
                 document.getElementById('hud-score').innerText = gameData.score;
-                document.getElementById('hud-quest').innerText = `${gameData.qIndex}/25`;
+                const totalQ = window.selectedQuestions ? window.selectedQuestions.length : 25;
+                document.getElementById('hud-quest').innerText = `${gameData.qIndex}/${totalQ}`;
                 
                 let tail = snake.body[snake.body.length-1];
                 snake.body.push({...tail}, {...tail});
 
-                if (gameData.qIndex >= 25) {
-                    doGameOver("XUẤT SẮC! Em đã hoàn thành 25 câu hỏi!", true);
+                const totalQ = window.selectedQuestions ? window.selectedQuestions.length : 25;
+                if (gameData.qIndex >= totalQ) {
+                    doGameOver(`XUẤT SẮC! Em đã hoàn thành ${totalQ} câu hỏi ${window.selectedTopic}!`, true);
                     return;
                 }
                 spawnFood(false);
@@ -840,7 +1129,8 @@
             snakeBaseSize = 1.0;
             renderHearts();
             document.getElementById('hud-score').innerText = '0';
-            document.getElementById('hud-quest').innerText = '1/25';
+            const totalQ = window.selectedQuestions ? window.selectedQuestions.length : 25;
+            document.getElementById('hud-quest').innerText = `1/${totalQ}`;
 
             spawnFood(false);
             
@@ -860,6 +1150,7 @@
                 gameData.name = input.value.trim().toUpperCase();
                 document.getElementById('display-name').innerText = gameData.name;
                 switchScreen('screen-start');
+                window.openTopicSelectMenu();
             }
         };
 

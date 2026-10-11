@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Toán 10. Game Rắn săn TẬP HỢP</title>
+    <title>Toán 10 - Game Rắn Săn Mồi Tập Hợp | TOÁN PRO - THẦY HÙNG</title>
     
     <!-- Tailwind & Fonts & KaTeX -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -131,6 +131,40 @@
 </head>
 <body>
 
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" class="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-slate-950/90 backdrop-blur-2xl transition-all duration-300">
+        <div class="rounded-3xl w-full max-w-5xl border-2 border-emerald-400/40 flex flex-col max-h-[92vh] overflow-hidden bg-gradient-to-br from-slate-950/95 via-slate-900/95 to-slate-950/95 shadow-[0_0_60px_rgba(16,185,129,0.3)]">
+            
+            <div class="p-6 border-b border-white/10 text-center relative">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-black tracking-widest uppercase mb-2 font-orbitron">
+                    🐍 ĐẤU TRƯỜNG RẮN SĂN MỒI | TOÁN PRO - THẦY HÙNG
+                </div>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 tracking-tight mb-2 font-orbitron">
+                    CHỌN CHUYÊN ĐỀ RẮN SĂN TOÁN HỌC
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base font-semibold max-w-2xl mx-auto">
+                    Điều khiển rắn săn các quả cầu năng lượng và giải các câu đố toán học từ Dễ đến Khó.
+                </p>
+                <button onclick="document.getElementById('topic-selection-overlay').classList.add('hidden')" class="absolute top-6 right-6 text-gray-400 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-2xl transition-colors">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Grid danh sách chuyên đề -->
+            <div id="snake-topics-grid" class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-5 flex-1">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <div class="p-4 border-t border-white/10 bg-black/40 flex flex-wrap justify-between items-center text-xs text-slate-400 font-semibold px-8">
+                <span>⭐ Hỗ trợ thử thách Toàn Diện (Dễ ➡️ Khó) hoặc luyện tập từng cấp độ</span>
+                <span class="text-emerald-400 font-mono">MathSnake Engine v3.8</span>
+            </div>
+        </div>
+    </div>
+
+
     <!-- LỚP GAME CANVA -->
     <canvas id="gameCanvas"></canvas>
 
@@ -141,7 +175,12 @@
                 <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-slate-950 font-black text-xl font-orbitron">MH</div>
                 <div>
                     <h1 class="text-white font-black text-sm uppercase font-orbitron tracking-wide">TOÁN PRO - THẦY HÙNG</h1>
-                    <p class="text-emerald-400 text-[10px] font-bold tracking-[0.1em] uppercase mt-1">Toán 10 - Tập Hợp</p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <p id="hud-topic-label" class="text-emerald-400 text-[10px] font-bold tracking-[0.1em] uppercase">Toán 10 - Tập Hợp</p>
+                        <button onclick="window.openTopicSelectMenu()" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[9px] font-bold uppercase hover:bg-emerald-500/40">
+                            Đổi 📚
+                        </button>
+                    </div>
                 </div>
             </div>
             <div id="lives-box" class="glass-panel px-5 py-2 rounded-2xl flex gap-2 pointer-events-auto border border-slate-700 w-fit">
@@ -155,7 +194,7 @@
             </div>
             <div class="glass-panel px-4 py-2 rounded-xl border border-slate-700 flex items-center gap-2">
                 <span class="text-slate-400 text-[10px] font-bold tracking-widest uppercase">Câu Hỏi</span>
-                <span id="hud-quest" class="text-emerald-400 font-black text-lg font-orbitron">1/35</span>
+                <span id="hud-quest" class="text-emerald-400 font-black text-lg font-orbitron">1/--</span>
             </div>
         </div>
     </div>
@@ -190,7 +229,12 @@
                 </div>
                 <h1 class="text-5xl md:text-7xl font-black text-white mb-6 font-orbitron leading-tight">MATH<br/><span class="text-emerald-500">SNAKE.IO</span></h1>
                 <p class="text-slate-400 mb-10 text-base md:text-lg max-w-md mx-auto md:mx-0">Vượt qua 35 câu hỏi Tập hợp & Các phép toán chuẩn xác cùng <strong class="text-emerald-400">TOÁN PRO - THẦY HÙNG</strong>.</p>
-                <button id="btn-start-game" class="w-full md:w-auto px-12 py-5 btn-primary rounded-2xl text-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)]">BẮT ĐẦU CHIẾN</button>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <button id="btn-start-game" class="px-10 py-5 btn-primary rounded-2xl text-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)]">BẮT ĐẦU CHIẾN</button>
+                    <button onclick="window.openTopicSelectMenu()" class="px-6 py-5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl text-base border border-slate-600 shadow-lg flex items-center justify-center gap-2 transition-all">
+                        📚 Đổi Chuyên Đề
+                    </button>
+                </div>
             </div>
             <div class="flex-1 w-full bg-slate-900 border border-slate-700 rounded-[32px] p-8 max-h-[450px] flex flex-col shadow-2xl">
                 <div class="flex justify-between items-center mb-6">
@@ -211,7 +255,7 @@
         <div class="quiz-container animate-pop relative flex flex-col items-center">
             
             <div id="quiz-badge" class="absolute -top-5 bg-emerald-500 text-slate-950 px-8 py-2 rounded-full font-black text-xs font-orbitron tracking-widest uppercase">
-                CÂU HỎI 1/35
+                CÂU HỎI 1/--
             </div>
             
             <p class="text-slate-500 font-black text-[10px] tracking-[0.5em] mb-8 mt-4 font-orbitron uppercase text-center w-full">TOÁN PRO - THẦY HÙNG</p>
@@ -337,6 +381,238 @@ window.quizData = ([
             { qStr: "\\text{Câu 34: Tập } A=(m-1;m]\\cap (3;5) \\text{ có đúng 1 số tự nhiên khi:}", target: "4\\le m < 5", options: ["4\\le m < 5", "3<m<5", "m=4", "m\\ge 4"] },
             { qStr: "\\text{Câu 35: } A=(m-1;5), B=(3;+\\infty). \\text{ Tổng các giá trị } m\\in\\mathbb{Z} \\text{ để } A\\backslash B=\\emptyset \\text{ là:}", target: "9", options: ["9", "4", "5", "10"] }
         ]).map(q => ({...q, difficulty: q.difficulty || 1}));
+
+        
+        // ========================================================
+        // HỆ THỐNG ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE ARCHITECTURE)
+        // ========================================================
+        window.gameDatabase = {
+            "Chủ đề 1: Mệnh Đề & Tập Hợp": {
+                "easy": [
+                    { qStr: "\\text{Câu 1: Cho } A=\\{x+1 | x\\in\\mathbb{N}, x\\le 3\\}. \\text{ Tập A là:}", target: "\\{1;2;3;4\\}", options: ["\\{1;2;3;4\\}", "\\{0;1;2;3\\}", "\\{1;2;3\\}", "\\{0;1;2;3;4\\}"] },
+                    { qStr: "\\text{Câu 2: Liệt kê phần tử tập } X=\\{x\\in\\mathbb{R} | 2x^2-5x+3=0\\}", target: "\\{1; \\frac{3}{2}\\}", options: ["\\{1; \\frac{3}{2}\\}", "\\{0\\}", "\\{1\\}", "\\{\\frac{3}{2}\\}"] },
+                    { qStr: "\\text{Câu 3: Cho } A=(2;+\\infty). \\text{ Tìm } C_{\\mathbb{R}}A", target: "(-\\infty;2]", options: ["(-\\infty;2]", "(-\\infty;2)", "[2;+\\infty)", "[-2;+\\infty)"] },
+                    { qStr: "\\text{Câu 4: Số tập con của tập } X=\\{a;b;c\\} \\text{ là:}", target: "8", options: ["8", "4", "6", "12"] },
+                    { qStr: "\\text{Câu 5: Cho } X=\\{1;5\\}, Y=\\{1;3;5\\}. \\text{ Tập } X\\cap Y \\text{ là:}", target: "\\{1;5\\}", options: ["\\{1;5\\}", "\\{1\\}", "\\{1;3\\}", "\\{1;3;5\\}"] },
+                    { qStr: "\\text{Câu 6: Cho } X=\\{a;b\\}, Y=\\{a;b;c\\}. \\text{ Tập } X\\cup Y \\text{ là:}", target: "\\{a;b;c\\}", options: ["\\{a;b;c\\}", "\\{a;b\\}", "\\{c\\}", "\\emptyset"] },
+                    { qStr: "\\text{Câu 7: Tập } A=\\{1;2;5;7\\}, B=\\{1;2;3\\}. \\text{ Có bao nhiêu tập } X \\text{ thỏa } X\\subset A, X\\subset B?", target: "4", options: ["4", "2", "6", "8"] },
+                    { qStr: "\\text{Câu 8: Cho } A=\\{0;1\\}, B=\\{0;1;2;3;4\\}. \\text{ Số tập } X \\text{ thỏa } X\\subset (B\\backslash A) \\text{ là:}", target: "8", options: ["8", "3", "5", "6"] },
+                    { qStr: "\\text{Câu 9: Lớp có 25 HS giỏi Toán, 23 giỏi Lý, 14 giỏi cả 2, 6 không giỏi. Sĩ số lớp là?}", target: "40", options: ["40", "54", "26", "68"] },
+                    { qStr: "\\text{Câu 10: Cho } A=\\{1;2;3;4;5\\}, B=\\{1;3;5;7;9\\}. \\text{ Tập } A\\cap B \\text{ là:}", target: "\\{1;3;5\\}", options: ["\\{1;3;5\\}", "\\{1;2;3;4;5\\}", "\\{2;4\\}", "\\{1;2;3;4;5;7;9\\}"] },
+                    { qStr: "\\text{Câu 11: Cho } A=\\{2;4;6;9\\}, B=\\{1;2;3;4\\}. \\text{ Tập } A\\backslash B \\text{ là:}", target: "\\{6;9\\}", options: ["\\{6;9\\}", "\\{1;2;3;5\\}", "\\{1;2;3;4;6;9\\}", "\\emptyset"] },
+                    { qStr: "\\text{Câu 12: Viết tập } A=\\{x\\in\\mathbb{R} | 4\\le x\\le 9\\} \\text{ dưới dạng đoạn:}", target: "[4;9]", options: ["[4;9]", "(4;9]", "[4;9)", "(4;9)"] }
+                ],
+                "medium": [
+                    { qStr: "\\text{Câu 13: Cho } A=(-\\infty;-1], B=(-2;+\\infty). \\text{ Tập } A\\cup B \\text{ là:}", target: "\\mathbb{R}", options: ["\\mathbb{R}", "(-2;+\\infty)", "(-2;-1]", "\\emptyset"] },
+                    { qStr: "\\text{Câu 14: Cho } A=[-5;3), B=(1;+\\infty). \\text{ Tập } A\\cap B \\text{ là:}", target: "(1;3)", options: ["(1;3)", "(1;3]", "[-5;+\\infty)", "[-5;1]"] },
+                    { qStr: "\\text{Câu 15: Cho } A=(1;5], B=(2;7]. \\text{ Tập } A\\backslash B \\text{ là:}", target: "(1;2]", options: ["(1;2]", "(2;5)", "(-1;7]", "(-1;2)"] },
+                    { qStr: "\\text{Câu 16: } A=[-2;2], B=[1;5], C=[0;1). \\text{ Tập } (A\\backslash B)\\cap C \\text{ là:}", target: "[0;1)", options: ["[0;1)", "\\{0;1\\}", "(-2;1)", "[-2;5]"] },
+                    { qStr: "\\text{Câu 17: } A=\\{x\\in\\mathbb{R} | x+3<4+2x\\}, B=\\{x\\in\\mathbb{R} | 5x-3<4x-1\\}. \\ A\\cap B \\text{ chứa số tự nhiên nào?}", target: "\\{0;1\\}", options: ["\\{0;1\\}", "\\{0\\}", "\\{1\\}", "\\emptyset"] },
+                    { qStr: "\\text{Câu 18: Cho } A=[-4;7], B=(-\\infty;-2)\\cup (3;+\\infty). \\text{ Tập } A\\cap B \\text{ là:}", target: "[-4;-2)\\cup (3;7]", options: ["[-4;-2)\\cup (3;7]", "[-4;-2)\\cup (3;7)", "(-\\infty;2]\\cup (3;+\\infty)", "(-\\infty;-2)\\cup [3;+\\infty)"] },
+                    { qStr: "\\text{Câu 19: } A=(-\\infty;-2], B=[3;+\\infty), C=(0;4). \\text{ Tập } (A\\cup B)\\cap C \\text{ là:}", target: "[3;4)", options: ["[3;4)", "[3;4]", "(-\\infty;-2]\\cup (3;+\\infty)", "\\emptyset"] },
+                    { qStr: "\\text{Câu 20: Cho } A=[-2;7), B=(1;9]. \\text{ Tập } A\\cup B \\text{ là:}", target: "[-2;9]", options: ["[-2;9]", "(1;7)", "[-2;1)", "(7;9]"] },
+                    { qStr: "\\text{Câu 21: Cho } A=(-1;5], B=(2;7). \\text{ Tập } A\\backslash B \\text{ là:}", target: "(-1;2]", options: ["(-1;2]", "(2;5]", "(-1;7)", "(-1;2)"] },
+                    { qStr: "\\text{Câu 22: Cho } A=[-2;3], B=(m;m+6). \\text{ Điều kiện } A\\subset B \\text{ là:}", target: "-3<m<-2", options: ["-3<m<-2", "-3\\le m\\le -2", "m<-3", "m\\ge -2"] },
+                    { qStr: "\\text{Câu 23: } A=[m-3;m+2], B=(-3;5). \\text{ Có bao nhiêu } m\\in\\mathbb{Z} \\text{ để } A\\subset B?", target: "2", options: ["2", "1", "3", "4"] },
+                    { qStr: "\\text{Câu 24: } B=\\{x\\in\\mathbb{Z} | |x^2+1|\\le 2\\}. \\text{ Có bao nhiêu tập con 2 phần tử?}", target: "3", options: ["3", "2", "4", "6"] }
+                ],
+                "hard": [
+                    { qStr: "\\text{Câu 25: } A=[m+1;2m-1], B=(0;6). \\text{ Số giá trị } m\\in\\mathbb{Z} \\text{ để } A\\subset B?", target: "1", options: ["1", "2", "3", "0"] },
+                    { qStr: "\\text{Câu 26: 25 HS đá bóng, 23 HS bóng bàn, 14 HS chơi cả 2, 6 HS không chơi. \\ Số HS CHỈ chơi 1 môn?}", target: "20", options: ["20", "48", "14", "34"] },
+                    { qStr: "\\text{Câu 27: } A=(m-3; \\frac{m+2}{4}), B=(-\\infty;-1)\\cup [2;+\\infty). \\ \\text{Tổng } m\\in\\mathbb{Z} \\text{ để } A\\cap B=\\emptyset \\text{ là:}", target: "9", options: ["9", "7", "11", "5"] },
+                    { qStr: "\\text{Câu 28: } A=\\{x\\in\\mathbb{R} | x^2+x+1=0\\}. \\text{ Khẳng định nào đúng?}", target: "A=\\emptyset", options: ["A=\\emptyset", "A=\\{0\\}", "A=\\{1\\}", "A=\\{-1\\}"] },
+                    { qStr: "\\text{Câu 29: } A=(-\\infty;0], B=[-1;3]. \\text{ Tập } A\\cap B \\text{ là:}", target: "[-1;0]", options: ["[-1;0]", "(-1;0)", "[-1;3]", "(-\\infty;3]"] },
+                    { qStr: "\\text{Câu 30: } A=\\{0;1;2;3;4\\}, B=\\{0;1;2;3;4;5;6\\}. \\text{ Tập } B\\backslash A \\text{ là:}", target: "\\{5;6\\}", options: ["\\{5;6\\}", "\\{0;1\\}", "\\{2;3;4\\}", "\\emptyset"] },
+                    { qStr: "\\text{Câu 31: } A=\\{x\\in\\mathbb{N} | 1<x<4\\}. \\text{ Viết dạng liệt kê:}", target: "\\{2;3\\}", options: ["\\{2;3\\}", "\\{1;2;3\\}", "\\{2;3;4\\}", "\\{1;2;3;4\\}"] },
+                    { qStr: "\\text{Câu 32: Cho } A \\cap B = A. \\text{ Khẳng định nào đúng?}", target: "A \\subset B", options: ["A \\subset B", "B \\subset A", "A = \\emptyset", "A = B"] },
+                    { qStr: "\\text{Câu 33: } A=(-\\infty; m), B=[3m-1; 3m+3]. \\text{ Điều kiện } A\\subset C_{\\mathbb{R}}B \\text{ là:}", target: "m\\ge \\frac{1}{2}", options: ["m\\ge \\frac{1}{2}", "m>\\frac{1}{2}", "m<\\frac{1}{2}", "m\\le \\frac{1}{2}"] },
+                    { qStr: "\\text{Câu 34: Tập } A=(m-1;m]\\cap (3;5) \\text{ có đúng 1 số tự nhiên khi:}", target: "4\\le m < 5", options: ["4\\le m < 5", "3<m<5", "m=4", "m\\ge 4"] },
+                    { qStr: "\\text{Câu 35: } A=(m-1;5), B=(3;+\\infty). \\text{ Tổng các giá trị } m\\in\\mathbb{Z} \\text{ để } A\\backslash B=\\emptyset \\text{ là:}", target: "9", options: ["9", "4", "5", "10"] }
+                ]
+            },
+            "Chủ đề 2: Bất Phương Trình Bậc Nhất Hai Ẩn": {
+                "easy": [
+                    { qStr: "\\text{Cặp số nào sau đây là nghiệm của BPT } 2x - 3y + 6 > 0?", target: "(0; 0)", options: ["(0; 0)", "(0; 3)", "(-4; 0)", "(-3; 1)"] },
+                    { qStr: "\\text{Bất phương trình nào sau đây là BPT bậc nhất hai ẩn?}", target: "2x + 3y \\le 5", options: ["2x + 3y \\le 5", "x^2 + y > 0", "2x - y^2 \\ge 1", "xy + 2 < 0"] },
+                    { qStr: "\\text{Miền nghiệm của BPT } x - y < 0 \\text{ chứa điểm nào dưới đây?}", target: "(1; 2)", options: ["(1; 2)", "(2; 1)", "(3; 0)", "(2; -1)"] },
+                    { qStr: "\\text{Gốc tọa độ } O(0; 0) \\text{ thuộc miền nghiệm của BPT nào?}", target: "x + y + 1 > 0", options: ["x + y + 1 > 0", "x + y - 1 > 0", "2x - y + 3 < 0", "x - 2y < -2"] },
+                    { qStr: "\\text{Điểm } M(1; -1) \\text{ KHÔNG thuộc miền nghiệm của BPT nào?}", target: "x + y > 1", options: ["x + y > 1", "x - y > 0", "2x + y \\ge 0", "x - 2y \\ge 1"] },
+                    { qStr: "\\text{Bất phương trình } x \\ge 0 \\text{ có miền nghiệm là:}", target: "\\text{Nửa mặt phẳng bên phải trục Oy}", options: ["\\text{Nửa mặt phẳng bên phải trục Oy}", "\\text{Nửa mặt phẳng bên trái trục Oy}", "\\text{Nửa mặt phẳng phía trên trục Ox}", "\\text{Nửa mặt phẳng phía dưới trục Ox}"] },
+                    { qStr: "\\text{Bất phương trình } y \\le 0 \\text{ có miền nghiệm là:}", target: "\\text{Nửa mặt phẳng phía dưới trục Ox}", options: ["\\text{Nửa mặt phẳng phía dưới trục Ox}", "\\text{Nửa mặt phẳng phía trên trục Ox}", "\\text{Nửa mặt phẳng bên phải trục Oy}", "\\text{Nửa mặt phẳng bên trái trục Oy}"] },
+                    { qStr: "\\text{Đường thẳng } d: x + y = 2 \\text{ đi qua điểm nào sau đây?}", target: "(1; 1)", options: ["(1; 1)", "(2; 2)", "(0; 0)", "(1; -1)"] },
+                    { qStr: "\\text{Hình biểu diễn miền nghiệm của BPT bậc nhất hai ẩn là:}", target: "\\text{Một nửa mặt phẳng}", options: ["\\text{Một nửa mặt phẳng}", "\\text{Một đường thẳng}", "\\text{Một đoạn thẳng}", "\\text{Một hình tròn}"] },
+                    { qStr: "\\text{Cặp số } (x; y) = (2; 3) \\text{ thỏa mãn BPT nào sau đây?}", target: "3x - 2y \\ge 0", options: ["3x - 2y \\ge 0", "x - y > 0", "2x + y < 6", "x + 2y \\le 7"] }
+                ],
+                "medium": [
+                    { qStr: "\\text{Miền nghiệm của hệ } \\begin{cases} x \\ge 0 \\\\ y \\ge 0 \\\\ x+y \\le 2 \\end{cases} \\text{ là hình gì?}", target: "\\text{Tam giác}", options: ["\\text{Tam giác}", "\\text{Tứ giác}", "\\text{Ngũ giác}", "\\text{Hình vuông}"] },
+                    { qStr: "\\text{Tọa độ các đỉnh của miền tam giác tạo bởi hệ } \\begin{cases} x \\ge 0, y \\ge 0 \\\\ x+y \\le 3 \\end{cases} \\text{ là:}", target: "(0;0), (3;0), (0;3)", options: ["(0;0), (3;0), (0;3)", "(0;0), (1;2), (2;1)", "(0;0), (3;3), (0;3)", "(1;1), (3;0), (0;3)"] },
+                    { qStr: "\\text{Điểm nào sau đây thuộc miền nghiệm của hệ } \\begin{cases} x - y > 0 \\\\ 2x - y < 3 \\end{cases}?", target: "(1; 0)", options: ["(1; 0)", "(0; 1)", "(2; 0)", "(-1; 2)"] },
+                    { qStr: "\\text{Diện tích miền tam giác tạo bởi } x \\ge 0, y \\ge 0, x+y \\le 4 \\text{ bằng:}", target: "8", options: ["8", "16", "4", "12"] },
+                    { qStr: "\\text{Miền nghiệm của hệ } \\begin{cases} 0 \\le x \\le 2 \\\\ 0 \\le y \\le 3 \\end{cases} \\text{ là hình gì?}", target: "\\text{Hình chữ nhật}", options: ["\\text{Hình chữ nhật}", "\\text{Hình vuông}", "\\text{Tam giác}", "\\text{Hình thoi}"] },
+                    { qStr: "\\text{Chu vi của miền nghiệm hệ } \\begin{cases} 0 \\le x \\le 3 \\\\ 0 \\le y \\le 4 \\end{cases} \\text{ bằng:}", target: "14", options: ["14", "12", "7", "24"] },
+                    { qStr: "\\text{Cặp số nào KHÔNG thuộc miền nghiệm của hệ } \\begin{cases} x+y \\ge 1 \\\\ 2x-y \\le 4 \\end{cases}?", target: "(0; 0)", options: ["(0; 0)", "(1; 1)", "(2; 1)", "(0; 2)"] },
+                    { qStr: "\\text{Giao điểm của 2 đường thẳng } x+y=3 \\text{ và } x-y=1 \\text{ là:}", target: "(2; 1)", options: ["(2; 1)", "(1; 2)", "(3; 0)", "(0; 3)"] },
+                    { qStr: "\\text{Hệ BPT } \\begin{cases} x+y < 1 \\\\ x+y > 2 \\end{cases} \\text{ có miền nghiệm là:}", target: "\\emptyset", options: ["\\emptyset", "\\mathbb{R}^2", "\\text{Một dải song song}", "(0; 0)"] },
+                    { qStr: "\\text{Miền nghiệm của hệ } \\begin{cases} x \\ge 0 \\\\ x+y \\le 2 \\\\ x-y \\le 2 \\end{cases} \\text{ có bao nhiêu đỉnh?}", target: "3", options: ["3", "4", "5", "2"] }
+                ],
+                "hard": [
+                    { qStr: "\\text{Tìm giá trị lớn nhất của } F(x, y) = 2x + y \\text{ trên miền } \\begin{cases} x \\ge 0, y \\ge 0 \\\\ x+y \\le 4 \\end{cases}:", target: "8", options: ["8", "4", "6", "10"] },
+                    { qStr: "\\text{Tìm giá trị nhỏ nhất của } F(x, y) = x - 2y \\text{ trên miền } \\begin{cases} x \\ge 0, y \\ge 0 \\\\ x+y \\le 3 \\end{cases}:", target: "-6", options: ["-6", "0", "3", "-3"] },
+                    { qStr: "\\text{Biểu thức } F = x + 3y \\text{ đạt GTLN tại đỉnh nào của miền } \\begin{cases} x \\ge 0, y \\ge 0 \\\\ x+y \\le 2 \\end{cases}?", target: "(0; 2)", options: ["(0; 2)", "(2; 0)", "(0; 0)", "(1; 1)"] },
+                    { qStr: "\\text{Một xưởng sản xuất 2 loại sản phẩm. Lợi nhuận max thường đạt tại:}", target: "\\text{Một đỉnh của miền nghiệm}", options: ["\\text{Một đỉnh của miền nghiệm}", "\\text{Tâm của miền nghiệm}", "\\text{Gốc tọa độ}", "\\text{Vô cực}"] },
+                    { qStr: "\\text{Giá trị lớn nhất của } F(x, y) = 3x + 4y \\text{ với } \\begin{cases} x \\ge 0, y \\ge 0 \\\\ 2x+y \\le 4 \\\\ x+2y \\le 4 \\end{cases} \\text{ là:}", target: "\\frac{28}{3}", options: ["\\frac{28}{3}", "8", "6", "12"] },
+                    { qStr: "\\text{Đỉnh tối ưu của hệ trên là giao điểm của 2 đường thẳng, có tọa độ:}", target: "(\\frac{4}{3}; \\frac{4}{3})", options: ["(\\frac{4}{3}; \\frac{4}{3})", "(1; 2)", "(2; 1)", "(0; 2)"] },
+                    { qStr: "\\text{GTLN của } F(x, y) = x + y \\text{ trên miền hình vuông } [0; 2] \\times [0; 2] \\text{ là:}", target: "4", options: ["4", "2", "6", "8"] },
+                    { qStr: "\\text{GTNN của } F(x, y) = 2x - y \\text{ trên miền hình chữ nhật } [1; 3] \\times [2; 5] \\text{ là:}", target: "-3", options: ["-3", "0", "4", "-1"] },
+                    { qStr: "\\text{Cho miền nghiệm là tứ giác } ABCD. F(x,y) = ax+by \\text{ có thể đạt max tại:}", target: "\\text{Một cạnh nếu đường mức song song cạnh}", options: ["\\text{Một cạnh nếu đường mức song song cạnh}", "\\text{Luôn chỉ duy nhất 1 điểm}", "\\text{Không bao giờ đạt max}", "\\text{Chỉ tại gốc O}"] },
+                    { qStr: "\\text{Giá trị nhỏ nhất của } F(x, y) = 3x - y \\text{ với } x \\ge 0, y \\ge 0, x+y=2 \\text{ là:}", target: "-2", options: ["-2", "0", "6", "2"] }
+                ]
+            },
+            "Chủ đề 3: Hệ Thức Lượng Trong Tam Giác": {
+                "easy": [
+                    { qStr: "\\text{Định lí cosin trong tam giác } ABC \\text{ khẳng định } a^2 = ?", target: "b^2 + c^2 - 2bc\\cos A", options: ["b^2 + c^2 - 2bc\\cos A", "b^2 + c^2 + 2bc\\cos A", "b^2 + c^2 - bc\\cos A", "b^2 - c^2 + 2bc\\cos A"] },
+                    { qStr: "\\text{Định lí sin trong tam giác } ABC \\text{ khẳng định } \\frac{a}{\\sin A} = ?", target: "2R", options: ["2R", "R", "4R", "\\frac{R}{2}"] },
+                    { qStr: "\\text{Diện tích tam giác } ABC \\text{ tính theo 2 cạnh và góc xen giữa là } S = ?", target: "\\frac{1}{2}ab\\sin C", options: ["\\frac{1}{2}ab\\sin C", "ab\\sin C", "\\frac{1}{2}ab\\cos C", "\\frac{1}{2}bc\\sin A"] },
+                    { qStr: "\\text{Công thức tính diện tích tam giác theo bán kính đường tròn nội tiếp là:}", target: "S = p \\cdot r", options: ["S = p \\cdot r", "S = 2pr", "S = \\frac{p}{r}", "S = \\frac{r}{p}"] },
+                    { qStr: "\\text{Nửa chu vi } p \\text{ của tam giác có 3 cạnh } a, b, c \\text{ bằng:}", target: "\\frac{a+b+c}{2}", options: ["\\frac{a+b+c}{2}", "a+b+c", "\\frac{a+b+c}{3}", "2(a+b+c)"] },
+                    { qStr: "\\text{Cho tam giác đều cạnh } a. \\text{ Diện tích tam giác bằng:}", target: "\\frac{a^2\\sqrt{3}}{4}", options: ["\\frac{a^2\\sqrt{3}}{4}", "\\frac{a^2\\sqrt{3}}{2}", "a^2\\sqrt{3}", "\\frac{a^2}{2}"] },
+                    { qStr: "\\text{Cho tam giác vuông tại } A \\text{ có } b = 3, c = 4. \\text{ Độ dài cạnh } a \\text{ là:}", target: "5", options: ["5", "7", "6", "\\sqrt{7}"] },
+                    { qStr: "\\text{Cho tam giác vuông tại } A \\text{ có } b=6, c=8. \\text{ Bán kính } R \\text{ đường tròn ngoại tiếp là:}", target: "5", options: ["5", "10", "4", "6"] },
+                    { qStr: "\\text{Trong tam giác } ABC, \\cos A = 0 \\text{ thì góc } A \\text{ bằng:}", target: "90^\\circ", options: ["90^\\circ", "60^\\circ", "45^\\circ", "0^\\circ"] },
+                    { qStr: "\\text{Công thức diện tích tam giác theo } 4R \\text{ là: } S = ?", target: "\\frac{abc}{4R}", options: ["\\frac{abc}{4R}", "\\frac{abc}{2R}", "\\frac{abc}{R}", "\\frac{4R}{abc}"] }
+                ],
+                "medium": [
+                    { qStr: "\\text{Cho tam giác } ABC \\text{ có } b = 7, c = 5, \\cos A = \\frac{3}{5}. \\text{ Độ dài cạnh } a \\text{ là:}", target: "2\\sqrt{11}", options: ["2\\sqrt{11}", "\\sqrt{32}", "6", "8"] },
+                    { qStr: "\\text{Cho tam giác } ABC \\text{ có } a = 6, \\widehat{A} = 30^\\circ. \\text{ Bán kính đường tròn ngoại tiếp } R \\text{ là:}", target: "6", options: ["6", "12", "3", "3\\sqrt{3}"] },
+                    { qStr: "\\text{Cho tam giác } ABC \\text{ có } a=4, b=5, c=7. \\text{ Nửa chu vi } p \\text{ bằng:}", target: "8", options: ["8", "16", "7", "9"] },
+                    { qStr: "\\text{Công thức Hê-rông tính diện tích tam giác là: } S = ?", target: "\\sqrt{p(p-a)(p-b)(p-c)}", options: ["\\sqrt{p(p-a)(p-b)(p-c)}", "\\sqrt{(p-a)(p-b)(p-c)}", "p(p-a)(p-b)(p-c)", "\\sqrt{p(a+b+c)}"] },
+                    { qStr: "\\text{Cho tam giác } ABC \\text{ có } b=8, c=6, \\widehat{A}=60^\\circ. \\text{ Diện tích } S \\text{ bằng:}", target: "12\\sqrt{3}", options: ["12\\sqrt{3}", "24", "24\\sqrt{3}", "12"] },
+                    { qStr: "\\text{Độ dài đường trung tuyến } m_a \\text{ thỏa mãn công thức nào?}", target: "m_a^2 = \\frac{2(b^2+c^2)-a^2}{4}", options: ["m_a^2 = \\frac{2(b^2+c^2)-a^2}{4}", "m_a^2 = \\frac{b^2+c^2-a^2}{2}", "m_a = \\frac{b+c-a}{2}", "m_a^2 = \\frac{b^2+c^2+a^2}{4}"] },
+                    { qStr: "\\text{Cho tam giác có } a=5, b=6, c=7. \\text{ Diện tích tam giác bằng:}", target: "6\\sqrt{6}", options: ["6\\sqrt{6}", "12\\sqrt{6}", "36", "18"] },
+                    { qStr: "\\text{Bán kính đường tròn nội tiếp } r \\text{ của tam giác có } S=24, p=8 \\text{ là:}", target: "3", options: ["3", "4", "2", "6"] },
+                    { qStr: "\\text{Cho tam giác đều cạnh bằng } 6. \\text{ Bán kính đường tròn ngoại tiếp } R \\text{ là:}", target: "2\\sqrt{3}", options: ["2\\sqrt{3}", "3\\sqrt{3}", "3", "\\sqrt{3}"] },
+                    { qStr: "\\text{Trong tam giác } ABC, \\text{nếu } a^2 + b^2 - c^2 > 0 \\text{ thì góc } C \\text{ là:}", target: "\\text{Góc nhọn}", options: ["\\text{Góc nhọn}", "\\text{Góc tù}", "\\text{Góc vuông}", "\\text{Góc bẹt}"] }
+                ],
+                "hard": [
+                    { qStr: "\\text{Tam giác } ABC \\text{ có } a^2 = b^2 + c^2 + bc. \\text{ Số đo góc } A \\text{ bằng:}", target: "120^\\circ", options: ["120^\\circ", "60^\\circ", "150^\\circ", "135^\\circ"] },
+                    { qStr: "\\text{Tam giác } ABC \\text{ có } a^2 = b^2 + c^2 - \\sqrt{2}bc. \\text{ Số đo góc } A \\text{ bằng:}", target: "45^\\circ", options: ["45^\\circ", "135^\\circ", "60^\\circ", "30^\\circ"] },
+                    { qStr: "\\text{Nếu } \\frac{a}{\\cos A} = \\frac{b}{\\cos B} \\text{ thì tam giác } ABC \\text{ là tam giác:}", target: "\\text{Cân tại C}", options: ["\\text{Cân tại C}", "\\text{Đều}", "\\text{Vuông tại C}", "\\text{Vuông tại A}"] },
+                    { qStr: "\\text{Nếu } \\sin A = 2\\sin B \\cos C \\text{ thì tam giác } ABC \\text{ là tam giác:}", target: "\\text{Cân tại A}", options: ["\\text{Cân tại A}", "\\text{Cân tại B}", "\\text{Đều}", "\\text{Vuông tại A}"] },
+                    { qStr: "\\text{Độ dài trung tuyến } m_a \\text{ của tam giác có } a=6, b=8, c=10 \\text{ bằng:}", target: "\\sqrt{73}", options: ["\\sqrt{73}", "5", "7", "\\sqrt{65}"] },
+                    { qStr: "\\text{Hai tàu thủy cùng xuất phát từ bến O theo 2 hướng tạo góc } 60^\\circ. \\text{ Vận tốc 30 km/h và 40 km/h. Sau 1h khoảng cách là:}", target: "10\\sqrt{13} \\text{ km}", options: ["10\\sqrt{13} \\text{ km}", "35 \\text{ km}", "50 \\text{ km}", "20\\sqrt{7} \\text{ km}"] },
+                    { qStr: "\\text{Khoảng cách từ chân tháp đến điểm A là 50m, góc nhìn đỉnh tháp là } 30^\\circ. \\text{ Chiều cao tháp xấp xỉ:}", target: "28.87 \\text{ m}", options: ["28.87 \\text{ m}", "25 \\text{ m}", "50 \\text{ m}", "43.3 \\text{ m}"] },
+                    { qStr: "\\text{Tam giác } ABC \\text{ thỏa mãn } S = \\frac{1}{4}(a^2+b^2). \\text{ Khi đó tam giác } ABC \\text{ là:}", target: "\\text{Vuông cân tại C}", options: ["\\text{Vuông cân tại C}", "\\text{Đều}", "\\text{Vuông tại A}", "\\text{Cân tại A}"] },
+                    { qStr: "\\text{Cho tam giác } ABC \\text{ có } r=2, R=5. \\text{ Khoảng cách } d \\text{ giữa tâm đường tròn nội tiếp và ngoại tiếp:}", target: "\\sqrt{5}", options: ["\\sqrt{5}", "3", "1", "\\sqrt{7}"] },
+                    { qStr: "\\text{Bán kính đường tròn nội tiếp } r \\text{ của tam giác có 3 cạnh 5, 12, 13 bằng:}", target: "2", options: ["2", "3", "4", "1"] }
+                ]
+            }
+        };
+
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+        window.selectedDiff = 'all';
+
+        window.openTopicSelectMenu = function() {
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (!overlay) return;
+            window.renderSnakeTopicCards();
+            overlay.classList.remove('hidden');
+        };
+
+        window.renderSnakeTopicCards = function() {
+            const container = document.getElementById('snake-topics-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.keys(window.gameDatabase).forEach((topicName, idx) => {
+                const topicData = window.gameDatabase[topicName];
+                const totalEasy = (topicData.easy || []).length;
+                const totalMed = (topicData.medium || []).length;
+                const totalHard = (topicData.hard || []).length;
+                const totalAll = totalEasy + totalMed + totalHard;
+                const isSelected = topicName === window.selectedTopic;
+
+                const card = document.createElement('div');
+                card.className = `rounded-2xl p-5 border-2 transition-all flex flex-col justify-between ${
+                    isSelected 
+                        ? 'border-emerald-400 bg-emerald-950/40 shadow-[0_0_25px_rgba(16,185,129,0.35)]' 
+                        : 'border-white/10 bg-slate-900/60 hover:border-emerald-400/50 hover:bg-slate-900/90'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-orbitron">
+                                Chuyên đề ${idx + 1}
+                            </span>
+                            <span class="text-xs font-bold text-gray-300 font-orbitron">${totalAll} Câu Hỏi</span>
+                        </div>
+                        <h2 class="text-xl font-black text-white mb-2 leading-snug">
+                            ${topicName}
+                        </h2>
+                        <p class="text-xs text-slate-300 mb-4">
+                            Săn mồi và giải các câu hỏi toán học theo 3 mức độ Dễ, Vừa, Khó.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 mt-4 pt-4 border-t border-white/10">
+                        <button onclick="window.selectSnakeTopic('${topicName.replace(/'/g, "\\'")}', 'all')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-95 font-orbitron">
+                            ⚡ Chơi Toàn Diện (${totalAll} câu)
+                        </button>
+                        
+                        <div class="grid grid-cols-3 gap-1.5 pt-1">
+                            <button onclick="window.selectSnakeTopic('${topicName.replace(/'/g, "\\'")}', 'easy')" class="py-2 px-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Dễ (${totalEasy})
+                            </button>
+                            <button onclick="window.selectSnakeTopic('${topicName.replace(/'/g, "\\'")}', 'medium')" class="py-2 px-1 rounded-lg bg-blue-950/60 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Vừa (${totalMed})
+                            </button>
+                            <button onclick="window.selectSnakeTopic('${topicName.replace(/'/g, "\\'")}', 'hard')" class="py-2 px-1 rounded-lg bg-rose-950/60 hover:bg-rose-600 border border-rose-500/40 text-rose-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Khó (${totalHard})
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        window.selectSnakeTopic = function(topicName, diffMode) {
+            const topicData = window.gameDatabase[topicName];
+            if (!topicData) return;
+            window.selectedTopic = topicName;
+            window.selectedDiff = diffMode;
+
+            let selectedList = [];
+            if (diffMode === 'all') {
+                selectedList = [
+                    ...(topicData.easy || []),
+                    ...(topicData.medium || []),
+                    ...(topicData.hard || [])
+                ];
+            } else {
+                selectedList = [...(topicData[diffMode] || [])];
+            }
+
+            if (selectedList.length === 0) return;
+            QUESTION_BANK = selectedList;
+
+            // Cập nhật nhãn HUD
+            const diffLabel = diffMode === 'all' ? 'Toàn diện' : (diffMode === 'easy' ? 'Dễ' : (diffMode === 'medium' ? 'Vừa' : 'Khó'));
+            const topicEl = document.getElementById('hud-topic-label');
+            if (topicEl) topicEl.innerText = `${topicName} (${diffLabel})`;
+
+            const hudQuest = document.getElementById('hud-quest');
+            if (hudQuest) hudQuest.innerText = `1/${QUESTION_BANK.length}`;
+
+            // Đóng overlay
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.classList.add('hidden');
+
+            // Reset game data
+            gameData.qIndex = 0;
+            gameData.score = 0;
+            document.getElementById('hud-score').innerText = '0';
+        };
 
         // --- NGÂN HÀNG CÂU HỎI TĨNH (TRÍCH TỪ PDF) ---
         var QUESTION_BANK = window.quizData;
@@ -651,15 +927,15 @@ window.quizData = ([
                 snakeBaseSize = Math.min(1.5, snakeBaseSize + 0.02); 
                 
                 document.getElementById('hud-score').innerText = gameData.score;
-                document.getElementById('hud-quest').innerText = `${gameData.qIndex+1}/35`;
+                document.getElementById('hud-quest').innerText = `${gameData.qIndex+1}/${QUESTION_BANK.length}`;
                 
                 if(snake.body.length > 0) {
                     let tail = snake.body[snake.body.length-1];
                     snake.body.push({...tail}, {...tail});
                 }
 
-                if (gameData.qIndex >= 35) {
-                    doGameOver("XUẤT SẮC! Em đã hoàn thành 35 câu hỏi chuyên đề Tập Hợp!", true);
+                if (gameData.qIndex >= QUESTION_BANK.length) {
+                    doGameOver(`XUẤT SẮC! Em đã hoàn thành ${QUESTION_BANK.length} câu hỏi ${window.selectedTopic}!`, true);
                     return;
                 }
                 spawnFood(false);
@@ -702,7 +978,7 @@ window.quizData = ([
             snakeBaseSize = 1.0;
             renderHearts();
             document.getElementById('hud-score').innerText = '0';
-            document.getElementById('hud-quest').innerText = '1/35';
+            document.getElementById('hud-quest').innerText = `1/${QUESTION_BANK.length}`;
             
             spawnFood(false);
             
@@ -722,6 +998,7 @@ window.quizData = ([
                 gameData.name = input.value.trim().toUpperCase();
                 document.getElementById('display-name').innerText = gameData.name;
                 switchScreen('screen-start');
+                window.openTopicSelectMenu();
             }
         };
 

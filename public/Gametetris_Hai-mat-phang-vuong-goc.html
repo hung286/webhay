@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Toán 11. Game xếp gạch_Hai Mặt Phẳng Vuông Góc</title>
+    <title>Toán 11 - Tetris Xếp Gạch Không Gian | TOÁN PRO - THẦY HÙNG</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     
@@ -125,6 +125,36 @@
 </head>
 <body class="flex flex-col md:flex-row h-screen w-screen bg-[#09090b]">
 
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Nunito', sans-serif;">
+      <div style="max-width: 960px; width: 100%; background: rgba(15, 23, 42, 0.96); border: 3px solid #38bdf8; border-radius: 28px; padding: 32px; box-shadow: 0 0 60px rgba(56, 189, 248, 0.35); backdrop-filter: blur(20px); text-align: center;">
+        
+        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 20px; border-radius: 9999px; background: rgba(56, 189, 248, 0.15); border: 1.5px solid #38bdf8; color: #38bdf8; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
+          🧱 CYBER TETRIS MATH | TOÁN PRO - THẦY HÙNG
+        </div>
+        
+        <h1 style="color: #ffffff; font-size: clamp(1.6rem, 3.8vw, 2.4rem); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 8px 0; text-shadow: 0 0 25px rgba(56, 189, 248, 0.5);">
+          TETRIS TOÁN 11: <span style="color: #38bdf8;">CHỌN CHUYÊN ĐỀ HÌNH HỌC</span>
+        </h1>
+        <p style="color: #94a3b8; font-size: 14px; margin: 0 0 24px 0; font-weight: 600;">
+          Xếp gạch phá dòng để mở khóa thử thách từ Dễ (Khởi động) ➡️ Vừa (Tăng tốc) ➡️ Khó (Đỉnh cao)!
+        </p>
+        
+        <!-- Grid các chuyên đề -->
+        <div id="tetris-topics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 24px; max-height: 52vh; overflow-y: auto; padding: 6px;" class="custom-scroll">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; font-size: 12px; color: #64748b; font-weight: 600;">
+          <span>⭐ Câu hỏi xuất hiện theo mức độ tăng dần khi phá dòng gạch</span>
+          <span style="color: #38bdf8; font-weight: 800;">Tetris Multi-Topic Engine v3.8</span>
+        </div>
+      </div>
+    </div>
+
+
     <!-- SIDEBAR THÔNG TIN -->
     <div class="w-full md:w-80 flex-shrink-0 bg-[#0f172a] border-b md:border-b-0 md:border-r border-slate-800 flex flex-col shadow-2xl z-30 relative">
         
@@ -152,7 +182,15 @@
                 <div id="scoreDisplay" class="text-5xl font-black text-sky-400 neon-text-blue z-10 font-mono">0</div>
             </div>
 
+            <div class="bg-[#1e293b] rounded-2xl p-4 border border-slate-700 shadow-inner flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">CHUYÊN ĐỀ ĐANG CHƠI</div>
+                <div id="active-tetris-topic-badge" class="text-xs font-black text-sky-300 truncate max-w-[200px]">Chuyên đề 1...</div>
+            </div>
+
             <div class="space-y-3 mt-auto">
+                <button onclick="openTetrisTopicMenu()" class="w-full bg-sky-500/20 hover:bg-sky-500/30 text-sky-400 border border-sky-500/40 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                    📚 Đổi Chuyên Đề
+                </button>
                 <button onclick="openLeaderboard()" class="w-full bg-[#1e293b] hover:bg-[#334155] text-sky-400 border border-sky-500/30 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
                     🏆 Xem Bảng Xếp Hạng
                 </button>
@@ -189,6 +227,15 @@
             <h1 class="text-3xl font-black text-center text-sky-400 mb-2 uppercase tracking-widest neon-text-blue">TETRIS</h1>
             <p class="text-center text-pink-400 font-bold mb-8 tracking-widest uppercase text-sm neon-text-pink">Hai Mặt Phẳng Vuông Góc</p>
             
+            <!-- Chọn Chuyên Đề -->
+            <button type="button" onclick="openTetrisTopicMenu()" class="w-full mb-4 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/40 py-3.5 px-4 rounded-2xl font-bold text-sm flex items-center justify-between transition shadow-sm">
+                <span class="flex items-center gap-2">
+                    <span class="text-xl">🧱</span>
+                    <span class="text-left font-bold truncate max-w-[200px]" id="startModalTopicName">Chuyên đề 1...</span>
+                </span>
+                <span class="bg-sky-500 hover:bg-sky-400 text-white text-xs px-3 py-1.5 rounded-xl font-bold uppercase tracking-wider shrink-0">Đổi Chuyên Đề 🔄</span>
+            </button>
+
             <div class="w-full bg-[#1e293b] p-5 rounded-2xl border border-slate-700 mb-6">
                 <label class="block text-xs font-black text-slate-400 mb-2 uppercase tracking-wider text-center">Tên Người Chơi:</label>
                 <input type="text" id="startPlayerName" class="w-full px-4 py-3 rounded-xl bg-[#09090b] border border-slate-600 font-bold outline-none focus:border-sky-400 text-sky-300 text-center text-xl placeholder-slate-600" placeholder="Nhập tên...">
@@ -229,11 +276,14 @@
                 <div class="text-6xl font-black text-sky-400 neon-text-blue font-mono" id="finalScore">0</div>
             </div>
 
-            <div class="flex gap-3 w-full">
-                <button onclick="openLeaderboard()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold transition-all">
+            <div class="flex gap-2 w-full">
+                <button onclick="openLeaderboard()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold transition-all text-xs">
                     Xếp Hạng
                 </button>
-                <button onclick="resetGame()" class="flex-1 bg-sky-500 hover:bg-sky-400 text-white py-3 rounded-xl font-bold shadow-[0_0_15px_rgba(56,189,248,0.4)] transition-all">
+                <button onclick="openTetrisTopicMenu()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl font-bold transition-all text-xs">
+                    Đổi Chuyên Đề
+                </button>
+                <button onclick="resetGame()" class="flex-1 bg-sky-500 hover:bg-sky-400 text-white py-3 rounded-xl font-bold shadow-[0_0_15px_rgba(56,189,248,0.4)] transition-all text-xs">
                     Chơi Lại
                 </button>
             </div>
@@ -275,107 +325,301 @@
 
     <script>
         // ==========================================
-        // 1. DATA CÂU HỎI TOÁN 11 (HAI MẶT PHẲNG VUÔNG GÓC)
+        // 1. DATA ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ: HÌNH HỌC 11 (HAI MẶT PHẲNG VUÔNG GÓC)
         // ==========================================
-        const questionBank = [
-            {
-                q: "Điều kiện cần và đủ để hai mặt phẳng vuông góc với nhau là gì?",
-                options: [
-                    "Mặt phẳng này chứa một đường thẳng vuông góc với mặt phẳng kia.",
-                    "Hai mặt phẳng cùng vuông góc với mặt phẳng thứ ba.",
-                    "Giao tuyến của hai mặt phẳng vuông góc với một đường thẳng.",
-                    "Mặt phẳng này chứa hai đường thẳng cắt nhau vuông góc với mặt phẳng kia."
+        window.gameDatabase = {
+          "Chuyên đề 1: Điều kiện hai mặt phẳng vuông góc & Tính chất": {
+            "easy": [
+              {
+                "q": "Điều kiện cần và đủ để hai mặt phẳng vuông góc với nhau là gì?",
+                "options": [
+                  "Mặt phẳng này chứa một đường thẳng vuông góc với mặt phẳng kia.",
+                  "Hai mặt phẳng cùng vuông góc với mặt phẳng thứ ba.",
+                  "Giao tuyến của hai mặt phẳng vuông góc với một đường thẳng.",
+                  "Mặt phẳng này chứa hai đường thẳng cắt nhau vuông góc với mặt phẳng kia."
                 ],
-                correct: 0
-            },
-            {
-                q: "Cho hình chóp $S.ABC$ có $SA \\perp (ABC)$. Mặt phẳng $(SAB)$ vuông góc với mặt phẳng nào sau đây?",
-                options: [
-                    "$(ABC)$",
-                    "$(SBC)$",
-                    "$(SAC)$",
-                    "Chưa đủ dữ kiện để kết luận"
-                ],
-                correct: 0
-            },
-            {
-                q: "Nếu hai mặt phẳng vuông góc với nhau thì góc giữa chúng bằng bao nhiêu độ?",
-                options: ["$90^\\circ$", "$0^\\circ$", "$180^\\circ$", "$45^\\circ$"],
-                correct: 0
-            },
-            {
-                q: "Cho hình hộp chữ nhật $ABCD.A'B'C'D'$. Có bao nhiêu mặt phẳng vuông góc với mặt đáy $(ABCD)$?",
-                options: ["4", "2", "6", "8"],
-                correct: 0 // 4 mặt bên
-            },
-            {
-                q: "Khẳng định nào sau đây **SAI**?",
-                options: [
-                    "Hai mặt phẳng vuông góc thì mọi đường thẳng nằm trong mặt này sẽ vuông góc với mặt kia.",
-                    "Nếu hai mặt phẳng phân biệt cùng vuông góc với mặt phẳng thứ ba thì giao tuyến của chúng vuông góc với mặt phẳng thứ ba đó.",
-                    "Qua một đường thẳng $d$ không vuông góc với mặt phẳng $(P)$, có duy nhất một mặt phẳng chứa $d$ và vuông góc với $(P)$.",
-                    "Góc giữa hai mặt phẳng vuông góc là $90^\\circ$."
-                ],
-                correct: 0
-            },
-            {
-                q: "Cho lăng trụ đứng $ABC.A'B'C'$. Mặt phẳng $(ABB'A')$ vuông góc với mặt phẳng nào?",
-                options: [
-                    "$(ABC)$",
-                    "$(ACC'A')$",
-                    "$(BCC'B')$",
-                    "$(A'B'C')$ và $(ABC)$"
-                ],
-                correct: 3 // Cả 2 đáy
-            },
-            {
-                q: "Cho hình chóp $S.ABCD$ có đáy là hình vuông, $SA \\perp (ABCD)$. Mặt phẳng $(SAD)$ vuông góc với mặt phẳng nào?",
-                options: [
-                    "$(SAB)$",
-                    "$(SBD)$",
-                    "$(SAC)$",
-                    "$(SCD)$"
-                ],
-                correct: 0 // Vì AB vuông góc (SAD) -> (SAB) vuông (SAD)
-            },
-            {
-                q: "Hai mặt phẳng $(P)$ và $(Q)$ cắt nhau theo giao tuyến $\\Delta$. Lấy đường thẳng $a \\subset (P)$ sao cho $a \\perp \\Delta$. Nếu $(P) \\perp (Q)$ thì khẳng định nào đúng?",
-                options: [
-                    "$a \\perp (Q)$",
-                    "$a \\parallel (Q)$",
-                    "$a \\subset (Q)$",
-                    "Góc giữa $a$ và $(Q)$ là $45^\\circ$"
-                ],
-                correct: 0
-            },
-            {
-                q: "Số đo góc giữa hai mặt phẳng bất kỳ luôn nằm trong khoảng nào?",
-                options: [
-                    "$[0^\\circ; 90^\\circ]$",
-                    "$(0^\\circ; 90^\\circ]$",
-                    "$[0^\\circ; 180^\\circ]$",
-                    "$[90^\\circ; 180^\\circ]$"
-                ],
-                correct: 0
-            },
-            {
-                q: "Cho tứ diện $ABCD$ có $AB \\perp (BCD)$. Kẻ $AH \\perp CD$. Khẳng định nào đúng?",
-                options: [
-                    "$(ABH) \\perp (ACD)$",
-                    "$(ABC) \\perp (ACD)$",
-                    "$(ABD) \\perp (ACD)$",
-                    "$(ABH) \\perp (BCD)$"
-                ],
-                correct: 0 // CD vuông góc (ABH) -> (ACD) vuông góc (ABH)
-            }
-        ];
+                "correct": 0,
+                "explanation": "Định lý: Nếu một mặt phẳng chứa một đường thẳng vuông góc với một mặt phẳng khác thì hai mặt phẳng đó vuông góc với nhau."
+              },
+              {
+                "q": "Nếu hai mặt phẳng vuông góc với nhau thì góc giữa chúng bằng bao nhiêu độ?",
+                "options": ["$90^\\circ$", "$0^\\circ$", "$180^\\circ$", "$45^\\circ$"],
+                "correct": 0,
+                "explanation": "Theo định nghĩa, hai mặt phẳng vuông góc khi góc giữa chúng bằng 90 độ."
+              },
+              {
+                "q": "Cho hình hộp chữ nhật $ABCD.A'B'C'D'$. Có bao nhiêu mặt bên vuông góc với mặt đáy $(ABCD)$?",
+                "options": ["4", "2", "6", "8"],
+                "correct": 0,
+                "explanation": "Bốn mặt bên (ABB'A'), (BCC'B'), (CDD'C'), (DAA'D') đều vuông góc với mặt đáy."
+              }
+            ],
+            "medium": [
+              {
+                "q": "Cho hình chóp $S.ABC$ có $SA \\perp (ABC)$. Mặt phẳng $(SAB)$ vuông góc với mặt phẳng nào sau đây?",
+                "options": ["$(ABC)$", "$(SBC)$", "$(SAC)$", "Chưa đủ dữ kiện để kết luận"],
+                "correct": 0,
+                "explanation": "Vì SA chứa trong (SAB) và SA vuông góc (ABC) nên (SAB) vuông góc (ABC)."
+              },
+              {
+                "q": "Hai mặt phẳng $(P)$ và $(Q)$ vuông góc với nhau và cắt nhau theo giao tuyến $\\Delta$. Nếu đường thẳng $a \\subset (P)$ và $a \\perp \\Delta$ thì:",
+                "options": ["$a \\perp (Q)$", "$a \\parallel (Q)$", "$a \\subset (Q)$", "Góc giữa $a$ và $(Q)$ bằng $45^\\circ$"],
+                "correct": 0,
+                "explanation": "Tính chất: Đường thẳng nằm trong một mặt phẳng và vuông góc với giao tuyến thì vuông góc với mặt phẳng kia."
+              },
+              {
+                "q": "Cho hình chóp $S.ABCD$ có đáy là hình vuông, $SA \\perp (ABCD)$. Mặt phẳng $(SAD)$ vuông góc với mặt phẳng nào?",
+                "options": ["$(SAB)$", "$(SBD)$", "$(SAC)$", "$(SCD)$"],
+                "correct": 0,
+                "explanation": "Vì AB vuông góc AD và AB vuông góc SA nên AB vuông góc (SAD). Do AB nằm trong (SAB) nên (SAB) vuông góc (SAD)."
+              }
+            ],
+            "hard": [
+              {
+                "q": "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình thoi tâm $O$ và $SO \\perp (ABCD)$. Khẳng định nào sau đây đúng?",
+                "options": ["$(SAC) \\perp (SBD)$", "$(SAB) \\perp (SCD)$", "$(SAD) \\perp (SBC)$", "$(SAB) \\perp (SAD)$"],
+                "correct": 0,
+                "explanation": "Vì đáy là hình thoi nên AC vuông góc BD. Lại có SO vuông góc BD nên BD vuông góc (SAC). Do BD chứa trong (SBD) nên (SAC) vuông góc (SBD)."
+              },
+              {
+                "q": "Cho tứ diện $ABCD$ có $AB \\perp (BCD)$. Kẻ $AH \\perp CD$ tại $H$. Khẳng định nào sau đây đúng?",
+                "options": ["$(ABH) \\perp (ACD)$", "$(ABC) \\perp (ACD)$", "$(ABD) \\perp (ACD)$", "$(ABH) \\perp (BCD)$"],
+                "correct": 0,
+                "explanation": "Vì CD vuông góc AB và CD vuông góc AH nên CD vuông góc (ABH). Suy ra (ACD) vuông góc (ABH)."
+              }
+            ]
+          },
+          "Chuyên đề 2: Góc giữa hai mặt phẳng": {
+            "easy": [
+              {
+                "q": "Số đo góc giữa hai mặt phẳng bất kỳ luôn nằm trong khoảng nào?",
+                "options": ["$[0^\\circ; 90^\\circ]$", "$(0^\\circ; 90^\\circ]$", "$[0^\\circ; 180^\\circ]$", "$[90^\\circ; 180^\\circ]$"],
+                "correct": 0,
+                "explanation": "Góc giữa hai mặt phẳng luôn có số đo từ 0 độ đến 90 độ."
+              },
+              {
+                "q": "Góc giữa hai mặt phẳng song song hoặc trùng nhau bằng bao nhiêu?",
+                "options": ["$0^\\circ$", "$90^\\circ$", "$180^\\circ$", "$45^\\circ$"],
+                "correct": 0,
+                "explanation": "Quy ước: Góc giữa hai mặt phẳng song song hoặc trùng nhau bằng 0 độ."
+              },
+              {
+                "q": "Khẳng định nào sau đây đúng về góc giữa hai mặt phẳng?",
+                "options": ["Không vượt quá $90^\\circ$", "Luôn lớn hơn $0^\\circ$", "Có thể là góc tù", "Bằng tổng hai góc phẳng"],
+                "correct": 0,
+                "explanation": "Góc giữa hai mặt phẳng không bao giờ là góc tù, luôn thuộc [0; 90 độ]."
+              }
+            ],
+            "medium": [
+              {
+                "q": "Cho hình chóp tứ giác đều $S.ABCD$ có tất cả các cạnh bằng $a$. Cosin của góc giữa mặt bên và mặt đáy bằng:",
+                "options": ["$\\frac{1}{\\sqrt{3}}$", "$\\frac{\\sqrt{3}}{2}$", "$\\frac{1}{2}$", "$\\frac{\\sqrt{2}}{2}$"],
+                "correct": 0,
+                "explanation": "Gọi M là trung điểm AB, O là tâm đáy: OM = a/2, SM = a.sqrt(3)/2 => cos = OM/SM = (a/2)/(a.sqrt(3)/2) = 1/sqrt(3)."
+              },
+              {
+                "q": "Cho hình chóp $S.ABC$ có đáy $ABC$ là tam giác đều cạnh $a$, $SA \\perp (ABC)$ và $SA = \\frac{a\\sqrt{3}}{2}$. Góc giữa mặt phẳng $(SBC)$ và mặt phẳng $(ABC)$ bằng:",
+                "options": ["$45^\\circ$", "$30^\\circ$", "$60^\\circ$", "$90^\\circ$"],
+                "correct": 0,
+                "explanation": "Gọi M là trung điểm BC => AM = a.sqrt(3)/2. Tam giác SAM vuông cân tại A vì SA = AM = a.sqrt(3)/2 => góc bằng 45 độ."
+              },
+              {
+                "q": "Cho hình vuông $ABCD$ cạnh $a$. Trên đường thẳng vuông góc với $(ABCD)$ tại $A$, lấy điểm $S$ sao cho $SA = a$. Góc giữa $(SCD)$ và $(ABCD)$ bằng:",
+                "options": ["$45^\\circ$", "$60^\\circ$", "$30^\\circ$", "$90^\\circ$"],
+                "correct": 0,
+                "explanation": "CD vuông góc (SAD) nên góc giữa (SCD) và đáy là góc SDA. Tam giác SAD vuông cân tại A => góc bằng 45 độ."
+              }
+            ],
+            "hard": [
+              {
+                "q": "Cho tứ diện đều $ABCD$. Gọi $\\alpha$ là góc giữa hai mặt phẳng $(ABC)$ và $(BCD)$. Giá trị của $\\cos \\alpha$ bằng:",
+                "options": ["$\\frac{1}{3}$", "$\\frac{1}{2}$", "$\\frac{\\sqrt{3}}{3}$", "$\\frac{2}{3}$"],
+                "correct": 0,
+                "explanation": "Gọi M là trung điểm BC => cos alpha = (AM^2 + DM^2 - AD^2)/(2.AM.DM) = (3/4 + 3/4 - 1)/(2 * 3/4) = 1/3."
+              },
+              {
+                "q": "Cho hình chóp $S.ABC$ có $SA \\perp (ABC)$, đáy $ABC$ vuông tại $B$, $AB = a, SA = a\\sqrt{3}$. Góc giữa mặt phẳng $(SBC)$ và $(ABC)$ bằng:",
+                "options": ["$60^\\circ$", "$45^\\circ$", "$30^\\circ$", "$90^\\circ$"],
+                "correct": 0,
+                "explanation": "BC vuông góc AB và BC vuông góc SA => BC vuông góc (SAB) => góc là SBA. tan SBA = SA/AB = sqrt(3) => góc bằng 60 độ."
+              }
+            ]
+          },
+          "Chuyên đề 3: Hình lăng trụ đứng, hình chóp đều & Mặt phẳng vuông góc": {
+            "easy": [
+              {
+                "q": "Trong hình lăng trụ đứng, các mặt bên luôn là hình gì?",
+                "options": ["Hình chữ nhật", "Hình thoi", "Hình thang vuông", "Hình bình hành tổng quát"],
+                "correct": 0,
+                "explanation": "Các cạnh bên vuông góc với mặt đáy nên các mặt bên của lăng trụ đứng là các hình chữ nhật."
+              },
+              {
+                "q": "Trong hình chóp đều, chân đường cao hạ từ đỉnh trùng với điểm nào của đáy?",
+                "options": ["Tâm đường tròn ngoại tiếp đáy", "Một đỉnh của đáy", "Trung điểm cạnh đáy", "Trực tâm tam giác bên"],
+                "correct": 0,
+                "explanation": "Theo định nghĩa hình chóp đều, chân đường cao trùng với tâm của đáy (tâm ngoại tiếp)."
+              },
+              {
+                "q": "Cho lăng trụ đứng $ABC.A'B'C'$. Mặt phẳng $(ABB'A')$ vuông góc với mặt phẳng nào sau đây?",
+                "options": ["Cả $(ABC)$ và $(A'B'C')$", "Chỉ $(ABC)$", "Chỉ $(ACC'A')$", "$(BCC'B')$"],
+                "correct": 0,
+                "explanation": "Các cạnh bên AA', BB' vuông góc với cả hai đáy nên (ABB'A') vuông góc với cả (ABC) và (A'B'C')."
+              }
+            ],
+            "medium": [
+              {
+                "q": "Cho hình lập phương $ABCD.A'B'C'D'$. Mặt phẳng $(ACC'A')$ vuông góc với mặt phẳng nào sau đây?",
+                "options": ["$(BDD'B')$", "$(ABCD)$", "$(A'B'C'D')$", "Cả 3 mặt phẳng trên"],
+                "correct": 0,
+                "explanation": "Vì AC vuông góc BD và AA' vuông góc đáy nên (ACC'A') vuông góc với (BDD'B'), (ABCD) và (A'B'C'D')."
+              },
+              {
+                "q": "Cho hình chóp tam giác đều $S.ABC$ có cạnh đáy bằng $a$, cạnh bên bằng $a$. Mặt phẳng $(SAB)$ vuông góc với mặt phẳng nào?",
+                "options": ["Mặt phẳng trung trực của $AB$", "$(ABC)$", "$(SBC)$", "$(SAC)$"],
+                "correct": 0,
+                "explanation": "Mặt phẳng trung trực của đoạn thẳng AB đi qua đỉnh S và tâm đáy nên vuông góc với (SAB)."
+              },
+              {
+                "q": "Cho hình lăng trụ tam giác đều $ABC.A'B'C'$. Khẳng định nào sau đây **SAI**?",
+                "options": ["$(ABC) \\perp (A'B'C')$", "$(ABB'A') \\perp (ABC)$", "$(ACC'A') \\perp (ABC)$", "$(BCC'B') \\perp (A'B'C')$"],
+                "correct": 0,
+                "explanation": "(ABC) song song với (A'B'C'), không vuông góc với nhau."
+              }
+            ],
+            "hard": [
+              {
+                "q": "Cho hình chóp $S.ABCD$ có đáy là hình vuông, tam giác $SAB$ đều và nằm trong mặt phẳng vuông góc với đáy. Khẳng định nào đúng?",
+                "options": ["$(SAB) \\perp (ABCD)$", "$(SBC) \\perp (ABCD)$", "$(SAD) \\perp (SCD)$", "$(SBD) \\perp (ABCD)$"],
+                "correct": 0,
+                "explanation": "Theo giả thiết, tam giác SAB nằm trong mặt phẳng vuông góc với đáy nên (SAB) vuông góc (ABCD)."
+              },
+              {
+                "q": "Cho hình lập phương $ABCD.A'B'C'D'$. Cosin của góc giữa mặt phẳng $(A'BD)$ và mặt phẳng $(ABCD)$ bằng:",
+                "options": ["$\\frac{1}{\\sqrt{3}}$", "$\\frac{\\sqrt{3}}{2}$", "$\\frac{1}{2}$", "$\\frac{\\sqrt{2}}{2}$"],
+                "correct": 0,
+                "explanation": "Véctơ pháp tuyến của (A'BD) có độ dài sqrt(3), góc với trục thẳng đứng có cos = 1/sqrt(3)."
+              }
+            ]
+          }
+        };
 
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
         let currentQuestions = [];
+
+        function openTetrisTopicMenu() {
+            renderTetrisTopicMenuCards();
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.style.display = 'flex';
+        }
+
+        function renderTetrisTopicMenuCards() {
+            const container = document.getElementById('tetris-topics-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const topics = Object.keys(window.gameDatabase);
+            topics.forEach((topicName, idx) => {
+                const data = window.gameDatabase[topicName];
+                const eCount = (data.easy || []).length;
+                const mCount = (data.medium || []).length;
+                const hCount = (data.hard || []).length;
+                const total = eCount + mCount + hCount;
+
+                const isSelected = (window.selectedTopic === topicName);
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+                    border: 3px solid ${isSelected ? '#38bdf8' : 'rgba(255,255,255,0.15)'};
+                    border-radius: 20px; padding: 22px; text-align: left; cursor: pointer; transition: all 0.3s ease;
+                    display: flex; flex-direction: column; justify-content: space-between;
+                    box-shadow: ${isSelected ? '0 0 30px rgba(56, 189, 248, 0.45)' : '0 10px 25px rgba(0,0,0,0.3)'};
+                `;
+
+                card.onmouseover = () => { card.style.borderColor = '#38bdf8'; card.style.transform = 'translateY(-4px)'; };
+                card.onmouseout = () => {
+                    if (window.selectedTopic !== topicName) {
+                        card.style.borderColor = 'rgba(255,255,255,0.15)';
+                        card.style.transform = 'translateY(0)';
+                    }
+                };
+
+                card.innerHTML = `
+                    <div>
+                        <div style="font-size: 11px; font-weight: 800; color: #38bdf8; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
+                            CHUYÊN ĐỀ ${idx + 1} (${total} CÂU)
+                        </div>
+                        <h3 style="color: #ffffff; font-size: 17px; font-weight: 800; margin: 0 0 12px 0; line-height: 1.4;">
+                            ${topicName}
+                        </h3>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; font-size: 12px; font-weight: 700;">
+                            <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; padding: 3px 10px; border-radius: 999px;">🟢 ${eCount} Dễ</span>
+                            <span style="background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid #eab308; padding: 3px 10px; border-radius: 999px;">🟡 ${mCount} Vừa</span>
+                            <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; padding: 3px 10px; border-radius: 999px;">🔴 ${hCount} Khó</span>
+                        </div>
+                    </div>
+                    <button onclick="selectTetrisTopic('${topicName}', true)" style="
+                        width: 100%; padding: 12px 18px; border: none; border-radius: 12px;
+                        background: ${isSelected ? 'linear-gradient(90deg, #38bdf8, #2563eb)' : 'rgba(255,255,255,0.1)'};
+                        color: #ffffff; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+                        cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    ">
+                        ${isSelected ? '✓ ĐANG CHỌN' : '🧱 CHỌN CHUYÊN ĐỀ NÀY'}
+                    </button>
+                `;
+
+                container.appendChild(card);
+            });
+
+            if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise().catch(e => {});
+        }
+
+        function selectTetrisTopic(topicName, hideOverlay) {
+            window.selectedTopic = topicName;
+            const topicData = window.gameDatabase[topicName];
+            if (!topicData) return;
+
+            // Sắp xếp câu hỏi từ Dễ -> Vừa -> Khó
+            const topicQuestions = [];
+            ['easy', 'medium', 'hard'].forEach(diff => {
+                (topicData[diff] || []).forEach(q => {
+                    topicQuestions.push({
+                        q: q.q,
+                        options: [...q.options],
+                        correct: q.correct
+                    });
+                });
+            });
+
+            currentQuestions = [...topicQuestions].reverse(); // reverse để pop() ra Dễ trước
+
+            const badge = document.getElementById('active-tetris-topic-badge');
+            if (badge) badge.innerText = topicName.length > 25 ? topicName.substring(0, 25) + '...' : topicName;
+            const modalTopicBadge = document.getElementById('startModalTopicName');
+            if (modalTopicBadge) modalTopicBadge.innerText = topicName;
+
+            if (hideOverlay) {
+                const overlay = document.getElementById('topic-selection-overlay');
+                if (overlay) overlay.style.display = 'none';
+
+                const startModal = document.getElementById('startModal');
+                if (gameState === 'waiting' && startModal && startModal.style.display !== 'none') {
+                    startModal.style.opacity = '1';
+                }
+            }
+        }
+
         function getNextQuestion() {
             if (currentQuestions.length === 0) {
-                currentQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+                const topicData = window.gameDatabase[window.selectedTopic];
+                if (topicData) {
+                    const list = [];
+                    ['easy', 'medium', 'hard'].forEach(diff => {
+                        (topicData[diff] || []).forEach(q => list.push({ q: q.q, options: [...q.options], correct: q.correct }));
+                    });
+                    currentQuestions = list.reverse();
+                }
             }
-            return currentQuestions.pop();
+            return currentQuestions.pop() || { q: "Câu hỏi đang cập nhật", options: ["A", "B", "C", "D"], correct: 0 };
         }
 
         // ==========================================
@@ -945,6 +1189,11 @@
             document.getElementById('brandLogo').src = savedLogo;
             document.getElementById('mobileBrandLogo').src = savedLogo;
         }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTetrisTopicMenuCards();
+            selectTetrisTopic(window.selectedTopic, false);
+        });
 
     </script>
 <script src="/game-engine.js"></script>

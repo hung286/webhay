@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toán 11. Game Kéo Co - Hai mặt phẳng vuông góc(Solo trực tiếp)</title>
+    <title>Toán 11 - Trò Chơi Kéo Co Đối Kháng | TOÁN PRO - THẦY HÙNG</title>
     
     <!-- Cấu hình MathJax để hiển thị công thức Toán học đẹp -->
     <script>
@@ -152,12 +152,50 @@
 </head>
 <body>
 
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, rgba(192, 57, 43, 0.96) 0%, rgba(44, 62, 80, 0.98) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Segoe UI', Tahoma, sans-serif;">
+      <div style="max-width: 960px; width: 100%; background: linear-gradient(135deg, rgba(44, 62, 80, 0.96), rgba(26, 37, 47, 0.98)); border: 3px solid #f1c40f; border-radius: 28px; padding: 28px 32px; box-shadow: 0 0 50px rgba(241, 196, 15, 0.4); backdrop-filter: blur(20px); text-align: center;">
+        
+        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 20px; border-radius: 9999px; background: rgba(241, 196, 15, 0.15); border: 1.5px solid #f1c40f; color: #f9e79f; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
+          🚩 ĐẤU TRƯỜNG KÉO CO | TOÁN PRO - THẦY HÙNG
+        </div>
+        
+        <h1 style="color: #ffffff; font-size: clamp(1.6rem, 3.6vw, 2.3rem); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 8px 0; text-shadow: 0 0 25px rgba(241, 196, 15, 0.5);">
+          CHỌN CHUYÊN ĐỀ: <span style="color: #f1c40f;">TRANH TÀI KÉO CO ĐỐI KHÁNG</span>
+        </h1>
+        <p style="color: #eaeded; font-size: 14px; margin: 0 0 22px 0; font-weight: 600;">
+          Đội Xanh ⚔️ Đội Đỏ so tài kiến thức, mỗi câu trả lời đúng sẽ kéo vạch cờ về phía đội mình!
+        </p>
+        
+        <!-- Grid các chuyên đề -->
+        <div id="tug-topics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 22px; max-height: 52vh; overflow-y: auto; padding: 6px;">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 16px; font-size: 12px; color: #bdc3c7; font-weight: 600;">
+          <span>⭐ Hỗ trợ kéo co toàn diện (Dễ ➡️ Khó) hoặc chọn từng cấp độ</span>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button onclick="document.getElementById('topic-selection-overlay').style.display='none'" style="background: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid #f1c40f; padding: 5px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">Đóng Menu</button>
+            <span style="color: #f1c40f; font-weight: 800;">TugOfWar Engine v3.8</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <div id="autoplay-banner">🔊 Click chuột bất kỳ đâu trên màn hình để tự động phát nhạc nền!</div>
 
     <div class="header">
-        <div class="settings-btn" onclick="openSettings()" title="Cài đặt trò chơi">⚙️</div>
+        <div style="display: flex; align-items: center; gap: 10px; z-index: 20;">
+            <div class="settings-btn" onclick="openSettings()" title="Cài đặt trò chơi">⚙️</div>
+            <button onclick="openTugTopicMenu()" style="font-size: 13px; font-weight: 900; background: linear-gradient(135deg, #f1c40f, #e67e22); color: white; border: 2px solid #fff; border-radius: 20px; padding: 6px 14px; cursor: pointer; box-shadow: 0 4px #d35400; text-transform: uppercase; transition: transform 0.1s;">
+                📚 Đổi Chuyên Đề
+            </button>
+        </div>
         <div class="lantern left"></div>
-        <div class="title">🌸 LỄ HỘI TOÁN HỌC MÙA XUÂN: TRÒ CHƠI DÂN GIAN KÉO CO 🌸</div>
+        <div class="title">TOÁN PRO - THẦY HÙNG: ĐẠI CHIẾN KÉO CO TOÁN HỌC</div>
         <div class="center-control">
             <button class="btn-start-header" id="btn-start" onclick="startGame()">▶ BẮT ĐẦU</button>
             <div class="timer" id="timer" style="display: none;">00:00</div>
@@ -169,7 +207,7 @@
         <!-- Đội 1 (Xanh) -->
         <div class="panel blue" id="panel1">
             <div class="team-name" id="name-display-1">Đội Xanh</div>
-            <div class="question-info" id="q-info1">Câu 1/10</div>
+            <div class="question-info" id="q-info1">Câu --/--</div>
             
             <div class="problem-wrapper">
                 <div class="problem-text" id="prob1">...</div>
@@ -187,7 +225,7 @@
         <!-- Đội 2 (Đỏ) -->
         <div class="panel red" id="panel2">
             <div class="team-name" id="name-display-2">Đội Đỏ</div>
-            <div class="question-info" id="q-info2">Câu 1/10</div>
+            <div class="question-info" id="q-info2">Câu --/--</div>
             
             <div class="problem-wrapper">
                 <div class="problem-text" id="prob2">...</div>
@@ -258,8 +296,341 @@
     </div>
 
     <script>
+        
+        // ==========================================
+        // CẤU TRÚC ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE)
+        // ==========================================
+        window.gameDatabase = {
+            "Chủ đề 1: Hai Mặt Phẳng Vuông Góc": {
+                "easy": [
+                    { 
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Góc giữa hai mặt phẳng song song hoặc trùng nhau bằng bao nhiêu độ?", options: ["A. \\( 0^\\circ \\)", "B. \\( 45^\\circ \\)", "C. \\( 90^\\circ \\)", "D. \\( 180^\\circ \\)"], ans: "A", 
+                              exp: "Theo định nghĩa SGK, góc giữa hai mặt phẳng song song hoặc trùng nhau được quy ước bằng \\( 0^\\circ \\)." },
+                        q2: { text: "Kí hiệu \\( \\varphi \\) là góc giữa hai mặt phẳng cắt nhau. Khẳng định nào sau đây đúng?", options: ["A. \\( 0^\\circ \\le \\varphi \\le 90^\\circ \\)", "B. \\( 0^\\circ < \\varphi \\le 90^\\circ \\)", "C. \\( 0^\\circ < \\varphi < 90^\\circ \\)", "D. \\( 0^\\circ \\le \\varphi < 90^\\circ \\)"], ans: "B", 
+                              exp: "Vì hai mặt phẳng cắt nhau nên góc giữa chúng lớn hơn \\( 0^\\circ \\) và không vượt quá \\( 90^\\circ \\)." }
+                    },
+                    { 
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Điều kiện cần và đủ để hai mặt phẳng \\( (P) \\) và \\( (Q) \\) vuông góc với nhau là:", options: ["A. \\( (P) \\) chứa đường thẳng song song với \\( (Q) \\)", "B. \\( (P) \\) chứa đường thẳng vuông góc với \\( (Q) \\)", "C. Giao tuyến của chúng vuông góc với 1 mặt phẳng thứ 3", "D. Mọi đường thẳng trong \\( (P) \\) vuông góc với \\( (Q) \\)"], ans: "B", 
+                              exp: "Định lí: Hai mặt phẳng vuông góc với nhau nếu mặt phẳng này chứa một đường thẳng vuông góc với mặt phẳng kia." },
+                        q2: { text: "Hai mặt phẳng \\( (\\alpha) \\) và \\( (\\beta) \\) được gọi là vuông góc với nhau khi và chỉ khi:", options: ["A. Góc giữa chúng bằng \\( 0^\\circ \\)", "B. Góc giữa chúng bằng \\( 45^\\circ \\)", "C. Góc giữa chúng bằng \\( 90^\\circ \\)", "D. Góc giữa chúng lớn hơn \\( 90^\\circ \\)"], ans: "C", 
+                              exp: "Định nghĩa: Hai mặt phẳng được gọi là vuông góc với nhau nếu góc giữa chúng bằng \\( 90^\\circ \\)." }
+                    },
+                    { 
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Cho hình lập phương \\( ABCD.A'B'C'D' \\). Mặt phẳng \\( (ABCD) \\) vuông góc với mặt phẳng nào dưới đây?", options: ["A. \\( (A'B'C'D') \\)", "B. \\( (ACC'A') \\)", "C. \\( (AB'C'D) \\)", "D. \\( (A'BD) \\)"], ans: "B", 
+                              exp: "Mặt phẳng \\( (ACC'A') \\) chứa cạnh bên \\( AA' \\). Mà \\( AA' \\perp (ABCD) \\) nên \\( (ACC'A') \\perp (ABCD) \\)." },
+                        q2: { text: "Cho hình hộp chữ nhật \\( ABCD.A'B'C'D' \\). Mặt phẳng \\( (ADD'A') \\) vuông góc với mặt phẳng nào dưới đây?", options: ["A. \\( (BCC'B') \\)", "B. \\( (ABCD) \\)", "C. \\( (A'BD) \\)", "D. \\( (AB'C') \\)"], ans: "B", 
+                              exp: "Mặt phẳng \\( (ADD'A') \\) chứa cạnh bên \\( AA' \\). Mà \\( AA' \\perp (ABCD) \\) nên \\( (ADD'A') \\perp (ABCD) \\)." }
+                    },
+                    { 
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Cho tứ diện \\( OABC \\) có \\( OA, OB, OC \\) đôi một vuông góc. Góc giữa hai mặt phẳng \\( (OAB) \\) và \\( (OBC) \\) bằng:", options: ["A. \\( 30^\\circ \\)", "B. \\( 45^\\circ \\)", "C. \\( 60^\\circ \\)", "D. \\( 90^\\circ \\)"], ans: "D", 
+                              exp: "Do \\( OA \\perp OB \\) và \\( OA \\perp OC \\) nên \\( OA \\perp (OBC) \\). Mà \\( OA \\subset (OAB) \\) nên hai mặt phẳng vuông góc (góc \\( 90^\\circ \\))." },
+                        q2: { text: "Cho chóp \\( S.ABCD \\) có đáy là hình vuông, \\( SA \\perp (ABCD) \\). Góc giữa hai mặt phẳng \\( (SAB) \\) và \\( (SAD) \\) bằng:", options: ["A. \\( 45^\\circ \\)", "B. \\( 90^\\circ \\)", "C. \\( 60^\\circ \\)", "D. \\( 30^\\circ \\)"], ans: "B", 
+                              exp: "Ta có \\( AB \\perp AD \\) và \\( AB \\perp SA \\) nên \\( AB \\perp (SAD) \\). Mà \\( AB \\subset (SAB) \\) nên \\( (SAB) \\perp (SAD) \\) (góc \\( 90^\\circ \\))." }
+                    },
+                    { 
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "(Vận dụng) Một quyển sách đang mở ra trên bàn. Nếu gáy sách vuông góc với mặt bàn, góc giữa 2 trang sách và góc giữa 2 mép dưới có quan hệ gì?", options: ["A. Luôn bằng nhau", "B. Luôn bù nhau", "C. Gấp đôi nhau", "D. Không liên quan"], ans: "A", 
+                              exp: "Mặt bàn vuông góc với giao tuyến (gáy sách). Theo SGK, góc giữa hai mặt phẳng chính bằng góc giữa hai mép dưới cùng vuông góc với giao tuyến." },
+                        q2: { text: "(Vận dụng) Cánh cửa xoay quanh trục bản lề thẳng đứng, vuông góc với sàn nhà. Mặt phẳng cánh cửa luôn có quan hệ gì với mặt sàn?", options: ["A. Song song", "B. Tạo góc nhọn", "C. Vuông góc", "D. Trùng nhau"], ans: "C", 
+                              exp: "Mặt phẳng cánh cửa luôn chứa trục bản lề vuông góc sàn nhà nên cánh cửa luôn vuông góc với mặt sàn." }
+                    }
+                ],
+                "medium": [
+                    { 
+                        type: 'tf', time: 120, level: "Vừa", class: "vua",
+                        q1: { text: "Cho hai mp \\( (P) \\) và \\( (Q) \\) vuông góc với nhau, giao tuyến là \\( \\Delta \\).", options: ["a) Mọi đường thẳng trong \\( (P) \\) đều vuông góc với \\( (Q) \\)", "b) Lấy \\( a \\subset (P) \\). Nếu \\( a \\perp \\Delta \\) thì \\( a \\perp (Q) \\)", "c) Có duy nhất một đường thẳng trong \\( (P) \\) vuông góc với \\( (Q) \\)", "d) Nếu đường thẳng \\( d \\perp (P) \\) thì \\( d \\subset (Q) \\) hoặc \\( d \\parallel (Q) \\)"], ans: "SĐSĐ", 
+                              exp: "a) Sai, chỉ có đường vuông góc giao tuyến mới vuông góc mp kia.<br>b) Đúng.<br>c) Sai, có vô số đường song song nhau.<br>d) Đúng." },
+                        q2: { text: "Cho hai mp \\( (P) \\) và \\( (Q) \\) vuông góc với nhau, giao tuyến là \\( \\Delta \\).", options: ["a) Nếu đường thẳng \\( d \\perp (Q) \\) thì \\( d \\subset (P) \\) hoặc \\( d \\parallel (P) \\)", "b) Lấy \\( A \\in (P) \\). Đường thẳng qua \\( A \\) vuông góc với \\( (Q) \\) nằm trong \\( (P) \\)", "c) Mọi đường thẳng cắt \\( \\Delta \\) trong \\( (P) \\) đều vuông góc \\( (Q) \\)", "d) Hai đường thẳng bất kì trong 2 mặt phẳng này luôn vuông góc nhau"], ans: "ĐĐSS", 
+                              exp: "a) Đúng.<br>b) Đúng.<br>c) Sai, phải vuông góc với giao tuyến.<br>d) Sai, có thể chéo nhau không vuông góc." }
+                    },
+                    { 
+                        type: 'tf', time: 120, level: "Vừa", class: "vua",
+                        q1: { text: "Cho hình chóp \\( S.ABCD \\) đáy là hình vuông, có \\( SA \\perp (ABCD) \\).", options: ["a) Hai mặt phẳng \\( (SAB) \\) và \\( (SBC) \\) vuông góc với nhau", "b) Hai mặt phẳng \\( (SAD) \\) và \\( (SCD) \\) vuông góc với nhau", "c) Góc giữa \\( (SBC) \\) và \\( (ABCD) \\) là góc \\( \\widehat{SCA} \\)", "d) Hai mặt phẳng \\( (SAC) \\) và \\( (SBD) \\) vuông góc với nhau"], ans: "ĐĐSĐ", 
+                              exp: "a) Đúng, vì \\( BC \\perp (SAB) \\).<br>b) Đúng, vì \\( CD \\perp (SAD) \\).<br>c) Sai, góc giữa (SBC) và đáy là góc SBA.<br>d) Đúng, vì BD vuông góc (SAC)." },
+                        q2: { text: "Cho hình chóp \\( S.ABCD \\) đáy là hình chữ nhật (không là hình vuông), có \\( SA \\perp (ABCD) \\).", options: ["a) Hai mặt phẳng \\( (SAB) \\) và \\( (SBC) \\) vuông góc với nhau", "b) Góc giữa \\( (SCD) \\) và \\( (ABCD) \\) là góc \\( \\widehat{SDA} \\)", "c) Hai mặt phẳng \\( (SAC) \\) và \\( (SBD) \\) vuông góc với nhau", "d) Hai mặt phẳng \\( (SCD) \\) và \\( (SAD) \\) vuông góc với nhau"], ans: "ĐĐSĐ", 
+                              exp: "a) Đúng.<br>b) Đúng.<br>c) Sai, đường chéo hình chữ nhật không vuông góc.<br>d) Đúng, vì CD vuông góc (SAD)." }
+                    },
+                    { 
+                        type: 'tf', time: 120, level: "Vừa", class: "vua",
+                        q1: { text: "Cho lăng trụ đứng \\( ABC.A'B'C' \\) có đáy là tam giác vuông cân tại \\( B \\).", options: ["a) Mặt bên \\( (ACC'A') \\) là hình vuông", "b) Góc giữa \\( (A'BC) \\) và \\( (ABC) \\) là góc \\( \\widehat{A'BA} \\)", "c) Số đo góc giữa hai mặt phẳng \\( (A'BC) \\) và \\( (ABC) \\) luôn bằng \\( 45^\\circ \\)", "d) Mặt phẳng \\( (A'BC) \\) vuông góc với mặt phẳng \\( (ABB'A') \\)"], ans: "SĐSĐ", 
+                              exp: "a) Sai.<br>b) Đúng.<br>c) Sai, phụ thuộc chiều cao AA'.<br>d) Đúng, vì BC vuông góc (ABB'A')." },
+                        q2: { text: "Cho lăng trụ đứng \\( ABC.A'B'C' \\) có đáy là tam giác đều. Gọi M là trung điểm BC.", options: ["a) Góc giữa \\( (A'BC) \\) và \\( (ABC) \\) là góc \\( \\widehat{A'MA} \\)", "b) Cạnh bên \\( AA' \\) là đường cao của lăng trụ", "c) Mặt phẳng \\( (A'BC) \\) vuông góc với mặt phẳng \\( (ABB'A') \\)", "d) Mặt phẳng \\( (A'BC) \\) vuông góc với mặt phẳng \\( (AA'M) \\)"], ans: "ĐĐSĐ", 
+                              exp: "a) Đúng.<br>b) Đúng.<br>c) Sai.<br>d) Đúng, vì BC vuông góc (AA'M)." }
+                    }
+                ],
+                "hard": [
+                    { 
+                        type: 'short', time: 180, level: "Khó", class: "kho",
+                        q1: { text: "Hai mặt phẳng \\( (P) \\) và \\( (Q) \\) vuông góc với nhau theo giao tuyến \\( \\Delta \\). \\( AH \\perp \\Delta \\), \\( BK \\perp \\Delta \\). Biết \\( AH = 3 \\), \\( HK = 4 \\), \\( BK = 5 \\). Tính bình phương độ dài đoạn thẳng \\( AB \\).", options: [], ans: "50", 
+                              exp: "Ta có \\( AB^2 = AH^2 + HK^2 + BK^2 = 3^2 + 4^2 + 5^2 = 50 \\)." },
+                        q2: { text: "Hai mặt phẳng \\( (P) \\) và \\( (Q) \\) vuông góc theo giao tuyến d. Kẻ \\( ME \\perp d \\), \\( NF \\perp d \\). Biết \\( ME = 4 \\), \\( EF = 3 \\), \\( NF = 12 \\). Tính bình phương độ dài đoạn thẳng \\( MN \\).", options: [], ans: "169", 
+                              exp: "Pytago mở rộng: \\( MN^2 = ME^2 + EF^2 + FN^2 = 4^2 + 3^2 + 12^2 = 169 \\)." }
+                    },
+                    { 
+                        type: 'short', time: 180, level: "Khó", class: "kho",
+                        q1: { text: "(Thực tế) Mái nhà chữ V ngược đối xứng có góc ở đỉnh là \\( 120^\\circ \\). Tính góc (theo độ) tạo bởi một bên mái và mặt trần nhà.", options: [], ans: "30", 
+                              exp: "Góc đáy tam giác cân: \\( \\alpha = (180^\\circ - 120^\\circ)/2 = 30^\\circ \\)." },
+                        q2: { text: "(Thực tế) Chiếc lều chữ V ngược đối xứng có góc ở đỉnh là \\( 90^\\circ \\). Tính góc (theo độ) giữa mặt bên lều và mặt đất.", options: [], ans: "45", 
+                              exp: "Tam giác vuông cân tại đỉnh: góc đáy bằng \\( 45^\\circ \\)." }
+                    }
+                ]
+            },
+            "Chủ đề 2: Đường Thẳng Vuông Góc Mặt Phẳng": {
+                "easy": [
+                    {
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Đường thẳng d vuông góc với mặt phẳng (P) khi nào?", options: ["A. d vuông góc với 1 đường trong (P)", "B. d vuông góc với 2 đường cắt nhau trong (P)", "C. d vuông góc với 2 đường song song trong (P)", "D. d cắt mặt phẳng (P)"], ans: "B",
+                              exp: "Định lí: Nếu một đường thẳng vuông góc với hai đường thẳng cắt nhau cùng thuộc một mặt phẳng thì nó vuông góc với mặt phẳng đó." },
+                        q2: { text: "Nếu đường thẳng d vuông góc với mặt phẳng (P) thì d vuông góc với:", options: ["A. Chỉ các đường đi qua chân đường vuông góc", "B. Mọi đường thẳng nằm trong (P)", "C. Chỉ các đường cắt d", "D. Chỉ hai đường thẳng cắt nhau"], ans: "B",
+                              exp: "Định nghĩa: Đường thẳng vuông góc với mặt phẳng nếu nó vuông góc với mọi đường thẳng nằm trong mặt phẳng đó." }
+                    },
+                    {
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Cho chóp S.ABC có đáy ABC là tam giác vuông tại B, SA vuông góc đáy. Khẳng định nào đúng?", options: ["A. BC vuông góc (SAB)", "B. BC vuông góc (SAC)", "C. AC vuông góc (SAB)", "D. AB vuông góc (SBC)"], ans: "A",
+                              exp: "Do BC vuông góc AB và BC vuông góc SA nên BC vuông góc (SAB)." },
+                        q2: { text: "Cho chóp S.ABCD có đáy hình vuông, SA vuông góc đáy. Mặt phẳng nào vuông góc với CD?", options: ["A. (SAD)", "B. (SAB)", "C. (SBC)", "D. (SAC)"], ans: "A",
+                              exp: "Do CD vuông góc AD và CD vuông góc SA nên CD vuông góc (SAD)." }
+                    },
+                    {
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Qua một điểm cho trước, có bao nhiêu đường thẳng vuông góc với một mặt phẳng cho trước?", options: ["A. 1", "B. 2", "C. Vô số", "D. 0"], ans: "A",
+                              exp: "Tính chất: Qua một điểm cho trước có duy nhất một đường thẳng vuông góc với một mặt phẳng cho trước." },
+                        q2: { text: "Qua một điểm cho trước, có bao nhiêu mặt phẳng vuông góc với một đường thẳng cho trước?", options: ["A. 1", "B. 2", "C. Vô số", "D. 0"], ans: "A",
+                              exp: "Tính chất: Qua một điểm cho trước có duy nhất một mặt phẳng vuông góc với một đường thẳng cho trước." }
+                    },
+                    {
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Cho hình chóp tam giác đều S.ABC có O là tâm đáy. Đoạn thẳng nào là đường cao của chóp?", options: ["A. SA", "B. SO", "C. SB", "D. SC"], ans: "B",
+                              exp: "Hình chóp đều có chân đường cao trùng với tâm của đáy (SO vuông góc ABC)." },
+                        q2: { text: "Cho tứ diện đều ABCD có G là trọng tâm tam giác BCD. Đường thẳng vuông góc với (BCD) là:", options: ["A. AG", "B. AB", "C. AC", "D. AD"], ans: "A",
+                              exp: "Tứ diện đều là hình chóp tam giác đều nên AG vuông góc đáy (BCD)." }
+                    },
+                    {
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Hai đường thẳng phân biệt cùng vuông góc với một mặt phẳng thì:", options: ["A. Song song với nhau", "B. Vuông góc với nhau", "C. Trùng nhau", "D. Chéo nhau"], ans: "A",
+                              exp: "Tính chất: Hai đường thẳng phân biệt cùng vuông góc với một mặt phẳng thì song song với nhau." },
+                        q2: { text: "Hai mặt phẳng phân biệt cùng vuông góc với một đường thẳng thì:", options: ["A. Song song với nhau", "B. Vuông góc với nhau", "C. Cắt nhau", "D. Trùng nhau"], ans: "A",
+                              exp: "Tính chất: Hai mặt phẳng phân biệt cùng vuông góc với một đường thẳng thì song song với nhau." }
+                    }
+                ],
+                "medium": [
+                    {
+                        type: 'tf', time: 120, level: "Vừa", class: "vua",
+                        q1: { text: "Cho hình chóp S.ABC có SA vuông góc đáy, tam giác ABC vuông tại B.", options: ["a) SA vuông góc với cạnh BC", "b) BC vuông góc với SB", "c) Tam giác SBC là tam giác vuông tại B", "d) AB vuông góc với SC"], ans: "ĐĐĐS",
+                              exp: "a) Đúng, SA vuông góc (ABC).<br>b, c) Đúng, BC vuông góc (SAB) nên BC vuông góc SB.<br>d) Sai." },
+                        q2: { text: "Cho hình chóp S.ABCD có đáy là hình vuông tâm O, SA vuông góc đáy.", options: ["a) BD vuông góc với AC", "b) BD vuông góc với SA", "c) BD vuông góc với mặt phẳng (SAC)", "d) BD vuông góc với SC"], ans: "ĐĐĐĐ",
+                              exp: "Cả 4 khẳng định đều đúng vì BD vuông góc AC và SA nên BD vuông góc (SAC), suy ra BD vuông góc SC." }
+                    },
+                    {
+                        type: 'tf', time: 120, level: "Vừa", class: "vua",
+                        q1: { text: "Xét các mối quan hệ song song và vuông góc trong không gian:", options: ["a) Nếu a // b và a vuông góc (P) thì b vuông góc (P)", "b) Nếu a vuông góc b và b vuông góc (P) thì a // (P)", "c) Mặt phẳng trung trực của đoạn thẳng AB vuông góc với AB tại trung điểm", "d) Có vô số mặt phẳng vuông góc với một đường thẳng cho trước"], ans: "ĐSĐS",
+                              exp: "a) Đúng.<br>b) Sai, a có thể nằm trong (P).<br>c) Đúng.<br>d) Sai, qua 1 điểm chỉ có 1 mp." },
+                        q2: { text: "Cho tứ diện OABC có OA, OB, OC đôi một vuông góc. Gọi H là hình chiếu của O lên (ABC).", options: ["a) OA vuông góc với BC", "b) H là trực tâm tam giác ABC", "c) 1/OH² = 1/OA² + 1/OB² + 1/OC²", "d) Tam giác ABC luôn là tam giác tù"], ans: "ĐĐĐS",
+                              exp: "a) Đúng.<br>b) Đúng.<br>c) Đúng (hệ thức lượng tứ diện vuông).<br>d) Sai, tam giác ABC luôn nhọn." }
+                    },
+                    {
+                        type: 'tf', time: 120, level: "Vừa", class: "vua",
+                        q1: { text: "Cho hình lăng trụ đứng ABC.A'B'C' có đáy ABC là tam giác vuông tại A.", options: ["a) AA' vuông góc với đáy (ABC)", "b) AB vuông góc với mặt bên (ACC'A')", "c) B'C vuông góc với AC", "d) Mặt bên (BCC'B') là hình chữ nhật"], ans: "ĐĐĐĐ",
+                              exp: "Cả 4 ý đều đúng theo tính chất lăng trụ đứng đáy vuông tại A." },
+                        q2: { text: "Cho hình chóp đều S.ABCD có O là tâm đáy.", options: ["a) SO vuông góc với mặt phẳng đáy (ABCD)", "b) AC vuông góc với mặt phẳng (SBD)", "c) BD vuông góc với mặt phẳng (SAC)", "d) SA vuông góc với SC"], ans: "ĐĐĐS",
+                              exp: "a, b, c) Đúng.<br>d) Sai, góc ASC phụ thuộc chiều cao của chóp." }
+                    }
+                ],
+                "hard": [
+                    {
+                        type: 'short', time: 180, level: "Khó", class: "kho",
+                        q1: { text: "Cho chóp S.ABC có SA vuông góc đáy, tam giác ABC vuông tại B. Biết SA = 3, AB = 4, BC = 5. Tính độ dài đoạn thẳng SC (làm tròn số nguyên gần nhất).", options: [], ans: "7",
+                              exp: "Ta có AC² = AB² + BC² = 16 + 25 = 41. SC = √(SA² + AC²) = √(9 + 41) = √50 ≈ 7." },
+                        q2: { text: "Cho chóp S.ABCD đáy hình vuông cạnh 4, SA vuông góc đáy và SA = 2√7. Tính khoảng cách từ S đến C (độ dài cạnh SC).", options: [], ans: "8",
+                              exp: "AC² = 4² + 4² = 32. SC = √(SA² + AC²) = √(28 + 32) = √60 ≈ 8." }
+                    },
+                    {
+                        type: 'short', time: 180, level: "Khó", class: "kho",
+                        q1: { text: "Cho hình lập phương ABCD.A'B'C'D' cạnh a = 6. Tính bình phương khoảng cách từ A đến tâm đáy A'B'C'D'.", options: [], ans: "54",
+                              exp: "Gọi O' là tâm A'B'C'D', A'O'² = 18. AO'² = AA'² + A'O'² = 36 + 18 = 54." },
+                        q2: { text: "Cho tứ diện OABC có OA=3, OB=4, OC=5 đôi một vuông góc. Tính bình phương độ dài cạnh BC.", options: [], ans: "41",
+                              exp: "BC² = OB² + OC² = 16 + 25 = 41." }
+                    }
+                ]
+            },
+            "Chủ đề 3: Khoảng Cách & Góc Không Gian": {
+                "easy": [
+                    {
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Khoảng cách từ điểm M đến mặt phẳng (P) là độ dài đoạn thẳng nào?", options: ["A. MH với H là hình chiếu của M lên (P)", "B. Đoạn thẳng ngắn nhất nối M với 1 điểm biên", "C. Đoạn thẳng vuông góc với giao tuyến", "D. Bằng 0 nếu M nằm ngoài (P)"], ans: "A",
+                              exp: "Khoảng cách từ một điểm đến một mặt phẳng là độ dài đoạn vuông góc kẻ từ điểm đó đến mặt phẳng." },
+                        q2: { text: "Khoảng cách giữa hai mặt phẳng song song là:", options: ["A. Khoảng cách từ một điểm tùy ý trên mp này đến mp kia", "B. Độ dài đoạn nối 2 tâm của 2 mặt phẳng", "C. Bằng độ dài giao tuyến", "D. Luôn bằng 0"], ans: "A",
+                              exp: "Khoảng cách giữa hai mặt phẳng song song là khoảng cách từ một điểm bất kì thuộc mặt phẳng này đến mặt phẳng kia." }
+                    },
+                    {
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Cho hình lập phương ABCD.A'B'C'D' cạnh 2. Khoảng cách giữa hai mặt phẳng đáy (ABCD) và (A'B'C'D') bằng:", options: ["A. 2", "B. 2√2", "C. 4", "D. √2"], ans: "A",
+                              exp: "Khoảng cách giữa hai đáy của hình lập phương chính bằng độ dài cạnh bên AA' = 2." },
+                        q2: { text: "Cho hình lập phương ABCD.A'B'C'D' cạnh a = 3. Khoảng cách từ điểm A đến mặt phẳng (A'B'C'D') bằng:", options: ["A. 3", "B. 3√2", "C. 3√3", "D. 6"], ans: "A",
+                              exp: "Khoảng cách từ A đến mặt phẳng đáy trên là AA' = 3." }
+                    },
+                    {
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Cho chóp S.ABC có SA vuông góc đáy. Góc giữa đường thẳng SA và mặt phẳng (ABC) bằng:", options: ["A. 90 độ", "B. 45 độ", "C. 0 độ", "D. 60 độ"], ans: "A",
+                              exp: "Vì SA vuông góc với (ABC) nên góc giữa chúng bằng 90 độ." },
+                        q2: { text: "Cho chóp S.ABCD có SA vuông góc đáy. Góc giữa đường thẳng SC và mặt phẳng đáy (ABCD) là góc nào?", options: ["A. Góc SCA", "B. Góc CSA", "C. Góc SAC", "D. Góc SCB"], ans: "A",
+                              exp: "A là hình chiếu của S lên (ABCD) nên hình chiếu của SC là AC, do đó góc là SCA." }
+                    },
+                    {
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Góc giữa đường thẳng d và mặt phẳng (P) song song với d bằng bao nhiêu độ?", options: ["A. 0 độ", "B. 90 độ", "C. 180 độ", "D. 45 độ"], ans: "A",
+                              exp: "Nếu đường thẳng song song hoặc nằm trong mặt phẳng thì góc giữa chúng bằng 0 độ." },
+                        q2: { text: "Góc giữa đường thẳng d và mặt phẳng (P) có giá trị nằm trong khoảng nào?", options: ["A. Từ 0 độ đến 90 độ", "B. Từ 0 độ đến 180 độ", "C. Từ 0 độ đến 45 độ", "D. Luôn lớn hơn 90 độ"], ans: "A",
+                              exp: "Góc giữa đường thẳng và mặt phẳng luôn thuộc đoạn [0°; 90°]." }
+                    },
+                    {
+                        type: 'abcd', time: 30, level: "Dễ", class: "de",
+                        q1: { text: "Cho hình hộp chữ nhật có 3 kích thước 1, 2, 2. Độ dài đường chéo của hình hộp bằng:", options: ["A. 3", "B. 5", "C. 9", "D. √5"], ans: "A",
+                              exp: "Độ dài đường chéo d = √(1² + 2² + 2²) = √9 = 3." },
+                        q2: { text: "Cho hình lập phương cạnh a = 2. Độ dài đường chéo của hình lập phương bằng:", options: ["A. 2√3", "B. 2√2", "C. 4", "D. 6"], ans: "A",
+                              exp: "Độ dài đường chéo hình lập phương là a√3 = 2√3." }
+                    }
+                ],
+                "medium": [
+                    {
+                        type: 'tf', time: 120, level: "Vừa", class: "vua",
+                        q1: { text: "Cho chóp S.ABCD đáy hình vuông cạnh a, SA vuông góc đáy và SA = a.", options: ["a) Góc giữa SC và đáy là góc SCA", "b) AC = a√2", "c) Tam giác SAC vuông cân tại A", "d) Góc giữa SC và đáy bằng 45 độ"], ans: "ĐĐSĐ",
+                              exp: "a, b) Đúng.<br>c) Sai, SA = a, AC = a√2 nên không cân.<br>d) Sai, tan SCA = SA/AC = 1/√2 ≠ 1 (ý d sai)." },
+                        q2: { text: "Cho chóp S.ABC có SA vuông góc đáy, tam giác ABC vuông cân tại B, AB = a, SA = a.", options: ["a) Hình chiếu của SB lên đáy là AB", "b) Góc giữa SB và đáy là góc SBA", "c) Tam giác SAB vuông cân tại A", "d) Góc giữa SB và đáy bằng 45 độ"], ans: "ĐĐĐĐ",
+                              exp: "Cả 4 ý đều đúng: SA = AB = a nên tam giác SAB vuông cân tại A, góc SBA = 45°." }
+                    },
+                    {
+                        type: 'tf', time: 120, level: "Vừa", class: "vua",
+                        q1: { text: "Xét khoảng cách giữa hai đường thẳng chéo nhau a và b:", options: ["a) Bằng độ dài đoạn vuông góc chung của a và b", "b) Bằng khoảng cách giữa a và mặt phẳng chứa b song song với a", "c) Bằng khoảng cách giữa hai mặt phẳng song song lần lượt chứa a và b", "d) Luôn bằng 0"], ans: "ĐĐĐS",
+                              exp: "a, b, c) Đúng theo định nghĩa và tính chất SGK.<br>d) Sai." },
+                        q2: { text: "Cho hình lập phương ABCD.A'B'C'D' cạnh a.", options: ["a) Khoảng cách giữa AB và A'B' bằng a", "b) Khoảng cách giữa AB và CD bằng a", "c) Khoảng cách giữa AA' và CC' bằng a√2", "d) Khoảng cách giữa BD và B'D' bằng a"], ans: "ĐĐĐĐ",
+                              exp: "Cả 4 mệnh đề đều đúng dựa vào khoảng cách giữa các cạnh đối và đường chéo đáy." }
+                    },
+                    {
+                        type: 'tf', time: 120, level: "Vừa", class: "vua",
+                        q1: { text: "Cho chóp S.ABC có SA vuông góc đáy, tam giác ABC đều cạnh a.", options: ["a) Khoảng cách từ S đến (ABC) là độ dài đoạn SA", "b) Đường cao kẻ từ A của tam giác ABC bằng a√3/2", "c) Khoảng cách từ B đến mặt phẳng (SAC) bằng a√3/2", "d) Thể tích chóp bằng 1/3 SA nhân diện tích đáy ABC"], ans: "ĐĐĐĐ",
+                              exp: "Cả 4 ý đều đúng theo hình học không gian chuẩn SGK." },
+                        q2: { text: "Cho tứ diện đều ABCD cạnh a.", options: ["a) Góc giữa 2 mặt phẳng bất kì bằng nhau", "b) Độ dài đường cao bằng a√6/3", "c) Khoảng cách giữa 2 cạnh đối diện bằng a√2/2", "d) Thể tích tứ diện bằng a³√2/12"], ans: "ĐĐĐĐ",
+                              exp: "Cả 4 công thức trên đều là kết quả kinh điển của tứ diện đều cạnh a." }
+                    }
+                ],
+                "hard": [
+                    {
+                        type: 'short', time: 180, level: "Khó", class: "kho",
+                        q1: { text: "Cho hình chóp S.ABCD có đáy là hình chữ nhật, AB = 3, AD = 4, SA vuông góc đáy và SA = 5. Tính góc (theo độ) giữa đường thẳng SC và mặt phẳng đáy (ABCD).", options: [], ans: "45",
+                              exp: "AC = √(3² + 4²) = 5. SA = 5 = AC. Tam giác SAC vuông cân tại A nên góc SCA = 45 độ." },
+                        q2: { text: "Cho chóp S.ABC có SA vuông góc đáy, AB = 3, BC = 4, AC = 5. SA = 5. Tính góc (theo độ) giữa SC và (ABC).", options: [], ans: "45",
+                              exp: "AC = 5, SA = 5. Tam giác SAC vuông cân tại A nên góc giữa SC và đáy bằng 45 độ." }
+                    },
+                    {
+                        type: 'short', time: 180, level: "Khó", class: "kho",
+                        q1: { text: "Cho hình lập phương ABCD.A'B'C'D' cạnh 10. Tính khoảng cách từ tâm đáy ABCD đến mặt phẳng đáy trên (A'B'C'D').", options: [], ans: "10",
+                              exp: "Khoảng cách giữa hai mặt đáy của hình lập phương bằng độ dài cạnh = 10." },
+                        q2: { text: "Cho hình hộp chữ nhật ABCD.A'B'C'D' có AB=6, AD=8, AA'=12. Tính khoảng cách từ điểm B đến mặt phẳng (CDD'C').", options: [], ans: "8",
+                              exp: "Khoảng cách từ B đến (CDD'C') chính là độ dài đoạn BC = AD = 8." }
+                    }
+                ]
+            }
+        };
+
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+
+        window.openTugTopicMenu = function() {
+            window.renderTugTopicCards();
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.style.display = 'flex';
+        };
+
+        window.renderTugTopicCards = function() {
+            const container = document.getElementById('tug-topics-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const topics = Object.keys(window.gameDatabase);
+            topics.forEach((topicName, idx) => {
+                const data = window.gameDatabase[topicName];
+                const eCount = (data.easy || []).length;
+                const mCount = (data.medium || []).length;
+                const hCount = (data.hard || []).length;
+                const total = eCount + mCount + hCount;
+
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: linear-gradient(135deg, rgba(44, 62, 80, 0.96), rgba(26, 37, 47, 0.98));
+                    border: 2px solid ${window.selectedTopic === topicName ? '#f1c40f' : 'rgba(255,255,255,0.15)'};
+                    border-radius: 20px; padding: 20px; text-align: left; transition: all 0.3s ease;
+                    display: flex; flex-direction: column; justify-content: space-between;
+                    box-shadow: ${window.selectedTopic === topicName ? '0 0 25px rgba(241, 196, 15, 0.4)' : '0 10px 25px rgba(0,0,0,0.3)'};
+                `;
+
+                card.innerHTML = `
+                    <div>
+                        <div style="font-size: 11px; font-weight: 800; color: #f9e79f; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;">
+                            CHUYÊN ĐỀ ${idx + 1} (${total} HIỆP ĐẤU)
+                        </div>
+                        <h3 style="color: #ffffff; font-size: 16px; font-weight: 800; margin: 0 0 10px 0; line-height: 1.4;">
+                            ${topicName}
+                        </h3>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; font-size: 11px; font-weight: 700;">
+                            <span style="background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #27ae60; padding: 2px 8px; border-radius: 999px;">🟢 ${eCount} Dễ (30s)</span>
+                            <span style="background: rgba(243, 156, 18, 0.2); color: #f39c12; border: 1px solid #d35400; padding: 2px 8px; border-radius: 999px;">🟡 ${mCount} Vừa (120s)</span>
+                            <span style="background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #c0392b; padding: 2px 8px; border-radius: 999px;">🔴 ${hCount} Khó (180s)</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button onclick="window.playTugTopic('${topicName.replace(/'/g, "\\'")}', 'all')" style="
+                            width: 100%; padding: 10px 14px; border: none; border-radius: 12px;
+                            background: linear-gradient(90deg, #f1c40f, #e67e22);
+                            color: #2c3e50; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+                            cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(241, 196, 15, 0.3);
+                        ">
+                            🚩 Đấu Toàn Diện (Dễ ➡️ Khó)
+                        </button>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                            <button onclick="window.playTugTopic('${topicName.replace(/'/g, "\\'")}', 'easy')" style="padding: 6px 4px; border-radius: 8px; background: rgba(46, 204, 113, 0.2); border: 1px solid #27ae60; color: #2ecc71; font-weight: 800; font-size: 11px; cursor: pointer;">Dễ</button>
+                            <button onclick="window.playTugTopic('${topicName.replace(/'/g, "\\'")}', 'medium')" style="padding: 6px 4px; border-radius: 8px; background: rgba(243, 156, 18, 0.2); border: 1px solid #d35400; color: #f39c12; font-weight: 800; font-size: 11px; cursor: pointer;">Vừa</button>
+                            <button onclick="window.playTugTopic('${topicName.replace(/'/g, "\\'")}', 'hard')" style="padding: 6px 4px; border-radius: 8px; background: rgba(231, 76, 60, 0.2); border: 1px solid #c0392b; color: #e74c3c; font-weight: 800; font-size: 11px; cursor: pointer;">Khó</button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        };
+
+        window.playTugTopic = function(topicName, diffMode) {
+            const topicData = window.gameDatabase[topicName];
+            if (!topicData) return;
+            window.selectedTopic = topicName;
+
+            let selectedRounds = [];
+            if (diffMode === 'all') {
+                selectedRounds = [
+                    ...(topicData.easy || []),
+                    ...(topicData.medium || []),
+                    ...(topicData.hard || [])
+                ];
+            } else {
+                selectedRounds = [...(topicData[diffMode] || [])];
+            }
+
+            if (selectedRounds.length === 0) return;
+            QUESTIONS = selectedRounds;
+
+            // Đóng menu
+            const overlayTopic = document.getElementById('topic-selection-overlay');
+            if (overlayTopic) overlayTopic.style.display = 'none';
+
+            // Reset trận đấu
+            resetGame();
+        };
+
         // --- DATA CÂU HỎI HÌNH HỌC KHÔNG GIAN (HAI MẶT PHẲNG VUÔNG GÓC) ---
-        const QUESTIONS = [
+        let QUESTIONS = [
             // 5 Câu Trắc Nghiệm ABCD (30s)
             { 
                 type: 'abcd', time: 30, level: "Dễ", class: "de",
@@ -550,7 +921,7 @@
 
                 document.getElementById(`prob${team}`).innerHTML = htmlContent;
                 let infoEl = document.getElementById(`q-info${team}`);
-                infoEl.innerHTML = `Câu ${state.currentQIndex + 1}/10 (${qData.level})`;
+                infoEl.innerHTML = `Câu ${state.currentQIndex + 1}/${QUESTIONS.length} (${qData.level})`;
                 infoEl.className = `question-info ${qData.class}`;
                 
                 updateInputDisplay(team);
@@ -873,8 +1244,8 @@
             document.getElementById('input2').className = 'inline-input-box';
             document.getElementById('input1').style.display = 'flex';
             document.getElementById('input2').style.display = 'flex';
-            document.getElementById('q-info1').innerText = "Câu --/10";
-            document.getElementById('q-info2').innerText = "Câu --/10";
+            document.getElementById('q-info1').innerText = "Câu --/" + QUESTIONS.length;
+            document.getElementById('q-info2').innerText = "Câu --/" + QUESTIONS.length;
             
             document.getElementById('btn-start').style.display = 'block';
             document.getElementById('timer').style.display = 'none';
@@ -1066,7 +1437,9 @@
             fwAnimationId = requestAnimationFrame(loopFireworks);
         }
 
-        window.onload = () => { 
+        window.onload = () => {
+            window.renderTugTopicCards();
+            window.openTugTopicMenu(); 
             // Nạp tên đội từ LocalStorage
             const savedT1 = localStorage.getItem("keoco_t1");
             const savedT2 = localStorage.getItem("keoco_t2");

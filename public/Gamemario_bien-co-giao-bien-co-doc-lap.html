@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Toán 11. Game Mario_Xác suất của biến cố giao, biến cố hợp</title>
+    <title>Toán 11 - Mario Phiêu Lưu Ký | TOÁN PRO - THẦY HÙNG</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     
@@ -58,6 +58,36 @@
 </head>
 <body>
 
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #1e3a8a 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Nunito', sans-serif;">
+      <div style="max-width: 960px; width: 100%; background: rgba(15, 23, 42, 0.96); border: 3px solid #facc15; border-radius: 28px; padding: 32px; box-shadow: 0 0 60px rgba(250, 204, 21, 0.35); backdrop-filter: blur(20px); text-align: center;">
+        
+        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 20px; border-radius: 9999px; background: rgba(250, 204, 21, 0.15); border: 1.5px solid #facc15; color: #facc15; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;" class="pixel-font">
+          🍄 SUPER MARIO MATH | TOÁN PRO - THẦY HÙNG
+        </div>
+        
+        <h1 style="color: #ffffff; font-size: clamp(1.6rem, 3.8vw, 2.4rem); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 8px 0; text-shadow: 0 0 25px rgba(250, 204, 21, 0.5);">
+          MARIO TOÁN 11: <span style="color: #facc15;">CHỌN MÀN CHƠI CHUYÊN ĐỀ</span>
+        </h1>
+        <p style="color: #94a3b8; font-size: 14px; margin: 0 0 24px 0; font-weight: 600;">
+          Chọn màn chơi chuyên đề để thử thách qua các khối gạch '?' xếp từ Dễ (Nấm xanh) ➡️ Vừa (Đồng xu vàng) ➡️ Khó (Bowser)!
+        </p>
+        
+        <!-- Grid các màn chơi -->
+        <div id="mario-topics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 24px; max-height: 52vh; overflow-y: auto; padding: 6px;" class="custom-scroll">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; font-size: 12px; color: #64748b; font-weight: 600;">
+          <span>⭐ Các khối gạch '?' sẽ được bố trí tự động theo độ khó tăng dần</span>
+          <span style="color: #facc15; font-weight: 800;" class="pixel-font">Mario Engine v3.8</span>
+        </div>
+      </div>
+    </div>
+
+
     <!-- MÀN HÌNH BẮT ĐẦU GAME -->
     <div id="startModal" class="fixed inset-0 z-[100] bg-[#5C94FC] flex flex-col items-center justify-center p-4 transition-opacity duration-300">
         <div class="bg-white rounded-[2rem] p-8 shadow-2xl w-full max-w-md border-4 border-blue-500 relative flex flex-col items-center">
@@ -71,6 +101,15 @@
                     <span class="text-white text-xs font-bold">ĐỔI ẢNH</span>
                 </div>
             </div>
+
+            <!-- Chọn Chuyên Đề -->
+            <button type="button" onclick="openMarioTopicMenu()" class="w-full mb-4 bg-gradient-to-r from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 text-slate-800 border-2 border-amber-400 py-3 px-4 rounded-xl font-black text-sm flex items-center justify-between shadow-sm transition">
+                <span class="flex items-center gap-2">
+                    <span class="text-xl">🍄</span>
+                    <span class="text-left font-bold truncate max-w-[200px]" id="startModalTopicName">Chuyên đề 1...</span>
+                </span>
+                <span class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider shrink-0">Đổi Màn 🔄</span>
+            </button>
 
             <!-- Nhập Tên -->
             <div class="w-full bg-blue-50 p-4 rounded-2xl border border-blue-200 mb-6 shadow-sm">
@@ -107,12 +146,16 @@
         <!-- Giữa: Điểm số -->
         <div class="flex flex-col items-center pointer-events-auto bg-black/40 px-4 py-2 md:px-6 md:py-3 rounded-2xl border border-white/20 backdrop-blur-sm pixel-font text-white text-xs md:text-lg text-shadow-md shadow-lg mt-1">
             <div>ĐIỂM: <span id="scoreDisplay" class="text-yellow-400">0</span></div>
-            <div class="text-[8px] md:text-[10px] mt-2 opacity-80">CÂU: <span id="qCountDisplay">0/10</span></div>
+            <div class="text-[8px] md:text-[10px] mt-1 opacity-80">CÂU: <span id="qCountDisplay">0/10</span></div>
+            <div id="active-mario-topic-badge" class="text-[9px] md:text-[11px] text-yellow-300 font-sans font-bold mt-1 max-w-[160px] md:max-w-[260px] truncate">Chuyên đề 1</div>
         </div>
 
         <!-- Phải: Tên người chơi & Thời gian & Âm thanh -->
         <div class="flex flex-col items-end gap-1.5 pointer-events-auto mt-1">
             <div class="flex gap-2 items-center">
+                <button onclick="openMarioTopicMenu()" class="bg-amber-500/90 hover:bg-amber-500 px-3 py-2 md:py-2.5 rounded-full border-2 border-amber-300 backdrop-blur-sm shadow-lg text-white font-bold text-xs md:text-sm transition-all flex items-center gap-1" title="Đổi Chuyên Đề Mới">
+                    🍄 Đổi Màn
+                </button>
                 <button id="soundToggleBtn" onclick="toggleSound()" class="bg-rose-500/80 hover:bg-rose-500 px-3 py-2 md:py-2.5 rounded-full border-2 border-rose-300 backdrop-blur-sm shadow-lg text-white font-bold text-xs md:text-sm transition-all flex items-center gap-1">
                     🔇 Bật Âm Thanh
                 </button>
@@ -170,12 +213,15 @@
                     <input type="text" id="nextPlayerNameInput" class="w-full px-4 py-3 rounded-xl border-2 border-emerald-300 font-bold outline-none focus:border-emerald-500 text-slate-700 placeholder-slate-400 text-center text-lg" placeholder="Nhập tên người tiếp theo...">
                 </div>
                 
-                <div class="flex gap-3">
-                    <button onclick="goHome()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-3.5 rounded-xl font-black transition-colors shadow-md border-b-4 border-slate-400 active:translate-y-1 active:border-b-0 uppercase flex justify-center items-center gap-2">
-                        🏠 Về Trang Chủ
+                <div class="flex gap-2">
+                    <button onclick="goHome()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-3 rounded-xl font-black transition-colors shadow-md border-b-4 border-slate-400 active:translate-y-1 active:border-b-0 uppercase flex justify-center items-center gap-1 text-xs">
+                        🏠 Trang Chủ
                     </button>
-                    <button onclick="startNextPlayer()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-xl font-black transition-colors shadow-md border-b-4 border-emerald-700 active:translate-y-1 active:border-b-0 uppercase flex justify-center items-center gap-2">
-                        ▶ Bắt Đầu
+                    <button onclick="openMarioTopicMenu()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-xl font-black transition-colors shadow-md border-b-4 border-amber-700 active:translate-y-1 active:border-b-0 uppercase flex justify-center items-center gap-1 text-xs">
+                        🍄 Đổi Màn
+                    </button>
+                    <button onclick="startNextPlayer()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black transition-colors shadow-md border-b-4 border-emerald-700 active:translate-y-1 active:border-b-0 uppercase flex justify-center items-center gap-1 text-xs">
+                        ▶ Chơi Tiếp
                     </button>
                 </div>
             </div>
@@ -507,55 +553,296 @@
         };
 
         // ==========================================
-        // 📚 TẠO 10 BỘ CÂU HỎI TOÁN 11: BIẾN CỐ HỢP, GIAO, ĐỘC LẬP
+        // 📚 HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ: TOÁN 11 XÁC SUẤT
         // ==========================================
-        const questionBanks = [];
-        
-        for (let i = 0; i < 10; i++) {
-            let pA = [0.2, 0.3, 0.4, 0.5, 0.6, 0.4, 0.3, 0.25, 0.35, 0.45][i];
-            let pB = [0.4, 0.5, 0.3, 0.2, 0.3, 0.2, 0.6, 0.15, 0.25, 0.35][i];
-            
-            let pAB_indep = +(pA * pB).toFixed(4);
-            let pAUB_indep = +(pA + pB - pAB_indep).toFixed(4);
-            let pAUB_mutExc = +(pA + pB).toFixed(4);
-            let pAB_given = [0.1, 0.15, 0.2, 0.1, 0.2, 0.15, 0.2, 0.05, 0.1, 0.15][i];
-            let pAUB_given = +(pA + pB - pAB_given).toFixed(4);
-            let pNone = +((1 - pA) * (1 - pB)).toFixed(4);
+        window.gameDatabase = {
+          "Chuyên đề 1: Biến cố giao & Biến cố độc lập": {
+            "easy": [
+              {
+                "q": "Cho hai biến cố $A$ và $B$. Biến cố giao $AB$ (hoặc $A \cap B$) là biến cố:",
+                "options": ["Cả $A$ và $B$ cùng xảy ra", "Chỉ có $A$ hoặc $B$ xảy ra", "Ít nhất một trong hai biến cố xảy ra", "$A$ xảy ra nhưng $B$ không xảy ra"],
+                "correct": 0,
+                "explanation": "Biến cố giao AB xảy ra khi và chỉ khi cả A và B đồng thời xảy ra."
+              },
+              {
+                "q": "Nếu hai biến cố $A$ và $B$ độc lập thì công thức tính xác suất của biến cố giao $AB$ là:",
+                "options": ["$P(AB) = P(A) \cdot P(B)$", "$P(AB) = P(A) + P(B)$", "$P(AB) = P(A) + P(B) - P(A \cup B)$", "$P(AB) = P(A) / P(B)$"],
+                "correct": 0,
+                "explanation": "Theo định nghĩa hai biến cố độc lập: P(AB) = P(A).P(B)."
+              },
+              {
+                "q": "Cho hai biến cố độc lập $A$ và $B$ có $P(A) = 0.4$ và $P(B) = 0.5$. Xác suất $P(AB)$ bằng:",
+                "options": ["$0.20$", "$0.90$", "$0.10$", "$0.45$"],
+                "correct": 0,
+                "explanation": "P(AB) = P(A).P(B) = 0.4 * 0.5 = 0.20."
+              }
+            ],
+            "medium": [
+              {
+                "q": "Hai xạ thủ bắn bia độc lập. Xác suất bắn trúng của người 1 là $0.7$, người 2 là $0.8$. Xác suất cả hai người cùng bắn trúng là:",
+                "options": ["$0.56$", "$0.75$", "$0.94$", "$0.15$"],
+                "correct": 0,
+                "explanation": "P = 0.7 * 0.8 = 0.56."
+              },
+              {
+                "q": "Hai vận động viên ném bóng vào rổ độc lập. Xác suất ném trúng lần lượt là $0.6$ và $0.5$. Xác suất cả hai người đều ném trượt là:",
+                "options": ["$0.20$", "$0.30$", "$0.70$", "$0.10$"],
+                "correct": 0,
+                "explanation": "P = (1 - 0.6) * (1 - 0.5) = 0.4 * 0.5 = 0.20."
+              },
+              {
+                "q": "Hai máy tiện hoạt động độc lập. Xác suất máy 1 hỏng là $0.1$, máy 2 hỏng là $0.05$. Xác suất chỉ có đúng một máy bị hỏng là:",
+                "options": ["$0.14$", "$0.15$", "$0.005$", "$0.855$"],
+                "correct": 0,
+                "explanation": "P = 0.1*(1 - 0.05) + (1 - 0.1)*0.05 = 0.095 + 0.045 = 0.14."
+              }
+            ],
+            "hard": [
+              {
+                "q": "Ba xạ thủ độc lập cùng bắn vào mục tiêu với xác suất bắn trúng lần lượt là $0.6; 0.7; 0.8$. Xác suất mục tiêu bị trúng đúng 2 phát đạn là:",
+                "options": ["$0.452$", "$0.336$", "$0.658$", "$0.214$"],
+                "correct": 0,
+                "explanation": "P = 0.6*0.7*0.2 + 0.6*0.3*0.8 + 0.4*0.7*0.8 = 0.084 + 0.144 + 0.224 = 0.452."
+              },
+              {
+                "q": "Một hệ thống điện có hai bóng đèn mắc song song hoạt động độc lập. Xác suất mỗi bóng bị cháy sau 1000 giờ là $0.15$ và $0.2$. Xác suất hệ thống vẫn sáng sau 1000 giờ là:",
+                "options": ["$0.97$", "$0.68$", "$0.03$", "$0.85$"],
+                "correct": 0,
+                "explanation": "P = 1 - 0.15*0.2 = 1 - 0.03 = 0.97."
+              }
+            ]
+          },
+          "Chuyên đề 2: Biến cố hợp & Biến cố xung khắc": {
+            "easy": [
+              {
+                "q": "Hai biến cố $A$ và $B$ được gọi là xung khắc khi và chỉ khi:",
+                "options": ["$A \cap B = \emptyset$", "$A \cup B = \Omega$", "$P(A) + P(B) = 1$", "$P(AB) = P(A) \cdot P(B)$"],
+                "correct": 0,
+                "explanation": "Hai biến cố xung khắc không thể đồng thời xảy ra trong cùng một phép thử."
+              },
+              {
+                "q": "Nếu $A$ và $B$ là hai biến cố xung khắc thì khẳng định nào sau đây đúng?",
+                "options": ["$P(A \cup B) = P(A) + P(B)$", "$P(A \cup B) = P(A) \cdot P(B)$", "$P(AB) = P(A) + P(B)$", "$P(AB) > 0$"],
+                "correct": 0,
+                "explanation": "Vì A và B xung khắc nên P(AB) = 0 => P(A U B) = P(A) + P(B)."
+              },
+              {
+                "q": "Cho $A, B$ là hai biến cố xung khắc có $P(A) = 0.25$ và $P(B) = 0.45$. Tính $P(A \cup B)$.",
+                "options": ["$0.70$", "$0.20$", "$0.1125$", "$0.55$"],
+                "correct": 0,
+                "explanation": "P(A U B) = 0.25 + 0.45 = 0.70."
+              }
+            ],
+            "medium": [
+              {
+                "q": "Cho hai biến cố $A$ và $B$ bất kỳ có $P(A) = 0.4$, $P(B) = 0.5$ và $P(AB) = 0.15$. Tính $P(A \cup B)$.",
+                "options": ["$0.75$", "$0.90$", "$0.20$", "$0.60$"],
+                "correct": 0,
+                "explanation": "P(A U B) = P(A) + P(B) - P(AB) = 0.4 + 0.5 - 0.15 = 0.75."
+              },
+              {
+                "q": "Một hộp có 10 viên bi gồm 4 bi đỏ và 6 bi xanh. Lấy ngẫu nhiên 2 viên bi. Xác suất để 2 viên bi lấy ra cùng màu là:",
+                "options": ["$\frac{7}{15}$", "$\frac{8}{15}$", "$\frac{4}{15}$", "$\frac{1}{3}$"],
+                "correct": 0,
+                "explanation": "P = (C(4,2) + C(6,2)) / C(10,2) = (6 + 15) / 45 = 21/45 = 7/15."
+              },
+              {
+                "q": "Rút ngẫu nhiên một lá bài từ bộ bài tú lơ khơ 52 lá. Xác suất rút được lá Át (A) hoặc lá chất Bích (♠) là:",
+                "options": ["$\frac{4}{13}$", "$\frac{17}{52}$", "$\frac{1}{4}$", "$\frac{1}{13}$"],
+                "correct": 0,
+                "explanation": "P = (4 + 13 - 1) / 52 = 16/52 = 4/13."
+              }
+            ],
+            "hard": [
+              {
+                "q": "Cho hai biến cố $A$ và $B$ thỏa mãn $P(A) = 0.5$, $P(B) = 0.6$ và $P(A \cup B) = 0.8$. Xác suất của biến cố đối $\overline{A} \cap \overline{B}$ là:",
+                "options": ["$0.20$", "$0.30$", "$0.10$", "$0.40$"],
+                "correct": 0,
+                "explanation": "Theo De Morgan: not(A) cap not(B) = not(A cup B) => P = 1 - 0.8 = 0.20."
+              },
+              {
+                "q": "Một lớp có 40 học sinh gồm 25 học sinh giỏi Toán, 20 học sinh giỏi Văn và 5 học sinh không giỏi môn nào. Chọn ngẫu nhiên 1 bạn. Xác suất bạn đó giỏi cả Toán và Văn là:",
+                "options": ["$\frac{1}{4}$", "$\frac{5}{8}$", "$\frac{1}{2}$", "$\frac{3}{8}$"],
+                "correct": 0,
+                "explanation": "Số bạn giỏi ít nhất 1 môn là 40 - 5 = 35 => n(T cap V) = 25 + 20 - 35 = 10 => P = 10/40 = 1/4."
+              }
+            ]
+          },
+          "Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp": {
+            "easy": [
+              {
+                "q": "Biến cố đối của biến cố giao $(AB)$ theo công thức De Morgan là biến cố nào sau đây?",
+                "options": ["$\overline{A} \cup \overline{B}$", "$\overline{A} \cap \overline{B}$", "$\overline{A} \cdot \overline{B}$", "$A \cup \overline{B}$"],
+                "correct": 0,
+                "explanation": "Luật De Morgan: not(AB) = not(A) cup not(B)."
+              },
+              {
+                "q": "Cho biến cố $A$ có $P(A) = 0.7$. Xác suất của biến cố đối $\overline{A}$ là:",
+                "options": ["$0.3$", "$0.7$", "$-0.7$", "$1.7$"],
+                "correct": 0,
+                "explanation": "P(not A) = 1 - P(A) = 1 - 0.7 = 0.3."
+              },
+              {
+                "q": "Gieo một con xúc xắc cân đối 6 mặt. Xác suất xuất hiện mặt có số chấm chia hết cho 2 hoặc chia hết cho 3 là:",
+                "options": ["$\frac{2}{3}$", "$\frac{5}{6}$", "$\frac{1}{2}$", "$\frac{1}{3}$"],
+                "correct": 0,
+                "explanation": "Các mặt thỏa mãn là {2, 3, 4, 6} gồm 4 mặt => P = 4/6 = 2/3."
+              }
+            ],
+            "medium": [
+              {
+                "q": "Hai bạn An và Bình độc lập cùng giải một bài toán. Xác suất An giải được là $0.8$, Bình giải được là $0.7$. Xác suất bài toán được giải quyết là:",
+                "options": ["$0.94$", "$0.56$", "$0.85$", "$0.06$"],
+                "correct": 0,
+                "explanation": "P = 1 - (1 - 0.8)*(1 - 0.7) = 1 - 0.2*0.3 = 1 - 0.06 = 0.94."
+              },
+              {
+                "q": "Hai người bắn súng độc lập với xác suất bắn trúng lần lượt là $0.6$ và $0.7$. Xác suất có đúng một người bắn trúng là:",
+                "options": ["$0.46$", "$0.42$", "$0.12$", "$0.88$"],
+                "correct": 0,
+                "explanation": "P = 0.6*(1 - 0.7) + (1 - 0.6)*0.7 = 0.6*0.3 + 0.4*0.7 = 0.18 + 0.28 = 0.46."
+              },
+              {
+                "q": "Một xạ thủ bắn 3 phát độc lập với xác suất trúng mỗi phát là $0.8$. Xác suất người đó không bắn trúng phát nào là:",
+                "options": ["$0.008$", "$0.512$", "$0.064$", "$0.200$"],
+                "correct": 0,
+                "explanation": "P = (1 - 0.8)^3 = 0.2^3 = 0.008."
+              }
+            ],
+            "hard": [
+              {
+                "q": "Một xạ thủ bắn 3 phát độc lập vào bia với xác suất bắn trúng mỗi phát là $0.7$. Xác suất để người đó bắn trúng ít nhất 2 phát là:",
+                "options": ["$0.784$", "$0.441$", "$0.343$", "$0.657$"],
+                "correct": 0,
+                "explanation": "P = 3*(0.7^2)*0.3 + 0.7^3 = 0.441 + 0.343 = 0.784."
+              },
+              {
+                "q": "Tỉ lệ người mắc một căn bệnh trong cộng đồng là $10\%$. Một xét nghiệm có độ nhạy $95\%$ và độ đặc hiệu $90\%$. Chọn ngẫu nhiên một người xét nghiệm dương tính, xác suất người đó thực sự mắc bệnh xấp xỉ:",
+                "options": ["$51.4\%$", "$95.0\%$", "$85.2\%$", "$10.0\%$"],
+                "correct": 0,
+                "explanation": "Theo công thức Bayes: P(B|+) = (0.1*0.95) / (0.1*0.95 + 0.9*0.1) = 0.095 / 0.185 xấp xỉ 51.4%."
+              }
+            ]
+          }
+        };
 
-            let set = [];
-            
-            set.push({ q: "Cho hai biến cố $A$ và $B$ bất kỳ. Công thức tính xác suất của biến cố hợp $A \\cup B$ là:", options: ["$P(A \\cup B) = P(A) + P(B) - P(AB)$", "$P(A \\cup B) = P(A) + P(B)$", "$P(A \\cup B) = P(A) \\cdot P(B)$", "$P(A \\cup B) = P(A) + P(B) + P(AB)$"], correct: 0 });
-            set.push({ q: "Nếu $A$ và $B$ là hai biến cố xung khắc, công thức nào sau đây đúng?", options: ["$P(A \\cup B) = P(A) + P(B)$", "$P(AB) = 1$", "$P(A \\cup B) = P(A) \\cdot P(B)$", "$P(AB) = P(A) \\cdot P(B)$"], correct: 0 });
-            set.push({ q: "Nếu $A$ và $B$ là hai biến cố độc lập, công thức tính xác suất của biến cố giao $AB$ là:", options: ["$P(AB) = P(A) \\cdot P(B)$", "$P(AB) = P(A) + P(B)$", "$P(AB) = 0$", "$P(AB) = P(A) - P(B)$"], correct: 0 });
-            set.push({ q: `Cho $A, B$ là hai biến cố xung khắc. Biết $P(A) = ${pA}$ và $P(B) = ${pB}$. Tính $P(A \\cup B)$.`, options: [`$${pAUB_mutExc}$`, `$${pAB_indep}$`, `$0$`, `$1$`], correct: 0 });
-            set.push({ q: `Cho $A, B$ là hai biến cố độc lập. Biết $P(A) = ${pA}$ và $P(B) = ${pB}$. Tính $P(AB)$.`, options: [`$${pAB_indep}$`, `$${pAUB_mutExc}$`, `$${Math.abs(pA - pB).toFixed(2)}$`, `$0$`], correct: 0 });
-            set.push({ q: `Cho hai biến cố $A, B$ có $P(A) = ${pA}$, $P(B) = ${pB}$ và $P(AB) = ${pAB_given}$. Tính xác suất $P(A \\cup B)$.`, options: [`$${pAUB_given}$`, `$${pAUB_mutExc}$`, `$${pA}$`, `$${pB}$`], correct: 0 });
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+        var questions = [];
 
-            set.push({ q: `Hai xạ thủ bắn độc lập vào bia. Xác suất bắn trúng của người 1 là $${pA}$, của người 2 là $${pB}$. Tính xác suất cả hai người đều bắn trúng.`, options: [`$${pAB_indep}$`, `$${pAUB_mutExc}$`, `$${Math.max(pA, pB)}$`, `$0$`], correct: 0 });
-            set.push({ q: `Biến cố đối của biến cố giao $(AB)$ là biến cố nào sau đây?`, options: ["$\\overline{A} \\cup \\overline{B}$", "$\\overline{A} \\cdot \\overline{B}$", "$\\overline{A} \\cap B$", "$A \\cup \\overline{B}$"], correct: 0 });
-            set.push({ q: `Hai người bắn súng độc lập với xác suất trúng đích lần lượt là $${pA}$ và $${pB}$. Tính xác suất có ít nhất một người bắn trúng.`, options: [`$${pAUB_indep}$`, `$${pAUB_mutExc}$`, `$${pAB_indep}$`, `$${pNone}$`], correct: 0 });
-
-            set.push({ q: `Hai công nhân cùng làm chung một sản phẩm một cách độc lập. Xác suất làm ra phế phẩm của người 1 là $${pA}$, người 2 là $${pB}$. Tính xác suất để cả hai đều làm ra sản phẩm đạt chuẩn (không phải phế phẩm).`, options: [`$${pNone}$`, `$${pAB_indep}$`, `$${pAUB_indep}$`, `$${+(1 - pNone).toFixed(4)}$`], correct: 0 });
-
-            set.forEach(q => {
-                const correctStr = q.options[q.correct];
-                for (let j = q.options.length - 1; j > 0; j--) {
-                    const k = Math.floor(Math.random() * (j + 1));
-                    [q.options[j], q.options[k]] = [q.options[k], q.options[j]];
-                }
-                q.correct = q.options.indexOf(correctStr);
-            });
-
-            questionBanks.push(set);
+        function openMarioTopicMenu() {
+            if (gameState === 'playing' || gameState === 'autofinish') {
+                previousGameState = gameState;
+                gameState = 'paused';
+            }
+            renderMarioTopicMenuCards();
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.style.display = 'flex';
         }
 
-        let lastBankIndex = parseInt(localStorage.getItem('mario_lastBankIndex_t11'));
-        let availableBanks = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-        if (!isNaN(lastBankIndex)) availableBanks = availableBanks.filter(i => i !== lastBankIndex);
-        let selectedBankIndex = availableBanks[Math.floor(Math.random() * availableBanks.length)];
-        localStorage.setItem('mario_lastBankIndex_t11', selectedBankIndex);
+        function renderMarioTopicMenuCards() {
+            const container = document.getElementById('mario-topics-grid');
+            if (!container) return;
+            container.innerHTML = '';
 
-        var questions = questionBanks[selectedBankIndex].sort(() => Math.random() - 0.5);
+            const topics = Object.keys(window.gameDatabase);
+            topics.forEach((topicName, idx) => {
+                const data = window.gameDatabase[topicName];
+                const eCount = (data.easy || []).length;
+                const mCount = (data.medium || []).length;
+                const hCount = (data.hard || []).length;
+                const total = eCount + mCount + hCount;
+
+                const isSelected = (window.selectedTopic === topicName);
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+                    border: 3px solid ${isSelected ? '#facc15' : 'rgba(255,255,255,0.15)'};
+                    border-radius: 20px; padding: 22px; text-align: left; cursor: pointer; transition: all 0.3s ease;
+                    display: flex; flex-direction: column; justify-content: space-between;
+                    box-shadow: ${isSelected ? '0 0 30px rgba(250, 204, 21, 0.45)' : '0 10px 25px rgba(0,0,0,0.3)'};
+                `;
+
+                card.onmouseover = () => { card.style.borderColor = '#facc15'; card.style.transform = 'translateY(-4px)'; };
+                card.onmouseout = () => {
+                    if (window.selectedTopic !== topicName) {
+                        card.style.borderColor = 'rgba(255,255,255,0.15)';
+                        card.style.transform = 'translateY(0)';
+                    }
+                };
+
+                card.innerHTML = `
+                    <div>
+                        <div style="font-size: 11px; font-weight: 800; color: #facc15; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;" class="pixel-font">
+                            WORLD ${idx + 1} (${total} CÂU)
+                        </div>
+                        <h3 style="color: #ffffff; font-size: 17px; font-weight: 800; margin: 0 0 12px 0; line-height: 1.4;">
+                            ${topicName}
+                        </h3>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; font-size: 12px; font-weight: 700;">
+                            <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; padding: 3px 10px; border-radius: 999px;">🟢 ${eCount} Dễ</span>
+                            <span style="background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid #eab308; padding: 3px 10px; border-radius: 999px;">🟡 ${mCount} Vừa</span>
+                            <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; padding: 3px 10px; border-radius: 999px;">🔴 ${hCount} Khó</span>
+                        </div>
+                    </div>
+                    <button onclick="selectMarioTopic('${topicName}', true)" style="
+                        width: 100%; padding: 12px 18px; border: none; border-radius: 12px;
+                        background: ${isSelected ? 'linear-gradient(90deg, #facc15, #eab308)' : 'linear-gradient(90deg, #ef4444, #dc2626)'};
+                        color: ${isSelected ? '#0f172a' : '#ffffff'}; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+                        cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    ">
+                        ${isSelected ? '✓ ĐANG CHỌN' : '🍄 VÀO MÀN NÀY'}
+                    </button>
+                `;
+
+                container.appendChild(card);
+            });
+
+            if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise().catch(e => {});
+        }
+
+        function selectMarioTopic(topicName, hideOverlay) {
+            window.selectedTopic = topicName;
+            const topicData = window.gameDatabase[topicName];
+            if (!topicData) return;
+
+            // Sắp xếp câu hỏi theo thứ tự Dễ -> Vừa -> Khó
+            const topicQuestions = [];
+            ['easy', 'medium', 'hard'].forEach(diff => {
+                (topicData[diff] || []).forEach(q => {
+                    const copyQ = {
+                        q: q.q,
+                        options: [...q.options],
+                        correct: q.correct
+                    };
+                    const correctStr = copyQ.options[copyQ.correct];
+                    for (let j = copyQ.options.length - 1; j > 0; j--) {
+                        const k = Math.floor(Math.random() * (j + 1));
+                        [copyQ.options[j], copyQ.options[k]] = [copyQ.options[k], copyQ.options[j]];
+                    }
+                    copyQ.correct = copyQ.options.indexOf(correctStr);
+                    topicQuestions.push(copyQ);
+                });
+            });
+
+            initMarioLevel(topicQuestions);
+
+            const badge = document.getElementById('active-mario-topic-badge');
+            if (badge) badge.innerText = topicName.length > 25 ? topicName.substring(0, 25) + '...' : topicName;
+            const modalTopicBadge = document.getElementById('startModalTopicName');
+            if (modalTopicBadge) modalTopicBadge.innerText = topicName;
+
+            if (hideOverlay) {
+                const overlay = document.getElementById('topic-selection-overlay');
+                if (overlay) overlay.style.display = 'none';
+
+                const startModal = document.getElementById('startModal');
+                if (gameState === 'waiting' && startModal && startModal.style.display !== 'none') {
+                    startModal.style.opacity = '1';
+                } else if (previousGameState === 'playing') {
+                    gameState = 'playing';
+                }
+            }
+        }
         let currentQuestionIndex = 0;
         let score = 0;
         let lastQuestionAttempts = 0; 
@@ -640,12 +927,41 @@
         }
 
         const player = { x: 100, y: 0, w: 56, h: 70, vx: 0, vy: 0, speed: 7, jumpForce: 23, gravity: 0.8, onGround: false, facingRight: true, walkAnim: 0 };
-        const blocks = []; const BLOCK_SIZE = 60; const GROUND_Y = window.innerHeight - 100;
-        
-        for (let i = 0; i < questions.length; i++) {
-            blocks.push({ x: 400 + i * 400, y: GROUND_Y - 220, w: BLOCK_SIZE, h: BLOCK_SIZE, hit: false, questionData: questions[i], bounceY: 0 });
-        }
-        let levelLength = blocks[blocks.length-1].x + 800; 
+        const blocks = []; const BLOCK_SIZE = 60;
+        let levelLength = 1200;
+
+        function initMarioLevel(qList) {
+            questions = qList || [];
+            blocks.length = 0;
+            const curGroundY = (typeof height !== 'undefined' && height) ? (height - 100) : (window.innerHeight - 100);
+            for (let i = 0; i < questions.length; i++) {
+                blocks.push({
+                    x: 400 + i * 400,
+                    y: curGroundY - 220,
+                    w: BLOCK_SIZE,
+                    h: BLOCK_SIZE,
+                    hit: false,
+                    questionData: questions[i],
+                    bounceY: 0
+                });
+            }
+            levelLength = blocks.length > 0 ? (blocks[blocks.length - 1].x + 800) : 1200;
+            currentQuestionIndex = 0;
+            score = 0;
+            lastQuestionAttempts = 0;
+            cameraX = 0;
+            if (typeof coins !== 'undefined') coins.length = 0;
+            player.x = 100;
+            player.y = 0;
+            player.vx = 0;
+            player.vy = 0;
+            player.onGround = false;
+
+            const scoreEl = document.getElementById('scoreDisplay');
+            if (scoreEl) scoreEl.textContent = "0";
+            const qCountEl = document.getElementById('qCountDisplay');
+            if (qCountEl) qCountEl.textContent = `0/${questions.length}`;
+        } 
 
         let cameraX = 0; let keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, Space: false }; 
         let gameState = 'waiting'; 
@@ -834,10 +1150,11 @@
             }
             drawMario(player);
             
+            const curGroundY = height - 100;
             const flagX = levelLength - 150;
-            ctx.fillStyle = '#fde047'; ctx.fillRect(flagX - 5, GROUND_Y - 500, 10, 500); 
-            ctx.fillStyle = '#22c55e'; ctx.fillRect(flagX, GROUND_Y - 480, 80, 60); 
-            ctx.fillStyle = 'white'; ctx.font = "20px 'Press Start 2P'"; ctx.fillText("ĐÍCH", flagX + 40, GROUND_Y - 445);
+            ctx.fillStyle = '#fde047'; ctx.fillRect(flagX - 5, curGroundY - 500, 10, 500); 
+            ctx.fillStyle = '#22c55e'; ctx.fillRect(flagX, curGroundY - 480, 80, 60); 
+            ctx.fillStyle = 'white'; ctx.font = "20px 'Press Start 2P'"; ctx.fillText("ĐÍCH", flagX + 40, curGroundY - 445);
             ctx.restore();
             drawGround(cameraX);
         }
@@ -854,6 +1171,11 @@
             }
             update(); draw(); requestAnimationFrame(loop);
         }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMarioTopicMenuCards();
+            selectMarioTopic(window.selectedTopic, false);
+        });
 
         document.fonts.ready.then(() => { requestAnimationFrame(loop); });
     </script>

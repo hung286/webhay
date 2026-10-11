@@ -144,6 +144,37 @@
 </head>
 <body>
 
+<!-- ======================================================== -->
+<!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+<!-- ======================================================== -->
+<div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 150; background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Cinzel', 'Chakra Petch', sans-serif;">
+  <div style="max-width: 950px; width: 100%; background: rgba(15, 23, 42, 0.95); border: 2px solid #eab308; border-radius: 24px; padding: 32px; box-shadow: 0 0 50px rgba(234, 179, 8, 0.25); backdrop-filter: blur(20px); text-align: center;">
+    
+    <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 9999px; background: rgba(234, 179, 8, 0.12); border: 1px solid #eab308; color: #facc15; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
+      ⚡ CYBER DANCE | LỚP TOÁN THẦY HÙNG - TOÁN PRO
+    </div>
+    
+    <h1 style="color: #ffffff; font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0; text-shadow: 0 0 25px rgba(234, 179, 8, 0.5);">
+      ĐẠO HÀM CẤP 2: <span style="color: #facc15;">CHỌN KHU VỰC THỬ THÁCH</span>
+    </h1>
+    <p style="color: #94a3b8; font-size: 14px; margin: 0 0 24px 0; font-weight: 500;">
+      Chọn chuyên đề bài học bên dưới để vượt qua các ô lưới tử thần theo độ khó tăng dần: Student ➡️ Master ➡️ Legendary
+    </p>
+    
+    <!-- Grid các chủ đề -->
+    <div id="topics-grid-dao-ham" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; margin-bottom: 24px; max-height: 52vh; overflow-y: auto; padding: 6px;">
+      <!-- JavaScript sẽ tự động render các chuyên đề vào đây -->
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; font-size: 12px; color: #64748b;">
+      <span>🟩 Bước vào ô xanh để giải toán ➡️ Né tránh ô đỏ để sống sót</span>
+      <span style="color: #facc15; font-weight: bold;">Multi-Tier Math Engine v3.8</span>
+    </div>
+  </div>
+</div>
+
+
+
     <div id="app" class="relative w-full h-screen flex flex-col items-center justify-center p-4">
         
         <div id="game-hud" class="fixed top-8 left-8 right-8 flex justify-between items-start z-50 hidden">
@@ -186,7 +217,14 @@
                 
                 <div class="space-y-6">
                     <input id="player-name" type="text" placeholder="Tên của bạn..." maxlength="15" class="w-full bg-slate-900/50 border-b-2 border-yellow-500/30 py-4 text-center cyber-font text-white focus:outline-none focus:border-yellow-500 uppercase tracking-[0.3em] text-xl transition-all">
-                    <button onclick="startGame()" class="w-full btn-imperial py-5 rounded-2xl cyber-font text-lg">Kích hoạt quy trình</button>
+                    
+                    <!-- NÚT ĐỔI CHUYÊN ĐỀ -->
+                    <button type="button" onclick="openTopicMenu()" class="w-full py-3 rounded-xl border border-yellow-500/40 hover:border-yellow-400 bg-yellow-500/10 text-yellow-400 text-xs font-bold uppercase tracking-widest transition flex items-center justify-center gap-2 cursor-pointer">
+                        <span>⚡</span>
+                        <span id="active-topic-badge">Đổi Khu Vực (Chuyên Đề)</span>
+                    </button>
+
+<button onclick="startGame()" class="w-full btn-imperial py-5 rounded-2xl cyber-font text-lg">Kích hoạt quy trình</button>
                 </div>
             </div>
         </div>
@@ -556,5 +594,192 @@
         }
     </script>
 <script src="/game-engine.js"></script>
+
+<script>
+// ========================================================
+// HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ: ĐẠO HÀM CẤP 2
+// ========================================================
+window.gameDatabase = window.gameDatabase || {
+  "Khu Vực 1: Đạo Hàm Cấp Hai Hàm Đa Thức (Cơ Bản)": {
+    "easy": [
+      { "q": "Cho hàm số \(y = x^3 - 3x + 1\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["\(6x\)", "\(3x^2 - 3\)", "\(6\)", "\(3x\)"], "correct": 0 },
+      { "q": "Cho hàm số \(y = 2x^4 - x^2 + 5\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["\(24x^2 - 2\)", "\(8x^3 - 2x\)", "\(24x\)", "\(48x\)"], "correct": 0 },
+      { "q": "Đạo hàm cấp hai của hàm số \(y = x^2 - 4x + 3\) là:", "options": ["\(2\)", "\(2x - 4\)", "\(0\)", "\(1\)"], "correct": 0 },
+      { "q": "Cho \(y = 5x^3 - 2x^2\). Giá trị của \(y''(1)\) bằng:", "options": ["\(26\)", "\(30\)", "\(11\)", "\(22\)"], "correct": 0 },
+      { "q": "Đạo hàm cấp hai của hàm số \(y = ax + b\) (với \(a, b\) là hằng số) bằng:", "options": ["\(0\)", "\(a\)", "\(b\)", "\(1\)"], "correct": 0 }
+    ],
+    "medium": [
+      { "q": "Cho hàm số \(y = \frac{1}{x}\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["\(\frac{2}{x^3}\)", "-\(\frac{1}{x^2}\)", "-\(\frac{2}{x^3}\)", "\(\frac{1}{x^3}\)"], "correct": 0 },
+      { "q": "Cho hàm số \(y = \sqrt{x}\). Đạo hàm cấp hai \(y''\) với \(x > 0\) bằng:", "options": ["-\(\frac{1}{4x\sqrt{x}}\)", "\(\frac{1}{2\sqrt{x}}\)", "-\(\frac{1}{2x\sqrt{x}}\)", "\(\frac{1}{4x\sqrt{x}}\)"], "correct": 0 },
+      { "q": "Cho hàm số \(y = x^5 - 2x^3 + x\). Nghiệm của phương trình \(y'' = 0\) là:", "options": ["\(x = 0; x = \pm \sqrt{\frac{3}{5}}\)", "\(x = 0; x = \pm 1\)", "\(x = \pm \frac{3}{5}\)", "\(x = 0\)"], "correct": 0 },
+      { "q": "Gia tốc tức thời \(a(t)\) của một chuyển động có phương trình \(s(t) = t^3 - 3t^2 + 2t\) tại thời điểm \(t = 2\) là:", "options": ["\(6\) m/s\(^2\)", "\(12\) m/s\(^2\)", "\(2\) m/s\(^2\)", "\(0\) m/s\(^2\)"], "correct": 0 },
+      { "q": "Cho hàm số \(y = \frac{x-1}{x+1}\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["-\(\frac{4}{(x+1)^3}\)", "\(\frac{4}{(x+1)^3}\)", "\(\frac{2}{(x+1)^2}\)", "-\(\frac{2}{(x+1)^3}\)"], "correct": 0 }
+    ],
+    "hard": [
+      { "q": "Cho hàm số \(f(x) = x^4 - 2mx^2 + 1\). Tìm \(m\) để \(f''(x) \ge 0\) với mọi \(x \in \mathbb{R}\):", "options": ["\(m \le 0\)", "\(m < 0\)", "\(m \ge 0\)", "\(m > 0\)"], "correct": 0 },
+      { "q": "Một chất điểm chuyển động theo quy luật \(s(t) = -\frac{1}{3}t^3 + 6t^2\). Thời điểm gia tốc triệt tiêu (\(a(t) = 0\)) là:", "options": ["\(t = 6\)", "\(t = 3\)", "\(t = 12\)", "\(t = 0\)"], "correct": 0 },
+      { "q": "Cho \(y = (2x-1)^4\). Giá trị của \(y''(0)\) bằng:", "options": ["\(48\)", "-48", "\(24\)", "\(96\)"], "correct": 0 },
+      { "q": "Hàm số nào sau đây thỏa mãn phương trình \(y'' - 2y' + y = 0\)?", "options": ["\(y = e^x\)", "\(y = e^{-x}\)", "\(y = \sin x\)", "\(y = x^2\)"], "correct": 0 },
+      { "q": "Đạo hàm cấp hai của hàm số \(y = x\sqrt{x}\) là:", "options": ["\(\frac{3}{4\sqrt{x}}\)", "\(\frac{3}{2}\sqrt{x}\)", "\(\frac{1}{2\sqrt{x}}\)", "\(\frac{3}{4x\sqrt{x}}\)"], "correct": 0 }
+    ]
+  },
+  "Khu Vực 2: Đạo Hàm Cấp Hai Hàm Lượng Giác & Mũ - Logarit": {
+    "easy": [
+      { "q": "Đạo hàm cấp hai của hàm số \(y = \sin x\) là:", "options": ["-\(\sin x\)", "\(\cos x\)", "\(\sin x\)", "-\(\cos x\)"], "correct": 0 },
+      { "q": "Đạo hàm cấp hai của hàm số \(y = \cos x\) là:", "options": ["-\(\cos x\)", "\(\sin x\)", "\(\cos x\)", "-\(\sin x\)"], "correct": 0 },
+      { "q": "Đạo hàm cấp hai của hàm số \(y = e^{2x}\) là:", "options": ["\(4e^{2x}\)", "\(2e^{2x}\)", "\(e^{2x}\)", "\(8e^{2x}\)"], "correct": 0 },
+      { "q": "Đạo hàm cấp hai của hàm số \(y = \ln x\) (\(x > 0\)) là:", "options": ["-\(\frac{1}{x^2}\)", "\(\frac{1}{x}\)", "\(\frac{1}{x^2}\)", "-\(\frac{1}{x}\)"], "correct": 0 },
+      { "q": "Cho hàm số \(y = e^{-x}\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["\(e^{-x}\)", "-\(\e^{-x}\)", "\(e^x\)", "0"], "correct": 0 }
+    ],
+    "medium": [
+      { "q": "Cho hàm số \(y = \sin(2x)\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["-\(\4\sin(2x)\)", "\(2\cos(2x)\)", "\(4\cos(2x)\)", "-\(\2\sin(2x)\)"], "correct": 0 },
+      { "q": "Cho hàm số \(y = \cos(3x)\). Giá trị của \(y''(0)\) bằng:", "options": ["-9", "9", "0", "-3"], "correct": 0 },
+      { "q": "Cho hàm số \(y = x e^x\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["\((x+2)e^x\)", "\((x+1)e^x\)", "\(x e^x\)", "\(2e^x\)"], "correct": 0 },
+      { "q": "Cho hàm số \(y = \tan x\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["\(\frac{2\sin x}{\cos^3 x}\)", "\(\frac{1}{\cos^2 x}\)", "\(\frac{2}{\cos^3 x}\)", "\(2\tan x\)"], "correct": 0 },
+      { "q": "Cho hàm số \(y = x\ln x\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["\(\frac{1}{x}\)", "\(\ln x + 1\)", "\(1\)", "-\(\frac{1}{x^2}\)"], "correct": 0 }
+    ],
+    "hard": [
+      { "q": "Hàm số \(y = \sin(2x)\) thỏa mãn hệ thức nào sau đây?", "options": ["\(y'' + 4y = 0\)", "\(y'' - 4y = 0\)", "\(y'' + 2y = 0\)", "\(y'' + y = 0\)"], "correct": 0 },
+      { "q": "Cho hàm số \(y = e^x \sin x\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["\(2e^x \cos x\)", "\(2e^x \sin x\)", "\(e^x(\sin x + \cos x)\)", "0"], "correct": 0 },
+      { "q": "Hàm số \(y = e^{-x} \cos x\) thỏa mãn hệ thức nào sau đây?", "options": ["\(y'' + 2y' + 2y = 0\)", "\(y'' - 2y' + 2y = 0\)", "\(y'' + 2y = 0\)", "\(y'' + y = 0\)"], "correct": 0 },
+      { "q": "Cho \(y = \ln(1+x)\). Đạo hàm cấp hai \(y''(0)\) bằng:", "options": ["-1", "1", "0", "-2"], "correct": 0 },
+      { "q": "Cho hàm số \(y = \cos^2 x\). Đạo hàm cấp hai \(y''\) bằng:", "options": ["-\(\2\cos(2x)\)", "-\(\2\sin(2x)\)", "\(2\cos(2x)\)", "-\(\4\cos(2x)\)"], "correct": 0 }
+    ]
+  },
+  "Khu Vực 3: Đấu Trường Vô Tận (Thuật Toán Cyber Dance)": {
+    "isGenerator": true,
+    "description": "Thuật toán tự động sinh số ngẫu nhiên cho từng ô lưới tử thần, kiểm tra phản xạ không giới hạn."
+  }
+};
+
+window.selectedTopic = Object.keys(window.gameDatabase)[0];
+window.useStaticTopic = true;
+
+function openTopicMenu() {
+  const overlay = document.getElementById('topic-selection-overlay');
+  if (overlay) {
+    renderTopicMenuCards();
+    overlay.style.display = 'flex';
+  }
+}
+
+function renderTopicMenuCards() {
+  const container = document.getElementById('topics-grid-dao-ham');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const topics = Object.keys(window.gameDatabase);
+  topics.forEach((topicName, idx) => {
+    const data = window.gameDatabase[topicName];
+    const isGen = data.isGenerator;
+    
+    let statsText = '';
+    if (isGen) {
+      statsText = `<span style="color: #facc15; font-size: 12px; font-weight: bold;">⚡ Vô Tận (Math Generator)</span>`;
+    } else {
+      const eCount = (data.easy || []).length;
+      const mCount = (data.medium || []).length;
+      const hCount = (data.hard || []).length;
+      statsText = `<span style="color: #4ade80; font-size: 11px;">🟢 ${eCount} Dễ</span> &nbsp;|&nbsp; <span style="color: #facc15; font-size: 11px;">🟡 ${mCount} Vừa</span> &nbsp;|&nbsp; <span style="color: #f87171; font-size: 11px;">🔴 ${hCount} Khó</span>`;
+    }
+
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+      border: 2px solid ${window.selectedTopic === topicName ? '#eab308' : 'rgba(255,255,255,0.1)'};
+      border-radius: 16px; padding: 20px; text-align: left; cursor: pointer; transition: all 0.3s ease;
+      display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: ${window.selectedTopic === topicName ? '0 0 25px rgba(234, 179, 8, 0.35)' : 'none'};
+    `;
+
+    card.onmouseover = () => { card.style.borderColor = '#eab308'; card.style.transform = 'translateY(-4px)'; };
+    card.onmouseout = () => {
+      if (window.selectedTopic !== topicName) {
+        card.style.borderColor = 'rgba(255,255,255,0.1)';
+        card.style.transform = 'translateY(0)';
+      }
+    };
+
+    card.innerHTML = `
+      <div>
+        <div style="font-size: 11px; font-weight: 800; color: #facc15; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;">
+          KHU VỰC ${idx + 1}
+        </div>
+        <h3 style="color: #ffffff; font-size: 16px; font-weight: 700; margin: 0 0 10px 0; line-height: 1.4;">
+          ${topicName}
+        </h3>
+        <div style="margin-bottom: 16px;">${statsText}</div>
+      </div>
+      <button onclick="selectDaoHamTopic('${topicName}')" style="
+        width: 100%; padding: 10px 16px; border: none; border-radius: 10px;
+        background: ${window.selectedTopic === topicName ? 'linear-gradient(90deg, #eab308, #ca8a04)' : 'rgba(255,255,255,0.1)'};
+        color: ${window.selectedTopic === topicName ? '#0f172a' : '#ffffff'}; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+        cursor: pointer; transition: all 0.2s;
+      ">
+        ${window.selectedTopic === topicName ? '✓ ĐANG CHỌN' : '⚡ VÀO KHU VỰC NÀY'}
+      </button>
+    `;
+
+    container.appendChild(card);
+  });
+
+  if (window.MathJax) MathJax.typesetPromise().catch(e => {});
+}
+
+function selectDaoHamTopic(topicName) {
+  window.selectedTopic = topicName;
+  const topicData = window.gameDatabase[topicName];
+  window.useStaticTopic = !topicData.isGenerator;
+
+  // Cập nhật nhãn chủ đề
+  const badge = document.getElementById('active-topic-badge');
+  if (badge) badge.innerText = topicName.length > 25 ? topicName.substring(0, 25) + '...' : topicName;
+
+  const hudTopic = document.getElementById('hud-topic-name');
+  if (hudTopic) hudTopic.innerText = topicName.length > 20 ? topicName.substring(0, 20) + '...' : topicName;
+
+  // Ẩn Menu
+  const overlay = document.getElementById('topic-selection-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+// Hook MathEngine.generate để phục vụ câu hỏi từ window.gameDatabase
+if (typeof MathEngine !== 'undefined') {
+  const _origMathGenerate = MathEngine.generate;
+  MathEngine.generate = function(count) {
+    if (window.useStaticTopic && window.selectedTopic && window.gameDatabase[window.selectedTopic]) {
+      const topicData = window.gameDatabase[window.selectedTopic];
+      if (!topicData.isGenerator) {
+        let pool = topicData.easy || [];
+        if (count >= 10 && topicData.hard && topicData.hard.length > 0) {
+          pool = topicData.hard;
+        } else if (count >= 5 && topicData.medium && topicData.medium.length > 0) {
+          pool = topicData.medium;
+        }
+        if (!pool || pool.length === 0) {
+          pool = (topicData.easy || []).concat(topicData.medium || []).concat(topicData.hard || []);
+        }
+
+        const qItem = pool[count % pool.length];
+        return {
+          prefix: "",
+          q: qItem.q,
+          suffix: "",
+          a: qItem.options,
+          c: qItem.correct,
+          type: 'MCQ'
+        };
+      }
+    }
+    return _origMathGenerate(count);
+  };
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderTopicMenuCards();
+  selectDaoHamTopic(window.selectedTopic);
+});
+</script>
+
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toán 10-12. Sơ Đồ Cây Xác Suất - Bản Máy Chiếu (PC)</title>
+    <title>Sơ Đồ Cây Xác Suất - Mô Phỏng Trực Quan | TOÁN PRO - THẦY HÙNG</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
@@ -115,6 +115,56 @@
 </head>
 <body class="text-slate-800 bg-slate-100 relative">
 
+    <!-- ======================================================== -->
+    <!-- FLOATING CHALLENGE & CONTROL BAR (HỘP NHIỆM VỤ BÀI TOÁN) -->
+    <!-- ======================================================== -->
+    <div id="challenge-bar" class="absolute top-6 right-6 z-40 max-w-xl w-[92vw] sm:w-[480px] bg-slate-900/95 backdrop-blur-xl border border-slate-700/80 rounded-2xl shadow-2xl p-4 transition-all duration-300 text-white">
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+                <span id="challenge-diff-badge" class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Cơ Bản
+                </span>
+                <h3 id="challenge-title" class="font-black text-sm text-slate-100 truncate max-w-[260px]">
+                    Sơ Đồ Cây Tự Do
+                </h3>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button onclick="window.toggleChallengeBar()" id="btn-toggle-bar" class="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs px-2" title="Thu gọn">
+                    ▼
+                </button>
+                <button onclick="window.openTopicSelectModal()" class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-black uppercase flex items-center gap-1 shadow-md">
+                    📚 Đổi Bài
+                </button>
+            </div>
+        </div>
+
+        <div id="challenge-content-body">
+            <p id="challenge-desc" class="text-xs text-slate-300 leading-relaxed mb-3">
+                Nhấp chuột phải vào nút tròn để thêm nhánh, đổi tên biến cố hoặc điền xác suất trên các mũi tên.
+            </p>
+            <div id="challenge-task-box" class="p-2.5 rounded-xl bg-blue-950/40 border border-blue-500/30 text-xs text-blue-200 mb-3 font-medium">
+                🎯 <b>Nhiệm vụ:</b> <span id="challenge-task-text">Tự do xây dựng sơ đồ cây hoặc chọn bài toán có sẵn.</span>
+            </div>
+
+            <!-- Nút Hành Động -->
+            <div class="flex items-center gap-2">
+                <button id="btn-check-tree" onclick="window.checkTreeAnswers()" class="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                    🎯 Kiểm Tra Đáp Án
+                </button>
+                <button id="btn-solution-tree" onclick="window.showTreeSolution()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 hover:text-white font-bold text-xs transition-colors">
+                    💡 Đáp Án
+                </button>
+                <button onclick="window.clearTreeInputs()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 hover:text-white font-bold text-xs" title="Làm lại từ đầu">
+                    🔄
+                </button>
+            </div>
+
+            <!-- Kết Quả Chấm Điểm -->
+            <div id="challenge-feedback" class="mt-2 text-xs font-bold text-center hidden p-2 rounded-lg"></div>
+        </div>
+    </div>
+
+
     <!-- KHUNG LOGO & THƯƠNG HIỆU TRÔI NỔI (Kèm nút Làm mới ẩn) -->
     <div class="absolute top-6 left-6 z-40 bg-slate-900/90 backdrop-blur-md border border-slate-700 p-4 rounded-2xl shadow-2xl flex items-center gap-4">
         <!-- Logo -->
@@ -127,13 +177,17 @@
         </div>
         <!-- Nội dung text -->
         <div class="overflow-hidden">
-            <h1 class="text-[19px] font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 leading-tight uppercase tracking-wide truncate pr-4">
-                TOÁN PRO
+            <h1 class="text-[19px] font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-teal-300 to-emerald-400 leading-tight uppercase tracking-wide truncate pr-4">
+                TOÁN PRO - THẦY HÙNG
             </h1>
-            <!-- NÚT LÀM MỚI ĐƯỢC GIẤU Ở ĐÂY -->
-            <p onclick="resetTree()" class="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-widest truncate cursor-pointer hover:text-white transition-colors w-max" title="Click để làm mới sơ đồ">
-                Cây Xác Suất - Bản PC
-            </p>
+            <div class="flex items-center gap-2 mt-1">
+                <p id="hud-topic-badge" class="text-[11px] font-bold text-slate-300 uppercase tracking-wider truncate">
+                    BẢNG VẼ TỰ DO
+                </p>
+                <button onclick="window.openTopicSelectModal()" class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/40 text-[10px] font-black uppercase hover:bg-blue-500/40 transition-colors">
+                    Đổi Bài 📚
+                </button>
+            </div>
         </div>
     </div>
 
@@ -177,6 +231,565 @@
     </div>
 
     <script>
+        
+        // ========================================================
+        // HỆ THỐNG ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE ARCHITECTURE)
+        // ========================================================
+        window.gameDatabase = {
+            "Chủ đề 1: Bốc Thăm & Lấy Bi Liên Tiếp": {
+                "easy": {
+                    title: "Rút 2 Bi Có Hoàn Lại (Độc Lập)",
+                    desc: "Hộp có 4 bi Đỏ (Đ) và 6 bi Xanh (X). Rút lần lượt 2 viên bi có hoàn lại (mỗi lần rút là biến cố độc lập).",
+                    task: "Điền xác suất các nhánh P(X), P(Đ), P(X|X), P(Đ|X), P(X|Đ), P(Đ|Đ).",
+                    tree: {
+                        id: 'root', label: 'Ω', isComplement: false,
+                        children: [
+                            {
+                                id: 'n1', label: 'X', isComplement: false, prob: '', expected: '6/10',
+                                children: [
+                                    { id: 'n1_1', label: 'X', isComplement: false, prob: '', expected: '6/10', children: [] },
+                                    { id: 'n1_2', label: 'Đ', isComplement: false, prob: '', expected: '4/10', children: [] }
+                                ]
+                            },
+                            {
+                                id: 'n2', label: 'Đ', isComplement: false, prob: '', expected: '4/10',
+                                children: [
+                                    { id: 'n2_1', label: 'X', isComplement: false, prob: '', expected: '6/10', children: [] },
+                                    { id: 'n2_2', label: 'Đ', isComplement: false, prob: '', expected: '4/10', children: [] }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "medium": {
+                    title: "Rút 2 Bi Không Hoàn Lại (Có Điều Kiện)",
+                    desc: "Hộp có 5 bi Xanh (X) và 3 bi Đỏ (Đ). Rút lần lượt 2 viên bi không hoàn lại (số lượng bi giảm 1 viên ở lần 2).",
+                    task: "Điền xác suất các nhánh ban đầu và xác suất có điều kiện sau khi rút viên thứ nhất.",
+                    tree: {
+                        id: 'root', label: 'Ω', isComplement: false,
+                        children: [
+                            {
+                                id: 'n1', label: 'X', isComplement: false, prob: '', expected: '5/8',
+                                children: [
+                                    { id: 'n1_1', label: 'X', isComplement: false, prob: '', expected: '4/7', children: [] },
+                                    { id: 'n1_2', label: 'Đ', isComplement: false, prob: '', expected: '3/7', children: [] }
+                                ]
+                            },
+                            {
+                                id: 'n2', label: 'Đ', isComplement: false, prob: '', expected: '3/8',
+                                children: [
+                                    { id: 'n2_1', label: 'X', isComplement: false, prob: '', expected: '5/7', children: [] },
+                                    { id: 'n2_2', label: 'Đ', isComplement: false, prob: '', expected: '2/7', children: [] }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "hard": {
+                    title: "Rút Thẻ Chẵn - Lẻ Không Hoàn Lại",
+                    desc: "Hộp có 10 thẻ đánh số từ 1 đến 10 (5 số Chẵn C, 5 số Lẻ L). Rút lần lượt 2 thẻ không hoàn lại.",
+                    task: "Điền xác suất nhánh lần 1 và lần 2 để phân tích xác suất rút được 2 thẻ cùng tính chẵn lẻ.",
+                    tree: {
+                        id: 'root', label: 'Ω', isComplement: false,
+                        children: [
+                            {
+                                id: 'n1', label: 'C', isComplement: false, prob: '', expected: '5/10',
+                                children: [
+                                    { id: 'n1_1', label: 'C', isComplement: false, prob: '', expected: '4/9', children: [] },
+                                    { id: 'n1_2', label: 'L', isComplement: false, prob: '', expected: '5/9', children: [] }
+                                ]
+                            },
+                            {
+                                id: 'n2', label: 'L', isComplement: false, prob: '', expected: '5/10',
+                                children: [
+                                    { id: 'n2_1', label: 'C', isComplement: false, prob: '', expected: '5/9', children: [] },
+                                    { id: 'n2_2', label: 'L', isComplement: false, prob: '', expected: '4/9', children: [] }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "Chủ đề 2: Dây Chuyền Sản Xuất & Kiểm Định Chất Lượng": {
+                "easy": {
+                    title: "Hai Phân Xưởng & Tỉ Lệ Phế Phẩm",
+                    desc: "Phân xưởng I sản xuất 60% (P=0.6) tỉ lệ lỗi (L) là 0.03. Phân xưởng II sản xuất 40% (P=0.4) tỉ lệ lỗi (L) là 0.05. T là sản phẩm tốt.",
+                    task: "Điền xác suất nhánh sản xuất của mỗi xưởng và nhánh phế phẩm / chính phẩm tương ứng.",
+                    tree: {
+                        id: 'root', label: 'Ω', isComplement: false,
+                        children: [
+                            {
+                                id: 'n1', label: 'I', isComplement: false, prob: '', expected: '0.6',
+                                children: [
+                                    { id: 'n1_1', label: 'L', isComplement: false, prob: '', expected: '0.03', children: [] },
+                                    { id: 'n1_2', label: 'T', isComplement: false, prob: '', expected: '0.97', children: [] }
+                                ]
+                            },
+                            {
+                                id: 'n2', label: 'II', isComplement: false, prob: '', expected: '0.4',
+                                children: [
+                                    { id: 'n2_1', label: 'L', isComplement: false, prob: '', expected: '0.05', children: [] },
+                                    { id: 'n2_2', label: 'T', isComplement: false, prob: '', expected: '0.95', children: [] }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "medium": {
+                    title: "Ba Dây Chuyền A, B, C Độc Lập",
+                    desc: "Ba máy A, B, C sản xuất lần lượt 50%, 30%, 20% sản lượng. Tỉ lệ phế phẩm (P) của mỗi máy là 2% (0.02), 3% (0.03), 5% (0.05). C là chuẩn.",
+                    task: "Xây dựng sơ đồ 3 nhánh bậc 1 và 2 nhánh bậc 2. Điền đầy đủ xác suất các nhánh.",
+                    tree: {
+                        id: 'root', label: 'Ω', isComplement: false,
+                        children: [
+                            {
+                                id: 'n1', label: 'A', isComplement: false, prob: '', expected: '0.5',
+                                children: [
+                                    { id: 'n1_1', label: 'P', isComplement: false, prob: '', expected: '0.02', children: [] },
+                                    { id: 'n1_2', label: 'C', isComplement: false, prob: '', expected: '0.98', children: [] }
+                                ]
+                            },
+                            {
+                                id: 'n2', label: 'B', isComplement: false, prob: '', expected: '0.3',
+                                children: [
+                                    { id: 'n2_1', label: 'P', isComplement: false, prob: '', expected: '0.03', children: [] },
+                                    { id: 'n2_2', label: 'C', isComplement: false, prob: '', expected: '0.97', children: [] }
+                                ]
+                            },
+                            {
+                                id: 'n3', label: 'C', isComplement: false, prob: '', expected: '0.2',
+                                children: [
+                                    { id: 'n3_1', label: 'P', isComplement: false, prob: '', expected: '0.05', children: [] },
+                                    { id: 'n3_2', label: 'C', isComplement: false, prob: '', expected: '0.95', children: [] }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "hard": {
+                    title: "Quy Trình Kiểm Tra 2 Vòng Liên Tiếp",
+                    desc: "Lô hàng gồm 70% loại I và 30% loại II. Loại I qua vòng 1 với xác suất Đạt (Đ) là 0.9. Loại II qua vòng 1 với xác suất Đạt là 0.6. K là Không đạt.",
+                    task: "Phân tích sơ đồ phân nhánh kiểm định chất lượng sản phẩm.",
+                    tree: {
+                        id: 'root', label: 'Ω', isComplement: false,
+                        children: [
+                            {
+                                id: 'n1', label: 'I', isComplement: false, prob: '', expected: '0.7',
+                                children: [
+                                    { id: 'n1_1', label: 'Đ', isComplement: false, prob: '', expected: '0.9', children: [] },
+                                    { id: 'n1_2', label: 'K', isComplement: false, prob: '', expected: '0.1', children: [] }
+                                ]
+                            },
+                            {
+                                id: 'n2', label: 'II', isComplement: false, prob: '', expected: '0.3',
+                                children: [
+                                    { id: 'n2_1', label: 'Đ', isComplement: false, prob: '', expected: '0.6', children: [] },
+                                    { id: 'n2_2', label: 'K', isComplement: false, prob: '', expected: '0.4', children: [] }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "Chủ đề 3: Chẩn Đoán Y Tế & Dự Báo Thời Tiết": {
+                "easy": {
+                    title: "Dự Báo Thời Tiết & Tắc Đường",
+                    desc: "Xác suất trời Mưa (M) là 0.3, Nắng (N) là 0.7. Nếu mưa thì xác suất Tắc đường (T) là 0.8; nếu nắng xác suất tắc đường là 0.2. H là Thông thoáng.",
+                    task: "Điền xác suất các nhánh để tính xác suất toàn phần của sự kiện tắc đường P(T).",
+                    tree: {
+                        id: 'root', label: 'Ω', isComplement: false,
+                        children: [
+                            {
+                                id: 'n1', label: 'M', isComplement: false, prob: '', expected: '0.3',
+                                children: [
+                                    { id: 'n1_1', label: 'T', isComplement: false, prob: '', expected: '0.8', children: [] },
+                                    { id: 'n1_2', label: 'H', isComplement: false, prob: '', expected: '0.2', children: [] }
+                                ]
+                            },
+                            {
+                                id: 'n2', label: 'N', isComplement: false, prob: '', expected: '0.7',
+                                children: [
+                                    { id: 'n2_1', label: 'T', isComplement: false, prob: '', expected: '0.2', children: [] },
+                                    { id: 'n2_2', label: 'H', isComplement: false, prob: '', expected: '0.8', children: [] }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "medium": {
+                    title: "Tầm Soát Y Tế & Dương Tính Giả (Bayes)",
+                    desc: "Tỉ lệ dân số mắc Bệnh (B) là 2% (0.02). Khỏe mạnh (K) là 98% (0.98). Xét nghiệm Dương tính (D) ở người có bệnh là 0.95; Dương tính giả ở người khỏe là 0.04. A là Âm tính.",
+                    task: "Điền xác suất để áp dụng công thức Bayes tính xác suất thực sự mắc bệnh khi có kết quả dương tính.",
+                    tree: {
+                        id: 'root', label: 'Ω', isComplement: false,
+                        children: [
+                            {
+                                id: 'n1', label: 'B', isComplement: false, prob: '', expected: '0.02',
+                                children: [
+                                    { id: 'n1_1', label: 'D', isComplement: false, prob: '', expected: '0.95', children: [] },
+                                    { id: 'n1_2', label: 'A', isComplement: false, prob: '', expected: '0.05', children: [] }
+                                ]
+                            },
+                            {
+                                id: 'n2', label: 'K', isComplement: false, prob: '', expected: '0.98',
+                                children: [
+                                    { id: 'n2_1', label: 'D', isComplement: false, prob: '', expected: '0.04', children: [] },
+                                    { id: 'n2_2', label: 'A', isComplement: false, prob: '', expected: '0.96', children: [] }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "hard": {
+                    title: "Hệ Thống Cảnh Báo Cháy Thông Minh",
+                    desc: "Xác suất Hỏa hoạn (H) là 0.01 (Bình thường B là 0.99). Khi có cháy, còi Kêu (C) với xác suất 0.99. Khi không cháy, còi báo giả (C) với xác suất 0.02. I là Im lặng.",
+                    task: "Thiết lập sơ đồ cây và phân tích độ tin cậy của chuông báo cháy.",
+                    tree: {
+                        id: 'root', label: 'Ω', isComplement: false,
+                        children: [
+                            {
+                                id: 'n1', label: 'H', isComplement: false, prob: '', expected: '0.01',
+                                children: [
+                                    { id: 'n1_1', label: 'C', isComplement: false, prob: '', expected: '0.99', children: [] },
+                                    { id: 'n1_2', label: 'I', isComplement: false, prob: '', expected: '0.01', children: [] }
+                                ]
+                            },
+                            {
+                                id: 'n2', label: 'B', isComplement: false, prob: '', expected: '0.99',
+                                children: [
+                                    { id: 'n2_1', label: 'C', isComplement: false, prob: '', expected: '0.02', children: [] },
+                                    { id: 'n2_2', label: 'I', isComplement: false, prob: '', expected: '0.98', children: [] }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        };
+
+        window.currentTopicName = Object.keys(window.gameDatabase)[0];
+        window.currentDiff = 'easy';
+        window.currentScenario = window.gameDatabase[window.currentTopicName][window.currentDiff];
+
+        // --- WEB AUDIO API EFFECTS ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration, delay = 0) {
+            setTimeout(() => {
+                try {
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + duration);
+                } catch(e) {}
+            }, delay);
+        }
+
+        window.sfxSuccess = function() {
+            playTone(523.25, 'triangle', 0.15, 0);   // C5
+            playTone(659.25, 'triangle', 0.15, 120); // E5
+            playTone(783.99, 'triangle', 0.25, 240); // G5
+        };
+
+        window.sfxError = function() {
+            playTone(260, 'sawtooth', 0.2, 0);
+            playTone(220, 'sawtooth', 0.25, 120);
+        };
+
+        // --- TOPIC MENU MODAL LOGIC ---
+        window.openTopicSelectModal = function() {
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (!overlay) return;
+            window.renderTreeTopicCards();
+            overlay.classList.remove('hidden');
+        };
+
+        window.renderTreeTopicCards = function() {
+            const container = document.getElementById('tree-topics-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.keys(window.gameDatabase).forEach((tName, idx) => {
+                const topicGroup = window.gameDatabase[tName];
+                const card = document.createElement('div');
+                const isCurrent = tName === window.currentTopicName;
+
+                card.className = `rounded-2xl p-5 border-2 transition-all flex flex-col justify-between ${
+                    isCurrent 
+                        ? 'border-blue-400 bg-blue-950/40 shadow-[0_0_25px_rgba(59,130,246,0.35)]' 
+                        : 'border-white/10 bg-slate-900/60 hover:border-blue-400/50 hover:bg-slate-900/90'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                                Chuyên đề ${idx + 1}
+                            </span>
+                            <span class="text-xs font-bold text-gray-300">3 Mức Độ</span>
+                        </div>
+                        <h2 class="text-xl font-black text-white mb-2 leading-snug">
+                            ${tName}
+                        </h2>
+                        <p class="text-xs text-slate-300 mb-4">
+                            Mô phỏng sơ đồ cây, thực hành tính xác suất có điều kiện và toàn phần.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 mt-4 pt-4 border-t border-white/10">
+                        <button onclick="window.selectTreeScenario('${tName.replace(/'/g, "\\'")}', 'easy')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-400 hover:to-teal-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                            ⚡ Bắt Đầu: Cơ Bản (Dễ)
+                        </button>
+                        
+                        <div class="grid grid-cols-3 gap-1.5 pt-1">
+                            <button onclick="window.selectTreeScenario('${tName.replace(/'/g, "\\'")}', 'easy')" class="py-2 px-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Dễ
+                            </button>
+                            <button onclick="window.selectTreeScenario('${tName.replace(/'/g, "\\'")}', 'medium')" class="py-2 px-1 rounded-lg bg-blue-950/60 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Vừa
+                            </button>
+                            <button onclick="window.selectTreeScenario('${tName.replace(/'/g, "\\'")}', 'hard')" class="py-2 px-1 rounded-lg bg-rose-950/60 hover:bg-rose-600 border border-rose-500/40 text-rose-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Khó
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        // --- SELECT SCENARIO & CLONE TREE ---
+        function deepCloneTree(node) {
+            const newNode = {
+                id: node.id,
+                label: node.label,
+                isComplement: !!node.isComplement,
+                prob: node.prob || '',
+                expected: node.expected || '',
+                children: []
+            };
+            if (node.children && node.children.length > 0) {
+                newNode.children = node.children.map(deepCloneTree);
+            }
+            return newNode;
+        }
+
+        window.selectTreeScenario = function(topicName, diff) {
+            const topicGroup = window.gameDatabase[topicName];
+            if (!topicGroup || !topicGroup[diff]) return;
+
+            window.currentTopicName = topicName;
+            window.currentDiff = diff;
+            window.currentScenario = topicGroup[diff];
+
+            // Cập nhật treeData
+            treeData = deepCloneTree(window.currentScenario.tree);
+            nodeIdCounter = 100;
+
+            // Đóng modal
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.classList.add('hidden');
+
+            // Cập nhật Challenge Bar
+            const diffLabels = { easy: 'Cơ Bản (Dễ)', medium: 'Nâng Cao (Vừa)', hard: 'Thử Thách (Khó)' };
+            const diffColors = {
+                easy: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+                medium: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+                hard: 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+            };
+
+            const badgeEl = document.getElementById('challenge-diff-badge');
+            if (badgeEl) {
+                badgeEl.innerText = diffLabels[diff] || diff;
+                badgeEl.className = `px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${diffColors[diff] || ''}`;
+            }
+
+            const titleEl = document.getElementById('challenge-title');
+            if (titleEl) titleEl.innerText = window.currentScenario.title;
+
+            const descEl = document.getElementById('challenge-desc');
+            if (descEl) descEl.innerText = window.currentScenario.desc;
+
+            const taskEl = document.getElementById('challenge-task-text');
+            if (taskEl) taskEl.innerText = window.currentScenario.task;
+
+            const hudBadge = document.getElementById('hud-topic-badge');
+            if (hudBadge) hudBadge.innerText = `${topicName} (${diffLabels[diff] || diff})`;
+
+            const feedbackEl = document.getElementById('challenge-feedback');
+            if (feedbackEl) {
+                feedbackEl.classList.add('hidden');
+                feedbackEl.innerHTML = '';
+            }
+
+            // Vẽ lại cây và căn giữa
+            centerTree();
+            renderTree();
+        };
+
+        window.selectSandboxMode = function() {
+            window.currentScenario = null;
+            treeData = { id: 'root', label: 'Ω', isComplement: false, x: 0, y: 0, children: [] };
+            nodeIdCounter = 1;
+
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.classList.add('hidden');
+
+            const badgeEl = document.getElementById('challenge-diff-badge');
+            if (badgeEl) {
+                badgeEl.innerText = 'TỰ DO';
+                badgeEl.className = 'px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-400 border border-purple-500/30';
+            }
+
+            const titleEl = document.getElementById('challenge-title');
+            if (titleEl) titleEl.innerText = 'Bảng Vẽ Sơ Đồ Cây Tự Do';
+
+            const descEl = document.getElementById('challenge-desc');
+            if (descEl) descEl.innerText = 'Nhấp chuột phải vào các nút để thêm nhánh, đổi tên biến cố hoặc nhập xác suất.';
+
+            const taskEl = document.getElementById('challenge-task-text');
+            if (taskEl) taskEl.innerText = 'Thỏa sức thiết kế sơ đồ cây theo bài giảng của thầy cô.';
+
+            const hudBadge = document.getElementById('hud-topic-badge');
+            if (hudBadge) hudBadge.innerText = 'BẢNG VẼ TỰ DO (SANDBOX)';
+
+            const feedbackEl = document.getElementById('challenge-feedback');
+            if (feedbackEl) feedbackEl.classList.add('hidden');
+
+            centerTree();
+            renderTree();
+        };
+
+        // --- KIỂM TRA ĐÁP ÁN & ĐIỀN ĐÁP ÁN ---
+        function compareProbValues(userVal, expectedVal) {
+            if (!userVal || !expectedVal) return false;
+            userVal = userVal.trim().replace(/\s+/g, '');
+            expectedVal = expectedVal.trim().replace(/\s+/g, '');
+            if (userVal === expectedVal) return true;
+
+            function toFloat(s) {
+                if (s.includes('/')) {
+                    const p = s.split('/');
+                    return parseFloat(p[0]) / parseFloat(p[1]);
+                }
+                return parseFloat(s);
+            }
+            const u = toFloat(userVal);
+            const e = toFloat(expectedVal);
+            if (!isNaN(u) && !isNaN(e)) {
+                return Math.abs(u - e) < 0.005;
+            }
+            return false;
+        }
+
+        window.checkTreeAnswers = function() {
+            if (!window.currentScenario) {
+                alert("Bạn đang ở chế độ Bảng Vẽ Tự Do. Hãy chọn một bài toán trong Menu để kiểm tra đáp án!");
+                window.openTopicSelectModal();
+                return;
+            }
+
+            let totalBranches = 0;
+            let correctBranches = 0;
+            let incorrectList = [];
+
+            function traverse(node, parentLabel = '') {
+                if (node.children) {
+                    node.children.forEach(child => {
+                        if (child.expected) {
+                            totalBranches++;
+                            const isMatch = compareProbValues(child.prob, child.expected);
+                            if (isMatch) {
+                                correctBranches++;
+                            } else {
+                                const branchName = parentLabel ? `P(${child.label}|${parentLabel})` : `P(${child.label})`;
+                                incorrectList.push({ name: branchName, user: child.prob || '(trống)', exp: child.expected });
+                            }
+                        }
+                        traverse(child, child.label);
+                    });
+                }
+            }
+
+            traverse(treeData, '');
+
+            const feedbackEl = document.getElementById('challenge-feedback');
+            if (!feedbackEl) return;
+            feedbackEl.classList.remove('hidden');
+
+            if (correctBranches === totalBranches && totalBranches > 0) {
+                window.sfxSuccess();
+                feedbackEl.className = 'mt-2 text-xs font-bold text-center p-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-400/40';
+                feedbackEl.innerHTML = `🎉 <b>CHÍNH XÁC 100%!</b> Em đã điền đúng toàn bộ ${totalBranches}/${totalBranches} nhánh xác suất của bài toán!`;
+            } else {
+                window.sfxError();
+                feedbackEl.className = 'mt-2 text-xs font-bold text-center p-2 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-400/40';
+                feedbackEl.innerHTML = `⚠️ <b>Đúng ${correctBranches}/${totalBranches} nhánh.</b> Cần kiểm tra lại: ${incorrectList.slice(0, 3).map(i => i.name).join(', ')}${incorrectList.length > 3 ? '...' : ''}`;
+            }
+        };
+
+        window.showTreeSolution = function() {
+            if (!window.currentScenario) {
+                alert("Bạn đang ở chế độ Bảng Vẽ Tự Do. Hãy chọn một bài toán trong Menu để xem lời giải mẫu!");
+                return;
+            }
+
+            function fillExpected(node) {
+                if (node.expected) {
+                    node.prob = node.expected;
+                }
+                if (node.children) {
+                    node.children.forEach(fillExpected);
+                }
+            }
+
+            fillExpected(treeData);
+            renderTree();
+
+            const feedbackEl = document.getElementById('challenge-feedback');
+            if (feedbackEl) {
+                feedbackEl.classList.remove('hidden');
+                feedbackEl.className = 'mt-2 text-xs font-bold text-center p-2 rounded-lg bg-blue-500/20 text-blue-300 border border-blue-400/40';
+                feedbackEl.innerHTML = `💡 <b>Đã hiển thị đáp án mẫu!</b> Thầy cô có thể trình chiếu để chữa bài cho học sinh.`;
+            }
+        };
+
+        window.clearTreeInputs = function() {
+            function clearProb(node) {
+                if (node.id !== 'root') {
+                    node.prob = '';
+                }
+                if (node.children) {
+                    node.children.forEach(clearProb);
+                }
+            }
+            clearProb(treeData);
+            renderTree();
+
+            const feedbackEl = document.getElementById('challenge-feedback');
+            if (feedbackEl) feedbackEl.classList.add('hidden');
+        };
+
+        window.toggleChallengeBar = function() {
+            const body = document.getElementById('challenge-content-body');
+            const btn = document.getElementById('btn-toggle-bar');
+            if (!body || !btn) return;
+
+            if (body.classList.contains('hidden')) {
+                body.classList.remove('hidden');
+                btn.innerText = '▼';
+            } else {
+                body.classList.add('hidden');
+                btn.innerText = '▲';
+            }
+        };
+
         // --- LOGO UPLOAD ---
         document.getElementById('logoUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -626,11 +1239,53 @@
         };
 
         window.onload = () => {
-            centerTree();
-            renderTree();
+            // Khởi tạo bài toán mẫu đầu tiên từ ngân hàng câu hỏi
+            if (window.gameDatabase) {
+                const defaultTopic = Object.keys(window.gameDatabase)[0];
+                window.selectTreeScenario(defaultTopic, 'easy');
+            } else {
+                centerTree();
+                renderTree();
+            }
         };
 
     </script>
 <script src="/game-engine.js"></script>
+
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" class="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-slate-950/90 backdrop-blur-2xl transition-all duration-300 hidden">
+        <div class="rounded-3xl w-full max-w-5xl border-2 border-blue-400/40 flex flex-col max-h-[92vh] overflow-hidden bg-gradient-to-br from-slate-950/95 via-slate-900/95 to-slate-950/95 shadow-[0_0_60px_rgba(59,130,246,0.3)]">
+            
+            <div class="p-6 border-b border-white/10 text-center relative">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/40 text-blue-300 text-xs font-black tracking-widest uppercase mb-2">
+                    🌳 SƠ ĐỒ CÂY XÁC SUẤT | TOÁN PRO - THẦY HÙNG
+                </div>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-teal-300 to-cyan-400 tracking-tight mb-2">
+                    CHỌN CHUYÊN ĐỀ SƠ ĐỒ CÂY
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base font-semibold max-w-2xl mx-auto">
+                    Chọn bài toán mô phỏng từ Dễ đến Khó để điền xác suất các nhánh, hoặc mở Bảng Vẽ Tự Do để tự thiết kế sơ đồ.
+                </p>
+                <button onclick="document.getElementById('topic-selection-overlay').classList.add('hidden')" class="absolute top-6 right-6 text-gray-400 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-2xl transition-colors">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Grid danh sách chuyên đề -->
+            <div id="tree-topics-grid" class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-5 flex-1">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <div class="p-4 border-t border-white/10 bg-black/40 flex flex-wrap justify-between items-center text-xs text-slate-400 font-semibold px-8">
+                <span>⭐ Hỗ trợ tính năng tự động cân bằng tổng xác suất = 1 và kiểm tra đáp án tức thì</span>
+                <button onclick="window.selectSandboxMode()" class="px-4 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/40 font-bold transition-all">
+                    🎨 Bảng Vẽ Tự Do (Sandbox)
+                </button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

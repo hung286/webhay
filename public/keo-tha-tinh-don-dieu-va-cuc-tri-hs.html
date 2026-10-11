@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Toán 12. Tính Đơn Điệu & Cực Trị </title>
+    <title>Toán 12 - Kéo Thả Đơn Điệu & Cực Trị | TOÁN PRO - THẦY HÙNG</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -189,18 +189,55 @@
     <div class="bg-cyber"></div>
     <div class="bg-nebula"></div>
 
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-slate-950/85 backdrop-blur-2xl transition-all duration-300">
+        <div class="glass-panel rounded-[2.5rem] w-full max-w-5xl border border-cyan-500/30 flex flex-col max-h-[92vh] overflow-hidden bg-slate-900/95 shadow-[0_0_60px_rgba(34,211,238,0.2)]">
+            
+            <div class="p-6 sm:p-8 border-b border-white/10 text-center relative">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-black tracking-widest uppercase mb-3">
+                    🚀 HỆ THỐNG HỌC TẬP TOÁN PRO - THẦY HÙNG
+                </div>
+                <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 tracking-tight mb-2">
+                    CHỌN CHUYÊN ĐỀ KÉO THẢ TƯƠNG TÁC
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base font-medium max-w-2xl mx-auto">
+                    Kéo và ghép các thuộc tính toán học vào đúng hàm số tương ứng. Luyện tập vượt qua 5 cấp độ từ Dễ đến Khó!
+                </p>
+                <button onclick="document.getElementById('topic-selection-overlay').classList.add('hidden')" class="absolute top-6 right-6 text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-700 p-2.5 rounded-xl border border-white/10 transition-colors">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Danh sách các chuyên đề -->
+            <div id="topics-grid-container" class="p-6 sm:p-8 overflow-y-auto custom-scrollbar grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <div class="p-4 sm:p-5 border-t border-white/10 bg-slate-950/50 flex flex-wrap justify-between items-center text-xs text-slate-400 font-semibold px-8">
+                <span>⭐ Hỗ trợ thử thách theo từng Level hoặc Chiến dịch phá đảo liên hoàn</span>
+                <span class="text-cyan-400 font-mono">Interactive Drag & Drop Engine v3.5</span>
+            </div>
+        </div>
+    </div>
+
+
     <div class="absolute top-0 left-0 w-full z-40 p-4 sm:p-6 flex justify-between items-start pointer-events-none">
         
-        <!-- Logo -->
-        <div class="pointer-events-auto">
-            <div class="glass-panel px-5 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-3 border border-white/10" onclick="window.showOverlay('start')">
+        <!-- Logo & Topic Switcher -->
+        <div class="pointer-events-auto flex items-center gap-3">
+            <div class="glass-panel px-5 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-3 border border-white/10" onclick="window.openTopicSelectMenu()">
                 <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-600 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                     <span class="text-cyan-400 text-xl font-bold font-mono">∑</span>
                 </div>
                 <div class="flex flex-col">
-                    <span class="font-bold text-white text-base tracking-wide uppercase">MHMath<span class="text-cyan-400">Edu</span></span>
+                    <span class="font-bold text-white text-base tracking-wide uppercase">TOÁN PRO<span class="text-cyan-400"> - THẦY HÙNG</span></span>
                 </div>
             </div>
+            <button onclick="window.openTopicSelectMenu()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-amber-300/40">
+                📚 Đổi Chuyên Đề
+            </button>
         </div>
 
         <!-- Stats Panel -->
@@ -259,203 +296,699 @@
             cyan: { hex: '#06b6d4', rgb: '6, 182, 212' }
         };
 
-        const GAME_LEVELS = {
-            1: {
-                title: "Hàm Bậc 3", time: 180,
-                funcs: [
-                    { id: 'f1', tex: 'y = x^3 - 3x', theme: 'blue' },
-                    { id: 'f2', tex: 'y = -x^3 + 3x^2', theme: 'emerald' },
-                    { id: 'f3', tex: 'y = x^3 + 3x + 1', theme: 'violet' },
-                    { id: 'f4', tex: 'y = \\frac{1}{3}x^3 - x^2 + x', theme: 'amber' },
-                    { id: 'f5', tex: 'y = -x^3 - x + 2', theme: 'rose' }
-                ],
-                props: [
-                    { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = -1$' },
-                    { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực tiểu tại $x = 1$' },
-                    { id: 'p1_3', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' },
-                    { id: 'p1_4', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(-1; 1)$' },
-                    { id: 'p1_5', funcId: 'f1', text: 'Giá trị cực tiểu của hàm số là $y_{CT} = -2$' },
-                    
-                    { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực đại tại $x = 2$' },
-                    { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
-                    { id: 'p2_3', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(0; 2)$' },
-                    { id: 'p2_4', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(2; +\\infty)$' },
-                    { id: 'p2_5', funcId: 'f2', text: 'Giá trị cực đại của hàm số bằng $4$' },
-                    
-                    { id: 'p3_1', funcId: 'f3', text: 'Hàm số không có cực trị' },
-                    { id: 'p3_2', funcId: 'f3', text: 'Hàm số luôn đồng biến trên $\\mathbb{R}$' },
-                    { id: 'p3_3', funcId: 'f3', text: 'Đạo hàm $y\' > 0, \\forall x \\in \\mathbb{R}$' },
-                    { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có điểm cực đại' },
-                    { id: 'p3_5', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(-\\infty; +\\infty)$' },
-                    
-                    { id: 'p4_1', funcId: 'f4', text: 'Hàm số đồng biến trên $\\mathbb{R}$' },
-                    { id: 'p4_2', funcId: 'f4', text: 'Đạo hàm $y\' \\ge 0, \\forall x \\in \\mathbb{R}$' },
-                    { id: 'p4_3', funcId: 'f4', text: 'Hàm số không đạt cực trị tại $x = 1$' },
-                    { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu' },
-                    { id: 'p4_5', funcId: 'f4', text: 'Đạo hàm của hàm số không đổi dấu' },
-                    
-                    { id: 'p5_1', funcId: 'f5', text: 'Hàm số luôn nghịch biến trên $\\mathbb{R}$' },
-                    { id: 'p5_2', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\in \\mathbb{R}$' },
-                    { id: 'p5_3', funcId: 'f5', text: 'Hàm số không có cực trị' },
-                    { id: 'p5_4', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; +\\infty)$' },
-                    { id: 'p5_5', funcId: 'f5', text: 'Hàm số không có điểm cực đại' }
-                ]
+        
+        // ========================================================
+        // HỆ THỐNG ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE ARCHITECTURE)
+        // ========================================================
+        window.gameDatabase = {
+            "Chuyên đề 1: Tính Đơn Điệu & Cực Trị Hàm Số": {
+                1: {
+                    title: "Hàm Bậc 3", diffBadge: "Dễ", colorTheme: "blue", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 'y = x^3 - 3x', theme: 'blue' },
+                        { id: 'f2', tex: 'y = -x^3 + 3x^2', theme: 'emerald' },
+                        { id: 'f3', tex: 'y = x^3 + 3x + 1', theme: 'violet' },
+                        { id: 'f4', tex: 'y = \\frac{1}{3}x^3 - x^2 + x', theme: 'amber' },
+                        { id: 'f5', tex: 'y = -x^3 - x + 2', theme: 'rose' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = -1$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực tiểu tại $x = 1$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(-1; 1)$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Giá trị cực tiểu của hàm số là $y_{CT} = -2$' },
+                        
+                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực đại tại $x = 2$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(0; 2)$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(2; +\\infty)$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Giá trị cực đại của hàm số bằng $4$' },
+                        
+                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số không có cực trị' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số luôn đồng biến trên $\\mathbb{R}$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Đạo hàm $y\' > 0, \\forall x \\in \\mathbb{R}$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có điểm cực đại' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(-\\infty; +\\infty)$' },
+                        
+                        { id: 'p4_1', funcId: 'f4', text: 'Hàm số đồng biến trên $\\mathbb{R}$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Đạo hàm $y\' \\ge 0, \\forall x \\in \\mathbb{R}$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số không đạt cực trị tại $x = 1$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Đạo hàm của hàm số không đổi dấu' },
+                        
+                        { id: 'p5_1', funcId: 'f5', text: 'Hàm số luôn nghịch biến trên $\\mathbb{R}$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\in \\mathbb{R}$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Hàm số không có cực trị' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; +\\infty)$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số không có điểm cực đại' }
+                    ]
+                },
+                2: {
+                    title: "Hàm Trùng Phương", diffBadge: "Vừa", colorTheme: "cyan", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 'y = x^4 - 2x^2 + 1', theme: 'cyan' },
+                        { id: 'f2', tex: 'y = -x^4 + 2x^2', theme: 'violet' },
+                        { id: 'f3', tex: 'y = x^4 + 2x^2 - 3', theme: 'emerald' },
+                        { id: 'f4', tex: 'y = -x^4 - x^2 + 2', theme: 'amber' },
+                        { id: 'f5', tex: 'y = \\frac{1}{2}x^4 - x^2', theme: 'rose' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số có $3$ điểm cực trị' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 0$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(-1; 0)$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Hàm số có $2$ điểm cực tiểu' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
+                        
+                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số có $2$ điểm cực đại' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(1; +\\infty)$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Hàm số có đúng $1$ điểm cực tiểu' },
+                        
+                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số chỉ có $1$ điểm cực trị' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số không có điểm cực đại' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(0; +\\infty)$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 0)$' },
+                        
+                        { id: 'p4_1', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 0$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(0; +\\infty)$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(-\\infty; 0)$' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Hàm số có đúng $1$ điểm cực đại' },
+                        
+                        { id: 'p5_1', funcId: 'f5', text: 'Đạo hàm $y\' = 2x^3 - 2x$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Hàm số có $2$ điểm cực tiểu' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số đạt cực đại tại gốc tọa độ' }
+                    ]
+                },
+                3: {
+                    title: "Phân Thức Bậc 1/1", diffBadge: "Vừa", colorTheme: "emerald", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 'y = \\frac{2x+1}{x-1}', theme: 'blue' }, 
+                        { id: 'f2', tex: 'y = \\frac{x-2}{x+1}', theme: 'emerald' },
+                        { id: 'f3', tex: 'y = \\frac{-x+3}{2x-1}', theme: 'rose' }, 
+                        { id: 'f4', tex: 'y = \\frac{3x+1}{x+2}', theme: 'cyan' }, 
+                        { id: 'f5', tex: 'y = \\frac{2x}{x-3}', theme: 'violet' } 
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số không có cực trị' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 1)$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; +\\infty)$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Đạo hàm $y\' < 0, \\forall x \\ne 1$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên từng khoảng xác định' },
+                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-\\infty; -1)$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-1; +\\infty)$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Đạo hàm $y\' > 0, \\forall x \\ne -1$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Hàm số không đạt cực trị' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Hàm số đồng biến trên từng khoảng xác định' },
+                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; \\frac{1}{2})$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(\\frac{1}{2}; +\\infty)$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Đạo hàm $y\' = \\frac{-5}{(2x-1)^2}$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có điểm cực đại hay cực tiểu' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Đạo hàm của hàm số luôn âm trên tập xác định' },
+                        { id: 'p4_1', funcId: 'f4', text: 'Đạo hàm $y\' = \\frac{5}{(x+2)^2}$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Hàm số đồng biến trên từng khoảng xác định' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(-2; +\\infty)$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực trị' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Đạo hàm của hàm số luôn dương trên tập xác định' },
+                        { id: 'p5_1', funcId: 'f5', text: 'Hàm số nghịch biến trên từng khoảng xác định' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 3)$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\ne 3$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Đồ thị hàm số không có điểm cực trị' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số không đồng biến trên bất kỳ khoảng nào' }
+                    ]
+                },
+                4: {
+                    title: "Phân Thức Bậc 2/1", diffBadge: "Khó", colorTheme: "amber", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 'y = \\frac{x^2 - x + 1}{x - 1}', theme: 'rose' }, 
+                        { id: 'f2', tex: 'y = \\frac{x^2 + 2x + 2}{x + 1}', theme: 'blue' }, 
+                        { id: 'f3', tex: 'y = \\frac{-x^2 + 2x - 2}{x - 1}', theme: 'amber' }, 
+                        { id: 'f4', tex: 'y = \\frac{x^2 - 3x + 3}{x - 2}', theme: 'emerald' }, 
+                        { id: 'f5', tex: 'y = \\frac{x^2}{x-1}', theme: 'violet' } 
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 0$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực tiểu tại $x = 2$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
+                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực đại tại $x = -2$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-1; 0)$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-\\infty; -2)$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-2; -1)$' },
+                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số đạt cực đại tại $x = 2$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(1; 2)$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(2; +\\infty)$' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
+                        { id: 'p4_1', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 1$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Hàm số đạt cực tiểu tại $x = 3$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(2; 3)$' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(3; +\\infty)$' },
+                        { id: 'p5_1', funcId: 'f5', text: 'Giá trị cực đại của hàm số là $y = 0$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Giá trị cực tiểu của hàm số là $y = 4$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(-\\infty; 0)$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số đạt cực đại tại $x = 0$' }
+                    ]
+                },
+                5: {
+                    title: "Hàm Căn Thức Bậc 2", diffBadge: "Khó", colorTheme: "rose", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 'y = \\sqrt{2x - x^2}', theme: 'emerald' },
+                        { id: 'f2', tex: 'y = \\sqrt{x^2 - 4x + 5}', theme: 'rose' },
+                        { id: 'f3', tex: 'y = x + \\sqrt{4 - x^2}', theme: 'cyan' },
+                        { id: 'f4', tex: 'y = \\sqrt{x - 1} + \\sqrt{3 - x}', theme: 'violet' },
+                        { id: 'f5', tex: 'y = \\sqrt{x^2 + 1} - x', theme: 'amber' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 1$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Hàm số không có điểm cực tiểu' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số có đúng $1$ điểm cực trị' },
+                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 2$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 2)$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Hàm số không có điểm cực đại' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Hàm số có đúng $1$ điểm cực tiểu' },
+                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số đạt cực đại tại $x = \\sqrt{2}$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(-2; \\sqrt{2})$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(\\sqrt{2}; 2)$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có cực tiểu trên khoảng $(-2; 2)$' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Hàm số có đúng $1$ điểm cực đại' },
+                        { id: 'p4_1', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 2$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(1; 2)$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(2; 3)$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu trên $(1; 3)$' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Hàm số có đúng $1$ điểm cực trị' },
+                        { id: 'p5_1', funcId: 'f5', text: 'Hàm số không có cực trị' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; +\\infty)$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\in \\mathbb{R}$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Hàm số không có điểm cực đại và cực tiểu' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số luôn nghịch biến trên tập xác định' }
+                    ]
+                }
             },
-            2: {
-                title: "Trùng Phương", time: 180,
-                funcs: [
-                    { id: 'f1', tex: 'y = x^4 - 2x^2 + 1', theme: 'cyan' },
-                    { id: 'f2', tex: 'y = -x^4 + 2x^2', theme: 'violet' },
-                    { id: 'f3', tex: 'y = x^4 + 2x^2 - 3', theme: 'emerald' },
-                    { id: 'f4', tex: 'y = -x^4 - x^2 + 2', theme: 'amber' },
-                    { id: 'f5', tex: 'y = \\frac{1}{2}x^4 - x^2', theme: 'rose' }
-                ],
-                props: [
-                    { id: 'p1_1', funcId: 'f1', text: 'Hàm số có $3$ điểm cực trị' },
-                    { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 0$' },
-                    { id: 'p1_3', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(-1; 0)$' },
-                    { id: 'p1_4', funcId: 'f1', text: 'Hàm số có $2$ điểm cực tiểu' },
-                    { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
-                    
-                    { id: 'p2_1', funcId: 'f2', text: 'Hàm số có $2$ điểm cực đại' },
-                    { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
-                    { id: 'p2_3', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(1; +\\infty)$' },
-                    { id: 'p2_4', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
-                    { id: 'p2_5', funcId: 'f2', text: 'Hàm số có đúng $1$ điểm cực tiểu' },
-                    
-                    { id: 'p3_1', funcId: 'f3', text: 'Hàm số chỉ có $1$ điểm cực trị' },
-                    { id: 'p3_2', funcId: 'f3', text: 'Hàm số không có điểm cực đại' },
-                    { id: 'p3_3', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(0; +\\infty)$' },
-                    { id: 'p3_4', funcId: 'f3', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
-                    { id: 'p3_5', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 0)$' },
-                    
-                    { id: 'p4_1', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu' },
-                    { id: 'p4_2', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 0$' },
-                    { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(0; +\\infty)$' },
-                    { id: 'p4_4', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(-\\infty; 0)$' },
-                    { id: 'p4_5', funcId: 'f4', text: 'Hàm số có đúng $1$ điểm cực đại' },
-                    
-                    { id: 'p5_1', funcId: 'f5', text: 'Đạo hàm $y\' = 2x^3 - 2x$' },
-                    { id: 'p5_2', funcId: 'f5', text: 'Hàm số có $2$ điểm cực tiểu' },
-                    { id: 'p5_3', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' },
-                    { id: 'p5_4', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
-                    { id: 'p5_5', funcId: 'f5', text: 'Hàm số đạt cực đại tại gốc tọa độ' }
-                ]
+            "Chuyên đề 2: Tọa Độ Vecto Trong Không Gian Oxyz": {
+                1: {
+                    title: "Tọa Độ Điểm & Vecto Cơ Bản", diffBadge: "Dễ", colorTheme: "blue", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: '\\vec{a} = (1; 2; -3)', theme: 'blue' },
+                        { id: 'f2', tex: '\\vec{b} = (-2; 0; 4)', theme: 'emerald' },
+                        { id: 'f3', tex: '\\vec{c} = (3; -1; 2)', theme: 'violet' },
+                        { id: 'f4', tex: '\\vec{u} = (0; 4; -2)', theme: 'amber' },
+                        { id: 'f5', tex: '\\vec{v} = (2; -2; 1)', theme: 'rose' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Độ dài $|ec{a}| = \\sqrt{14}$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Tọa độ $2\\vec{a} = (2; 4; -6)$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Cao độ của $\\vec{a}$ bằng $-3$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Hình chiếu lên $Ox$ là $(1; 0; 0)$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Tích vô hướng $\\vec{a} \\cdot \\vec{i} = 1$' },
+                        
+                        { id: 'p2_1', funcId: 'f2', text: 'Độ dài $|ec{b}| = \\sqrt{20} = 2\\sqrt{5}$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Tung độ của $\\vec{b}$ bằng $0$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Vector đối của $\\vec{b}$ là $(2; 0; -4)$' },
+                        { id: 'p2_4', funcId: 'f2', text: '$\\vec{b}$ vuông góc với trục $Oy$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Tọa độ $-\\vec{b} = (2; 0; -4)$' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Độ dài $|ec{c}| = \\sqrt{14}$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Hoành độ của $\\vec{c}$ bằng $3$' },
+                        { id: 'p3_3', funcId: 'f3', text: '$\\vec{c} + \\vec{a} = (4; 1; -1)$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Tung độ của $\\vec{c}$ bằng $-1$' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Hình chiếu lên mặt $(Oxy)$ là $(3; -1; 0)$' },
+
+                        { id: 'p4_1', funcId: 'f4', text: 'Độ dài $|ec{u}| = \\sqrt{20}$' },
+                        { id: 'p4_2', funcId: 'f4', text: '$\\vec{u}$ nằm trong mặt phẳng $(Oyz)$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Hoành độ của $\\vec{u}$ bằng $0$' },
+                        { id: 'p4_4', funcId: 'f4', text: '$\\vec{u} \\perp Ox$' },
+                        { id: 'p4_5', funcId: 'f4', text: '$\\frac{1}{2}\\vec{u} = (0; 2; -1)$' },
+
+                        { id: 'p5_1', funcId: 'f5', text: 'Độ dài $|ec{v}| = 3$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Cao độ của $\\vec{v}$ bằng $1$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Tung độ của $\\vec{v}$ bằng $-2$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Hoành độ của $\\vec{v}$ bằng $2$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Hình chiếu lên $Oz$ là $(0; 0; 1)$' }
+                    ]
+                },
+                2: {
+                    title: "Tích Vô Hướng & Góc", diffBadge: "Vừa", colorTheme: "cyan", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: '\\vec{u} = (1; 1; 0), \\vec{v} = (0; 1; 1)', theme: 'cyan' },
+                        { id: 'f2', tex: '\\vec{u} = (1; 0; 1), \\vec{v} = (-1; 1; 0)', theme: 'violet' },
+                        { id: 'f3', tex: '\\vec{u} = (2; 1; -2), \\vec{v} = (1; 2; 2)', theme: 'emerald' },
+                        { id: 'f4', tex: '\\vec{u} = (1; 2; 3), \\vec{v} = (3; 2; 1)', theme: 'amber' },
+                        { id: 'f5', tex: '\\vec{u} = (1; 0; 0), \\vec{v} = (0; 1; 0)', theme: 'rose' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Tích vô hướng $\\vec{u} \\cdot \\vec{v} = 1$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Góc $(\\vec{u}, \\vec{v}) = 60^\\circ$' },
+                        { id: 'p1_3', funcId: 'f1', text: '$\\cos(\\vec{u}, \\vec{v}) = \\frac{1}{2}$' },
+                        { id: 'p1_4', funcId: 'f1', text: '$|\\vec{u}| = \\sqrt{2}, |\\vec{v}| = \\sqrt{2}$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Hai vecto không vuông góc nhau' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Tích vô hướng $\\vec{u} \\cdot \\vec{v} = -1$' },
+                        { id: 'p2_2', funcId: 'f2', text: '$\\cos(\\vec{u}, \\vec{v}) = -\\frac{1}{2}$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Góc $(\\vec{u}, \\vec{v}) = 120^\\circ$' },
+                        { id: 'p2_4', funcId: 'f2', text: '$|\\vec{u}| = \\sqrt{2}, |\\vec{v}| = \\sqrt{2}$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Góc giữa hai vecto là góc tù' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Tích vô hướng $\\vec{u} \\cdot \\vec{v} = 0$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Hai vecto vuông góc $\\vec{u} \\perp \\vec{v}$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Góc $(\\vec{u}, \\vec{v}) = 90^\\circ$' },
+                        { id: 'p3_4', funcId: 'f3', text: '$|\\vec{u}| = 3, |\\vec{v}| = 3$' },
+                        { id: 'p3_5', funcId: 'f3', text: '$\\cos(\\vec{u}, \\vec{v}) = 0$' },
+
+                        { id: 'p4_1', funcId: 'f4', text: 'Tích vô hướng $\\vec{u} \\cdot \\vec{v} = 10$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Độ dài $|\\vec{u}| = \\sqrt{14}, |\\vec{v}| = \\sqrt{14}$' },
+                        { id: 'p4_3', funcId: 'f4', text: '$\\cos(\\vec{u}, \\vec{v}) = \\frac{5}{7}$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Hai vecto có cùng độ dài' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Góc giữa hai vecto là góc nhọn' },
+
+                        { id: 'p5_1', funcId: 'f5', text: 'Hai vecto vuông góc nhau' },
+                        { id: 'p5_2', funcId: 'f5', text: '$\\vec{u} \\cdot \\vec{v} = 0$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Góc $(\\vec{u}, \\vec{v}) = 90^\\circ$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Là hai vecto đơn vị trên các trục tọa độ' },
+                        { id: 'p5_5', funcId: 'f5', text: '$|\\vec{u}| = 1, |\\vec{v}| = 1$' }
+                    ]
+                },
+                3: {
+                    title: "Phương Trình Mặt Cầu", diffBadge: "Vừa", colorTheme: "emerald", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: '(x-1)^2 + (y+2)^2 + (z-3)^2 = 16', theme: 'blue' },
+                        { id: 'f2', tex: 'x^2 + y^2 + z^2 - 2x + 4y - 6z + 5 = 0', theme: 'emerald' },
+                        { id: 'f3', tex: 'x^2 + y^2 + z^2 = 9', theme: 'rose' },
+                        { id: 'f4', tex: '(x+2)^2 + y^2 + (z-1)^2 = 25', theme: 'cyan' },
+                        { id: 'f5', tex: 'x^2 + y^2 + z^2 - 4x - 2y + 1 = 0', theme: 'violet' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Tâm mặt cầu $I(1; -2; 3)$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Bán kính mặt cầu $R = 4$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Đường kính mặt cầu $d = 8$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Diện tích mặt cầu $S = 64\\pi$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Thể tích khối cầu $V = \\frac{256\\pi}{3}$' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Tâm mặt cầu $I(1; -2; 3)$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Bán kính mặt cầu $R = \\sqrt{1^2 + 2^2 + 3^2 - 5} = 3$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Diện tích mặt cầu $S = 36\\pi$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Thể tích khối cầu $V = 36\\pi$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Mặt cầu không đi qua gốc $O(0;0;0)$' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Tâm mặt cầu trùng gốc tọa độ $O(0;0;0)$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Bán kính mặt cầu $R = 3$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Điểm $A(3; 0; 0)$ thuộc mặt cầu' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Điểm $B(0; -3; 0)$ thuộc mặt cầu' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Điểm $C(0; 0; 3)$ thuộc mặt cầu' },
+
+                        { id: 'p4_1', funcId: 'f4', text: 'Tâm mặt cầu $I(-2; 0; 1)$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Bán kính mặt cầu $R = 5$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Tâm mặt cầu nằm trên mặt phẳng $(Oxz)$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Tung độ của tâm bằng $0$' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Đường kính mặt cầu bằng $10$' },
+
+                        { id: 'p5_1', funcId: 'f5', text: 'Tâm mặt cầu $I(2; 1; 0)$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Bán kính $R = \\sqrt{2^2 + 1^2 - 1} = 2$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Tâm mặt cầu thuộc mặt phẳng $(Oxy)$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Cao độ của tâm bằng $0$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Diện tích mặt cầu $S = 16\\pi$' }
+                    ]
+                },
+                4: {
+                    title: "Phương Trình Mặt Phẳng", diffBadge: "Khó", colorTheme: "amber", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: '2x - y + 2z - 6 = 0', theme: 'rose' },
+                        { id: 'f2', tex: 'x + y + z - 3 = 0', theme: 'blue' },
+                        { id: 'f3', tex: '3x - 4z + 12 = 0', theme: 'amber' },
+                        { id: 'f4', tex: '2x + 2y - z + 9 = 0', theme: 'emerald' },
+                        { id: 'f5', tex: 'z - 5 = 0', theme: 'violet' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Vecto pháp tuyến $\\vec{n} = (2; -1; 2)$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Khoảng cách từ gốc $O$ đến mặt phẳng bằng $2$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Điểm $A(3; 0; 0)$ thuộc mặt phẳng' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Điểm $B(0; -6; 0)$ thuộc mặt phẳng' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Độ dài vecto pháp tuyến $|\\vec{n}| = 3$' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Vecto pháp tuyến $\\vec{n} = (1; 1; 1)$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Cắt các trục tọa độ tại các điểm có tọa độ bằng $3$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Điểm $M(1; 1; 1)$ thuộc mặt phẳng' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Khoảng cách từ gốc $O$ bằng $\\sqrt{3}$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Phương trình đoạn chắn $\\frac{x}{3} + \\frac{y}{3} + \\frac{z}{3} = 1$' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Vecto pháp tuyến $\\vec{n} = (3; 0; -4)$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Mặt phẳng song song hoặc chứa trục $Oy$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Khoảng cách từ gốc $O$ bằng $\\frac{12}{5} = 2.4$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Điểm $C(-4; 0; 0)$ thuộc mặt phẳng' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Điểm $D(0; 0; 3)$ thuộc mặt phẳng' },
+
+                        { id: 'p4_1', funcId: 'f4', text: 'Vecto pháp tuyến $\\vec{n} = (2; 2; -1)$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Khoảng cách từ gốc $O$ đến mặt phẳng bằng $3$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Độ dài vecto pháp tuyến $|\\vec{n}| = 3$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Điểm $E(0; 0; 9)$ thuộc mặt phẳng' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Vuông góc với mặt phẳng $x - y = 0$' },
+
+                        { id: 'p5_1', funcId: 'f5', text: 'Mặt phẳng song song với mặt phẳng $(Oxy)$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Vecto pháp tuyến $\\vec{n} = (0; 0; 1)$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Khoảng cách từ gốc tọa độ $O$ bằng $5$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Mọi điểm trên mp đều có cao độ $z = 5$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Vuông góc với trục cao $Oz$' }
+                    ]
+                },
+                5: {
+                    title: "Phương Trình Đường Thẳng", diffBadge: "Khó", colorTheme: "rose", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: '\\frac{x-1}{2} = \\frac{y+1}{-1} = \\frac{z-2}{3}', theme: 'emerald' },
+                        { id: 'f2', tex: '\\frac{x}{1} = \\frac{y-2}{2} = \\frac{z+1}{-2}', theme: 'rose' },
+                        { id: 'f3', tex: '\\begin{cases} x = 1 + 2t \\\\ y = -t \\\\ z = 3 + t \\end{cases}', theme: 'cyan' },
+                        { id: 'f4', tex: '\\frac{x+2}{3} = \\frac{y-1}{4} = \\frac{z}{1}', theme: 'violet' },
+                        { id: 'f5', tex: '\\begin{cases} x = 0 \\\\ y = 2t \\\\ z = 0 \\end{cases}', theme: 'amber' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Vecto chỉ phương $\\vec{u} = (2; -1; 3)$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Điểm $M(1; -1; 2)$ thuộc đường thẳng' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Điểm $N(3; -2; 5)$ thuộc đường thẳng' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Độ dài vecto chỉ phương bằng $\\sqrt{14}$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Đường thẳng không đi qua gốc tọa độ $O$' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Vecto chỉ phương $\\vec{u} = (1; 2; -2)$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Độ dài vecto chỉ phương bằng $3$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Điểm $P(0; 2; -1)$ thuộc đường thẳng' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Điểm $Q(1; 4; -3)$ thuộc đường thẳng' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Vuông góc với mặt phẳng $x + 2y - 2z = 0$' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Vecto chỉ phương $\\vec{u} = (2; -1; 1)$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Điểm $A(1; 0; 3)$ thuộc đường thẳng với $t = 0$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Điểm $B(3; -1; 4)$ thuộc đường thẳng với $t = 1$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Độ dài vecto chỉ phương bằng $\\sqrt{6}$' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Điểm $C(-1; 1; 2)$ thuộc đường thẳng với $t = -1$' },
+
+                        { id: 'p4_1', funcId: 'f4', text: 'Vecto chỉ phương $\\vec{u} = (3; 4; 1)$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Điểm $D(-2; 1; 0)$ thuộc đường thẳng' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Điểm $E(1; 5; 1)$ thuộc đường thẳng' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Giao điểm với $(Oxy)$ là $(-2; 1; 0)$' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Độ dài vecto chỉ phương bằng $\\sqrt{26}$' },
+
+                        { id: 'p5_1', funcId: 'f5', text: 'Đường thẳng chính là trục tung $Oy$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Vecto chỉ phương cùng phương với $\\vec{j}(0; 1; 0)$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Điểm gốc tọa độ $O(0;0;0)$ thuộc đường thẳng' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Vuông góc với cả trục $Ox$ và $Oz$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Điểm $K(0; 2; 0)$ thuộc đường thẳng' }
+                    ]
+                }
             },
-            3: {
-                title: "Phân Thức Bậc 1/1", time: 180,
-                funcs: [
-                    { id: 'f1', tex: 'y = \\frac{2x+1}{x-1}', theme: 'blue' }, 
-                    { id: 'f2', tex: 'y = \\frac{x-2}{x+1}', theme: 'emerald' },
-                    { id: 'f3', tex: 'y = \\frac{-x+3}{2x-1}', theme: 'rose' }, 
-                    { id: 'f4', tex: 'y = \\frac{3x+1}{x+2}', theme: 'cyan' }, 
-                    { id: 'f5', tex: 'y = \\frac{2x}{x-3}', theme: 'violet' } 
-                ],
-                props: [
-                    { id: 'p1_1', funcId: 'f1', text: 'Hàm số không có cực trị' },
-                    { id: 'p1_2', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 1)$' },
-                    { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; +\\infty)$' },
-                    { id: 'p1_4', funcId: 'f1', text: 'Đạo hàm $y\' < 0, \\forall x \\ne 1$' },
-                    { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên từng khoảng xác định' },
-                    { id: 'p2_1', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-\\infty; -1)$' },
-                    { id: 'p2_2', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-1; +\\infty)$' },
-                    { id: 'p2_3', funcId: 'f2', text: 'Đạo hàm $y\' > 0, \\forall x \\ne -1$' },
-                    { id: 'p2_4', funcId: 'f2', text: 'Hàm số không đạt cực trị' },
-                    { id: 'p2_5', funcId: 'f2', text: 'Hàm số đồng biến trên từng khoảng xác định' },
-                    { id: 'p3_1', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; \\frac{1}{2})$' },
-                    { id: 'p3_2', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(\\frac{1}{2}; +\\infty)$' },
-                    { id: 'p3_3', funcId: 'f3', text: 'Đạo hàm $y\' = \\frac{-5}{(2x-1)^2}$' },
-                    { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có điểm cực đại hay cực tiểu' },
-                    { id: 'p3_5', funcId: 'f3', text: 'Đạo hàm của hàm số luôn âm trên tập xác định' },
-                    { id: 'p4_1', funcId: 'f4', text: 'Đạo hàm $y\' = \\frac{5}{(x+2)^2}$' },
-                    { id: 'p4_2', funcId: 'f4', text: 'Hàm số đồng biến trên từng khoảng xác định' },
-                    { id: 'p4_3', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(-2; +\\infty)$' },
-                    { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực trị' },
-                    { id: 'p4_5', funcId: 'f4', text: 'Đạo hàm của hàm số luôn dương trên tập xác định' },
-                    { id: 'p5_1', funcId: 'f5', text: 'Hàm số nghịch biến trên từng khoảng xác định' },
-                    { id: 'p5_2', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 3)$' },
-                    { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\ne 3$' },
-                    { id: 'p5_4', funcId: 'f5', text: 'Đồ thị hàm số không có điểm cực trị' },
-                    { id: 'p5_5', funcId: 'f5', text: 'Hàm số không đồng biến trên bất kỳ khoảng nào' }
-                ]
-            },
-            4: {
-                title: "Phân Thức Bậc 2/1", time: 180,
-                funcs: [
-                    { id: 'f1', tex: 'y = \\frac{x^2 - x + 1}{x - 1}', theme: 'rose' }, 
-                    { id: 'f2', tex: 'y = \\frac{x^2 + 2x + 2}{x + 1}', theme: 'blue' }, 
-                    { id: 'f3', tex: 'y = \\frac{-x^2 + 2x - 2}{x - 1}', theme: 'amber' }, 
-                    { id: 'f4', tex: 'y = \\frac{x^2 - 3x + 3}{x - 2}', theme: 'emerald' }, 
-                    { id: 'f5', tex: 'y = \\frac{x^2}{x-1}', theme: 'violet' } 
-                ],
-                props: [
-                    { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 0$' },
-                    { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực tiểu tại $x = 2$' },
-                    { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
-                    { id: 'p1_4', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
-                    { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
-                    { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực đại tại $x = -2$' },
-                    { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
-                    { id: 'p2_3', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-1; 0)$' },
-                    { id: 'p2_4', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-\\infty; -2)$' },
-                    { id: 'p2_5', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-2; -1)$' },
-                    { id: 'p3_1', funcId: 'f3', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
-                    { id: 'p3_2', funcId: 'f3', text: 'Hàm số đạt cực đại tại $x = 2$' },
-                    { id: 'p3_3', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(1; 2)$' },
-                    { id: 'p3_4', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(2; +\\infty)$' },
-                    { id: 'p3_5', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
-                    { id: 'p4_1', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 1$' },
-                    { id: 'p4_2', funcId: 'f4', text: 'Hàm số đạt cực tiểu tại $x = 3$' },
-                    { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
-                    { id: 'p4_4', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(2; 3)$' },
-                    { id: 'p4_5', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(3; +\\infty)$' },
-                    { id: 'p5_1', funcId: 'f5', text: 'Giá trị cực đại của hàm số là $y = 0$' },
-                    { id: 'p5_2', funcId: 'f5', text: 'Giá trị cực tiểu của hàm số là $y = 4$' },
-                    { id: 'p5_3', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
-                    { id: 'p5_4', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(-\\infty; 0)$' },
-                    { id: 'p5_5', funcId: 'f5', text: 'Hàm số đạt cực đại tại $x = 0$' }
-                ]
-            },
-            5: {
-                title: "Căn Thức Bậc 2", time: 180,
-                funcs: [
-                    { id: 'f1', tex: 'y = \\sqrt{2x - x^2}', theme: 'emerald' },
-                    { id: 'f2', tex: 'y = \\sqrt{x^2 - 4x + 5}', theme: 'rose' },
-                    { id: 'f3', tex: 'y = x + \\sqrt{4 - x^2}', theme: 'cyan' },
-                    { id: 'f4', tex: 'y = \\sqrt{x - 1} + \\sqrt{3 - x}', theme: 'violet' },
-                    { id: 'f5', tex: 'y = \\sqrt{x^2 + 1} - x', theme: 'amber' }
-                ],
-                props: [
-                    { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 1$' },
-                    { id: 'p1_2', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
-                    { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
-                    { id: 'p1_4', funcId: 'f1', text: 'Hàm số không có điểm cực tiểu' },
-                    { id: 'p1_5', funcId: 'f1', text: 'Hàm số có đúng $1$ điểm cực trị' },
-                    { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 2$' },
-                    { id: 'p2_2', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 2)$' },
-                    { id: 'p2_3', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
-                    { id: 'p2_4', funcId: 'f2', text: 'Hàm số không có điểm cực đại' },
-                    { id: 'p2_5', funcId: 'f2', text: 'Hàm số có đúng $1$ điểm cực tiểu' },
-                    { id: 'p3_1', funcId: 'f3', text: 'Hàm số đạt cực đại tại $x = \\sqrt{2}$' },
-                    { id: 'p3_2', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(-2; \\sqrt{2})$' },
-                    { id: 'p3_3', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(\\sqrt{2}; 2)$' },
-                    { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có cực tiểu trên khoảng $(-2; 2)$' },
-                    { id: 'p3_5', funcId: 'f3', text: 'Hàm số có đúng $1$ điểm cực đại' },
-                    { id: 'p4_1', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 2$' },
-                    { id: 'p4_2', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(1; 2)$' },
-                    { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(2; 3)$' },
-                    { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu trên $(1; 3)$' },
-                    { id: 'p4_5', funcId: 'f4', text: 'Hàm số có đúng $1$ điểm cực trị' },
-                    { id: 'p5_1', funcId: 'f5', text: 'Hàm số không có cực trị' },
-                    { id: 'p5_2', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; +\\infty)$' },
-                    { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\in \\mathbb{R}$' },
-                    { id: 'p5_4', funcId: 'f5', text: 'Hàm số không có điểm cực đại và cực tiểu' },
-                    { id: 'p5_5', funcId: 'f5', text: 'Hàm số luôn nghịch biến trên tập xác định' }
-                ]
+            "Chuyên đề 3: Đạo Hàm & Ý Nghĩa Tiếp Tuyến": {
+                1: {
+                    title: "Đạo Hàm Hàm Đa Thức Cơ Bản", diffBadge: "Dễ", colorTheme: "blue", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 'y = x^3 - 3x^2 + 2', theme: 'blue' },
+                        { id: 'f2', tex: 'y = -2x^3 + 6x', theme: 'emerald' },
+                        { id: 'f3', tex: 'y = x^4 - 4x^2 + 3', theme: 'violet' },
+                        { id: 'f4', tex: 'y = \\frac{1}{4}x^4 - 2x^2', theme: 'amber' },
+                        { id: 'f5', tex: 'y = 3x^2 - 6x + 1', theme: 'rose' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Đạo hàm $y\' = 3x^2 - 6x$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Nghiệm của $y\' = 0$ là $x = 0$ và $x = 2$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Đạo hàm cấp hai $y\'\' = 6x - 6$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Hệ số góc tiếp tuyến tại $x = 1$ là $k = -3$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Đạo hàm $y\' = -6x^2 + 6$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Đạo hàm triệt tiêu tại $x = \\pm 1$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Hệ số góc tiếp tuyến tại gốc $O(0;0)$ là $k = 6$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Đạo hàm $y\' > 0$ trên khoảng $(-1; 1)$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Đạo hàm cấp hai $y\'\' = -12x$' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Đạo hàm $y\' = 4x^3 - 8x$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Nghiệm của đạo hàm gồm $x = 0$ và $x = \\pm \\sqrt{2}$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Hệ số góc tiếp tuyến tại $x = 1$ là $k = -4$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Đạo hàm cấp hai $y\'\' = 12x^2 - 8$' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Đạo hàm đổi dấu $3$ lần' },
+
+                        { id: 'p4_1', funcId: 'f4', text: 'Đạo hàm $y\' = x^3 - 4x$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Phương trình $y\' = 0$ có $3$ nghiệm $x \\in \\{0; \\pm 2\\}$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Đạo hàm cấp hai $y\'\' = 3x^2 - 4$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Hệ số góc tiếp tuyến tại $x = 3$ là $k = 15$' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(0; 2)$' },
+
+                        { id: 'p5_1', funcId: 'f5', text: 'Đạo hàm $y\' = 6x - 6$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Nghiệm của $y\' = 0$ là $x = 1$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm cấp hai $y\'\' = 6 > 0$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Hệ số góc tiếp tuyến tại $x = 0$ là $k = -6$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' }
+                    ]
+                },
+                2: {
+                    title: "Đạo Hàm Lượng Giác & Mũ Lôgarit", diffBadge: "Vừa", colorTheme: "cyan", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 'y = \\sin(2x)', theme: 'cyan' },
+                        { id: 'f2', tex: 'y = \\cos^2(x)', theme: 'emerald' },
+                        { id: 'f3', tex: 'y = e^{2x}', theme: 'rose' },
+                        { id: 'f4', tex: 'y = \\ln(x^2 + 1)', theme: 'amber' },
+                        { id: 'f5', tex: 'y = x \\cdot e^x', theme: 'violet' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Đạo hàm $y\' = 2\\cos(2x)$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Giá trị đạo hàm tại $x = 0$ là $y\'(0) = 2$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Đạo hàm cấp hai $y\'\' = -4\\sin(2x)$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Giá trị đạo hàm tại $x = \\frac{\\pi}{4}$ là $0$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số tuần hoàn với chu kì $T = \\pi$' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Đạo hàm $y\' = -2\\sin x \\cos x = -\\sin(2x)$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Giá trị đạo hàm tại $x = 0$ bằng $0$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Giá trị đạo hàm tại $x = \\frac{\\pi}{4}$ là $-1$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Đạo hàm cấp hai $y\'\' = -2\\cos(2x)$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Hàm số luôn có giá trị trong đoạn $[0; 1]$' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Đạo hàm $y\' = 2e^{2x}$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Đạo hàm luôn dương $y\' > 0, \\forall x$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Giá trị đạo hàm tại $x = 0$ là $2$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Đạo hàm cấp hai $y\'\' = 4e^{2x}$' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Đồ thị luôn nằm phía trên trục hoành' },
+
+                        { id: 'p4_1', funcId: 'f4', text: 'Đạo hàm $y\' = \\frac{2x}{x^2 + 1}$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Nghiệm của $y\' = 0$ duy nhất tại $x = 0$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(0; +\\infty)$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 0)$' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Đạt cực tiểu tại gốc tọa độ $O(0;0)$' },
+
+                        { id: 'p5_1', funcId: 'f5', text: 'Đạo hàm $y\' = (x + 1)e^x$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Nghiệm của $y\' = 0$ là $x = -1$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Hệ số góc tiếp tuyến tại $x = 0$ là $k = 1$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Đạt cực tiểu tại điểm $x = -1$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Đạo hàm cấp hai $y\'\' = (x + 2)e^x$' }
+                    ]
+                },
+                3: {
+                    title: "Hệ Số Góc & Phương Trình Tiếp Tuyến", diffBadge: "Vừa", colorTheme: "emerald", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 'y = x^2 - 4x + 3 \\text{ tại } x_0 = 3', theme: 'blue' },
+                        { id: 'f2', tex: 'y = x^3 - 3x \\text{ tại } x_0 = 2', theme: 'emerald' },
+                        { id: 'f3', tex: 'y = \\frac{2x-1}{x+1} \\text{ tại } x_0 = 1', theme: 'rose' },
+                        { id: 'f4', tex: 'y = -x^2 + 2x \\text{ tại } x_0 = 0', theme: 'cyan' },
+                        { id: 'f5', tex: 'y = \\sqrt{x+1} \\text{ tại } x_0 = 3', theme: 'violet' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Hệ số góc tiếp tuyến $k = y\'(3) = 2$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Tọa độ tiếp điểm là $M(3; 0)$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Phương trình tiếp tuyến $y = 2(x - 3) = 2x - 6$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Tiếp tuyến cắt trục tung tại điểm $(0; -6)$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Đạo hàm của hàm số $y\' = 2x - 4$' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Hệ số góc tiếp tuyến $k = y\'(2) = 9$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Tọa độ tiếp điểm là $M(2; 2)$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Phương trình tiếp tuyến $y = 9x - 16$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Đạo hàm của hàm số $y\' = 3x^2 - 3$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Tiếp tuyến đi qua điểm $(2; 2)$' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Hệ số góc tiếp tuyến $k = y\'(1) = \\frac{3}{4}$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Tung độ tiếp điểm là $y_0 = \\frac{1}{2}$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Đạo hàm $y\' = \\frac{3}{(x+1)^2}$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Phương trình tiếp tuyến $y = \\frac{3}{4}x - \\frac{1}{4}$' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Tiếp điểm có tọa độ $(1; \\frac{1}{2})$' },
+
+                        { id: 'p4_1', funcId: 'f4', text: 'Hệ số góc tiếp tuyến $k = y\'(0) = 2$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Tiếp điểm chính là gốc tọa độ $O(0;0)$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Phương trình tiếp tuyến $y = 2x$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Đạo hàm của hàm số $y\' = -2x + 2$' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Tiếp tuyến đi qua gốc tọa độ' },
+
+                        { id: 'p5_1', funcId: 'f5', text: 'Hệ số góc tiếp tuyến $k = y\'(3) = \\frac{1}{4}$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Tung độ tiếp điểm là $y_0 = 2$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm $y\' = \\frac{1}{2\\sqrt{x+1}}$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Phương trình tiếp tuyến $y = \\frac{1}{4}x + \\frac{5}{4}$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Tiếp điểm có tọa độ $(3; 2)$' }
+                    ]
+                },
+                4: {
+                    title: "Tiếp Tuyến Song Song & Vuông Góc", diffBadge: "Khó", colorTheme: "amber", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 'y = \\frac{1}{3}x^3 - 2x^2 + 3x + 1 \\parallel (d): y = 3x - 5', theme: 'rose' },
+                        { id: 'f2', tex: 'y = x^3 - 3x^2 \\parallel (d): y = 9x + 2', theme: 'blue' },
+                        { id: 'f3', tex: 'y = \\frac{x+2}{x-1} \\perp (d): y = 3x - 1', theme: 'amber' },
+                        { id: 'f4', tex: 'y = -x^4 + 2x^2 \\parallel trục Ox', theme: 'emerald' },
+                        { id: 'f5', tex: 'y = x^2 - 3x + 2 \\parallel (d): y = x + 1', theme: 'violet' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Hệ số góc của tiếp tuyến phải bằng $3$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Hoành độ tiếp điểm thỏa $x^2 - 4x + 3 = 3 \\Leftrightarrow x(x-4)=0$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Có $2$ tiếp tuyến thỏa mãn tại $x = 0$ và $x = 4$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Tiếp tuyến tại $x = 0$ là $y = 3x + 1$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Tiếp tuyến tại $x = 4$ song song với đường thẳng $(d)$' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Hệ số góc của tiếp tuyến phải bằng $9$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Phương trình $3x^2 - 6x = 9 \\Leftrightarrow x^2 - 2x - 3 = 0$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Hoành độ tiếp điểm là $x = -1$ hoặc $x = 3$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Tiếp tuyến tại $x = -1$ là $y = 9x + 5$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Tiếp tuyến tại $x = 3$ là $y = 9x - 27$' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Hệ số góc tiếp tuyến phải bằng $-\\frac{1}{3}$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Đạo hàm $y\' = \\frac{-3}{(x-1)^2}$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Phương trình $(x-1)^2 = 9 \\Leftrightarrow x = 4$ hoặc $x = -2$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Tiếp tuyến vuông góc với đường thẳng $(d)$' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Có $2$ tiếp tuyến thỏa mãn yêu cầu bài toán' },
+
+                        { id: 'p4_1', funcId: 'f4', text: 'Tiếp tuyến song song với trục $Ox$ có hệ số góc $k = 0$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Nghiệm của $y\' = 0$ là $x = 0$ và $x = \\pm 1$' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Tiếp tuyến tại $x = 0$ là $y = 0$ (trùng $Ox$ - loại)' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Tiếp tuyến tại $x = \\pm 1$ là đường thẳng $y = 1$' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Chỉ có duy nhất $1$ tiếp tuyến song song với trục hoành' },
+
+                        { id: 'p5_1', funcId: 'f5', text: 'Hệ số góc của tiếp tuyến bằng $1$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Phương trình $2x - 3 = 1 \\Leftrightarrow x = 2$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Tọa độ tiếp điểm là $M(2; 0)$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Phương trình tiếp tuyến $y = x - 2$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Khoảng cách giữa hai đường song song bằng $\\frac{3}{\\sqrt{2}}$' }
+                    ]
+                },
+                5: {
+                    title: "Ứng Dụng Vật Lý & Chuyển Động", diffBadge: "Khó", colorTheme: "rose", time: 180,
+                    funcs: [
+                        { id: 'f1', tex: 's(t) = -t^3 + 6t^2 + 9t \\quad (t \\ge 0)', theme: 'emerald' },
+                        { id: 'f2', tex: 's(t) = \\frac{1}{2}gt^2 + v_0 t \\quad (g = 9.8)', theme: 'rose' },
+                        { id: 'f3', tex: 'v(t) = 3t^2 - 12t + 9', theme: 'cyan' },
+                        { id: 'f4', tex: 's(t) = 4\\sin(2\\pi t) \\quad (\\text{dao động})', theme: 'violet' },
+                        { id: 'f5', tex: 'Q(t) = 2t^2 + 5t \\quad (\\text{điện lượng})', theme: 'amber' }
+                    ],
+                    props: [
+                        { id: 'p1_1', funcId: 'f1', text: 'Vận tốc tức thời $v(t) = s\'(t) = -3t^2 + 12t + 9$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Vận tốc ban đầu $v(0) = 9 \\text{ m/s}$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Gia tốc tức thời $a(t) = v\'(t) = -6t + 12$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Vận tốc đạt giá trị lớn nhất khi gia tốc $a(t) = 0 \\Leftrightarrow t = 2$' },
+                        { id: 'p1_5', funcId: 'f1', text: 'Vận tốc cực đại của vật là $v_{max} = 21 \\text{ m/s}$' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Vận tốc tức thời $v(t) = s\'(t) = 9.8t + v_0$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Gia tốc của chuyển động là gia tốc trọng trường $a = 9.8 \\text{ m/s}^2$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Chuyển động thẳng biến đổi đều với gia tốc không đổi' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Nếu rơi tự do ($v_0 = 0$) thì sau $2$ giây $v(2) = 19.6 \\text{ m/s}$' },
+                        { id: 'p2_5', funcId: 'f2', text: 'Đạo hàm bậc hai của quãng đường chính là gia tốc' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Vật dừng lại khi vận tốc $v(t) = 0 \\Leftrightarrow t = 1$ hoặc $t = 3$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Gia tốc tức thời $a(t) = v\'(t) = 6t - 12$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Gia tốc triệt tiêu tại thời điểm $t = 2 \\text{ s}$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Tại thời điểm $t = 2 \\text{ s}$, vận tốc đạt giá trị nhỏ nhất bằng $-3$' },
+                        { id: 'p3_5', funcId: 'f3', text: 'Gia tốc ban đầu $a(0) = -12 \\text{ m/s}^2$' },
+
+                        { id: 'p4_1', funcId: 'f4', text: 'Vận tốc dao động $v(t) = s\'(t) = 8\\pi \\cos(2\\pi t)$' },
+                        { id: 'p4_2', funcId: 'f4', text: 'Vận tốc cực đại $v_{max} = 8\\pi \\text{ cm/s}$ khi qua vị trí cân bằng' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Gia tốc dao động $a(t) = -16\\pi^2 \\sin(2\\pi t) = -(2\\pi)^2 s(t)$' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Biên độ dao động của chất điểm là $A = 4 \\text{ cm}$' },
+                        { id: 'p4_5', funcId: 'f4', text: 'Tần số góc của dao động là $\\omega = 2\\pi \\text{ rad/s}$' },
+
+                        { id: 'p5_1', funcId: 'f5', text: 'Cường độ dòng điện tức thời $I(t) = Q\'(t) = 4t + 5$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Cường độ dòng điện ban đầu $I(0) = 5 \\text{ A}$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Cường độ dòng điện sau $3$ giây là $I(3) = 17 \\text{ A}$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Tốc độ tăng của dòng điện là $I\'(t) = 4 \\text{ A/s}$' },
+                        { id: 'p5_5', funcId: 'f5', text: 'Cường độ dòng điện tăng tuyến tính theo thời gian' }
+                    ]
+                }
             }
         };
 
-        function shuffle(array) {
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+        let GAME_LEVELS = window.gameDatabase[window.selectedTopic];
+
+        window.openTopicSelectMenu = function() {
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (!overlay) return;
+            window.renderTopicSelectionCards();
+            overlay.classList.remove('hidden');
+        };
+
+        window.renderTopicSelectionCards = function() {
+            const container = document.getElementById('topics-grid-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.keys(window.gameDatabase).forEach((topicName, idx) => {
+                const topicLevels = window.gameDatabase[topicName];
+                const isCurrent = topicName === window.selectedTopic;
+                const totalLevels = Object.keys(topicLevels).length;
+                
+                const card = document.createElement('div');
+                card.className = `glass-panel rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between ${
+                    isCurrent 
+                        ? 'border-cyan-400 bg-cyan-950/40 shadow-[0_0_30px_rgba(34,211,238,0.25)]' 
+                        : 'border-white/10 bg-slate-800/40 hover:border-cyan-400/50 hover:bg-slate-800/70'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
+                                Chuyên đề ${idx + 1}
+                            </span>
+                            <span class="text-xs font-bold text-slate-400">${totalLevels} Cấp Độ</span>
+                        </div>
+                        <h2 class="text-lg font-black text-white mb-2 leading-snug">
+                            ${topicName}
+                        </h2>
+                        <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+                            Bao gồm 5 ải thử thách: Hàm số, tọa độ, đồ thị và các thuộc tính tương ứng từ Dễ đến Khó.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 mt-4 pt-4 border-t border-white/10">
+                        <button onclick="window.selectAndStartTopic('${topicName.replace(/'/g, "\\'")}', 'campaign')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
+                            <span>🪐</span> Phá Đảo 5 Ải Liên Tiếp
+                        </button>
+                        
+                        <div class="grid grid-cols-5 gap-1.5 pt-1">
+                            ${[1, 2, 3, 4, 5].map(lvl => `
+                                <button onclick="window.selectAndStartTopic('${topicName.replace(/'/g, "\\'")}', ${lvl})" class="py-1.5 px-1 rounded-lg bg-slate-700/60 hover:bg-cyan-600 border border-white/10 text-slate-200 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                    L${lvl}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        window.selectAndStartTopic = function(topicName, levelTarget) {
+            if (!window.gameDatabase[topicName]) return;
+            window.selectedTopic = topicName;
+            GAME_LEVELS = window.gameDatabase[topicName];
+
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.classList.add('hidden');
+
+            if (levelTarget === 'campaign' || typeof levelTarget === 'number') {
+                window.startLevel(levelTarget);
+            } else {
+                window.openTopicSelectMenu();
+            }
+        };
+
+function shuffle(array) {
             let curId = array.length, randId;
             while (curId > 0) {
                 randId = Math.floor(Math.random() * curId); curId--;
@@ -507,20 +1040,44 @@
                     </button>
                 `;
 
+                const levelKeys = Object.keys(GAME_LEVELS);
+                const dynamicButtonsHtml = levelKeys.map(lvl => {
+                    const lData = GAME_LEVELS[lvl];
+                    const themeColor = COLOR_THEMES[lData.colorTheme]?.hex || COLOR_THEMES.blue.hex;
+                    return `
+                        <button onclick="window.startLevel(${lvl})" class="group relative overflow-hidden font-bold py-3.5 px-5 rounded-2xl transition-all active:scale-95 w-full text-left bg-slate-800/50 hover:bg-slate-700/80 border border-slate-600 hover:border-slate-400 flex items-center justify-between" style="--btn-color: ${themeColor}">
+                            <div class="absolute inset-0 bg-gradient-to-r from-[var(--btn-color)]/0 to-[var(--btn-color)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="relative z-10 flex flex-col gap-0.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Cấp Độ ${lvl}</span>
+                                    <span class="text-[9px] uppercase px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-black">${lData.diffBadge || 'Tiêu chuẩn'}</span>
+                                </div>
+                                <span class="text-base sm:text-lg text-slate-100 group-hover:text-white transition-colors">${lData.title}</span>
+                            </div>
+                            <span class="text-xl text-[var(--btn-color)] opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">✦</span>
+                        </button>
+                    `;
+                }).join('');
+
                 DOM.menuContent.innerHTML = `
                     <div class="flex flex-col items-center opacity-0 animate-[fadeIn_0.5s_ease_forwards]">
-                        <div class="text-center mb-8">
-                            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-3 tracking-tight pb-1 drop-shadow-lg">Tính Đơn Điệu<br class="block sm:hidden"/> & Cực Trị</h1>
-                            <p class="text-sm sm:text-base font-bold text-cyan-300 uppercase tracking-widest bg-cyan-950/40 border border-cyan-500/20 inline-block px-5 py-2 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.1)]">Chuyên Đề: Tính Đơn Điệu Và Cực Trị</p>
+                        <div class="text-center mb-6">
+                            <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 mb-2 tracking-tight pb-1 drop-shadow-lg">
+                                ${window.selectedTopic}
+                            </h1>
+                            <div class="flex items-center justify-center gap-3">
+                                <p class="text-xs sm:text-sm font-bold text-cyan-300 uppercase tracking-widest bg-cyan-950/40 border border-cyan-500/20 inline-block px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.1)]">
+                                    TOÁN PRO - THẦY HÙNG
+                                </p>
+                                <button onclick="window.openTopicSelectMenu()" class="text-xs font-bold text-amber-300 uppercase tracking-wider bg-amber-950/40 border border-amber-500/40 hover:bg-amber-900/60 px-3 py-1.5 rounded-full transition-all flex items-center gap-1">
+                                    📚 Đổi Chuyên Đề
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-4xl mx-auto">
-                            <div class="flex flex-col gap-3">
-                                ${createBtn(1, "Hàm Bậc 3", COLOR_THEMES.blue.hex)}
-                                ${createBtn(2, "Hàm Trùng Phương", COLOR_THEMES.cyan.hex)}
-                                ${createBtn(3, "Hàm Phân Thức Bậc 1/1", COLOR_THEMES.emerald.hex)}
-                                ${createBtn(4, "Hàm Phân Thức Bậc 2/1", COLOR_THEMES.amber.hex)}
-                                ${createBtn(5, "Hàm Căn Thức Bậc 2", COLOR_THEMES.rose.hex)}
+                            <div class="flex flex-col gap-2.5">
+                                ${dynamicButtonsHtml}
                             </div>
                             
                             <div class="flex flex-col h-full gap-3">
@@ -558,7 +1115,7 @@
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md">
-                            <button onclick="window.showOverlay('start')" class="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold rounded-2xl text-lg transition-all active:scale-95">Trạm Chính</button>
+                            <button onclick="window.openTopicSelectMenu()" class="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold rounded-2xl text-lg transition-all active:scale-95">📚 Đổi Chuyên Đề</button>
                             <button onclick="window.startLevel('${isCampaign ? 'campaign' : currentLevel}')" class="flex-1 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-2xl text-lg shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all active:scale-95">
                                 ${isVic && isCampaign ? 'Chơi Lại' : 'Khởi Động Lại 🚀'}
                             </button>
@@ -872,7 +1429,7 @@
             }
         }
 
-        window.showOverlay('start');
+        window.openTopicSelectMenu();
     </script>
 <script src="/game-engine.js"></script>
 </body>

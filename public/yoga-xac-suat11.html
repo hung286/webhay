@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toán 11. Game Yoga_Xác suất 11</title>
+    <title>Toán 11 - Game Yoga Phản Xạ Xác Suất | TOÁN PRO - THẦY HÙNG</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -99,6 +99,40 @@
 </head>
 <body class="h-screen w-screen flex flex-col items-center justify-center relative">
 
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" class="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-slate-950/90 backdrop-blur-2xl transition-all duration-300 hidden">
+        <div class="rounded-3xl w-full max-w-5xl border-2 border-emerald-400/40 flex flex-col max-h-[92vh] overflow-hidden bg-gradient-to-br from-slate-950/95 via-slate-900/95 to-slate-950/95 shadow-[0_0_60px_rgba(16,185,129,0.3)] text-white">
+            
+            <div class="p-6 border-b border-white/10 text-center relative">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-black tracking-widest uppercase mb-2">
+                    🧘 GAME AI YOGA PHẢN XẠ XÁC SUẤT | TOÁN PRO - THẦY HÙNG
+                </div>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 tracking-tight mb-2">
+                    CHỌN CHUYÊN ĐỀ YOGA XÁC SUẤT
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base font-semibold max-w-2xl mx-auto">
+                    Dùng camera AI nhận diện cử chỉ: nghiêng đầu chọn Đúng/Sai và tạo dáng tay chọn A, B, C, D theo từng chuyên đề và độ khó.
+                </p>
+                <button onclick="document.getElementById('topic-selection-overlay').classList.add('hidden')" class="absolute top-6 right-6 text-gray-400 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-2xl transition-colors">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Grid danh sách chuyên đề -->
+            <div id="yoga-topics-grid" class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-5 flex-1">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <div class="p-4 border-t border-white/10 bg-black/40 flex flex-wrap justify-between items-center text-xs text-slate-400 font-semibold px-8">
+                <span>⭐ Hỗ trợ thử thách Toàn Diện (Dễ ➡️ Khó) hoặc luyện tập từng cấp độ</span>
+                <span class="text-emerald-400 font-mono">MediaPipe Pose AI v2.4</span>
+            </div>
+        </div>
+    </div>
+
+
     <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#fff 2px, transparent 2px); background-size: 30px 30px;"></div>
 
     <input type="file" id="logo-upload" accept="image/*" style="display: none;">
@@ -109,7 +143,12 @@
         </div>
         <div>
             <h1 class="text-3xl font-bold text-white drop-shadow-md brand-title">TOÁN PRO - THẦY HÙNG</h1>
-            <p class="text-sm text-yellow-300 font-semibold uppercase tracking-wider">Toán 11 - Xác Suất KNTT</p>
+            <div class="flex items-center gap-2 mt-1">
+                <p id="hud-topic-label" class="text-sm text-yellow-300 font-semibold uppercase tracking-wider">Toán 11 - Xác Suất KNTT</p>
+                <button onclick="window.openTopicSelectModal()" class="px-2.5 py-0.5 rounded-lg bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 text-xs font-bold uppercase hover:bg-emerald-500/50 transition-colors">
+                    Đổi Đề 📚
+                </button>
+            </div>
         </div>
     </div>
 
@@ -142,18 +181,28 @@
             Đang tải mô hình AI Vận Động... Vui lòng đợi...
         </div>
 
-        <button id="start-btn" class="hidden px-10 py-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-full text-2xl font-bold hover:scale-105 shadow-[0_0_20px_rgba(74,222,128,0.5)] border-2 border-white/50">
-            BẮT ĐẦU CHƠI
-        </button>
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <button id="start-btn" class="hidden px-10 py-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-full text-2xl font-bold hover:scale-105 shadow-[0_0_20px_rgba(74,222,128,0.5)] border-2 border-white/50">
+                BẮT ĐẦU CHƠI
+            </button>
+            <button onclick="window.openTopicSelectModal()" class="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-full text-xl font-bold shadow-lg border border-slate-600 transition-all flex items-center gap-2">
+                📚 CHỌN CHUYÊN ĐỀ
+            </button>
+        </div>
     </div>
 
     <!-- Màn hình kết thúc -->
     <div id="game-over-screen" class="hidden absolute inset-0 bg-gray-900 z-50 flex flex-col items-center justify-center p-6 text-center">
         <h2 class="text-6xl font-bold mb-4 text-yellow-400">HOÀN THÀNH!</h2>
         <p class="text-3xl mb-8">Số câu đúng: <span id="final-score" class="text-green-400 font-bold">0</span></p>
-        <button onclick="location.reload()" class="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-2xl font-bold hover:scale-105 shadow-lg border-2 border-white/50">
-            CHƠI LẠI
-        </button>
+        <div class="flex gap-4">
+            <button onclick="window.openTopicSelectModal()" class="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-full text-xl font-bold shadow-lg border border-slate-600 transition-all">
+                📚 ĐỔI CHUYÊN ĐỀ
+            </button>
+            <button onclick="location.reload()" class="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-2xl font-bold hover:scale-105 shadow-lg border-2 border-white/50">
+                CHƠI LẠI
+            </button>
+        </div>
     </div>
 
     <!-- Giao diện Game -->
@@ -258,8 +307,242 @@
     </div>
 
     <script>
+        
+        // ========================================================
+        // HỆ THỐNG ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE ARCHITECTURE)
+        // ========================================================
+        window.gameDatabase = {
+            "Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập": {
+                "easy": [
+                    { type: 'TF', text: "Nếu hai biến cố $A$ và $B$ độc lập thì $P(AB) = P(A) \\cdot P(B)$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Hai biến cố xung khắc $A$ và $B$ luôn luôn là hai biến cố độc lập.", left: "Đúng", right: "Sai", correct: "RIGHT" },
+                    { type: 'TF', text: "Với hai biến cố $A, B$ bất kỳ, $P(A \\cup B) = P(A) + P(B) - P(AB)$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'MC', text: "Cho $A, B$ xung khắc có $P(A) = 0.3, P(B) = 0.4$. Giá trị $P(A \\cup B)$ là:", 
+                      opts: { A: "0.7", B: "0.12", C: "0.1", D: "0.8" }, correct: "A" },
+                    { type: 'MC', text: "Cho $A, B$ độc lập có $P(A) = 0.5, P(B) = 0.6$. Giá trị $P(AB)$ là:", 
+                      opts: { A: "0.3", B: "0.1", C: "1.1", D: "0.8" }, correct: "A" },
+                    { type: 'MC', text: "Gieo $1$ con xúc xắc. Biến cố xuất hiện mặt chấm chẵn và lẻ là hai biến cố:", 
+                      opts: { A: "Xung khắc", B: "Độc lập", C: "Bằng nhau", D: "Giao nhau" }, correct: "A" }
+                ],
+                "medium": [
+                    { type: 'TF', text: "Nếu $P(A)=0.4, P(B)=0.5$ và $P(A \\cup B)=0.9$ thì $A, B$ xung khắc nhau.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Biến cố đối của biến cố $A \\cup B$ là $\\overline{A} \\cap \\overline{B}$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'MC', text: "Hai xạ thủ bắn bia độc lập với xác suất trúng là $0.8$ và $0.7$. XS cả hai cùng trúng là:", 
+                      opts: { A: "0.56", B: "0.94", C: "0.24", D: "0.5" }, correct: "A" },
+                    { type: 'MC', text: "Hai xạ thủ bắn độc lập có XS trúng $0.8$ và $0.7$. Xác suất có ít nhất một người trúng là:", 
+                      opts: { A: "0.94", B: "0.56", C: "0.24", D: "0.8" }, correct: "A" },
+                    { type: 'MC', text: "Gieo $2$ đồng xu cân đối. Xác suất xuất hiện ít nhất một mặt sấp là:", 
+                      opts: { A: "3/4", B: "1/4", C: "1/2", D: "1" }, correct: "A" },
+                    { type: 'MC', text: "Hộp có $5$ bi xanh, $4$ bi đỏ. Rút không hoàn lại $2$ bi. Xác suất $2$ bi đỏ là:", 
+                      opts: { A: "1/6", B: "2/9", C: "16/81", D: "1/12" }, correct: "A" }
+                ],
+                "hard": [
+                    { type: 'TF', text: "Nếu $A$ độc lập với $B$ thì $A$ cũng luôn độc lập với biến cố đối $\\overline{B}$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Với mọi biến cố $A, B$, ta luôn có $P(AB) \\le \\min(P(A), P(B))$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'MC', text: "Bắn $3$ phát đạn độc lập với XS trúng mỗi phát $0.6$. Xác suất trúng đúng $2$ phát là:", 
+                      opts: { A: "0.432", B: "0.216", C: "0.288", D: "0.144" }, correct: "A" },
+                    { type: 'MC', text: "Một học sinh thi $2$ môn, XS qua môn 1 là $0.7$, môn 2 là $0.8$. Biết độc lập, XS trượt cả 2 môn là:", 
+                      opts: { A: "0.06", B: "0.56", C: "0.38", D: "0.14" }, correct: "A" },
+                    { type: 'MC', text: "Cho $P(A) = 0.6, P(B) = 0.5$ và $P(A \\cup B) = 0.8$. Giá trị $P(AB)$ là:", 
+                      opts: { A: "0.3", B: "0.2", C: "0.1", D: "0.4" }, correct: "A" },
+                    { type: 'MC', text: "Gieo $3$ con xúc xắc cân đối. Xác suất để tổng số chấm trên $3$ con bằng $4$ là:", 
+                      opts: { A: "1/72", B: "1/36", C: "1/108", D: "1/216" }, correct: "A" }
+                ]
+            },
+            "Chủ đề 2: Xác Suất Có Điều Kiện & Công Thức Toàn Phần": {
+                "easy": [
+                    { type: 'TF', text: "Công thức xác suất có điều kiện là $P(A|B) = \\frac{P(AB)}{P(B)}$ khi $P(B) > 0$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Nếu $A$ và $B$ độc lập thì xác suất có điều kiện $P(A|B) = P(A)$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Ta luôn có $P(A|B) + P(\\overline{A}|B) = 1$ với mọi $P(B) > 0$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'MC', text: "Cho $P(AB) = 0.2$ và $P(B) = 0.5$. Giá trị $P(A|B)$ bằng:", 
+                      opts: { A: "0.4", B: "0.1", C: "0.7", D: "0.25" }, correct: "A" },
+                    { type: 'MC', text: "Gieo xúc xắc. Biết mặt xuất hiện có số chấm chẵn, xác suất ra mặt 2 chấm là:", 
+                      opts: { A: "1/3", B: "1/6", C: "1/2", D: "2/3" }, correct: "A" },
+                    { type: 'MC', text: "Gieo $2$ đồng xu. Biết đồng thứ nhất ngửa, xác suất đồng thứ hai cũng ngửa là:", 
+                      opts: { A: "1/2", B: "1/4", C: "3/4", D: "1" }, correct: "A" }
+                ],
+                "medium": [
+                    { type: 'TF', text: "Biết ít nhất một con xúc xắc ra mặt 6, XS con còn lại cũng ra mặt 6 là 1/11.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Công thức $P(AB) = P(B) \\cdot P(A|B)$ chỉ áp dụng được khi $A$ và $B$ độc lập.", left: "Đúng", right: "Sai", correct: "RIGHT" },
+                    { type: 'MC', text: "Gia đình có $2$ con. Biết có ít nhất $1$ con trai, xác suất cả $2$ con là trai là:", 
+                      opts: { A: "1/3", B: "1/2", C: "1/4", D: "2/3" }, correct: "A" },
+                    { type: 'MC', text: "Hộp có $3$ bi đỏ, $2$ bi xanh. Rút không hoàn lại $2$ bi. Biết bi 1 đỏ, XS bi 2 xanh là:", 
+                      opts: { A: "1/2", B: "2/5", C: "3/5", D: "1/4" }, correct: "A" },
+                    { type: 'MC', text: "Lớp có 60% nam và 40% nữ. 20% nam giỏi Toán, 10% nữ giỏi Toán. Chọn 1 bạn, XS giỏi Toán là:", 
+                      opts: { A: "0.16", B: "0.15", C: "0.30", D: "0.18" }, correct: "A" },
+                    { type: 'MC', text: "Máy I sản xuất 60% SP (lỗi 1%), máy II 40% SP (lỗi 2%). Tỉ lệ phế phẩm chung là:", 
+                      opts: { A: "0.014", B: "0.015", C: "0.03", D: "0.012" }, correct: "A" }
+                ],
+                "hard": [
+                    { type: 'TF', text: "Công thức Bayes cho phép tính xác suất hậu nghiệm $P(B_i|A)$ từ các tiên nghiệm.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Xác suất toàn phần luôn tính được khi hệ biến cố tạo thành một phân hoạch của không gian mẫu.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'MC', text: "Ba người bắn bia độc lập có XS trúng $0.6, 0.7, 0.8$. Biết đúng $2$ người trúng, XS người 1 trượt là:", 
+                      opts: { A: "28/47", B: "12/47", C: "7/47", D: "1/3" }, correct: "A" },
+                    { type: 'MC', text: "Bệnh hiếm tỉ lệ 0.1%. Test chính xác 99%. Một người dương tính, xác suất mắc bệnh là:", 
+                      opts: { A: "\\approx 9%", B: "99%", C: "50%", D: "\\approx 1%" }, correct: "A" },
+                    { type: 'MC', text: "Chuyển $1$ bi từ hộp I (5Đ, 3T) sang hộp II (4Đ, 4T) rồi lấy $1$ bi từ II. XS được bi đỏ là:", 
+                      opts: { A: "37/72", B: "1/2", C: "9/16", D: "5/9" }, correct: "A" },
+                    { type: 'MC', text: "Cho $P(A) = 0.4, P(B|A) = 0.6, P(B|\\overline{A}) = 0.3$. Giá trị $P(B)$ bằng:", 
+                      opts: { A: "0.42", B: "0.36", C: "0.48", D: "0.50" }, correct: "A" }
+                ]
+            },
+            "Chủ đề 3: Ôn Tập Tổng Hợp Xác Suất & Quy Tắc Đếm": {
+                "easy": [
+                    { type: 'TF', text: "Số hoán vị của tập hợp có $n$ phần tử phân biệt là $P_n = n!$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Quy ước trong toán học giải tích tổ hợp: $0! = 0$.", left: "Đúng", right: "Sai", correct: "RIGHT" },
+                    { type: 'TF', text: "Công thức liên hệ giữa chỉnh hợp và tổ hợp là $A_n^k = k! \\cdot C_n^k$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'MC', text: "Có $5$ bạn nam và $4$ bạn nữ. Số cách chọn $1$ bạn làm lớp trưởng là:", 
+                      opts: { A: "9", B: "20", C: "5", D: "4" }, correct: "A" },
+                    { type: 'MC', text: "Có $5$ bạn nam và $4$ bạn nữ. Số cách chọn $1$ cặp gồm $1$ nam và $1$ nữ là:", 
+                      opts: { A: "20", B: "9", C: "10", D: "25" }, correct: "A" },
+                    { type: 'MC', text: "Giá trị của số tổ hợp $C_5^2$ bằng bao nhiêu?", 
+                      opts: { A: "10", B: "20", C: "12", D: "5" }, correct: "A" }
+                ],
+                "medium": [
+                    { type: 'TF', text: "Từ các chữ số $\\{1,2,3,4,5\\}$ lập được $120$ số tự nhiên có $3$ chữ số khác nhau.", left: "Đúng", right: "Sai", correct: "RIGHT" },
+                    { type: 'TF', text: "Số đường chéo của một đa giác lồi có $10$ cạnh là $C_{10}^2 - 10 = 35$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'MC', text: "Có $8$ bạn. Số cách chọn $1$ ban cán sự gồm $1$ Trưởng, $1$ Phó và $1$ Thư ký là:", 
+                      opts: { A: "336", B: "56", C: "512", D: "120" }, correct: "A" },
+                    { type: 'MC', text: "Từ $\\{1,2,3,4,5,6\\}$ lập được bao nhiêu số tự nhiên chẵn có $3$ chữ số khác nhau?", 
+                      opts: { A: "60", B: "120", C: "30", D: "90" }, correct: "A" },
+                    { type: 'MC', text: "Chọn $4$ bạn từ $7$ nam và $5$ nữ sao cho có đúng $2$ nam và $2$ nữ. Số cách là:", 
+                      opts: { A: "210", B: "495", C: "105", D: "35" }, correct: "A" },
+                    { type: 'MC', text: "Xếp $5$ bạn vào $5$ ghế thành hàng ngang. Số cách xếp là:", 
+                      opts: { A: "120", B: "24", C: "25", D: "60" }, correct: "A" }
+                ],
+                "hard": [
+                    { type: 'TF', text: "Xếp $4$ nam và $4$ nữ vào bàn tròn sao cho nam nữ xen kẽ có $144$ cách xếp.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Số tập con gồm ít nhất $1$ phần tử của tập hợp có $n$ phần tử là $2^n - 1$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'MC', text: "Từ $\\{0,1,2,3,4,5\\}$ có bao nhiêu số tự nhiên chẵn có $4$ chữ số khác nhau?", 
+                      opts: { A: "156", B: "180", C: "144", D: "300" }, correct: "A" },
+                    { type: 'MC', text: "Có bao nhiêu số tự nhiên có $5$ chữ số mà các chữ số tăng dần từ trái sang phải?", 
+                      opts: { A: "126", B: "252", C: "120", D: "720" }, correct: "A" },
+                    { type: 'MC', text: "Tìm số nguyên dương $n$ thỏa mãn phương trình $A_n^3 = 24C_n^1$:", 
+                      opts: { A: "n = 6", B: "n = 5", C: "n = 7", D: "n = 8" }, correct: "A" },
+                    { type: 'MC', text: "Có $6$ bi đỏ, $5$ bi xanh, $4$ bi vàng. Chọn $4$ bi có đủ cả $3$ màu. Số cách chọn là:", 
+                      opts: { A: "645", B: "1365", C: "720", D: "840" }, correct: "A" }
+                ]
+            }
+        };
+
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+        window.selectedDiff = 'all';
+
+        // --- TOPIC MENU MODAL LOGIC ---
+        window.openTopicSelectModal = function() {
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (!overlay) return;
+            window.renderYogaTopicCards();
+            overlay.classList.remove('hidden');
+        };
+
+        window.renderYogaTopicCards = function() {
+            const container = document.getElementById('yoga-topics-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.keys(window.gameDatabase).forEach((topicName, idx) => {
+                const topicData = window.gameDatabase[topicName];
+                const totalEasy = (topicData.easy || []).length;
+                const totalMed = (topicData.medium || []).length;
+                const totalHard = (topicData.hard || []).length;
+                const totalAll = totalEasy + totalMed + totalHard;
+                const isSelected = topicName === window.selectedTopic;
+
+                const card = document.createElement('div');
+                card.className = `rounded-2xl p-5 border-2 transition-all flex flex-col justify-between ${
+                    isSelected 
+                        ? 'border-emerald-400 bg-emerald-950/40 shadow-[0_0_25px_rgba(16,185,129,0.35)]' 
+                        : 'border-white/10 bg-slate-900/60 hover:border-emerald-400/50 hover:bg-slate-900/90'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                                Chuyên đề ${idx + 1}
+                            </span>
+                            <span class="text-xs font-bold text-gray-300">${totalAll} Câu Hỏi</span>
+                        </div>
+                        <h2 class="text-xl font-black text-white mb-2 leading-snug">
+                            ${topicName}
+                        </h2>
+                        <p class="text-xs text-slate-300 mb-4">
+                            Luyện tập phản xạ cơ thể và giải toán xác suất 11 theo các cấp độ Dễ, Vừa, Khó.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 mt-4 pt-4 border-t border-white/10">
+                        <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'all')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-95 font-bold">
+                            ⚡ Chơi Toàn Diện (${totalAll} câu)
+                        </button>
+                        
+                        <div class="grid grid-cols-3 gap-1.5 pt-1">
+                            <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'easy')" class="py-2 px-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Dễ (${totalEasy})
+                            </button>
+                            <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'medium')" class="py-2 px-1 rounded-lg bg-blue-950/60 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Vừa (${totalMed})
+                            </button>
+                            <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'hard')" class="py-2 px-1 rounded-lg bg-rose-950/60 hover:bg-rose-600 border border-rose-500/40 text-rose-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                                Khó (${totalHard})
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        window.selectYogaTopic = function(topicName, diffMode) {
+            const topicData = window.gameDatabase[topicName];
+            if (!topicData) return;
+            window.selectedTopic = topicName;
+            window.selectedDiff = diffMode;
+
+            let selectedList = [];
+            if (diffMode === 'all') {
+                selectedList = [
+                    ...(topicData.easy || []),
+                    ...(topicData.medium || []),
+                    ...(topicData.hard || [])
+                ];
+            } else {
+                selectedList = [...(topicData[diffMode] || [])];
+            }
+
+            if (selectedList.length === 0) return;
+            questionsBank = selectedList;
+
+            // Cập nhật nhãn HUD
+            const diffLabel = diffMode === 'all' ? 'Toàn diện' : (diffMode === 'easy' ? 'Dễ' : (diffMode === 'medium' ? 'Vừa' : 'Khó'));
+            const hudTopicEl = document.getElementById('hud-topic-label');
+            if (hudTopicEl) hudTopicEl.innerText = `${topicName} (${diffLabel})`;
+
+            document.getElementById('total-q1').innerText = questionsBank.length;
+            document.getElementById('total-q2').innerText = questionsBank.length;
+
+            // Reset Game state
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('score').innerText = '0';
+            document.getElementById('question-number').innerText = '1';
+
+            // Ẩn overlay
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.classList.add('hidden');
+
+            // Ẩn Game Over screen nếu đang ở đó
+            document.getElementById('game-over-screen').classList.add('hidden');
+
+            if (gameState === 'PLAYING' || gameState === 'FEEDBACK' || gameState === 'END') {
+                document.getElementById('game-ui').style.display = 'flex';
+                loadQuestion();
+            }
+        };
+
         // --- 1. NGÂN HÀNG CÂU HỎI KNTT LỚP 11 (XÁC SUẤT) ---
-        const questionsBank = [
+        let questionsBank = [
             // Dạng Trắc Nghiệm Pose
             { type: 'MC', text: "Cho hai biến cố $A, B$ xung khắc. Công thức nào sau đây đúng?", 
               opts: { A: "$P(A \\cup B) = P(A) \\cdot P(B)$", B: "$P(A \\cup B) = P(A) + P(B)$", C: "$P(A \\cap B) = P(A) + P(B)$", D: "$P(A \\cap B) = 1$" }, correct: "B" },
@@ -285,8 +568,10 @@
             { type: 'TF', text: "Nếu $P(A) = 0,4; P(B) = 0,5$ và $P(A \\cup B) = 0,9$ thì $A$ và $B$ độc lập với nhau.", left: "Đúng", right: "Sai", correct: "RIGHT" }
         ];
 
-        document.getElementById('total-q1').innerText = questionsBank.length;
-        document.getElementById('total-q2').innerText = questionsBank.length;
+                // Khởi tạo bộ câu hỏi mặc định từ database
+        if (window.gameDatabase) {
+            window.selectYogaTopic(Object.keys(window.gameDatabase)[0], 'all');
+        }
 
         // --- 2. BIẾN TRẠNG THÁI & ÂM THANH ---
         let currentQuestionIndex = 0;

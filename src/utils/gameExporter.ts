@@ -157,6 +157,13 @@ export const GAME_TEMPLATES: GameTemplateOption[] = [
     description: 'Rèn luyện phản xạ tính xác suất qua từng lượt ăn mồi'
   },
   {
+    id: 'so_do_cay',
+    name: '🌳 Sơ Đồ Cây Xác Suất',
+    file: '/so_do_cay_xac_suat.html',
+    category: 'Mô phỏng Trực quan',
+    description: 'Xây dựng và điền xác suất sơ đồ cây phân nhánh trực quan'
+  },
+  {
     id: 'yoga',
     name: '🧘 Yoga Phản Xạ Xác Suất',
     file: '/yoga-xac-suat11.html',
@@ -214,46 +221,174 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
 
   // 4. DATA ADAPTER ENGINE: ÁP DỤNG ADAPTER TƯƠNG ỨNG THEO TỪNG GAME
 
-  // NHÓM 1: Game Đua xe F1 (biến rawQuestionData với o, c, sub)
+  // NHÓM 1: Game Đua xe F1 (cấu trúc Đa Chủ Đề & Đa Cấp Độ Tốc Độ)
   if (cleanUrl.includes('game-dua-xe-F1') || cleanUrl.includes('F1')) {
-    const f1Formatted = standardizedData.map(q => ({
-      type: "ABCD",
-      q: q.q,
-      o: q.options,
-      c: q.correct,
-      explanation: q.explanation
-    }));
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || gameTitle;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      topicsMap[topicName][diffKey].push({
+        q: q.question,
+        options: q.options || ['A', 'B', 'C', 'D'],
+        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: q.explanation || ''
+      });
+    });
+
     const injectF1 = `
 <script>
-// [ADAPTER ENGINE: ĐUA XE F1]
-window.quizData = ${JSON.stringify(standardizedData, null, 2)};
-let rawQuestionData = ${JSON.stringify(f1Formatted, null, 2)};
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - ĐUA XE F1]
+window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
+window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
 </script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, injectF1);
   }
 
-  // NHÓM 2: Game Bảo Vệ Chiến Hào (sinh đề tự động - chặn generator)
+  // NHÓM 2: Game Bảo Vệ Chiến Hào (sinh đề tự động - cấu trúc Đa Chủ Đề & Đa Độ Khó)
   else if (cleanUrl.includes('chien-hao') || cleanUrl.includes('Bao-ve-chien-hao')) {
-    const d1 = standardizedData.filter(q => q.difficulty === 1);
-    const d2 = standardizedData.filter(q => q.difficulty === 2);
-    const d3 = standardizedData.filter(q => q.difficulty === 3);
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || gameTitle;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      topicsMap[topicName][diffKey].push({
+        q: q.question,
+        options: q.options || ['A', 'B', 'C', 'D'],
+        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: q.explanation || ''
+      });
+    });
 
     const overrideScript = `
 <script>
-// [ADAPTER ENGINE: OVERRIDE BẢO VỆ CHIẾN HÀO]
-window.quizData = ${JSON.stringify(standardizedData, null, 2)};
-let sessionQuestions = {
-  level1: ${JSON.stringify(d1.length > 0 ? d1 : standardizedData, null, 2)},
-  level2: ${JSON.stringify(d2.length > 0 ? d2 : standardizedData, null, 2)},
-  level3: ${JSON.stringify(d3.length > 0 ? d3 : standardizedData, null, 2)}
-};
-function generateSessionQuestions() {
-  // Đã bị đóng băng sang câu hỏi tĩnh tùy chỉnh
-}
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - BẢO VỆ CHIẾN HÀO]
+window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
+window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+window.useStaticTopic = true;
 </script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, overrideScript);
+  }
+  // NHÓM ĐẠO HÀM CẤP 2 (cấu trúc Đa Chủ Đề & Đa Độ Khó)
+  else if (cleanUrl.includes('dao-ham-cap2')) {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || gameTitle;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      topicsMap[topicName][diffKey].push({
+        q: q.question,
+        options: q.options || ['A', 'B', 'C', 'D'],
+        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: q.explanation || ''
+      });
+    });
+
+    const dhScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - ĐẠO HÀM CẤP 2]
+window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
+window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+window.useStaticTopic = true;
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, dhScript);
+  }
+
+  // NHÓM MARIO PHIÊU LƯU KÝ (cấu trúc Đa Chủ Đề & Đa Độ Khó)
+  else if (cleanUrl.includes('mario') || cleanUrl.includes('Gamemario')) {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || gameTitle;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      topicsMap[topicName][diffKey].push({
+        q: q.question,
+        options: q.options || ['A', 'B', 'C', 'D'],
+        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: q.explanation || ''
+      });
+    });
+
+    const marioScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - MARIO PHIÊU LƯU KÝ]
+window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
+window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+window.useStaticTopic = true;
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, marioScript);
+  }
+
+  // NHÓM TETRIS XẾP GẠCH (cấu trúc Đa Chủ Đề & Đa Độ Khó)
+  else if (cleanUrl.includes('tetris') || cleanUrl.includes('Gametetris')) {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || gameTitle;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      topicsMap[topicName][diffKey].push({
+        q: q.question,
+        options: q.options || ['A', 'B', 'C', 'D'],
+        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: q.explanation || ''
+      });
+    });
+
+    const tetrisScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - TETRIS XẾP GẠCH]
+window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
+window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+window.useStaticTopic = true;
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, tetrisScript);
+  }
+
+  // NHÓM GHÉP CẶP LƯỢNG GIÁC & CÔNG THỨC (cấu trúc Đa Chủ Đề & Đa Độ Khó)
+  else if (cleanUrl.includes('ghep-cap')) {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || gameTitle;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      const correctText = (q.options && typeof q.correctIndex === 'number') ? q.options[q.correctIndex] : (q.options ? q.options[0] : '');
+      topicsMap[topicName][diffKey].push({
+        id: topicsMap[topicName][diffKey].length + 1,
+        left: q.question,
+        right: correctText,
+        q: q.question,
+        options: q.options || ['A', 'B', 'C', 'D'],
+        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: q.explanation || ''
+      });
+    });
+
+    const ghepCapScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - GHÉP CẶP LƯỢNG GIÁC]
+window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
+window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+window.useStaticTopic = true;
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, ghepCapScript);
   }
 
   // NHÓM 3: Game Sút Penalty (phân chia 3 vòng đấu: Vòng Bảng, Bán Kết, Chung Kết)
@@ -321,6 +456,416 @@ var questions = window.quizData;
 </script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, tpScript);
+  }
+
+  // NHÓM HÁI TÁO LUÂN PHIÊN (cấu trúc Đa Chủ Đề & Đa Độ Khó 2 Đội)
+  else if (cleanUrl.includes('hai-tao')) {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || gameTitle;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      const letters = ['A', 'B', 'C', 'D'];
+      const ansLetter = (typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < 4) ? letters[q.correctIndex] : 'A';
+      const opts = (q.options || ['A', 'B', 'C', 'D']).map((o, idx) => `${letters[idx]}. ${o}`);
+      const weight = diffKey === 'easy' ? 3 : (diffKey === 'medium' ? 5 : 8);
+      const badge = diffKey === 'easy' ? 'Dễ' : (diffKey === 'medium' ? 'Vừa' : 'Khó');
+      const color = diffKey === 'easy' ? '#2ecc71' : (diffKey === 'medium' ? '#f39c12' : '#e74c3c');
+
+      topicsMap[topicName][diffKey].push({
+        type: 'abcd',
+        badge: badge,
+        color: color,
+        q: q.question,
+        opts: opts,
+        ans: ansLetter,
+        w: weight,
+        explanation: q.explanation || ''
+      });
+    });
+
+    const haiTaoScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - HÁI TÁO LUÂN PHIÊN]
+window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
+window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+window.useStaticTopic = true;
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, haiTaoScript);
+  }
+
+  // NHÓM KÉO CO ĐỐI KHÁNG 2 ĐỘI (cấu trúc Đa Chủ Đề & Đa Độ Khó: Rounds với q1 & q2)
+  else if (cleanUrl.includes('keo-co')) {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    const letters = ['A', 'B', 'C', 'D'];
+
+    const rawGroups: Record<string, { easy: Question[], medium: Question[], hard: Question[] }> = {};
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || gameTitle;
+      if (!rawGroups[topicName]) {
+        rawGroups[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      rawGroups[topicName][diffKey].push(q);
+    });
+
+    Object.keys(rawGroups).forEach(topicName => {
+      topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      (['easy', 'medium', 'hard'] as const).forEach(diffKey => {
+        const qList = rawGroups[topicName][diffKey];
+        const timeLimit = diffKey === 'easy' ? 30 : (diffKey === 'medium' ? 120 : 180);
+        const levelLabel = diffKey === 'easy' ? 'Dễ' : (diffKey === 'medium' ? 'Vừa' : 'Khó');
+        const classLabel = diffKey === 'easy' ? 'de' : (diffKey === 'medium' ? 'vua' : 'kho');
+
+        for (let i = 0; i < qList.length; i += 2) {
+          const item1 = qList[i];
+          const item2 = qList[i + 1] || item1;
+          
+          const ansLetter1 = (typeof item1.correctIndex === 'number' && item1.correctIndex >= 0 && item1.correctIndex < 4) ? letters[item1.correctIndex] : 'A';
+          const opts1 = (item1.options || ['A', 'B', 'C', 'D']).map((o, idx) => `${letters[idx]}. ${o}`);
+          
+          const ansLetter2 = (typeof item2.correctIndex === 'number' && item2.correctIndex >= 0 && item2.correctIndex < 4) ? letters[item2.correctIndex] : 'A';
+          const opts2 = (item2.options || ['A', 'B', 'C', 'D']).map((o, idx) => `${letters[idx]}. ${o}`);
+
+          topicsMap[topicName][diffKey].push({
+            type: 'abcd',
+            time: timeLimit,
+            level: levelLabel,
+            class: classLabel,
+            q1: {
+              text: item1.question,
+              options: opts1,
+              ans: ansLetter1,
+              exp: item1.explanation || ''
+            },
+            q2: {
+              text: item2.question,
+              options: opts2,
+              ans: ansLetter2,
+              exp: item2.explanation || ''
+            }
+          });
+        }
+      });
+    });
+
+    const tugScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - KÉO CO ĐỐI KHÁNG 2 ĐỘI]
+window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
+window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, tugScript);
+  }
+
+  // NHÓM KÉO THẢ TƯƠNG TÁC (cấu trúc Đa Chủ Đề & Đa Cấp Độ GAME_LEVELS)
+  else if (cleanUrl.includes('keo-tha')) {
+    const topicsMap: Record<string, any> = {};
+    const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
+
+    const groupedByTopic: Record<string, Question[]> = {};
+    questions.forEach(q => {
+      const tName = q.topic?.trim() || defaultTopic;
+      if (!groupedByTopic[tName]) groupedByTopic[tName] = [];
+      groupedByTopic[tName].push(q);
+    });
+
+    Object.keys(groupedByTopic).forEach(tName => {
+      const qList = groupedByTopic[tName];
+      topicsMap[tName] = {};
+      const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose'];
+      const funcs: any[] = [];
+      const props: any[] = [];
+
+      qList.slice(0, 5).forEach((q, idx) => {
+        const funcId = `f${idx + 1}`;
+        funcs.push({
+          id: funcId,
+          tex: q.question,
+          theme: themeColors[idx % themeColors.length]
+        });
+
+        (q.options || []).forEach((opt, pIdx) => {
+          props.push({
+            id: `p${idx + 1}_${pIdx + 1}`,
+            funcId: funcId,
+            text: opt
+          });
+        });
+      });
+
+      if (funcs.length > 0) {
+        topicsMap[tName][1] = {
+          title: 'Cấp Độ 1 (Tùy Chỉnh)',
+          diffBadge: 'Tiêu chuẩn',
+          colorTheme: 'blue',
+          time: 180,
+          funcs: funcs,
+          props: props
+        };
+      }
+    });
+
+    const keoThaScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - KÉO THẢ TƯƠNG TÁC]
+if (typeof window.gameDatabase !== 'undefined') {
+  Object.assign(window.gameDatabase, ${JSON.stringify(topicsMap, null, 2)});
+  window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+}
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, keoThaScript);
+  }
+
+  // NHÓM NGHIÊNG ĐẦU CHỌN ĐÁP ÁN (cấu trúc Đa Chủ Đề & Đa Độ Khó: left/right/correct)
+  else if (cleanUrl.includes('nghieng-dau')) {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
+
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || defaultTopic;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      
+      let leftOpt = 'Đáp án A';
+      let rightOpt = 'Đáp án B';
+      let correctSide = 'LEFT';
+
+      if (q.options && q.options.length >= 2) {
+        const cIdx = typeof q.correctIndex === 'number' ? q.correctIndex : 0;
+        if (cIdx === 0) {
+          leftOpt = q.options[0];
+          rightOpt = q.options[1];
+          correctSide = 'LEFT';
+        } else if (cIdx === 1) {
+          leftOpt = q.options[0];
+          rightOpt = q.options[1];
+          correctSide = 'RIGHT';
+        } else if (cIdx === 2) {
+          leftOpt = q.options[2];
+          rightOpt = q.options[3] || q.options[0];
+          correctSide = 'LEFT';
+        } else {
+          leftOpt = q.options[2] || q.options[0];
+          rightOpt = q.options[3] || q.options[1];
+          correctSide = 'RIGHT';
+        }
+      }
+
+      topicsMap[topicName][diffKey].push({
+        text: q.question,
+        left: leftOpt,
+        right: rightOpt,
+        correct: correctSide
+      });
+    });
+
+    const tiltScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - NGHIÊNG ĐẦU CHỌN ĐÁP ÁN]
+if (typeof window.gameDatabase !== 'undefined') {
+  Object.assign(window.gameDatabase, ${JSON.stringify(topicsMap, null, 2)});
+  window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+}
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, tiltScript);
+  }
+
+  // NHÓM PIKACHU NỐI CẶP ĐẠO HÀM (cấu trúc Đa Chủ Đề: pairs 24 cặp thẻ cho 48 ô)
+  else if (cleanUrl.includes('pikachu')) {
+    const topicsMap: Record<string, Record<number, any[]>> = {};
+    const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
+    const icons = ['fa-cat', 'fa-dog', 'fa-hippo', 'fa-otter', 'fa-kiwi-bird', 'fa-fish', 'fa-dragon', 'fa-spider', 'fa-crow'];
+    const colors = ['#ffe600', '#00b8ff', '#ff2a6d', '#01ffc3', '#ff7b00', '#b300ff', '#6a00ff', '#bfff00', '#ff00a0'];
+
+    const groupedByTopic: Record<string, Question[]> = {};
+    questions.forEach(q => {
+      const tName = q.topic?.trim() || defaultTopic;
+      if (!groupedByTopic[tName]) groupedByTopic[tName] = [];
+      groupedByTopic[tName].push(q);
+    });
+
+    Object.keys(groupedByTopic).forEach(tName => {
+      const qList = groupedByTopic[tName];
+      topicsMap[tName] = { 1: [], 2: [], 3: [] };
+
+      [1, 2, 3].forEach(lvl => {
+        const pairs: any[] = [];
+        for (let i = 0; i < 24; i++) {
+          const q = qList[i % qList.length];
+          const rightText = (q.options && typeof q.correctIndex === 'number' && q.options[q.correctIndex]) 
+            ? q.options[q.correctIndex] 
+            : (q.options?.[0] || 'Đáp án');
+          pairs.push({
+            id: i + 1,
+            left: q.question,
+            right: rightText,
+            icon: icons[i % icons.length],
+            themeColor: colors[i % colors.length]
+          });
+        }
+        topicsMap[tName][lvl] = pairs;
+      });
+    });
+
+    const pikachuScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - PIKACHU NỐI CẶP]
+if (typeof window.gameDatabase !== 'undefined') {
+  Object.assign(window.gameDatabase, ${JSON.stringify(topicsMap, null, 2)});
+  window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+}
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, pikachuScript);
+  }
+
+  // NHÓM RẮN SĂN MỒI (Tập hợp 10 & Xác suất 10 - cấu trúc Đa Chủ Đề & Đa Độ Khó: qStr/target/options)
+  else if (cleanUrl.includes('ran-san-tap-hop') || cleanUrl.includes('ran-san-xac-suat')) {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
+
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || defaultTopic;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      const targetAns = (q.options && typeof q.correctIndex === 'number' && q.options[q.correctIndex])
+        ? q.options[q.correctIndex]
+        : (q.options?.[0] || 'Đáp án');
+
+      topicsMap[topicName][diffKey].push({
+        qStr: q.question,
+        target: targetAns,
+        options: q.options || [targetAns]
+      });
+    });
+
+    const snakeScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - RẮN SĂN MỒI]
+if (typeof window.gameDatabase !== 'undefined') {
+  Object.assign(window.gameDatabase, ${JSON.stringify(topicsMap, null, 2)});
+  window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+}
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, snakeScript);
+  }
+
+  // NHÓM SƠ ĐỒ CÂY XÁC SUẤT (cấu trúc Đa Chủ Đề & Đa Độ Khó: tree scenarios)
+  else if (cleanUrl.includes('so_do_cay') || cleanUrl.includes('so-do-cay')) {
+    const topicsMap: Record<string, { easy: any, medium: any, hard: any }> = {};
+    const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
+
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || defaultTopic;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: null, medium: null, hard: null };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      const targetAns = (q.options && typeof q.correctIndex === 'number' && q.options[q.correctIndex])
+        ? q.options[q.correctIndex]
+        : (q.options?.[0] || '1/2');
+
+      if (!topicsMap[topicName][diffKey]) {
+        topicsMap[topicName][diffKey] = {
+          title: q.question,
+          desc: q.explanation || q.question,
+          task: `Xác định và điền xác suất các nhánh: kết quả chính là ${targetAns}`,
+          tree: {
+            id: 'root', label: 'Ω', isComplement: false,
+            children: [
+              {
+                id: 'n1', label: 'A', isComplement: false, prob: '', expected: targetAns,
+                children: [
+                  { id: 'n1_1', label: 'B', isComplement: false, prob: '', expected: targetAns, children: [] },
+                  { id: 'n1_2', label: 'B', isComplement: true, prob: '', expected: '', children: [] }
+                ]
+              },
+              {
+                id: 'n2', label: 'A', isComplement: true, prob: '', expected: '',
+                children: [
+                  { id: 'n2_1', label: 'B', isComplement: false, prob: '', expected: targetAns, children: [] },
+                  { id: 'n2_2', label: 'B', isComplement: true, prob: '', expected: '', children: [] }
+                ]
+              }
+            ]
+          }
+        };
+      }
+    });
+
+    const treeScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - SƠ ĐỒ CÂY XÁC SUẤT]
+if (typeof window.gameDatabase !== 'undefined' && Object.keys(${JSON.stringify(topicsMap)}).length > 0) {
+  Object.assign(window.gameDatabase, ${JSON.stringify(topicsMap, null, 2)});
+  window.currentTopicName = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+}
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, treeScript);
+  }
+
+  // NHÓM YOGA PHẢN XẠ XÁC SUẤT (cấu trúc Đa Chủ Đề & Đa Độ Khó: TF & MC)
+  else if (cleanUrl.includes('yoga')) {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
+    const letters = ['A', 'B', 'C', 'D'];
+
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || defaultTopic;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      const ansIdx = typeof q.correctIndex === 'number' ? q.correctIndex : 0;
+      const ansLetter = letters[ansIdx] || 'A';
+
+      if (q.options && q.options.length === 2) {
+        topicsMap[topicName][diffKey].push({
+          type: 'TF',
+          text: q.question,
+          left: q.options[0] || 'Đúng',
+          right: q.options[1] || 'Sai',
+          correct: ansIdx === 0 ? 'LEFT' : 'RIGHT'
+        });
+      } else {
+        const optsObj = {
+          A: q.options?.[0] || 'A',
+          B: q.options?.[1] || 'B',
+          C: q.options?.[2] || 'C',
+          D: q.options?.[3] || 'D'
+        };
+        topicsMap[topicName][diffKey].push({
+          type: 'MC',
+          text: q.question,
+          opts: optsObj,
+          correct: ansLetter
+        });
+      }
+    });
+
+    const yogaScript = `
+<script>
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - YOGA PHẢN XẠ]
+if (typeof window.gameDatabase !== 'undefined') {
+  Object.assign(window.gameDatabase, ${JSON.stringify(topicsMap, null, 2)});
+  window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+}
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, yogaScript);
   }
 
   // NHÓM 6: CÁC GAME CHUẨN CÒN LẠI (Cá Ngựa, Cầu Cá, Rắn Săn, Tetris, Mario...)

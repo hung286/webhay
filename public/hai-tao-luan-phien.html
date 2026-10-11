@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toán 11. Hội Thi Thu Hoạch Táo - Mũ và logarit(Thi Đấu Luân Phiên)</title>
+    <title>Toán 11 - Hội Thi Thu Hoạch Táo Luân Phiên | TOÁN PRO - THẦY HÙNG</title>
     
     <!-- Tải thư viện MathJax -->
     <script>
@@ -139,7 +139,45 @@
 </head>
 <body>
 
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, rgba(44, 62, 80, 0.96) 0%, rgba(26, 37, 47, 0.98) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+      <div style="max-width: 960px; width: 100%; background: linear-gradient(135deg, rgba(39, 55, 70, 0.95), rgba(21, 32, 43, 0.98)); border: 3px solid #2ecc71; border-radius: 28px; padding: 28px 32px; box-shadow: 0 0 50px rgba(46, 204, 113, 0.35); backdrop-filter: blur(20px); text-align: center;">
+        
+        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 20px; border-radius: 9999px; background: rgba(46, 204, 113, 0.15); border: 1.5px solid #2ecc71; color: #a8e6cf; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
+          🍎 HỘI THI THU HOẠCH TÁO | TOÁN PRO - THẦY HÙNG
+        </div>
+        
+        <h1 style="color: #ffffff; font-size: clamp(1.6rem, 3.6vw, 2.3rem); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 8px 0; text-shadow: 0 0 25px rgba(46, 204, 113, 0.5);">
+          CHỌN CHUYÊN ĐỀ: <span style="color: #2ecc71;">TRANH TÀI THU HOẠCH TÁO</span>
+        </h1>
+        <p style="color: #d5dbdb; font-size: 14px; margin: 0 0 22px 0; font-weight: 600;">
+          Đội Xanh ⚔️ Đội Đỏ luân phiên vượt qua các thử thách hái táo từ Dễ ➡️ Vừa ➡️ Khó!
+        </p>
+        
+        <!-- Grid các chuyên đề -->
+        <div id="apple-topics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 22px; max-height: 52vh; overflow-y: auto; padding: 6px;">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 16px; font-size: 12px; color: #bdc3c7; font-weight: 600;">
+          <span>⭐ Hỗ trợ thi đấu toàn diện (Dễ ➡️ Khó) hoặc chọn từng cấp độ</span>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button onclick="document.getElementById('topic-selection-overlay').style.display='none'" style="background: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid #2ecc71; padding: 5px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">Đóng Menu</button>
+            <span style="color: #2ecc71; font-weight: 800;">Apple Engine v3.8</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <div class="header">
+
+        <button onclick="openAppleTopicMenu()" style="position: absolute; right: 20px; top: 12px; background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; border: 2px solid #fff; border-radius: 20px; padding: 6px 16px; font-weight: 900; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: all 0.2s; z-index: 20;">
+            📚 <span>Đổi Chuyên Đề</span>
+        </button>
+
         <div class="settings-btn-tiny" onclick="openSettings()" title="Cài đặt">⚙️</div>
         
         <!-- Đồng hồ tổng 15 phút -->
@@ -152,12 +190,12 @@
                 <div class="crowd">
                     <span class="farmer d1">🧑🏽‍🌾</span> <span class="farmer d2">👩🏻‍🌾</span> <span class="farmer d3">👨🏾‍🌾</span> <span class="apple-bounce">🍎</span>
                 </div>
-                HỘI THI THU HOẠCH TÁO: THI ĐẤU LUÂN PHIÊN
+                TOÁN PRO - THẦY HÙNG: HỘI THI THU HOẠCH TÁO LUÂN PHIÊN
                 <div class="crowd">
                     <span class="apple-bounce" style="animation-delay: 0.5s;">🍏</span> <span class="farmer d4">👩🏽‍🌾</span> <span class="farmer d5">👨🏻‍🌾</span> <span class="farmer d6">🧑🏼‍🌾</span>
                 </div>
             </div>
-            <div class="instruction">Đúng/Sai: Mỗi ý đúng 1kg táo. Đội nào nhiều táo hơn (hoặc thời gian ít hơn) sẽ thắng!</div>
+            <div class="instruction" id="topic-subtitle-display">Chuyên đề: Phương trình & Bất phương trình Mũ | Đúng/Sai: Mỗi ý đúng 1kg táo. Đội nào nhiều táo hơn sẽ thắng!</div>
         </div>
         <div class="logo-container" id="logo-display-container" style="display:none;"><img id="logo-img" src="" alt="Logo"></div>
     </div>
@@ -171,7 +209,7 @@
             </div>
             <div class="q-container" id="qc-1">
                 <div class="q-header">
-                    <div class="q-progress" id="prog-1">Câu 1/10</div>
+                    <div class="q-progress" id="prog-1">Câu 1/--</div>
                     <div class="q-badge" id="badge-1">Dễ</div>
                 </div>
                 <div class="q-content" id="q-text-1">Đề bài...</div>
@@ -205,7 +243,7 @@
             </div>
             <div class="q-container" id="qc-2">
                 <div class="q-header">
-                    <div class="q-progress" id="prog-2">Câu 1/10</div>
+                    <div class="q-progress" id="prog-2">Câu 1/--</div>
                     <div class="q-badge" id="badge-2">Dễ</div>
                 </div>
                 <div class="q-content" id="q-text-2">Đề bài...</div>
@@ -272,6 +310,224 @@
     </div>
 
     <script>
+        
+        // ==========================================
+        // CẤU TRÚC ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE)
+        // ==========================================
+        window.gameDatabase = {
+            "Chủ đề 1: Phương trình & Bất phương trình Mũ": {
+                "easy": [
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "\\[ 3^{x+1} = 27 \\]", "opts": ["A. \\( x=1 \\)", "B. \\( x=2 \\)", "C. \\( x=3 \\)", "D. \\( x=4 \\)"], "ans": "B", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "\\[ 5^{2x-1} = 125 \\]", "opts": ["A. \\( x=1 \\)", "B. \\( x=2 \\)", "C. \\( x=3 \\)", "D. \\( x=4 \\)"], "ans": "B", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Tìm x tự nhiên nhỏ nhất thỏa mãn:\\[ 2^x > 16 \\]", "opts": ["A. \\( x=2 \\)", "B. \\( x=3 \\)", "C. \\( x=4 \\)", "D. \\( x=5 \\)"], "ans": "D", "w": 3 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Tìm x tự nhiên lớn nhất thỏa mãn:\\[ 3^x \\le 81 \\]", "opts": ["A. \\( x=4 \\)", "B. \\( x=3 \\)", "C. \\( x=5 \\)", "D. \\( x=81 \\)"], "ans": "A", "w": 3 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Nghiệm của phương trình:\\[ 4^x = 64 \\]", "opts": ["A. \\( x=2 \\)", "B. \\( x=3 \\)", "C. \\( x=4 \\)", "D. \\( x=16 \\)"], "ans": "B", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Tập nghiệm của bất phương trình:\\[ 2^{x-1} < 8 \\]", "opts": ["A. \\( x < 4 \\)", "B. \\( x < 3 \\)", "C. \\( x > 4 \\)", "D. \\( x \\le 4 \\)"], "ans": "A", "w": 2 }
+                ],
+                "medium": [
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "\\[ 4^x - 3 \\cdot 2^x + 2 = 0 \\]", "opts": ["a) Đặt \\( t=2^x \\ (t>0) \\), được \\( t^2 - 3t + 2 = 0 \\).", "b) Có nghiệm \\( t=1 \\) và \\( t=-2 \\).", "c) PT ban đầu có nghiệm \\( x=0 \\) và \\( x=1 \\).", "d) Tổng các nghiệm bằng 2."], "ans": "Đ-S-Đ-S", "w": 4 },
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "\\[ 9^x - 10 \\cdot 3^x + 9 = 0 \\]", "opts": ["a) Đặt \\( t=3^x \\ (t>0) \\), được \\( t^2 - 10t + 9 = 0 \\).", "b) Có nghiệm là \\( t=1 \\) và \\( t=9 \\).", "c) Tích các nghiệm ban đầu là 9.", "d) Tổng các nghiệm ban đầu là 2."], "ans": "Đ-Đ-S-Đ", "w": 4 },
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "\\[ 9^x - 4 \\cdot 3^x + 3 = 0 \\]", "opts": ["a) Có 2 nghiệm phân biệt.", "b) Có một nghiệm \\( x = 0 \\).", "c) Tích các nghiệm bằng 3.", "d) Tổng các nghiệm bằng 1."], "ans": "Đ-Đ-S-Đ", "w": 5 },
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "\\[ 4^x - 5 \\cdot 2^x + 4 = 0 \\]", "opts": ["a) Có 2 nghiệm phân biệt.", "b) Nghiệm lớn nhất bằng 4.", "c) Có một nghiệm \\( x = 0 \\).", "d) Tổng các nghiệm bằng 2."], "ans": "Đ-S-Đ-Đ", "w": 5 }
+                ],
+                "hard": [
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Tổng các nghiệm của phương trình:<br>\\[ 2^{x^2 - x} = 4 \\]", "ans": "1", "w": 8 },
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Tổng các nghiệm của phương trình:<br>\\[ 3^{x^2 - 3x} = 81 \\]", "ans": "3", "w": 8 },
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Số lượng nghiệm nguyên của bất phương trình:<br>\\[ 2^{x^2 - 4} \\le 16 \\]", "ans": "5", "w": 7 },
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Tích các nghiệm của phương trình:<br>\\[ 4^{x+1} - 9 \\cdot 2^x + 2 = 0 \\]", "ans": "-1", "w": 8 }
+                ]
+            },
+            "Chủ đề 2: Phương trình & Bất phương trình Logarit": {
+                "easy": [
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "\\[ \\log_2(x+3) = 3 \\]", "opts": ["A. \\( x=5 \\)", "B. \\( x=6 \\)", "C. \\( x=8 \\)", "D. \\( x=11 \\)"], "ans": "A", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "\\[ \\log(x-1) = 1 \\]", "opts": ["A. \\( x=10 \\)", "B. \\( x=11 \\)", "C. \\( x=2 \\)", "D. \\( x=9 \\)"], "ans": "B", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "\\[ \\log_3(2x-1) = 2 \\]", "opts": ["A. \\( x=4 \\)", "B. \\( x=5 \\)", "C. \\( x=10 \\)", "D. \\( x=1 \\)"], "ans": "B", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Nghiệm của phương trình:\\[ \\ln(x+2) = 0 \\]", "opts": ["A. \\( x=1 \\)", "B. \\( x=-1 \\)", "C. \\( x=0 \\)", "D. \\( x=2 \\)"], "ans": "B", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Tìm x tự nhiên nhỏ nhất thỏa mãn:\\[ \\log_{0.2} x < -1 \\]", "opts": ["A. 4", "B. 5", "C. 6", "D. 7"], "ans": "C", "w": 3 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Tổng các nghiệm nguyên thỏa mãn:\\[ \\log_{0.5} x \\ge -1 \\]", "opts": ["A. 1", "B. 2", "C. 3", "D. 4"], "ans": "C", "w": 3 }
+                ],
+                "medium": [
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "\\[ \\log_2(x-1) + \\log_2(x+1) < 3 \\]", "opts": ["a) Điều kiện là \\( x > 1 \\).", "b) Tương đương \\( x^2 - 1 < 3 \\).", "c) Tập nghiệm là \\( (1; 3) \\).", "d) Có 2 nghiệm nguyên."], "ans": "Đ-S-Đ-S", "w": 5 },
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "\\[ \\log_3 x + \\log_3(x-2) \\le 1 \\]", "opts": ["a) Điều kiện xác định là \\( x > 2 \\).", "b) Tương đương \\( x(x-2) \\le 1 \\).", "c) Tập nghiệm là \\( (2; 3] \\).", "d) Có 2 nghiệm nguyên dương."], "ans": "Đ-S-Đ-S", "w": 5 },
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "\\[ \\log_2^2 x - 3\\log_2 x + 2 = 0 \\]", "opts": ["a) Đặt \\( t = \\log_2 x \\), được \\( t^2 - 3t + 2 = 0 \\).", "b) Nghiệm là \\( t=1 \\) và \\( t=2 \\).", "c) Các nghiệm của phương trình là \\( x=2 \\) và \\( x=4 \\).", "d) Tích các nghiệm bằng 6."], "ans": "Đ-Đ-Đ-S", "w": 6 },
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "\\[ \\log_5(x+1) + \\log_5(x-3) = 1 \\]", "opts": ["a) Điều kiện xác định là \\( x > 3 \\).", "b) Phương trình tương đương \\( x^2 - 2x - 8 = 0 \\).", "c) Có 2 nghiệm phân biệt.", "d) Nghiệm duy nhất thỏa mãn là \\( x=4 \\)."], "ans": "Đ-Đ-S-Đ", "w": 6 }
+                ],
+                "hard": [
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Số lượng nghiệm nguyên của bất phương trình:<br>\\[ \\log_{1/2}(x^2 - 3x + 2) \\ge -1 \\]", "ans": "2", "w": 7 },
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Số lượng nghiệm nguyên của bất phương trình:<br>\\[ \\log_{1/3}(x^2 - 4x + 3) \\ge -1 \\]", "ans": "2", "w": 7 },
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Tổng tất cả các nghiệm của phương trình:<br>\\[ \\log_2(x^2 - 6x) = 4 \\]", "ans": "6", "w": 8 },
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Tích các nghiệm của phương trình:<br>\\[ \\log_3 x \\cdot \\log_9(x-2) = 1 \\] (làm tròn số nguyên gần nhất)", "ans": "9", "w": 8 }
+                ]
+            },
+            "Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế": {
+                "easy": [
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Công thức tính số tiền nhận được sau n kì hạn theo thể thức lãi kép là:", "opts": ["A. \\( T = A(1+r)^n \\)", "B. \\( T = A(1+nr) \\)", "C. \\( T = A + nr \\)", "D. \\( T = A(1-r)^n \\)"], "ans": "A", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Gửi 100 triệu với lãi suất 6%/năm. Số tiền sau 1 năm nhận được là:", "opts": ["A. 106 triệu", "B. 160 triệu", "C. 103 triệu", "D. 112 triệu"], "ans": "A", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Độ pH của dung dịch có nồng độ \\( [H^+] = 10^{-5} \\) là:", "opts": ["A. 5", "B. -5", "C. 7", "D. 10"], "ans": "A", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Mức cường độ âm L (dB) với tỉ số \\( I/I_0 = 10^4 \\) là:", "opts": ["A. 40 dB", "B. 20 dB", "C. 100 dB", "D. 4 dB"], "ans": "A", "w": 2 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Một loại vi khuẩn nhân đôi số lượng sau mỗi giờ. Sau 3 giờ từ 100 con sẽ có:", "opts": ["A. 800 con", "B. 600 con", "C. 400 con", "D. 1000 con"], "ans": "A", "w": 3 },
+                    { "type": "abcd", "badge": "Dễ", "color": "#2ecc71", "q": "Sau bao nhiêu năm gửi 10 triệu với lãi đơn 10%/năm để được 20 triệu?", "opts": ["A. 10 năm", "B. 7 năm", "C. 12 năm", "D. 5 năm"], "ans": "A", "w": 3 }
+                ],
+                "medium": [
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "Bài toán tăng trưởng dân số theo mô hình \\( S = S_0 \\cdot e^{nr} \\):", "opts": ["a) \\( S_0 \\) là dân số ban đầu.", "b) r là tỉ lệ tăng dân số hàng năm.", "c) Dân số sẽ gấp đôi khi \\( e^{nr} = 2 \\).", "d) Thời gian gấp đôi là \\( n = r \\cdot \\ln 2 \\)."], "ans": "Đ-Đ-Đ-S", "w": 5 },
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "Gửi tiết kiệm 50 triệu đồng lãi kép 7%/năm:", "opts": ["a) Sau 2 năm số tiền là \\( 50(1+0.07)^2 \\) triệu.", "b) Số tiền lãi sau năm thứ 1 là 3.5 triệu.", "c) Số tiền sau 2 năm vượt quá 60 triệu.", "d) Cần ít nhất 11 năm để số tiền gấp đôi."], "ans": "Đ-Đ-S-Đ", "w": 5 },
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "Chất phóng xạ có chu kỳ bán rã T = 138 ngày:", "opts": ["a) Khối lượng còn lại sau thời gian t là \\( m(t) = m_0 \\cdot 2^{-t/T} \\).", "b) Sau 276 ngày lượng chất còn lại 25%.", "c) Sau 3 chu kỳ bán rã lượng chất còn 1/8 ban đầu.", "d) Chu kỳ bán rã càng lớn thì phân rã càng nhanh."], "ans": "Đ-Đ-Đ-S", "w": 6 },
+                    { "type": "tf", "badge": "Vừa", "color": "#f39c12", "q": "Độ chấn động Richter \\( M = \\log A - \\log A_0 \\):", "opts": ["a) Thang đo Richter là thang đo logarit cơ số 10.", "b) Trận động đất 7 độ có biên độ gấp 10 lần trận 6 độ.", "c) Trận động đất 8 độ có biên độ gấp 20 lần trận 6 độ.", "d) Biên độ tăng 100 lần tương ứng Richter tăng 2 độ."], "ans": "Đ-Đ-S-Đ", "w": 6 }
+                ],
+                "hard": [
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Cần gửi ít nhất bao nhiêu năm với lãi kép 8%/năm để số tiền gấp đôi? (Số nguyên năm gần nhất)", "ans": "9", "w": 8 },
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Sau bao nhiêu năm dân số tăng gấp đôi nếu tỉ lệ tăng hàng năm là 1.4%? (Lấy \\( \\ln 2 \\approx 0.693 \\), làm tròn năm)", "ans": "50", "w": 8 },
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Cường độ âm tăng gấp 1000 lần thì mức cường độ âm tăng thêm bao nhiêu dB?", "ans": "30", "w": 7 },
+                    { "type": "short", "badge": "Khó", "color": "#e74c3c", "q": "Sau bao nhiêu ngày thì 100g chất phóng xạ có chu kỳ 30 ngày chỉ còn lại 12.5g?", "ans": "90", "w": 8 }
+                ]
+            }
+        };
+
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+
+        window.openAppleTopicMenu = function() {
+            window.renderAppleTopicCards();
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.style.display = 'flex';
+        };
+
+        window.renderAppleTopicCards = function() {
+            const container = document.getElementById('apple-topics-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const topics = Object.keys(window.gameDatabase);
+            topics.forEach((topicName, idx) => {
+                const data = window.gameDatabase[topicName];
+                const eCount = (data.easy || []).length;
+                const mCount = (data.medium || []).length;
+                const hCount = (data.hard || []).length;
+                const total = eCount + mCount + hCount;
+
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: linear-gradient(135deg, rgba(39, 55, 70, 0.95), rgba(21, 32, 43, 0.98));
+                    border: 2px solid ${window.selectedTopic === topicName ? '#2ecc71' : 'rgba(255,255,255,0.15)'};
+                    border-radius: 20px; padding: 20px; text-align: left; transition: all 0.3s ease;
+                    display: flex; flex-direction: column; justify-content: space-between;
+                    box-shadow: ${window.selectedTopic === topicName ? '0 0 25px rgba(46, 204, 113, 0.4)' : '0 10px 25px rgba(0,0,0,0.3)'};
+                `;
+
+                card.innerHTML = `
+                    <div>
+                        <div style="font-size: 11px; font-weight: 800; color: #a8e6cf; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;">
+                            CHUYÊN ĐỀ ${idx + 1} (${total} CÂU HỎI TRANH TÀI)
+                        </div>
+                        <h3 style="color: #ffffff; font-size: 16px; font-weight: 800; margin: 0 0 10px 0; line-height: 1.4;">
+                            ${topicName}
+                        </h3>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; font-size: 11px; font-weight: 700;">
+                            <span style="background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #27ae60; padding: 2px 8px; border-radius: 999px;">🟢 ${eCount} Dễ</span>
+                            <span style="background: rgba(243, 156, 18, 0.2); color: #f39c12; border: 1px solid #d35400; padding: 2px 8px; border-radius: 999px;">🟡 ${mCount} Vừa</span>
+                            <span style="background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #c0392b; padding: 2px 8px; border-radius: 999px;">🔴 ${hCount} Khó</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button onclick="window.playAppleTopic('${topicName.replace(/'/g, "\\'")}', 'all')" style="
+                            width: 100%; padding: 10px 14px; border: none; border-radius: 12px;
+                            background: linear-gradient(90deg, #27ae60, #2ecc71);
+                            color: #ffffff; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+                            cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+                        ">
+                            🍎 Thi Đấu Toàn Diện (Dễ ➡️ Khó)
+                        </button>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                            <button onclick="window.playAppleTopic('${topicName.replace(/'/g, "\\'")}', 'easy')" style="padding: 6px 4px; border-radius: 8px; background: rgba(46, 204, 113, 0.2); border: 1px solid #27ae60; color: #2ecc71; font-weight: 800; font-size: 11px; cursor: pointer;">Dễ</button>
+                            <button onclick="window.playAppleTopic('${topicName.replace(/'/g, "\\'")}', 'medium')" style="padding: 6px 4px; border-radius: 8px; background: rgba(243, 156, 18, 0.2); border: 1px solid #d35400; color: #f39c12; font-weight: 800; font-size: 11px; cursor: pointer;">Vừa</button>
+                            <button onclick="window.playAppleTopic('${topicName.replace(/'/g, "\\'")}', 'hard')" style="padding: 6px 4px; border-radius: 8px; background: rgba(231, 76, 60, 0.2); border: 1px solid #c0392b; color: #e74c3c; font-weight: 800; font-size: 11px; cursor: pointer;">Khó</button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        };
+
+        window.playAppleTopic = function(topicName, diffMode) {
+            const topicData = window.gameDatabase[topicName];
+            if (!topicData) return;
+            window.selectedTopic = topicName;
+
+            let t1Questions = [];
+            let t2Questions = [];
+
+            if (diffMode === 'all') {
+                const easy = topicData.easy || [];
+                const med = topicData.medium || [];
+                const hard = topicData.hard || [];
+
+                // Chia đều câu hỏi cho 2 đội từ Dễ -> Vừa -> Khó
+                easy.forEach((q, idx) => { if (idx % 2 === 0) t1Questions.push(q); else t2Questions.push(q); });
+                med.forEach((q, idx) => { if (idx % 2 === 0) t1Questions.push(q); else t2Questions.push(q); });
+                hard.forEach((q, idx) => { if (idx % 2 === 0) t1Questions.push(q); else t2Questions.push(q); });
+
+                // Nếu số câu 1 bên ít hơn, cân bằng
+                if (t1Questions.length !== t2Questions.length) {
+                    const minLen = Math.min(t1Questions.length, t2Questions.length);
+                    t1Questions = t1Questions.slice(0, minLen);
+                    t2Questions = t2Questions.slice(0, minLen);
+                }
+            } else {
+                const pool = topicData[diffMode] || [];
+                pool.forEach((q, idx) => { if (idx % 2 === 0) t1Questions.push(q); else t2Questions.push(q); });
+                if (t1Questions.length === 0 && pool.length > 0) t1Questions = [...pool];
+                if (t2Questions.length === 0 && pool.length > 0) t2Questions = [...pool];
+            }
+
+            DATA[1] = t1Questions;
+            DATA[2] = t2Questions;
+
+            // Cập nhật phụ đề hiển thị
+            const subTitleEl = document.getElementById('topic-subtitle-display');
+            const modeText = diffMode === 'all' ? 'Toàn diện (Dễ ➡️ Khó)' : (diffMode === 'easy' ? 'Mức Dễ' : (diffMode === 'medium' ? 'Mức Vừa' : 'Mức Khó'));
+            if (subTitleEl) {
+                subTitleEl.innerText = `Chuyên đề: ${topicName} | Chế độ: ${modeText} (${DATA[1].length} câu/đội)`;
+            }
+
+            // Reset trạng thái trò chơi
+            stopTeamTimer();
+            if (globalTimerId) clearInterval(globalTimerId);
+            state.t1.idx = 0; state.t1.score = 0; state.t1.time = 0; state.t1.finished = false; state.t1.apples = [];
+            state.t2.idx = 0; state.t2.score = 0; state.t2.time = 0; state.t2.finished = false; state.t2.apples = [];
+            state.isPlaying = false;
+            state.currentTurn = 1;
+            globalTimeLeft = 15 * 60;
+
+            document.getElementById('timer-1').innerText = "00:00";
+            document.getElementById('timer-2').innerText = "00:00";
+            document.getElementById('global-time-text').innerText = "15:00";
+            document.getElementById('global-timer-display').style.display = 'none';
+            document.getElementById('turn-indicator').style.display = 'none';
+
+            // Ẩn overlay kết thúc và overlay chuyển
+            document.getElementById('finish-1').style.display = 'none';
+            document.getElementById('finish-2').style.display = 'none';
+            document.getElementById('fb-1').style.display = 'none';
+            document.getElementById('fb-2').style.display = 'none';
+
+            // Hiển thị nút Bắt đầu ở giữa
+            const btnStart = document.getElementById('btn-start');
+            if (btnStart) {
+                btnStart.innerText = "🚀 BẮT ĐẦU TRANH TÀI";
+                btnStart.style.display = 'block';
+            }
+
+            // Đóng menu chọn chuyên đề
+            const overlayTopic = document.getElementById('topic-selection-overlay');
+            if (overlayTopic) overlayTopic.style.display = 'none';
+
+            // Reset giao diện câu hỏi
+            renderQuestion(1);
+            renderQuestion(2);
+            document.getElementById('panel-1').classList.add('blur-wait');
+            document.getElementById('panel-2').classList.add('blur-wait');
+        };
+
         // ================= DỮ LIỆU CÂU HỎI =================
         const DATA = {
             1: [
@@ -406,13 +662,14 @@
         function renderQuestion(team) {
             let tState = state[`t${team}`];
             
-            if (tState.idx >= 10) return; // Đã xử lý finished lúc chốt
+            let totalQ = DATA[team] ? DATA[team].length : 10;
+            if (tState.idx >= totalQ) return;
 
             let data = DATA[team][tState.idx];
             tState.input = (data.type === 'tf') ? ["", "", "", ""] : "";
 
             // UI
-            document.getElementById(`prog-${team}`).innerText = `Câu ${tState.idx + 1}/10`;
+            document.getElementById(`prog-${team}`).innerText = `Câu ${tState.idx + 1}/${totalQ}`;
             let badge = document.getElementById(`badge-${team}`);
             badge.innerText = data.badge; badge.style.backgroundColor = data.color;
             document.getElementById(`q-text-${team}`).innerHTML = data.q;
@@ -562,7 +819,8 @@
                 fbOverlay.style.display = 'none';
                 tState.idx++;
 
-                if (tState.idx >= 10) {
+                let totalQ = DATA[team] ? DATA[team].length : 10;
+                if (tState.idx >= totalQ) {
                     tState.finished = true;
                     document.getElementById(`finish-${team}`).style.display = 'flex';
                 }
@@ -840,7 +1098,11 @@
             fwAnimId = requestAnimationFrame(loopFw);
         }
 
-        window.onload = () => { drawScale(); };
+        window.onload = () => {
+            drawScale();
+            window.renderAppleTopicCards();
+            window.openAppleTopicMenu();
+        };
     </script>
 <script src="/game-engine.js"></script>
 </body>

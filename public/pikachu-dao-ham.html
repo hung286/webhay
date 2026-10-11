@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toán 11. Game Pikachu Đạo Hàm </title>
+    <title>Toán 11 - Game Pikachu Nối Hình Đạo Hàm | TOÁN PRO - THẦY HÙNG</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
@@ -106,6 +106,40 @@
 </head>
 <body class="min-h-screen bg-[radial-gradient(ellipse_at_center,_#1e1e2f,_#000000)] overflow-hidden flex flex-col relative text-white">
 
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-950/85 backdrop-blur-2xl transition-all duration-300">
+        <div class="rounded-3xl w-full max-w-5xl border-2 border-cyan-400/40 flex flex-col max-h-[92vh] overflow-hidden bg-gradient-to-br from-slate-950/95 via-indigo-950/90 to-slate-950/95 shadow-[0_0_60px_rgba(6,182,212,0.3)]">
+            
+            <div class="p-6 border-b border-white/10 text-center relative">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-black tracking-widest uppercase mb-2">
+                    ⚡ ĐẤU TRƯỜNG NỐI CẶP TOÁN HỌC | TOÁN PRO - THẦY HÙNG
+                </div>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-fuchsia-400 tracking-tight mb-2">
+                    CHỌN CHUYÊN ĐỀ PIKACHU TOÁN HỌC
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base font-semibold max-w-2xl mx-auto">
+                    Nối các cặp thẻ Hàm số và Đạo hàm/Nguyên hàm tương ứng theo quy tắc Pikachu (tối đa 2 góc vuông).
+                </p>
+                <button onclick="document.getElementById('topic-selection-overlay').classList.add('hidden')" class="absolute top-6 right-6 text-gray-400 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-2xl transition-colors">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Grid danh sách chuyên đề -->
+            <div id="pikachu-topics-grid" class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-5 flex-1">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <div class="p-4 border-t border-white/10 bg-black/40 flex flex-wrap justify-between items-center text-xs text-slate-400 font-semibold px-8">
+                <span>⭐ Bảng chơi 48 ô tiêu chuẩn quốc tế - Thuật toán tìm đường Neon Glow</span>
+                <span class="text-cyan-400 font-mono">PikachuMath Engine v3.6</span>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Ánh sáng nền -->
     <div class="absolute top-[-20%] left-[-10%] w-[40rem] h-[40rem] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
     <div class="absolute bottom-[-20%] right-[-10%] w-[40rem] h-[40rem] bg-teal-600/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
@@ -193,6 +227,305 @@
             { id: 23, left: "(2ˣ)'", right: "2ˣ.ln 2", icon: "fa-fish", themeColor: THEMES.purple },
             { id: 24, left: "(log₂x)'", right: f("1", "x ln 2"), icon: "fa-fish", themeColor: THEMES.purple }
         ];
+
+        
+        // ========================================================
+        // HỆ THỐNG ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE ARCHITECTURE)
+        // ========================================================
+        window.gameDatabase = {
+            "Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp": {
+                1: LEVEL1_PAIRS,
+                2: LEVEL2_PAIRS,
+                3: [
+                    { id: 1, left: "((x+1)/(x-1))'", right: f("2", "(x-1)²", "-"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 2, left: "((2x-3)/(x+2))'", right: f("7", "(x+2)²"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 3, left: "(x/(2x+1))'", right: f("1", "(2x+1)²"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 4, left: "((3x+1)/(2-x))'", right: f("7", "(2-x)²"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    
+                    { id: 13, left: "((x²+1)/(x))'", right: f("x²-1", "x²"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 14, left: "((x²-x+1)/(x-1))'", right: f("x²-2x", "(x-1)²"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 15, left: "(1/(x²+2))'", right: f("2x", "(x²+2)²", "-"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 16, left: "(x/(x²+1))'", right: f("1-x²", "(x²+1)²"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    
+                    { id: 5, left: "(√(2x+3))'", right: f("1", "√(2x+3)"), icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 6, left: "(√(4-x²))'", right: f("x", "√(4-x²)", "-"), icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 7, left: "(x.√x)'", right: f("3√x", "2"), icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 8, left: "(√(x³+1))'", right: f("3x²", "2√(x³+1)"), icon: "fa-spider", themeColor: THEMES.lime },
+                    
+                    { id: 17, left: "(1/√x)'", right: f("1", "2x√x", "-"), icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 18, left: "(√(x²+4x))'", right: f("x+2", "√(x²+4x)"), icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 19, left: "(x/√(x²+1))'", right: f("1", "(x²+1)√(...)"), icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 20, left: "(√(1-2x))'", right: f("1", "√(1-2x)", "-"), icon: "fa-spider", themeColor: THEMES.lime },
+                    
+                    { id: 9, left: "(sin²x)'", right: "sin 2x", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 10, left: "(cos²x)'", right: "-sin 2x", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 11, left: "(tan²x)'", right: f("2sin x", "cos³x"), icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 12, left: "(sin³x)'", right: "3sin²x.cos x", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    
+                    { id: 21, left: "(e^(x²))'", right: "2x.e^(x²)", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 22, left: "(ln²x)'", right: f("2ln x", "x"), icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 23, left: "(x.e^(-x))'", right: "e^(-x)(1-x)", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 24, left: "(ln(sin x))'", right: "cot x", icon: "fa-crow", themeColor: THEMES.fuchsia }
+                ]
+            },
+            "Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản": {
+                1: [
+                    { id: 1, left: "∫ 0 dx", right: "C", icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 2, left: "∫ 1 dx", right: "x + C", icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 3, left: "∫ x dx", right: f("x²", "2") + "+C", icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 4, left: "∫ x² dx", right: f("x³", "3") + "+C", icon: "fa-cat", themeColor: THEMES.yellow },
+                    
+                    { id: 13, left: "∫ 4 dx", right: "4x + C", icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 14, left: "∫ 2x dx", right: "x² + C", icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 15, left: "∫ 3x² dx", right: "x³ + C", icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 16, left: "∫ 4x³ dx", right: "x⁴ + C", icon: "fa-cat", themeColor: THEMES.yellow },
+                    
+                    { id: 5, left: "∫ (1/x) dx", right: "ln|x| + C", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 6, left: "∫ eˣ dx", right: "eˣ + C", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 7, left: "∫ aˣ dx", right: f("aˣ", "ln a") + "+C", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 8, left: "∫ 2ˣ dx", right: f("2ˣ", "ln 2") + "+C", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    
+                    { id: 17, left: "∫ (2/x) dx", right: "2ln|x| + C", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 18, left: "∫ 3eˣ dx", right: "3eˣ + C", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 19, left: "∫ 5ˣ dx", right: f("5ˣ", "ln 5") + "+C", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 20, left: "∫ (1/2x) dx", right: f("1", "2") + "ln|x|+C", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    
+                    { id: 9, left: "∫ sin x dx", right: "-cos x + C", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 10, left: "∫ cos x dx", right: "sin x + C", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 11, left: "∫ (1/cos²x)dx", right: "tan x + C", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 12, left: "∫ (1/sin²x)dx", right: "-cot x + C", icon: "fa-otter", themeColor: THEMES.pink },
+                    
+                    { id: 21, left: "∫ 2sin x dx", right: "-2cos x + C", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 22, left: "∫ 3cos x dx", right: "3sin x + C", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 23, left: "∫ (2/cos²x)dx", right: "2tan x + C", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 24, left: "∫ (3/sin²x)dx", right: "-3cot x + C", icon: "fa-otter", themeColor: THEMES.pink }
+                ],
+                2: [
+                    { id: 1, left: "∫ e²ˣ dx", right: f("1", "2") + "e²ˣ+C", icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 2, left: "∫ e^(3x) dx", right: f("1", "3") + "e^(3x)+C", icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 3, left: "∫ e^(-x) dx", right: "-e^(-x) + C", icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 4, left: "∫ 2e^(2x) dx", right: "e^(2x) + C", icon: "fa-dog", themeColor: THEMES.green },
+                    
+                    { id: 13, left: "∫ (2x+1) dx", right: "x² + x + C", icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 14, left: "∫ (3x²-2) dx", right: "x³ - 2x + C", icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 15, left: "∫ (4x-3) dx", right: "2x² - 3x + C", icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 16, left: "∫ (6x²+1) dx", right: "2x³ + x + C", icon: "fa-dog", themeColor: THEMES.green },
+                    
+                    { id: 5, left: "∫ sin 2x dx", right: f("1", "2", "-") + "cos 2x+C", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 6, left: "∫ cos 2x dx", right: f("1", "2") + "sin 2x+C", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 7, left: "∫ sin 3x dx", right: f("1", "3", "-") + "cos 3x+C", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 8, left: "∫ cos 4x dx", right: f("1", "4") + "sin 4x+C", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    
+                    { id: 17, left: "∫ (1/(x+1))dx", right: "ln|x+1| + C", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 18, left: "∫ (1/(2x-1))dx", right: f("1", "2") + "ln|2x-1|+C", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 19, left: "∫ (1/(3x+2))dx", right: f("1", "3") + "ln|3x+2|+C", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 20, left: "∫ (2/(2x+3))dx", right: "ln|2x+3| + C", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    
+                    { id: 9, left: "∫ (1/x²) dx", right: f("1", "x", "-") + "+C", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 10, left: "∫ (1/√x) dx", right: "2√x + C", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 11, left: "∫ √x dx", right: f("2", "3") + "x√x+C", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 12, left: "∫ x√x dx", right: f("2", "5") + "x²√x+C", icon: "fa-fish", themeColor: THEMES.purple },
+                    
+                    { id: 21, left: "∫ (2/x²) dx", right: f("2", "x", "-") + "+C", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 22, left: "∫ (3/√x) dx", right: "6√x + C", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 23, left: "∫ 3√x dx", right: "2x√x + C", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 24, left: "∫ (4/x³) dx", right: f("2", "x²", "-") + "+C", icon: "fa-fish", themeColor: THEMES.purple }
+                ],
+                3: [
+                    { id: 1, left: "∫ 2x.e^(x²) dx", right: "e^(x²) + C", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 2, left: "∫ (2x/(x²+1))dx", right: "ln(x²+1) + C", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 3, left: "∫ 2x√(x²+1) dx", right: f("2", "3") + "(x²+1)√(...)+C", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 4, left: "∫ sin x.cos x dx", right: f("1", "2") + "sin²x+C", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    
+                    { id: 13, left: "∫ (ln x / x) dx", right: f("ln²x", "2") + "+C", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 14, left: "∫ tan x dx", right: "-ln|cos x| + C", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 15, left: "∫ cot x dx", right: "ln|sin x| + C", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 16, left: "∫ e^(sin x)cos x dx", right: "e^(sin x) + C", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    
+                    { id: 5, left: "∫ (2x+3)⁴ dx", right: f("(2x+3)⁵", "10") + "+C", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 6, left: "∫ (3x-1)⁵ dx", right: f("(3x-1)⁶", "18") + "+C", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 7, left: "∫ √(2x+1) dx", right: f("1", "3") + "(2x+1)√(...)+C", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 8, left: "∫ (1/(x-2)²) dx", right: f("1", "x-2", "-") + "+C", icon: "fa-spider", themeColor: THEMES.lime },
+                    
+                    { id: 17, left: "∫ cos²x dx", right: f("x", "2") + "+" + f("sin 2x", "4") + "+C", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 18, left: "∫ sin²x dx", right: f("x", "2") + "-" + f("sin 2x", "4") + "+C", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 19, left: "∫ (1/(x²-1)) dx", right: f("1", "2") + "ln|" + f("x-1", "x+1") + "|+C", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 20, left: "∫ (1/(x²+x)) dx", right: "ln|" + f("x", "x+1") + "|+C", icon: "fa-spider", themeColor: THEMES.lime },
+                    
+                    { id: 9, left: "∫ x.eˣ dx", right: "eˣ(x - 1) + C", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 10, left: "∫ x.cos x dx", right: "x.sin x + cos x + C", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 11, left: "∫ x.sin x dx", right: "-x.cos x + sin x + C", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 12, left: "∫ ln x dx", right: "x.ln x - x + C", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    
+                    { id: 21, left: "∫ (x+1)eˣ dx", right: "x.eˣ + C", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 22, left: "∫ 2x.ln x dx", right: "x²ln x - " + f("x²", "2") + "+C", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 23, left: "∫ (x-1)cos x dx", right: "(x-1)sin x + cos x + C", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 24, left: "∫ x.e^(2x) dx", right: f("e^(2x)", "4") + "(2x-1)+C", icon: "fa-crow", themeColor: THEMES.fuchsia }
+                ]
+            },
+            "Chủ đề 3: Công Thức Lượng Giác & Giá Trị Đặc Biệt": {
+                1: [
+                    { id: 1, left: "sin 0", right: "0", icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 2, left: "cos 0", right: "1", icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 3, left: "sin(π/6)", right: f("1", "2"), icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 4, left: "cos(π/6)", right: f("√3", "2"), icon: "fa-cat", themeColor: THEMES.yellow },
+                    
+                    { id: 13, left: "sin(π/4)", right: f("√2", "2"), icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 14, left: "cos(π/4)", right: f("√2", "2"), icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 15, left: "sin(π/3)", right: f("√3", "2"), icon: "fa-cat", themeColor: THEMES.yellow },
+                    { id: 16, left: "cos(π/3)", right: f("1", "2"), icon: "fa-cat", themeColor: THEMES.yellow },
+                    
+                    { id: 5, left: "tan(π/4)", right: "1", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 6, left: "cot(π/4)", right: "1", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 7, left: "tan(π/6)", right: f("1", "√3"), icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 8, left: "tan(π/3)", right: "√3", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    
+                    { id: 17, left: "sin(π/2)", right: "1", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 18, left: "cos(π/2)", right: "0", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 19, left: "sin π", right: "0", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    { id: 20, left: "cos π", right: "-1", icon: "fa-hippo", themeColor: THEMES.cyan },
+                    
+                    { id: 9, left: "sin²x + cos²x", right: "1", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 10, left: "tan x . cot x", right: "1", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 11, left: "1 + tan²x", right: f("1", "cos²x"), icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 12, left: "1 + cot²x", right: f("1", "sin²x"), icon: "fa-otter", themeColor: THEMES.pink },
+                    
+                    { id: 21, left: "sin(-x)", right: "-sin x", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 22, left: "cos(-x)", right: "cos x", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 23, left: "tan(-x)", right: "-tan x", icon: "fa-otter", themeColor: THEMES.pink },
+                    { id: 24, left: "cot(-x)", right: "-cot x", icon: "fa-otter", themeColor: THEMES.pink }
+                ],
+                2: [
+                    { id: 1, left: "sin 2x", right: "2sin x.cos x", icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 2, left: "cos 2x", right: "cos²x - sin²x", icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 3, left: "cos 2x (theo cos)", right: "2cos²x - 1", icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 4, left: "cos 2x (theo sin)", right: "1 - 2sin²x", icon: "fa-dog", themeColor: THEMES.green },
+                    
+                    { id: 13, left: "tan 2x", right: f("2tan x", "1 - tan²x"), icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 14, left: "cos²x (hạ bậc)", right: f("1 + cos 2x", "2"), icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 15, left: "sin²x (hạ bậc)", right: f("1 - cos 2x", "2"), icon: "fa-dog", themeColor: THEMES.green },
+                    { id: 16, left: "tan²x (hạ bậc)", right: f("1 - cos 2x", "1 + cos 2x"), icon: "fa-dog", themeColor: THEMES.green },
+                    
+                    { id: 5, left: "sin(a + b)", right: "sin a cos b + cos a sin b", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 6, left: "sin(a - b)", right: "sin a cos b - cos a sin b", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 7, left: "cos(a + b)", right: "cos a cos b - sin a sin b", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 8, left: "cos(a - b)", right: "cos a cos b + sin a sin b", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    
+                    { id: 17, left: "tan(a + b)", right: f("tan a + tan b", "1 - tan a tan b"), icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 18, left: "tan(a - b)", right: f("tan a - tan b", "1 + tan a tan b"), icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 19, left: "sin(π - x)", right: "sin x", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    { id: 20, left: "cos(π - x)", right: "-cos x", icon: "fa-kiwi-bird", themeColor: THEMES.orange },
+                    
+                    { id: 9, left: "sin(π/2 - x)", right: "cos x", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 10, left: "cos(π/2 - x)", right: "sin x", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 11, left: "tan(π/2 - x)", right: "cot x", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 12, left: "cot(π/2 - x)", right: "tan x", icon: "fa-fish", themeColor: THEMES.purple },
+                    
+                    { id: 21, left: "sin(x + π)", right: "-sin x", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 22, left: "cos(x + π)", right: "-cos x", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 23, left: "tan(x + π)", right: "tan x", icon: "fa-fish", themeColor: THEMES.purple },
+                    { id: 24, left: "cot(x + π)", right: "cot x", icon: "fa-fish", themeColor: THEMES.purple }
+                ],
+                3: [
+                    { id: 1, left: "cos a . cos b", right: f("1", "2") + "[cos(a-b)+cos(a+b)]", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 2, left: "sin a . sin b", right: f("1", "2") + "[cos(a-b)-cos(a+b)]", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 3, left: "sin a . cos b", right: f("1", "2") + "[sin(a+b)+sin(a-b)]", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 4, left: "cos a . sin b", right: f("1", "2") + "[sin(a+b)-sin(a-b)]", icon: "fa-dragon", themeColor: THEMES.indigo },
+                    
+                    { id: 13, left: "cos u + cos v", right: "2cos" + f("u+v", "2") + "cos" + f("u-v", "2"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 14, left: "cos u - cos v", right: "-2sin" + f("u+v", "2") + "sin" + f("u-v", "2"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 15, left: "sin u + sin v", right: "2sin" + f("u+v", "2") + "cos" + f("u-v", "2"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    { id: 16, left: "sin u - sin v", right: "2cos" + f("u+v", "2") + "sin" + f("u-v", "2"), icon: "fa-dragon", themeColor: THEMES.indigo },
+                    
+                    { id: 5, left: "sin 3x", right: "3sin x - 4sin³x", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 6, left: "cos 3x", right: "4cos³x - 3cos x", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 7, left: "sin x + cos x", right: "√2.sin(x + π/4)", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 8, left: "sin x - cos x", right: "√2.sin(x - π/4)", icon: "fa-spider", themeColor: THEMES.lime },
+                    
+                    { id: 17, left: "cos x - sin x", right: "√2.cos(x + π/4)", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 18, left: "cos x + sin x", right: "√2.cos(x - π/4)", icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 19, left: "tan x + cot x", right: f("2", "sin 2x"), icon: "fa-spider", themeColor: THEMES.lime },
+                    { id: 20, left: "cot x - tan x", right: "2cot 2x", icon: "fa-spider", themeColor: THEMES.lime },
+                    
+                    { id: 9, left: "sin 4x", right: "2sin 2x.cos 2x", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 10, left: "cos 4x", right: "2cos²2x - 1", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 11, left: "1 + cos 2x", right: "2cos²x", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 12, left: "1 - cos 2x", right: "2sin²x", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    
+                    { id: 21, left: "1 + sin 2x", right: "(sin x + cos x)²", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 22, left: "1 - sin 2x", right: "(sin x - cos x)²", icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 23, left: "tan(x + π/4)", right: f("1 + tan x", "1 - tan x"), icon: "fa-crow", themeColor: THEMES.fuchsia },
+                    { id: 24, left: "tan(x - π/4)", right: f("tan x - 1", "tan x + 1"), icon: "fa-crow", themeColor: THEMES.fuchsia }
+                ]
+            }
+        };
+
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+
+        window.openTopicSelectMenu = function() {
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (!overlay) return;
+            window.renderPikachuTopicCards();
+            overlay.classList.remove('hidden');
+        };
+
+        window.renderPikachuTopicCards = function() {
+            const container = document.getElementById('pikachu-topics-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.keys(window.gameDatabase).forEach((topicName, idx) => {
+                const topicData = window.gameDatabase[topicName];
+                const isSelected = topicName === window.selectedTopic;
+
+                const card = document.createElement('div');
+                card.className = `rounded-2xl p-5 border-2 transition-all flex flex-col justify-between ${
+                    isSelected 
+                        ? 'border-cyan-400 bg-cyan-950/40 shadow-[0_0_25px_rgba(6,182,212,0.35)]' 
+                        : 'border-white/10 bg-slate-900/60 hover:border-cyan-400/50 hover:bg-slate-900/90'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
+                                Chuyên đề ${idx + 1}
+                            </span>
+                            <span class="text-xs font-bold text-gray-300">3 Cấp Độ (48 Ô)</span>
+                        </div>
+                        <h2 class="text-xl font-black text-white mb-2 leading-snug">
+                            ${topicName}
+                        </h2>
+                        <p class="text-xs text-slate-300 mb-4">
+                            Nối các cặp thẻ tương đương (Công thức vs Kết quả đạo hàm/nguyên hàm) theo luật Pikachu.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2 mt-4 pt-4 border-t border-white/10">
+                        <button onclick="window.selectPikachuTopic('${topicName.replace(/'/g, "\\'")}', 1)" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-between transition-all active:scale-95">
+                            <span>Level 1: Dễ - Cơ bản</span>
+                            <span>▶</span>
+                        </button>
+                        <button onclick="window.selectPikachuTopic('${topicName.replace(/'/g, "\\'")}', 2)" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-between transition-all active:scale-95">
+                            <span>Level 2: Vừa - Hàm hợp</span>
+                            <span>▶</span>
+                        </button>
+                        <button onclick="window.selectPikachuTopic('${topicName.replace(/'/g, "\\'")}', 3)" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-between transition-all active:scale-95">
+                            <span>Level 3: Khó - Nâng cao</span>
+                            <span>▶</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        };
+
+        window.selectPikachuTopic = function(topicName, level) {
+            window.selectedTopic = topicName;
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.classList.add('hidden');
+            startGame(level);
+        };
 
         const ROWS = 8, COLS = 10;
         const PLAY_ROWS = 6, PLAY_COLS = 8;
@@ -294,7 +627,8 @@
 
         function startGame(level) {
             state.level = level;
-            let pairsInfo = level === 1 ? LEVEL1_PAIRS : LEVEL2_PAIRS;
+            const topicData = window.gameDatabase[window.selectedTopic] || window.gameDatabase[Object.keys(window.gameDatabase)[0]];
+            let pairsInfo = topicData[level] || topicData[1] || LEVEL1_PAIRS;
             let items = [], idCounter = 0;
 
             pairsInfo.forEach(pair => {
@@ -332,6 +666,7 @@
             }, 1000);
 
             renderApp();
+        window.openTopicSelectMenu();
         }
 
         function handleTileClick(r, c) {
@@ -391,6 +726,7 @@
                         
                         state.isAnimating = false;
                         renderApp();
+        window.openTopicSelectMenu();
                     }, 400);
                 } else {
                     showToast("Đúng cặp nhưng bị chặn đường mất rồi!");
@@ -425,6 +761,7 @@
                 state.shufflesLeft--;
                 state.selected = null;
                 renderApp();
+        window.openTopicSelectMenu();
             }
         }
 
@@ -434,7 +771,8 @@
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     state.logoSrc = event.target.result;
-                    renderApp(); 
+                    renderApp();
+        window.openTopicSelectMenu(); 
                 };
                 reader.readAsDataURL(file);
             }
@@ -462,6 +800,17 @@
                             </div>
                         </div>
                         
+                        <!-- Chuyên Đề Selector Card -->
+                        <div class="mb-5 relative z-10">
+                            <button onclick="window.openTopicSelectMenu()" class="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold rounded-2xl flex items-center justify-between transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.35)] border border-amber-300/40 active:scale-95">
+                                <div class="flex flex-col text-left">
+                                    <span class="text-[10px] uppercase text-amber-200 font-bold tracking-widest">Chuyên đề hiện tại</span>
+                                    <span id="menu-current-topic" class="text-sm font-black text-white leading-tight">${window.selectedTopic}</span>
+                                </div>
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-white/20 font-black">ĐỔI 📚</span>
+                            </button>
+                        </div>
+                        
                         <div class="space-y-4 relative z-10">
                             <button onclick="startGame(1)" class="group w-full py-4 px-6 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-bold rounded-2xl flex items-center justify-between transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(225,29,72,0.4)] border border-pink-500/50">
                                 <div class="flex flex-col text-left">
@@ -474,7 +823,15 @@
                             <button onclick="startGame(2)" class="group w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-2xl flex items-center justify-between transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(8,145,178,0.4)] border border-cyan-500/50">
                                 <div class="flex flex-col text-left">
                                     <span class="text-xl tracking-tight">Level 2 - Bảng 48 Ô</span>
-                                    <span class="text-xs font-medium text-blue-200">Đạo hàm hàm hợp phức tạp</span>
+                                    <span class="text-xs font-medium text-blue-200">Cấp độ Vừa (Hàm hợp & mở rộng)</span>
+                                </div>
+                                <i class="fas fa-play text-2xl text-white/40 group-hover:text-white/80 transition-colors drop-shadow-md"></i>
+                            </button>
+
+                            <button onclick="startGame(3)" class="group w-full py-4 px-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-2xl flex items-center justify-between transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(147,51,234,0.4)] border border-indigo-500/50">
+                                <div class="flex flex-col text-left">
+                                    <span class="text-xl tracking-tight">Level 3 - Bảng 48 Ô</span>
+                                    <span class="text-xs font-medium text-purple-200">Cấp độ Khó (Nâng cao & phân thức)</span>
                                 </div>
                                 <i class="fas fa-play text-2xl text-white/40 group-hover:text-white/80 transition-colors drop-shadow-md"></i>
                             </button>
@@ -526,7 +883,12 @@
                         <img src="${state.logoSrc}" class="w-10 h-10 rounded-full border border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.4)] object-cover">
                         <div>
                             <div class="text-[10px] text-cyan-200/70 font-bold uppercase tracking-widest leading-none mb-1">TOÁN PRO - THẦY HÙNG</div>
-                            <div class="text-xs text-fuchsia-300 font-bold uppercase tracking-widest leading-none">Level ${state.level}</div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-fuchsia-300 font-bold uppercase tracking-widest leading-none">Lvl ${state.level}</span>
+                                <button onclick="window.openTopicSelectMenu()" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/30 text-amber-300 border border-amber-400/40 hover:bg-amber-500/50 font-bold uppercase">
+                                    Đổi 📚
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -627,6 +989,7 @@
             clearInterval(state.timerId);
             state.view = 'menu';
             renderApp();
+        window.openTopicSelectMenu();
         }
 
         function showLeaderboardModal() {
@@ -706,12 +1069,15 @@
                         <input type="text" id="playerName" placeholder="Nhập tên của bạn..." class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all shadow-inner">
                     </div>
                     
-                    <div class="flex gap-3">
-                        <button onclick="handleSaveAndMenu()" class="flex-1 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors">
+                    <div class="flex gap-2">
+                        <button onclick="handleSaveAndMenu()" class="flex-1 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors text-sm">
                             Menu
                         </button>
-                        <button onclick="handleSaveAndReplay()" class="flex-1 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 border border-cyan-400/50 text-white font-bold rounded-xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(8,145,178,0.5)]">
-                            Chơi Lại
+                        <button onclick="saveScoreData(); closeModal(); window.openTopicSelectMenu();" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-600 border border-amber-400/50 text-white font-bold rounded-xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(245,158,11,0.5)] text-sm">
+                            Đổi Đề
+                        </button>
+                        <button onclick="handleSaveAndReplay()" class="flex-1 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 border border-cyan-400/50 text-white font-bold rounded-xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(8,145,178,0.5)] text-sm">
+                            Lại
                         </button>
                     </div>
                 </div>
@@ -741,6 +1107,7 @@
         document.head.appendChild(style);
 
         renderApp();
+        window.openTopicSelectMenu();
     </script>
 <script src="/game-engine.js"></script>
 </body>
