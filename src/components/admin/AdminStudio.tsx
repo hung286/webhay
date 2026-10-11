@@ -75,7 +75,7 @@ export const AdminStudio: React.FC<AdminStudioProps> = ({
   // Check PIN
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
-    const correctPin = config.adminPin || '1234';
+    const correctPin = config.adminPin || (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ADMIN_PIN) || '2603';
     if (pinInput === correctPin) {
       soundFx.playCorrect();
       setIsUnlocked(true);

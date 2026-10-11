@@ -605,47 +605,55 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
           </button>
         </div>
 
-        {/* CẤU HÌNH TRÒ CHƠI & CHỌN TEMPLATE */}
-        <div className="p-4 bg-slate-50 border-b border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-3.5">
-          <div>
-            <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <span>1. Tên Trò Chơi / Chuyên Đề Mới</span>
-            </label>
-            <input
-              type="text"
-              value={gameTitle}
-              onChange={(e) => setGameTitle(e.target.value)}
-              className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:border-violet-600 focus:ring-2 focus:ring-violet-200 outline-none"
-              placeholder="VD: Kéo Thả Đơn Điệu & Cực Trị..."
-            />
+        {/* QUY TRÌNH 3 BƯỚC TẠO GAME TỰ ĐỘNG (WORDWALL MODEL) */}
+        <div className="p-4 bg-slate-50 border-b border-slate-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-3">
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                <span>BƯỚC 1: Đặt Tên Trò Chơi / Chuyên Đề Mới</span>
+              </label>
+              <input
+                type="text"
+                value={gameTitle}
+                onChange={(e) => setGameTitle(e.target.value)}
+                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:border-violet-600 focus:ring-2 focus:ring-violet-200 outline-none"
+                placeholder="VD: Kéo Thả Đơn Điệu & Cực Trị..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                <span>BƯỚC 2: Chọn Dạng Trò Chơi (23 Mẫu Game)</span>
+              </label>
+              <select
+                value={selectedTemplateUrl}
+                onChange={(e) => {
+                  setSelectedTemplateUrl(e.target.value);
+                  soundFx.playClick();
+                }}
+                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-violet-900 focus:border-violet-600 focus:ring-2 focus:ring-violet-200 outline-none cursor-pointer"
+              >
+                {GAME_TEMPLATES.map((tmpl) => (
+                  <option key={tmpl.id} value={tmpl.file}>
+                    {tmpl.name} ({tmpl.category})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <span>2. Chọn Mẫu Trò Chơi Nền Tảng (23 Game)</span>
-            </label>
-            <select
-              value={selectedTemplateUrl}
-              onChange={(e) => {
-                setSelectedTemplateUrl(e.target.value);
-                soundFx.playClick();
-              }}
-              className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm font-bold text-violet-900 focus:border-violet-600 focus:ring-2 focus:ring-violet-200 outline-none cursor-pointer"
-            >
-              {GAME_TEMPLATES.map((tmpl) => (
-                <option key={tmpl.id} value={tmpl.file}>
-                  {tmpl.name} ({tmpl.category})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="md:col-span-2 text-xs text-slate-500 bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between">
-            <span className="font-medium">
-              💡 <b>Template hiện tại:</b> <span className="text-violet-700 font-bold">{currentTemplate.name}</span> — {currentTemplate.description}
-            </span>
+          <div className="text-xs text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">3</span>
+              <span className="font-bold text-slate-800">BƯỚC 3:</span>
+              <span className="font-medium text-slate-600">Tải file đề bài (Word/Excel 2 cột) ➔ Hệ thống tự bóc tách ➔ Bấm</span>
+              <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black text-[11px]">⚡ XUẤT FILE HTML</span>
+              <span className="font-medium text-slate-600">là hoàn thành!</span>
+            </div>
             <span className="font-mono text-[11px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
-              File: {currentTemplate.file}
+              Engine: {currentTemplate.file}
             </span>
           </div>
         </div>

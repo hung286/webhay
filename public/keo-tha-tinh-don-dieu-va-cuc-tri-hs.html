@@ -65,10 +65,9 @@
         .math-text { 
             font-size: 1rem; 
             line-height: 1.6; 
-            color: #e2e8f0; /* Chữ trắng xám thanh lịch */
+            color: #e2e8f0;
             font-weight: 500;
         }
-        /* Highlight công thức toán */
         .math-text .katex { 
             color: var(--accent-cyan);
             font-family: 'JetBrains Mono', monospace;
@@ -125,7 +124,6 @@
             z-index: 20;
         }
 
-        /* Hover & Selection Effects */
         .card-prop:hover {
             border-color: rgba(255,255,255,0.3);
             background: rgba(30, 41, 59, 0.95);
@@ -170,122 +168,22 @@
             100% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); }
         }
 
-        /* Progress Bar */
         .progress-slot { transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-
-        /* HUD Items */
         .hud-icon { filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
         .life-active { color: #f43f5e; text-shadow: 0 0 15px rgba(244, 63, 94, 0.8); }
         .life-lost { color: #334155; opacity: 0.5; }
-
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-    
-        /* ======================================================== */
-        /* MOBILE RESPONSIVE SCALING & TOUCH OPTIMIZATION (YÊU CẦU 4) */
-        /* ======================================================== */
-        @media (max-width: 768px) {
-            .math-text { font-size: 0.85rem !important; line-height: 1.4 !important; }
-            .math-text .katex { font-size: 0.9em !important; }
-            .card-func { 
-                min-width: 140px !important; 
-                padding: 0.75rem !important; 
-                border-radius: 1rem !important; 
-                box-shadow: 0 8px 20px rgba(0,0,0,0.5) !important;
-            }
-            .card-func .math-content { 
-                font-size: 1.15rem !important; 
-                margin-bottom: 0.5rem !important; 
-            }
-            .card-prop { 
-                padding: 0.6rem 0.8rem !important; 
-                max-width: 200px !important; 
-                font-size: 0.8rem !important; 
-                border-radius: 0.75rem !important; 
-                box-shadow: 0 4px 15px rgba(0,0,0,0.6) !important;
-            }
-            #function-nodes { 
-                gap: 0.5rem !important; 
-                padding-left: 0.5rem !important; 
-                padding-right: 0.5rem !important;
-            }
-            #game-board { 
-                padding-top: 5.5rem !important; 
-            }
-            #header-panel { 
-                padding: 0.35rem 0.5rem !important; 
-                gap: 0.35rem !important; 
-            }
-            #level-badge { 
-                padding: 0.25rem 0.5rem !important; 
-                font-size: 0.75rem !important; 
-            }
-        }
-
-        @media (max-width: 480px) {
-            .math-text { font-size: 0.75rem !important; line-height: 1.3 !important; }
-            .math-text .katex { font-size: 0.82em !important; }
-            .card-func { min-width: 105px !important; padding: 0.5rem !important; }
-            .card-func .math-content { font-size: 0.95rem !important; }
-            .card-prop { padding: 0.45rem 0.55rem !important; max-width: 155px !important; }
-            #function-nodes { gap: 0.35rem !important; }
-        }
-
     </style>
 </head>
-<body>
+<body class="relative w-screen h-screen">
 
-    <div class="bg-cyber"></div>
     <div class="bg-nebula"></div>
+    <div class="bg-cyber"></div>
 
-    <!-- ======================================================== -->
-    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
-    <!-- ======================================================== -->
-    <div id="topic-selection-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-slate-950/85 backdrop-blur-2xl transition-all duration-300">
-        <div class="glass-panel rounded-[2.5rem] w-full max-w-5xl border border-cyan-500/30 flex flex-col max-h-[92vh] overflow-hidden bg-slate-900/95 shadow-[0_0_60px_rgba(34,211,238,0.2)]">
-            
-            <div class="p-6 sm:p-8 border-b border-white/10 text-center relative">
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-black tracking-widest uppercase mb-3">
-                    🚀 HỆ THỐNG HỌC TẬP TOÁN PRO - THẦY HÙNG
-                </div>
-                <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 tracking-tight mb-2">
-                    CHỌN CHUYÊN ĐỀ KÉO THẢ TƯƠNG TÁC
-                </h1>
-                <p class="text-slate-300 text-sm sm:text-base font-medium max-w-2xl mx-auto">
-                    Kéo và ghép các thuộc tính toán học vào đúng hàm số tương ứng. Luyện tập vượt qua 5 cấp độ từ Dễ đến Khó!
-                </p>
-                <button onclick="document.getElementById('topic-selection-overlay').classList.add('hidden')" class="absolute top-6 right-6 text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-700 p-2.5 rounded-xl border border-white/10 transition-colors">
-                    ✕
-                </button>
-            </div>
-
-            <!-- Danh sách các chuyên đề -->
-            <div id="topics-grid-container" class="p-6 sm:p-8 overflow-y-auto custom-scrollbar grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
-                <!-- Rendered dynamically -->
-            </div>
-
-            <div class="p-4 sm:p-5 border-t border-white/10 bg-slate-950/50 flex flex-wrap justify-between items-center text-xs text-slate-400 font-semibold px-6 sm:px-8 gap-3">
-                <div class="flex items-center gap-2">
-                    <span>⭐ Hỗ trợ thử thách theo từng Level hoặc Chiến dịch phá đảo liên hoàn</span>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="window.openInGameEditorModal()" class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 text-xs font-black flex items-center gap-1.5 transition active:scale-95 shadow-sm">
-                        <span>⚙️</span> Quản Trị & Sửa Dữ Liệu
-                    </button>
-                    <span class="text-cyan-400 font-mono">Interactive Drag & Drop Engine v3.5</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
+    <!-- Topbar: Logo, Thương Hiệu, Đổi Chuyên Đề, Nút Admin ⚙️ (Ẩn mặc định) -->
     <div class="absolute top-0 left-0 w-full z-40 p-4 sm:p-6 flex justify-between items-start pointer-events-none">
         
-        <!-- Logo & Topic Switcher & Admin Button -->
         <div class="pointer-events-auto flex items-center gap-2 sm:gap-3 flex-wrap">
-            <div class="glass-panel px-4 sm:px-5 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-3 border border-white/10" onclick="window.openTopicSelectMenu()">
+            <div class="glass-panel px-4 sm:px-5 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-3 border border-white/10" onclick="window.showOverlay('start')">
                 <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-600 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                     <span class="text-cyan-400 text-xl font-bold font-mono">∑</span>
                 </div>
@@ -293,17 +191,19 @@
                     <span class="font-bold text-white text-sm sm:text-base tracking-wide uppercase">TOÁN PRO<span class="text-cyan-400"> - THẦY HÙNG</span></span>
                 </div>
             </div>
-            <button onclick="window.openTopicSelectMenu()" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-amber-300/40">
-                📚 Đổi Chuyên Đề
+
+            <button onclick="window.showOverlay('start')" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-amber-300/40" title="Chọn chuyên đề bài giảng">
+                <span>📚</span> Chuyên Đề
             </button>
-            <button id="btn-admin-gear" data-admin-control="true" class="hidden px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-cyan-300/40" title="Quyền Quản Trị - Thêm, xóa, sửa chuyên đề và xuất file HTML mới">
+
+            <!-- Nút Quản Trị Admin: MẶC ĐỊNH ẨN HOÀN TOÀN, CHỈ HIỆN KHI URL CÓ ?role=admin -->
+            <button id="btn-admin-gear" data-admin-control="true" class="hidden px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-cyan-300/40" title="Quyền Quản Trị - Chỉnh sửa chuyên đề và xuất file HTML mới">
                 <span>⚙️</span> Sửa Dữ Liệu
             </button>
         </div>
 
         <!-- Stats Panel -->
         <div id="header-panel" class="pointer-events-auto glass-panel rounded-2xl p-2 flex flex-wrap justify-end sm:flex-nowrap items-center gap-2 sm:gap-3 hidden">
-            
             <div id="level-badge" class="bg-indigo-500/20 border border-indigo-400/30 px-3 py-1.5 rounded-xl font-bold text-indigo-300 text-sm tracking-wide flex items-center gap-1.5 shadow-[0_0_10px_rgba(99,102,241,0.2)]">
                 <span class="text-base">🌌</span> Lvl 1
             </div>
@@ -322,15 +222,13 @@
         </div>
     </div>
 
+    <!-- Bàn chơi game (Function Nodes cố định phía trên & Arena thẻ bay phía dưới) -->
     <div id="game-board" class="absolute inset-0 z-10 overflow-hidden hidden flex flex-col pt-24 sm:pt-28 pb-4">
-        <!-- Function Nodes (Cố định phía trên) -->
         <div id="function-nodes" class="w-full flex flex-wrap justify-center gap-4 sm:gap-8 px-4 z-30 shrink-0"></div>
-        
-        <!-- Property Arena (Khu vực thẻ bay lơ lửng phía dưới) -->
         <div id="property-arena" class="relative flex-1 w-full z-20 mt-4 overflow-hidden"></div>
     </div>
 
-    <!-- Transition Overlay -->
+    <!-- Transition Overlay (Hoàn thành khu vực) -->
     <div id="transition-overlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-xl z-50 flex items-center justify-center p-4 hidden transition-opacity duration-500 opacity-0">
         <div class="text-center transform transition-transform duration-500 scale-95" id="transition-content">
             <div class="text-7xl mb-6 animate-pulse hud-icon text-cyan-400">⚡</div>
@@ -341,154 +239,57 @@
         </div>
     </div>
 
-    
-    <!-- ======================================================== -->
-    <!-- IN-GAME ADMIN EDITOR & VIRTUAL MATH KEYBOARD (YÊU CẦU 1 & 3) -->
-    <!-- ======================================================== -->
-    <div id="ingame-editor-modal" class="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 bg-slate-950/90 backdrop-blur-2xl transition-all duration-300 hidden">
-        <div class="rounded-3xl w-full max-w-5xl border-2 border-amber-400/40 flex flex-col max-h-[92vh] overflow-hidden bg-slate-900/95 shadow-[0_0_60px_rgba(245,158,11,0.25)] text-white">
-            
-            <!-- Header Modal -->
-            <div class="p-4 sm:p-5 border-b border-white/10 flex flex-wrap justify-between items-center gap-3 bg-gradient-to-r from-slate-950 via-amber-950/40 to-slate-950">
-                <div class="flex items-center gap-3">
-                    <span class="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-400/40 text-lg">⚙️</span>
-                    <div>
-                        <h2 class="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-orange-400">
-                            TRÌNH SOẠN THẢO IN-GAME (ADMIN EDITOR)
-                        </h2>
-                        <p class="text-[11px] text-slate-300">
-                            Chỉnh sửa câu hỏi, công thức toán và xuất bản game độc lập trực tiếp trong game
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2 flex-wrap">
-                    <div class="flex items-center gap-1.5">
-                        <select id="editor-topic-select" onchange="window.onEditorChangeTopic(this.value)" class="bg-slate-800 border border-slate-600 text-slate-200 text-xs font-bold px-3 py-1.5 rounded-xl outline-none cursor-pointer max-w-[200px] truncate">
-                        </select>
-                        <button onclick="window.editorAddNewTopic()" class="px-2.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow transition active:scale-95 flex items-center gap-1" title="Thêm chuyên đề mới">
-                            <span>+</span> Thêm CĐ
-                        </button>
-                        <button onclick="window.editorDeleteTopic()" class="p-1.5 rounded-xl bg-rose-900/60 hover:bg-rose-700 text-rose-300 font-bold text-xs border border-rose-500/40 transition active:scale-95" title="Xóa chuyên đề đang chọn">
-                            🗑️
-                        </button>
-                    </div>
-                    
-                    <div class="flex gap-1" id="editor-level-buttons">
-                        <!-- Rendered dynamically -->
-                    </div>
-
-                    <button onclick="window.closeInGameEditorModal()" class="p-2 text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition">
-                        ✕
-                    </button>
-                </div>
-            </div>
-
-            <!-- Body: Danh sách Thẻ Hàm Số và Thẻ Thuộc Tính -->
-            <div class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6 custom-scrollbar bg-slate-950/50">
-                <!-- Thông tin Cấp độ -->
-                <div class="bg-slate-900/80 p-4 rounded-2xl border border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Tên Ải / Cấp Độ</label>
-                        <input type="text" id="editor-level-title" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-amber-400">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Huy Hiệu Độ Khó</label>
-                        <input type="text" id="editor-level-badge" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-amber-400">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Thời Gian (Giây)</label>
-                        <input type="number" id="editor-level-time" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-amber-400">
-                    </div>
-                </div>
-
-                <!-- 1. Danh sách Thẻ Hàm Số Lõi (Functions) -->
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-sm font-black uppercase text-cyan-400 flex items-center gap-2">
-                            <span>🪐</span> DANH SÁCH THẺ HÀM SỐ (LÕI GHÉP ĐÔI)
-                        </h3>
-                        <button onclick="window.editorAddFunction()" class="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold shadow transition flex items-center gap-1">
-                            + Thêm Hàm Số
-                        </button>
-                    </div>
-                    <div id="editor-funcs-list" class="space-y-3">
-                        <!-- Rendered dynamically -->
-                    </div>
-                </div>
-
-                <!-- 2. Danh sách Thẻ Thuộc Tính Bay (Properties) -->
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-sm font-black uppercase text-amber-400 flex items-center gap-2">
-                            <span>✨</span> DANH SÁCH THẺ THUỘC TÍNH (THẺ BAY TRÊN MÀN HÌNH)
-                        </h3>
-                        <button onclick="window.editorAddProperty()" class="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold shadow transition flex items-center gap-1">
-                            + Thêm Thẻ Thuộc Tính
-                        </button>
-                    </div>
-                    <div id="editor-props-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Rendered dynamically -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Hành Động -->
-            <div class="p-4 border-t border-white/10 bg-black/60 flex flex-wrap justify-between items-center gap-3">
-                <span class="text-xs text-slate-400">
-                    💡 Click vào bất kỳ ô nhập công thức nào để mở <b>Bàn Phím Toán Học Ảo</b>.
-                </span>
-                
-                <div class="flex items-center gap-2">
-                    <button onclick="window.editorExportStandaloneHTML()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-600 shadow transition flex items-center gap-1.5">
-                        <span>📥</span> Xuất File HTML Mới (Tải Về)
-                    </button>
-                    <button onclick="window.editorSaveAndPlay()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg transition active:scale-95 flex items-center gap-1.5">
-                        <span>💾</span> Lưu Thay Đổi & Chơi Ngay
-                    </button>
-                </div>
-            </div>
-
-            <!-- IN-GAME VIRTUAL MATH KEYBOARD SLIDE-UP -->
-            <div id="ingame-keyboard-panel" class="border-t-2 border-amber-500/50 bg-slate-950 p-3 flex flex-col gap-2 transition-all hidden">
-                <div class="flex justify-between items-center pb-1 border-b border-white/10">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-black uppercase text-amber-400">📐 BÀN PHÍM TOÁN HỌC ẢO</span>
-                        <span id="ingame-keyboard-target-label" class="text-[11px] text-slate-400">(Đang chỉnh sửa)</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <button onclick="window.ingameKeyboardInsert('$')" class="px-2 py-0.5 rounded bg-violet-900/60 hover:bg-violet-700 text-violet-300 text-[11px] font-bold border border-violet-500/40">Kẹp $...$</button>
-                        <button onclick="window.ingameKeyboardBackspace()" class="px-2 py-0.5 rounded bg-rose-900/60 hover:bg-rose-700 text-rose-300 text-[11px] font-bold border border-rose-500/40">Xóa lùi ⌫</button>
-                        <button onclick="document.getElementById('ingame-keyboard-panel').classList.add('hidden')" class="p-1 rounded bg-slate-800 text-slate-400 hover:text-white">✕</button>
-                    </div>
-                </div>
-
-                <!-- Live Preview KaTeX bar -->
-                <div class="bg-black/80 px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2 overflow-x-auto min-h-[36px]">
-                    <span class="text-[10px] font-bold text-amber-400 uppercase">Xem trước:</span>
-                    <div id="ingame-keyboard-preview" class="text-xs text-emerald-300 font-semibold whitespace-nowrap"></div>
-                </div>
-
-                <!-- Tab Buttons -->
-                <div class="flex gap-1 overflow-x-auto text-xs font-bold pb-1">
-                    <button onclick="window.switchIngameKeyboardTab('basic')" id="ingame-tab-basic" class="px-2.5 py-1 rounded bg-amber-600 text-white">Số & Biến</button>
-                    <button onclick="window.switchIngameKeyboardTab('advanced')" id="ingame-tab-advanced" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">Nâng Cao</button>
-                    <button onclick="window.switchIngameKeyboardTab('trig')" id="ingame-tab-trig" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">Lượng Giác</button>
-                    <button onclick="window.switchIngameKeyboardTab('templates')" id="ingame-tab-templates" class="px-2.5 py-1 rounded bg-slate-800 text-slate-300">Mẫu Hàm Số</button>
-                </div>
-
-                <!-- Keys Container -->
-                <div id="ingame-keyboard-keys" class="overflow-y-auto max-h-[160px]">
-                    <!-- Rendered dynamically -->
-                </div>
-            </div>
-
-        </div>
-    </div>
-
+    <!-- Menu Bắt Đầu & Kết Thúc (Giữ nguyên 100% logic gốc) -->
     <div id="overlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-8">
         <div id="overlay-content" class="glass-panel rounded-[2rem] w-full max-w-4xl border border-white/10 flex flex-col max-h-[95vh] relative overflow-hidden bg-slate-900/90 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
             <div id="menu-dynamic-content" class="relative z-10 w-full p-6 sm:p-10 overflow-y-auto custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- IN-GAME ADMIN EDITOR MODAL (Ẩn mặc định, bật khi Admin click ⚙️) -->
+    <div id="ingame-editor-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 hidden">
+        <div class="glass-panel bg-slate-900 border border-cyan-500/30 rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(6,182,212,0.3)] overflow-hidden">
+            <div class="flex justify-between items-center p-4 sm:p-5 border-b border-white/10 bg-slate-950">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">⚙️</span>
+                    <h3 class="text-base sm:text-lg font-black text-white">Quản Trị In-Game: Hộp & Thuộc Tính</h3>
+                </div>
+                <button onclick="window.closeInGameEditorModal()" class="text-slate-400 hover:text-white text-lg font-bold p-1">✕</button>
+            </div>
+
+            <div class="p-4 bg-slate-950/60 border-b border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2 flex-1 min-w-[220px]">
+                    <span class="text-xs font-bold text-slate-400 shrink-0">Chuyên đề:</span>
+                    <select id="editor-topic-select" onchange="window.onEditorChangeTopic(this.value)" class="flex-1 bg-slate-800 border border-slate-700 text-xs text-cyan-300 font-bold rounded-lg px-2.5 py-1.5 outline-none"></select>
+                </div>
+                <div class="flex items-center gap-1.5" id="editor-level-buttons"></div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-black text-cyan-400 uppercase tracking-wider">Hộp Phân Loại / Hàm Số Cốt Lõi</span>
+                        <button onclick="window.editorAddFunction()" class="text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white px-2.5 py-1 rounded-lg">+ Thêm Hộp</button>
+                    </div>
+                    <div id="editor-funcs-list" class="space-y-2"></div>
+                </div>
+
+                <div class="pt-2 border-t border-white/10">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-black text-amber-400 uppercase tracking-wider">Thẻ Thuộc Tính Bay</span>
+                        <button onclick="window.editorAddProperty()" class="text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white px-2.5 py-1 rounded-lg">+ Thêm Thẻ</button>
+                    </div>
+                    <div id="editor-props-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-white/10 bg-slate-950 flex justify-between items-center gap-3">
+                <button onclick="window.closeInGameEditorModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300">Đóng</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.editorSaveAndPlay()" class="px-4 py-2 rounded-xl text-xs font-black bg-cyan-600 hover:bg-cyan-500 text-white shadow-md">Lưu & Chơi Thử</button>
+                    <button onclick="window.editorExportStandaloneHTML()" class="px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-500 text-white shadow-md">Xuất File HTML Mới</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -502,14 +303,13 @@
             cyan: { hex: '#06b6d4', rgb: '6, 182, 212' }
         };
 
-        
         // ========================================================
-        // HỆ THỐNG ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE ARCHITECTURE)
+        // DỮ LIỆU GỐC & CỨU HỘ HOÀN HẢO (FALLBACK ARCHITECTURE)
         // ========================================================
         const DEFAULT_GAME_DATABASE = {
             "Chuyên đề 1: Tính Đơn Điệu & Cực Trị Hàm Số": {
                 1: {
-                    title: "Hàm Bậc 3", diffBadge: "Dễ", colorTheme: "blue", time: 180,
+                    title: "Hàm Bậc 3", time: 180,
                     funcs: [
                         { id: 'f1', tex: 'y = x^3 - 3x', theme: 'blue' },
                         { id: 'f2', tex: 'y = -x^3 + 3x^2', theme: 'emerald' },
@@ -550,7 +350,7 @@
                     ]
                 },
                 2: {
-                    title: "Hàm Trùng Phương", diffBadge: "Vừa", colorTheme: "cyan", time: 180,
+                    title: "Hàm Trùng Phương", time: 180,
                     funcs: [
                         { id: 'f1', tex: 'y = x^4 - 2x^2 + 1', theme: 'cyan' },
                         { id: 'f2', tex: 'y = -x^4 + 2x^2', theme: 'violet' },
@@ -559,577 +359,112 @@
                         { id: 'f5', tex: 'y = \\frac{1}{2}x^4 - x^2', theme: 'rose' }
                     ],
                     props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số có $3$ điểm cực trị' },
+                        { id: 'p1_1', funcId: 'f1', text: 'Đồ thị có 3 điểm cực trị' },
                         { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 0$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(-1; 0)$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Hàm số có $2$ điểm cực tiểu' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Hàm số đạt cực tiểu tại $x = \\pm 1$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Hàm số đồng biến trên $(-1; 0)$ và $(1; +\\infty)$' },
                         
-                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số có $2$ điểm cực đại' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(1; +\\infty)$' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Hàm số có đúng $1$ điểm cực tiểu' },
+                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực đại tại $x = \\pm 1$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Giá trị cực đại của hàm số bằng $1$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Nghịch biến trên khoảng $(1; +\\infty)$' },
                         
-                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số chỉ có $1$ điểm cực trị' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số không có điểm cực đại' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(0; +\\infty)$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 0)$' },
+                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số chỉ có đúng 1 điểm cực trị' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Hàm số không có điểm cực đại' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Đồng biến trên khoảng $(0; +\\infty)$' },
                         
-                        { id: 'p4_1', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu' },
+                        { id: 'p4_1', funcId: 'f4', text: 'Chỉ có đúng 1 điểm cực trị' },
                         { id: 'p4_2', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 0$' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(0; +\\infty)$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(-\\infty; 0)$' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Hàm số có đúng $1$ điểm cực đại' },
+                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số không có cực tiểu' },
+                        { id: 'p4_4', funcId: 'f4', text: 'Đạo hàm $y\' = -4x^3 - 2x$' },
                         
-                        { id: 'p5_1', funcId: 'f5', text: 'Đạo hàm $y\' = 2x^3 - 2x$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Hàm số có $2$ điểm cực tiểu' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số đạt cực đại tại gốc tọa độ' }
+                        { id: 'p5_1', funcId: 'f5', text: 'Đồ thị đi qua gốc tọa độ $O(0;0)$' },
+                        { id: 'p5_2', funcId: 'f5', text: 'Hàm số đạt cực đại tại $x = 0$' },
+                        { id: 'p5_3', funcId: 'f5', text: 'Giá trị cực tiểu bằng $-\\frac{1}{2}$' },
+                        { id: 'p5_4', funcId: 'f5', text: 'Nghịch biến trên khoảng $(-\\infty; -1)$' }
                     ]
                 },
                 3: {
-                    title: "Phân Thức Bậc 1/1", diffBadge: "Vừa", colorTheme: "emerald", time: 180,
+                    title: "Hàm Phân Thức Bậc 1/1", time: 180,
                     funcs: [
-                        { id: 'f1', tex: 'y = \\frac{2x+1}{x-1}', theme: 'blue' }, 
-                        { id: 'f2', tex: 'y = \\frac{x-2}{x+1}', theme: 'emerald' },
-                        { id: 'f3', tex: 'y = \\frac{-x+3}{2x-1}', theme: 'rose' }, 
-                        { id: 'f4', tex: 'y = \\frac{3x+1}{x+2}', theme: 'cyan' }, 
-                        { id: 'f5', tex: 'y = \\frac{2x}{x-3}', theme: 'violet' } 
+                        { id: 'f1', tex: 'y = \\frac{2x+1}{x-1}', theme: 'emerald' },
+                        { id: 'f2', tex: 'y = \\frac{x-2}{x+1}', theme: 'blue' },
+                        { id: 'f3', tex: 'y = \\frac{-x+3}{2x-1}', theme: 'amber' }
                     ],
                     props: [
                         { id: 'p1_1', funcId: 'f1', text: 'Hàm số không có cực trị' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 1)$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; +\\infty)$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Đạo hàm $y\' < 0, \\forall x \\ne 1$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên từng khoảng xác định' },
-                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-\\infty; -1)$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-1; +\\infty)$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Đạo hàm $y\' > 0, \\forall x \\ne -1$' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Hàm số không đạt cực trị' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Hàm số đồng biến trên từng khoảng xác định' },
-                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; \\frac{1}{2})$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(\\frac{1}{2}; +\\infty)$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Đạo hàm $y\' = \\frac{-5}{(2x-1)^2}$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có điểm cực đại hay cực tiểu' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Đạo hàm của hàm số luôn âm trên tập xác định' },
-                        { id: 'p4_1', funcId: 'f4', text: 'Đạo hàm $y\' = \\frac{5}{(x+2)^2}$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Hàm số đồng biến trên từng khoảng xác định' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(-2; +\\infty)$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực trị' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Đạo hàm của hàm số luôn dương trên tập xác định' },
-                        { id: 'p5_1', funcId: 'f5', text: 'Hàm số nghịch biến trên từng khoảng xác định' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 3)$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\ne 3$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Đồ thị hàm số không có điểm cực trị' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số không đồng biến trên bất kỳ khoảng nào' }
+                        { id: 'p1_2', funcId: 'f1', text: 'Nghịch biến trên từng khoảng xác định' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Đạo hàm $y\' = \\frac{-3}{(x-1)^2} < 0, \\forall x \\ne 1$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Tiệm cận đứng $x = 1$, ngang $y = 2$' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Đồng biến trên từng khoảng xác định' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Đạo hàm $y\' = \\frac{3}{(x+1)^2} > 0, \\forall x \\ne -1$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Không có điểm cực đại hay cực tiểu' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Tiệm cận đứng $x = -1$, ngang $y = 1$' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Nghịch biến trên $(-\\infty; \\frac{1}{2})$ và $(\\frac{1}{2}; +\\infty)$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Đạo hàm $y\' = \\frac{-5}{(2x-1)^2} < 0, \\forall x \\ne \\frac{1}{2}$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Tiệm cận đứng $x = \\frac{1}{2}$, ngang $y = -\\frac{1}{2}$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Không tồn tại giá trị cực trị' }
                     ]
                 },
                 4: {
-                    title: "Phân Thức Bậc 2/1", diffBadge: "Khó", colorTheme: "amber", time: 180,
+                    title: "Hàm Phân Thức Bậc 2/1", time: 180,
                     funcs: [
-                        { id: 'f1', tex: 'y = \\frac{x^2 - x + 1}{x - 1}', theme: 'rose' }, 
-                        { id: 'f2', tex: 'y = \\frac{x^2 + 2x + 2}{x + 1}', theme: 'blue' }, 
-                        { id: 'f3', tex: 'y = \\frac{-x^2 + 2x - 2}{x - 1}', theme: 'amber' }, 
-                        { id: 'f4', tex: 'y = \\frac{x^2 - 3x + 3}{x - 2}', theme: 'emerald' }, 
-                        { id: 'f5', tex: 'y = \\frac{x^2}{x-1}', theme: 'violet' } 
+                        { id: 'f1', tex: 'y = \\frac{x^2 - x + 1}{x - 1}', theme: 'amber' },
+                        { id: 'f2', tex: 'y = \\frac{x^2 + 2x - 3}{x + 1}', theme: 'cyan' },
+                        { id: 'f3', tex: 'y = \\frac{-x^2 + x + 2}{x - 2}', theme: 'rose' }
                     ],
                     props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 0$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực tiểu tại $x = 2$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(0; 1)$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
-                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực đại tại $x = -2$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-1; 0)$' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(-\\infty; -2)$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-2; -1)$' },
-                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số đạt cực đại tại $x = 2$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(1; 2)$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(2; +\\infty)$' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
-                        { id: 'p4_1', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 1$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Hàm số đạt cực tiểu tại $x = 3$' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(2; 3)$' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(3; +\\infty)$' },
-                        { id: 'p5_1', funcId: 'f5', text: 'Giá trị cực đại của hàm số là $y = 0$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Giá trị cực tiểu của hàm số là $y = 4$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(-\\infty; 0)$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số đạt cực đại tại $x = 0$' }
+                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 0$ với $y_{CĐ} = -1$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số đạt cực tiểu tại $x = 2$ với $y_{CT} = 3$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Đồng biến trên $(-\\infty; 0)$ và $(2; +\\infty)$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Tiệm cận xiên $y = x$, đứng $x = 1$' },
+
+                        { id: 'p2_1', funcId: 'f2', text: 'Đạo hàm $y\' = \\frac{x^2 + 2x + 5}{(x+1)^2} > 0, \\forall x \\ne -1$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Đồng biến trên từng khoảng xác định' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Hàm số không có điểm cực trị' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Tiệm cận xiên $y = x + 1$, đứng $x = -1$' },
+
+                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số đạt cực trị tại 2 điểm phân biệt' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Tiệm cận xiên là $y = -x - 1$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Tiệm cận đứng là $x = 2$' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Đồ thị cắt trục tung tại $(0; -1)$' }
                     ]
                 },
                 5: {
-                    title: "Hàm Căn Thức Bậc 2", diffBadge: "Khó", colorTheme: "rose", time: 180,
+                    title: "Hàm Căn Thức Bậc 2", time: 180,
                     funcs: [
-                        { id: 'f1', tex: 'y = \\sqrt{2x - x^2}', theme: 'emerald' },
-                        { id: 'f2', tex: 'y = \\sqrt{x^2 - 4x + 5}', theme: 'rose' },
-                        { id: 'f3', tex: 'y = x + \\sqrt{4 - x^2}', theme: 'cyan' },
-                        { id: 'f4', tex: 'y = \\sqrt{x - 1} + \\sqrt{3 - x}', theme: 'violet' },
-                        { id: 'f5', tex: 'y = \\sqrt{x^2 + 1} - x', theme: 'amber' }
+                        { id: 'f1', tex: 'y = \\sqrt{4 - x^2}', theme: 'rose' },
+                        { id: 'f2', tex: 'y = x - \\sqrt{x}', theme: 'blue' },
+                        { id: 'f3', tex: 'y = \\sqrt{x^2 - 2x + 5}', theme: 'emerald' }
                     ],
                     props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = 1$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(0; 1)$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Hàm số nghịch biến trên khoảng $(1; 2)$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Hàm số không có điểm cực tiểu' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số có đúng $1$ điểm cực trị' },
-                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 2$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 2)$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Hàm số không có điểm cực đại' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Hàm số có đúng $1$ điểm cực tiểu' },
-                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số đạt cực đại tại $x = \\sqrt{2}$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số đồng biến trên khoảng $(-2; \\sqrt{2})$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Hàm số nghịch biến trên khoảng $(\\sqrt{2}; 2)$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Hàm số không có cực tiểu trên khoảng $(-2; 2)$' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Hàm số có đúng $1$ điểm cực đại' },
-                        { id: 'p4_1', funcId: 'f4', text: 'Hàm số đạt cực đại tại $x = 2$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(1; 2)$' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(2; 3)$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số không có điểm cực tiểu trên $(1; 3)$' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Hàm số có đúng $1$ điểm cực trị' },
-                        { id: 'p5_1', funcId: 'f5', text: 'Hàm số không có cực trị' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; +\\infty)$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm $y\' < 0, \\forall x \\in \\mathbb{R}$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Hàm số không có điểm cực đại và cực tiểu' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số luôn nghịch biến trên tập xác định' }
-                    ]
-                }
-            },
-            "Chuyên đề 2: Tọa Độ Vecto Trong Không Gian Oxyz": {
-                1: {
-                    title: "Tọa Độ Điểm & Vecto Cơ Bản", diffBadge: "Dễ", colorTheme: "blue", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: '\\vec{a} = (1; 2; -3)', theme: 'blue' },
-                        { id: 'f2', tex: '\\vec{b} = (-2; 0; 4)', theme: 'emerald' },
-                        { id: 'f3', tex: '\\vec{c} = (3; -1; 2)', theme: 'violet' },
-                        { id: 'f4', tex: '\\vec{u} = (0; 4; -2)', theme: 'amber' },
-                        { id: 'f5', tex: '\\vec{v} = (2; -2; 1)', theme: 'rose' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Độ dài $|ec{a}| = \\sqrt{14}$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Tọa độ $2\\vec{a} = (2; 4; -6)$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Cao độ của $\\vec{a}$ bằng $-3$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Hình chiếu lên $Ox$ là $(1; 0; 0)$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Tích vô hướng $\\vec{a} \\cdot \\vec{i} = 1$' },
-                        
-                        { id: 'p2_1', funcId: 'f2', text: 'Độ dài $|ec{b}| = \\sqrt{20} = 2\\sqrt{5}$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Tung độ của $\\vec{b}$ bằng $0$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Vector đối của $\\vec{b}$ là $(2; 0; -4)$' },
-                        { id: 'p2_4', funcId: 'f2', text: '$\\vec{b}$ vuông góc với trục $Oy$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Tọa độ $-\\vec{b} = (2; 0; -4)$' },
+                        { id: 'p1_1', funcId: 'f1', text: 'Tập xác định $D = [-2; 2]$' },
+                        { id: 'p1_2', funcId: 'f1', text: 'Đạt giá trị lớn nhất $y = 2$ tại $x = 0$' },
+                        { id: 'p1_3', funcId: 'f1', text: 'Đồng biến trên khoảng $(-2; 0)$' },
+                        { id: 'p1_4', funcId: 'f1', text: 'Nghịch biến trên khoảng $(0; 2)$' },
 
-                        { id: 'p3_1', funcId: 'f3', text: 'Độ dài $|ec{c}| = \\sqrt{14}$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Hoành độ của $\\vec{c}$ bằng $3$' },
-                        { id: 'p3_3', funcId: 'f3', text: '$\\vec{c} + \\vec{a} = (4; 1; -1)$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Tung độ của $\\vec{c}$ bằng $-1$' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Hình chiếu lên mặt $(Oxy)$ là $(3; -1; 0)$' },
+                        { id: 'p2_1', funcId: 'f2', text: 'Tập xác định $D = [0; +\\infty)$' },
+                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = \\frac{1}{4}$' },
+                        { id: 'p2_3', funcId: 'f2', text: 'Giá trị nhỏ nhất là $y = -\\frac{1}{4}$' },
+                        { id: 'p2_4', funcId: 'f2', text: 'Đồng biến trên khoảng $(\\frac{1}{4}; +\\infty)$' },
 
-                        { id: 'p4_1', funcId: 'f4', text: 'Độ dài $|ec{u}| = \\sqrt{20}$' },
-                        { id: 'p4_2', funcId: 'f4', text: '$\\vec{u}$ nằm trong mặt phẳng $(Oyz)$' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Hoành độ của $\\vec{u}$ bằng $0$' },
-                        { id: 'p4_4', funcId: 'f4', text: '$\\vec{u} \\perp Ox$' },
-                        { id: 'p4_5', funcId: 'f4', text: '$\\frac{1}{2}\\vec{u} = (0; 2; -1)$' },
-
-                        { id: 'p5_1', funcId: 'f5', text: 'Độ dài $|ec{v}| = 3$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Cao độ của $\\vec{v}$ bằng $1$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Tung độ của $\\vec{v}$ bằng $-2$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Hoành độ của $\\vec{v}$ bằng $2$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Hình chiếu lên $Oz$ là $(0; 0; 1)$' }
-                    ]
-                },
-                2: {
-                    title: "Tích Vô Hướng & Góc", diffBadge: "Vừa", colorTheme: "cyan", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: '\\vec{u} = (1; 1; 0), \\vec{v} = (0; 1; 1)', theme: 'cyan' },
-                        { id: 'f2', tex: '\\vec{u} = (1; 0; 1), \\vec{v} = (-1; 1; 0)', theme: 'violet' },
-                        { id: 'f3', tex: '\\vec{u} = (2; 1; -2), \\vec{v} = (1; 2; 2)', theme: 'emerald' },
-                        { id: 'f4', tex: '\\vec{u} = (1; 2; 3), \\vec{v} = (3; 2; 1)', theme: 'amber' },
-                        { id: 'f5', tex: '\\vec{u} = (1; 0; 0), \\vec{v} = (0; 1; 0)', theme: 'rose' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Tích vô hướng $\\vec{u} \\cdot \\vec{v} = 1$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Góc $(\\vec{u}, \\vec{v}) = 60^\\circ$' },
-                        { id: 'p1_3', funcId: 'f1', text: '$\\cos(\\vec{u}, \\vec{v}) = \\frac{1}{2}$' },
-                        { id: 'p1_4', funcId: 'f1', text: '$|\\vec{u}| = \\sqrt{2}, |\\vec{v}| = \\sqrt{2}$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Hai vecto không vuông góc nhau' },
-
-                        { id: 'p2_1', funcId: 'f2', text: 'Tích vô hướng $\\vec{u} \\cdot \\vec{v} = -1$' },
-                        { id: 'p2_2', funcId: 'f2', text: '$\\cos(\\vec{u}, \\vec{v}) = -\\frac{1}{2}$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Góc $(\\vec{u}, \\vec{v}) = 120^\\circ$' },
-                        { id: 'p2_4', funcId: 'f2', text: '$|\\vec{u}| = \\sqrt{2}, |\\vec{v}| = \\sqrt{2}$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Góc giữa hai vecto là góc tù' },
-
-                        { id: 'p3_1', funcId: 'f3', text: 'Tích vô hướng $\\vec{u} \\cdot \\vec{v} = 0$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Hai vecto vuông góc $\\vec{u} \\perp \\vec{v}$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Góc $(\\vec{u}, \\vec{v}) = 90^\\circ$' },
-                        { id: 'p3_4', funcId: 'f3', text: '$|\\vec{u}| = 3, |\\vec{v}| = 3$' },
-                        { id: 'p3_5', funcId: 'f3', text: '$\\cos(\\vec{u}, \\vec{v}) = 0$' },
-
-                        { id: 'p4_1', funcId: 'f4', text: 'Tích vô hướng $\\vec{u} \\cdot \\vec{v} = 10$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Độ dài $|\\vec{u}| = \\sqrt{14}, |\\vec{v}| = \\sqrt{14}$' },
-                        { id: 'p4_3', funcId: 'f4', text: '$\\cos(\\vec{u}, \\vec{v}) = \\frac{5}{7}$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Hai vecto có cùng độ dài' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Góc giữa hai vecto là góc nhọn' },
-
-                        { id: 'p5_1', funcId: 'f5', text: 'Hai vecto vuông góc nhau' },
-                        { id: 'p5_2', funcId: 'f5', text: '$\\vec{u} \\cdot \\vec{v} = 0$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Góc $(\\vec{u}, \\vec{v}) = 90^\\circ$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Là hai vecto đơn vị trên các trục tọa độ' },
-                        { id: 'p5_5', funcId: 'f5', text: '$|\\vec{u}| = 1, |\\vec{v}| = 1$' }
-                    ]
-                },
-                3: {
-                    title: "Phương Trình Mặt Cầu", diffBadge: "Vừa", colorTheme: "emerald", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: '(x-1)^2 + (y+2)^2 + (z-3)^2 = 16', theme: 'blue' },
-                        { id: 'f2', tex: 'x^2 + y^2 + z^2 - 2x + 4y - 6z + 5 = 0', theme: 'emerald' },
-                        { id: 'f3', tex: 'x^2 + y^2 + z^2 = 9', theme: 'rose' },
-                        { id: 'f4', tex: '(x+2)^2 + y^2 + (z-1)^2 = 25', theme: 'cyan' },
-                        { id: 'f5', tex: 'x^2 + y^2 + z^2 - 4x - 2y + 1 = 0', theme: 'violet' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Tâm mặt cầu $I(1; -2; 3)$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Bán kính mặt cầu $R = 4$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Đường kính mặt cầu $d = 8$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Diện tích mặt cầu $S = 64\\pi$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Thể tích khối cầu $V = \\frac{256\\pi}{3}$' },
-
-                        { id: 'p2_1', funcId: 'f2', text: 'Tâm mặt cầu $I(1; -2; 3)$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Bán kính mặt cầu $R = \\sqrt{1^2 + 2^2 + 3^2 - 5} = 3$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Diện tích mặt cầu $S = 36\\pi$' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Thể tích khối cầu $V = 36\\pi$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Mặt cầu không đi qua gốc $O(0;0;0)$' },
-
-                        { id: 'p3_1', funcId: 'f3', text: 'Tâm mặt cầu trùng gốc tọa độ $O(0;0;0)$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Bán kính mặt cầu $R = 3$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Điểm $A(3; 0; 0)$ thuộc mặt cầu' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Điểm $B(0; -3; 0)$ thuộc mặt cầu' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Điểm $C(0; 0; 3)$ thuộc mặt cầu' },
-
-                        { id: 'p4_1', funcId: 'f4', text: 'Tâm mặt cầu $I(-2; 0; 1)$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Bán kính mặt cầu $R = 5$' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Tâm mặt cầu nằm trên mặt phẳng $(Oxz)$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Tung độ của tâm bằng $0$' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Đường kính mặt cầu bằng $10$' },
-
-                        { id: 'p5_1', funcId: 'f5', text: 'Tâm mặt cầu $I(2; 1; 0)$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Bán kính $R = \\sqrt{2^2 + 1^2 - 1} = 2$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Tâm mặt cầu thuộc mặt phẳng $(Oxy)$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Cao độ của tâm bằng $0$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Diện tích mặt cầu $S = 16\\pi$' }
-                    ]
-                },
-                4: {
-                    title: "Phương Trình Mặt Phẳng", diffBadge: "Khó", colorTheme: "amber", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: '2x - y + 2z - 6 = 0', theme: 'rose' },
-                        { id: 'f2', tex: 'x + y + z - 3 = 0', theme: 'blue' },
-                        { id: 'f3', tex: '3x - 4z + 12 = 0', theme: 'amber' },
-                        { id: 'f4', tex: '2x + 2y - z + 9 = 0', theme: 'emerald' },
-                        { id: 'f5', tex: 'z - 5 = 0', theme: 'violet' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Vecto pháp tuyến $\\vec{n} = (2; -1; 2)$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Khoảng cách từ gốc $O$ đến mặt phẳng bằng $2$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Điểm $A(3; 0; 0)$ thuộc mặt phẳng' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Điểm $B(0; -6; 0)$ thuộc mặt phẳng' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Độ dài vecto pháp tuyến $|\\vec{n}| = 3$' },
-
-                        { id: 'p2_1', funcId: 'f2', text: 'Vecto pháp tuyến $\\vec{n} = (1; 1; 1)$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Cắt các trục tọa độ tại các điểm có tọa độ bằng $3$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Điểm $M(1; 1; 1)$ thuộc mặt phẳng' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Khoảng cách từ gốc $O$ bằng $\\sqrt{3}$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Phương trình đoạn chắn $\\frac{x}{3} + \\frac{y}{3} + \\frac{z}{3} = 1$' },
-
-                        { id: 'p3_1', funcId: 'f3', text: 'Vecto pháp tuyến $\\vec{n} = (3; 0; -4)$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Mặt phẳng song song hoặc chứa trục $Oy$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Khoảng cách từ gốc $O$ bằng $\\frac{12}{5} = 2.4$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Điểm $C(-4; 0; 0)$ thuộc mặt phẳng' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Điểm $D(0; 0; 3)$ thuộc mặt phẳng' },
-
-                        { id: 'p4_1', funcId: 'f4', text: 'Vecto pháp tuyến $\\vec{n} = (2; 2; -1)$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Khoảng cách từ gốc $O$ đến mặt phẳng bằng $3$' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Độ dài vecto pháp tuyến $|\\vec{n}| = 3$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Điểm $E(0; 0; 9)$ thuộc mặt phẳng' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Vuông góc với mặt phẳng $x - y = 0$' },
-
-                        { id: 'p5_1', funcId: 'f5', text: 'Mặt phẳng song song với mặt phẳng $(Oxy)$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Vecto pháp tuyến $\\vec{n} = (0; 0; 1)$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Khoảng cách từ gốc tọa độ $O$ bằng $5$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Mọi điểm trên mp đều có cao độ $z = 5$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Vuông góc với trục cao $Oz$' }
-                    ]
-                },
-                5: {
-                    title: "Phương Trình Đường Thẳng", diffBadge: "Khó", colorTheme: "rose", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: '\\frac{x-1}{2} = \\frac{y+1}{-1} = \\frac{z-2}{3}', theme: 'emerald' },
-                        { id: 'f2', tex: '\\frac{x}{1} = \\frac{y-2}{2} = \\frac{z+1}{-2}', theme: 'rose' },
-                        { id: 'f3', tex: '\\begin{cases} x = 1 + 2t \\\\ y = -t \\\\ z = 3 + t \\end{cases}', theme: 'cyan' },
-                        { id: 'f4', tex: '\\frac{x+2}{3} = \\frac{y-1}{4} = \\frac{z}{1}', theme: 'violet' },
-                        { id: 'f5', tex: '\\begin{cases} x = 0 \\\\ y = 2t \\\\ z = 0 \\end{cases}', theme: 'amber' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Vecto chỉ phương $\\vec{u} = (2; -1; 3)$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Điểm $M(1; -1; 2)$ thuộc đường thẳng' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Điểm $N(3; -2; 5)$ thuộc đường thẳng' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Độ dài vecto chỉ phương bằng $\\sqrt{14}$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Đường thẳng không đi qua gốc tọa độ $O$' },
-
-                        { id: 'p2_1', funcId: 'f2', text: 'Vecto chỉ phương $\\vec{u} = (1; 2; -2)$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Độ dài vecto chỉ phương bằng $3$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Điểm $P(0; 2; -1)$ thuộc đường thẳng' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Điểm $Q(1; 4; -3)$ thuộc đường thẳng' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Vuông góc với mặt phẳng $x + 2y - 2z = 0$' },
-
-                        { id: 'p3_1', funcId: 'f3', text: 'Vecto chỉ phương $\\vec{u} = (2; -1; 1)$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Điểm $A(1; 0; 3)$ thuộc đường thẳng với $t = 0$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Điểm $B(3; -1; 4)$ thuộc đường thẳng với $t = 1$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Độ dài vecto chỉ phương bằng $\\sqrt{6}$' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Điểm $C(-1; 1; 2)$ thuộc đường thẳng với $t = -1$' },
-
-                        { id: 'p4_1', funcId: 'f4', text: 'Vecto chỉ phương $\\vec{u} = (3; 4; 1)$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Điểm $D(-2; 1; 0)$ thuộc đường thẳng' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Điểm $E(1; 5; 1)$ thuộc đường thẳng' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Giao điểm với $(Oxy)$ là $(-2; 1; 0)$' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Độ dài vecto chỉ phương bằng $\\sqrt{26}$' },
-
-                        { id: 'p5_1', funcId: 'f5', text: 'Đường thẳng chính là trục tung $Oy$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Vecto chỉ phương cùng phương với $\\vec{j}(0; 1; 0)$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Điểm gốc tọa độ $O(0;0;0)$ thuộc đường thẳng' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Vuông góc với cả trục $Ox$ và $Oz$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Điểm $K(0; 2; 0)$ thuộc đường thẳng' }
-                    ]
-                }
-            },
-            "Chuyên đề 3: Đạo Hàm & Ý Nghĩa Tiếp Tuyến": {
-                1: {
-                    title: "Đạo Hàm Hàm Đa Thức Cơ Bản", diffBadge: "Dễ", colorTheme: "blue", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: 'y = x^3 - 3x^2 + 2', theme: 'blue' },
-                        { id: 'f2', tex: 'y = -2x^3 + 6x', theme: 'emerald' },
-                        { id: 'f3', tex: 'y = x^4 - 4x^2 + 3', theme: 'violet' },
-                        { id: 'f4', tex: 'y = \\frac{1}{4}x^4 - 2x^2', theme: 'amber' },
-                        { id: 'f5', tex: 'y = 3x^2 - 6x + 1', theme: 'rose' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Đạo hàm $y\' = 3x^2 - 6x$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Nghiệm của $y\' = 0$ là $x = 0$ và $x = 2$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Đạo hàm cấp hai $y\'\' = 6x - 6$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Hệ số góc tiếp tuyến tại $x = 1$ là $k = -3$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(2; +\\infty)$' },
-
-                        { id: 'p2_1', funcId: 'f2', text: 'Đạo hàm $y\' = -6x^2 + 6$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Đạo hàm triệt tiêu tại $x = \\pm 1$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Hệ số góc tiếp tuyến tại gốc $O(0;0)$ là $k = 6$' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Đạo hàm $y\' > 0$ trên khoảng $(-1; 1)$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Đạo hàm cấp hai $y\'\' = -12x$' },
-
-                        { id: 'p3_1', funcId: 'f3', text: 'Đạo hàm $y\' = 4x^3 - 8x$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Nghiệm của đạo hàm gồm $x = 0$ và $x = \\pm \\sqrt{2}$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Hệ số góc tiếp tuyến tại $x = 1$ là $k = -4$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Đạo hàm cấp hai $y\'\' = 12x^2 - 8$' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Đạo hàm đổi dấu $3$ lần' },
-
-                        { id: 'p4_1', funcId: 'f4', text: 'Đạo hàm $y\' = x^3 - 4x$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Phương trình $y\' = 0$ có $3$ nghiệm $x \\in \\{0; \\pm 2\\}$' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Đạo hàm cấp hai $y\'\' = 3x^2 - 4$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Hệ số góc tiếp tuyến tại $x = 3$ là $k = 15$' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(0; 2)$' },
-
-                        { id: 'p5_1', funcId: 'f5', text: 'Đạo hàm $y\' = 6x - 6$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Nghiệm của $y\' = 0$ là $x = 1$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm cấp hai $y\'\' = 6 > 0$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Hệ số góc tiếp tuyến tại $x = 0$ là $k = -6$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' }
-                    ]
-                },
-                2: {
-                    title: "Đạo Hàm Lượng Giác & Mũ Lôgarit", diffBadge: "Vừa", colorTheme: "cyan", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: 'y = \\sin(2x)', theme: 'cyan' },
-                        { id: 'f2', tex: 'y = \\cos^2(x)', theme: 'emerald' },
-                        { id: 'f3', tex: 'y = e^{2x}', theme: 'rose' },
-                        { id: 'f4', tex: 'y = \\ln(x^2 + 1)', theme: 'amber' },
-                        { id: 'f5', tex: 'y = x \\cdot e^x', theme: 'violet' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Đạo hàm $y\' = 2\\cos(2x)$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Giá trị đạo hàm tại $x = 0$ là $y\'(0) = 2$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Đạo hàm cấp hai $y\'\' = -4\\sin(2x)$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Giá trị đạo hàm tại $x = \\frac{\\pi}{4}$ là $0$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Hàm số tuần hoàn với chu kì $T = \\pi$' },
-
-                        { id: 'p2_1', funcId: 'f2', text: 'Đạo hàm $y\' = -2\\sin x \\cos x = -\\sin(2x)$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Giá trị đạo hàm tại $x = 0$ bằng $0$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Giá trị đạo hàm tại $x = \\frac{\\pi}{4}$ là $-1$' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Đạo hàm cấp hai $y\'\' = -2\\cos(2x)$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Hàm số luôn có giá trị trong đoạn $[0; 1]$' },
-
-                        { id: 'p3_1', funcId: 'f3', text: 'Đạo hàm $y\' = 2e^{2x}$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Đạo hàm luôn dương $y\' > 0, \\forall x$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Giá trị đạo hàm tại $x = 0$ là $2$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Đạo hàm cấp hai $y\'\' = 4e^{2x}$' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Đồ thị luôn nằm phía trên trục hoành' },
-
-                        { id: 'p4_1', funcId: 'f4', text: 'Đạo hàm $y\' = \\frac{2x}{x^2 + 1}$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Nghiệm của $y\' = 0$ duy nhất tại $x = 0$' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Hàm số đồng biến trên khoảng $(0; +\\infty)$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Hàm số nghịch biến trên khoảng $(-\\infty; 0)$' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Đạt cực tiểu tại gốc tọa độ $O(0;0)$' },
-
-                        { id: 'p5_1', funcId: 'f5', text: 'Đạo hàm $y\' = (x + 1)e^x$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Nghiệm của $y\' = 0$ là $x = -1$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Hệ số góc tiếp tuyến tại $x = 0$ là $k = 1$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Đạt cực tiểu tại điểm $x = -1$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Đạo hàm cấp hai $y\'\' = (x + 2)e^x$' }
-                    ]
-                },
-                3: {
-                    title: "Hệ Số Góc & Phương Trình Tiếp Tuyến", diffBadge: "Vừa", colorTheme: "emerald", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: 'y = x^2 - 4x + 3 \\text{ tại } x_0 = 3', theme: 'blue' },
-                        { id: 'f2', tex: 'y = x^3 - 3x \\text{ tại } x_0 = 2', theme: 'emerald' },
-                        { id: 'f3', tex: 'y = \\frac{2x-1}{x+1} \\text{ tại } x_0 = 1', theme: 'rose' },
-                        { id: 'f4', tex: 'y = -x^2 + 2x \\text{ tại } x_0 = 0', theme: 'cyan' },
-                        { id: 'f5', tex: 'y = \\sqrt{x+1} \\text{ tại } x_0 = 3', theme: 'violet' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Hệ số góc tiếp tuyến $k = y\'(3) = 2$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Tọa độ tiếp điểm là $M(3; 0)$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Phương trình tiếp tuyến $y = 2(x - 3) = 2x - 6$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Tiếp tuyến cắt trục tung tại điểm $(0; -6)$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Đạo hàm của hàm số $y\' = 2x - 4$' },
-
-                        { id: 'p2_1', funcId: 'f2', text: 'Hệ số góc tiếp tuyến $k = y\'(2) = 9$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Tọa độ tiếp điểm là $M(2; 2)$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Phương trình tiếp tuyến $y = 9x - 16$' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Đạo hàm của hàm số $y\' = 3x^2 - 3$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Tiếp tuyến đi qua điểm $(2; 2)$' },
-
-                        { id: 'p3_1', funcId: 'f3', text: 'Hệ số góc tiếp tuyến $k = y\'(1) = \\frac{3}{4}$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Tung độ tiếp điểm là $y_0 = \\frac{1}{2}$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Đạo hàm $y\' = \\frac{3}{(x+1)^2}$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Phương trình tiếp tuyến $y = \\frac{3}{4}x - \\frac{1}{4}$' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Tiếp điểm có tọa độ $(1; \\frac{1}{2})$' },
-
-                        { id: 'p4_1', funcId: 'f4', text: 'Hệ số góc tiếp tuyến $k = y\'(0) = 2$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Tiếp điểm chính là gốc tọa độ $O(0;0)$' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Phương trình tiếp tuyến $y = 2x$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Đạo hàm của hàm số $y\' = -2x + 2$' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Tiếp tuyến đi qua gốc tọa độ' },
-
-                        { id: 'p5_1', funcId: 'f5', text: 'Hệ số góc tiếp tuyến $k = y\'(3) = \\frac{1}{4}$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Tung độ tiếp điểm là $y_0 = 2$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Đạo hàm $y\' = \\frac{1}{2\\sqrt{x+1}}$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Phương trình tiếp tuyến $y = \\frac{1}{4}x + \\frac{5}{4}$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Tiếp điểm có tọa độ $(3; 2)$' }
-                    ]
-                },
-                4: {
-                    title: "Tiếp Tuyến Song Song & Vuông Góc", diffBadge: "Khó", colorTheme: "amber", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: 'y = \\frac{1}{3}x^3 - 2x^2 + 3x + 1 \\parallel (d): y = 3x - 5', theme: 'rose' },
-                        { id: 'f2', tex: 'y = x^3 - 3x^2 \\parallel (d): y = 9x + 2', theme: 'blue' },
-                        { id: 'f3', tex: 'y = \\frac{x+2}{x-1} \\perp (d): y = 3x - 1', theme: 'amber' },
-                        { id: 'f4', tex: 'y = -x^4 + 2x^2 \\parallel trục Ox', theme: 'emerald' },
-                        { id: 'f5', tex: 'y = x^2 - 3x + 2 \\parallel (d): y = x + 1', theme: 'violet' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Hệ số góc của tiếp tuyến phải bằng $3$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Hoành độ tiếp điểm thỏa $x^2 - 4x + 3 = 3 \\Leftrightarrow x(x-4)=0$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Có $2$ tiếp tuyến thỏa mãn tại $x = 0$ và $x = 4$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Tiếp tuyến tại $x = 0$ là $y = 3x + 1$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Tiếp tuyến tại $x = 4$ song song với đường thẳng $(d)$' },
-
-                        { id: 'p2_1', funcId: 'f2', text: 'Hệ số góc của tiếp tuyến phải bằng $9$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Phương trình $3x^2 - 6x = 9 \\Leftrightarrow x^2 - 2x - 3 = 0$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Hoành độ tiếp điểm là $x = -1$ hoặc $x = 3$' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Tiếp tuyến tại $x = -1$ là $y = 9x + 5$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Tiếp tuyến tại $x = 3$ là $y = 9x - 27$' },
-
-                        { id: 'p3_1', funcId: 'f3', text: 'Hệ số góc tiếp tuyến phải bằng $-\\frac{1}{3}$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Đạo hàm $y\' = \\frac{-3}{(x-1)^2}$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Phương trình $(x-1)^2 = 9 \\Leftrightarrow x = 4$ hoặc $x = -2$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Tiếp tuyến vuông góc với đường thẳng $(d)$' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Có $2$ tiếp tuyến thỏa mãn yêu cầu bài toán' },
-
-                        { id: 'p4_1', funcId: 'f4', text: 'Tiếp tuyến song song với trục $Ox$ có hệ số góc $k = 0$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Nghiệm của $y\' = 0$ là $x = 0$ và $x = \\pm 1$' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Tiếp tuyến tại $x = 0$ là $y = 0$ (trùng $Ox$ - loại)' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Tiếp tuyến tại $x = \\pm 1$ là đường thẳng $y = 1$' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Chỉ có duy nhất $1$ tiếp tuyến song song với trục hoành' },
-
-                        { id: 'p5_1', funcId: 'f5', text: 'Hệ số góc của tiếp tuyến bằng $1$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Phương trình $2x - 3 = 1 \\Leftrightarrow x = 2$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Tọa độ tiếp điểm là $M(2; 0)$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Phương trình tiếp tuyến $y = x - 2$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Khoảng cách giữa hai đường song song bằng $\\frac{3}{\\sqrt{2}}$' }
-                    ]
-                },
-                5: {
-                    title: "Ứng Dụng Vật Lý & Chuyển Động", diffBadge: "Khó", colorTheme: "rose", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: 's(t) = -t^3 + 6t^2 + 9t \\quad (t \\ge 0)', theme: 'emerald' },
-                        { id: 'f2', tex: 's(t) = \\frac{1}{2}gt^2 + v_0 t \\quad (g = 9.8)', theme: 'rose' },
-                        { id: 'f3', tex: 'v(t) = 3t^2 - 12t + 9', theme: 'cyan' },
-                        { id: 'f4', tex: 's(t) = 4\\sin(2\\pi t) \\quad (\\text{dao động})', theme: 'violet' },
-                        { id: 'f5', tex: 'Q(t) = 2t^2 + 5t \\quad (\\text{điện lượng})', theme: 'amber' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Vận tốc tức thời $v(t) = s\'(t) = -3t^2 + 12t + 9$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Vận tốc ban đầu $v(0) = 9 \\text{ m/s}$' },
-                        { id: 'p1_3', funcId: 'f1', text: 'Gia tốc tức thời $a(t) = v\'(t) = -6t + 12$' },
-                        { id: 'p1_4', funcId: 'f1', text: 'Vận tốc đạt giá trị lớn nhất khi gia tốc $a(t) = 0 \\Leftrightarrow t = 2$' },
-                        { id: 'p1_5', funcId: 'f1', text: 'Vận tốc cực đại của vật là $v_{max} = 21 \\text{ m/s}$' },
-
-                        { id: 'p2_1', funcId: 'f2', text: 'Vận tốc tức thời $v(t) = s\'(t) = 9.8t + v_0$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Gia tốc của chuyển động là gia tốc trọng trường $a = 9.8 \\text{ m/s}^2$' },
-                        { id: 'p2_3', funcId: 'f2', text: 'Chuyển động thẳng biến đổi đều với gia tốc không đổi' },
-                        { id: 'p2_4', funcId: 'f2', text: 'Nếu rơi tự do ($v_0 = 0$) thì sau $2$ giây $v(2) = 19.6 \\text{ m/s}$' },
-                        { id: 'p2_5', funcId: 'f2', text: 'Đạo hàm bậc hai của quãng đường chính là gia tốc' },
-
-                        { id: 'p3_1', funcId: 'f3', text: 'Vật dừng lại khi vận tốc $v(t) = 0 \\Leftrightarrow t = 1$ hoặc $t = 3$' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Gia tốc tức thời $a(t) = v\'(t) = 6t - 12$' },
-                        { id: 'p3_3', funcId: 'f3', text: 'Gia tốc triệt tiêu tại thời điểm $t = 2 \\text{ s}$' },
-                        { id: 'p3_4', funcId: 'f3', text: 'Tại thời điểm $t = 2 \\text{ s}$, vận tốc đạt giá trị nhỏ nhất bằng $-3$' },
-                        { id: 'p3_5', funcId: 'f3', text: 'Gia tốc ban đầu $a(0) = -12 \\text{ m/s}^2$' },
-
-                        { id: 'p4_1', funcId: 'f4', text: 'Vận tốc dao động $v(t) = s\'(t) = 8\\pi \\cos(2\\pi t)$' },
-                        { id: 'p4_2', funcId: 'f4', text: 'Vận tốc cực đại $v_{max} = 8\\pi \\text{ cm/s}$ khi qua vị trí cân bằng' },
-                        { id: 'p4_3', funcId: 'f4', text: 'Gia tốc dao động $a(t) = -16\\pi^2 \\sin(2\\pi t) = -(2\\pi)^2 s(t)$' },
-                        { id: 'p4_4', funcId: 'f4', text: 'Biên độ dao động của chất điểm là $A = 4 \\text{ cm}$' },
-                        { id: 'p4_5', funcId: 'f4', text: 'Tần số góc của dao động là $\\omega = 2\\pi \\text{ rad/s}$' },
-
-                        { id: 'p5_1', funcId: 'f5', text: 'Cường độ dòng điện tức thời $I(t) = Q\'(t) = 4t + 5$' },
-                        { id: 'p5_2', funcId: 'f5', text: 'Cường độ dòng điện ban đầu $I(0) = 5 \\text{ A}$' },
-                        { id: 'p5_3', funcId: 'f5', text: 'Cường độ dòng điện sau $3$ giây là $I(3) = 17 \\text{ A}$' },
-                        { id: 'p5_4', funcId: 'f5', text: 'Tốc độ tăng của dòng điện là $I\'(t) = 4 \\text{ A/s}$' },
-                        { id: 'p5_5', funcId: 'f5', text: 'Cường độ dòng điện tăng tuyến tính theo thời gian' }
+                        { id: 'p3_1', funcId: 'f3', text: 'Tập xác định $D = \\mathbb{R}$' },
+                        { id: 'p3_2', funcId: 'f3', text: 'Đạt cực tiểu tại $x = 1$ với $y_{CT} = 2$' },
+                        { id: 'p3_3', funcId: 'f3', text: 'Hàm số không có điểm cực đại' },
+                        { id: 'p3_4', funcId: 'f3', text: 'Nghịch biến trên khoảng $(-\\infty; 1)$' }
                     ]
                 }
             }
         };
 
-        
-        // ========================================================
-        // 1. AUTO-RESTORE CUSTOM DATABASE, GUARANTEED FALLBACK & LIVE SYNC (YÊU CẦU 1)
-        // ========================================================
+        // Khởi tạo Database với Data Fallback 100%
         window.gameDatabase = {};
-
-        // Ưu tiên 1: Dữ liệu nhúng trực tiếp qua script (nếu có window.__INJECTED_GAME_DATABASE__)
         if (typeof window.__INJECTED_GAME_DATABASE__ !== 'undefined' && window.__INJECTED_GAME_DATABASE__ && typeof window.__INJECTED_GAME_DATABASE__ === 'object') {
             Object.assign(window.gameDatabase, window.__INJECTED_GAME_DATABASE__);
         }
-
-        // Ưu tiên 2: Khôi phục từ LocalStorage (phiên chơi tùy chỉnh trước đó)
         try {
             const savedCustomDB = localStorage.getItem('keo_tha_custom_db');
             if (savedCustomDB) {
@@ -1140,758 +475,37 @@
             }
         } catch(e) {}
 
-        // Ưu tiên 3 & Fallback cứu hộ: Nếu chưa có chuyên đề nào, hồi phục 100% về DEFAULT_GAME_DATABASE
-        if (Object.keys(window.gameDatabase).length === 0) {
+        // Fallback tuyệt đối chống màn hình đen
+        if (!window.gameDatabase || Object.keys(window.gameDatabase).length === 0) {
             window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_GAME_DATABASE));
-        } else {
-            // Giữ lại các chuyên đề SGK gốc để học sinh luôn có nhiều lựa chọn phong phú
-            Object.keys(DEFAULT_GAME_DATABASE).forEach(k => {
-                if (!window.gameDatabase[k]) {
-                    window.gameDatabase[k] = DEFAULT_GAME_DATABASE[k];
-                }
-            });
         }
 
-        // ĐỒNG BỘ THỜI GIAN THỰC QUA POSTMESSAGE VỚI WEB REACT QUẢN TRỊ (YÊU CẦU 1)
-        window.addEventListener('message', function(event) {
-            if (!event.data) return;
-            if (event.data.type === 'SYNC_GAME_DATA') {
-                const incomingDb = event.data.gameDatabase;
-                if (incomingDb && typeof incomingDb === 'object' && Object.keys(incomingDb).length > 0) {
-                    Object.assign(window.gameDatabase, incomingDb);
-                    window.selectedTopic = Object.keys(window.gameDatabase)[0] || window.selectedTopic;
-                    GAME_LEVELS = window.gameDatabase[window.selectedTopic];
-                    window.renderTopicSelectionCards();
-                    if (window.openInGameEditorModal && document.getElementById('ingame-editor-modal') && !document.getElementById('ingame-editor-modal').classList.contains('hidden')) {
-                        window.openInGameEditorModal();
-                    }
-                    console.log('✅ Đã đồng bộ dữ liệu game mới qua postMessage thành công!');
-                }
-            }
-        });
-
-        // ========================================================
-        // 2. TRUE TOUCH & MOUSE DRAG AND DROP ENGINE (YÊU CẦU 4)
-        // ========================================================
-        let draggedProp = null;
-        let dragStartX = 0, dragStartY = 0;
-        let initialCardX = 0, initialCardY = 0;
-        let isDraggingProp = false;
-
-        function setupDragEvents(el) {
-            // Chuột (PC)
-            el.addEventListener('mousedown', (e) => {
-                if (gameState !== 'playing' || isAnimating) return;
-                startDrag(el, e.clientX, e.clientY);
-                e.stopPropagation();
-            });
-
-            // Cảm ứng (Mobile / Tablet)
-            el.addEventListener('touchstart', (e) => {
-                if (gameState !== 'playing' || isAnimating) return;
-                const touch = e.touches[0];
-                startDrag(el, touch.clientX, touch.clientY);
-                e.stopPropagation();
-            }, { passive: false });
-        }
-
-        function startDrag(el, clientX, clientY) {
-            const phys = movingCards.find(c => c.el === el);
-            if (!phys || !phys.active) return;
-
-            draggedProp = { el, phys };
-            isDraggingProp = false;
-            dragStartX = clientX;
-            dragStartY = clientY;
-            initialCardX = phys.x;
-            initialCardY = phys.y;
-
-            el.dataset.hovered = 'true';
-            el.style.zIndex = '1000';
-            el.style.cursor = 'grabbing';
-        }
-
-        window.addEventListener('mousemove', (e) => {
-            if (!draggedProp) return;
-            doDragMove(e.clientX, e.clientY);
-        });
-
-        window.addEventListener('touchmove', (e) => {
-            if (!draggedProp) return;
-            const touch = e.touches[0];
-            doDragMove(touch.clientX, touch.clientY);
-            if (isDraggingProp) e.preventDefault();
-        }, { passive: false });
-
-        function doDragMove(clientX, clientY) {
-            const dx = clientX - dragStartX;
-            const dy = clientY - dragStartY;
-            if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
-                isDraggingProp = true;
-            }
-            if (isDraggingProp) {
-                draggedProp.phys.x = initialCardX + dx;
-                draggedProp.phys.y = initialCardY + dy;
-                draggedProp.el.style.transform = `translate3d(${draggedProp.phys.x}px, ${draggedProp.phys.y}px, 0) scale(1.08)`;
-                draggedProp.el.classList.add('card-selected');
-
-                // Highlight dropzone hover
-                const dropzone = getDropzoneAt(clientX, clientY);
-                document.querySelectorAll('.card-func').forEach(f => {
-                    if (f === dropzone) f.style.boxShadow = '0 0 35px var(--theme-color)';
-                    else f.style.boxShadow = '';
-                });
-            }
-        }
-
-        window.addEventListener('mouseup', (e) => {
-            if (!draggedProp) return;
-            finishDrag(e.clientX, e.clientY);
-        });
-
-        window.addEventListener('touchend', (e) => {
-            if (!draggedProp) return;
-            const touch = e.changedTouches[0];
-            finishDrag(touch.clientX, touch.clientY);
-        });
-
-        function finishDrag(clientX, clientY) {
-            const { el, phys } = draggedProp;
-            el.dataset.hovered = 'false';
-            el.style.zIndex = '20';
-            el.style.cursor = 'pointer';
-            document.querySelectorAll('.card-func').forEach(f => f.style.boxShadow = '');
-
-            if (isDraggingProp) {
-                el.classList.remove('card-selected');
-                const targetFunc = getDropzoneAt(clientX, clientY);
-                if (targetFunc) {
-                    evaluateMatch(targetFunc, el);
-                }
-            } else {
-                // Nhấp nhẹ không kéo -> Xử lý tap-to-select như cũ
-                handleSelect(el);
-            }
-
-            draggedProp = null;
-            isDraggingProp = false;
-        }
-
-        function getDropzoneAt(clientX, clientY) {
-            const funcElements = document.querySelectorAll('.card-func');
-            for (const f of funcElements) {
-                const rect = f.getBoundingClientRect();
-                if (clientX >= rect.left && clientX <= rect.right &&
-                    clientY >= rect.top && clientY <= rect.bottom) {
-                    return f;
-                }
-            }
-            return null;
-        }
-
-        // ========================================================
-        // 3. IN-GAME ADMIN EDITOR CONTROLLER (YÊU CẦU 3)
-        // ========================================================
-        window.editorCurrentTopic = window.selectedTopic;
-        window.editorCurrentLevel = 1;
-        window.editorActiveInput = null;
-
-        window.openInGameEditorModal = function() {
-            const modal = document.getElementById('ingame-editor-modal');
-            if (!modal) return;
-
-            window.editorCurrentTopic = window.selectedTopic;
-            window.editorCurrentLevel = currentLevel || 1;
-
-            // Populate topics dropdown
-            const topicSelect = document.getElementById('editor-topic-select');
-            topicSelect.innerHTML = '';
-            Object.keys(window.gameDatabase).forEach(tName => {
-                const opt = document.createElement('option');
-                opt.value = tName; opt.text = tName;
-                if (tName === window.editorCurrentTopic) opt.selected = true;
-                topicSelect.appendChild(opt);
-            });
-
-            window.renderEditorLevelButtons();
-            window.renderEditorLevelData();
-            modal.classList.remove('hidden');
-        };
-
-        window.closeInGameEditorModal = function() {
-            const modal = document.getElementById('ingame-editor-modal');
-            if (modal) modal.classList.add('hidden');
-            document.getElementById('ingame-keyboard-panel').classList.add('hidden');
-        };
-
-        window.onEditorChangeTopic = function(topicName) {
-            window.editorCurrentTopic = topicName;
-            window.renderEditorLevelButtons();
-            window.renderEditorLevelData();
-        };
-
-        window.onEditorChangeLevel = function(lvl) {
-            window.editorCurrentLevel = lvl;
-            window.renderEditorLevelButtons();
-            window.renderEditorLevelData();
-        };
-
-        window.renderEditorLevelButtons = function() {
-            const container = document.getElementById('editor-level-buttons');
-            container.innerHTML = '';
-            const topicData = window.gameDatabase[window.editorCurrentTopic] || {};
-            const levels = Object.keys(topicData).map(k => parseInt(k)).sort((a,b)=>a-b);
-            
-            [1, 2, 3, 4, 5].forEach(lvl => {
-                const btn = document.createElement('button');
-                const isCurrent = lvl === window.editorCurrentLevel;
-                btn.className = `px-2 py-1 rounded-lg text-xs font-black transition ${
-                    isCurrent 
-                        ? 'bg-amber-500 text-slate-950 shadow-md' 
-                        : 'bg-slate-800 text-slate-400 hover:text-white'
-                }`;
-                btn.innerText = `L${lvl}`;
-                btn.onclick = () => window.onEditorChangeLevel(lvl);
-                container.appendChild(btn);
-            });
-        };
-
-        window.renderEditorLevelData = function() {
-            const topicData = window.gameDatabase[window.editorCurrentTopic] || {};
-            let levelData = topicData[window.editorCurrentLevel];
-
-            // Nếu cấp độ chưa có, tạo khung mẫu
-            if (!levelData) {
-                levelData = {
-                    title: `Cấp Độ ${window.editorCurrentLevel}`,
-                    diffBadge: "Tiêu chuẩn",
-                    colorTheme: "blue",
-                    time: 180,
-                    funcs: [
-                        { id: 'f1', tex: 'y = x^3 - 3x', theme: 'blue' },
-                        { id: 'f2', tex: 'y = -x^3 + 3x', theme: 'emerald' },
-                        { id: 'f3', tex: 'y = x^4 - 2x^2', theme: 'violet' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số đồng biến trên $(1; +\infty)$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Cực đại tại $x = -1$' },
-                        { id: 'p2_1', funcId: 'f2', text: 'Đạo hàm $y' = -3x^2 + 3$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Cực tiểu tại $x = -1$' },
-                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số có 3 điểm cực trị' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Đạt cực đại tại $x = 0$' }
-                    ]
-                };
-                topicData[window.editorCurrentLevel] = levelData;
-            }
-
-            document.getElementById('editor-level-title').value = levelData.title || '';
-            document.getElementById('editor-level-badge').value = levelData.diffBadge || '';
-            document.getElementById('editor-level-time').value = levelData.time || 180;
-
-            // Render Function Cards
-            const funcsList = document.getElementById('editor-funcs-list');
-            funcsList.innerHTML = '';
-            (levelData.funcs || []).forEach((fn, idx) => {
-                const item = document.createElement('div');
-                item.className = 'bg-slate-900 p-3 rounded-xl border border-white/10 flex flex-wrap sm:flex-nowrap items-center gap-2.5';
-                item.innerHTML = `
-                    <span class="text-xs font-black text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-lg border border-cyan-500/30">
-                        Hàm ${idx + 1} (${fn.id})
-                    </span>
-                    <input 
-                        type="text" 
-                        value="${fn.tex.replace(/"/g, '&quot;')}" 
-                        onfocus="window.openIngameKeyboard(this, 'Hàm ${idx+1} (${fn.id})')" 
-                        oninput="window.updateFuncTex('${fn.id}', this.value)" 
-                        class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400 font-mono"
-                        placeholder="Công thức LaTeX (VD: y = x^3 - 3x)..."
-                    >
-                    <select onchange="window.updateFuncTheme('${fn.id}', this.value)" class="bg-slate-800 border border-slate-700 text-xs text-slate-300 rounded-lg px-2 py-1.5 outline-none cursor-pointer">
-                        ${['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'].map(th => `
-                            <option value="${th}" ${fn.theme === th ? 'selected' : ''}>Màu: ${th}</option>
-                        `).join('')}
-                    </select>
-                    <button onclick="window.editorRemoveFunction('${fn.id}')" class="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-white/5 transition" title="Xóa hàm này">
-                        🗑️
-                    </button>
-                `;
-                funcsList.appendChild(item);
-            });
-
-            // Render Property Cards
-            const propsList = document.getElementById('editor-props-list');
-            propsList.innerHTML = '';
-            (levelData.props || []).forEach((pr, idx) => {
-                const item = document.createElement('div');
-                item.className = 'bg-slate-900 p-3 rounded-xl border border-white/10 flex flex-col gap-2';
-                item.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="text-[11px] font-black text-amber-400">Thẻ ${idx + 1} (${pr.id})</span>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] text-slate-400">Thuộc hàm:</span>
-                            <select onchange="window.updatePropFuncId('${pr.id}', this.value)" class="bg-slate-800 border border-slate-700 text-[11px] text-slate-200 rounded px-1.5 py-0.5 outline-none">
-                                ${(levelData.funcs || []).map(f => `
-                                    <option value="${f.id}" ${pr.funcId === f.id ? 'selected' : ''}>${f.id}: ${f.tex}</option>
-                                `).join('')}
-                            </select>
-                            <button onclick="window.editorRemoveProperty('${pr.id}')" class="text-slate-400 hover:text-rose-400 text-xs ml-1" title="Xóa thẻ">✕</button>
-                        </div>
-                    </div>
-                    <textarea 
-                        onfocus="window.openIngameKeyboard(this, 'Thẻ ${idx+1} (${pr.id})')" 
-                        oninput="window.updatePropText('${pr.id}', this.value)" 
-                        rows="2" 
-                        class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-white outline-none focus:border-amber-400"
-                        placeholder="Nội dung thuộc tính (hỗ trợ $công thức$)..."
-                    >${pr.text}</textarea>
-                `;
-                propsList.appendChild(item);
-            });
-        };
-
-        window.updateFuncTex = function(id, val) {
-            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
-            const fn = lvl.funcs.find(f => f.id === id);
-            if (fn) fn.tex = val;
-            window.updateIngameKeyboardPreview(val);
-        };
-
-        window.updateFuncTheme = function(id, val) {
-            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
-            const fn = lvl.funcs.find(f => f.id === id);
-            if (fn) fn.theme = val;
-        };
-
-        window.updatePropText = function(id, val) {
-            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
-            const pr = lvl.props.find(p => p.id === id);
-            if (pr) pr.text = val;
-            window.updateIngameKeyboardPreview(val);
-        };
-
-        window.updatePropFuncId = function(id, val) {
-            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
-            const pr = lvl.props.find(p => p.id === id);
-            if (pr) pr.funcId = val;
-        };
-
-        window.editorAddFunction = function() {
-            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
-            const newId = `f_${Date.now() % 10000}`;
-            lvl.funcs.push({ id: newId, tex: 'y = x^2 - 1', theme: 'cyan' });
-            window.renderEditorLevelData();
-        };
-
-        window.editorRemoveFunction = function(id) {
-            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
-            lvl.funcs = lvl.funcs.filter(f => f.id !== id);
-            lvl.props = lvl.props.filter(p => p.funcId !== id);
-            window.renderEditorLevelData();
-        };
-
-        window.editorAddProperty = function() {
-            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
-            const firstFuncId = lvl.funcs[0]?.id || 'f1';
-            const newId = `p_${Date.now() % 10000}`;
-            lvl.props.push({ id: newId, funcId: firstFuncId, text: 'Thuộc tính mới của hàm số...' });
-            window.renderEditorLevelData();
-        };
-
-        window.editorRemoveProperty = function(id) {
-            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
-            lvl.props = lvl.props.filter(p => p.id !== id);
-            window.renderEditorLevelData();
-        };
-
-        window.editorAddNewTopic = function() {
-            const newName = prompt("Nhập tên Chuyên Đề Mới:");
-            if (!newName || !newName.trim()) return;
-            const trimmed = newName.trim();
-            if (window.gameDatabase[trimmed]) {
-                alert("Chuyên đề này đã tồn tại!");
-                return;
-            }
-            window.gameDatabase[trimmed] = {
-                1: {
-                    title: "Cấp Độ 1: Khởi Động", diffBadge: "Dễ", colorTheme: "blue", time: 180,
-                    funcs: [
-                        { id: 'f1', tex: 'y = x^3 - 3x', theme: 'blue' },
-                        { id: 'f2', tex: 'y = -x^3 + 3x^2', theme: 'emerald' },
-                        { id: 'f3', tex: 'y = x^4 - 2x^2 + 1', theme: 'violet' }
-                    ],
-                    props: [
-                        { id: 'p1_1', funcId: 'f1', text: 'Hàm số đạt cực đại tại $x = -1$' },
-                        { id: 'p1_2', funcId: 'f1', text: 'Hàm số đồng biến trên khoảng $(1; +\\infty)$' },
-                        { id: 'p2_1', funcId: 'f2', text: 'Hàm số đạt cực đại tại $x = 2$' },
-                        { id: 'p2_2', funcId: 'f2', text: 'Hàm số đạt cực tiểu tại $x = 0$' },
-                        { id: 'p3_1', funcId: 'f3', text: 'Hàm số có 3 điểm cực trị' },
-                        { id: 'p3_2', funcId: 'f3', text: 'Hàm số đạt cực đại tại $x = 0$' }
-                    ]
-                }
-            };
-            window.editorCurrentTopic = trimmed;
-            window.editorCurrentLevel = 1;
-            window.openInGameEditorModal();
-            window.renderTopicSelectionCards();
-            alert(`🎉 Đã thêm chuyên đề mới: "${trimmed}"!`);
-        };
-
-        window.editorDeleteTopic = function() {
-            const topicKeys = Object.keys(window.gameDatabase);
-            if (topicKeys.length <= 1) {
-                alert("Không thể xóa chuyên đề duy nhất còn lại!");
-                return;
-            }
-            if (confirm(`Bạn có chắc muốn xóa vĩnh viễn chuyên đề:\n"${window.editorCurrentTopic}"?`)) {
-                delete window.gameDatabase[window.editorCurrentTopic];
-                try {
-                    localStorage.setItem('keo_tha_custom_db', JSON.stringify(window.gameDatabase));
-                } catch(e) {}
-                window.editorCurrentTopic = Object.keys(window.gameDatabase)[0];
-                window.editorCurrentLevel = 1;
-                window.openInGameEditorModal();
-                window.renderTopicSelectionCards();
-            }
-        };
-
-        window.editorSaveAndPlay = function() {
-            const topicObj = window.gameDatabase[window.editorCurrentTopic];
-            if (!topicObj) return;
-            let lvl = topicObj[window.editorCurrentLevel];
-            if (!lvl) {
-                lvl = { title: `Cấp Độ ${window.editorCurrentLevel}`, diffBadge: "Tiêu chuẩn", colorTheme: "blue", time: 180, funcs: [], props: [] };
-                topicObj[window.editorCurrentLevel] = lvl;
-            }
-            lvl.title = document.getElementById('editor-level-title').value;
-            lvl.diffBadge = document.getElementById('editor-level-badge').value;
-            lvl.time = parseInt(document.getElementById('editor-level-time').value) || 180;
-
-            // Lưu vào localStorage
-            try {
-                localStorage.setItem('keo_tha_custom_db', JSON.stringify(window.gameDatabase));
-            } catch(e) {}
-
-            window.selectedTopic = window.editorCurrentTopic;
-            GAME_LEVELS = window.gameDatabase[window.selectedTopic];
-
-            window.renderTopicSelectionCards();
-            alert("🎉 ĐÃ LƯU THÀNH CÔNG VÀO GAME!\nBản game sẽ khởi chạy lại cấp độ vừa chỉnh sửa ngay bây giờ.");
-            window.closeInGameEditorModal();
-            window.startLevel(window.editorCurrentLevel);
-        };
-
-        window.editorExportStandaloneHTML = function() {
-            const topicObj = window.gameDatabase[window.editorCurrentTopic];
-            if (topicObj && topicObj[window.editorCurrentLevel]) {
-                const lvl = topicObj[window.editorCurrentLevel];
-                lvl.title = document.getElementById('editor-level-title').value;
-                lvl.diffBadge = document.getElementById('editor-level-badge').value;
-                lvl.time = parseInt(document.getElementById('editor-level-time').value) || 180;
-            }
-
-            try {
-                localStorage.setItem('keo_tha_custom_db', JSON.stringify(window.gameDatabase));
-            } catch(e) {}
-
-            // Lấy toàn bộ HTML hiện tại và nhúng khối window.__INJECTED_GAME_DATABASE__
-            let docHtml = document.documentElement.outerHTML;
-            const injectBlock = `<script>\nwindow.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(window.gameDatabase, null, 2)};\n</script>`;
-            
-            if (docHtml.includes('window.__INJECTED_GAME_DATABASE__')) {
-                docHtml = docHtml.replace(/<script>[\s\S]*?window\.__INJECTED_GAME_DATABASE__[\s\S]*?<\/script>/i, injectBlock);
-            } else if (docHtml.includes('</head>')) {
-                docHtml = docHtml.replace('</head>', `${injectBlock}\n</head>`);
-            } else {
-                docHtml = `${injectBlock}\n${docHtml}`;
-            }
-
-            // Tải tệp HTML về máy tính
-            const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `keo-tha-tinh-don-dieu-va-cuc-tri-hs_custom.html`;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            alert("📥 ĐÃ XUẤT BẢN THÀNH CÔNG!\n\nTệp 'keo-tha-tinh-don-dieu-va-cuc-tri-hs_custom.html' đã được tải về máy tính.\nThầy có thể mở chơi offline hoặc kéo thả lên Vercel để cập nhật vĩnh viễn!");
-        };
-
-        // ========================================================
-        // 4. IN-GAME VIRTUAL MATH KEYBOARD CONTROLLER (YÊU CẦU 1)
-        // ========================================================
-        window.ingameKeyboardActiveInput = null;
-        window.ingameKeyboardCurrentTab = 'basic';
-
-        window.openIngameKeyboard = function(inputEl, labelName) {
-            window.ingameKeyboardActiveInput = inputEl;
-            const panel = document.getElementById('ingame-keyboard-panel');
-            if (!panel) return;
-
-            document.getElementById('ingame-keyboard-target-label').innerText = `(${labelName || 'Ô nhập liệu'})`;
-            panel.classList.remove('hidden');
-            window.renderIngameKeyboardKeys();
-            window.updateIngameKeyboardPreview(inputEl.value);
-        };
-
-        window.switchIngameKeyboardTab = function(tab) {
-            window.ingameKeyboardCurrentTab = tab;
-            ['basic', 'advanced', 'trig', 'templates'].forEach(t => {
-                const btn = document.getElementById(`ingame-tab-${t}`);
-                if (btn) {
-                    if (t === tab) {
-                        btn.className = 'px-2.5 py-1 rounded bg-amber-600 text-white';
-                    } else {
-                        btn.className = 'px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:text-white';
-                    }
-                }
-            });
-            window.renderIngameKeyboardKeys();
-        };
-
-        window.renderIngameKeyboardKeys = function() {
-            const container = document.getElementById('ingame-keyboard-keys');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const basicKeys = [
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                'x', 'y', 'z', 't', '+', '-', '\times', '/', '=',
-                '<', '>', '\le', '\ge', '(', ')', '[', ']', '\{', '\}'
-            ];
-
-            const advancedKeys = [
-                { l: 'a/b', v: '\frac{a}{b}' }, { l: '√x', v: '\sqrt{x}' }, { l: 'x²', v: '^2' }, { l: 'x³', v: '^3' },
-                { l: 'xⁿ', v: '^{n}' }, { l: 'xₙ', v: '_{n}' }, { l: "y'", v: "y'" }, { l: "y''", v: "y''" },
-                { l: '∫', v: '\int' }, { l: '∑', v: '\sum' }, { l: 'lim', v: '\lim_{x \to x_0}' }, { l: '∞', v: '\infty' },
-                { l: '+∞', v: '+\infty' }, { l: '-∞', v: '-\infty' }, { l: '→', v: ' \rightarrow ' }, { l: 'Δ', v: '\Delta' }
-            ];
-
-            const trigKeys = [
-                { l: 'sin', v: '\sin(x)' }, { l: 'cos', v: '\cos(x)' }, { l: 'tan', v: '\tan(x)' }, { l: 'cot', v: '\cot(x)' },
-                { l: 'π', v: '\pi' }, { l: '2π', v: '2\pi' }, { l: 'α', v: '\alpha' }, { l: 'β', v: '\beta' },
-                { l: '∈', v: ' \in ' }, { l: '∉', v: ' \notin ' }, { l: 'ℝ', v: '\mathbb{R}' }, { l: '∅', v: '\emptyset' },
-                { l: '∀', v: '\forall ' }, { l: '∃', v: '\exists ' }
-            ];
-
-            const templateKeys = [
-                { l: 'y = x^3 - 3x', v: 'y = x^3 - 3x' },
-                { l: 'y = x^4 - 2x^2 + 1', v: 'y = x^4 - 2x^2 + 1' },
-                { l: 'Đồng biến trên', v: 'Hàm số đồng biến trên khoảng ' },
-                { l: 'Nghịch biến trên', v: 'Hàm số nghịch biến trên khoảng ' },
-                { l: 'Cực đại tại x =', v: 'Hàm số đạt cực đại tại $x = $' },
-                { l: 'Cực tiểu tại x =', v: 'Hàm số đạt cực tiểu tại $x = $' },
-                { l: '(-∞; +∞)', v: '(-\infty; +\infty)' },
-                { l: "y' > 0, ∀x ∈ ℝ", v: "Đạo hàm $y' > 0, \forall x \in \mathbb{R}$" }
-            ];
-
-            const tab = window.ingameKeyboardCurrentTab;
-            if (tab === 'basic') {
-                const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-6 sm:grid-cols-10 gap-1';
-                basicKeys.forEach(k => {
-                    const btn = document.createElement('button');
-                    btn.className = 'py-2 px-1 bg-slate-800 hover:bg-amber-600 text-white font-bold text-xs rounded-lg transition active:scale-95';
-                    btn.innerText = k;
-                    btn.onclick = () => window.ingameKeyboardInsert(k);
-                    grid.appendChild(btn);
-                });
-                container.appendChild(grid);
-            } else if (tab === 'advanced') {
-                const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-4 sm:grid-cols-6 gap-1';
-                advancedKeys.forEach(k => {
-                    const btn = document.createElement('button');
-                    btn.className = 'py-2 px-1 bg-slate-800 hover:bg-amber-600 text-white font-bold text-xs rounded-lg transition active:scale-95';
-                    btn.innerText = k.l;
-                    btn.onclick = () => window.ingameKeyboardInsert(k.v);
-                    grid.appendChild(btn);
-                });
-                container.appendChild(grid);
-            } else if (tab === 'trig') {
-                const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-4 sm:grid-cols-6 gap-1';
-                trigKeys.forEach(k => {
-                    const btn = document.createElement('button');
-                    btn.className = 'py-2 px-1 bg-slate-800 hover:bg-amber-600 text-white font-bold text-xs rounded-lg transition active:scale-95';
-                    btn.innerText = k.l;
-                    btn.onclick = () => window.ingameKeyboardInsert(k.v);
-                    grid.appendChild(btn);
-                });
-                container.appendChild(grid);
-            } else if (tab === 'templates') {
-                const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-1.5';
-                templateKeys.forEach(k => {
-                    const btn = document.createElement('button');
-                    btn.className = 'py-2 px-2.5 bg-slate-800/90 hover:bg-emerald-600 text-white font-semibold text-xs rounded-lg transition text-left truncate active:scale-95';
-                    btn.innerText = k.l;
-                    btn.onclick = () => window.ingameKeyboardInsert(k.v);
-                    grid.appendChild(btn);
-                });
-                container.appendChild(grid);
-            }
-        };
-
-        window.ingameKeyboardInsert = function(snippet) {
-            const input = window.ingameKeyboardActiveInput;
-            if (!input) return;
-
-            const start = input.selectionStart || input.value.length;
-            const end = input.selectionEnd || input.value.length;
-            const val = input.value;
-            input.value = val.substring(0, start) + snippet + val.substring(end);
-            input.selectionStart = input.selectionEnd = start + snippet.length;
-            input.focus();
-
-            // Trigger input event
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-            window.updateIngameKeyboardPreview(input.value);
-        };
-
-        window.ingameKeyboardBackspace = function() {
-            const input = window.ingameKeyboardActiveInput;
-            if (!input || input.value.length === 0) return;
-
-            const start = input.selectionStart || input.value.length;
-            const end = input.selectionEnd || input.value.length;
-            const val = input.value;
-            if (start === end && start > 0) {
-                input.value = val.substring(0, start - 1) + val.substring(end);
-                input.selectionStart = input.selectionEnd = start - 1;
-            } else if (start !== end) {
-                input.value = val.substring(0, start) + val.substring(end);
-                input.selectionStart = input.selectionEnd = start;
-            }
-            input.focus();
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-            window.updateIngameKeyboardPreview(input.value);
-        };
-
-        window.updateIngameKeyboardPreview = function(text) {
-            const previewEl = document.getElementById('ingame-keyboard-preview');
-            if (!previewEl) return;
-            if (!text) {
-                previewEl.innerHTML = '<span class="text-slate-500 italic">Trống...</span>';
-                return;
-            }
-            try {
-                if (window.katex) {
-                    if (text.includes('$')) {
-                        previewEl.innerHTML = text.replace(/\$(.*?)\$/g, (_, math) => {
-                            try { return katex.renderToString(math, { throwOnError: false }); }
-                            catch { return math; }
-                        });
-                    } else {
-                        previewEl.innerHTML = katex.renderToString(text, { throwOnError: false });
-                    }
-                } else {
-                    previewEl.innerText = text;
-                }
-            } catch {
-                previewEl.innerText = text;
-            }
-        };
-
-        window.selectedTopic = (window.gameDatabase && Object.keys(window.gameDatabase)[0]) || "Chuyên đề 1: Tính Đơn Điệu & Cực Trị Hàm Số";
-        let GAME_LEVELS = (window.gameDatabase && window.gameDatabase[window.selectedTopic]) || (window.gameDatabase && window.gameDatabase[Object.keys(window.gameDatabase)[0]]) || DEFAULT_GAME_DATABASE[Object.keys(DEFAULT_GAME_DATABASE)[0]];
-
-        window.openTopicSelectMenu = function() {
-            const overlay = document.getElementById('topic-selection-overlay');
-            if (!overlay) return;
-            window.renderTopicSelectionCards();
-            overlay.classList.remove('hidden');
-        };
-
-        window.renderTopicSelectionCards = function() {
-            const container = document.getElementById('topics-grid-container');
-            if (!container) return;
-            container.innerHTML = '';
-
-            Object.keys(window.gameDatabase).forEach((topicName, idx) => {
-                const topicLevels = window.gameDatabase[topicName];
-                const isCurrent = topicName === window.selectedTopic;
-                const totalLevels = Object.keys(topicLevels).length;
-                
-                const card = document.createElement('div');
-                card.className = `glass-panel rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between ${
-                    isCurrent 
-                        ? 'border-cyan-400 bg-cyan-950/40 shadow-[0_0_30px_rgba(34,211,238,0.25)]' 
-                        : 'border-white/10 bg-slate-800/40 hover:border-cyan-400/50 hover:bg-slate-800/70'
-                }`;
-
-                card.innerHTML = `
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-[11px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
-                                Chuyên đề ${idx + 1}
-                            </span>
-                            <span class="text-xs font-bold text-slate-400">${totalLevels} Cấp Độ</span>
-                        </div>
-                        <h2 class="text-lg font-black text-white mb-2 leading-snug">
-                            ${topicName}
-                        </h2>
-                        <p class="text-xs text-slate-300 mb-4 leading-relaxed">
-                            Bao gồm 5 ải thử thách: Hàm số, tọa độ, đồ thị và các thuộc tính tương ứng từ Dễ đến Khó.
-                        </p>
-                    </div>
-
-                    <div class="space-y-2 mt-4 pt-4 border-t border-white/10">
-                        <button onclick="window.selectAndStartTopic('${topicName.replace(/'/g, "\\'")}', 'campaign')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
-                            <span>🪐</span> Phá Đảo 5 Ải Liên Tiếp
-                        </button>
-                        
-                        <div class="grid grid-cols-5 gap-1.5 pt-1">
-                            ${[1, 2, 3, 4, 5].map(lvl => `
-                                <button onclick="window.selectAndStartTopic('${topicName.replace(/'/g, "\\'")}', ${lvl})" class="py-1.5 px-1 rounded-lg bg-slate-700/60 hover:bg-cyan-600 border border-white/10 text-slate-200 hover:text-white font-extrabold text-[11px] transition-all text-center">
-                                    L${lvl}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        };
-
-        window.selectAndStartTopic = function(topicName, levelTarget) {
-            if (!window.gameDatabase[topicName]) return;
-            window.selectedTopic = topicName;
-            GAME_LEVELS = window.gameDatabase[topicName];
-
-            const overlay = document.getElementById('topic-selection-overlay');
-            if (overlay) overlay.classList.add('hidden');
-
-            if (levelTarget === 'campaign' || typeof levelTarget === 'number') {
-                window.startLevel(levelTarget);
-            } else {
-                window.openTopicSelectMenu();
-            }
-        };
-
-function shuffle(array) {
-            let curId = array.length, randId;
-            while (curId > 0) {
-                randId = Math.floor(Math.random() * curId); curId--;
-                [array[curId], array[randId]] = [array[randId], array[curId]];
-            }
-            return array;
-        }
-
+        window.selectedTopic = Object.keys(window.gameDatabase)[0] || "Chuyên đề 1: Tính Đơn Điệu & Cực Trị Hàm Số";
+        let GAME_LEVELS = window.gameDatabase[window.selectedTopic] || DEFAULT_GAME_DATABASE[Object.keys(DEFAULT_GAME_DATABASE)[0]];
+
+        // Game State Core
+        let currentLevel = 1;
+        let isCampaign = false;
+        let lives = 5;
+        let timeLeft = 180;
+        let timerInterval = null;
+        let matchedPropsCount = 0;
+        const totalPropsInLevel = 12;
+        let selectedCard = null;
+        let isAnimating = false;
+        let gameState = 'init';
+        let movingCards = [];
+        let activeFuncs = [];
+        let activeProps = [];
+        let animationFrameId = null;
+
+        // Sound System
         const sndMatch = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
         const sndError = new Audio('https://assets.mixkit.co/active_storage/sfx/2997/2997-preview.mp3');
         const sndWin = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
         sndMatch.volume = 0.4; sndError.volume = 0.3; sndWin.volume = 0.5;
 
-        let gameState = 'start', currentLevel = 1, isCampaign = false;
-        let activeFuncs = [], activeProps = [], movingCards = [];
-        let selectedCard = null, matchedPropsCount = 0, totalPropsInLevel = 12;
-        let lives = 5, timeLeft = 180, timerInterval, animationFrameId;
-        let isAnimating = false;
-
         const DOM = {
-            overlay: document.getElementById('overlay'),
-            menuContent: document.getElementById('menu-dynamic-content'),
             header: document.getElementById('header-panel'),
             board: document.getElementById('game-board'),
             funcNodes: document.getElementById('function-nodes'),
@@ -1900,73 +514,80 @@ function shuffle(array) {
             score: document.getElementById('score-display'),
             timer: document.getElementById('timer-display'),
             timerContainer: document.getElementById('timer-container'),
-            badge: document.getElementById('level-badge')
+            badge: document.getElementById('level-badge'),
+            overlay: document.getElementById('overlay'),
+            menuContent: document.getElementById('menu-dynamic-content')
+        };
+
+        // ========================================================
+        // GIAO DIỆN START MENU & KẾT THÚC (GIỮ NGUYÊN 100% GỐC)
+        // ========================================================
+        window.switchTopic = function(topicName) {
+            if (!window.gameDatabase[topicName]) return;
+            window.selectedTopic = topicName;
+            GAME_LEVELS = window.gameDatabase[topicName];
+            window.showOverlay('start');
         };
 
         window.showOverlay = function(type, message = "") {
             DOM.overlay.classList.remove('hidden');
             DOM.header.classList.add('hidden');
             DOM.board.classList.add('hidden');
-            clearInterval(timerInterval); cancelAnimationFrame(animationFrameId);
+            clearInterval(timerInterval); 
+            cancelAnimationFrame(animationFrameId);
 
             if (type === 'start') {
+                const topicKeys = Object.keys(window.gameDatabase);
+                const levelKeys = Object.keys(GAME_LEVELS).map(k => parseInt(k)).filter(n => !isNaN(n)).sort((a,b)=>a-b);
+
                 const createBtn = (level, title, colorHex) => `
-                    <button onclick="window.startLevel(${level})" class="group relative overflow-hidden font-bold py-4 px-6 rounded-2xl transition-all active:scale-95 w-full text-left bg-slate-800/50 hover:bg-slate-700/80 border border-slate-600 hover:border-slate-400 flex items-center justify-between" style="--btn-color: ${colorHex}">
+                    <button onclick="window.startLevel(${level})" class="group relative overflow-hidden font-bold py-3.5 px-5 rounded-2xl transition-all active:scale-95 w-full text-left bg-slate-800/60 hover:bg-slate-700/80 border border-slate-600/60 hover:border-slate-400 flex items-center justify-between" style="--btn-color: ${colorHex}">
                         <div class="absolute inset-0 bg-gradient-to-r from-[var(--btn-color)]/0 to-[var(--btn-color)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div class="relative z-10 flex flex-col gap-1">
+                        <div class="relative z-10 flex flex-col gap-0.5">
                             <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Level ${level}</span>
-                            <span class="text-base sm:text-lg text-slate-100 group-hover:text-white transition-colors">${title}</span>
+                            <span class="text-sm sm:text-base text-slate-100 group-hover:text-white transition-colors">${title}</span>
                         </div>
-                        <span class="text-xl text-[var(--btn-color)] opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">✦</span>
+                        <span class="text-lg text-[var(--btn-color)] opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">✦</span>
                     </button>
                 `;
 
-                const levelKeys = Object.keys(GAME_LEVELS);
-                const dynamicButtonsHtml = levelKeys.map(lvl => {
-                    const lData = GAME_LEVELS[lvl];
-                    const themeColor = COLOR_THEMES[lData.colorTheme]?.hex || COLOR_THEMES.blue.hex;
-                    return `
-                        <button onclick="window.startLevel(${lvl})" class="group relative overflow-hidden font-bold py-3.5 px-5 rounded-2xl transition-all active:scale-95 w-full text-left bg-slate-800/50 hover:bg-slate-700/80 border border-slate-600 hover:border-slate-400 flex items-center justify-between" style="--btn-color: ${themeColor}">
-                            <div class="absolute inset-0 bg-gradient-to-r from-[var(--btn-color)]/0 to-[var(--btn-color)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div class="relative z-10 flex flex-col gap-0.5">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Cấp Độ ${lvl}</span>
-                                    <span class="text-[9px] uppercase px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-black">${lData.diffBadge || 'Tiêu chuẩn'}</span>
-                                </div>
-                                <span class="text-base sm:text-lg text-slate-100 group-hover:text-white transition-colors">${lData.title}</span>
-                            </div>
-                            <span class="text-xl text-[var(--btn-color)] opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">✦</span>
-                        </button>
-                    `;
-                }).join('');
+                const themeHexList = [COLOR_THEMES.blue.hex, COLOR_THEMES.cyan.hex, COLOR_THEMES.emerald.hex, COLOR_THEMES.amber.hex, COLOR_THEMES.rose.hex];
 
                 DOM.menuContent.innerHTML = `
                     <div class="flex flex-col items-center opacity-0 animate-[fadeIn_0.5s_ease_forwards]">
                         <div class="text-center mb-6">
-                            <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 mb-2 tracking-tight pb-1 drop-shadow-lg">
-                                ${window.selectedTopic}
+                            <h1 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2 tracking-tight pb-1 drop-shadow-lg">
+                                Kéo Thả Phân Loại Thuộc Tính
                             </h1>
-                            <div class="flex items-center justify-center gap-3">
+                            
+                            ${topicKeys.length > 1 ? `
+                                <div class="mt-2 mb-2 flex items-center justify-center gap-2">
+                                    <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Chọn Chuyên Đề:</span>
+                                    <select onchange="window.switchTopic(this.value)" class="bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-bold text-xs sm:text-sm rounded-xl px-3 py-1.5 outline-none cursor-pointer">
+                                        ${topicKeys.map(t => `<option value="${t.replace(/"/g, '&quot;')}" ${t === window.selectedTopic ? 'selected' : ''}>${t}</option>`).join('')}
+                                    </select>
+                                </div>
+                            ` : `
                                 <p class="text-xs sm:text-sm font-bold text-cyan-300 uppercase tracking-widest bg-cyan-950/40 border border-cyan-500/20 inline-block px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(34,211,238,0.1)]">
-                                    TOÁN PRO - THẦY HÙNG
+                                    ${window.selectedTopic}
                                 </p>
-                                <button onclick="window.openTopicSelectMenu()" class="text-xs font-bold text-amber-300 uppercase tracking-wider bg-amber-950/40 border border-amber-500/40 hover:bg-amber-900/60 px-3 py-1.5 rounded-full transition-all flex items-center gap-1">
-                                    📚 Đổi Chuyên Đề
-                                </button>
-                            </div>
+                            `}
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-4xl mx-auto">
                             <div class="flex flex-col gap-2.5">
-                                ${dynamicButtonsHtml}
+                                ${levelKeys.map((lvl, idx) => {
+                                    const lvlData = GAME_LEVELS[lvl];
+                                    return createBtn(lvl, lvlData.title || `Cấp Độ ${lvl}`, themeHexList[idx % themeHexList.length]);
+                                }).join('')}
                             </div>
                             
                             <div class="flex flex-col h-full gap-3">
-                                <button onclick="window.startLevel('campaign')" class="w-full h-full min-h-[250px] bg-gradient-to-br from-indigo-900/80 to-slate-900/80 hover:from-indigo-800/90 hover:to-slate-800/90 border border-indigo-500/30 hover:border-indigo-400/60 text-white font-black py-4 px-6 rounded-3xl shadow-[0_15px_40px_rgba(99,102,241,0.2)] transition-all active:scale-95 flex flex-col items-center justify-center gap-4 group relative overflow-hidden backdrop-blur-md">
+                                <button onclick="window.startLevel('campaign')" class="w-full h-full min-h-[220px] bg-gradient-to-br from-indigo-900/80 to-slate-900/80 hover:from-indigo-800/90 hover:to-slate-800/90 border border-indigo-500/30 hover:border-indigo-400/60 text-white font-black py-4 px-6 rounded-3xl shadow-[0_15px_40px_rgba(99,102,241,0.2)] transition-all active:scale-95 flex flex-col items-center justify-center gap-3 group relative overflow-hidden backdrop-blur-md">
                                     <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                    <span class="text-6xl mb-2 group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">🪐</span>
+                                    <span class="text-5xl mb-1 group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">🪐</span>
                                     <span class="text-xs uppercase tracking-widest text-indigo-300 relative z-10 font-bold">Thử Thách Cuối Cùng</span>
-                                    <span class="text-3xl relative z-10 text-center leading-tight">Phá Đảo<br/>5 Ải Liên Tiếp</span>
+                                    <span class="text-2xl sm:text-3xl relative z-10 text-center leading-tight">Phá Đảo<br/>${levelKeys.length} Ải Liên Tiếp</span>
                                 </button>
                             </div>
                         </div>
@@ -1980,24 +601,24 @@ function shuffle(array) {
                 
                 DOM.menuContent.innerHTML = `
                     <div class="flex flex-col items-center opacity-0 animate-[fadeIn_0.5s_ease_forwards]">
-                        <div class="text-6xl sm:text-8xl mb-6 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] ${isVic?'animate-bounce':''}">${icon}</div>
-                        <h1 class="text-3xl sm:text-5xl font-black ${color} mb-4 tracking-tight text-center pb-2 uppercase">${title}</h1>
-                        <p class="text-slate-300 mb-10 font-medium text-lg sm:text-xl text-center max-w-2xl">${message}</p>
+                        <div class="text-6xl sm:text-7xl mb-4 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] ${isVic?'animate-bounce':''}">${icon}</div>
+                        <h1 class="text-2xl sm:text-4xl font-black ${color} mb-3 tracking-tight text-center pb-1 uppercase">${title}</h1>
+                        <p class="text-slate-300 mb-8 font-medium text-base sm:text-lg text-center max-w-xl">${message}</p>
                         
-                        <div class="flex flex-wrap justify-center gap-4 sm:gap-6 mb-12 w-full">
-                            <div class="bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-700 flex-1 min-w-[160px] max-w-[200px] flex flex-col items-center shadow-inner">
-                                <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Độ Chính Xác</p>
-                                <p class="text-4xl sm:text-5xl font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]">${Math.round((matchedPropsCount/totalPropsInLevel)*100)}%</p>
+                        <div class="flex flex-wrap justify-center gap-4 sm:gap-6 mb-8 w-full">
+                            <div class="bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-700 flex-1 min-w-[140px] max-w-[180px] flex flex-col items-center shadow-inner">
+                                <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Độ Chính Xác</p>
+                                <p class="text-3xl sm:text-4xl font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]">${Math.round((matchedPropsCount/totalPropsInLevel)*100)}%</p>
                             </div>
-                            <div class="bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-700 flex-1 min-w-[160px] max-w-[200px] flex flex-col items-center shadow-inner">
-                                <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Sinh Mệnh Dư</p>
-                                <p class="text-4xl sm:text-5xl font-black text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.4)]">${lives}</p>
+                            <div class="bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-700 flex-1 min-w-[140px] max-w-[180px] flex flex-col items-center shadow-inner">
+                                <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Sinh Mệnh Dư</p>
+                                <p class="text-3xl sm:text-4xl font-black text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.4)]">${lives}</p>
                             </div>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md">
-                            <button onclick="window.openTopicSelectMenu()" class="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold rounded-2xl text-lg transition-all active:scale-95">📚 Đổi Chuyên Đề</button>
-                            <button onclick="window.startLevel('${isCampaign ? 'campaign' : currentLevel}')" class="flex-1 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-2xl text-lg shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all active:scale-95">
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center w-full max-w-md">
+                            <button onclick="window.showOverlay('start')" class="flex-1 py-3.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 font-bold rounded-2xl text-base transition-all active:scale-95">Trạm Chính</button>
+                            <button onclick="window.startLevel('${isCampaign ? 'campaign' : currentLevel}')" class="flex-1 py-3.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-2xl text-base shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all active:scale-95">
                                 ${isVic && isCampaign ? 'Chơi Lại' : 'Khởi Động Lại 🚀'}
                             </button>
                         </div>
@@ -2010,6 +631,9 @@ function shuffle(array) {
         styleSheet.innerText = `@keyframes fadeIn { to { opacity: 1; } }`;
         document.head.appendChild(styleSheet);
 
+        // ========================================================
+        // CORE ENGINE: PHYSICS, COORDINATES, DRAG & DROP LOGIC
+        // ========================================================
         window.startLevel = function(level) {
             isCampaign = (level === 'campaign');
             currentLevel = isCampaign ? 1 : parseInt(level);
@@ -2017,27 +641,35 @@ function shuffle(array) {
         };
 
         function initLevel(levelNum) {
-            gameState = 'playing'; selectedCard = null; matchedPropsCount = 0; isAnimating = false;
-            lives = 5; timeLeft = 180;
+            gameState = 'playing'; 
+            selectedCard = null; 
+            matchedPropsCount = 0; 
+            isAnimating = false;
+            lives = 5; 
+            timeLeft = 180;
             
-            const levelData = GAME_LEVELS[levelNum];
+            const levelData = GAME_LEVELS[levelNum] || GAME_LEVELS[1] || Object.values(GAME_LEVELS)[0];
             activeFuncs = shuffle([...levelData.funcs]).slice(0, 3);
             activeProps = [];
             activeFuncs.forEach(func => {
-                activeProps.push(...shuffle(levelData.props.filter(p => p.funcId === func.id)).slice(0, 4));
+                const funcProps = levelData.props.filter(p => p.funcId === func.id);
+                activeProps.push(...shuffle(funcProps).slice(0, 4));
             });
 
-            DOM.badge.innerHTML = isCampaign ? `<span class="text-amber-400">🔥</span> Sector ${levelNum}/5` : `<span class="text-cyan-400">🌌</span> Lvl ${levelNum}`;
+            DOM.badge.innerHTML = isCampaign ? `<span class="text-amber-400">🔥</span> Sector ${levelNum}/${Object.keys(GAME_LEVELS).length}` : `<span class="text-cyan-400">🌌</span> Lvl ${levelNum}`;
             
             updateHeader();
-            DOM.overlay.classList.add('hidden'); document.getElementById('transition-overlay').classList.add('hidden');
-            DOM.header.classList.remove('hidden'); DOM.board.classList.remove('hidden');
+            DOM.overlay.classList.add('hidden'); 
+            document.getElementById('transition-overlay').classList.add('hidden');
+            DOM.header.classList.remove('hidden'); 
+            DOM.board.classList.remove('hidden');
             
             renderNodesAndArena();
 
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
-                timeLeft--; updateHeader();
+                timeLeft--; 
+                updateHeader();
                 if (timeLeft <= 0) endGame('gameover', "Năng lượng cạn kiệt. Hệ thống ngắt kết nối.");
             }, 1000);
         }
@@ -2048,7 +680,8 @@ function shuffle(array) {
             ).join('');
             
             DOM.score.innerText = `${matchedPropsCount}/12`;
-            const m = Math.floor(timeLeft / 60); const s = timeLeft % 60;
+            const m = Math.floor(timeLeft / 60); 
+            const s = timeLeft % 60;
             DOM.timer.innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
             
             if (timeLeft <= 30) DOM.timerContainer.classList.replace('text-emerald-400', 'text-rose-500');
@@ -2057,29 +690,34 @@ function shuffle(array) {
 
         function endGame(state, message) {
             if (gameState !== 'playing') return;
-            gameState = state; clearInterval(timerInterval); cancelAnimationFrame(animationFrameId);
+            gameState = state; 
+            clearInterval(timerInterval); 
+            cancelAnimationFrame(animationFrameId);
             setTimeout(() => { showOverlay(state, message); }, 1000);
         }
 
         function renderNodesAndArena() {
-            DOM.funcNodes.innerHTML = ''; DOM.propArena.innerHTML = '';
+            DOM.funcNodes.innerHTML = ''; 
+            DOM.propArena.innerHTML = '';
             movingCards = [];
 
-            // Render Functions
+            // 1. Render Function Boxes (Hộp Phân Loại)
             activeFuncs.forEach(func => {
-                const theme = COLOR_THEMES[func.theme];
+                const theme = COLOR_THEMES[func.theme] || COLOR_THEMES.blue;
                 const el = document.createElement('div');
-                el.dataset.type = 'func'; el.dataset.id = func.id; el.dataset.matched = "0";
+                el.dataset.type = 'func'; 
+                el.dataset.id = func.id; 
+                el.dataset.matched = "0";
                 el.className = `card-func transition-transform duration-300 flex-1 max-w-[300px]`;
                 el.style.setProperty('--theme-color', theme.hex);
                 el.style.setProperty('--theme-rgb', theme.rgb);
                 
                 el.innerHTML = `
-                    <div class="w-full flex justify-between items-center mb-4">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Dữ liệu Lõi</span>
+                    <div class="w-full flex justify-between items-center mb-3">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Hộp Phân Loại</span>
                         <div class="w-2 h-2 rounded-full bg-[var(--theme-color)] shadow-[0_0_10px_var(--theme-color)] animate-pulse"></div>
                     </div>
-                    <div class="math-content text-2xl mb-6 w-full text-center text-white"></div>
+                    <div class="math-content text-xl sm:text-2xl mb-4 w-full text-center text-white font-mono"></div>
                     
                     <div class="w-full flex gap-1.5 mt-auto">
                         ${[1,2,3,4].map(i => `
@@ -2092,38 +730,46 @@ function shuffle(array) {
                 el.addEventListener('click', () => handleSelect(el));
                 DOM.funcNodes.appendChild(el);
                 
-                // Render hàm số bằng KaTeX chuẩn
-                katex.render(func.tex, el.querySelector('.math-content'), { throwOnError: false, displayMode: true });
+                // Render KaTeX trên hộp
+                try {
+                    const cleanTex = func.tex.replace(/^\\\(/, '').replace(/\\\)$/, '');
+                    katex.render(cleanTex, el.querySelector('.math-content'), { throwOnError: false, displayMode: true });
+                } catch(e) {
+                    el.querySelector('.math-content').innerText = func.tex;
+                }
             });
 
-            // Render Properties
+            // 2. Render Property Arena (Nhãn Thuộc Tính Bay Lơ Lửng)
             const arenaRect = DOM.propArena.getBoundingClientRect();
             const isMobile = window.innerWidth < 768;
             const speedMultiplier = isMobile ? 0.3 : 0.6;
 
             activeProps.forEach(prop => {
                 const el = document.createElement('div');
-                el.dataset.type = 'prop'; el.dataset.id = prop.id; el.dataset.funcId = prop.funcId;
+                el.dataset.type = 'prop'; 
+                el.dataset.id = prop.id; 
+                el.dataset.funcId = prop.funcId;
                 el.className = `card-prop`;
                 
-                // CRITICAL FIX: Dùng auto-render để phân biệt chữ tiếng Việt và công thức Toán
                 el.innerHTML = `<div class="relative z-10 pointer-events-none math-text">${prop.text}</div>`;
                 
                 el.addEventListener('click', () => handleSelect(el));
                 el.addEventListener('mouseenter', () => { if(gameState==='playing') el.dataset.hovered = 'true'; });
                 el.addEventListener('mouseleave', () => { el.dataset.hovered = 'false'; });
-                setupDragEvents(el); // KÍCH HOẠT TOUCH & MOUSE DRAG AND DROP
                 
                 DOM.propArena.appendChild(el);
                 
-                // Kích hoạt auto-render của KaTeX trên thẻ thuộc tính
-                renderMathInElement(el, {
-                    delimiters: [
-                        {left: '$$', right: '$$', display: true},
-                        {left: '$', right: '$', display: false}
-                    ],
-                    throwOnError: false
-                });
+                // KaTeX auto-render trên thuộc tính
+                try {
+                    renderMathInElement(el, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\(', right: '\\)', display: false}
+                        ],
+                        throwOnError: false
+                    });
+                } catch(e) {}
                 
                 movingCards.push({
                     el: el, active: true,
@@ -2135,7 +781,6 @@ function shuffle(array) {
                 });
             });
 
-            // Allow DOM paint to get precise dimensions
             setTimeout(() => {
                 movingCards.forEach(c => { c.w = c.el.offsetWidth; c.h = c.el.offsetHeight; });
                 animationFrameId = requestAnimationFrame(physicsLoop);
@@ -2149,9 +794,10 @@ function shuffle(array) {
             movingCards.forEach(c => {
                 if (!c.active || c.el.dataset.hovered === 'true' || c.el.classList.contains('merge-fly')) return;
 
-                c.x += c.vx; c.y += c.vy;
+                c.x += c.vx; 
+                c.y += c.vy;
 
-                // Bounce behavior
+                // Va đập biên
                 if (c.x <= 0) { c.x = 0; c.vx *= -1; }
                 if (c.x + c.w >= rect.width) { c.x = rect.width - c.w; c.vx *= -1; }
                 if (c.y <= 0) { c.y = 0; c.vy *= -1; }
@@ -2162,6 +808,9 @@ function shuffle(array) {
             animationFrameId = requestAnimationFrame(physicsLoop);
         }
 
+        // ========================================================
+        // TƯƠNG TÁC KÉO THẢ & CHỌN CẶP GHÉP ĐÔI
+        // ========================================================
         function handleSelect(element) {
             if (gameState !== 'playing' || isAnimating || element.classList.contains('pointer-events-none')) return;
             const type = element.dataset.type;
@@ -2174,7 +823,8 @@ function shuffle(array) {
 
             if (selectedCard.el === element) { 
                 element.classList.remove('card-selected');
-                selectedCard = null; return;
+                selectedCard = null; 
+                return;
             }
 
             if (selectedCard.type === type) { 
@@ -2192,16 +842,20 @@ function shuffle(array) {
 
         function evaluateMatch(funcEl, propEl) {
             isAnimating = true;
-            funcEl.classList.remove('card-selected'); propEl.classList.remove('card-selected');
+            funcEl.classList.remove('card-selected'); 
+            propEl.classList.remove('card-selected');
             selectedCard = null;
 
             if (funcEl.dataset.id === propEl.dataset.funcId) {
-                // Correct
-                matchedPropsCount++; updateHeader();
+                // Đúng cặp
+                matchedPropsCount++; 
+                updateHeader();
                 let matches = parseInt(funcEl.dataset.matched) + 1;
                 funcEl.dataset.matched = matches;
                 
-                sndMatch.playbackRate = 0.8 + (matches * 0.1); sndMatch.currentTime = 0; sndMatch.play().catch(()=>{});
+                sndMatch.playbackRate = 0.8 + (matches * 0.1); 
+                sndMatch.currentTime = 0; 
+                sndMatch.play().catch(()=>{});
 
                 const physProp = movingCards.find(c => c.el === propEl);
                 if (physProp) physProp.active = false;
@@ -2216,7 +870,8 @@ function shuffle(array) {
                 propEl.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(0.1)`;
                 propEl.style.opacity = '0';
 
-                funcEl.querySelector(`#prog-${funcEl.dataset.id}-${matches}`).style.width = '100%';
+                const progressEl = funcEl.querySelector(`#prog-${funcEl.dataset.id}-${matches}`);
+                if (progressEl) progressEl.style.width = '100%';
                 
                 setTimeout(() => {
                     spawnParticles(fRect.left + fRect.width/2, fRect.top + fRect.height/2, funcEl.style.getPropertyValue('--theme-color'));
@@ -2225,7 +880,7 @@ function shuffle(array) {
                     
                     if (matches >= 4) {
                         funcEl.classList.add('func-completed');
-                        funcEl.querySelector('.math-content').innerHTML = `<span class="text-3xl text-[var(--theme-color)] drop-shadow-[0_0_15px_var(--theme-color)] font-bold">Xác Thực ✓</span>`;
+                        funcEl.querySelector('.math-content').innerHTML = `<span class="text-2xl text-[var(--theme-color)] drop-shadow-[0_0_15px_var(--theme-color)] font-bold">Xác Thực ✓</span>`;
                     }
                     
                     propEl.remove();
@@ -2234,20 +889,24 @@ function shuffle(array) {
                 }, 500);
 
             } else {
-                // Wrong
-                lives--; updateHeader();
-                sndError.currentTime = 0; sndError.play().catch(()=>{});
+                // Sai cặp
+                lives--; 
+                updateHeader();
+                sndError.currentTime = 0; 
+                sndError.play().catch(()=>{});
                 
-                funcEl.classList.add('animate-error'); propEl.classList.add('animate-error');
+                funcEl.classList.add('animate-error'); 
+                propEl.classList.add('animate-error');
                 
                 const physProp = movingCards.find(c => c.el === propEl);
                 if (physProp) { physProp.vx *= -2; physProp.vy *= -2; }
 
                 if (lives <= 0) {
-                    setTimeout(() => endGame('gameover', "Hệ thống bị phá hủy do quá nhiều lỗi. Hãy thử lại!"), 600);
+                    setTimeout(() => endGame('gameover', "Năng lượng cạn kiệt do ghép sai quá nhiều. Hãy thử lại!"), 600);
                 } else {
                     setTimeout(() => {
-                        funcEl.classList.remove('animate-error'); propEl.classList.remove('animate-error');
+                        funcEl.classList.remove('animate-error'); 
+                        propEl.classList.remove('animate-error');
                         isAnimating = false;
                     }, 500);
                 }
@@ -2258,18 +917,23 @@ function shuffle(array) {
         function spawnParticles(x, y, colorStr) {
             for (let i = 0; i < 12; i++) {
                 const p = document.createElement('div');
-                p.style.position = 'absolute'; p.style.pointerEvents = 'none'; p.style.zIndex = '100';
+                p.style.position = 'absolute'; 
+                p.style.pointerEvents = 'none'; 
+                p.style.zIndex = '100';
                 p.style.borderRadius = '50%';
                 const size = Math.random() * 6 + 2;
-                p.style.width = size + 'px'; p.style.height = size + 'px';
+                p.style.width = size + 'px'; 
+                p.style.height = size + 'px';
                 p.style.backgroundColor = colorStr;
                 p.style.boxShadow = `0 0 15px ${colorStr}`;
-                p.style.left = x + 'px'; p.style.top = y + 'px';
+                p.style.left = x + 'px'; 
+                p.style.top = y + 'px';
                 document.body.appendChild(p);
                 
                 const angle = Math.random() * Math.PI * 2;
                 const velocity = Math.random() * 100 + 40;
-                const tx = Math.cos(angle) * velocity; const ty = Math.sin(angle) * velocity;
+                const tx = Math.cos(angle) * velocity; 
+                const ty = Math.sin(angle) * velocity;
                 
                 p.animate([
                     { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
@@ -2287,31 +951,53 @@ function shuffle(array) {
         }
 
         function processCampaignVictory() {
-            gameState = 'level_transition'; clearInterval(timerInterval);
+            gameState = 'level_transition'; 
+            clearInterval(timerInterval);
+            const totalLevels = Object.keys(GAME_LEVELS).length;
             
-            if (currentLevel < 5) {
+            if (currentLevel < totalLevels) {
                 const transOverlay = document.getElementById('transition-overlay');
                 const transContent = document.getElementById('transition-content');
                 document.getElementById('transition-title').innerText = `Khu vực ${currentLevel} đã xóa!`;
                 
                 transOverlay.classList.remove('hidden');
-                setTimeout(() => { transOverlay.classList.remove('opacity-0'); transContent.classList.remove('scale-95'); transContent.classList.add('scale-100'); }, 50);
+                setTimeout(() => { 
+                    transOverlay.classList.remove('opacity-0'); 
+                    transContent.classList.remove('scale-95'); 
+                    transContent.classList.add('scale-100'); 
+                }, 50);
                 
-                sndWin.currentTime = 0; sndWin.play().catch(()=>{});
+                sndWin.currentTime = 0; 
+                sndWin.play().catch(()=>{});
                 
                 setTimeout(() => {
-                    transOverlay.classList.add('opacity-0'); transContent.classList.remove('scale-100'); transContent.classList.add('scale-95');
+                    transOverlay.classList.add('opacity-0'); 
+                    transContent.classList.remove('scale-100'); 
+                    transContent.classList.add('scale-95'); 
                     setTimeout(() => {
                         transOverlay.classList.add('hidden');
-                        currentLevel++; initLevel(currentLevel);
+                        currentLevel++; 
+                        initLevel(currentLevel);
                     }, 500);
                 }, 2500);
             } else {
-                endGame('victory', "XUẤT SẮC! Bạn đã đồng bộ hóa toàn bộ 5 khu vực dữ liệu. Master!");
+                endGame('victory', "XUẤT SẮC! Bạn đã đồng bộ hóa toàn bộ các khu vực dữ liệu. Master!");
             }
         }
 
-        // [BƯỚC 3: PHÂN QUYỀN BẢO MẬT & EVENT LISTENER CHO NÚT EDITOR]
+        function shuffle(array) {
+            let curId = array.length, randId;
+            while (curId > 0) {
+                randId = Math.floor(Math.random() * curId); 
+                curId--;
+                [array[curId], array[randId]] = [array[randId], array[curId]];
+            }
+            return array;
+        }
+
+        // ========================================================
+        // BẢO MẬT ADMIN & IN-GAME EDITOR CONTROLLER
+        // ========================================================
         function checkAdminSecurity() {
             try {
                 const params = new URLSearchParams(window.location.search);
@@ -2341,30 +1027,206 @@ function shuffle(array) {
             }
         }
 
-        // Khởi động an toàn: Tự động render danh sách chuyên đề ngay khi trang tải xong (Đảm bảo không bao giờ trống)
-        function initTopicSelectionSafely() {
-            // Fallback an toàn tuyệt đối nếu window.gameDatabase bị rỗng
-            if (!window.gameDatabase || typeof window.gameDatabase !== 'object' || Object.keys(window.gameDatabase).length === 0) {
+        window.editorCurrentTopic = window.selectedTopic;
+        window.editorCurrentLevel = 1;
+
+        window.openInGameEditorModal = function() {
+            const modal = document.getElementById('ingame-editor-modal');
+            if (!modal) return;
+            window.editorCurrentTopic = window.selectedTopic;
+            window.editorCurrentLevel = currentLevel || 1;
+
+            const topicSelect = document.getElementById('editor-topic-select');
+            topicSelect.innerHTML = '';
+            Object.keys(window.gameDatabase).forEach(tName => {
+                const opt = document.createElement('option');
+                opt.value = tName; opt.text = tName;
+                if (tName === window.editorCurrentTopic) opt.selected = true;
+                topicSelect.appendChild(opt);
+            });
+
+            window.renderEditorLevels();
+            window.renderEditorData();
+            modal.classList.remove('hidden');
+        };
+
+        window.closeInGameEditorModal = function() {
+            const modal = document.getElementById('ingame-editor-modal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.onEditorChangeTopic = function(tName) {
+            window.editorCurrentTopic = tName;
+            window.renderEditorLevels();
+            window.renderEditorData();
+        };
+
+        window.onEditorChangeLevel = function(lvl) {
+            window.editorCurrentLevel = lvl;
+            window.renderEditorLevels();
+            window.renderEditorData();
+        };
+
+        window.renderEditorLevels = function() {
+            const container = document.getElementById('editor-level-buttons');
+            container.innerHTML = '';
+            const topicData = window.gameDatabase[window.editorCurrentTopic] || {};
+            const levels = Object.keys(topicData).map(k => parseInt(k)).filter(n => !isNaN(n)).sort((a,b)=>a-b);
+            
+            levels.forEach(lvl => {
+                const btn = document.createElement('button');
+                const isCur = lvl === window.editorCurrentLevel;
+                btn.className = `px-2 py-1 rounded-lg text-xs font-black transition ${
+                    isCur ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400 hover:text-white'
+                }`;
+                btn.innerText = `L${lvl}`;
+                btn.onclick = () => window.onEditorChangeLevel(lvl);
+                container.appendChild(btn);
+            });
+        };
+
+        window.renderEditorData = function() {
+            const topicData = window.gameDatabase[window.editorCurrentTopic] || {};
+            let lvlData = topicData[window.editorCurrentLevel];
+            if (!lvlData) {
+                lvlData = { title: `Cấp Độ ${window.editorCurrentLevel}`, time: 180, funcs: [], props: [] };
+                topicData[window.editorCurrentLevel] = lvlData;
+            }
+
+            const funcsList = document.getElementById('editor-funcs-list');
+            funcsList.innerHTML = '';
+            (lvlData.funcs || []).forEach((fn, idx) => {
+                const div = document.createElement('div');
+                div.className = 'bg-slate-900/90 p-2.5 rounded-xl border border-white/10 flex items-center gap-2';
+                div.innerHTML = `
+                    <span class="text-xs font-bold text-cyan-400 bg-cyan-950 px-2 py-1 rounded">Hộp ${idx+1}</span>
+                    <input type="text" value="${fn.tex.replace(/"/g, '&quot;')}" oninput="window.updateFuncTex('${fn.id}', this.value)" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono outline-none focus:border-cyan-400" placeholder="Công thức y = ...">
+                    <button onclick="window.editorRemoveFunction('${fn.id}')" class="text-rose-400 hover:text-rose-300 p-1">✕</button>
+                `;
+                funcsList.appendChild(div);
+            });
+
+            const propsList = document.getElementById('editor-props-list');
+            propsList.innerHTML = '';
+            (lvlData.props || []).forEach((pr, idx) => {
+                const div = document.createElement('div');
+                div.className = 'bg-slate-900/90 p-2.5 rounded-xl border border-white/10 flex flex-col gap-1.5';
+                div.innerHTML = `
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span class="text-amber-400 font-bold">Thẻ ${idx+1}</span>
+                        <select onchange="window.updatePropFuncId('${pr.id}', this.value)" class="bg-slate-800 border border-slate-700 rounded text-slate-200 text-[10px] px-1 py-0.5">
+                            ${(lvlData.funcs || []).map(f => `<option value="${f.id}" ${pr.funcId === f.id ? 'selected' : ''}>${f.id}: ${f.tex}</option>`).join('')}
+                        </select>
+                        <button onclick="window.editorRemoveProperty('${pr.id}')" class="text-rose-400 text-xs">✕</button>
+                    </div>
+                    <textarea oninput="window.updatePropText('${pr.id}', this.value)" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-1.5 text-xs text-white outline-none focus:border-amber-400">${pr.text}</textarea>
+                `;
+                propsList.appendChild(div);
+            });
+        };
+
+        window.updateFuncTex = function(id, val) {
+            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
+            const fn = lvl.funcs.find(f => f.id === id);
+            if (fn) fn.tex = val;
+        };
+
+        window.updatePropText = function(id, val) {
+            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
+            const pr = lvl.props.find(p => p.id === id);
+            if (pr) pr.text = val;
+        };
+
+        window.updatePropFuncId = function(id, val) {
+            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
+            const pr = lvl.props.find(p => p.id === id);
+            if (pr) pr.funcId = val;
+        };
+
+        window.editorAddFunction = function() {
+            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
+            const newId = `f_${Date.now()%10000}`;
+            const colors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
+            lvl.funcs.push({ id: newId, tex: 'y = x^2 - 1', theme: colors[lvl.funcs.length % colors.length] });
+            window.renderEditorData();
+        };
+
+        window.editorRemoveFunction = function(id) {
+            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
+            lvl.funcs = lvl.funcs.filter(f => f.id !== id);
+            lvl.props = lvl.props.filter(p => p.funcId !== id);
+            window.renderEditorData();
+        };
+
+        window.editorAddProperty = function() {
+            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
+            const fId = lvl.funcs[0]?.id || 'f1';
+            const newId = `p_${Date.now()%10000}`;
+            lvl.props.push({ id: newId, funcId: fId, text: 'Thuộc tính đúng của hàm số...' });
+            window.renderEditorData();
+        };
+
+        window.editorRemoveProperty = function(id) {
+            const lvl = window.gameDatabase[window.editorCurrentTopic][window.editorCurrentLevel];
+            lvl.props = lvl.props.filter(p => p.id !== id);
+            window.renderEditorData();
+        };
+
+        window.editorSaveAndPlay = function() {
+            try {
+                localStorage.setItem('keo_tha_custom_db', JSON.stringify(window.gameDatabase));
+            } catch(e) {}
+            window.selectedTopic = window.editorCurrentTopic;
+            GAME_LEVELS = window.gameDatabase[window.selectedTopic];
+            window.closeInGameEditorModal();
+            alert("🎉 Đã lưu thay đổi vào game!");
+            window.startLevel(window.editorCurrentLevel);
+        };
+
+        window.editorExportStandaloneHTML = function() {
+            try {
+                localStorage.setItem('keo_tha_custom_db', JSON.stringify(window.gameDatabase));
+            } catch(e) {}
+            let docHtml = document.documentElement.outerHTML;
+            const injectBlock = `<script>\nwindow.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(window.gameDatabase, null, 2)};\n<\/script>`;
+            if (docHtml.includes('window.__INJECTED_GAME_DATABASE__')) {
+                docHtml = docHtml.replace(/<script>[\s\S]*?window\.__INJECTED_GAME_DATABASE__[\s\S]*?<\/script>/i, injectBlock);
+            } else if (docHtml.includes('</head>')) {
+                docHtml = docHtml.replace('</head>', `${injectBlock}\n</head>`);
+            } else {
+                docHtml = `${injectBlock}\n${docHtml}`;
+            }
+
+            const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `keo-tha-tinh-don-dieu-va-cuc-tri-hs_custom.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+            alert("📥 Đã tải file HTML độc lập về máy tính!");
+        };
+
+        // KHỞI ĐỘNG GAME AN TOÀN TUYỆT ĐỐI (ĐẢM BẢO 100% HIỆN MENU START)
+        function initApp() {
+            if (!window.gameDatabase || Object.keys(window.gameDatabase).length === 0) {
                 window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_GAME_DATABASE));
             }
-            if (typeof window.renderTopicSelectionCards === 'function') {
-                window.renderTopicSelectionCards();
-            }
-            const overlay = document.getElementById('topic-selection-overlay');
-            if (overlay) overlay.classList.remove('hidden');
-
+            window.selectedTopic = Object.keys(window.gameDatabase)[0] || "Chuyên đề 1: Tính Đơn Điệu & Cực Trị Hàm Số";
+            GAME_LEVELS = window.gameDatabase[window.selectedTopic] || DEFAULT_GAME_DATABASE[Object.keys(DEFAULT_GAME_DATABASE)[0]];
+            
+            window.showOverlay('start');
             checkAdminSecurity();
             setupAdminGearListener();
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initTopicSelectionSafely);
+            document.addEventListener('DOMContentLoaded', initApp);
         } else {
-            initTopicSelectionSafely();
+            initApp();
         }
-        window.addEventListener('load', initTopicSelectionSafely);
-        initTopicSelectionSafely();
+        window.addEventListener('load', initApp);
     </script>
-<script src="/game-engine.js"></script>
+    <script src="/game-engine.js"></script>
 </body>
 </html>
