@@ -271,7 +271,7 @@ export const ConfigTab: React.FC<ConfigTabProps> = ({ currentConfig, onConfigUpd
             maxLength={10}
             value={formData.adminPin}
             onChange={e => setFormData({ ...formData, adminPin: e.target.value })}
-            placeholder="Mặc định: 1234"
+            placeholder="Nhập mã PIN mới (để trống giữ nguyên)"
             className="w-full px-3.5 py-2 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
           />
           <p className="text-[10px] text-slate-500 mt-1">

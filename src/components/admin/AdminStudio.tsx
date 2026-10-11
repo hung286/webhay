@@ -127,7 +127,7 @@ export const AdminStudio: React.FC<AdminStudioProps> = ({
                 setPinInput(e.target.value);
                 setPinError(false);
               }}
-              placeholder="Nhập mã PIN (Mặc định: 1234)"
+              placeholder="Nhập mã PIN bảo mật..."
               className="w-full text-center text-lg font-black tracking-widest py-3 rounded-2xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>

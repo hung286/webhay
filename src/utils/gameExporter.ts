@@ -198,11 +198,15 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
   }
   let htmlContent = await response.text();
 
-  // 2. WHITE-LABEL TOÀN DIỆN
-  htmlContent = htmlContent.replace(/Thầy Chính/gi, teacherName);
-  htmlContent = htmlContent.replace(/THẦY CHÍNH/gi, teacherName.toUpperCase());
-  htmlContent = htmlContent.replace(/Hưng Yên/gi, 'TOÁN PRO');
-  htmlContent = htmlContent.replace(/HƯNG YÊN/gi, 'TOÁN PRO');
+  // 2. WHITE-LABEL TOÀN DIỆN (Bảo tồn 100% thương hiệu Thầy Phạm Trịnh Cương Chính - THPT Phạm Ngũ Lão đối với Game Chiến Hào)
+  if (!cleanUrl.includes('chien-hao') && !cleanUrl.includes('Bao-ve-chien-hao')) {
+    if (teacherName && !teacherName.includes('Cương Chính')) {
+      htmlContent = htmlContent.replace(/Thầy Chính/gi, teacherName);
+      htmlContent = htmlContent.replace(/THẦY CHÍNH/gi, teacherName.toUpperCase());
+      htmlContent = htmlContent.replace(/Hưng Yên/gi, 'TOÁN PRO');
+      htmlContent = htmlContent.replace(/HƯNG YÊN/gi, 'TOÁN PRO');
+    }
+  }
   
   // Thay đổi thẻ <title>
   if (htmlContent.includes('<title>')) {
@@ -216,7 +220,8 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
     options: q.options || ['A', 'B', 'C', 'D'],
     correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
     explanation: q.explanation || '',
-    difficulty: q.difficulty === 'Dễ' ? 1 : (q.difficulty === 'Khó' ? 3 : 2)
+    difficulty: q.difficulty === 'Dễ' ? 1 : (q.difficulty === 'Khó' ? 3 : 2),
+    imageUrl: q.imageUrl || ''
   }));
 
   // Sắp xếp câu hỏi theo độ khó tăng dần
@@ -237,7 +242,8 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
         q: q.question,
         options: q.options || ['A', 'B', 'C', 'D'],
         correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-        explanation: q.explanation || ''
+        explanation: q.explanation || '',
+        imageUrl: q.imageUrl || ''
       });
     });
 
@@ -251,26 +257,37 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
     htmlContent = injectScriptAtTop(htmlContent, injectF1);
   }
 
-  // NHÓM 2: Game Bảo Vệ Chiến Hào (sinh đề tự động - cấu trúc Đa Chủ Đề & Đa Độ Khó)
+  // NHÓM 2: Game Bảo Vệ Chiến Hào (sinh đề tự động - cấu trúc Đa Chủ Đề, Dữ liệu Tĩnh & Random Bốc 5 câu)
   else if (cleanUrl.includes('chien-hao') || cleanUrl.includes('Bao-ve-chien-hao')) {
     const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    const battlefieldData: { level1: any[], level2: any[], level3: any[] } = { level1: [], level2: [], level3: [] };
+
     questions.forEach(q => {
       const topicName = q.topic?.trim() || gameTitle;
       if (!topicsMap[topicName]) {
         topicsMap[topicName] = { easy: [], medium: [], hard: [] };
       }
       const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
-      topicsMap[topicName][diffKey].push({
+      const qObj = {
         q: q.question,
         options: q.options || ['A', 'B', 'C', 'D'],
         correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-        explanation: q.explanation || ''
-      });
+        explanation: q.explanation || '',
+        imageUrl: q.imageUrl || ''
+      };
+      topicsMap[topicName][diffKey].push(qObj);
+
+      if (diffKey === 'easy') battlefieldData.level1.push(qObj);
+      else if (diffKey === 'medium') battlefieldData.level2.push(qObj);
+      else battlefieldData.level3.push(qObj);
     });
 
     const overrideScript = `
 <script>
-// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - BẢO VỆ CHIẾN HÀO]
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE & STATIC BATTLEFIELD DATA - BẢO VỆ CHIẾN HÀO]
+window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
+window.__ADMIN_PIN__ = "2806";
+window.battlefieldData = ${JSON.stringify(battlefieldData, null, 2)};
 window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
 window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
 window.useStaticTopic = true;
@@ -721,6 +738,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
     const keoThaScript = `
 <script>
 // [ADAPTER ENGINE: DYNAMIC MULTI-TOPIC ARCHITECTURE - KÉO THẢ TƯƠNG TÁC]
+window.__ADMIN_PIN__ = "2806";
 window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
 (function() {
   function syncKeoThaDb() {

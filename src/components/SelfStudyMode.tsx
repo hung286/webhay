@@ -253,7 +253,7 @@ export const SelfStudyMode: React.FC<SelfStudyModeProps> = ({ questions, student
         {renderTabSwitcher()}
         <WorksheetViewer
           worksheets={worksheets}
-          adminPin={getAppConfig().adminPin || '1234'}
+          adminPin={getAppConfig().adminPin || '2806'}
         />
       </div>
     );

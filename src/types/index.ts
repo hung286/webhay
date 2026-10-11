@@ -12,6 +12,7 @@ export interface Question {
   source: string;
   status: QuestionStatus;
   createdAt?: string;
+  imageUrl?: string; // Link ảnh / Tên file ảnh đính kèm
 }
 
 export type ThemeColor = 'blue' | 'indigo' | 'emerald' | 'rose' | 'amber' | 'purple';
@@ -140,6 +141,7 @@ export interface DragDropTableRow {
   title?: string;      // Alias for category (backward compatibility)
   attributes: string[]; // Cột 4: Các Nhãn Thuộc Tính Đúng
   theme?: string;
+  imageUrl?: string;   // Link ảnh / Tên file ảnh đính kèm
 }
 
 export interface TeachingTool {

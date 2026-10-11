@@ -10,7 +10,7 @@ const KEY_GEMINI_KEY = 'edu_gemini_session_key';
 
 const SYSTEM_ADMIN_PIN = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ADMIN_PIN)
   ? String(import.meta.env.VITE_ADMIN_PIN).trim()
-  : '2603';
+  : '2806';
 
 export const DEFAULT_CONFIG: AppConfig = {
   appName: 'TOÁN PRO',
@@ -39,8 +39,8 @@ export function getAppConfig(): AppConfig {
     const raw = localStorage.getItem(KEY_CONFIG);
     if (!raw) return { ...DEFAULT_CONFIG, adminPin: SYSTEM_ADMIN_PIN };
     const parsed = JSON.parse(raw);
-    // Nếu trong localStorage đang bị gán mặc định '1234' cũ, tự động nâng cấp đồng bộ từ SYSTEM_ADMIN_PIN
-    if (!parsed.adminPin || parsed.adminPin === '1234') {
+    // Tự động đồng bộ sang SYSTEM_ADMIN_PIN nếu đang lưu mã cũ
+    if (!parsed.adminPin || parsed.adminPin === '1234' || parsed.adminPin === '2603') {
       parsed.adminPin = SYSTEM_ADMIN_PIN;
     }
     return { ...DEFAULT_CONFIG, ...parsed };

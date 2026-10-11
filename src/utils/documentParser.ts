@@ -63,9 +63,41 @@ export async function extractTextFromExcel(file: File): Promise<string> {
 }
 
 /**
+ * BÓC TÁCH LINK HÌNH ẢNH HOẶC THẺ ẢNH TỪ VĂN BẢN
+ */
+export function extractImageUrl(text: string): { cleanText: string; imageUrl?: string } {
+  if (!text || typeof text !== 'string') return { cleanText: '' };
+  let cleanText = text;
+  let imageUrl: string | undefined = undefined;
+
+  // Match [img:URL]
+  const tagMatch = cleanText.match(/\[img:\s*(https?:\/\/[^\]\s]+)\]/i);
+  if (tagMatch) {
+    imageUrl = tagMatch[1];
+    cleanText = cleanText.replace(tagMatch[0], '').trim();
+  } else {
+    // Match <img src="URL"...>
+    const htmlImgMatch = cleanText.match(/<img[^>]+src=["'](https?:\/\/[^"'>]+)["'][^>]*>/i);
+    if (htmlImgMatch) {
+      imageUrl = htmlImgMatch[1];
+      cleanText = cleanText.replace(htmlImgMatch[0], '').trim();
+    } else {
+      // Match standalone image URLs ending in .png, .jpg, .jpeg, .webp, .svg
+      const urlMatch = cleanText.match(/(https?:\/\/[^\s]+?\.(?:png|jpe?g|webp|svg|gif)(?:\?[^\s]*)?)/i);
+      if (urlMatch) {
+        imageUrl = urlMatch[1];
+        cleanText = cleanText.replace(urlMatch[0], '').trim();
+      }
+    }
+  }
+
+  return { cleanText, imageUrl };
+}
+
+/**
  * CHUẨN HÓA CÔNG THỨC TOÁN HỌC TỪ TEX SANG MATHJAX/KATEX (AUTO LATEX PARSER)
- * - Tự động nhận diện công thức TeX thô (\\frac, \\sqrt, x^2, v.v.)
- * - Chuyển đổi $formula$ và $$formula$$ thành chuẩn \\( ... \\)
+ * - Tự động nhận diện công thức TeX thô (\frac, \sqrt, \alpha, \Delta, \sin, \cos, \log...)
+ * - Chuyển đổi $formula$ và $$formula$$ thành chuẩn \( ... \)
  * - Tự động bọc công thức TeX trần để hiển thị trực quan 100%
  */
 export function normalizeMathFormulas(text: string): string {
@@ -84,19 +116,19 @@ export function normalizeMathFormulas(text: string): string {
     if (/^(?:y|f\(x\)|g\(x\)|s\(t\)|v\(t\)|a\(t\)|h\(t\)|Q\(t\)|u_n)\s*=/i.test(str)) {
       return `\\(${str}\\)`;
     }
-    // Dạng phương trình đường thẳng hoặc mặt phẳng: \frac{x-1}{2} = ... hoặc 2x + 3y - z = 0
-    if (/^[xyz\d\s+\-*\/=^_{}\\()[\],.;:><|]+$/.test(str) && (str.includes('=') || str.includes('\\frac'))) {
-      if (!str.includes(' ') || str.split(' ').length <= 4) {
+    // Dạng phương trình: \frac{x-1}{2} = ... hoặc 2x + 3y - z = 0
+    if (/^[xyz\d\s+\-*\/=^_{}\\()[\],.;:><|]+$/.test(str) && (str.includes('=') || str.includes('\\frac') || str.includes('^'))) {
+      if (!str.includes(' ') || str.split(' ').length <= 5) {
         return `\\(${str}\\)`;
       }
     }
   }
 
   // 4. Quét các lệnh TeX trần còn sót lại bên trong văn bản tiếng Việt
-  // Ví dụ: Đạo hàm y' = \frac{5}{(x+2)^2} trên khoảng (1; +\infty)
-  const latexCommands = /\\(?:frac\{[^{}]+\}\{[^{}]+\}|sqrt\{[^{}]+\}|mathbb\{[^{}]+\}|vec\{[^{}]+\}|sin|cos|tan|cot|lim|int|sum|pi|alpha|beta|infty|Delta|pm|times|le|ge|ne|in|notin|forall|exists)(?:[^\s,;.()]*)/g;
+  // Ví dụ: \frac{a}{b}, \sqrt{x}, \alpha, \beta, \Delta, \sin x, \cos x, \log_a(b), \ln x...
+  const latexCommands = /\\(?:frac\{[^{}]+\}\{[^{}]+\}|sqrt(?:\[[^\]]+\])?\{[^{}]+\}|log(?:_[a-zA-Z0-9{}]+)?|ln|lg|mathbb\{[^{}]+\}|vec\{[^{}]+\}|sin|cos|tan|cot|lim|int|sum|pi|alpha|beta|theta|gamma|infty|Delta|pm|times|le|ge|ne|in|notin|forall|exists|cup|cap|emptyset)(?:[^\s,;.()]*)/g;
   if (!str.includes('\\(') && latexCommands.test(str)) {
-    str = str.replace(/(?:(?:y'|y''|x|k)\s*=\s*)?(\\(?:frac|sqrt|sin|cos|tan|cot|mathbb|vec)[^,\n]+?)(?=[\s,;.]|$)/g, (match) => {
+    str = str.replace(/(?:(?:y'|y''|x|k)\s*=\s*)?(\\(?:frac|sqrt|sin|cos|tan|cot|log|ln|lg|mathbb|vec|alpha|beta|Delta|theta|pi|int|lim)[^,\n]+?)(?=[\s,;.]|$)/g, (match) => {
       if (match.startsWith('\\(')) return match;
       return `\\(${match.trim()}\\)`;
     });
@@ -105,6 +137,7 @@ export function normalizeMathFormulas(text: string): string {
   // 5. Chuẩn hóa làm sạch các dấu ngoặc kép lặp lại nếu có
   str = str.replace(/\\\(\s*\\\((.*?)\\\)\s*\\\)/g, '\\($1\\)');
   str = str.replace(/\\\(\s*\$(.*?)\$\s*\\\)/g, '\\($1\\)');
+  str = str.replace(/\\\(\s*\\\((.*?)\\\)\s*\)/g, '\\($1\\)');
 
   return str;
 }
@@ -604,6 +637,554 @@ export async function downloadExcelTemplate(): Promise<void> {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Mau_Keo_Tha_4_Cot");
   XLSX.writeFile(wb, "Mau_De_Thi_Keo_Tha_4_Cot.xlsx");
+}
+
+/**
+ * TẠO BẢNG CÂU HỎI 7 DÒNG x 2 CỘT CHO GAME BẢO VỆ CHIẾN HÀO (DOCX)
+ */
+function createChienHaoQuestionTable(qNum: number, qText: string, optA: string, optB: string, optC: string, optD: string, exp: string, ans: string): Table {
+  return new Table({
+    width: { size: 10000, type: WidthType.DXA },
+    rows: [
+      // Dòng 1: Câu [N] | Nội dung câu hỏi (chấp nhận mã TeX và Link ảnh)
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            shading: { fill: "1E293B" },
+            children: [new Paragraph({ children: [new TextRun({ text: `Câu ${qNum}`, bold: true, color: "FFFFFF", size: 21 })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: qText, bold: true, size: 21 })] })]
+          })
+        ]
+      }),
+      // Dòng 2: A) | Nội dung A
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            shading: { fill: "334155" },
+            children: [new Paragraph({ children: [new TextRun({ text: "A)", bold: true, color: "FFFFFF" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optA })] })]
+          })
+        ]
+      }),
+      // Dòng 3: B) | Nội dung B
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            shading: { fill: "334155" },
+            children: [new Paragraph({ children: [new TextRun({ text: "B)", bold: true, color: "FFFFFF" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optB })] })]
+          })
+        ]
+      }),
+      // Dòng 4: C) | Nội dung C
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            shading: { fill: "334155" },
+            children: [new Paragraph({ children: [new TextRun({ text: "C)", bold: true, color: "FFFFFF" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optC })] })]
+          })
+        ]
+      }),
+      // Dòng 5: D) | Nội dung D
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            shading: { fill: "334155" },
+            children: [new Paragraph({ children: [new TextRun({ text: "D)", bold: true, color: "FFFFFF" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optD })] })]
+          })
+        ]
+      }),
+      // Dòng 6: Lời giải | Hướng dẫn giải chi tiết
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            shading: { fill: "0F766E" },
+            children: [new Paragraph({ children: [new TextRun({ text: "Lời giải", bold: true, color: "FFFFFF" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: exp, italic: true })] })]
+          })
+        ]
+      }),
+      // Dòng 7: Đáp án | Ký tự đáp án đúng
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            shading: { fill: "DC2626" },
+            children: [new Paragraph({ children: [new TextRun({ text: "Đáp án", bold: true, color: "FFFFFF" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ans, bold: true, color: "DC2626" })] })]
+          })
+        ]
+      })
+    ]
+  });
+}
+
+/**
+ * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHUẨN BẢNG 7 DÒNG x 2 CỘT CHO GAME BẢO VỆ CHIẾN HÀO
+ */
+export async function downloadChienHaoWordTemplate(): Promise<void> {
+  const sectionsContent: any[] = [
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "MẪU ĐỀ GAME BẢO VỆ CHIẾN HÀO (CHUẨN BẢNG 7 DÒNG x 2 CỘT)",
+          bold: true,
+          size: 28,
+          color: "0F172A"
+        })
+      ],
+      spacing: { after: 120 }
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "Chỉ thị cấu trúc bảng: Mỗi câu hỏi tương ứng 1 bảng gồm 2 cột và 7 dòng. Dòng 1: Câu [Số] | Nội dung đề bài (chấp nhận mã TeX và Link ảnh [img:URL]). Dòng 2, 3, 4, 5: A), B), C), D) | Nội dung các đáp án. Dòng 6: Lời giải | Hướng dẫn giải chi tiết. Dòng 7: Đáp án | Ký tự A, B, C hoặc D.",
+          size: 19,
+          color: "475569"
+        })
+      ],
+      spacing: { after: 200 }
+    }),
+
+    // HEADING LEVEL 1
+    new Paragraph({
+      children: [new TextRun({ text: "=== PHẦN 1: MỨC ĐỘ 1 (DỄ / NHẬN BIẾT) ===", bold: true, color: "0284C7", size: 23 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    createChienHaoQuestionTable(
+      1,
+      "Cho góc \\alpha \\in [0^\\circ; 180^\\circ]. Khẳng định nào sau đây là SAI?",
+      "\\sin(180^\\circ - \\alpha) = \\sin \\alpha",
+      "\\cos(180^\\circ - \\alpha) = -\\cos \\alpha",
+      "\\tan(180^\\circ - \\alpha) = \\tan \\alpha",
+      "\\cot(180^\\circ - \\alpha) = -\\cot \\alpha",
+      "Ta có \\tan(180^\\circ - \\alpha) = -\\tan \\alpha, do đó khẳng định C là khẳng định sai.",
+      "C"
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+    createChienHaoQuestionTable(
+      2,
+      "Giá trị của \\cos 60^\\circ + \\sin 30^\\circ bằng bao nhiêu? [img:https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600]",
+      "1",
+      "\\frac{1}{2}",
+      "\\frac{\\sqrt{3}}{2}",
+      "\\sqrt{3}",
+      "Ta có \\cos 60^\\circ = \\frac{1}{2} và \\sin 30^\\circ = \\frac{1}{2}. Do đó tổng bằng 1/2 + 1/2 = 1.",
+      "A"
+    ),
+
+    // HEADING LEVEL 2
+    new Paragraph({
+      children: [new TextRun({ text: "=== PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH / THÔNG HIỂU) ===", bold: true, color: "D97706", size: 23 })],
+      spacing: { before: 250, after: 120 }
+    }),
+    createChienHaoQuestionTable(
+      3,
+      "Cho tam giác ABC có \\(AB=3, AC=4, \\widehat{A}=90^\\circ\\). Độ dài cạnh BC bằng:",
+      "5",
+      "7",
+      "\\sqrt{7}",
+      "25",
+      "Áp dụng định lý Pytago: \\(BC = \\sqrt{AB^2 + AC^2} = \\sqrt{3^2 + 4^2} = 5\\).",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+    createChienHaoQuestionTable(
+      4,
+      "Tính diện tích tam giác ABC có \\(a=4, b=5\\) và góc \\(\\widehat{C}=30^\\circ\\):",
+      "5",
+      "10",
+      "20",
+      "5\\sqrt{3}",
+      "Diện tích \\(S = \\frac{1}{2}ab\\sin C = \\frac{1}{2} \\cdot 4 \\cdot 5 \\cdot \\sin 30^\\circ = 10 \\cdot \\frac{1}{2} = 5\\).",
+      "A"
+    ),
+
+    // HEADING LEVEL 3
+    new Paragraph({
+      children: [new TextRun({ text: "=== PHẦN 3: MỨC ĐỘ 3 (KHÓ / VẬN DỤNG CAO) ===", bold: true, color: "DC2626", size: 23 })],
+      spacing: { before: 250, after: 120 }
+    }),
+    createChienHaoQuestionTable(
+      5,
+      "Kéo một vật nặng với lực \\(F = 2000\\text{ N}\\), dây cáp hợp góc \\(60^\\circ\\) so với phương ngang. Công thực hiện khi vật đi được quãng đường \\(500\\text{ m}\\) là:",
+      "0.5 \\cdot 10^6\\text{ J}",
+      "1.0 \\cdot 10^6\\text{ J}",
+      "0.5\\sqrt{3} \\cdot 10^6\\text{ J}",
+      "2.0 \\cdot 10^6\\text{ J}",
+      "Công \\(A = F \\cdot s \\cdot \\cos \\alpha = 2000 \\cdot 500 \\cdot \\cos 60^\\circ = 10^6 \\cdot 0.5 = 0.5 \\cdot 10^6\\text{ J}\\).",
+      "A"
+    )
+  ];
+
+  const doc = new Document({
+    sections: [
+      {
+        properties: {},
+        children: sectionsContent
+      }
+    ]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Mau_Bao_Ve_Chien_Hao_7_Dong.docx");
+}
+
+/**
+ * SINH VÀ TẢI FILE EXCEL (.XLSX) MẪU CHO GAME BẢO VỆ CHIẾN HÀO
+ */
+export async function downloadChienHaoExcelTemplate(): Promise<void> {
+  const { XLSX } = await loadDocumentLibraries();
+  const headers = [
+    "Mức Độ (Level 1, Level 2, Level 3)",
+    "Nội Dung Câu Hỏi (Hỗ trợ TeX)",
+    "Link/Tên Ảnh (Tùy chọn)",
+    "Lựa Chọn A",
+    "Lựa Chọn B",
+    "Lựa Chọn C",
+    "Lựa Chọn D",
+    "Đáp Án Đúng (A, B, C, hoặc D)",
+    "Lời Giải Chi Tiết"
+  ];
+
+  const sampleRows = [
+    [
+      "Level 1",
+      "Cho góc \\alpha \\in [0^\\circ; 180^\\circ]. Khẳng định nào sau đây là SAI?",
+      "",
+      "\\sin(180^\\circ - \\alpha) = \\sin \\alpha",
+      "\\cos(180^\\circ - \\alpha) = -\\cos \\alpha",
+      "\\tan(180^\\circ - \\alpha) = \\tan \\alpha",
+      "\\cot(180^\\circ - \\alpha) = -\\cot \\alpha",
+      "C",
+      "Ta có \\tan(180^\\circ - \\alpha) = -\\tan \\alpha, do đó khẳng định C là sai."
+    ],
+    [
+      "Level 1",
+      "Giá trị của \\cos 60^\\circ + \\sin 30^\\circ bằng bao nhiêu?",
+      "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600",
+      "1",
+      "\\frac{1}{2}",
+      "\\frac{\\sqrt{3}}{2}",
+      "\\sqrt{3}",
+      "A",
+      "Ta có \\cos 60^\\circ = 1/2 và \\sin 30^\\circ = 1/2, tổng bằng 1."
+    ],
+    [
+      "Level 2",
+      "Cho tam giác ABC có a = 3, b = 4, C = 90 độ. Cạnh c bằng:",
+      "",
+      "5",
+      "7",
+      "\\sqrt{7}",
+      "25",
+      "A",
+      "Theo định lý Pytago: c = \\sqrt{3^2 + 4^2} = 5."
+    ],
+    [
+      "Level 2",
+      "Tính diện tích tam giác ABC biết a = 4, b = 5, C = 30 độ:",
+      "",
+      "5",
+      "10",
+      "20",
+      "5\\sqrt{3}",
+      "A",
+      "S = 1/2 * a * b * \\sin C = 1/2 * 4 * 5 * 1/2 = 5."
+    ],
+    [
+      "Level 3",
+      "Kéo sà lan lực F = 2000 N, cáp hợp góc 60 độ. Công A sinh ra khi đi 500 m là:",
+      "",
+      "0.5 * 10^6 J",
+      "1.0 * 10^6 J",
+      "0.5\\sqrt{3} * 10^6 J",
+      "2.0 * 10^6 J",
+      "A",
+      "A = F * s * \\cos 60 = 2000 * 500 * 0.5 = 0.5 * 10^6 J."
+    ]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
+  ws['!cols'] = [
+    { wch: 18 },
+    { wch: 45 },
+    { wch: 30 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 12 },
+    { wch: 45 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Mau_Bao_Ve_Chien_Hao");
+  XLSX.writeFile(wb, "Mau_Bao_Ve_Chien_Hao.xlsx");
+}
+
+/**
+ * TẢI FILE MẪU THEO ĐÚNG TỪNG GAME ĐANG CHỌN (KHÔNG DÙNG CHUNG)
+ */
+export async function downloadGameWordTemplate(gameIdentifier: string): Promise<void> {
+  const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('chien-hao') || cleanId.includes('chien_hao') || cleanId.includes('bao-ve')) {
+    return downloadChienHaoWordTemplate();
+  }
+  if (cleanId.includes('keo-tha') || cleanId.includes('keo_tha')) {
+    return downloadWordTemplate();
+  }
+  return downloadChienHaoWordTemplate(); // Default multiple choice
+}
+
+export async function downloadGameExcelTemplate(gameIdentifier: string): Promise<void> {
+  const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('chien-hao') || cleanId.includes('chien_hao') || cleanId.includes('bao-ve')) {
+    return downloadChienHaoExcelTemplate();
+  }
+  if (cleanId.includes('keo-tha') || cleanId.includes('keo_tha')) {
+    return downloadExcelTemplate();
+  }
+  return downloadChienHaoExcelTemplate();
+}
+
+/**
+ * BỘ PARSER FILE WORD (.DOCX) CHUẨN BẢNG 7 DÒNG x 2 CỘT CHO GAME BẢO VỆ CHIẾN HÀO
+ */
+export async function parseChienHaoFromDocx(file: File): Promise<Question[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+
+  const questions: Question[] = [];
+
+  if (html.includes('<table')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+
+    let currentDifficulty: Difficulty = 'Dễ';
+
+    tables.forEach((table, tIdx) => {
+      // Kiểm tra tiêu đề phía trước bảng để gán độ khó
+      let prevEl = table.previousElementSibling;
+      while (prevEl) {
+        const pText = (prevEl.textContent || '').toLowerCase();
+        if (pText.includes('mức độ 1') || pText.includes('phần 1') || pText.includes('level 1') || pText.includes('dễ')) {
+          currentDifficulty = 'Dễ'; break;
+        } else if (pText.includes('mức độ 2') || pText.includes('phần 2') || pText.includes('level 2') || pText.includes('vừa') || pText.includes('trung bình')) {
+          currentDifficulty = 'Trung bình'; break;
+        } else if (pText.includes('mức độ 3') || pText.includes('phần 3') || pText.includes('level 3') || pText.includes('khó')) {
+          currentDifficulty = 'Khó'; break;
+        }
+        prevEl = prevEl.previousElementSibling;
+      }
+
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length < 5) return;
+
+      let qText = '';
+      let optA = '';
+      let optB = '';
+      let optC = '';
+      let optD = '';
+      let explanation = '';
+      let answerLetter = 'A';
+      let detectedImgUrl: string | undefined = undefined;
+
+      rows.forEach((row, rIdx) => {
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        if (cells.length < 2) return;
+        const col1Text = (cells[0].textContent || '').trim().toLowerCase();
+        const col2Html = cells[1].innerHTML || '';
+        const col2Text = (cells[1].textContent || '').trim();
+
+        // Bóc tách ảnh từ thẻ img trong HTML
+        const imgEl = cells[1].querySelector('img');
+        if (imgEl && imgEl.getAttribute('src')) {
+          detectedImgUrl = imgEl.getAttribute('src') || undefined;
+        }
+
+        if (rIdx === 0 || col1Text.includes('câu')) {
+          qText = col2Text;
+        } else if (rIdx === 1 || col1Text.startsWith('a')) {
+          optA = col2Text;
+        } else if (rIdx === 2 || col1Text.startsWith('b')) {
+          optB = col2Text;
+        } else if (rIdx === 3 || col1Text.startsWith('c')) {
+          optC = col2Text;
+        } else if (rIdx === 4 || col1Text.startsWith('d')) {
+          optD = col2Text;
+        } else if (col1Text.includes('lời giải') || col1Text.includes('giải thích')) {
+          explanation = col2Text;
+        } else if (col1Text.includes('đáp án') || col1Text.includes('chọn')) {
+          answerLetter = col2Text.replace(/[^A-Da-d]/g, '').toUpperCase().charAt(0) || 'A';
+        }
+      });
+
+      if (!qText) return;
+
+      // Trích xuất link ảnh từ văn bản nếu chưa có thẻ img
+      const { cleanText, imageUrl } = extractImageUrl(qText);
+      qText = cleanText;
+      if (!detectedImgUrl && imageUrl) detectedImgUrl = imageUrl;
+
+      // Tính correctIndex
+      let correctIndex = 0;
+      if (answerLetter === 'B') correctIndex = 1;
+      else if (answerLetter === 'C') correctIndex = 2;
+      else if (answerLetter === 'D') correctIndex = 3;
+
+      // Nếu không có heading thì phân bố theo số thứ tự
+      const diff: Difficulty = currentDifficulty || (tIdx < 3 ? 'Dễ' : (tIdx < 6 ? 'Trung bình' : 'Khó'));
+
+      questions.push({
+        id: `chienhao_${Date.now()}_${tIdx + 1}`,
+        question: normalizeMathFormulas(qText),
+        options: [
+          normalizeMathFormulas(optA || 'Lựa chọn A'),
+          normalizeMathFormulas(optB || 'Lựa chọn B'),
+          normalizeMathFormulas(optC || 'Lựa chọn C'),
+          normalizeMathFormulas(optD || 'Lựa chọn D')
+        ],
+        correctIndex,
+        explanation: normalizeMathFormulas(explanation),
+        difficulty: diff,
+        topic: 'Bảo Vệ Chiến Hào',
+        source: 'Bảo Vệ Chiến Hào',
+        status: 'published',
+        createdAt: new Date().toISOString(),
+        imageUrl: detectedImgUrl
+      });
+    });
+  }
+
+  // Fallback nếu không có bảng
+  if (questions.length === 0) {
+    const rawResult = await mammoth.extractRawText({ arrayBuffer });
+    return parseDocumentQuestions(rawResult.value || '', 'Bảo Vệ Chiến Hào');
+  }
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE EXCEL (.XLSX) CHO GAME BẢO VỆ CHIẾN HÀO
+ */
+export async function parseChienHaoFromExcel(file: File): Promise<Question[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const firstSheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rows: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+  const questions: Question[] = [];
+
+  rows.forEach((row, idx) => {
+    if (!row || row.length === 0) return;
+    const col0 = String(row[0] || '').trim();
+    const col1 = String(row[1] || '').trim();
+
+    // Bỏ qua dòng tiêu đề
+    if (idx === 0 && (col0.toLowerCase().includes('mức độ') || col1.toLowerCase().includes('nội dung'))) return;
+
+    let diff: Difficulty = 'Dễ';
+    let qText = '';
+    let imgUrl: string | undefined = undefined;
+    let optA = '';
+    let optB = '';
+    let optC = '';
+    let optD = '';
+    let ansLetter = 'A';
+    let explanation = '';
+
+    if (row.length >= 8) {
+      const lvlStr = col0.toLowerCase();
+      if (lvlStr.includes('3') || lvlStr.includes('khó') || lvlStr.includes('hard')) diff = 'Khó';
+      else if (lvlStr.includes('2') || lvlStr.includes('vừa') || lvlStr.includes('trung')) diff = 'Trung bình';
+      else diff = 'Dễ';
+
+      qText = col1;
+      imgUrl = String(row[2] || '').trim() || undefined;
+      optA = String(row[3] || '').trim();
+      optB = String(row[4] || '').trim();
+      optC = String(row[5] || '').trim();
+      optD = String(row[6] || '').trim();
+      ansLetter = String(row[7] || '').trim().toUpperCase().charAt(0) || 'A';
+      explanation = String(row[8] || '').trim();
+    } else if (row.length >= 6) {
+      qText = col0;
+      optA = col1;
+      optB = String(row[2] || '').trim();
+      optC = String(row[3] || '').trim();
+      optD = String(row[4] || '').trim();
+      ansLetter = String(row[5] || '').trim().toUpperCase().charAt(0) || 'A';
+      explanation = String(row[6] || '').trim();
+    }
+
+    if (!qText) return;
+
+    const { cleanText, imageUrl: parsedImg } = extractImageUrl(qText);
+    qText = cleanText;
+    if (!imgUrl && parsedImg) imgUrl = parsedImg;
+
+    let correctIndex = 0;
+    if (ansLetter === 'B') correctIndex = 1;
+    else if (ansLetter === 'C') correctIndex = 2;
+    else if (ansLetter === 'D') correctIndex = 3;
+
+    questions.push({
+      id: `chienhao_xl_${Date.now()}_${idx + 1}`,
+      question: normalizeMathFormulas(qText),
+      options: [
+        normalizeMathFormulas(optA || 'Lựa chọn A'),
+        normalizeMathFormulas(optB || 'Lựa chọn B'),
+        normalizeMathFormulas(optC || 'Lựa chọn C'),
+        normalizeMathFormulas(optD || 'Lựa chọn D')
+      ],
+      correctIndex,
+      explanation: normalizeMathFormulas(explanation),
+      difficulty: diff,
+      topic: 'Bảo Vệ Chiến Hào',
+      source: 'Bảo Vệ Chiến Hào',
+      status: 'published',
+      createdAt: new Date().toISOString(),
+      imageUrl: imgUrl
+    });
+  });
+
+  return questions;
 }
 
 /**

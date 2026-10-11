@@ -1033,9 +1033,9 @@
         window.editorCurrentLevel = 1;
 
         window.openInGameEditorModal = function() {
-            const expectedPin = window.__ADMIN_PIN__ || '2603';
+            const expectedPin = window.__ADMIN_PIN__ || '2806';
             if (!window.__ADMIN_AUTHENTICATED__) {
-                const enteredPin = prompt("🔐 Nhập mã PIN Quản trị viên (2603) để mở In-Game Editor:");
+                const enteredPin = prompt("🔐 Vui lòng nhập mã PIN Quản trị viên để mở In-Game Editor:");
                 if (enteredPin !== expectedPin) {
                     if (enteredPin !== null) alert("❌ Mã PIN Quản trị không chính xác!");
                     return;

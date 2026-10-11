@@ -11,9 +11,13 @@ import {
   parseDragDropFromText,
   parseDragDropFromExcel,
   parseDragDropFromDocx,
+  parseChienHaoFromDocx,
+  parseChienHaoFromExcel,
   normalizeMathFormulas, 
   downloadWordTemplate, 
-  downloadExcelTemplate 
+  downloadExcelTemplate,
+  downloadGameWordTemplate,
+  downloadGameExcelTemplate
 } from '../../utils/documentParser';
 
 // Bộ xem trước công thức KaTeX thời gian thực
@@ -427,6 +431,23 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         } else {
           throw new Error('Không bóc tách được bảng dữ liệu hợp lệ từ file. Thầy cô vui lòng kiểm tra file theo mẫu tải về.');
         }
+      } else if (selectedTemplateUrl.includes('chien-hao') || selectedTemplateUrl.includes('Bao-ve-chien-hao')) {
+        let parsedQuestions: Question[] = [];
+        if (ext === 'docx') {
+          parsedQuestions = await parseChienHaoFromDocx(file);
+        } else if (ext === 'xlsx' || ext === 'xls') {
+          parsedQuestions = await parseChienHaoFromExcel(file);
+        } else {
+          const rawText = await file.text();
+          parsedQuestions = parseDocumentQuestions(rawText, gameTitle);
+        }
+
+        if (parsedQuestions.length === 0) {
+          throw new Error('Không bóc tách được câu hỏi từ bảng 7 dòng x 2 cột của file. Vui lòng tải file mẫu để kiểm tra.');
+        }
+        setQuestions(prev => [...prev, ...parsedQuestions]);
+        soundFx.playCorrect();
+        alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI BẢO VỆ CHIẾN HÀO TỪ FILE:\n"${file.name}"!`);
       } else {
         let rawText = '';
         if (ext === 'docx') {
@@ -793,39 +814,39 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
         {/* THANH CÔNG CỤ SOẠN & NHẬP DỮ LIỆU */}
         <div className="flex gap-2 p-3 sm:p-4 border-b border-slate-200 bg-white items-center flex-wrap">
-          {/* NÚT TẢI FILE MẪU WORD (.DOCX) CHUẨN BẢNG 4 CỘT */}
+          {/* NÚT TẢI FILE MẪU WORD (.DOCX) CHUẨN RIÊNG TỪNG GAME */}
           <button
             type="button"
             onClick={async () => {
               try {
                 soundFx.playClick();
-                await downloadWordTemplate();
+                await downloadGameWordTemplate(selectedTemplateUrl);
               } catch (err: any) {
                 console.error(err);
                 alert(`Lỗi tạo file Word mẫu: ${err?.message || 'Không thể tạo file docx'}`);
               }
             }}
             className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border border-blue-200 shadow-2xs active:scale-95"
-            title="Tải file Word (.docx) mẫu chuẩn bảng 4 cột: Cột 1: Tên Chuyên Đề, Cột 2: Cấp độ, Cột 3: Hộp/Phương trình, Cột 4: Các thuộc tính đúng"
+            title="Tải file Word (.docx) mẫu chuẩn theo trò chơi đang chọn"
           >
             <FileDown className="w-4 h-4 text-blue-600" />
             <span>📥 Tải File Word (.docx) Mẫu</span>
           </button>
 
-          {/* NÚT TẢI FILE MẪU EXCEL (.XLSX) CHUẨN BẢNG 4 CỘT */}
+          {/* NÚT TẢI FILE MẪU EXCEL (.XLSX) CHUẨN RIÊNG TỪNG GAME */}
           <button
             type="button"
             onClick={async () => {
               try {
                 soundFx.playClick();
-                await downloadExcelTemplate();
+                await downloadGameExcelTemplate(selectedTemplateUrl);
               } catch (err: any) {
                 console.error(err);
                 alert(`Lỗi tạo file Excel mẫu: ${err?.message || 'Không thể tạo file xlsx'}`);
               }
             }}
             className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border border-emerald-200 shadow-2xs active:scale-95"
-            title="Tải file Excel (.xlsx) mẫu chuẩn bảng 4 cột: Cột 1: Tên Chuyên Đề, Cột 2: Cấp độ, Cột 3: Hộp/Phương trình, Cột 4: Các thuộc tính đúng"
+            title="Tải file Excel (.xlsx) mẫu chuẩn theo trò chơi đang chọn"
           >
             <FileDown className="w-4 h-4 text-emerald-600" />
             <span>📥 Tải File Excel (.xlsx) Mẫu</span>
@@ -1118,6 +1139,18 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                                   <option value="cyan">Lam sáng</option>
                                 </select>
                               </div>
+                              <input
+                                type="text"
+                                value={row.imageUrl || ''}
+                                onChange={(e) => handleUpdateRow(row.id, 'imageUrl', e.target.value)}
+                                placeholder="🖼️ Link ảnh minh họa (tùy chọn)..."
+                                className="w-full p-1.5 bg-white border border-slate-200 rounded text-[11px] text-slate-600 outline-none focus:border-cyan-500 mb-1"
+                              />
+                              {row.imageUrl && (
+                                <div className="mb-1 p-1 bg-slate-50 border border-slate-200 rounded max-w-[150px]">
+                                  <img src={row.imageUrl} alt="Minh họa" className="max-h-20 rounded object-contain mx-auto" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                                </div>
+                              )}
                               <MathLivePreview formula={row.category} />
                             </td>
 
@@ -1252,6 +1285,20 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                       className="w-full p-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none min-h-[64px]"
                       placeholder="Nhập nội dung câu hỏi (hỗ trợ công thức LaTeX: \sin x, \frac{a}{b}...)..."
                     />
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        value={q.imageUrl || ''}
+                        onChange={(e) => handleUpdate(q.id, 'imageUrl', e.target.value)}
+                        placeholder="🖼️ Link hình ảnh minh họa (URL https://... hoặc để trống)..."
+                        className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:border-violet-400 focus:bg-white outline-none"
+                      />
+                      {q.imageUrl && (
+                        <div className="mt-1.5 p-1 bg-slate-100 rounded-xl max-w-xs border border-slate-200">
+                          <img src={q.imageUrl} alt="Minh họa câu hỏi" className="max-h-32 rounded-lg object-contain mx-auto" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                        </div>
+                      )}
+                    </div>
                     <MathLivePreview formula={q.question} />
                   </div>
 

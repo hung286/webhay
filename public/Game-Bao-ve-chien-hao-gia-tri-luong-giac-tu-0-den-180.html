@@ -713,6 +713,38 @@
         </div>
     </div>
 
+    <!-- Modal Lời Giải Chi Tiết Khi Bắn Sai hoặc Thất Thủ -->
+    <div id="explanation-modal" class="modal-screen hidden" style="z-index: 1050;">
+        <div class="esport-box border-red-500 text-left" style="max-width: 680px; width: 90vw; padding: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(239,68,68,0.4);">
+            <div class="flex items-center gap-3 mb-4 pb-3 border-b border-red-500/40">
+                <i class="fa-solid fa-triangle-exclamation text-3xl text-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.8)]"></i>
+                <div>
+                    <h2 class="text-xl font-black text-red-400 tracking-wider uppercase">Cảnh Báo Chiến Thuật: Đáp Án Sai!</h2>
+                    <p class="text-xs text-gray-400">Xem lại lời giải chuẩn xác để củng cố kiến thức trước khi tiếp tục</p>
+                </div>
+            </div>
+
+            <div class="bg-black/60 p-4 rounded-lg mb-4 border border-gray-800">
+                <div class="text-xs text-gray-400 font-bold uppercase mb-1">Câu hỏi:</div>
+                <div id="modal-q-text" class="text-white text-base font-semibold"></div>
+                <div id="modal-q-img" class="mt-2 hidden text-center"></div>
+            </div>
+
+            <div class="bg-yellow-950/30 p-4 rounded-lg mb-6 border border-yellow-500/40">
+                <div class="text-xs text-yellow-400 font-bold uppercase mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-lightbulb"></i> Lời giải chi tiết:
+                </div>
+                <div id="modal-solution-text" class="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap"></div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button onclick="closeExplanationModal()" class="btn-glitch" style="padding: 10px 28px; font-size: 14px; color: #38bdf8; border-color: #38bdf8;">
+                    <i class="fa-solid fa-shield-halved mr-2"></i> ĐÃ HIỂU - TIẾP TỤC CHIẾN ĐẤU
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- ÂM THANH (TONE.JS) ---
         let audioReady = false;
@@ -1034,21 +1066,79 @@
 
         let sessionQuestions = { level1: [], level2: [], level3: [] };
 
+        // [NGÂN HÀNG CÂU HỎI TĨNH DỰ PHÒNG CHUẨN THPT - THAY THẾ HOÀN TOÀN GENERATOR ĐỘNG]
+        const DEFAULT_BATTLEFIELD_STATIC_DATA = {
+            level1: [
+                { q: "Cho góc \\(\\alpha \\in [0^\\circ; 180^\\circ]\\). Khẳng định nào sau đây là SAI?", options: ["\\(\\sin(180^\\circ - \\alpha) = \\sin \\alpha\\)", "\\(\\cos(180^\\circ - \\alpha) = -\\cos \\alpha\\)", "\\(\\tan(180^\\circ - \\alpha) = \\tan \\alpha\\)", "\\(\\cot(180^\\circ - \\alpha) = -\\cot \\alpha\\)"], correct: 2, explanation: "Ta có \\(\\tan(180^\\circ - \\alpha) = -\\tan \\alpha\\), do đó khẳng định C là sai." },
+                { q: "Tính giá trị của biểu thức \\(P = \\cos 30^\\circ + \\sin 60^\\circ\\):", options: ["\\(\\sqrt{3}\\)", "\\(\\frac{\\sqrt{3}}{2}\\)", "1", "\\(\\frac{1}{2}\\)"], correct: 0, explanation: "\\(\\cos 30^\\circ = \\frac{\\sqrt{3}}{2}\\) và \\(\\sin 60^\\circ = \\frac{\\sqrt{3}}{2}\\). Suy ra \\(P = \\sqrt{3}\\)." },
+                { q: "Trong các khẳng định sau, khẳng định nào ĐÚNG với mọi \\(\\alpha\\)?", options: ["\\(\\sin^2 \\alpha + \\cos^2 \\alpha = 1\\)", "\\(\\sin^2 \\alpha - \\cos^2 \\alpha = 1\\)", "\\(\\tan \\alpha \\cdot \\cot \\alpha = -1\\)", "\\(1 + \\tan^2 \\alpha = \\frac{1}{\\sin^2 \\alpha}\\)"], correct: 0, explanation: "Công thức lượng giác cơ bản: \\(\\sin^2 \\alpha + \\cos^2 \\alpha = 1\\)." },
+                { q: "Cho biết \\(\\sin \\alpha = \\frac{1}{2}\\) với \\(0^\\circ < \\alpha < 90^\\circ\\). Số đo góc \\(\\alpha\\) là:", options: ["\\(30^\\circ\\)", "\\(45^\\circ\\)", "\\(60^\\circ\\)", "\\(150^\\circ\\)"], correct: 0, explanation: "Với góc nhọn, \\(\\sin 30^\\circ = \\frac{1}{2}\\), do đó \\(\\alpha = 30^\\circ\\)." },
+                { q: "Giá trị của \\(\\cos 90^\\circ + \\sin 90^\\circ\\) bằng:", options: ["1", "0", "-1", "\\(\\sqrt{2}\\)"], correct: 0, explanation: "\\(\\cos 90^\\circ = 0, \\sin 90^\\circ = 1 \\Rightarrow 0 + 1 = 1\\)." },
+                { q: "Khẳng định nào sau đây ĐÚNG khi \\(\\alpha = 120^\\circ\\)?", options: ["\\(\\cos 120^\\circ = -\\frac{1}{2}\\)", "\\(\\sin 120^\\circ = -\\frac{\\sqrt{3}}{2}\\)", "\\(\\tan 120^\\circ = 1\\)", "\\(\\cot 120^\\circ = \\sqrt{3}\\)"], correct: 0, explanation: "\\(\\cos 120^\\circ = \\cos(180^\\circ - 60^\\circ) = -\\cos 60^\\circ = -\\frac{1}{2}\\)." }
+            ],
+            level2: [
+                { q: "Cho tam giác ABC có \\(AB=3, AC=4, \\widehat{A}=90^\\circ\\). Độ dài cạnh BC là:", options: ["5", "7", "\\(\\sqrt{7}\\)", "25"], correct: 0, explanation: "\\(BC = \\sqrt{AB^2 + AC^2} = \\sqrt{3^2 + 4^2} = 5\\)." },
+                { q: "Tính diện tích tam giác ABC biết \\(a=4, b=5\\) và \\(\\widehat{C}=30^\\circ\\):", options: ["5", "10", "20", "\\(5\\sqrt{3}\\)"], correct: 0, explanation: "\\(S = \\frac{1}{2}ab\\sin C = \\frac{1}{2} \\cdot 4 \\cdot 5 \\cdot \\sin 30^\\circ = 5\\)." },
+                { q: "Cho tam giác ABC có \\(a=7, b=8, c=5\\). Số đo của góc A là:", options: ["\\(60^\\circ\\)", "\\(30^\\circ\\)", "\\(45^\\circ\\)", "\\(120^\\circ\\)"], correct: 0, explanation: "\\(\\cos A = \\frac{b^2 + c^2 - a^2}{2bc} = \\frac{64+25-49}{80} = \\frac{1}{2} \\Rightarrow \\widehat{A} = 60^\\circ\\)." },
+                { q: "Rút gọn biểu thức \\(A = \\sin(180^\\circ - x) + \\cos(90^\\circ - x)\\):", options: ["\\(2\\sin x\\)", "0", "\\(2\\cos x\\)", "\\(\\sin x - \\cos x\\)"], correct: 0, explanation: "\\(\\sin(180^\\circ - x) = \\sin x\\) và \\(\\cos(90^\\circ - x) = \\sin x \\Rightarrow A = 2\\sin x\\)." },
+                { q: "Bán kính đường tròn ngoại tiếp tam giác ABC có \\(a = 10, \\widehat{A} = 30^\\circ\\) là:", options: ["10", "5", "20", "\\(10\\sqrt{3}\\)"], correct: 0, explanation: "Theo định lý Sin: \\(R = \\frac{a}{2\\sin A} = \\frac{10}{2\\sin 30^\\circ} = 10\\)." },
+                { q: "Cho góc \\(\\alpha\\) tù thỏa mãn \\(\\sin \\alpha = \\frac{3}{5}\\). Giá trị \\(\\cos \\alpha\\) là:", options: ["\\(-\\frac{4}{5}\\)", "\\(\\frac{4}{5}\\)", "\\(-\\frac{3}{4}\\)", "\\(\\frac{3}{4}\\)"], correct: 0, explanation: "Vì \\(\\alpha\\) tù nên \\(\\cos \\alpha < 0 \\Rightarrow \\cos \\alpha = -\\sqrt{1 - \\sin^2 \\alpha} = -\\frac{4}{5}\\)." }
+            ],
+            level3: [
+                { q: "Kéo sà lan với lực \\(F = 2000\\text{ N}\\), dây hợp góc \\(60^\\circ\\). Công sinh ra khi đi \\(500\\text{ m}\\) là:", options: ["\\(0.5 \\cdot 10^6\\text{ J}\\)", "\\(1.0 \\cdot 10^6\\text{ J}\\)", "\\(0.5\\sqrt{3} \\cdot 10^6\\text{ J}\\)", "\\(2.0 \\cdot 10^6\\text{ J}\\)"], correct: 0, explanation: "\\(A = F \\cdot s \\cdot \\cos 60^\\circ = 2000 \\cdot 500 \\cdot 0.5 = 0.5 \\cdot 10^6\\text{ J}\\)." },
+                { q: "Cho tam giác ABC có \\(a=13, b=8, c=7\\). Số đo của góc A là:", options: ["\\(120^\\circ\\)", "\\(60^\\circ\\)", "\\(150^\\circ\\)", "\\(90^\\circ\\)"], correct: 0, explanation: "\\(\\cos A = \\frac{64+49-169}{2 \\cdot 8 \\cdot 7} = -\\frac{56}{112} = -\\frac{1}{2} \\Rightarrow \\widehat{A} = 120^\\circ\\)." },
+                { q: "Giá trị lớn nhất của biểu thức \\(M = \\sin^4 x + \\cos^4 x\\) bằng:", options: ["1", "\\(\\frac{1}{2}\\)", "\\(\\frac{3}{4}\\)", "2"], correct: 0, explanation: "\\(M = 1 - 2\\sin^2 x \\cos^2 x = 1 - \\frac{1}{2}\\sin^2 2x \\le 1\\). Đạt được khi \\(x = 0\\)." },
+                { q: "Tính diện tích hình bình hành ABCD có \\(AB = 6, AD = 8, \\widehat{BAD} = 150^\\circ\\):", options: ["24", "48", "\\(24\\sqrt{3}\\)", "\\(48\\sqrt{3}\\)"], correct: 0, explanation: "\\(S = AB \\cdot AD \\cdot \\sin 150^\\circ = 6 \\cdot 8 \\cdot \\frac{1}{2} = 24\\)." },
+                { q: "Hai lực \\(\\vec{F_1}, \\vec{F_2}\\) cùng tác dụng vào một vật, \\(F_1 = 30\\text{ N}, F_2 = 40\\text{ N}\\), góc giữa hai lực là \\(90^\\circ\\). Độ lớn hợp lực là:", options: ["\\(50\\text{ N}\\)", "\\(70\\text{ N}\\)", "\\(10\\text{ N}\\)", "\\(25\\sqrt{2}\\text{ N}\\)"], correct: 0, explanation: "\\(F = \\sqrt{F_1^2 + F_2^2} = \\sqrt{30^2 + 40^2} = 50\\text{ N}\\)." }
+            ]
+        };
+
+        // [TÁI CẤU TRÚC: CHƠI TĨNH & NGẪU NHIÊN CHỌN LỌC 5 CÂU MỖI CẤP ĐỘ - CHỐNG HỌC VẸT]
         function generateSessionQuestions() {
-            // [ADAPTER ENGINE: NGẮT THUẬT TOÁN SINH ĐỀ NẾU CÓ DỮ LIỆU TĨNH]
-            if (window.quizData && window.quizData.length > 0) {
-                sessionQuestions['level1'] = window.quizData.filter(q => q.difficulty === 1);
-                sessionQuestions['level2'] = window.quizData.filter(q => q.difficulty === 2);
-                sessionQuestions['level3'] = window.quizData.filter(q => q.difficulty === 3);
-                return;
+            let dataSrc = window.battlefieldData || window.quizData;
+            let poolLevels = { level1: [], level2: [], level3: [] };
+
+            if (dataSrc) {
+                if (Array.isArray(dataSrc)) {
+                    poolLevels.level1 = dataSrc.filter(q => q.difficulty === 1 || q.difficulty === 'Dễ' || q.level === 1);
+                    poolLevels.level2 = dataSrc.filter(q => q.difficulty === 2 || q.difficulty === 'Trung bình' || q.level === 2);
+                    poolLevels.level3 = dataSrc.filter(q => q.difficulty === 3 || q.difficulty === 'Khó' || q.level === 3);
+                } else if (typeof dataSrc === 'object') {
+                    poolLevels.level1 = dataSrc.level1 || dataSrc.diff1 || dataSrc['1'] || dataSrc.easy || [];
+                    poolLevels.level2 = dataSrc.level2 || dataSrc.diff2 || dataSrc['2'] || dataSrc.medium || [];
+                    poolLevels.level3 = dataSrc.level3 || dataSrc.diff3 || dataSrc['3'] || dataSrc.hard || [];
+                }
+            } else if (window.gameDatabase && window.selectedTopic && window.gameDatabase[window.selectedTopic]) {
+                const tData = window.gameDatabase[window.selectedTopic];
+                poolLevels.level1 = tData.easy || tData.level1 || [];
+                poolLevels.level2 = tData.medium || tData.level2 || [];
+                poolLevels.level3 = tData.hard || tData.level3 || [];
             }
 
-            // Sinh danh sách câu hỏi duy nhất cho mỗi lượt chơi (chống học vẹt)
-            ['level1', 'level2', 'level3'].forEach(level => {
-                let generators = [...questionGenerators[level]];
-                // Trộn thứ tự các dạng câu hỏi
-                generators.sort(() => 0.5 - Math.random());
-                sessionQuestions[level] = generators.map(gen => gen());
+            // Fallback ngân hàng tĩnh nếu kho dữ liệu rỗng (KHÔNG dùng generator ngẫu nhiên cũ nữa)
+            if (poolLevels.level1.length === 0 && poolLevels.level2.length === 0 && poolLevels.level3.length === 0) {
+                poolLevels = DEFAULT_BATTLEFIELD_STATIC_DATA;
+            }
+
+            // [LOGIC CHỌN ĐỀ NGẪU NHIÊN CHỌN LỌC - RANDOM SAMPLING 5 CÂU]
+            ['level1', 'level2', 'level3'].forEach(lvl => {
+                let pool = [...(poolLevels[lvl] || [])];
+                if (pool.length === 0) {
+                    pool = [...(poolLevels.level1 || poolLevels.level2 || poolLevels.level3 || DEFAULT_BATTLEFIELD_STATIC_DATA[lvl])];
+                }
+                // Xáo trộn ngẫu nhiên toàn bộ pool
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+                // Lấy đúng 5 câu hỏi ngẫu nhiên từ kho
+                sessionQuestions[lvl] = pool.slice(0, 5).map(q => ({
+                    q: q.q || q.question,
+                    options: q.options || ['A', 'B', 'C', 'D'],
+                    correct: typeof q.correct === 'number' ? q.correct : (typeof q.correctIndex === 'number' ? q.correctIndex : 0),
+                    explanation: q.explanation || q.solution || '',
+                    imageUrl: q.imageUrl || q.image || ''
+                }));
             });
         }
 
@@ -1193,13 +1283,21 @@
         function loadNextQuestion() {
             clearTargets();
             let currentBank = sessionQuestions[`level${gameState.currentLevel}`];
+            if (!currentBank || !currentBank[gameState.correctCount]) {
+                handleLevelComplete();
+                return;
+            }
             
             // Lấy câu hỏi theo thứ tự đã được trộn lúc khởi tạo game
             gameState.currentQuestion = currentBank[gameState.correctCount]; 
             
             const panel = document.getElementById('question-panel');
             panel.classList.remove('glow-correct', 'glow-wrong');
-            document.getElementById('question-text').innerHTML = gameState.currentQuestion.q;
+            let qHtml = gameState.currentQuestion.q;
+            if (gameState.currentQuestion.imageUrl) {
+                qHtml += `<div class="mt-2 text-center"><img src="${gameState.currentQuestion.imageUrl}" alt="Minh họa" class="max-h-36 max-w-full mx-auto rounded border border-cyan-500/40 shadow-lg object-contain" /></div>`;
+            }
+            document.getElementById('question-text').innerHTML = qHtml;
             typesetMath(); spawnTargets();
         }
 
@@ -1443,7 +1541,56 @@
                 targetEl.style.transition = 'all 0.5s ease';
                 targetEl.style.transform = 'translateY(150px) rotate(30deg) scale(0.5)'; 
                 targetEl.style.opacity = '0';
-                setTimeout(() => targetEl.remove(), 500);
+                setTimeout(() => {
+                    targetEl.remove();
+                    if (gameState.lives > 0) {
+                        showExplanationModal(gameState.currentQuestion);
+                    }
+                }, 400);
+            }
+        }
+
+        function showExplanationModal(qObj) {
+            if (!qObj) return;
+            const modal = document.getElementById('explanation-modal');
+            if (!modal) return;
+
+            gameState.isPlaying = false;
+            document.getElementById('modal-q-text').innerHTML = qObj.q || '';
+            const imgBox = document.getElementById('modal-q-img');
+            if (qObj.imageUrl) {
+                imgBox.innerHTML = `<img src="${qObj.imageUrl}" alt="Minh họa" class="max-h-40 max-w-full mx-auto rounded border border-gray-700 object-contain" />`;
+                imgBox.classList.remove('hidden');
+            } else {
+                imgBox.innerHTML = '';
+                imgBox.classList.add('hidden');
+            }
+
+            const correctOpt = (qObj.options && typeof qObj.correct === 'number') ? qObj.options[qObj.correct] : '';
+            let solText = '';
+            if (qObj.explanation && qObj.explanation.trim()) {
+                solText = qObj.explanation;
+            } else if (correctOpt) {
+                solText = `Đáp án đúng là: ${correctOpt}`;
+            } else {
+                solText = 'Vui lòng ghi nhớ kiến thức lý thuyết đã học để hoàn thành tốt câu hỏi.';
+            }
+            document.getElementById('modal-solution-text').innerHTML = solText;
+
+            modal.classList.remove('hidden');
+            typesetMath();
+        }
+
+        function closeExplanationModal() {
+            const modal = document.getElementById('explanation-modal');
+            if (modal) modal.classList.add('hidden');
+
+            if (gameState.lives > 0) {
+                clearTargets();
+                loadNextQuestion();
+                gameState.isPlaying = true;
+                gameState.lastFrameTime = performance.now();
+                requestAnimationFrame(gameLoop);
             }
         }
 
@@ -1491,7 +1638,9 @@
                 target.style.opacity = '0'; target.style.transform = 'translateY(-50%) scale(0.5)';
                 setTimeout(() => {
                     target.remove();
-                    if(gameState.lives > 0) { clearTargets(); loadNextQuestion(); }
+                    if(gameState.lives > 0) {
+                        showExplanationModal(gameState.currentQuestion);
+                    }
                 }, 500);
             } else {
                 target.style.transition = 'all 0.5s ease'; target.style.filter = 'brightness(2) contrast(2)'; target.style.opacity = '0';
@@ -1660,14 +1809,39 @@ window.gameDatabase = window.gameDatabase || {
       { "q": "Tính \(N = \cos(180^\circ - \alpha) + \cos \alpha\):", "options": ["0", "\(2\cos \alpha\)", "-1", "\(2\sin \alpha\)"], "correct": 0 }
     ]
   },
-  "Chiến Dịch 3: Sinh Đề Tự Động Vô Tận (Chống Học Vẹt)": {
-    "isGenerator": true,
-    "description": "Thuật toán tự động sinh số ngẫu nhiên cho mỗi màn chơi, kiểm tra phản xạ thần tốc không giới hạn."
-  }
 };
+
+if (window.battlefieldData) {
+  const customTitle = window.__GAME_TITLE__ || "Chiến Dịch: Tác Chiến Căn Cứ";
+  window.gameDatabase = {
+    [customTitle]: {
+      easy: window.battlefieldData.level1 || [],
+      medium: window.battlefieldData.level2 || [],
+      hard: window.battlefieldData.level3 || []
+    },
+    ...window.gameDatabase
+  };
+}
 
 window.selectedTopic = Object.keys(window.gameDatabase)[0];
 window.useStaticTopic = true;
+
+// Hàm bốc ngẫu nhiên đúng 5 câu hỏi từ kho câu hỏi của mỗi cấp độ (Random Sampling)
+function sampleFiveQuestions(arr) {
+  if (!arr || arr.length === 0) return [];
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, 5).map(q => ({
+    q: q.q || q.question,
+    options: q.options || ['A', 'B', 'C', 'D'],
+    correct: typeof q.correct === 'number' ? q.correct : (typeof q.correctIndex === 'number' ? q.correctIndex : 0),
+    explanation: q.explanation || q.solution || '',
+    imageUrl: q.imageUrl || q.image || ''
+  }));
+}
 
 // Mở lại Menu chọn Chủ đề
 function openTopicMenu() {
@@ -1687,17 +1861,10 @@ function renderTopicMenuCards() {
   const topics = Object.keys(window.gameDatabase);
   topics.forEach((topicName, idx) => {
     const data = window.gameDatabase[topicName];
-    const isGen = data.isGenerator;
-    
-    let statsText = '';
-    if (isGen) {
-      statsText = `<span style="color: #facc15; font-size: 12px; font-weight: bold;">⚡ Vô Tận (Thuật Toán Random)</span>`;
-    } else {
-      const eCount = (data.easy || []).length;
-      const mCount = (data.medium || []).length;
-      const hCount = (data.hard || []).length;
-      statsText = `<span style="color: #4ade80; font-size: 11px;">🟢 ${eCount} Dễ</span> &nbsp;|&nbsp; <span style="color: #facc15; font-size: 11px;">🟡 ${mCount} Vừa</span> &nbsp;|&nbsp; <span style="color: #f87171; font-size: 11px;">🔴 ${hCount} Khó</span>`;
-    }
+    const eCount = (data.easy || data.level1 || []).length;
+    const mCount = (data.medium || data.level2 || []).length;
+    const hCount = (data.hard || data.level3 || []).length;
+    const statsText = `<span style="color: #4ade80; font-size: 11px;">🟢 ${eCount} Dễ</span> &nbsp;|&nbsp; <span style="color: #facc15; font-size: 11px;">🟡 ${mCount} Vừa</span> &nbsp;|&nbsp; <span style="color: #f87171; font-size: 11px;">🔴 ${hCount} Khó</span>`;
 
     const card = document.createElement('div');
     card.style.cssText = `
@@ -1742,19 +1909,15 @@ function renderTopicMenuCards() {
   if (window.MathJax) MathJax.typesetPromise().catch(e => {});
 }
 
-// Xử lý khi học sinh click chọn chủ đề
+// Xử lý khi học sinh click chọn chủ đề (Random Sampling đúng 5 câu mỗi cấp độ)
 function selectTopic(topicName) {
   window.selectedTopic = topicName;
   const topicData = window.gameDatabase[topicName];
   
-  if (topicData.isGenerator) {
-    window.useStaticTopic = false;
-    generateSessionQuestions();
-  } else {
-    window.useStaticTopic = true;
-    sessionQuestions['level1'] = (topicData.easy || []).map(q => ({ q: q.q, options: q.options, correct: q.correct }));
-    sessionQuestions['level2'] = (topicData.medium || []).map(q => ({ q: q.q, options: q.options, correct: q.correct }));
-    sessionQuestions['level3'] = (topicData.hard || []).map(q => ({ q: q.q, options: q.options, correct: q.correct }));
+  if (topicData) {
+    sessionQuestions['level1'] = sampleFiveQuestions(topicData.easy || topicData.level1 || []);
+    sessionQuestions['level2'] = sampleFiveQuestions(topicData.medium || topicData.level2 || []);
+    sessionQuestions['level3'] = sampleFiveQuestions(topicData.hard || topicData.level3 || []);
   }
 
   // Cập nhật nhãn chủ đề trên giao diện
@@ -1766,17 +1929,22 @@ function selectTopic(topicName) {
   if (overlay) overlay.style.display = 'none';
 }
 
-// Override hàm generateSessionQuestions của game gốc
+// Override hàm generateSessionQuestions của game gốc đảm bảo random 5 câu mỗi lượt
 const _nativeGenerateSession = generateSessionQuestions;
 generateSessionQuestions = function() {
-  if (window.useStaticTopic && window.selectedTopic && window.gameDatabase[window.selectedTopic]) {
+  if (window.battlefieldData) {
+    const pool = window.battlefieldData;
+    sessionQuestions['level1'] = sampleFiveQuestions(pool.level1 || pool.easy || []);
+    sessionQuestions['level2'] = sampleFiveQuestions(pool.level2 || pool.medium || []);
+    sessionQuestions['level3'] = sampleFiveQuestions(pool.level3 || pool.hard || []);
+    return;
+  }
+  if (window.selectedTopic && window.gameDatabase[window.selectedTopic]) {
     const topicData = window.gameDatabase[window.selectedTopic];
-    if (!topicData.isGenerator) {
-      sessionQuestions['level1'] = (topicData.easy || []).map(q => ({ q: q.q, options: q.options, correct: q.correct }));
-      sessionQuestions['level2'] = (topicData.medium || []).map(q => ({ q: q.q, options: q.options, correct: q.correct }));
-      sessionQuestions['level3'] = (topicData.hard || []).map(q => ({ q: q.q, options: q.options, correct: q.correct }));
-      return;
-    }
+    sessionQuestions['level1'] = sampleFiveQuestions(topicData.easy || topicData.level1 || []);
+    sessionQuestions['level2'] = sampleFiveQuestions(topicData.medium || topicData.level2 || []);
+    sessionQuestions['level3'] = sampleFiveQuestions(topicData.hard || topicData.level3 || []);
+    return;
   }
   _nativeGenerateSession();
 };
