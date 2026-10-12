@@ -6,3 +6,10 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Custom local instructions & skills (do not sync to remote git)
+AI_INSTRUCTIONS*
+ai_instructions*
+SKILL EDUCATION/
+skill_giao_duc/
+
