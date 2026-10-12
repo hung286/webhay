@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -8,11 +8,17 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- MathJax cho LaTeX -->
+    <!-- KaTeX cho hiển thị công thức toán học siêu tốc -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+
+    <!-- MathJax cho LaTeX fallback -->
     <script>
         window.MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-            svg: { fontCache: 'global' }
+            svg: { fontCache: 'global' },
+            options: { enableMenu: false }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -132,6 +138,143 @@
         </div>
     </div>
 
+    <!-- ======================================================== -->
+    <!-- PIN PROMPT MODAL (PIN 2806 - BẢO VỆ NÚT QUẢN TRỊ)        -->
+    <!-- ======================================================== -->
+    <div id="pin-prompt-modal" class="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="bg-slate-900 border-2 border-indigo-500/50 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-[0_0_50px_rgba(99,102,241,0.4)] text-center text-white animate-in zoom-in-95 duration-200">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center mx-auto mb-4 text-3xl">
+                🔐
+            </div>
+            <h2 class="text-2xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300">
+                XÁC THỰC QUẢN TRỊ VIÊN
+            </h2>
+            <p class="text-slate-300 text-xs sm:text-sm font-semibold mb-6">
+                Vui lòng nhập mã PIN bảo mật của Giáo viên để mở hộp công cụ sửa đề và ngân hàng câu hỏi.
+            </p>
+            <div class="space-y-4">
+                <input 
+                    type="password" 
+                    id="admin-pin-input" 
+                    placeholder="Nhập mã PIN quản trị..." 
+                    class="w-full py-3 px-4 bg-slate-950 border-2 border-indigo-500/40 rounded-2xl text-center text-xl font-mono tracking-widest text-indigo-300 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/40"
+                    onkeydown="if(event.key === 'Enter') window.verifyAdminPin()"
+                />
+                <div class="flex gap-3">
+                    <button 
+                        onclick="window.closeAdminPinModal()" 
+                        class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition-all cursor-pointer"
+                    >
+                        HỦY
+                    </button>
+                    <button 
+                        onclick="window.verifyAdminPin()" 
+                        class="flex-1 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-slate-950 font-black text-sm uppercase tracking-wider shadow-lg active:scale-95 transition-all cursor-pointer"
+                    >
+                        XÁC NHẬN
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- IN-GAME ADMIN EDITOR MODAL (HỘP CÔNG CỤ SỬA ĐỀ TRỰC TIẾP) -->
+    <!-- ======================================================== -->
+    <div id="admin-editor-modal" class="fixed inset-0 z-[140] flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-xl hidden">
+        <div class="bg-slate-900 border-2 border-indigo-500/40 rounded-3xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-[0_0_60px_rgba(79,70,229,0.35)] text-white overflow-hidden">
+            
+            <!-- HEADER MODAL -->
+            <div class="p-4 sm:p-5 border-b border-white/10 bg-slate-950/80 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-xl text-indigo-300">
+                        ⚙️
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300">
+                            QUẢN TRỊ DỮ LIỆU ĐỀ THI - GAME AI YOGA
+                        </h2>
+                        <p class="text-xs text-slate-400 font-semibold">
+                            Chỉnh sửa câu hỏi, đáp án, công thức TeX và mức độ trực tiếp trong trò chơi
+                        </p>
+                    </div>
+                </div>
+                <button onclick="window.closeAdminEditorModal()" class="text-slate-400 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-xl transition-colors cursor-pointer">
+                    ✕
+                </button>
+            </div>
+
+            <!-- CONTROLS & BỘ LỌC -->
+            <div class="p-4 bg-slate-950/60 border-b border-white/10 flex flex-wrap gap-3 items-center justify-between">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Chuyên đề:</span>
+                        <select id="editor-topic-select" onchange="window.onEditorTopicChange()" class="py-1.5 px-3 bg-slate-800 border border-indigo-500/40 rounded-xl text-xs font-bold text-indigo-200 focus:outline-none focus:border-indigo-400">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- TABS DẠNG CÂU & ĐỘ KHÓ -->
+                    <div class="flex items-center gap-1.5 bg-slate-800/80 p-1 rounded-xl border border-white/10">
+                        <button onclick="window.setEditorFilter('ALL')" id="filter-tab-ALL" class="px-2.5 py-1 rounded-lg text-xs font-black bg-indigo-600 text-white cursor-pointer">Tất cả</button>
+                        <button onclick="window.setEditorFilter('MC')" id="filter-tab-MC" class="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white cursor-pointer">ABCD (MC)</button>
+                        <button onclick="window.setEditorFilter('TF')" id="filter-tab-TF" class="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white cursor-pointer">Đúng/Sai (TF)</button>
+                        <button onclick="window.setEditorFilter('easy')" id="filter-tab-easy" class="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white cursor-pointer">Dễ</button>
+                        <button onclick="window.setEditorFilter('medium')" id="filter-tab-medium" class="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white cursor-pointer">Vừa</button>
+                        <button onclick="window.setEditorFilter('hard')" id="filter-tab-hard" class="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white cursor-pointer">Khó</button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="window.addEditorQuestion('MC')" class="px-3 py-1.5 rounded-xl bg-blue-600/80 hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-1 shadow-md transition-all cursor-pointer">
+                        + Thêm Câu ABCD
+                    </button>
+                    <button onclick="window.addEditorQuestion('TF')" class="px-3 py-1.5 rounded-xl bg-teal-600/80 hover:bg-teal-600 text-white font-bold text-xs flex items-center gap-1 shadow-md transition-all cursor-pointer">
+                        + Thêm Câu Đúng/Sai
+                    </button>
+                </div>
+            </div>
+
+            <!-- THANH KÝ TỰ TOÁN HỌC NHANH (MATH SYMBOL TOOLBAR) -->
+            <div class="px-4 py-2 bg-slate-950/40 border-b border-white/5 flex items-center gap-1.5 overflow-x-auto text-xs">
+                <span class="text-slate-400 font-bold shrink-0 text-[11px] mr-1">Chèn ký hiệu TeX:</span>
+                <button onclick="window.insertEditorMathSymbol('\\frac{a}{b}')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">½ Phân số</button>
+                <button onclick="window.insertEditorMathSymbol('\\sqrt{x}')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">√ Căn thức</button>
+                <button onclick="window.insertEditorMathSymbol('^2')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">x²</button>
+                <button onclick="window.insertEditorMathSymbol('\\pi')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">π</button>
+                <button onclick="window.insertEditorMathSymbol('\\alpha')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">α</button>
+                <button onclick="window.insertEditorMathSymbol('\\beta')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">β</button>
+                <button onclick="window.insertEditorMathSymbol('\\cap')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">∩ Giao</button>
+                <button onclick="window.insertEditorMathSymbol('\\cup')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">∪ Hợp</button>
+                <button onclick="window.insertEditorMathSymbol('\\overline{A}')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">Ā Đối</button>
+                <button onclick="window.insertEditorMathSymbol('P(A|B)')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">P(A|B)</button>
+                <button onclick="window.insertEditorMathSymbol('\\pm')" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-indigo-300 font-mono font-bold shrink-0 cursor-pointer">±</button>
+            </div>
+
+            <!-- DANH SÁCH CÂU HỎI ĐỂ SỬA (SCROLLABLE CONTAINER) -->
+            <div id="editor-questions-list" class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-4">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <!-- FOOTER MODAL ACTIONS -->
+            <div class="p-4 bg-slate-950 border-t border-white/10 flex flex-wrap justify-between items-center gap-3">
+                <div class="text-xs text-slate-400 font-semibold">
+                    💡 Dữ liệu lưu sẽ tự động đồng bộ vào bộ nhớ LocalStorage và trò chơi ngay lập tức
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="window.saveEditorData()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all cursor-pointer">
+                        💾 LƯU DỮ LIỆU
+                    </button>
+                    <button onclick="window.exportCurrentStandaloneHTML()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all cursor-pointer">
+                        ⚡ XUẤT FILE HTML ĐỘC LẬP
+                    </button>
+                    <button onclick="window.closeAdminEditorModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all cursor-pointer">
+                        ĐÓNG
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#fff 2px, transparent 2px); background-size: 30px 30px;"></div>
 
@@ -145,8 +288,16 @@
             <h1 class="text-3xl font-bold text-white drop-shadow-md brand-title">TOÁN PRO - THẦY HÙNG</h1>
             <div class="flex items-center gap-2 mt-1">
                 <p id="hud-topic-label" class="text-sm text-yellow-300 font-semibold uppercase tracking-wider">Toán 11 - Xác Suất KNTT</p>
-                <button onclick="window.openTopicSelectModal()" class="px-2.5 py-0.5 rounded-lg bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 text-xs font-bold uppercase hover:bg-emerald-500/50 transition-colors">
+                <button onclick="window.openTopicSelectModal()" class="px-2.5 py-0.5 rounded-lg bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 text-xs font-bold uppercase hover:bg-emerald-500/50 transition-colors cursor-pointer">
                     Đổi Đề 📚
+                </button>
+                <!-- Cặp nút Quản Trị từ game Kéo Thả: 1 Nút Cam (Chuyên Đề), 1 Nút Xanh (⚙️ Sửa Dữ Liệu) -->
+                <!-- Bảo mật nghiêm ngặt: display: none !important mặc định, chỉ hiện khi ?role=admin hoặc ?admin=1 hoặc ?preview=true -->
+                <button id="btn-chuyen-de" onclick="window.openTopicSelectModal()" style="display: none !important;" class="hidden px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xs uppercase tracking-wide shadow-lg border border-amber-300/40 items-center gap-1.5 transition-all active:scale-95 cursor-pointer">
+                    <span>📚 CHUYÊN ĐỀ</span>
+                </button>
+                <button id="btn-admin-gear" onclick="window.openAdminEditorPrompt()" style="display: none !important;" class="hidden px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wide shadow-lg border border-blue-400/40 items-center gap-1.5 transition-all active:scale-95 cursor-pointer">
+                    <span>⚙️ SỬA DỮ LIỆU</span>
                 </button>
             </div>
         </div>
@@ -307,126 +458,215 @@
     </div>
 
     <script>
-        
+        // ========================================================
+        // 0. CHUẨN HÓA CÔNG THỨC TOÁN & BỘ RENDER KATEX / MATHJAX
+        // ========================================================
+        function formatMathText(str) {
+            if (!str || typeof str !== 'string') return '';
+            let text = str.trim();
+            // Chuyển đổi $$...$$ thành \(...\)
+            text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
+            // Chuyển đổi $...$ thành \(...\)
+            text = text.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
+            if (/^\\\([\s\S]*?\\\)$/.test(text)) return text;
+            // Bọc lệnh TeX trần
+            if (!text.includes('\\(') && /\\[a-zA-Z]+/.test(text)) {
+                if (!/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text)) {
+                    return `\\(${text}\\)`;
+                }
+                text = text.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (m) => {
+                    const tr = m.trim();
+                    if (!tr || tr.startsWith('\\(')) return m;
+                    return `\\(${tr}\\)`;
+                });
+            }
+            return text;
+        }
+
+        function typesetMath(elements) {
+            const targets = elements && elements.length > 0 ? elements : [document.body];
+            targets.forEach(el => {
+                if (!el) return;
+                if (window.renderMathInElement) {
+                    try {
+                        window.renderMathInElement(el, {
+                            delimiters: [
+                                { left: '$$', right: '$$', display: true },
+                                { left: '$', right: '$', display: false },
+                                { left: '\\(', right: '\\)', display: false },
+                                { left: '\\[', right: '\\]', display: true }
+                            ],
+                            throwOnError: false
+                        });
+                    } catch(e) {}
+                }
+            });
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise().catch(function() {});
+            }
+        }
+
         // ========================================================
         // HỆ THỐNG ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE ARCHITECTURE)
+        // DỰ PHÒNG CHỐNG LỖI GAME (DATA FALLBACK 100%)
         // ========================================================
-        window.gameDatabase = {
+        const DEFAULT_YOGA_DATABASE = {
             "Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập": {
                 "easy": [
-                    { type: 'TF', text: "Nếu hai biến cố $A$ và $B$ độc lập thì $P(AB) = P(A) \\cdot P(B)$.", left: "Đúng", right: "Sai", correct: "LEFT" },
-                    { type: 'TF', text: "Hai biến cố xung khắc $A$ và $B$ luôn luôn là hai biến cố độc lập.", left: "Đúng", right: "Sai", correct: "RIGHT" },
-                    { type: 'TF', text: "Với hai biến cố $A, B$ bất kỳ, $P(A \\cup B) = P(A) + P(B) - P(AB)$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Nếu hai biến cố $A$ và $B$ độc lập thì $P(AB) = P(A) \\cdot P(B)$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Định nghĩa hai biến cố độc lập." },
+                    { type: 'TF', text: "Hai biến cố xung khắc $A$ và $B$ luôn luôn là hai biến cố độc lập.", left: "Đúng", right: "Sai", correct: "RIGHT", explanation: "Biến cố xung khắc không độc lập khi xác suất dương." },
+                    { type: 'TF', text: "Với hai biến cố $A, B$ bất kỳ, $P(A \\cup B) = P(A) + P(B) - P(AB)$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Công thức cộng xác suất tổng quát." },
                     { type: 'MC', text: "Cho $A, B$ xung khắc có $P(A) = 0.3, P(B) = 0.4$. Giá trị $P(A \\cup B)$ là:", 
-                      opts: { A: "0.7", B: "0.12", C: "0.1", D: "0.8" }, correct: "A" },
+                      opts: { A: "0.7", B: "0.12", C: "0.1", D: "0.8" }, correct: "A", explanation: "P(A ∪ B) = P(A) + P(B) = 0.7." },
                     { type: 'MC', text: "Cho $A, B$ độc lập có $P(A) = 0.5, P(B) = 0.6$. Giá trị $P(AB)$ là:", 
-                      opts: { A: "0.3", B: "0.1", C: "1.1", D: "0.8" }, correct: "A" },
+                      opts: { A: "0.3", B: "0.1", C: "1.1", D: "0.8" }, correct: "A", explanation: "P(AB) = P(A)*P(B) = 0.3." },
                     { type: 'MC', text: "Gieo $1$ con xúc xắc. Biến cố xuất hiện mặt chấm chẵn và lẻ là hai biến cố:", 
-                      opts: { A: "Xung khắc", B: "Độc lập", C: "Bằng nhau", D: "Giao nhau" }, correct: "A" }
+                      opts: { A: "Xung khắc", B: "Độc lập", C: "Bằng nhau", D: "Giao nhau" }, correct: "A", explanation: "Chẵn và lẻ không thể cùng xảy ra nên xung khắc." }
                 ],
                 "medium": [
-                    { type: 'TF', text: "Nếu $P(A)=0.4, P(B)=0.5$ và $P(A \\cup B)=0.9$ thì $A, B$ xung khắc nhau.", left: "Đúng", right: "Sai", correct: "LEFT" },
-                    { type: 'TF', text: "Biến cố đối của biến cố $A \\cup B$ là $\\overline{A} \\cap \\overline{B}$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Nếu $P(A)=0.4, P(B)=0.5$ và $P(A \\cup B)=0.9$ thì $A, B$ xung khắc nhau.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Vì P(A ∪ B) = P(A) + P(B) nên P(AB) = 0." },
+                    { type: 'TF', text: "Biến cố đối của biến cố $A \\cup B$ là $\\overline{A} \\cap \\overline{B}$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Định lý De Morgan." },
                     { type: 'MC', text: "Hai xạ thủ bắn bia độc lập với xác suất trúng là $0.8$ và $0.7$. XS cả hai cùng trúng là:", 
-                      opts: { A: "0.56", B: "0.94", C: "0.24", D: "0.5" }, correct: "A" },
+                      opts: { A: "0.56", B: "0.94", C: "0.24", D: "0.5" }, correct: "A", explanation: "0.8 * 0.7 = 0.56." },
                     { type: 'MC', text: "Hai xạ thủ bắn độc lập có XS trúng $0.8$ và $0.7$. Xác suất có ít nhất một người trúng là:", 
-                      opts: { A: "0.94", B: "0.56", C: "0.24", D: "0.8" }, correct: "A" },
+                      opts: { A: "0.94", B: "0.56", C: "0.24", D: "0.8" }, correct: "A", explanation: "1 - 0.2*0.3 = 0.94." },
                     { type: 'MC', text: "Gieo $2$ đồng xu cân đối. Xác suất xuất hiện ít nhất một mặt sấp là:", 
-                      opts: { A: "3/4", B: "1/4", C: "1/2", D: "1" }, correct: "A" },
+                      opts: { A: "3/4", B: "1/4", C: "1/2", D: "1" }, correct: "A", explanation: "Biến cố đối là cả 2 ngửa: 1 - 1/4 = 3/4." },
                     { type: 'MC', text: "Hộp có $5$ bi xanh, $4$ bi đỏ. Rút không hoàn lại $2$ bi. Xác suất $2$ bi đỏ là:", 
-                      opts: { A: "1/6", B: "2/9", C: "16/81", D: "1/12" }, correct: "A" }
+                      opts: { A: "1/6", B: "2/9", C: "16/81", D: "1/12" }, correct: "A", explanation: "C(4,2)/C(9,2) = 6/36 = 1/6." }
                 ],
                 "hard": [
-                    { type: 'TF', text: "Nếu $A$ độc lập với $B$ thì $A$ cũng luôn độc lập với biến cố đối $\\overline{B}$.", left: "Đúng", right: "Sai", correct: "LEFT" },
-                    { type: 'TF', text: "Với mọi biến cố $A, B$, ta luôn có $P(AB) \\le \\min(P(A), P(B))$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Nếu $A$ độc lập với $B$ thì $A$ cũng luôn độc lập với biến cố đối $\\overline{B}$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Tính chất biến cố độc lập." },
+                    { type: 'TF', text: "Với mọi biến cố $A, B$, ta luôn có $P(AB) \\le \\min(P(A), P(B))$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Xác suất giao luôn bé hơn hoặc bằng xác suất thành phần." },
                     { type: 'MC', text: "Bắn $3$ phát đạn độc lập với XS trúng mỗi phát $0.6$. Xác suất trúng đúng $2$ phát là:", 
-                      opts: { A: "0.432", B: "0.216", C: "0.288", D: "0.144" }, correct: "A" },
+                      opts: { A: "0.432", B: "0.216", C: "0.288", D: "0.144" }, correct: "A", explanation: "C(3,2) * 0.6^2 * 0.4 = 0.432." },
                     { type: 'MC', text: "Một học sinh thi $2$ môn, XS qua môn 1 là $0.7$, môn 2 là $0.8$. Biết độc lập, XS trượt cả 2 môn là:", 
-                      opts: { A: "0.06", B: "0.56", C: "0.38", D: "0.14" }, correct: "A" },
+                      opts: { A: "0.06", B: "0.56", C: "0.38", D: "0.14" }, correct: "A", explanation: "0.3 * 0.2 = 0.06." },
                     { type: 'MC', text: "Cho $P(A) = 0.6, P(B) = 0.5$ và $P(A \\cup B) = 0.8$. Giá trị $P(AB)$ là:", 
-                      opts: { A: "0.3", B: "0.2", C: "0.1", D: "0.4" }, correct: "A" },
+                      opts: { A: "0.3", B: "0.2", C: "0.1", D: "0.4" }, correct: "A", explanation: "0.6 + 0.5 - 0.8 = 0.3." },
                     { type: 'MC', text: "Gieo $3$ con xúc xắc cân đối. Xác suất để tổng số chấm trên $3$ con bằng $4$ là:", 
-                      opts: { A: "1/72", B: "1/36", C: "1/108", D: "1/216" }, correct: "A" }
+                      opts: { A: "1/72", B: "1/36", C: "1/108", D: "1/216" }, correct: "A", explanation: "Các bộ (1,1,2), (1,2,1), (2,1,1) có 3 cách / 216 = 1/72." }
                 ]
             },
             "Chủ đề 2: Xác Suất Có Điều Kiện & Công Thức Toàn Phần": {
                 "easy": [
-                    { type: 'TF', text: "Công thức xác suất có điều kiện là $P(A|B) = \\frac{P(AB)}{P(B)}$ khi $P(B) > 0$.", left: "Đúng", right: "Sai", correct: "LEFT" },
-                    { type: 'TF', text: "Nếu $A$ và $B$ độc lập thì xác suất có điều kiện $P(A|B) = P(A)$.", left: "Đúng", right: "Sai", correct: "LEFT" },
-                    { type: 'TF', text: "Ta luôn có $P(A|B) + P(\\overline{A}|B) = 1$ với mọi $P(B) > 0$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Công thức xác suất có điều kiện là $P(A|B) = \\frac{P(AB)}{P(B)}$ khi $P(B) > 0$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Định nghĩa xác suất có điều kiện." },
+                    { type: 'TF', text: "Nếu $A$ và $B$ độc lập thì xác suất có điều kiện $P(A|B) = P(A)$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Tính chất khi A, B độc lập." },
+                    { type: 'TF', text: "Ta luôn có $P(A|B) + P(\\overline{A}|B) = 1$ với mọi $P(B) > 0$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Tính chất xác suất biến cố đối có điều kiện." },
                     { type: 'MC', text: "Cho $P(AB) = 0.2$ và $P(B) = 0.5$. Giá trị $P(A|B)$ bằng:", 
-                      opts: { A: "0.4", B: "0.1", C: "0.7", D: "0.25" }, correct: "A" },
+                      opts: { A: "0.4", B: "0.1", C: "0.7", D: "0.25" }, correct: "A", explanation: "0.2 / 0.5 = 0.4." },
                     { type: 'MC', text: "Gieo xúc xắc. Biết mặt xuất hiện có số chấm chẵn, xác suất ra mặt 2 chấm là:", 
-                      opts: { A: "1/3", B: "1/6", C: "1/2", D: "2/3" }, correct: "A" },
+                      opts: { A: "1/3", B: "1/6", C: "1/2", D: "2/3" }, correct: "A", explanation: "Có 3 mặt chẵn {2, 4, 6}, xác suất ra 2 là 1/3." },
                     { type: 'MC', text: "Gieo $2$ đồng xu. Biết đồng thứ nhất ngửa, xác suất đồng thứ hai cũng ngửa là:", 
-                      opts: { A: "1/2", B: "1/4", C: "3/4", D: "1" }, correct: "A" }
+                      opts: { A: "1/2", B: "1/4", C: "3/4", D: "1" }, correct: "A", explanation: "Hai lần gieo độc lập nên xác suất bằng 1/2." }
                 ],
                 "medium": [
-                    { type: 'TF', text: "Biết ít nhất một con xúc xắc ra mặt 6, XS con còn lại cũng ra mặt 6 là 1/11.", left: "Đúng", right: "Sai", correct: "LEFT" },
-                    { type: 'TF', text: "Công thức $P(AB) = P(B) \\cdot P(A|B)$ chỉ áp dụng được khi $A$ và $B$ độc lập.", left: "Đúng", right: "Sai", correct: "RIGHT" },
+                    { type: 'TF', text: "Biết ít nhất một con xúc xắc ra mặt 6, XS con còn lại cũng ra mặt 6 là 1/11.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Có 11 khả năng có ít nhất một con 6, trong đó 1 khả năng cả hai 6." },
+                    { type: 'TF', text: "Công thức $P(AB) = P(B) \\cdot P(A|B)$ chỉ áp dụng được khi $A$ và $B$ độc lập.", left: "Đúng", right: "Sai", correct: "RIGHT", explanation: "Công thức nhân xác suất đúng với mọi biến cố khi P(B) > 0." },
                     { type: 'MC', text: "Gia đình có $2$ con. Biết có ít nhất $1$ con trai, xác suất cả $2$ con là trai là:", 
-                      opts: { A: "1/3", B: "1/2", C: "1/4", D: "2/3" }, correct: "A" },
+                      opts: { A: "1/3", B: "1/2", C: "1/4", D: "2/3" }, correct: "A", explanation: "Không gian có điều kiện gồm {TT, TG, GT}, chỉ có {TT} thoả mãn -> 1/3." },
                     { type: 'MC', text: "Hộp có $3$ bi đỏ, $2$ bi xanh. Rút không hoàn lại $2$ bi. Biết bi 1 đỏ, XS bi 2 xanh là:", 
-                      opts: { A: "1/2", B: "2/5", C: "3/5", D: "1/4" }, correct: "A" },
+                      opts: { A: "1/2", B: "2/5", C: "3/5", D: "1/4" }, correct: "A", explanation: "Còn 2 đỏ, 2 xanh -> 2/4 = 1/2." },
                     { type: 'MC', text: "Lớp có 60% nam và 40% nữ. 20% nam giỏi Toán, 10% nữ giỏi Toán. Chọn 1 bạn, XS giỏi Toán là:", 
-                      opts: { A: "0.16", B: "0.15", C: "0.30", D: "0.18" }, correct: "A" },
+                      opts: { A: "0.16", B: "0.15", C: "0.30", D: "0.18" }, correct: "A", explanation: "0.6*0.2 + 0.4*0.1 = 0.16." },
                     { type: 'MC', text: "Máy I sản xuất 60% SP (lỗi 1%), máy II 40% SP (lỗi 2%). Tỉ lệ phế phẩm chung là:", 
-                      opts: { A: "0.014", B: "0.015", C: "0.03", D: "0.012" }, correct: "A" }
+                      opts: { A: "0.014", B: "0.015", C: "0.03", D: "0.012" }, correct: "A", explanation: "0.6*0.01 + 0.4*0.02 = 0.014." }
                 ],
                 "hard": [
-                    { type: 'TF', text: "Công thức Bayes cho phép tính xác suất hậu nghiệm $P(B_i|A)$ từ các tiên nghiệm.", left: "Đúng", right: "Sai", correct: "LEFT" },
-                    { type: 'TF', text: "Xác suất toàn phần luôn tính được khi hệ biến cố tạo thành một phân hoạch của không gian mẫu.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Công thức Bayes cho phép tính xác suất hậu nghiệm $P(B_i|A)$ từ các tiên nghiệm.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Ý nghĩa của công thức Bayes." },
+                    { type: 'TF', text: "Xác suất toàn phần luôn tính được khi hệ biến cố tạo thành một phân hoạch của không gian mẫu.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Điều kiện áp dụng công thức xác suất toàn phần." },
                     { type: 'MC', text: "Ba người bắn bia độc lập có XS trúng $0.6, 0.7, 0.8$. Biết đúng $2$ người trúng, XS người 1 trượt là:", 
-                      opts: { A: "28/47", B: "12/47", C: "7/47", D: "1/3" }, correct: "A" },
+                      opts: { A: "28/47", B: "12/47", C: "7/47", D: "1/3" }, correct: "A", explanation: "Áp dụng định lý Bayes." },
                     { type: 'MC', text: "Bệnh hiếm tỉ lệ 0.1%. Test chính xác 99%. Một người dương tính, xác suất mắc bệnh là:", 
-                      opts: { A: "\\approx 9%", B: "99%", C: "50%", D: "\\approx 1%" }, correct: "A" },
+                      opts: { A: "\\approx 9%", B: "99%", C: "50%", D: "\\approx 1%" }, correct: "A", explanation: "Nghịch lý xét nghiệm y khoa." },
                     { type: 'MC', text: "Chuyển $1$ bi từ hộp I (5Đ, 3T) sang hộp II (4Đ, 4T) rồi lấy $1$ bi từ II. XS được bi đỏ là:", 
-                      opts: { A: "37/72", B: "1/2", C: "9/16", D: "5/9" }, correct: "A" },
+                      opts: { A: "37/72", B: "1/2", C: "9/16", D: "5/9" }, correct: "A", explanation: "Công thức xác suất toàn phần." },
                     { type: 'MC', text: "Cho $P(A) = 0.4, P(B|A) = 0.6, P(B|\\overline{A}) = 0.3$. Giá trị $P(B)$ bằng:", 
-                      opts: { A: "0.42", B: "0.36", C: "0.48", D: "0.50" }, correct: "A" }
+                      opts: { A: "0.42", B: "0.36", C: "0.48", D: "0.50" }, correct: "A", explanation: "0.4*0.6 + 0.6*0.3 = 0.42." }
                 ]
             },
             "Chủ đề 3: Ôn Tập Tổng Hợp Xác Suất & Quy Tắc Đếm": {
                 "easy": [
-                    { type: 'TF', text: "Số hoán vị của tập hợp có $n$ phần tử phân biệt là $P_n = n!$.", left: "Đúng", right: "Sai", correct: "LEFT" },
-                    { type: 'TF', text: "Quy ước trong toán học giải tích tổ hợp: $0! = 0$.", left: "Đúng", right: "Sai", correct: "RIGHT" },
-                    { type: 'TF', text: "Công thức liên hệ giữa chỉnh hợp và tổ hợp là $A_n^k = k! \\cdot C_n^k$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Số hoán vị của tập hợp có $n$ phần tử phân biệt là $P_n = n!$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Công thức số hoán vị." },
+                    { type: 'TF', text: "Quy ước trong toán học giải tích tổ hợp: $0! = 0$.", left: "Đúng", right: "Sai", correct: "RIGHT", explanation: "Quy ước 0! = 1." },
+                    { type: 'TF', text: "Công thức liên hệ giữa chỉnh hợp và tổ hợp là $A_n^k = k! \\cdot C_n^k$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Công thức liên hệ cơ bản." },
                     { type: 'MC', text: "Có $5$ bạn nam và $4$ bạn nữ. Số cách chọn $1$ bạn làm lớp trưởng là:", 
-                      opts: { A: "9", B: "20", C: "5", D: "4" }, correct: "A" },
+                      opts: { A: "9", B: "20", C: "5", D: "4" }, correct: "A", explanation: "Quy tắc cộng: 5 + 4 = 9." },
                     { type: 'MC', text: "Có $5$ bạn nam và $4$ bạn nữ. Số cách chọn $1$ cặp gồm $1$ nam và $1$ nữ là:", 
-                      opts: { A: "20", B: "9", C: "10", D: "25" }, correct: "A" },
+                      opts: { A: "20", B: "9", C: "10", D: "25" }, correct: "A", explanation: "Quy tắc nhân: 5 * 4 = 20." },
                     { type: 'MC', text: "Giá trị của số tổ hợp $C_5^2$ bằng bao nhiêu?", 
-                      opts: { A: "10", B: "20", C: "12", D: "5" }, correct: "A" }
+                      opts: { A: "10", B: "20", C: "12", D: "5" }, correct: "A", explanation: "5! / (2! * 3!) = 10." }
                 ],
                 "medium": [
-                    { type: 'TF', text: "Từ các chữ số $\\{1,2,3,4,5\\}$ lập được $120$ số tự nhiên có $3$ chữ số khác nhau.", left: "Đúng", right: "Sai", correct: "RIGHT" },
-                    { type: 'TF', text: "Số đường chéo của một đa giác lồi có $10$ cạnh là $C_{10}^2 - 10 = 35$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Từ các chữ số $\\{1,2,3,4,5\\}$ lập được $120$ số tự nhiên có $3$ chữ số khác nhau.", left: "Đúng", right: "Sai", correct: "RIGHT", explanation: "A(5,3) = 60 chứ không phải 120." },
+                    { type: 'TF', text: "Số đường chéo của một đa giác lồi có $10$ cạnh là $C_{10}^2 - 10 = 35$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Công thức đường chéo đa giác." },
                     { type: 'MC', text: "Có $8$ bạn. Số cách chọn $1$ ban cán sự gồm $1$ Trưởng, $1$ Phó và $1$ Thư ký là:", 
-                      opts: { A: "336", B: "56", C: "512", D: "120" }, correct: "A" },
+                      opts: { A: "336", B: "56", C: "512", D: "120" }, correct: "A", explanation: "A(8,3) = 8*7*6 = 336." },
                     { type: 'MC', text: "Từ $\\{1,2,3,4,5,6\\}$ lập được bao nhiêu số tự nhiên chẵn có $3$ chữ số khác nhau?", 
-                      opts: { A: "60", B: "120", C: "30", D: "90" }, correct: "A" },
+                      opts: { A: "60", B: "120", C: "30", D: "90" }, correct: "A", explanation: "3 * A(5,2) = 60." },
                     { type: 'MC', text: "Chọn $4$ bạn từ $7$ nam và $5$ nữ sao cho có đúng $2$ nam và $2$ nữ. Số cách là:", 
-                      opts: { A: "210", B: "495", C: "105", D: "35" }, correct: "A" },
+                      opts: { A: "210", B: "495", C: "105", D: "35" }, correct: "A", explanation: "C(7,2)*C(5,2) = 21*10 = 210." },
                     { type: 'MC', text: "Xếp $5$ bạn vào $5$ ghế thành hàng ngang. Số cách xếp là:", 
-                      opts: { A: "120", B: "24", C: "25", D: "60" }, correct: "A" }
+                      opts: { A: "120", B: "24", C: "25", D: "60" }, correct: "A", explanation: "5! = 120." }
                 ],
                 "hard": [
-                    { type: 'TF', text: "Xếp $4$ nam và $4$ nữ vào bàn tròn sao cho nam nữ xen kẽ có $144$ cách xếp.", left: "Đúng", right: "Sai", correct: "LEFT" },
-                    { type: 'TF', text: "Số tập con gồm ít nhất $1$ phần tử của tập hợp có $n$ phần tử là $2^n - 1$.", left: "Đúng", right: "Sai", correct: "LEFT" },
+                    { type: 'TF', text: "Xếp $4$ nam và $4$ nữ vào bàn tròn sao cho nam nữ xen kẽ có $144$ cách xếp.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "Hoán vị tròn nam (3! = 6), xếp nữ (4! = 24), 6 * 24 = 144." },
+                    { type: 'TF', text: "Số tập con gồm ít nhất $1$ phần tử của tập hợp có $n$ phần tử là $2^n - 1$.", left: "Đúng", right: "Sai", correct: "LEFT", explanation: "2^n trừ đi tập rỗng." },
                     { type: 'MC', text: "Từ $\\{0,1,2,3,4,5\\}$ có bao nhiêu số tự nhiên chẵn có $4$ chữ số khác nhau?", 
-                      opts: { A: "156", B: "180", C: "144", D: "300" }, correct: "A" },
+                      opts: { A: "156", B: "180", C: "144", D: "300" }, correct: "A", explanation: "Chia trường hợp tận cùng bằng 0 hoặc {2, 4}: 60 + 96 = 156." },
                     { type: 'MC', text: "Có bao nhiêu số tự nhiên có $5$ chữ số mà các chữ số tăng dần từ trái sang phải?", 
-                      opts: { A: "126", B: "252", C: "120", D: "720" }, correct: "A" },
+                      opts: { A: "126", B: "252", C: "120", D: "720" }, correct: "A", explanation: "Chọn 5 chữ số từ {1..9}: C(9,5) = 126." },
                     { type: 'MC', text: "Tìm số nguyên dương $n$ thỏa mãn phương trình $A_n^3 = 24C_n^1$:", 
-                      opts: { A: "n = 6", B: "n = 5", C: "n = 7", D: "n = 8" }, correct: "A" },
+                      opts: { A: "n = 6", B: "n = 5", C: "n = 7", D: "n = 8" }, correct: "A", explanation: "n(n-1)(n-2) = 24n => (n-1)(n-2) = 24 => n = 6." },
                     { type: 'MC', text: "Có $6$ bi đỏ, $5$ bi xanh, $4$ bi vàng. Chọn $4$ bi có đủ cả $3$ màu. Số cách chọn là:", 
-                      opts: { A: "645", B: "1365", C: "720", D: "840" }, correct: "A" }
+                      opts: { A: "645", B: "1365", C: "720", D: "840" }, correct: "A", explanation: "Tổng cách chọn trừ các trường hợp thiếu màu: 645." }
                 ]
             }
         };
 
+        window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_YOGA_DATABASE));
+        window.yogaQuizData = window.gameDatabase;
         window.selectedTopic = Object.keys(window.gameDatabase)[0];
         window.selectedDiff = 'all';
+
+        // --- HÀM BẢO ĐẢM DỮ LIỆU KHỞI TẠO (DATA FALLBACK ENGINE) ---
+        window.ensureYogaData = function() {
+            let loaded = null;
+            if (window.__INJECTED_YOGA_DATA__ && Object.keys(window.__INJECTED_YOGA_DATA__).length > 0) {
+                loaded = window.__INJECTED_YOGA_DATA__;
+            } else {
+                try {
+                    const saved = localStorage.getItem('yoga_quiz_data');
+                    if (saved) {
+                        const p = JSON.parse(saved);
+                        if (p && Object.keys(p).length > 0) loaded = p;
+                    }
+                } catch(e) {}
+            }
+
+            if (!loaded && window.yogaQuizData && Object.keys(window.yogaQuizData).length > 0) {
+                loaded = window.yogaQuizData;
+            }
+            if (!loaded && window.gameDatabase && Object.keys(window.gameDatabase).length > 0) {
+                loaded = window.gameDatabase;
+            }
+
+            if (!loaded || Object.keys(loaded).length === 0) {
+                loaded = JSON.parse(JSON.stringify(DEFAULT_YOGA_DATABASE));
+            }
+
+            window.gameDatabase = JSON.parse(JSON.stringify(loaded));
+            window.yogaQuizData = JSON.parse(JSON.stringify(loaded));
+
+            const topicKeys = Object.keys(window.gameDatabase);
+            if (!window.selectedTopic || !window.gameDatabase[window.selectedTopic]) {
+                window.selectedTopic = topicKeys[0];
+            }
+            window.selectedDiff = window.selectedDiff || 'all';
+
+            window.renderYogaTopicCards();
+            window.selectYogaTopic(window.selectedTopic, window.selectedDiff);
+        };
 
         // --- TOPIC MENU MODAL LOGIC ---
         window.openTopicSelectModal = function() {
@@ -438,11 +678,11 @@
 
         window.renderYogaTopicCards = function() {
             const container = document.getElementById('yoga-topics-grid');
-            if (!container) return;
+            if (!container || !window.gameDatabase) return;
             container.innerHTML = '';
 
             Object.keys(window.gameDatabase).forEach((topicName, idx) => {
-                const topicData = window.gameDatabase[topicName];
+                const topicData = window.gameDatabase[topicName] || { easy: [], medium: [], hard: [] };
                 const totalEasy = (topicData.easy || []).length;
                 const totalMed = (topicData.medium || []).length;
                 const totalHard = (topicData.hard || []).length;
@@ -473,18 +713,18 @@
                     </div>
 
                     <div class="space-y-2 mt-4 pt-4 border-t border-white/10">
-                        <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'all')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-95 font-bold">
+                        <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'all')" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-95 font-bold cursor-pointer">
                             ⚡ Chơi Toàn Diện (${totalAll} câu)
                         </button>
                         
                         <div class="grid grid-cols-3 gap-1.5 pt-1">
-                            <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'easy')" class="py-2 px-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                            <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'easy')" class="py-2 px-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white font-extrabold text-[11px] transition-all text-center cursor-pointer">
                                 Dễ (${totalEasy})
                             </button>
-                            <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'medium')" class="py-2 px-1 rounded-lg bg-blue-950/60 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                            <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'medium')" class="py-2 px-1 rounded-lg bg-blue-950/60 hover:bg-blue-600 border border-blue-500/40 text-blue-300 hover:text-white font-extrabold text-[11px] transition-all text-center cursor-pointer">
                                 Vừa (${totalMed})
                             </button>
-                            <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'hard')" class="py-2 px-1 rounded-lg bg-rose-950/60 hover:bg-rose-600 border border-rose-500/40 text-rose-300 hover:text-white font-extrabold text-[11px] transition-all text-center">
+                            <button onclick="window.selectYogaTopic('${topicName.replace(/'/g, "\\'")}', 'hard')" class="py-2 px-1 rounded-lg bg-rose-950/60 hover:bg-rose-600 border border-rose-500/40 text-rose-300 hover:text-white font-extrabold text-[11px] transition-all text-center cursor-pointer">
                                 Khó (${totalHard})
                             </button>
                         </div>
@@ -495,8 +735,8 @@
         };
 
         window.selectYogaTopic = function(topicName, diffMode) {
+            if (!window.gameDatabase || !window.gameDatabase[topicName]) return;
             const topicData = window.gameDatabase[topicName];
-            if (!topicData) return;
             window.selectedTopic = topicName;
             window.selectedDiff = diffMode;
 
@@ -541,37 +781,318 @@
             }
         };
 
-        // --- 1. NGÂN HÀNG CÂU HỎI KNTT LỚP 11 (XÁC SUẤT) ---
-        let questionsBank = [
-            // Dạng Trắc Nghiệm Pose
-            { type: 'MC', text: "Cho hai biến cố $A, B$ xung khắc. Công thức nào sau đây đúng?", 
-              opts: { A: "$P(A \\cup B) = P(A) \\cdot P(B)$", B: "$P(A \\cup B) = P(A) + P(B)$", C: "$P(A \\cap B) = P(A) + P(B)$", D: "$P(A \\cap B) = 1$" }, correct: "B" },
-            { type: 'MC', text: "Cho hai biến cố $A$ và $B$ độc lập. Biết $P(A) = 0,3$ và $P(B) = 0,2$. Tính $P(A \\cap B)$.", 
-              opts: { A: "$0,06$", B: "$0,5$", C: "$0,1$", D: "$0,6$" }, correct: "A" },
-            { type: 'MC', text: "Gieo 2 con xúc xắc cân đối. Gọi $A$ là biến cố 'Tổng số chấm bằng 7', $B$ là biến cố 'Có ít nhất một con 6 chấm'. Tính $P(A \\cup B)$.", 
-              opts: { A: "$\\frac{1}{6}$", B: "$\\frac{17}{36}$", C: "$\\frac{5}{12}$", D: "$\\frac{1}{3}$" }, correct: "C" },
-            { type: 'MC', text: "Hộp có 5 bi xanh, 4 bi đỏ. Lấy lần lượt 2 bi (không hoàn lại). Xác suất để lấy được cả 2 bi đỏ là:", 
-              opts: { A: "$\\frac{2}{9}$", B: "$\\frac{16}{81}$", C: "$\\frac{1}{6}$", D: "$\\frac{1}{12}$" }, correct: "C" },
-            { type: 'MC', text: "Lớp có 40 học sinh gồm 25 nam, 15 nữ. Chọn ngẫu nhiên 2 bạn. Xác suất chọn được 1 nam và 1 nữ là:", 
-              opts: { A: "$\\frac{1}{2}$", B: "$\\frac{15}{52}$", C: "$\\frac{375}{800}$", D: "$\\frac{25}{52}$" }, correct: "D" },
-            { type: 'MC', text: "Cho hai biến cố xung khắc $A$ và $B$. Biết $P(A) = 0,6; P(B) = 0,3$. Tính $P(A \\cup B)$.", 
-              opts: { A: "$0,18$", B: "$0,9$", C: "$0,3$", D: "$0,5$" }, correct: "B" },
-            { type: 'MC', text: "Xác suất sinh con trai là $0,51$. Một gia đình sinh 2 con. Xác suất có ít nhất 1 con trai là:", 
-              opts: { A: "$0,2601$", B: "$0,51$", C: "$0,7599$", D: "$0,49$" }, correct: "C" },
-            { type: 'MC', text: "Hai xạ thủ bắn độc lập vào bia. XS trúng của người 1 là $0,7$, người 2 là $0,8$. XS có đúng 1 người bắn trúng là:", 
-              opts: { A: "$0,56$", B: "$0,38$", C: "$0,94$", D: "$0,06$" }, correct: "B" },
-
-            // Dạng Đúng/Sai Face
-            { type: 'TF', text: "Nếu hai biến cố $A$ và $B$ độc lập thì $P(A \\cap B) = P(A) \\cdot P(B)$.", left: "Đúng", right: "Sai", correct: "LEFT" },
-            { type: 'TF', text: "Hai biến cố xung khắc thì luôn luôn độc lập với nhau.", left: "Đúng", right: "Sai", correct: "RIGHT" },
-            { type: 'TF', text: "Với hai biến cố $A, B$ bất kỳ, ta có $P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$.", left: "Đúng", right: "Sai", correct: "LEFT" },
-            { type: 'TF', text: "Nếu $P(A) = 0,4; P(B) = 0,5$ và $P(A \\cup B) = 0,9$ thì $A$ và $B$ độc lập với nhau.", left: "Đúng", right: "Sai", correct: "RIGHT" }
-        ];
-
-                // Khởi tạo bộ câu hỏi mặc định từ database
-        if (window.gameDatabase) {
-            window.selectYogaTopic(Object.keys(window.gameDatabase)[0], 'all');
+        // --- BẢO MẬT NÚT QUẢN TRỊ (ADMIN SECURITY GATE) ---
+        function checkAdminSecurity() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
+                const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+                adminBtns.forEach(btn => {
+                    if (isAdmin) {
+                        btn.classList.remove('hidden');
+                        btn.style.setProperty('display', 'inline-flex', 'important');
+                    } else {
+                        btn.classList.add('hidden');
+                        btn.style.setProperty('display', 'none', 'important');
+                    }
+                });
+            } catch(e) {}
         }
+
+        // --- XÁC THỰC MÃ PIN QUẢN TRỊ (PIN 2806) ---
+        window.openAdminEditorPrompt = function() {
+            const modal = document.getElementById('pin-prompt-modal');
+            const pinInput = document.getElementById('admin-pin-input');
+            if (modal) {
+                modal.classList.remove('hidden');
+                if (pinInput) {
+                    pinInput.value = '';
+                    setTimeout(() => pinInput.focus(), 100);
+                }
+            }
+        };
+
+        window.closeAdminPinModal = function() {
+            const modal = document.getElementById('pin-prompt-modal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.verifyAdminPin = function() {
+            const pinInput = document.getElementById('admin-pin-input');
+            const val = (pinInput ? pinInput.value : '').trim();
+            if (val === '2806') {
+                window.closeAdminPinModal();
+                window.openAdminEditorModal();
+            } else {
+                alert('Mã PIN không chính xác! Vui lòng thử lại.');
+                if (pinInput) {
+                    pinInput.value = '';
+                    pinInput.focus();
+                }
+            }
+        };
+
+        // --- HỘP CÔNG CỤ SỬA ĐỀ TRONG GAME (IN-GAME ADMIN EDITOR) ---
+        let currentEditorTopic = '';
+        let currentEditorFilter = 'ALL';
+        let editorActiveInput = null;
+
+        window.openAdminEditorModal = function() {
+            const modal = document.getElementById('admin-editor-modal');
+            if (!modal) return;
+            const selectEl = document.getElementById('editor-topic-select');
+            if (selectEl && window.gameDatabase) {
+                selectEl.innerHTML = '';
+                Object.keys(window.gameDatabase).forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t;
+                    opt.textContent = t;
+                    selectEl.appendChild(opt);
+                });
+                currentEditorTopic = window.selectedTopic || Object.keys(window.gameDatabase)[0];
+                selectEl.value = currentEditorTopic;
+            }
+            window.renderEditorQuestions();
+            modal.classList.remove('hidden');
+        };
+
+        window.closeAdminEditorModal = function() {
+            const modal = document.getElementById('admin-editor-modal');
+            if (modal) modal.classList.add('hidden');
+        };
+
+        window.onEditorTopicChange = function() {
+            const selectEl = document.getElementById('editor-topic-select');
+            if (selectEl) {
+                currentEditorTopic = selectEl.value;
+                window.renderEditorQuestions();
+            }
+        };
+
+        window.setEditorFilter = function(filter) {
+            currentEditorFilter = filter;
+            ['ALL', 'MC', 'TF', 'easy', 'medium', 'hard'].forEach(f => {
+                const btn = document.getElementById(`filter-tab-${f}`);
+                if (btn) {
+                    if (f === filter) {
+                        btn.className = "px-2.5 py-1 rounded-lg text-xs font-black bg-indigo-600 text-white cursor-pointer";
+                    } else {
+                        btn.className = "px-2.5 py-1 rounded-lg text-xs font-bold text-slate-300 hover:text-white cursor-pointer";
+                    }
+                }
+            });
+            window.renderEditorQuestions();
+        };
+
+        window.renderEditorQuestions = function() {
+            const listContainer = document.getElementById('editor-questions-list');
+            if (!listContainer || !window.gameDatabase || !window.gameDatabase[currentEditorTopic]) return;
+            listContainer.innerHTML = '';
+
+            const topicData = window.gameDatabase[currentEditorTopic];
+            const diffKeys = ['easy', 'medium', 'hard'];
+
+            let totalCount = 0;
+            diffKeys.forEach(diffKey => {
+                const list = topicData[diffKey] || [];
+                list.forEach((q, idx) => {
+                    if (currentEditorFilter === 'MC' && q.type !== 'MC') return;
+                    if (currentEditorFilter === 'TF' && q.type !== 'TF') return;
+                    if (currentEditorFilter === 'easy' && diffKey !== 'easy') return;
+                    if (currentEditorFilter === 'medium' && diffKey !== 'medium') return;
+                    if (currentEditorFilter === 'hard' && diffKey !== 'hard') return;
+
+                    totalCount++;
+                    const card = document.createElement('div');
+                    card.className = "p-4 bg-slate-950/80 rounded-2xl border border-white/10 space-y-3";
+                    
+                    const diffBadge = diffKey === 'easy' 
+                        ? '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-black">DỄ</span>'
+                        : (diffKey === 'medium'
+                            ? '<span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[10px] font-black">VỪA</span>'
+                            : '<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-400/30 text-[10px] font-black">KHÓ</span>');
+
+                    const typeBadge = q.type === 'TF'
+                        ? '<span class="px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/30 text-[10px] font-black">ĐÚNG/SAI (TF)</span>'
+                        : '<span class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 text-[10px] font-black">TRẮC NGHIỆM (MC)</span>';
+
+                    let optionsHtml = '';
+                    if (q.type === 'TF') {
+                        optionsHtml = `
+                            <div class="grid grid-cols-2 gap-3 pt-2">
+                                <label class="flex items-center gap-2 p-2.5 rounded-xl border ${q.correct === 'LEFT' ? 'border-emerald-500 bg-emerald-950/40 text-emerald-300' : 'border-white/10 bg-slate-900'} cursor-pointer">
+                                    <input type="radio" name="ans_${diffKey}_${idx}" value="LEFT" ${q.correct === 'LEFT' ? 'checked' : ''} onchange="window.updateEditorQuestion('${diffKey}', ${idx}, 'correct', 'LEFT')" class="accent-emerald-500" />
+                                    <span class="font-bold text-sm">✅ ĐÚNG (Nghiêng Trái)</span>
+                                </label>
+                                <label class="flex items-center gap-2 p-2.5 rounded-xl border ${q.correct === 'RIGHT' ? 'border-rose-500 bg-rose-950/40 text-rose-300' : 'border-white/10 bg-slate-900'} cursor-pointer">
+                                    <input type="radio" name="ans_${diffKey}_${idx}" value="RIGHT" ${q.correct === 'RIGHT' ? 'checked' : ''} onchange="window.updateEditorQuestion('${diffKey}', ${idx}, 'correct', 'RIGHT')" class="accent-rose-500" />
+                                    <span class="font-bold text-sm">❌ SAI (Nghiêng Phải)</span>
+                                </label>
+                            </div>
+                        `;
+                    } else {
+                        const opts = q.opts || { A: '', B: '', C: '', D: '' };
+                        optionsHtml = `
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                                ${['A', 'B', 'C', 'D'].map(l => `
+                                    <div class="flex items-center gap-2 bg-slate-900 p-2 rounded-xl border border-white/10">
+                                        <input type="radio" name="ans_${diffKey}_${idx}" value="${l}" ${q.correct === l ? 'checked' : ''} onchange="window.updateEditorQuestion('${diffKey}', ${idx}, 'correct', '${l}')" class="accent-indigo-500 cursor-pointer" />
+                                        <span class="font-bold text-xs text-yellow-400 w-4">${l}:</span>
+                                        <input type="text" value="${(opts[l] || '').replace(/"/g, '&quot;')}" onfocus="window.setEditorActiveInput(this)" onchange="window.updateEditorQuestionOpt('${diffKey}', ${idx}, '${l}', this.value)" class="flex-1 bg-transparent text-xs text-white outline-none" />
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-xs text-slate-300">#${totalCount}</span>
+                                ${typeBadge}
+                                ${diffBadge}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <select onchange="window.moveEditorQuestionDiff('${diffKey}', ${idx}, this.value)" class="py-0.5 px-2 bg-slate-800 border border-white/20 rounded-lg text-[11px] text-slate-300 cursor-pointer">
+                                    <option value="easy" ${diffKey === 'easy' ? 'selected' : ''}>Mức: Dễ</option>
+                                    <option value="medium" ${diffKey === 'medium' ? 'selected' : ''}>Mức: Vừa</option>
+                                    <option value="hard" ${diffKey === 'hard' ? 'selected' : ''}>Mức: Khó</option>
+                                </select>
+                                <button onclick="window.deleteEditorQuestion('${diffKey}', ${idx})" class="p-1.5 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/40 text-xs transition cursor-pointer" title="Xóa câu hỏi">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nội dung câu hỏi / Mệnh đề:</label>
+                            <textarea onfocus="window.setEditorActiveInput(this)" onchange="window.updateEditorQuestion('${diffKey}', ${idx}, 'text', this.value)" rows="2" class="w-full p-2.5 bg-slate-900 border border-white/10 rounded-xl text-xs text-white focus:border-indigo-400 outline-none">${q.text || ''}</textarea>
+                            <div class="mt-1 px-2.5 py-1 bg-indigo-950/40 border border-indigo-500/20 rounded-lg text-xs text-indigo-200 math-preview">
+                                <span class="text-[10px] text-indigo-400 font-bold uppercase mr-1">KaTeX Preview:</span>
+                                <span>${formatMathText(q.text || '')}</span>
+                            </div>
+                        </div>
+
+                        ${optionsHtml}
+                    `;
+                    listContainer.appendChild(card);
+                });
+            });
+
+            if (totalCount === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <p class="text-base font-bold text-slate-300">Không có câu hỏi nào theo bộ lọc đang chọn</p>
+                        <p class="text-xs text-slate-500 mt-1">Bấm "+ Thêm Câu ABCD" hoặc "+ Thêm Câu Đúng/Sai" để tạo câu hỏi mới!</p>
+                    </div>
+                `;
+            }
+
+            typesetMath([listContainer]);
+        };
+
+        window.setEditorActiveInput = function(el) {
+            editorActiveInput = el;
+        };
+
+        window.insertEditorMathSymbol = function(sym) {
+            if (!editorActiveInput) return;
+            const start = editorActiveInput.selectionStart || 0;
+            const end = editorActiveInput.selectionEnd || 0;
+            const val = editorActiveInput.value;
+            editorActiveInput.value = val.substring(0, start) + sym + val.substring(end);
+            editorActiveInput.selectionStart = editorActiveInput.selectionEnd = start + sym.length;
+            editorActiveInput.focus();
+            editorActiveInput.dispatchEvent(new Event('change'));
+        };
+
+        window.updateEditorQuestion = function(diffKey, idx, field, val) {
+            if (!window.gameDatabase[currentEditorTopic] || !window.gameDatabase[currentEditorTopic][diffKey]) return;
+            window.gameDatabase[currentEditorTopic][diffKey][idx][field] = val;
+        };
+
+        window.updateEditorQuestionOpt = function(diffKey, idx, optKey, val) {
+            if (!window.gameDatabase[currentEditorTopic] || !window.gameDatabase[currentEditorTopic][diffKey]) return;
+            const q = window.gameDatabase[currentEditorTopic][diffKey][idx];
+            if (!q.opts) q.opts = {};
+            q.opts[optKey] = val;
+        };
+
+        window.moveEditorQuestionDiff = function(oldDiff, idx, newDiff) {
+            if (oldDiff === newDiff) return;
+            const q = window.gameDatabase[currentEditorTopic][oldDiff].splice(idx, 1)[0];
+            if (!window.gameDatabase[currentEditorTopic][newDiff]) window.gameDatabase[currentEditorTopic][newDiff] = [];
+            window.gameDatabase[currentEditorTopic][newDiff].push(q);
+            window.renderEditorQuestions();
+        };
+
+        window.deleteEditorQuestion = function(diffKey, idx) {
+            if (!confirm('Bạn có chắc chắn muốn xóa câu hỏi này?')) return;
+            window.gameDatabase[currentEditorTopic][diffKey].splice(idx, 1);
+            window.renderEditorQuestions();
+        };
+
+        window.addEditorQuestion = function(type) {
+            if (!window.gameDatabase[currentEditorTopic]) return;
+            const targetDiff = (currentEditorFilter === 'easy' || currentEditorFilter === 'medium' || currentEditorFilter === 'hard') ? currentEditorFilter : 'easy';
+            if (type === 'TF') {
+                window.gameDatabase[currentEditorTopic][targetDiff].push({
+                    type: 'TF',
+                    text: 'Nội dung câu hỏi Đúng/Sai mới...',
+                    left: 'Đúng',
+                    right: 'Sai',
+                    correct: 'LEFT',
+                    explanation: ''
+                });
+            } else {
+                window.gameDatabase[currentEditorTopic][targetDiff].push({
+                    type: 'MC',
+                    text: 'Nội dung câu hỏi trắc nghiệm mới...',
+                    opts: { A: 'Đáp án A', B: 'Đáp án B', C: 'Đáp án C', D: 'Đáp án D' },
+                    correct: 'A',
+                    explanation: ''
+                });
+            }
+            window.renderEditorQuestions();
+        };
+
+        window.saveEditorData = function() {
+            try {
+                localStorage.setItem('yoga_quiz_data', JSON.stringify(window.gameDatabase));
+                window.ensureYogaData();
+                alert('🎉 ĐÃ LƯU DỮ LIỆU ĐỀ THI THÀNH CÔNG VÀO BỘ NHỚ TRÒ CHƠI!');
+                window.closeAdminEditorModal();
+            } catch(e) {
+                alert('Lỗi lưu dữ liệu: ' + e.message);
+            }
+        };
+
+        window.exportCurrentStandaloneHTML = function() {
+            try {
+                let html = document.documentElement.outerHTML;
+                const injectedScript = `<script>\nwindow.__INJECTED_YOGA_DATA__ = ${JSON.stringify(window.gameDatabase, null, 2)};\n<\/script>`;
+                if (html.includes('<head>')) {
+                    html = html.replace('<head>', '<head>\n' + injectedScript);
+                } else {
+                    html = injectedScript + '\n' + html;
+                }
+                const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `game_yoga_xac_suat_custom_${Date.now()}.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert('⚡ Đã xuất và tải xuống file HTML trò chơi độc lập thành công!');
+            } catch(e) {
+                alert('Lỗi xuất file HTML: ' + e.message);
+            }
+        };
+
+        // --- 1. NGÂN HÀNG CÂU HỎI HIỆN TẠI ---
+        let questionsBank = [];
 
         // --- 2. BIẾN TRẠNG THÁI & ÂM THANH ---
         let currentQuestionIndex = 0;
@@ -628,7 +1149,7 @@
             }
             
             const q = questionsBank[currentQuestionIndex];
-            uiQuestion.innerHTML = `<b>Câu ${currentQuestionIndex + 1}:</b> ${q.text}`;
+            uiQuestion.innerHTML = `<b>Câu ${currentQuestionIndex + 1}:</b> ${formatMathText(q.text)}`;
             document.getElementById('question-number').innerText = (currentQuestionIndex + 1);
             
             tfLeft.className = tfLeft.className.replace(/active-\w+/g, '');
@@ -637,19 +1158,20 @@
             
             if (q.type === 'TF') {
                 layoutTF.classList.remove('hidden'); layoutMC.classList.add('hidden');
-                document.getElementById('tf-text-left').innerHTML = q.left;
-                document.getElementById('tf-text-right').innerHTML = q.right;
+                document.getElementById('tf-text-left').innerHTML = formatMathText(q.left || 'Đúng');
+                document.getElementById('tf-text-right').innerHTML = formatMathText(q.right || 'Sai');
                 uiHint.innerText = "NHÌN VÀO GƯƠNG, NGHIÊNG ĐẦU ĐỂ CHỌN!";
             } else {
                 layoutMC.classList.remove('hidden'); layoutTF.classList.add('hidden');
-                document.getElementById('mc-text-A').innerHTML = q.opts.A;
-                document.getElementById('mc-text-B').innerHTML = q.opts.B;
-                document.getElementById('mc-text-C').innerHTML = q.opts.C;
-                document.getElementById('mc-text-D').innerHTML = q.opts.D;
+                const opts = q.opts || { A: '', B: '', C: '', D: '' };
+                document.getElementById('mc-text-A').innerHTML = formatMathText(opts.A);
+                document.getElementById('mc-text-B').innerHTML = formatMathText(opts.B);
+                document.getElementById('mc-text-C').innerHTML = formatMathText(opts.C);
+                document.getElementById('mc-text-D').innerHTML = formatMathText(opts.D);
                 uiHint.innerText = "NHÌN VÀO GƯƠNG VÀ TẠO DÁNG Y HỆT HÌNH!";
             }
 
-            if (window.MathJax) MathJax.typesetPromise();
+            typesetMath([document.getElementById('game-ui')]);
             
             gameState = 'PLAYING';
             activeInput = 'NONE';
@@ -844,6 +1366,19 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        // ========================================================
+        // STARTUP HOOK - KHỞI TẠO GAME NGAY KHI TRANG TẢI XONG
+        // ========================================================
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                window.ensureYogaData();
+                checkAdminSecurity();
+            });
+        } else {
+            window.ensureYogaData();
+            checkAdminSecurity();
+        }
     </script>
 <script src="/game-engine.js"></script>
 </body>

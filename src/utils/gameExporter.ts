@@ -1308,14 +1308,38 @@ if (typeof window.gameDatabase !== 'undefined' && Object.keys(${JSON.stringify(t
     htmlContent = injectScriptAtTop(htmlContent, treeScript);
   }
 
-  // NHÓM YOGA PHẢN XẠ XÁC SUẤT (cấu trúc Đa Chủ Đề & Đa Độ Khó: TF & MC)
+  // NHÓM YOGA PHẢN XẠ XÁC SUẤT (cấu trúc Đa Chủ Đề & Đa Độ Khó: TF & MC + Data Fallback)
   else if (cleanUrl.includes('yoga')) {
     const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
-    const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
+    const defaultTopic = gameTitle || 'Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập';
     const letters = ['A', 'B', 'C', 'D'];
 
-    questions.forEach(q => {
-      const topicName = q.topic?.trim() || defaultTopic;
+    let activeQuestions = [...questions];
+    if (activeQuestions.length === 0) {
+      try {
+        const ws = DEFAULT_WORKSHEETS.find(w => 
+          (w.title && (w.title.toLowerCase().includes('xác suất') || w.title.toLowerCase().includes('xac suat'))) ||
+          (w.id && (w.id.includes('xac_suat') || w.id.includes('xacsuat') || w.id.includes('11_') || w.id.includes('10_07')))
+        ) || DEFAULT_WORKSHEETS.find(w => w.questions && w.questions.length >= 10) || DEFAULT_WORKSHEETS[0];
+        
+        if (ws && ws.questions && ws.questions.length > 0) {
+          activeQuestions = ws.questions.map((q, idx) => ({
+            id: q.id || `ws_yoga_fb_${idx}`,
+            question: q.question,
+            options: q.options || ['A', 'B', 'C', 'D'],
+            correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+            explanation: q.solution || '',
+            difficulty: idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'),
+            topic: ws.title || defaultTopic
+          } as Question));
+        }
+      } catch (e) {
+        console.warn('Lỗi lấy worksheet dự phòng cho Yoga:', e);
+      }
+    }
+
+    activeQuestions.forEach(q => {
+      let topicName = q.topic?.trim() || defaultTopic;
       if (!topicsMap[topicName]) {
         topicsMap[topicName] = { easy: [], medium: [], hard: [] };
       }
@@ -1326,34 +1350,98 @@ if (typeof window.gameDatabase !== 'undefined' && Object.keys(${JSON.stringify(t
       if (q.options && q.options.length === 2) {
         topicsMap[topicName][diffKey].push({
           type: 'TF',
-          text: q.question,
-          left: q.options[0] || 'Đúng',
-          right: q.options[1] || 'Sai',
-          correct: ansIdx === 0 ? 'LEFT' : 'RIGHT'
+          text: normalizeMathFormulas(q.question),
+          left: normalizeMathFormulas(q.options[0] || 'Đúng'),
+          right: normalizeMathFormulas(q.options[1] || 'Sai'),
+          correct: ansIdx === 0 ? 'LEFT' : 'RIGHT',
+          explanation: normalizeMathFormulas(q.explanation || '')
         });
       } else {
         const optsObj = {
-          A: q.options?.[0] || 'A',
-          B: q.options?.[1] || 'B',
-          C: q.options?.[2] || 'C',
-          D: q.options?.[3] || 'D'
+          A: normalizeMathFormulas(q.options?.[0] || 'A'),
+          B: normalizeMathFormulas(q.options?.[1] || 'B'),
+          C: normalizeMathFormulas(q.options?.[2] || 'C'),
+          D: normalizeMathFormulas(q.options?.[3] || 'D')
         };
         topicsMap[topicName][diffKey].push({
           type: 'MC',
-          text: q.question,
+          text: normalizeMathFormulas(q.question),
           opts: optsObj,
-          correct: ansLetter
+          correct: ansLetter,
+          explanation: normalizeMathFormulas(q.explanation || '')
         });
       }
     });
 
     const yogaScript = `
 <script>
-// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - YOGA PHẢN XẠ]
-if (typeof window.gameDatabase !== 'undefined') {
-  Object.assign(window.gameDatabase, ${JSON.stringify(topicsMap, null, 2)});
-  window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
-}
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - YOGA PHẢN XẠ & DATA FALLBACK]
+window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
+window.__ADMIN_PIN__ = "2806";
+window.__INJECTED_YOGA_DATA__ = ${JSON.stringify(topicsMap, null, 2)};
+window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_YOGA_DATA__));
+window.yogaQuizData = JSON.parse(JSON.stringify(window.__INJECTED_YOGA_DATA__));
+
+(function() {
+  function syncYogaData() {
+    if (typeof ensureYogaData === 'function') {
+      ensureYogaData();
+    }
+  }
+
+  function applyAdminSecurity() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+      adminBtns.forEach(btn => {
+        if (isAdmin) {
+          btn.classList.remove('hidden');
+          btn.style.setProperty('display', 'inline-flex', 'important');
+        } else {
+          btn.classList.add('hidden');
+          btn.style.setProperty('display', 'none', 'important');
+        }
+      });
+    } catch(e) {}
+  }
+
+  function setupAdminHooks() {
+    if (typeof setupAdminButtons === 'function') {
+      setupAdminButtons();
+    }
+  }
+
+  function triggerMathTypeset() {
+    try {
+      if (typeof typesetMath === 'function') {
+        typesetMath([document.getElementById('game-ui')]);
+      } else if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function() {});
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      syncYogaData();
+      applyAdminSecurity();
+      setupAdminHooks();
+      triggerMathTypeset();
+    });
+  } else {
+    syncYogaData();
+    applyAdminSecurity();
+    setupAdminHooks();
+    triggerMathTypeset();
+  }
+  window.addEventListener('load', function() {
+    syncYogaData();
+    applyAdminSecurity();
+    setupAdminHooks();
+    triggerMathTypeset();
+  });
+})();
 </script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, yogaScript);

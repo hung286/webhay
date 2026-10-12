@@ -1,5 +1,5 @@
 import { Question, Difficulty, DragDropCategory, DragDropTableRow } from '../types';
-import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType } from 'docx';
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
 import { saveAs } from 'file-saver';
 
 declare global {
@@ -1507,10 +1507,527 @@ export async function downloadBanChimExcelTemplate(): Promise<void> {
 }
 
 /**
+ * HÀM TẠO BẢNG CÂU HỎI ĐÚNG / SAI 9 DÒNG x 2 CỘT CHO GAME YOGA (DOCX) - ĐEN TRẮNG TIÊU CHUẨN
+ */
+function createYogaTFQuestionTable(
+  qNum: number,
+  levelText: string,
+  stem: string,
+  stmtA: string, ansA: string, expA: string,
+  stmtB: string, ansB: string, expB: string,
+  stmtC: string, ansC: string, expC: string,
+  stmtD: string, ansD: string, expD: string
+): Table {
+  return new Table({
+    width: { size: 10000, type: WidthType.DXA },
+    rows: [
+      // Dòng 1: Câu [N] (Đ/S): [Mức độ] | Thân bài (Stem)
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: `Câu ${qNum} (Đ/S): [${levelText}]`, bold: true, color: "000000", size: 21 })] })]
+          }),
+          new TableCell({
+            width: { size: 7500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stem, color: "000000", size: 21 })] })]
+          })
+        ]
+      }),
+      // Dòng 2: a) | Phát biểu a
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "a)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtA, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 3: Đúng/Sai | ansA + expA
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Đúng/Sai", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: `${ansA} - ${expA}`, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 4: b) | Phát biểu b
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "b)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtB, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 5: Đúng/Sai | ansB + expB
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Đúng/Sai", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: `${ansB} - ${expB}`, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 6: c) | Phát biểu c
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "c)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtC, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 7: Đúng/Sai | ansC + expC
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Đúng/Sai", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: `${ansC} - ${expC}`, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 8: d) | Phát biểu d
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "d)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtD, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 9: Đúng/Sai | ansD + expD
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Đúng/Sai", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7500, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: `${ansD} - ${expD}`, color: "000000" })] })]
+          })
+        ]
+      })
+    ]
+  });
+}
+
+/**
+ * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHO GAME AI YOGA VẬN ĐỘNG (CHUẨN BẢNG ĐEN TRẮNG MC & ĐÚNG/SAI 4 Ý)
+ */
+export async function downloadYogaWordTemplate(): Promise<void> {
+  const sectionsContent: any[] = [
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "MẪU ĐỀ GAME AI YOGA VẬN ĐỘNG (CHUẨN BẢNG ĐEN TRẮNG ĐA DẠNG MC & ĐÚNG/SAI)",
+          bold: true,
+          size: 26,
+          color: "000000"
+        })
+      ],
+      spacing: { after: 120 }
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "Chỉ thị cấu trúc: Hỗ trợ song song 2 dạng bảng chuẩn đen trắng (không đổ màu ô):\n" +
+                "1. Dạng Trắc nghiệm 4 lựa chọn (MC): Bảng 2 cột x 7 dòng (Dòng 1: Câu [N]: [Mức độ] | Đề bài; Dòng 2..5: A), B), C), D) | 4 đáp án; Dòng 6: Lời giải; Dòng 7: Đáp án đúng A/B/C/D).\n" +
+                "2. Dạng Đúng/Sai 4 ý (TF): Bảng 2 cột x 9 dòng (Dòng 1: Câu [N] (Đ/S): [Mức độ] | Ngữ cảnh chung; Dòng 2, 4, 6, 8: a), b), c), d); Dòng 3, 5, 7, 9: Đúng/Sai | Ghi 'Đúng' hoặc 'Sai' kèm lời giải).\n" +
+                "Hệ thống tự động bóc tách thành 4 bài tập phản xạ nghiêng đầu cho mỗi câu Đúng/Sai khi chơi và nhận diện 3 chuyên đề x 3 cấp độ (Dễ, Vừa, Khó).",
+          size: 19,
+          color: "333333"
+        })
+      ],
+      spacing: { after: 200 }
+    }),
+
+    // ==========================================
+    // CHUYÊN ĐỀ 1
+    // ==========================================
+    new Paragraph({
+      children: [new TextRun({ text: "CHỦ ĐỀ 1: BIẾN CỐ GIAO, HỢP & BIẾN CỐ ĐỘC LẬP", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 1: MỨC ĐỘ 1 (DỄ)", bold: true, color: "000000", size: 22 })],
+      spacing: { before: 100, after: 100 }
+    }),
+    createYogaTFQuestionTable(
+      1,
+      "Dễ",
+      "Cho hai biến cố A và B bất kỳ trong phép thử. Xét tính Đúng/Sai của các mệnh đề sau:",
+      "Nếu A và B xung khắc thì \\( P(A \\cap B) = 0 \\).", "Đúng", "Hai biến cố xung khắc không thể cùng xảy ra.",
+      "Nếu A và B độc lập thì \\( P(A \\cap B) = P(A) \\cdot P(B) \\).", "Đúng", "Theo định nghĩa hai biến cố độc lập.",
+      "Hai biến cố xung khắc luôn luôn là hai biến cố độc lập.", "Sai", "Hai biến cố xung khắc không độc lập nếu xác suất lớn hơn 0.",
+      "Ta luôn có \\( P(A \\cup B) = P(A) + P(B) - P(A \\cap B) \\).", "Đúng", "Công thức cộng xác suất tổng quát."
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+    createChienHaoQuestionTable(
+      2,
+      "Cho \\( A, B \\) là hai biến cố xung khắc có \\( P(A) = 0.3 \\) và \\( P(B) = 0.4 \\). Giá trị \\( P(A \\cup B) \\) bằng:",
+      "0.7",
+      "0.12",
+      "0.1",
+      "0.8",
+      "Vì A và B xung khắc nên \\( P(A \\cup B) = P(A) + P(B) = 0.3 + 0.4 = 0.7 \\).",
+      "A"
+    ),
+
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH)", bold: true, color: "000000", size: 22 })],
+      spacing: { before: 200, after: 100 }
+    }),
+    createYogaTFQuestionTable(
+      3,
+      "Trung bình",
+      "Hai xạ thủ bắn bia độc lập. Xác suất bắn trúng của người 1 là 0.8, người 2 là 0.7. Xét tính Đúng/Sai:",
+      "Xác suất để cả hai người cùng bắn trúng bia là 0.56.", "Đúng", "\\( P = 0.8 \\times 0.7 = 0.56 \\).",
+      "Xác suất để cả hai người cùng bắn trượt là 0.06.", "Đúng", "\\( P = (1 - 0.8) \\times (1 - 0.7) = 0.06 \\).",
+      "Xác suất có ít nhất một người bắn trúng bia là 0.94.", "Đúng", "\\( 1 - 0.06 = 0.94 \\).",
+      "Xác suất có đúng một người bắn trúng bia là 0.50.", "Sai", "\\( 0.8 \\times 0.3 + 0.2 \\times 0.7 = 0.38 \\)."
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+    createChienHaoQuestionTable(
+      4,
+      "Gieo 2 đồng xu cân đối, đồng chất. Xác suất xuất hiện ít nhất một mặt sấp bằng:",
+      "3/4",
+      "1/4",
+      "1/2",
+      "1",
+      "Không gian mẫu gồm 4 phần tử. Biến cố đối cả hai ngửa gồm 1 phần tử. XS bằng 1 - 1/4 = 3/4.",
+      "A"
+    ),
+
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 3: MỨC ĐỘ 3 (KHÓ)", bold: true, color: "000000", size: 22 })],
+      spacing: { before: 200, after: 100 }
+    }),
+    createChienHaoQuestionTable(
+      5,
+      "Bắn 3 phát đạn độc lập với xác suất trúng mỗi phát là 0.6. Xác suất trúng đúng 2 phát là:",
+      "0.432",
+      "0.216",
+      "0.288",
+      "0.144",
+      "Áp dụng phân bố nhị thức: \\( C_3^2 \\times 0.6^2 \\times 0.4 = 3 \\times 0.36 \\times 0.4 = 0.432 \\).",
+      "A"
+    ),
+
+    // ==========================================
+    // CHUYÊN ĐỀ 2
+    // ==========================================
+    new Paragraph({
+      children: [new TextRun({ text: "CHỦ ĐỀ 2: XÁC SUẤT CÓ ĐIỀU KIỆN & CÔNG THỨC TOÀN PHẦN", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 250, after: 120 }
+    }),
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 1: MỨC ĐỘ 1 (DỄ)", bold: true, color: "000000", size: 22 })],
+      spacing: { before: 100, after: 100 }
+    }),
+    createChienHaoQuestionTable(
+      6,
+      "Cho \\( P(A \\cap B) = 0.2 \\) và \\( P(B) = 0.5 \\). Xác suất có điều kiện \\( P(A|B) \\) bằng:",
+      "0.4",
+      "0.1",
+      "0.7",
+      "0.25",
+      "Ta có \\( P(A|B) = \\frac{P(A \\cap B)}{P(B)} = \\frac{0.2}{0.5} = 0.4 \\).",
+      "A"
+    ),
+
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH)", bold: true, color: "000000", size: 22 })],
+      spacing: { before: 200, after: 100 }
+    }),
+    createYogaTFQuestionTable(
+      7,
+      "Trung bình",
+      "Hộp có 3 bi đỏ và 2 bi xanh. Lấy lần lượt 2 viên không hoàn lại. A: 'Bi 1 đỏ', B: 'Bi 2 xanh'. Xét tính Đúng/Sai:",
+      "Xác suất \\( P(A) = 3/5 \\).", "Đúng", "Ban đầu có 3 viên đỏ trên tổng số 5 viên.",
+      "Xác suất có điều kiện \\( P(B|A) = 1/2 \\).", "Đúng", "Sau khi lấy 1 đỏ, hộp còn 2 đỏ và 2 xanh nên XS là 2/4 = 1/2.",
+      "Xác suất \\( P(A \\cap B) = 3/10 \\).", "Đúng", "\\( P(A \\cap B) = P(A) \\cdot P(B|A) = 3/5 \\times 1/2 = 3/10 \\).",
+      "Hai biến cố A và B độc lập với nhau.", "Sai", "Vì lấy không hoàn lại nên kết quả lần 1 làm thay đổi xác suất lần 2."
+    ),
+
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 3: MỨC ĐỘ 3 (KHÓ)", bold: true, color: "000000", size: 22 })],
+      spacing: { before: 200, after: 100 }
+    }),
+    createChienHaoQuestionTable(
+      8,
+      "Cho \\( P(A) = 0.4, P(B|A) = 0.6, P(B|\\overline{A}) = 0.3 \\). Giá trị \\( P(B) \\) theo công thức toàn phần bằng:",
+      "0.42",
+      "0.36",
+      "0.48",
+      "0.50",
+      "\\( P(B) = P(A)P(B|A) + P(\\overline{A})P(B|\\overline{A}) = 0.4 \\times 0.6 + 0.6 \\times 0.3 = 0.42 \\).",
+      "A"
+    ),
+
+    // ==========================================
+    // CHUYÊN ĐỀ 3
+    // ==========================================
+    new Paragraph({
+      children: [new TextRun({ text: "CHỦ ĐỀ 3: ÔN TẬP TỔNG HỢP XÁC SUẤT & QUY TẮC ĐẾM", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 250, after: 120 }
+    }),
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 1: MỨC ĐỘ 1 (DỄ)", bold: true, color: "000000", size: 22 })],
+      spacing: { before: 100, after: 100 }
+    }),
+    createChienHaoQuestionTable(
+      9,
+      "Có 5 bạn nam và 4 bạn nữ. Số cách chọn 1 bạn làm lớp trưởng là:",
+      "9",
+      "20",
+      "5",
+      "4",
+      "Theo quy tắc cộng: 5 + 4 = 9 cách.",
+      "A"
+    ),
+
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH)", bold: true, color: "000000", size: 22 })],
+      spacing: { before: 200, after: 100 }
+    }),
+    createChienHaoQuestionTable(
+      10,
+      "Từ tập hợp \\{1, 2, 3, 4, 5, 6\\} lập được bao nhiêu số tự nhiên chẵn gồm 3 chữ số khác nhau?",
+      "60",
+      "120",
+      "30",
+      "90",
+      "Chữ số cuối có 3 cách (2, 4, 6), hai chữ số đầu có \\( A_5^2 = 20 \\) cách. Số các số là 3 * 20 = 60.",
+      "A"
+    ),
+
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 3: MỨC ĐỘ 3 (KHÓ)", bold: true, color: "000000", size: 22 })],
+      spacing: { before: 200, after: 100 }
+    }),
+    createYogaTFQuestionTable(
+      11,
+      "Khó",
+      "Cho đa giác lồi có 10 đỉnh. Xét tính Đúng/Sai của các mệnh đề sau:",
+      "Số tam giác có các đỉnh là đỉnh của đa giác bằng \\( C_{10}^3 = 120 \\).", "Đúng", "Chọn 3 đỉnh bất kỳ từ 10 đỉnh tạo thành 1 tam giác.",
+      "Số đoạn thẳng nối 2 đỉnh bất kỳ của đa giác là 45.", "Đúng", "\\( C_{10}^2 = 45 \\).",
+      "Số đường chéo của đa giác lồi bằng 35.", "Đúng", "\\( C_{10}^2 - 10 = 35 \\).",
+      "Số tam giác không có cạnh nào là cạnh của đa giác là 60.", "Sai", "Số tam giác không có cạnh chung là \\( C_{10}^3 - 10 \\times 8 + 10 = 50 \\)."
+    )
+  ];
+
+  const doc = new Document({
+    sections: [
+      {
+        properties: {},
+        children: sectionsContent
+      }
+    ]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Mau_Game_Yoga_Xac_Suat_11.docx");
+}
+
+/**
+ * SINH VÀ TẢI FILE EXCEL (.XLSX) MẪU CHO GAME AI YOGA VẬN ĐỘNG
+ */
+export async function downloadYogaExcelTemplate(): Promise<void> {
+  const { XLSX } = await loadDocumentLibraries();
+  const headers = [
+    "Chuyên Đề",
+    "Mức Độ (Dễ, Trung bình, Khó)",
+    "Dạng Câu (MC hoặc TF)",
+    "Nội Dung Câu Hỏi / Ngữ Cảnh Chung",
+    "Lựa Chọn A / Ý a)",
+    "Lựa Chọn B / Ý b)",
+    "Lựa Chọn C / Ý c)",
+    "Lựa Chọn D / Ý d)",
+    "Đáp Án Đúng (A, B, C, D hoặc Đ, S)",
+    "Lời Giải Chi Tiết"
+  ];
+
+  const sampleRows = [
+    [
+      "Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập",
+      "Dễ",
+      "TF",
+      "Cho hai biến cố A và B bất kỳ trong phép thử. Xét tính Đúng/Sai của các khẳng định sau:",
+      "Nếu A và B xung khắc thì P(A ∩ B) = 0.",
+      "Nếu A và B độc lập thì P(A ∩ B) = P(A) * P(B).",
+      "Hai biến cố xung khắc luôn là hai biến cố độc lập.",
+      "Ta luôn có P(A ∪ B) = P(A) + P(B) - P(A ∩ B).",
+      "Đúng, Đúng, Sai, Đúng",
+      "Theo quy tắc và định nghĩa biến cố xung khắc, độc lập."
+    ],
+    [
+      "Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập",
+      "Dễ",
+      "MC",
+      "Cho A, B xung khắc có P(A) = 0.3 và P(B) = 0.4. Giá trị P(A ∪ B) bằng:",
+      "0.7",
+      "0.12",
+      "0.1",
+      "0.8",
+      "A",
+      "P(A ∪ B) = P(A) + P(B) = 0.3 + 0.4 = 0.7."
+    ],
+    [
+      "Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập",
+      "Trung bình",
+      "TF",
+      "Hai xạ thủ bắn bia độc lập có XS trúng là 0.8 và 0.7. Xét tính Đúng/Sai:",
+      "XS cả hai người cùng trúng là 0.56.",
+      "XS cả hai người cùng trượt là 0.06.",
+      "XS có ít nhất một người trúng là 0.94.",
+      "XS có đúng một người trúng là 0.50.",
+      "Đúng, Đúng, Đúng, Sai",
+      "Sử dụng công thức độc lập và biến cố đối."
+    ],
+    [
+      "Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập",
+      "Khó",
+      "MC",
+      "Bắn 3 phát đạn độc lập có XS trúng mỗi phát là 0.6. XS trúng đúng 2 phát là:",
+      "0.432",
+      "0.216",
+      "0.288",
+      "0.144",
+      "A",
+      "C(3,2) * 0.6^2 * 0.4 = 0.432."
+    ],
+    [
+      "Chủ đề 2: Xác Suất Có Điều Kiện & Công Thức Toàn Phần",
+      "Dễ",
+      "MC",
+      "Cho P(A ∩ B) = 0.2 và P(B) = 0.5. Giá trị P(A|B) bằng:",
+      "0.4",
+      "0.1",
+      "0.7",
+      "0.25",
+      "A",
+      "P(A|B) = P(AB)/P(B) = 0.2/0.5 = 0.4."
+    ],
+    [
+      "Chủ đề 2: Xác Suất Có Điều Kiện & Công Thức Toàn Phần",
+      "Trung bình",
+      "TF",
+      "Hộp có 3 bi đỏ, 2 bi xanh. Lấy lần lượt 2 viên không hoàn lại. A: 'Bi 1 đỏ', B: 'Bi 2 xanh':",
+      "Xác suất P(A) = 3/5.",
+      "Xác suất P(B|A) = 1/2.",
+      "Xác suất P(A ∩ B) = 3/10.",
+      "Hai biến cố A và B độc lập.",
+      "Đúng, Đúng, Đúng, Sai",
+      "Vì lấy không hoàn lại nên hai biến cố phụ thuộc."
+    ],
+    [
+      "Chủ đề 2: Xác Suất Có Điều Kiện & Công Thức Toàn Phần",
+      "Khó",
+      "MC",
+      "Cho P(A)=0.4, P(B|A)=0.6, P(B|A đối)=0.3. Giá trị P(B) theo công thức toàn phần bằng:",
+      "0.42",
+      "0.36",
+      "0.48",
+      "0.50",
+      "A",
+      "P(B) = 0.4*0.6 + 0.6*0.3 = 0.42."
+    ],
+    [
+      "Chủ đề 3: Ôn Tập Tổng Hợp Xác Suất & Quy Tắc Đếm",
+      "Dễ",
+      "MC",
+      "Có 5 bạn nam và 4 bạn nữ. Số cách chọn 1 bạn làm lớp trưởng là:",
+      "9",
+      "20",
+      "5",
+      "4",
+      "A",
+      "Quy tắc cộng: 5 + 4 = 9."
+    ],
+    [
+      "Chủ đề 3: Ôn Tập Tổng Hợp Xác Suất & Quy Tắc Đếm",
+      "Trung bình",
+      "MC",
+      "Từ {1,2,3,4,5,6} lập được bao nhiêu số tự nhiên chẵn có 3 chữ số khác nhau?",
+      "60",
+      "120",
+      "30",
+      "90",
+      "A",
+      "3 * A(5,2) = 60."
+    ],
+    [
+      "Chủ đề 3: Ôn Tập Tổng Hợp Xác Suất & Quy Tắc Đếm",
+      "Khó",
+      "TF",
+      "Cho đa giác lồi có 10 đỉnh. Xét tính Đúng/Sai:",
+      "Số tam giác tạo thành là C(10,3) = 120.",
+      "Số đoạn thẳng nối 2 đỉnh là 45.",
+      "Số đường chéo là 35.",
+      "Số tam giác không có cạnh chung là 60.",
+      "Đúng, Đúng, Đúng, Sai",
+      "Số tam giác không có cạnh chung là 50."
+    ]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
+  ws['!cols'] = [
+    { wch: 35 },
+    { wch: 18 },
+    { wch: 12 },
+    { wch: 45 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 20 },
+    { wch: 40 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Mau_Game_Yoga");
+  XLSX.writeFile(wb, "Mau_Game_Yoga_Xac_Suat_11.xlsx");
+}
+
+/**
  * TẢI FILE MẪU THEO ĐÚNG TỪNG GAME ĐANG CHỌN (KHÔNG DÙNG CHUNG)
  */
 export async function downloadGameWordTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('yoga')) {
+    return downloadYogaWordTemplate();
+  }
   if (cleanId.includes('ban-chim') || cleanId.includes('ban_chim') || cleanId.includes('bird')) {
     return downloadBanChimWordTemplate();
   }
@@ -1528,6 +2045,9 @@ export async function downloadGameWordTemplate(gameIdentifier: string): Promise<
 
 export async function downloadGameExcelTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('yoga')) {
+    return downloadYogaExcelTemplate();
+  }
   if (cleanId.includes('ban-chim') || cleanId.includes('ban_chim') || cleanId.includes('bird')) {
     return downloadBanChimExcelTemplate();
   }
@@ -2270,6 +2790,327 @@ export async function parseBanChimFromExcel(file: File): Promise<Question[]> {
       createdAt: new Date().toISOString(),
       imageUrl: imgUrl
     });
+  });
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE WORD (.DOCX) CHO GAME AI YOGA VẬN ĐỘNG (SONG SONG 7 DÒNG MC VÀ 9 DÒNG TF 4 Ý)
+ * Tự động bóc tách và sinh 4 câu hỏi trắc nghiệm Đúng/Sai độc lập cho mỗi câu hỏi 9 dòng
+ */
+export async function parseYogaFromDocx(file: File): Promise<Question[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+  const questions: Question[] = [];
+
+  if (html.includes('<table')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+
+    let currentTopic = 'Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập';
+    let currentDifficulty: Difficulty = 'Dễ';
+
+    tables.forEach((table) => {
+      // Tìm heading / tiêu đề gần nhất phía trước bảng để xác định Chủ đề và Độ khó
+      let prevEl = table.previousElementSibling;
+      while (prevEl) {
+        const text = (prevEl.textContent || '').trim().toLowerCase();
+        if (text.includes('chủ đề 1') || text.includes('chuyên đề 1') || text.includes('giao, hợp') || text.includes('biến cố độc lập')) {
+          currentTopic = 'Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập';
+        } else if (text.includes('chủ đề 2') || text.includes('chuyên đề 2') || text.includes('điều kiện') || text.includes('toàn phần')) {
+          currentTopic = 'Chủ đề 2: Xác Suất Có Điều Kiện & Công Thức Toàn Phần';
+        } else if (text.includes('chủ đề 3') || text.includes('chuyên đề 3') || text.includes('tổng hợp') || text.includes('quy tắc đếm')) {
+          currentTopic = 'Chủ đề 3: Ôn Tập Tổng Hợp Xác Suất & Quy Tắc Đếm';
+        }
+
+        if (text.includes('mức độ 1') || text.includes('level 1') || text.includes('dễ') || text.includes('phần 1')) {
+          currentDifficulty = 'Dễ';
+        } else if (text.includes('mức độ 2') || text.includes('level 2') || text.includes('trung bình') || text.includes('vừa') || text.includes('phần 2')) {
+          currentDifficulty = 'Trung bình';
+        } else if (text.includes('mức độ 3') || text.includes('level 3') || text.includes('khó') || text.includes('phần 3')) {
+          currentDifficulty = 'Khó';
+        }
+
+        if (text.includes('chuyên đề') || text.includes('chủ đề') || text.includes('mức độ')) break;
+        prevEl = prevEl.previousElementSibling;
+      }
+
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length < 5) return;
+
+      // Chia bảng thành các khối câu hỏi (dựa vào từ khóa "Câu [N]" ở dòng đầu tiên)
+      const questionBlocks: Element[][] = [];
+      let currentBlock: Element[] = [];
+
+      rows.forEach((row) => {
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        const col1Text = cells.length > 0 ? (cells[0].textContent || '').trim().toLowerCase() : '';
+        const isQuestionStart = col1Text.startsWith('câu') || /^câu\s*\d+/i.test(col1Text);
+
+        if (isQuestionStart && currentBlock.length >= 5) {
+          questionBlocks.push(currentBlock);
+          currentBlock = [row];
+        } else {
+          currentBlock.push(row);
+        }
+      });
+      if (currentBlock.length >= 5) {
+        questionBlocks.push(currentBlock);
+      } else if (questionBlocks.length === 0 && rows.length >= 5) {
+        if (rows.length % 9 === 0) {
+          for (let i = 0; i < rows.length; i += 9) questionBlocks.push(rows.slice(i, i + 9));
+        } else {
+          for (let i = 0; i < rows.length; i += 7) questionBlocks.push(rows.slice(i, i + 7));
+        }
+      }
+
+      questionBlocks.forEach((blockRows) => {
+        const firstCol1 = blockRows.length > 0 && blockRows[0].children.length > 0 
+          ? (blockRows[0].children[0].textContent || '').trim().toLowerCase() : '';
+        
+        let blockDiff = currentDifficulty;
+        if (firstCol1.includes('dễ') || firstCol1.includes('mức 1')) blockDiff = 'Dễ';
+        else if (firstCol1.includes('vừa') || firstCol1.includes('trung bình') || firstCol1.includes('mức 2')) blockDiff = 'Trung bình';
+        else if (firstCol1.includes('khó') || firstCol1.includes('mức 3')) blockDiff = 'Khó';
+
+        const isTF = firstCol1.includes('đ/s') || firstCol1.includes('đúng/sai') || blockRows.length >= 9;
+
+        if (isTF && blockRows.length >= 8) {
+          // BẢNG 9 DÒNG: ĐÚNG / SAI 4 Ý -> TỰ ĐỘNG SINH 4 CÂU HỎI GAMEPLAY
+          let stem = '';
+          const statements: { label: string; text: string; isTrue: boolean; explanation: string }[] = [];
+          
+          if (blockRows[0].children.length >= 2) {
+            stem = (blockRows[0].children[1].textContent || '').trim();
+          }
+
+          const labels = ['a', 'b', 'c', 'd'];
+          for (let i = 0; i < 4; i++) {
+            const rowStmtIdx = 1 + i * 2;
+            const rowAnsIdx = 2 + i * 2;
+            let stmtText = '';
+            let ansText = '';
+
+            if (blockRows[rowStmtIdx] && blockRows[rowStmtIdx].children.length >= 2) {
+              stmtText = (blockRows[rowStmtIdx].children[1].textContent || '').trim();
+            }
+            if (blockRows[rowAnsIdx] && blockRows[rowAnsIdx].children.length >= 2) {
+              ansText = (blockRows[rowAnsIdx].children[1].textContent || '').trim();
+            }
+
+            if (stmtText) {
+              const lowerAns = ansText.toLowerCase();
+              const isTrue = lowerAns.startsWith('đúng') || lowerAns.includes('đúng') || lowerAns.startsWith('d') || lowerAns === 't' || lowerAns === 'true';
+              statements.push({
+                label: labels[i],
+                text: stmtText,
+                isTrue,
+                explanation: ansText
+              });
+            }
+          }
+
+          // Sinh gameplay: tạo 4 câu hỏi độc lập kết hợp stem + statement
+          statements.forEach((st) => {
+            questions.push({
+              id: `yoga_tf_${Date.now()}_${questions.length + 1}`,
+              question: normalizeMathFormulas(`${stem}\n\nPhát biểu ${st.label}): ${st.text}`),
+              options: ['Đúng', 'Sai'],
+              correctIndex: st.isTrue ? 0 : 1,
+              explanation: normalizeMathFormulas(st.explanation),
+              difficulty: blockDiff,
+              topic: currentTopic,
+              source: 'Yoga TF',
+              status: 'published',
+              createdAt: new Date().toISOString()
+            });
+          });
+        } else {
+          // BẢNG 7 DÒNG: TRẮC NGHIỆM ABCD
+          let qText = '';
+          let optA = '', optB = '', optC = '', optD = '';
+          let explanation = '';
+          let answerLetter = 'A';
+          let detectedImgUrl: string | undefined = undefined;
+
+          blockRows.forEach((row, rIdx) => {
+            const cells = Array.from(row.querySelectorAll('td, th'));
+            if (cells.length < 2) return;
+            const col1Text = (cells[0].textContent || '').trim().toLowerCase();
+            const col2Text = (cells[1].textContent || '').trim();
+
+            const imgEl = cells[1].querySelector('img');
+            if (imgEl && imgEl.getAttribute('src')) {
+              detectedImgUrl = imgEl.getAttribute('src') || undefined;
+            }
+
+            if (rIdx === 0 || col1Text.startsWith('câu')) {
+              qText = col2Text;
+            } else if (col1Text.startsWith('a') || (rIdx === 1 && !optA)) {
+              optA = col2Text;
+            } else if (col1Text.startsWith('b') || (rIdx === 2 && !optB)) {
+              optB = col2Text;
+            } else if (col1Text.startsWith('c') || (rIdx === 3 && !optC)) {
+              optC = col2Text;
+            } else if (col1Text.startsWith('d') || (rIdx === 4 && !optD)) {
+              optD = col2Text;
+            } else if (col1Text.includes('lời giải') || col1Text.includes('giải thích') || rIdx === 5) {
+              explanation = col2Text;
+            } else if (col1Text.includes('đáp án') || col1Text.includes('chọn') || rIdx === 6) {
+              const match = col2Text.match(/(?:chọn|đáp án|câu)?\s*([A-D])\b/i) || col2Text.match(/\b([A-D])\b/i);
+              if (match) {
+                answerLetter = match[1].toUpperCase();
+              } else {
+                const charMatch = col2Text.replace(/[^A-Da-d]/g, '').toUpperCase().charAt(0);
+                if (charMatch) answerLetter = charMatch;
+              }
+            }
+          });
+
+          if (qText) {
+            const { cleanText, imageUrl } = extractImageUrl(qText);
+            qText = cleanText;
+            if (!detectedImgUrl && imageUrl) detectedImgUrl = imageUrl;
+
+            let correctIndex = 0;
+            if (answerLetter === 'B') correctIndex = 1;
+            else if (answerLetter === 'C') correctIndex = 2;
+            else if (answerLetter === 'D') correctIndex = 3;
+
+            questions.push({
+              id: `yoga_mc_${Date.now()}_${questions.length + 1}`,
+              question: normalizeMathFormulas(qText),
+              options: [
+                normalizeMathFormulas(optA || 'Lựa chọn A'),
+                normalizeMathFormulas(optB || 'Lựa chọn B'),
+                normalizeMathFormulas(optC || 'Lựa chọn C'),
+                normalizeMathFormulas(optD || 'Lựa chọn D')
+              ],
+              correctIndex,
+              explanation: normalizeMathFormulas(explanation),
+              difficulty: blockDiff,
+              topic: currentTopic,
+              source: 'Yoga MC',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              imageUrl: detectedImgUrl
+            });
+          }
+        }
+      });
+    });
+  }
+
+  if (questions.length === 0) {
+    const rawResult = await mammoth.extractRawText({ arrayBuffer });
+    return parseDocumentQuestions(rawResult.value || '', 'Game Yoga');
+  }
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE EXCEL (.XLSX) CHO GAME AI YOGA VẬN ĐỘNG (HỖ TRỢ SONG SONG MC VÀ TF)
+ */
+export async function parseYogaFromExcel(file: File): Promise<Question[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const firstSheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rows: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+  const questions: Question[] = [];
+
+  rows.forEach((row, idx) => {
+    if (!row || row.length === 0) return;
+    const col0 = String(row[0] || '').trim();
+    const col1 = String(row[1] || '').trim();
+    const col2 = String(row[2] || '').trim();
+
+    if (idx === 0 && (col0.toLowerCase().includes('chuyên đề') || col1.toLowerCase().includes('mức độ') || col2.toLowerCase().includes('dạng câu'))) return;
+
+    let topic = 'Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập';
+    if (col0.includes('2') || col0.toLowerCase().includes('điều kiện')) topic = 'Chủ đề 2: Xác Suất Có Điều Kiện & Công Thức Toàn Phần';
+    else if (col0.includes('3') || col0.toLowerCase().includes('tổng hợp') || col0.toLowerCase().includes('đếm')) topic = 'Chủ đề 3: Ôn Tập Tổng Hợp Xác Suất & Quy Tắc Đếm';
+    else if (col0) topic = col0;
+
+    let diff: Difficulty = 'Dễ';
+    const lvlStr = col1.toLowerCase();
+    if (lvlStr.includes('3') || lvlStr.includes('khó')) diff = 'Khó';
+    else if (lvlStr.includes('2') || lvlStr.includes('vừa') || lvlStr.includes('trung')) diff = 'Trung bình';
+
+    const qType = col2.toUpperCase();
+    const qText = String(row[3] || '').trim();
+    if (!qText) return;
+
+    if (qType === 'TF') {
+      const stA = String(row[4] || '').trim();
+      const stB = String(row[5] || '').trim();
+      const stC = String(row[6] || '').trim();
+      const stD = String(row[7] || '').trim();
+      const ansRaw = String(row[8] || '').trim();
+      const exp = String(row[9] || '').trim();
+
+      const ansParts = ansRaw.split(/[,;\s]+/).map(s => s.trim().toUpperCase());
+      const statements = [
+        { label: 'a', text: stA, isTrue: ansParts[0]?.startsWith('Đ') || ansParts[0] === 'D' || ansParts[0] === 'T' },
+        { label: 'b', text: stB, isTrue: ansParts[1]?.startsWith('Đ') || ansParts[1] === 'D' || ansParts[1] === 'T' },
+        { label: 'c', text: stC, isTrue: ansParts[2]?.startsWith('Đ') || ansParts[2] === 'D' || ansParts[2] === 'T' },
+        { label: 'd', text: stD, isTrue: ansParts[3]?.startsWith('Đ') || ansParts[3] === 'D' || ansParts[3] === 'T' },
+      ];
+
+      statements.forEach(st => {
+        if (st.text) {
+          questions.push({
+            id: `yoga_xl_tf_${Date.now()}_${questions.length + 1}`,
+            question: normalizeMathFormulas(`${qText}\n\nPhát biểu ${st.label}): ${st.text}`),
+            options: ['Đúng', 'Sai'],
+            correctIndex: st.isTrue ? 0 : 1,
+            explanation: normalizeMathFormulas(exp),
+            difficulty: diff,
+            topic: topic,
+            source: 'Yoga TF',
+            status: 'published',
+            createdAt: new Date().toISOString()
+          });
+        }
+      });
+    } else {
+      const optA = String(row[4] || '').trim();
+      const optB = String(row[5] || '').trim();
+      const optC = String(row[6] || '').trim();
+      const optD = String(row[7] || '').trim();
+      const ansLetter = String(row[8] || '').trim().toUpperCase().charAt(0) || 'A';
+      const exp = String(row[9] || '').trim();
+
+      let correctIndex = 0;
+      if (ansLetter === 'B') correctIndex = 1;
+      else if (ansLetter === 'C') correctIndex = 2;
+      else if (ansLetter === 'D') correctIndex = 3;
+
+      questions.push({
+        id: `yoga_xl_mc_${Date.now()}_${questions.length + 1}`,
+        question: normalizeMathFormulas(qText),
+        options: [
+          normalizeMathFormulas(optA || 'A'),
+          normalizeMathFormulas(optB || 'B'),
+          normalizeMathFormulas(optC || 'C'),
+          normalizeMathFormulas(optD || 'D')
+        ],
+        correctIndex,
+        explanation: normalizeMathFormulas(exp),
+        difficulty: diff,
+        topic: topic,
+        source: 'Yoga MC',
+        status: 'published',
+        createdAt: new Date().toISOString()
+      });
+    }
   });
 
   return questions;
