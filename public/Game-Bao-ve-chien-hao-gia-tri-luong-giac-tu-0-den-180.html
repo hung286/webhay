@@ -405,9 +405,8 @@
   <div style="max-width: 920px; width: 100%; position: relative; background: rgba(15, 23, 42, 0.95); border: 2px solid #00f0ff; border-radius: 24px; padding: 32px; box-shadow: 0 0 50px rgba(0, 240, 255, 0.35); backdrop-filter: blur(20px); text-align: center;">
     
     <!-- NÚT BÁNH RĂNG QUẢN TRỊ TRÊN MENU CHỌN CHỦ ĐỀ (ẨN MẶC ĐỊNH CHO HỌC SINH, CHỈ HIỆN KHI URL CÓ ?role=admin HOẶC ?admin=1) -->
-    <button id="btn-admin-gear-overlay" class="esport-panel flex items-center gap-2 hover:bg-amber-500/20 transition cursor-pointer text-amber-300 font-bold text-xs uppercase tracking-wider" style="display: none !important; position: absolute; top: 20px; right: 20px; border: 1px solid #f59e0b; border-radius: 8px; padding: 6px 14px; background: rgba(0,0,0,0.6);" title="Bảng quản trị giáo viên">
-      <i class="fa-solid fa-gear text-amber-400"></i>
-      <span>Quản Trị</span>
+    <button id="btn-admin-gear-overlay" data-admin-control="true" class="hidden px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-cyan-300/40 cursor-pointer" style="position: absolute; top: 20px; right: 20px;" title="Quyền Quản Trị - Chỉnh sửa chuyên đề và xuất file HTML mới">
+      <span>⚙️</span> Sửa Dữ Liệu
     </button>
 
     <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 9999px; background: rgba(0, 240, 255, 0.12); border: 1px solid #00f0ff; color: #00f0ff; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
@@ -448,17 +447,18 @@
 
         <div id="hud-top">
 
-        <!-- NÚT CHUYỂN ĐỔI CHỦ ĐỀ NHANH TRÊN HUD -->
-        <button onclick="openTopicMenu()" class="esport-panel flex items-center gap-2 hover:bg-cyan-500/20 transition cursor-pointer text-cyan-300 font-bold text-xs uppercase tracking-wider" style="border-color: #00f0ff;">
-            <i class="fa-solid fa-list-check text-cyan-400"></i>
-            <span id="active-topic-badge">Đổi Chủ Đề</span>
-        </button>
+        <!-- CẶP NÚT CÔNG CỤ ĐỒNG BỘ NGUYÊN XI TỪ GAME KÉO THẢ (ẨN MẶC ĐỊNH CHO HỌC SINH, CHỈ HIỆN KHI URL CÓ ?role=admin) -->
+        <div class="pointer-events-auto flex items-center gap-2 sm:gap-3 flex-wrap">
+            <!-- Nút "CHUYÊN ĐỀ" (Màu cam): Quay trở lại Menu chính CHỌN CHIẾN DỊCH -->
+            <button id="btn-chuyen-de" data-admin-control="true" onclick="openTopicMenu()" class="hidden px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-amber-300/40 cursor-pointer" title="Chọn chuyên đề bài giảng">
+                <span>📚</span> Chuyên Đề
+            </button>
 
-        <!-- NÚT BÁNH RĂNG QUẢN TRỊ ADMIN (ẨN MẶC ĐỊNH, CHỈ HIỆN KHI URL CÓ ?role=admin HOẶC ?admin=1) -->
-        <button id="btn-admin-gear" class="esport-panel flex items-center gap-2 hover:bg-amber-500/20 transition cursor-pointer text-amber-300 font-bold text-xs uppercase tracking-wider" style="display: none !important; border-color: #f59e0b;" title="Bảng quản trị giáo viên">
-            <i class="fa-solid fa-gear text-amber-400"></i>
-            <span>Quản Trị</span>
-        </button>
+            <!-- Nút "⚙️ SỬA DỮ LIỆU" (Màu xanh dương): Mở Hộp Công Cụ Quản Trị In-Game -->
+            <button id="btn-admin-gear" data-admin-control="true" class="hidden px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-cyan-300/40 cursor-pointer" title="Quyền Quản Trị - Chỉnh sửa chuyên đề và xuất file HTML mới">
+                <span>⚙️</span> Sửa Dữ Liệu
+            </button>
+        </div>
 
 
             <div class="esport-panel flex items-center gap-4">
@@ -816,16 +816,24 @@
                 </button>
             </div>
 
-            <!-- Level Tabs -->
-            <div class="flex gap-2 mb-4 shrink-0">
+            <!-- Topic Selector Bar -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-white/10 flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div class="flex items-center gap-2 flex-1 min-w-[240px]">
+                    <span class="text-xs font-bold text-gray-400 shrink-0">Chuyên đề tác chiến:</span>
+                    <select id="editor-topic-select" onchange="onEditorChangeTopic(this.value)" class="flex-1 bg-slate-900 border border-cyan-500/40 text-xs text-cyan-300 font-bold rounded-lg px-2.5 py-1.5 outline-none"></select>
+                </div>
+            </div>
+
+            <!-- Level Tabs (3 Cấp Độ Chuẩn) -->
+            <div class="flex gap-2 mb-4 shrink-0 flex-wrap">
                 <button id="tab-btn-lvl1" onclick="switchEditorLevel(1)" class="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition cursor-pointer bg-cyan-500 text-black shadow-[0_0_10px_#00f0ff]">
-                    MỨC ĐỘ 1: DỄ (<span id="editor-count-lvl1">0</span>)
+                    PHẦN 1: MỨC ĐỘ 1 (DỄ) (<span id="editor-count-lvl1">0</span>)
                 </button>
                 <button id="tab-btn-lvl2" onclick="switchEditorLevel(2)" class="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition cursor-pointer bg-slate-800 text-gray-300 hover:bg-slate-700">
-                    MỨC ĐỘ 2: TRUNG BÌNH (<span id="editor-count-lvl2">0</span>)
+                    PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH) (<span id="editor-count-lvl2">0</span>)
                 </button>
                 <button id="tab-btn-lvl3" onclick="switchEditorLevel(3)" class="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition cursor-pointer bg-slate-800 text-gray-300 hover:bg-slate-700">
-                    MỨC ĐỘ 3: KHÓ (<span id="editor-count-lvl3">0</span>)
+                    PHẦN 3: MỨC ĐỘ 3 (KHÓ) (<span id="editor-count-lvl3">0</span>)
                 </button>
             </div>
 
@@ -1296,6 +1304,8 @@
         function cleanMathString(text) {
             if (!text || typeof text !== 'string') return text || '';
             let cleaned = text.trim();
+            // Chuyển đổi cú pháp ${...} từ defaultWorksheets sang \(...\)
+            cleaned = cleaned.replace(/\$\{([^}]+)\}/g, '\\($1\\)');
             // Chuẩn hóa TeX: xử lý cặp ngoặc nhọn bao quanh delimiter hoặc phân số lạ
             cleaned = cleaned.replace(/\{\s*\\\(\s*([^}]+)\s*\\\)\s*\}/g, '\\($1\\)');
             cleaned = cleaned.replace(/\{\s*(\\frac\{[^}]+\}\{[^}]+\})\s*\}/g, '\\($1\\)');
@@ -1985,23 +1995,32 @@ const DEFAULT_BATTLEFIELD_DATABASE = {
 
 // Cơ chế đồng bộ và Fallback dữ liệu bắt buộc (Data Fallback Guard)
 function ensureBattlefieldData() {
+  if (!window.gameDatabase) window.gameDatabase = {};
+
+  // Bước 1: Kiểm tra biến dữ liệu đa chủ đề (window.battlefieldData hoặc Studio)
   if (window.battlefieldData && typeof window.battlefieldData === 'object') {
-    const customTitle = window.__GAME_TITLE__ || "Chiến Dịch: Tác Chiến Căn Cứ";
-    if (!window.gameDatabase) window.gameDatabase = {};
-    window.gameDatabase[customTitle] = {
-      easy: window.battlefieldData.level1 || window.battlefieldData.easy || [],
-      medium: window.battlefieldData.level2 || window.battlefieldData.medium || [],
-      hard: window.battlefieldData.level3 || window.battlefieldData.hard || []
-    };
+    const l1 = window.battlefieldData.level1 || window.battlefieldData.easy || [];
+    const l2 = window.battlefieldData.level2 || window.battlefieldData.medium || [];
+    const l3 = window.battlefieldData.level3 || window.battlefieldData.hard || [];
+    if (l1.length > 0 || l2.length > 0 || l3.length > 0) {
+      const customTitle = window.__GAME_TITLE__ || "Chiến Dịch: Tác Chiến Căn Cứ";
+      window.gameDatabase[customTitle] = {
+        easy: l1,
+        medium: l2,
+        hard: l3
+      };
+      if (!window.selectedTopic) window.selectedTopic = customTitle;
+    }
   }
 
+  // Bước 2: Kiểm tra tính hợp lệ của gameDatabase
   let hasValid = false;
   if (window.gameDatabase && typeof window.gameDatabase === 'object') {
     const keys = Object.keys(window.gameDatabase);
     if (keys.length > 0) {
       for (const k of keys) {
         const item = window.gameDatabase[k];
-        if (item && ((item.easy && item.easy.length > 0) || (item.level1 && item.level1.length > 0))) {
+        if (item && ((item.easy && item.easy.length > 0) || (item.medium && item.medium.length > 0) || (item.hard && item.hard.length > 0) || (item.level1 && item.level1.length > 0))) {
           hasValid = true;
           break;
         }
@@ -2009,7 +2028,7 @@ function ensureBattlefieldData() {
     }
   }
 
-  // FALLBACK BẮT BUỘC: Nếu dữ liệu rỗng hoặc undefined, tự động nạp kho 3 chiến dịch chuẩn
+  // Bước 3: Cơ chế Dự phòng bắt buộc (Data Fallback) - Nạp ngay dữ liệu gốc Giá Trị Lượng Giác nếu rỗng/lỗi
   if (!hasValid) {
     console.warn('[Battlefield] Dữ liệu động bị rỗng. Tự động nạp DEFAULT_BATTLEFIELD_DATABASE!');
     window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_BATTLEFIELD_DATABASE));
@@ -2017,12 +2036,22 @@ function ensureBattlefieldData() {
 
   const keys = Object.keys(window.gameDatabase);
   if (!window.selectedTopic || !window.gameDatabase[window.selectedTopic]) {
-    window.selectedTopic = keys[0];
+    window.selectedTopic = keys[0] || "Chiến Dịch 1: Góc Lượng Giác Cơ Bản (0° - 90°)";
+  }
+
+  // Đồng bộ lại window.battlefieldData cho game chơi
+  const activeTopic = window.gameDatabase[window.selectedTopic];
+  if (activeTopic) {
+    window.battlefieldData = {
+      level1: activeTopic.easy || activeTopic.level1 || [],
+      level2: activeTopic.medium || activeTopic.level2 || [],
+      level3: activeTopic.hard || activeTopic.level3 || []
+    };
   }
   window.useStaticTopic = true;
 }
 
-// Hàm bốc ngẫu nhiên đúng 5 câu hỏi từ kho câu hỏi của mỗi cấp độ (Random Sampling)
+// Hàm bốc ngẫu nhiên đúng 5 câu hỏi từ kho câu hỏi của mỗi cấp độ (Random Sampling chống học vẹt)
 function sampleFiveQuestions(arr) {
   if (!arr || arr.length === 0) return [];
   const copy = [...arr];
@@ -2039,37 +2068,46 @@ function sampleFiveQuestions(arr) {
   }));
 }
 
-// Mở lại Menu chọn Chủ đề
+// Mở lại Menu chọn Chiến Dịch
 function openTopicMenu() {
+  renderCampaignMenu();
   const overlay = document.getElementById('topic-selection-overlay');
   if (overlay) {
-    renderTopicMenuCards();
     overlay.style.display = 'flex';
   }
 }
 
-// Render các thẻ chủ đề ra giao diện
+// Render các thẻ chiến dịch ra màn hình chính "CHỌN CHIẾN DỊCH"
+function renderCampaignMenu() {
+  renderTopicMenuCards();
+}
+
 function renderTopicMenuCards() {
   const container = document.getElementById('topics-grid');
   if (!container) return;
   ensureBattlefieldData();
   container.innerHTML = '';
 
-  const topics = Object.keys(window.gameDatabase);
-  topics.forEach((topicName, idx) => {
+  const topics = Object.keys(window.gameDatabase || {});
+  if (topics.length === 0) {
+    window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_BATTLEFIELD_DATABASE));
+  }
+
+  Object.keys(window.gameDatabase).forEach((topicName, idx) => {
     const data = window.gameDatabase[topicName];
     const eCount = (data.easy || data.level1 || []).length;
     const mCount = (data.medium || data.level2 || []).length;
     const hCount = (data.hard || data.level3 || []).length;
-    const statsText = `<span style="color: #4ade80; font-size: 11px;">🟢 ${eCount} Dễ</span> &nbsp;|&nbsp; <span style="color: #facc15; font-size: 11px;">🟡 ${mCount} Vừa</span> &nbsp;|&nbsp; <span style="color: #f87171; font-size: 11px;">🔴 ${hCount} Khó</span>`;
+    const statsText = `<span style="color: #4ade80; font-size: 11px; font-weight: 700;">🟢 ${eCount} Dễ</span> &nbsp;|&nbsp; <span style="color: #facc15; font-size: 11px; font-weight: 700;">🟡 ${mCount} Vừa</span> &nbsp;|&nbsp; <span style="color: #f87171; font-size: 11px; font-weight: 700;">🔴 ${hCount} Khó</span>`;
 
     const card = document.createElement('div');
+    const isSelected = (window.selectedTopic === topicName);
     card.style.cssText = `
       background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
-      border: 2px solid ${window.selectedTopic === topicName ? '#00f0ff' : 'rgba(255,255,255,0.1)'};
+      border: 2px solid ${isSelected ? '#00f0ff' : 'rgba(255,255,255,0.1)'};
       border-radius: 16px; padding: 20px; text-align: left; cursor: pointer; transition: all 0.3s ease;
       display: flex; flex-direction: column; justify-content: space-between;
-      box-shadow: ${window.selectedTopic === topicName ? '0 0 25px rgba(0,240,255,0.4)' : 'none'};
+      box-shadow: ${isSelected ? '0 0 25px rgba(0,240,255,0.4)' : 'none'};
     `;
 
     card.onmouseover = () => { card.style.borderColor = '#00f0ff'; card.style.transform = 'translateY(-4px)'; };
@@ -2080,25 +2118,33 @@ function renderTopicMenuCards() {
       }
     };
 
-    card.innerHTML = `
-      <div>
-        <div style="font-size: 11px; font-weight: 800; color: #00f0ff; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;">
-          CHIẾN DỊCH ${idx + 1}
-        </div>
-        <h3 style="color: #ffffff; font-size: 16px; font-weight: 700; margin: 0 0 10px 0; line-height: 1.4;">
-          ${topicName}
-        </h3>
-        <div style="margin-bottom: 16px;">${statsText}</div>
+    const topInfo = document.createElement('div');
+    topInfo.innerHTML = `
+      <div style="font-size: 11px; font-weight: 800; color: #00f0ff; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;">
+        CHIẾN DỊCH ${idx + 1}
       </div>
-      <button onclick="selectTopic('${topicName}')" style="
-        width: 100%; padding: 10px 16px; border: none; border-radius: 10px;
-        background: ${window.selectedTopic === topicName ? 'linear-gradient(90deg, #00f0ff, #0284c7)' : 'rgba(255,255,255,0.1)'};
-        color: #ffffff; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
-        cursor: pointer; transition: all 0.2s;
-      ">
-        ${window.selectedTopic === topicName ? '✓ ĐANG CHỌN' : '🚀 CHỌN CHIẾN DỊCH'}
-      </button>
+      <h3 style="color: #ffffff; font-size: 16px; font-weight: 700; margin: 0 0 10px 0; line-height: 1.4;">
+        ${escapeHtml(topicName)}
+      </h3>
+      <div style="margin-bottom: 16px;">${statsText}</div>
     `;
+
+    const btn = document.createElement('button');
+    btn.style.cssText = `
+      width: 100%; padding: 10px 16px; border: none; border-radius: 10px;
+      background: ${isSelected ? 'linear-gradient(90deg, #00f0ff, #0284c7)' : 'rgba(255,255,255,0.1)'};
+      color: #ffffff; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.2s;
+    `;
+    btn.innerText = isSelected ? '✓ ĐANG CHỌN' : '🚀 CHỌN CHIẾN DỊCH';
+
+    card.appendChild(topInfo);
+    card.appendChild(btn);
+
+    card.onclick = (e) => {
+      e.stopPropagation();
+      selectTopic(topicName);
+    };
 
     container.appendChild(card);
   });
@@ -2109,21 +2155,32 @@ function renderTopicMenuCards() {
 // Xử lý khi học sinh click chọn chủ đề (Random Sampling đúng 5 câu mỗi cấp độ)
 function selectTopic(topicName) {
   window.selectedTopic = topicName;
-  const topicData = window.gameDatabase[topicName];
+  const topicData = window.gameDatabase[topicName] || DEFAULT_BATTLEFIELD_DATABASE[Object.keys(DEFAULT_BATTLEFIELD_DATABASE)[0]];
   
   if (topicData) {
     sessionQuestions['level1'] = sampleFiveQuestions(topicData.easy || topicData.level1 || []);
     sessionQuestions['level2'] = sampleFiveQuestions(topicData.medium || topicData.level2 || []);
     sessionQuestions['level3'] = sampleFiveQuestions(topicData.hard || topicData.level3 || []);
+    window.battlefieldData = {
+      level1: topicData.easy || topicData.level1 || [],
+      level2: topicData.medium || topicData.level2 || [],
+      level3: topicData.hard || topicData.level3 || []
+    };
   }
 
   // Cập nhật nhãn chủ đề trên giao diện
   const badge = document.getElementById('active-topic-badge');
   if (badge) badge.innerText = topicName.length > 25 ? topicName.substring(0, 25) + '...' : topicName;
 
-  // Ẩn Menu Chọn Chủ Đề
+  // Ẩn Menu Chọn Chiến Dịch
   const overlay = document.getElementById('topic-selection-overlay');
   if (overlay) overlay.style.display = 'none';
+
+  // Hiển thị màn hình bắt đầu để học sinh nhập tên
+  const startScreen = document.getElementById('start-screen');
+  if (startScreen) startScreen.classList.remove('hidden');
+  const nameInput = document.getElementById('player-name');
+  if (nameInput) setTimeout(() => nameInput.focus(), 150);
 }
 
 // Override hàm generateSessionQuestions của game gốc đảm bảo random 5 câu mỗi lượt
@@ -2151,6 +2208,7 @@ generateSessionQuestions = function() {
 // ==========================================
 const ADMIN_HARDCODED_PIN = "2806";
 let currentEditorLevel = 1;
+let editorCurrentTopic = '';
 let editorWorkingData = {
   level1: [],
   level2: [],
@@ -2164,12 +2222,15 @@ function checkAdminAccessFromURL() {
     const params = new URLSearchParams(window.location.search);
     const role = params.get('role');
     const admin = params.get('admin');
-    const isAdmin = (role === 'admin' || admin === '1' || admin === 'true');
-    const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-admin-gear-overlay, [data-admin-control="true"]');
+    const preview = params.get('preview');
+    const isAdmin = (role === 'admin' || admin === '1' || admin === 'true' || preview === 'true');
+    const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, #btn-admin-gear-overlay, [data-admin-control="true"]');
     adminBtns.forEach(btn => {
       if (isAdmin) {
+        btn.classList.remove('hidden');
         btn.style.setProperty('display', 'inline-flex', 'important');
       } else {
+        btn.classList.add('hidden');
         btn.style.setProperty('display', 'none', 'important');
       }
     });
@@ -2182,11 +2243,18 @@ function checkAdminAccessFromURL() {
 function setupAdminGearListener() {
   const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-admin-gear-overlay');
   adminBtns.forEach(btn => {
-    btn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      openAdminPinModal();
-    };
+    if (!btn.dataset.hasListener) {
+      btn.dataset.hasListener = 'true';
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!window.__ADMIN_AUTHENTICATED__) {
+          openAdminPinModal();
+        } else {
+          openAdminEditorModal();
+        }
+      });
+    }
   });
 }
 
@@ -2259,9 +2327,10 @@ function submitAdminPin() {
   const pinInput = document.getElementById('admin-pin-input');
   const errEl = document.getElementById('admin-pin-error');
   const enteredPin = (pinInput ? pinInput.value : '').trim();
-  const validPin = window.__ADMIN_PIN__ || ADMIN_HARDCODED_PIN;
+  const validPin = window.__ADMIN_PIN__ || ADMIN_HARDCODED_PIN || "2806";
 
   if (enteredPin === validPin) {
+    window.__ADMIN_AUTHENTICATED__ = true;
     closeAdminPinModal();
     openAdminEditorModal();
   } else {
@@ -2275,36 +2344,44 @@ function submitAdminPin() {
 
 // Mở modal Editor
 function openAdminEditorModal() {
-  let src = window.battlefieldData;
-  if (!src && window.gameDatabase && window.selectedTopic && window.gameDatabase[window.selectedTopic]) {
-    const tData = window.gameDatabase[window.selectedTopic];
-    src = {
-      level1: tData.easy || tData.level1 || [],
-      level2: tData.medium || tData.level2 || [],
-      level3: tData.hard || tData.level3 || []
-    };
-  }
-  if (!src) {
-    const firstKey = Object.keys(DEFAULT_BATTLEFIELD_DATABASE)[0];
-    const defaultData = DEFAULT_BATTLEFIELD_DATABASE[firstKey];
-    src = {
-      level1: defaultData.easy,
-      level2: defaultData.medium,
-      level3: defaultData.hard
-    };
+  ensureBattlefieldData();
+  editorCurrentTopic = window.selectedTopic || Object.keys(window.gameDatabase)[0] || "Chiến Dịch 1: Góc Lượng Giác Cơ Bản (0° - 90°)";
+
+  // Nạp danh sách chuyên đề vào dropdown
+  const topicSelect = document.getElementById('editor-topic-select');
+  if (topicSelect) {
+    topicSelect.innerHTML = '';
+    Object.keys(window.gameDatabase).forEach(tName => {
+      const opt = document.createElement('option');
+      opt.value = tName;
+      opt.text = tName;
+      if (tName === editorCurrentTopic) opt.selected = true;
+      topicSelect.appendChild(opt);
+    });
   }
 
-  editorWorkingData = {
-    level1: JSON.parse(JSON.stringify(src.level1 || [])),
-    level2: JSON.parse(JSON.stringify(src.level2 || [])),
-    level3: JSON.parse(JSON.stringify(src.level3 || []))
-  };
-
+  loadEditorDataForTopic(editorCurrentTopic);
   currentEditorLevel = 1;
   renderEditorUI();
+
   const modal = document.getElementById('admin-editor-modal');
   if (modal) modal.classList.remove('hidden');
   setupInputPlaceholderHandlers();
+}
+
+function onEditorChangeTopic(tName) {
+  editorCurrentTopic = tName;
+  loadEditorDataForTopic(tName);
+  renderEditorUI();
+}
+
+function loadEditorDataForTopic(tName) {
+  const topicData = window.gameDatabase[tName] || { easy: [], medium: [], hard: [] };
+  editorWorkingData = {
+    level1: JSON.parse(JSON.stringify(topicData.easy || topicData.level1 || [])),
+    level2: JSON.parse(JSON.stringify(topicData.medium || topicData.level2 || [])),
+    level3: JSON.parse(JSON.stringify(topicData.hard || topicData.level3 || []))
+  };
 }
 
 // Đóng modal Editor
@@ -2464,25 +2541,23 @@ function deleteQuestionFromActiveLevel(idx) {
 // Lưu dữ liệu vào LocalStorage và cập nhật phiên chơi hiện tại
 function saveAdminQuestions() {
   try {
-    localStorage.setItem('chien_hao_custom_questions', JSON.stringify(editorWorkingData));
-    window.battlefieldData = JSON.parse(JSON.stringify(editorWorkingData));
-    
-    // Cập nhật vào gameDatabase
-    const customTitle = window.__GAME_TITLE__ || "Chiến Dịch Tùy Biến (Admin)";
-    window.gameDatabase = {
-      [customTitle]: {
-        easy: window.battlefieldData.level1 || [],
-        medium: window.battlefieldData.level2 || [],
-        hard: window.battlefieldData.level3 || []
-      },
-      ...window.gameDatabase
+    const tName = editorCurrentTopic || window.selectedTopic || "Chiến Dịch Tùy Biến (Admin)";
+    if (!window.gameDatabase) window.gameDatabase = {};
+    window.gameDatabase[tName] = {
+      easy: JSON.parse(JSON.stringify(editorWorkingData.level1 || [])),
+      medium: JSON.parse(JSON.stringify(editorWorkingData.level2 || [])),
+      hard: JSON.parse(JSON.stringify(editorWorkingData.level3 || []))
     };
-    window.selectedTopic = customTitle;
+    window.battlefieldData = JSON.parse(JSON.stringify(editorWorkingData));
+    window.selectedTopic = tName;
+
+    localStorage.setItem('chien_hao_custom_questions', JSON.stringify(editorWorkingData));
+    localStorage.setItem('chien_hao_custom_database', JSON.stringify(window.gameDatabase));
 
     if (typeof generateSessionQuestions === 'function') {
       generateSessionQuestions();
     }
-    renderTopicMenuCards();
+    renderCampaignMenu();
     closeAdminEditorModal();
     alert('ĐÃ LƯU THÀNH CÔNG!\nBộ câu hỏi mới đã được lưu vào trình duyệt và đồng bộ với trận đấu.');
   } catch (e) {
@@ -2494,17 +2569,25 @@ function saveAdminQuestions() {
 function exportCurrentBattlefieldHTML() {
   try {
     const clonedData = JSON.parse(JSON.stringify(editorWorkingData));
+    const clonedDb = JSON.parse(JSON.stringify(window.gameDatabase));
     const currentHtml = document.documentElement.outerHTML;
     
     const injectDataScript = `
 <script>
 window.__GAME_TITLE__ = "Chiến Dịch: Bảo Vệ Chiến Hào (Bản Tùy Biến)";
 window.__ADMIN_PIN__ = "2806";
-window.battlefieldData = ${JSON.stringify(clonedData, null, 2)};
-</script>
+window.__INJECTED_BATTLEFIELD_DATA__ = ${JSON.stringify(clonedData, null, 2)};
+window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(clonedDb, null, 2)};
+window.battlefieldData = JSON.parse(JSON.stringify(window.__INJECTED_BATTLEFIELD_DATA__));
+window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_GAME_DATABASE__));
+window.selectedTopic = "${escapeHtml(editorCurrentTopic || window.selectedTopic || 'Chiến Dịch: Bảo Vệ Chiến Hào')}";
+window.useStaticTopic = true;
+<\/script>
 `;
     let exported = currentHtml;
-    if (exported.includes('<head>')) {
+    if (exported.includes('window.__INJECTED_GAME_DATABASE__')) {
+      exported = exported.replace(/<script>[\s\S]*?window\.__INJECTED_GAME_DATABASE__[\s\S]*?<\/script>/i, injectDataScript);
+    } else if (exported.includes('<head>')) {
       exported = exported.replace('<head>', '<head>\n' + injectDataScript);
     } else {
       exported = injectDataScript + '\n' + exported;
@@ -2519,6 +2602,7 @@ window.battlefieldData = ${JSON.stringify(clonedData, null, 2)};
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    alert('📥 ĐÃ XUẤT FILE HTML MỚI VĨNH VIỄN!\nFile đã được tải về máy tính của bạn.');
   } catch (e) {
     alert('Lỗi xuất file HTML: ' + e.message);
   }
@@ -2531,9 +2615,14 @@ function initBattlefieldApp() {
   checkAdminAccessFromURL();
   setupAdminGearListener();
   setupInputPlaceholderHandlers();
-  renderTopicMenuCards();
-  if (window.selectedTopic) {
-    selectTopic(window.selectedTopic);
+  
+  // Render danh sách chiến dịch ra màn hình "CHỌN CHIẾN DỊCH"
+  renderCampaignMenu();
+  
+  // Đảm bảo topic-selection-overlay hiển thị rõ ràng trên màn hình để học sinh click chọn
+  const overlay = document.getElementById('topic-selection-overlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
   }
 }
 

@@ -1016,78 +1016,107 @@ export async function parseChienHaoFromDocx(file: File): Promise<Question[]> {
       const rows = Array.from(table.querySelectorAll('tr'));
       if (rows.length < 5) return;
 
-      let qText = '';
-      let optA = '';
-      let optB = '';
-      let optC = '';
-      let optD = '';
-      let explanation = '';
-      let answerLetter = 'A';
-      let detectedImgUrl: string | undefined = undefined;
+      // Hỗ trợ cả 2 dạng: Mỗi câu 1 bảng riêng HOẶC nhiều câu gộp trong 1 bảng (chia theo "Câu [Số]" hoặc cụm 7 dòng)
+      const questionBlocks: Element[][] = [];
+      let currentBlock: Element[] = [];
 
-      rows.forEach((row, rIdx) => {
+      rows.forEach((row) => {
         const cells = Array.from(row.querySelectorAll('td, th'));
-        if (cells.length < 2) return;
-        const col1Text = (cells[0].textContent || '').trim().toLowerCase();
-        const col2Html = cells[1].innerHTML || '';
-        const col2Text = (cells[1].textContent || '').trim();
+        const col1Text = cells.length > 0 ? (cells[0].textContent || '').trim().toLowerCase() : '';
+        const isQuestionStart = col1Text.startsWith('câu') || /^câu\s*\d+/i.test(col1Text);
 
-        // Bóc tách ảnh từ thẻ img trong HTML
-        const imgEl = cells[1].querySelector('img');
-        if (imgEl && imgEl.getAttribute('src')) {
-          detectedImgUrl = imgEl.getAttribute('src') || undefined;
-        }
-
-        if (rIdx === 0 || col1Text.includes('câu')) {
-          qText = col2Text;
-        } else if (rIdx === 1 || col1Text.startsWith('a')) {
-          optA = col2Text;
-        } else if (rIdx === 2 || col1Text.startsWith('b')) {
-          optB = col2Text;
-        } else if (rIdx === 3 || col1Text.startsWith('c')) {
-          optC = col2Text;
-        } else if (rIdx === 4 || col1Text.startsWith('d')) {
-          optD = col2Text;
-        } else if (col1Text.includes('lời giải') || col1Text.includes('giải thích')) {
-          explanation = col2Text;
-        } else if (col1Text.includes('đáp án') || col1Text.includes('chọn')) {
-          answerLetter = col2Text.replace(/[^A-Da-d]/g, '').toUpperCase().charAt(0) || 'A';
+        if (isQuestionStart && currentBlock.length >= 5) {
+          questionBlocks.push(currentBlock);
+          currentBlock = [row];
+        } else {
+          currentBlock.push(row);
         }
       });
+      if (currentBlock.length >= 5) {
+        questionBlocks.push(currentBlock);
+      } else if (questionBlocks.length === 0 && rows.length >= 5) {
+        // Fallback: chunk theo 7 dòng nếu bảng không có từ khóa "Câu"
+        for (let i = 0; i < rows.length; i += 7) {
+          const chunk = rows.slice(i, i + 7);
+          if (chunk.length >= 5) questionBlocks.push(chunk);
+        }
+      }
 
-      if (!qText) return;
+      questionBlocks.forEach((blockRows) => {
+        let qText = '';
+        let optA = '';
+        let optB = '';
+        let optC = '';
+        let optD = '';
+        let explanation = '';
+        let answerLetter = 'A';
+        let detectedImgUrl: string | undefined = undefined;
 
-      // Trích xuất link ảnh từ văn bản nếu chưa có thẻ img
-      const { cleanText, imageUrl } = extractImageUrl(qText);
-      qText = cleanText;
-      if (!detectedImgUrl && imageUrl) detectedImgUrl = imageUrl;
+        blockRows.forEach((row, rIdx) => {
+          const cells = Array.from(row.querySelectorAll('td, th'));
+          if (cells.length < 2) return;
+          const col1Text = (cells[0].textContent || '').trim().toLowerCase();
+          const col2Text = (cells[1].textContent || '').trim();
 
-      // Tính correctIndex
-      let correctIndex = 0;
-      if (answerLetter === 'B') correctIndex = 1;
-      else if (answerLetter === 'C') correctIndex = 2;
-      else if (answerLetter === 'D') correctIndex = 3;
+          // Bóc tách ảnh từ thẻ img trong HTML
+          const imgEl = cells[1].querySelector('img');
+          if (imgEl && imgEl.getAttribute('src')) {
+            detectedImgUrl = imgEl.getAttribute('src') || undefined;
+          }
 
-      // Nếu không có heading thì phân bố theo số thứ tự
-      const diff: Difficulty = currentDifficulty || (tIdx < 3 ? 'Dễ' : (tIdx < 6 ? 'Trung bình' : 'Khó'));
+          if (rIdx === 0 || col1Text.startsWith('câu')) {
+            qText = col2Text;
+          } else if (col1Text.startsWith('a') || (rIdx === 1 && !optA)) {
+            optA = col2Text;
+          } else if (col1Text.startsWith('b') || (rIdx === 2 && !optB)) {
+            optB = col2Text;
+          } else if (col1Text.startsWith('c') || (rIdx === 3 && !optC)) {
+            optC = col2Text;
+          } else if (col1Text.startsWith('d') || (rIdx === 4 && !optD)) {
+            optD = col2Text;
+          } else if (col1Text.includes('lời giải') || col1Text.includes('giải thích') || rIdx === 5) {
+            explanation = col2Text;
+          } else if (col1Text.includes('đáp án') || col1Text.includes('chọn') || rIdx === 6) {
+            // Dòng 7: Cột 2 ghi duy nhất chữ cái đáp án đúng (A, B, C, hoặc D)
+            const extracted = col2Text.replace(/[^A-Da-d]/g, '').toUpperCase().charAt(0);
+            if (extracted) answerLetter = extracted;
+          }
+        });
 
-      questions.push({
-        id: `chienhao_${Date.now()}_${tIdx + 1}`,
-        question: normalizeMathFormulas(qText),
-        options: [
-          normalizeMathFormulas(optA || 'Lựa chọn A'),
-          normalizeMathFormulas(optB || 'Lựa chọn B'),
-          normalizeMathFormulas(optC || 'Lựa chọn C'),
-          normalizeMathFormulas(optD || 'Lựa chọn D')
-        ],
-        correctIndex,
-        explanation: normalizeMathFormulas(explanation),
-        difficulty: diff,
-        topic: 'Bảo Vệ Chiến Hào',
-        source: 'Bảo Vệ Chiến Hào',
-        status: 'published',
-        createdAt: new Date().toISOString(),
-        imageUrl: detectedImgUrl
+        if (!qText) return;
+
+        // Trích xuất link ảnh từ văn bản nếu chưa có thẻ img
+        const { cleanText, imageUrl } = extractImageUrl(qText);
+        qText = cleanText;
+        if (!detectedImgUrl && imageUrl) detectedImgUrl = imageUrl;
+
+        // Tính correctIndex
+        let correctIndex = 0;
+        if (answerLetter === 'B') correctIndex = 1;
+        else if (answerLetter === 'C') correctIndex = 2;
+        else if (answerLetter === 'D') correctIndex = 3;
+
+        // Nếu không có heading thì phân bố theo số thứ tự câu hỏi
+        const diff: Difficulty = currentDifficulty || (questions.length < 5 ? 'Dễ' : (questions.length < 10 ? 'Trung bình' : 'Khó'));
+
+        questions.push({
+          id: `chienhao_${Date.now()}_${questions.length + 1}`,
+          question: normalizeMathFormulas(qText),
+          options: [
+            normalizeMathFormulas(optA || 'Lựa chọn A'),
+            normalizeMathFormulas(optB || 'Lựa chọn B'),
+            normalizeMathFormulas(optC || 'Lựa chọn C'),
+            normalizeMathFormulas(optD || 'Lựa chọn D')
+          ],
+          correctIndex,
+          explanation: normalizeMathFormulas(explanation),
+          difficulty: diff,
+          topic: 'Bảo Vệ Chiến Hào',
+          source: 'Bảo Vệ Chiến Hào',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          imageUrl: detectedImgUrl
+        });
       });
     });
   }

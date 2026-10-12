@@ -64,8 +64,23 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [isParsingDoc, setIsParsingDoc] = useState(false);
 
-  // Nhận diện chế độ Kéo Thả Phân Loại Thuộc Tính
+  // Nhận diện chế độ Kéo Thả Phân Loại Thuộc Tính & Bảo Vệ Chiến Hào
   const isDragDropMode = selectedTemplateUrl.includes('keo-tha');
+  const isChienHaoMode = selectedTemplateUrl.includes('chien-hao') || selectedTemplateUrl.includes('Bao-ve-chien-hao');
+  const [chienHaoLevelFilter, setChienHaoLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
+
+  const chienHaoCounts = useMemo(() => {
+    return {
+      easy: questions.filter(q => q.difficulty === 'Dễ').length,
+      medium: questions.filter(q => q.difficulty === 'Trung bình').length,
+      hard: questions.filter(q => q.difficulty === 'Khó').length
+    };
+  }, [questions]);
+
+  const displayedQuestions = useMemo(() => {
+    if (!isChienHaoMode || chienHaoLevelFilter === 'ALL') return questions;
+    return questions.filter(q => q.difficulty === chienHaoLevelFilter);
+  }, [questions, isChienHaoMode, chienHaoLevelFilter]);
 
   // Quản lý Bảng Phân Cấp Đa Chuyên Đề & Đa Cấp Độ (Hierarchical Table View)
   const [tableRows, setTableRows] = useState<DragDropTableRow[]>(() => {
@@ -620,6 +635,10 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
   // --- CRUD CÂU HỎI TRẮC NGHIỆM TIÊU CHUẨN ---
   const handleAddEmpty = () => {
+    const defaultDiff: Difficulty = isChienHaoMode
+      ? (chienHaoLevelFilter !== 'ALL' ? chienHaoLevelFilter : 'Dễ')
+      : 'Trung bình';
+
     setQuestions([
       {
         id: `q_${Date.now()}`,
@@ -627,8 +646,8 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         options: ['', '', '', ''],
         correctIndex: 0,
         explanation: '',
-        difficulty: 'Trung bình',
-        topic: 'Toán học',
+        difficulty: defaultDiff,
+        topic: isChienHaoMode ? 'Bảo Vệ Chiến Hào' : 'Toán học',
         source: gameTitle,
         status: 'published',
         createdAt: new Date().toISOString()
@@ -1280,132 +1299,207 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
             </div>
           ) : (
             /* CHẾ ĐỘ 2: TRẮC NGHIỆM TIÊU CHUẨN (A, B, C, D CHO CÁC GAME KHÁC) */
-            questions.length === 0 ? (
-              <div className="text-center py-16 text-slate-400 bg-white rounded-2xl border-2 border-dashed border-slate-200 p-8">
-                <Sparkles className="w-12 h-12 text-violet-300 mx-auto mb-3" />
-                <p className="font-bold text-base text-slate-600">Chưa có câu hỏi tùy chỉnh nào</p>
-                <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
-                  Thầy có thể bấm <b>"Dán dữ liệu nhanh"</b>, <b>"Nhập Word / Excel"</b> hoặc <b>"+ Thêm câu hỏi"</b> để thiết kế bộ câu hỏi riêng!
-                </p>
-              </div>
-            ) : (
-              questions.map((q, index) => (
-                <div key={q.id || index} className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs relative group hover:border-violet-300 transition">
-                  <button 
-                    onClick={() => handleRemove(q.id)} 
-                    className="absolute top-4 right-4 p-2 text-slate-300 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition cursor-pointer"
-                    title="Xóa câu hỏi này"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  
-                  <div className="mb-3 pr-10 flex flex-wrap items-center justify-between gap-2">
+            <div className="space-y-4">
+              {isChienHaoMode && (
+                <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 shadow-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 pb-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-black text-xs px-2.5 py-1 rounded-lg bg-violet-100 text-violet-800">
-                        CÂU {index + 1}
+                      <span className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
+                      <span className="font-black text-xs sm:text-sm text-slate-800 uppercase tracking-wide">
+                        PHÂN CẤP ĐỘ KHÓ CHIẾN DỊCH (BẢO VỆ CHIẾN HÀO)
                       </span>
-                      <select
-                        value={q.difficulty}
-                        onChange={(e) => handleUpdate(q.id, 'difficulty', e.target.value)}
-                        className={`text-xs font-bold px-2 py-1 rounded-lg border outline-none cursor-pointer ${
-                          q.difficulty === 'Dễ' 
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                            : q.difficulty === 'Khó' 
-                            ? 'bg-rose-50 text-rose-700 border-rose-200' 
-                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                        }`}
-                      >
-                        <option value="Dễ">Mức độ: Dễ</option>
-                        <option value="Trung bình">Mức độ: Trung bình</option>
-                        <option value="Khó">Mức độ: Khó</option>
-                      </select>
                     </div>
-                    <span className="text-[11px] text-slate-400 font-medium">
-                      (Click chọn hình tròn để đặt đáp án đúng)
+                    <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                      💡 Tự động chọn ngẫu nhiên đúng 5 câu/mức độ làm bia bắn Zombies
                     </span>
                   </div>
-
-                  <div className="mb-3">
-                    <textarea
-                      value={q.question}
-                      onChange={(e) => handleUpdate(q.id, 'question', e.target.value)}
-                      onFocus={(e) => handleFieldFocus(e, { id: q.id, field: 'question', fieldName: `Đề bài Câu ${index + 1}` })}
-                      onBlur={handleFieldBlur}
-                      className="w-full p-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none min-h-[64px]"
-                      placeholder="Nhập nội dung câu hỏi (hỗ trợ công thức LaTeX: \sin x, \frac{a}{b}...)..."
-                    />
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        value={q.imageUrl || ''}
-                        onChange={(e) => handleUpdate(q.id, 'imageUrl', e.target.value)}
-                        placeholder="🖼️ Link hình ảnh minh họa (URL https://... hoặc để trống)..."
-                        className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:border-violet-400 focus:bg-white outline-none"
-                      />
-                      {q.imageUrl && (
-                        <div className="mt-1.5 p-1 bg-slate-100 rounded-xl max-w-xs border border-slate-200">
-                          <img src={q.imageUrl} alt="Minh họa câu hỏi" className="max-h-32 rounded-lg object-contain mx-auto" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                        </div>
-                      )}
-                    </div>
-                    <MathLivePreview formula={q.question} />
-                  </div>
-
-                  {/* 4 PHƯƠNG ÁN LỰA CHỌN */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
-                    {q.options.map((opt, oIdx) => {
-                      const isCorrect = q.correctIndex === oIdx;
-                      return (
-                        <div 
-                          key={oIdx} 
-                          className={`flex items-center gap-2 p-2 rounded-xl border transition ${
-                            isCorrect 
-                              ? 'bg-emerald-50/70 border-emerald-400 ring-2 ring-emerald-100' 
-                              : 'bg-slate-50 border-slate-200 hover:border-slate-300'
-                          }`}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => handleUpdate(q.id, 'correctIndex', oIdx)}
-                            className={`w-6 h-6 rounded-full flex items-center justify-center font-black text-xs transition cursor-pointer shrink-0 ${
-                              isCorrect 
-                                ? 'bg-emerald-600 text-white shadow-sm' 
-                                : 'bg-white border-2 border-slate-300 text-slate-400 hover:border-emerald-400'
-                            }`}
-                          >
-                            {String.fromCharCode(65 + oIdx)}
-                          </button>
-                          <input
-                            type="text"
-                            value={opt}
-                            onChange={(e) => handleUpdateOption(q.id, oIdx, e.target.value)}
-                            onFocus={(e) => handleFieldFocus(e, { id: q.id, field: 'option', optIndex: oIdx, fieldName: `Câu ${index + 1} - Đáp án ${String.fromCharCode(65 + oIdx)}` })}
-                            onBlur={handleFieldBlur}
-                            className={`flex-1 p-2 rounded-lg text-xs font-medium outline-none bg-transparent ${
-                              isCorrect ? 'text-emerald-900 font-bold' : 'text-slate-800'
-                            }`}
-                            placeholder={`Lựa chọn ${String.fromCharCode(65 + oIdx)}...`}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* GIẢI THÍCH CHI TIẾT */}
-                  <div>
-                    <input
-                      type="text"
-                      value={q.explanation || ''}
-                      onChange={(e) => handleUpdate(q.id, 'explanation', e.target.value)}
-                      onFocus={(e) => handleFieldFocus(e, { id: q.id, field: 'explanation', fieldName: `Câu ${index + 1} - Lời giải chi tiết` })}
-                      onBlur={handleFieldBlur}
-                      className="w-full p-2 border border-slate-200 rounded-xl text-xs text-slate-600 focus:border-violet-400 outline-none"
-                      placeholder="Lời giải / giải thích chi tiết (tùy chọn)..."
-                    />
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                    <button
+                      onClick={() => { setChienHaoLevelFilter('ALL'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition shrink-0 cursor-pointer ${
+                        chienHaoLevelFilter === 'ALL'
+                          ? 'bg-slate-900 text-white shadow-sm'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      Tất cả ({questions.length} câu)
+                    </button>
+                    <button
+                      onClick={() => { setChienHaoLevelFilter('Dễ'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        chienHaoLevelFilter === 'Dễ'
+                          ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-200 font-black'
+                          : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                      }`}
+                    >
+                      <span>🟢 PHẦN 1: MỨC ĐỘ 1 (DỄ)</span>
+                      <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${chienHaoLevelFilter === 'Dễ' ? 'bg-emerald-800 text-white' : 'bg-emerald-200 text-emerald-800'}`}>
+                        {chienHaoCounts.easy}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => { setChienHaoLevelFilter('Trung bình'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        chienHaoLevelFilter === 'Trung bình'
+                          ? 'bg-amber-600 text-white shadow-sm shadow-amber-200 font-black'
+                          : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200'
+                      }`}
+                    >
+                      <span>🟡 PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH)</span>
+                      <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${chienHaoLevelFilter === 'Trung bình' ? 'bg-amber-800 text-white' : 'bg-amber-200 text-amber-800'}`}>
+                        {chienHaoCounts.medium}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => { setChienHaoLevelFilter('Khó'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        chienHaoLevelFilter === 'Khó'
+                          ? 'bg-rose-600 text-white shadow-sm shadow-rose-200 font-black'
+                          : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+                      }`}
+                    >
+                      <span>🔴 PHẦN 3: MỨC ĐỘ 3 (KHÓ)</span>
+                      <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${chienHaoLevelFilter === 'Khó' ? 'bg-rose-800 text-white' : 'bg-rose-200 text-rose-800'}`}>
+                        {chienHaoCounts.hard}
+                      </span>
+                    </button>
                   </div>
                 </div>
-              ))
-            )
+              )}
+
+              {displayedQuestions.length === 0 ? (
+                <div className="text-center py-16 text-slate-400 bg-white rounded-2xl border-2 border-dashed border-slate-200 p-8">
+                  <Sparkles className="w-12 h-12 text-violet-300 mx-auto mb-3" />
+                  <p className="font-bold text-base text-slate-600">Chưa có câu hỏi nào trong danh sách</p>
+                  <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                    Thầy có thể bấm <b>"+ Thêm câu hỏi"</b>, <b>"Dán dữ liệu nhanh"</b> hoặc <b>"Nhập Word / Excel"</b> để bổ sung câu hỏi!
+                  </p>
+                  <button
+                    onClick={handleAddEmpty}
+                    className="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl inline-flex items-center gap-1.5 shadow-sm"
+                  >
+                    <Plus className="w-4 h-4" /> Thêm câu hỏi mới
+                  </button>
+                </div>
+              ) : (
+                displayedQuestions.map((q, index) => (
+                  <div key={q.id || index} className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs relative group hover:border-violet-300 transition">
+                    <button 
+                      onClick={() => handleRemove(q.id)} 
+                      className="absolute top-4 right-4 p-2 text-slate-300 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition cursor-pointer"
+                      title="Xóa câu hỏi này"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    
+                    <div className="mb-3 pr-10 flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-xs px-2.5 py-1 rounded-lg bg-violet-100 text-violet-800">
+                          CÂU {index + 1}
+                        </span>
+                        <select
+                          value={q.difficulty}
+                          onChange={(e) => handleUpdate(q.id, 'difficulty', e.target.value)}
+                          className={`text-xs font-bold px-2 py-1 rounded-lg border outline-none cursor-pointer ${
+                            q.difficulty === 'Dễ' 
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                              : q.difficulty === 'Khó' 
+                              ? 'bg-rose-50 text-rose-700 border-rose-200' 
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}
+                        >
+                          <option value="Dễ">Mức độ: Dễ</option>
+                          <option value="Trung bình">Mức độ: Trung bình</option>
+                          <option value="Khó">Mức độ: Khó</option>
+                        </select>
+                      </div>
+                      <span className="text-[11px] text-slate-400 font-medium">
+                        (Click chọn hình tròn để đặt đáp án đúng)
+                      </span>
+                    </div>
+
+                    <div className="mb-3">
+                      <textarea
+                        value={q.question}
+                        onChange={(e) => handleUpdate(q.id, 'question', e.target.value)}
+                        onFocus={(e) => handleFieldFocus(e, { id: q.id, field: 'question', fieldName: `Đề bài Câu ${index + 1}` })}
+                        onBlur={handleFieldBlur}
+                        className="w-full p-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none min-h-[64px]"
+                        placeholder="Nhập nội dung câu hỏi (hỗ trợ công thức LaTeX: \sin x, \frac{a}{b}...)..."
+                      />
+                      <div className="mt-2">
+                        <input
+                          type="text"
+                          value={q.imageUrl || ''}
+                          onChange={(e) => handleUpdate(q.id, 'imageUrl', e.target.value)}
+                          placeholder="🖼️ Link hình ảnh minh họa (URL https://... hoặc để trống)..."
+                          className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:border-violet-400 focus:bg-white outline-none"
+                        />
+                        {q.imageUrl && (
+                          <div className="mt-1.5 p-1 bg-slate-100 rounded-xl max-w-xs border border-slate-200">
+                            <img src={q.imageUrl} alt="Minh họa câu hỏi" className="max-h-32 rounded-lg object-contain mx-auto" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                          </div>
+                        )}
+                      </div>
+                      <MathLivePreview formula={q.question} />
+                    </div>
+
+                    {/* 4 PHƯƠNG ÁN LỰA CHỌN */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
+                      {q.options.map((opt, oIdx) => {
+                        const isCorrect = q.correctIndex === oIdx;
+                        return (
+                          <div 
+                            key={oIdx} 
+                            className={`flex items-center gap-2 p-2 rounded-xl border transition ${
+                              isCorrect 
+                                ? 'bg-emerald-50/70 border-emerald-400 ring-2 ring-emerald-100' 
+                                : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                            }`}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => handleUpdate(q.id, 'correctIndex', oIdx)}
+                              className={`w-6 h-6 rounded-full flex items-center justify-center font-black text-xs transition cursor-pointer shrink-0 ${
+                                isCorrect 
+                                ? 'bg-emerald-600 text-white shadow-sm' 
+                                : 'bg-white border-2 border-slate-300 text-slate-400 hover:border-emerald-400'
+                              }`}
+                            >
+                              {String.fromCharCode(65 + oIdx)}
+                            </button>
+                            <input
+                              type="text"
+                              value={opt}
+                              onChange={(e) => handleUpdateOption(q.id, oIdx, e.target.value)}
+                              onFocus={(e) => handleFieldFocus(e, { id: q.id, field: 'option', optIndex: oIdx, fieldName: `Câu ${index + 1} - Đáp án ${String.fromCharCode(65 + oIdx)}` })}
+                              onBlur={handleFieldBlur}
+                              className={`flex-1 p-2 rounded-lg text-xs font-medium outline-none bg-transparent ${
+                                isCorrect ? 'text-emerald-900 font-bold' : 'text-slate-800'
+                              }`}
+                              placeholder={`Lựa chọn ${String.fromCharCode(65 + oIdx)}...`}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* GIẢI THÍCH CHI TIẾT */}
+                    <div>
+                      <input
+                        type="text"
+                        value={q.explanation || ''}
+                        onChange={(e) => handleUpdate(q.id, 'explanation', e.target.value)}
+                        onFocus={(e) => handleFieldFocus(e, { id: q.id, field: 'explanation', fieldName: `Câu ${index + 1} - Lời giải chi tiết` })}
+                        onBlur={handleFieldBlur}
+                        className="w-full p-2 border border-slate-200 rounded-xl text-xs text-slate-600 focus:border-violet-400 outline-none"
+                        placeholder="Lời giải / giải thích chi tiết (tùy chọn)..."
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           )}
         </div>
 
@@ -1415,6 +1509,10 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
             {isDragDropMode ? (
               <>
                 Tổng cộng: <span className="text-indigo-700 text-sm font-black">{distinctTopics.length}</span> chuyên đề | <span className="text-cyan-700 text-sm font-black">{tableRows.length}</span> hộp đề bài | <span className="text-emerald-700 text-sm font-black">{tableRows.reduce((acc, r) => acc + r.attributes.length, 0)}</span> nhãn thuộc tính
+              </>
+            ) : isChienHaoMode ? (
+              <>
+                Bảo Vệ Chiến Hào: <span className="text-emerald-600 font-bold">{chienHaoCounts.easy} Dễ</span> | <span className="text-amber-600 font-bold">{chienHaoCounts.medium} Vừa</span> | <span className="text-rose-600 font-bold">{chienHaoCounts.hard} Khó</span> (Tổng: <span className="text-violet-700 font-black">{questions.length}</span> câu hỏi)
               </>
             ) : (
               <>Tổng cộng: <span className="text-violet-700 text-sm font-black">{questions.length}</span> câu hỏi đã cấu hình</>

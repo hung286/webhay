@@ -265,41 +265,140 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
 
   // NHÓM 2: Game Bảo Vệ Chiến Hào (sinh đề tự động - cấu trúc Đa Chủ Đề, Dữ liệu Tĩnh & Random Bốc 5 câu)
   else if (cleanUrl.includes('chien-hao') || cleanUrl.includes('Bao-ve-chien-hao')) {
-    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
-    const battlefieldData: { level1: any[], level2: any[], level3: any[] } = { level1: [], level2: [], level3: [] };
+    let activeQuestions = [...questions];
+    if (activeQuestions.length === 0) {
+      try {
+        const ws = DEFAULT_WORKSHEETS.find(w => 
+          (w.title && (w.title.toLowerCase().includes('lượng giác') || w.title.toLowerCase().includes('luong giac'))) ||
+          (w.id && (w.id.includes('luong_giac') || w.id.includes('10_05') || w.id.includes('10_06')))
+        ) || DEFAULT_WORKSHEETS.find(w => w.questions && w.questions.length >= 10) || DEFAULT_WORKSHEETS[0];
+        
+        if (ws && ws.questions && ws.questions.length > 0) {
+          activeQuestions = ws.questions.map((q, idx) => ({
+            id: q.id || `ws_fb_${idx}`,
+            question: q.question,
+            options: q.options || ['A', 'B', 'C', 'D'],
+            correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+            explanation: q.solution || '',
+            difficulty: idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'),
+            topic: ws.title || 'Chiến Dịch: Giá Trị Lượng Giác'
+          } as Question));
+        }
+      } catch (e) {
+        console.warn('Lỗi lấy worksheet dự phòng:', e);
+      }
+    }
 
-    questions.forEach(q => {
-      const topicName = q.topic?.trim() || gameTitle;
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    const defaultTopic = gameTitle || 'Chiến Dịch: Tác Chiến Căn Cứ';
+
+    activeQuestions.forEach(q => {
+      const topicName = q.topic?.trim() || defaultTopic;
       if (!topicsMap[topicName]) {
         topicsMap[topicName] = { easy: [], medium: [], hard: [] };
       }
       const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
-      const qObj = {
-        q: q.question,
-        options: q.options || ['A', 'B', 'C', 'D'],
-        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-        explanation: q.explanation || '',
-        imageUrl: q.imageUrl || ''
-      };
-      topicsMap[topicName][diffKey].push(qObj);
+      const cleanQ = normalizeMathFormulas(q.question);
+      const cleanOpts = (q.options || ['A', 'B', 'C', 'D']).map(o => normalizeMathFormulas(o));
+      const correctIdx = typeof q.correctIndex === 'number' ? q.correctIndex : 0;
 
-      if (diffKey === 'easy') battlefieldData.level1.push(qObj);
-      else if (diffKey === 'medium') battlefieldData.level2.push(qObj);
-      else battlefieldData.level3.push(qObj);
+      topicsMap[topicName][diffKey].push({
+        q: cleanQ,
+        options: cleanOpts,
+        correct: correctIdx,
+        explanation: normalizeMathFormulas(q.explanation || ''),
+        imageUrl: q.imageUrl || ''
+      });
     });
 
-    const overrideScript = `
+    // Đảm bảo mỗi cấp độ trong mỗi topic có tối thiểu 5 câu hỏi để random sampling
+    Object.keys(topicsMap).forEach(tName => {
+      const t = topicsMap[tName];
+      const allQs = [...t.easy, ...t.medium, ...t.hard];
+      if (allQs.length > 0) {
+        while (t.easy.length < 5) {
+          t.easy.push(allQs[t.easy.length % allQs.length]);
+        }
+        while (t.medium.length < 5) {
+          t.medium.push(allQs[t.medium.length % allQs.length]);
+        }
+        while (t.hard.length < 5) {
+          t.hard.push(allQs[t.hard.length % allQs.length]);
+        }
+      }
+    });
+
+    const firstTopic = Object.keys(topicsMap)[0] || defaultTopic;
+    const battlefieldData = {
+      level1: topicsMap[firstTopic]?.easy || [],
+      level2: topicsMap[firstTopic]?.medium || [],
+      level3: topicsMap[firstTopic]?.hard || []
+    };
+
+    const trenchScript = `
 <script>
-// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE & STATIC BATTLEFIELD DATA - BẢO VỆ CHIẾN HÀO]
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE & DATA FALLBACK - BẢO VỆ CHIẾN HÀO]
 window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
 window.__ADMIN_PIN__ = "2806";
-window.battlefieldData = ${JSON.stringify(battlefieldData, null, 2)};
-window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
-window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+window.__INJECTED_BATTLEFIELD_DATA__ = ${JSON.stringify(battlefieldData, null, 2)};
+window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
+window.battlefieldData = JSON.parse(JSON.stringify(window.__INJECTED_BATTLEFIELD_DATA__));
+window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_GAME_DATABASE__));
+window.selectedTopic = Object.keys(window.gameDatabase)[0] || ${JSON.stringify(gameTitle)};
 window.useStaticTopic = true;
+
+(function() {
+  function syncBattlefieldDb() {
+    if (window.__INJECTED_GAME_DATABASE__ && Object.keys(window.__INJECTED_GAME_DATABASE__).length > 0) {
+      window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_GAME_DATABASE__));
+      window.selectedTopic = Object.keys(window.gameDatabase)[0] || ${JSON.stringify(gameTitle)};
+      window.battlefieldData = JSON.parse(JSON.stringify(window.__INJECTED_BATTLEFIELD_DATA__));
+    }
+    if (typeof ensureBattlefieldData === 'function') {
+      ensureBattlefieldData();
+    }
+    if (typeof renderTopicMenuCards === 'function') {
+      renderTopicMenuCards();
+    }
+    if (typeof renderCampaignMenu === 'function') {
+      renderCampaignMenu();
+    }
+  }
+
+  function applyAdminSecurity() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, #btn-admin-gear-overlay, [data-admin-control="true"]');
+      adminBtns.forEach(btn => {
+        if (isAdmin) {
+          btn.classList.remove('hidden');
+          btn.style.setProperty('display', 'inline-flex', 'important');
+        } else {
+          btn.classList.add('hidden');
+          btn.style.setProperty('display', 'none', 'important');
+        }
+      });
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      syncBattlefieldDb();
+      applyAdminSecurity();
+    });
+  } else {
+    syncBattlefieldDb();
+    applyAdminSecurity();
+  }
+  window.addEventListener('load', function() {
+    syncBattlefieldDb();
+    applyAdminSecurity();
+  });
+})();
 </script>
 `;
-    htmlContent = injectScriptAtTop(htmlContent, overrideScript);
+    htmlContent = injectScriptAtTop(htmlContent, trenchScript);
   }
   // NHÓM ĐẠO HÀM CẤP 2 (cấu trúc Đa Chủ Đề & Đa Độ Khó)
   else if (cleanUrl.includes('dao-ham-cap2')) {
@@ -523,115 +622,6 @@ window.useStaticTopic = true;
     htmlContent = injectScriptAtTop(htmlContent, haiTaoScript);
   }
 
-  // NHÓM BẢO VỆ CHIẾN HÀO (cấu trúc Đa Chủ Đề & Đa Độ Khó: level1/level2/level3)
-  else if (cleanUrl.includes('chien-hao') || cleanUrl.includes('Bao-ve-chien-hao')) {
-    let activeQuestions = [...questions];
-    if (activeQuestions.length === 0) {
-      try {
-        const ws = DEFAULT_WORKSHEETS.find(w => w.questions && w.questions.length >= 5) || DEFAULT_WORKSHEETS[0];
-        if (ws && ws.questions) {
-          activeQuestions = ws.questions.map((q, idx) => ({
-            id: q.id || `ws_fb_${idx}`,
-            question: q.question,
-            options: q.options || ['A', 'B', 'C', 'D'],
-            correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-            explanation: q.solution || '',
-            difficulty: idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'),
-            topic: ws.title || 'Chiến Dịch Toán Học'
-          } as Question));
-        }
-      } catch (e) {}
-    }
-
-    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
-    const defaultTopic = gameTitle || 'Chiến Dịch: Tác Chiến Căn Cứ';
-
-    activeQuestions.forEach(q => {
-      const topicName = q.topic?.trim() || defaultTopic;
-      if (!topicsMap[topicName]) {
-        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
-      }
-      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
-      const cleanQ = normalizeMathFormulas(q.question);
-      const cleanOpts = (q.options || ['A', 'B', 'C', 'D']).map(o => normalizeMathFormulas(o));
-      const correctIdx = typeof q.correctIndex === 'number' ? q.correctIndex : 0;
-
-      topicsMap[topicName][diffKey].push({
-        q: cleanQ,
-        options: cleanOpts,
-        correct: correctIdx,
-        explanation: normalizeMathFormulas(q.explanation || '')
-      });
-    });
-
-    // Đảm bảo đủ các cấp độ
-    Object.keys(topicsMap).forEach(tName => {
-      const t = topicsMap[tName];
-      const allQs = [...t.easy, ...t.medium, ...t.hard];
-      if (t.easy.length === 0 && allQs.length > 0) t.easy.push(allQs[0]);
-      if (t.medium.length === 0 && allQs.length > 0) t.medium.push(allQs[1 % allQs.length]);
-      if (t.hard.length === 0 && allQs.length > 0) t.hard.push(allQs[2 % allQs.length]);
-    });
-
-    const firstTopic = Object.keys(topicsMap)[0] || defaultTopic;
-    const battlefieldData = {
-      level1: topicsMap[firstTopic]?.easy || [],
-      level2: topicsMap[firstTopic]?.medium || [],
-      level3: topicsMap[firstTopic]?.hard || []
-    };
-
-    const trenchScript = `
-<script>
-// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - BẢO VỆ CHIẾN HÀO]
-window.__GAME_TITLE__ = "${gameTitle}";
-window.__ADMIN_PIN__ = "2806";
-window.__INJECTED_BATTLEFIELD_DATA__ = ${JSON.stringify(battlefieldData, null, 2)};
-window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
-(function() {
-  function syncBattlefieldDb() {
-    if (window.__INJECTED_GAME_DATABASE__ && Object.keys(window.__INJECTED_GAME_DATABASE__).length > 0) {
-      window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_GAME_DATABASE__));
-      window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
-      window.battlefieldData = JSON.parse(JSON.stringify(window.__INJECTED_BATTLEFIELD_DATA__));
-      if (typeof renderTopicMenuCards === 'function') {
-        renderTopicMenuCards();
-      }
-    }
-  }
-
-  function applyAdminSecurity() {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
-      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-admin-gear-overlay, [data-admin-control="true"]');
-      adminBtns.forEach(btn => {
-        if (isAdmin) {
-          btn.style.setProperty('display', 'inline-flex', 'important');
-        } else {
-          btn.style.setProperty('display', 'none', 'important');
-        }
-      });
-    } catch(e) {}
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      syncBattlefieldDb();
-      applyAdminSecurity();
-    });
-  } else {
-    syncBattlefieldDb();
-    applyAdminSecurity();
-  }
-  window.addEventListener('load', function() {
-    syncBattlefieldDb();
-    applyAdminSecurity();
-  });
-})();
-</script>
-`;
-    htmlContent = injectScriptAtTop(htmlContent, trenchScript);
-  }
 
   // NHÓM KÉO CO ĐỐI KHÁNG 2 ĐỘI (cấu trúc Đa Chủ Đề & Đa Độ Khó: Rounds với q1 & q2)
   else if (cleanUrl.includes('keo-co')) {
