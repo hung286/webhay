@@ -262,14 +262,8 @@
             indigo: "#6a00ff", lime: "#bfff00", cyan: "#00b8ff", fuchsia: "#ff00a0"
         };
 
-        const f = (top, bot, pre='') => 
-            `<span class="inline-flex items-center align-middle mx-[0.1em] text-[0.9em]">
-                ${pre ? `<span class="mr-[0.1em]">${pre}</span>` : ''}
-                <span class="flex flex-col items-center justify-center leading-[1.1]">
-                    <span class="border-b-[0.12em] border-white pb-[0.05em] px-[0.1em] text-center w-full min-w-[0.5em]">${top}</span>
-                    <span class="pt-[0.05em] px-[0.1em] text-center w-full min-w-[0.5em]">${bot}</span>
-                </span>
-            </span>`;
+        const f = (top, bot, pre='') => `${pre ? pre + ' ' : ''}\\frac{${top}}{${bot}}`;
+
 
         const LEVEL1_PAIRS = [
             { id: 1, left: "(C)'", right: "0", icon: "fa-cat", themeColor: THEMES.yellow },
@@ -629,25 +623,73 @@
 
         window.selectPikachuTopic = function(topicName, level) {
             window.selectedTopic = topicName;
-            const overlay = document.getElementById('topic-selection-overlay');
-            if (overlay) overlay.classList.add('hidden');
+            const modalMenu = document.getElementById('topic-selection-overlay') || document.getElementById('campaign-modal') || document.querySelector('.campaign-menu-overlay');
+            if (modalMenu) {
+                modalMenu.style.display = 'none';
+                modalMenu.classList.add('hidden');
+            }
             startGame(level);
         };
 
         // ========================================================
         // [1] CHUẨN HÓA & RENDER CÔNG THỨC TOÁN (KATEX + MATHJAX)
         // ========================================================
+        function convertExponentAndFormulas(str) {
+            if (!str || typeof str !== 'string') return '';
+            let res = str.trim();
+
+            // 1. Chuẩn hóa số mũ cơ số e: e^(3x) -> e^{3x}, e^(-x) -> e^{-x}, e^(2x) -> e^{2x}, 2e^(2x) -> 2e^{2x}
+            res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}');
+            res = res.replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}');
+
+            // Tổng quát cho các biểu thức số mũ dạng cơ số khác: (x+1)^3 -> (x+1)^{3}, a^(2x) -> a^{2x}, 2^x -> 2^{x}
+            res = res.replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}');
+            res = res.replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
+
+            // 2. Chuyển các ký tự Unicode số mũ sang TeX mũ
+            res = res.replace(/²ˣ/g, '^{2x}');
+            res = res.replace(/⁻¹/g, '^{-1}');
+            res = res.replace(/ˣ/g, '^{x}');
+            res = res.replace(/ᵘ/g, '^{u}');
+            res = res.replace(/ⁿ/g, '^{n}');
+            res = res.replace(/¹/g, '^{1}');
+            res = res.replace(/²/g, '^{2}');
+            res = res.replace(/³/g, '^{3}');
+            res = res.replace(/⁴/g, '^{4}');
+            res = res.replace(/⁵/g, '^{5}');
+            res = res.replace(/⁶/g, '^{6}');
+            res = res.replace(/⁷/g, '^{7}');
+            res = res.replace(/⁸/g, '^{8}');
+            res = res.replace(/⁹/g, '^{9}');
+            res = res.replace(/⁰/g, '^{0}');
+
+            // 3. Chuyển các ký tự tích phân và căn thức Unicode
+            res = res.replace(/∫/g, '\\int ');
+            res = res.replace(/√\(([^)]+)\)/g, '\\sqrt{$1}');
+            res = res.replace(/√([a-zA-Z0-9]+)/g, '\\sqrt{$1}');
+            res = res.replace(/√/g, '\\sqrt');
+
+            // 4. Chuẩn hóa phép nhân dấu chấm: n.x -> n \\cdot x, u.v -> u \\cdot v
+            res = res.replace(/([0-9a-zA-Z])\s*\.\s*([0-9a-zA-Z\\])/g, '$1 \\cdot $2');
+
+            return res;
+        }
+
         function formatMathText(text) {
             if (!text || typeof text !== 'string') return text || '';
-            // Bọc mã TeX thô vào \( ... \) nếu chưa được bọc
-            let result = text.replace(/(?<!\\\()\\frac|(?<!\\\()\\sqrt|(?<!\\\()\\int|(?<!\\\()\\sum|(?<!\\\()\\lim|(?<!\\\()\\infty|(?<!\\\()\\alpha|(?<!\\\()\\beta|(?<!\\\()\\pi|(?<!\\\()\\Delta/g, match => {
-                return '\\(' + match;
-            });
-            // Nếu có \( nhưng không có \), tự đóng
-            const opens = (result.match(/\\\(/g) || []).length;
-            const closes = (result.match(/\\\)/g) || []).length;
-            if (opens > closes) result += '\\)';
-            return result;
+            let str = text.trim();
+
+            // Nếu đã bọc \(...\) thì bóc ra chuẩn hóa số mũ bên trong
+            if (str.startsWith('\\(') && str.endsWith('\\)')) {
+                str = str.substring(2, str.length - 2).trim();
+            } else if (str.startsWith('$') && str.endsWith('$')) {
+                str = str.substring(1, str.length - 1).trim();
+            }
+
+            str = convertExponentAndFormulas(str);
+
+            // Bọc lại trong \( ... \) cho KaTeX và MathJax render hoàn hảo
+            return `\\(${str}\\)`;
         }
 
         function typesetMath(elements) {
@@ -672,6 +714,7 @@
                 window.MathJax.typesetPromise().catch(() => {});
             }
         }
+
 
         // ========================================================
         // [2] DATA FALLBACK ENGINE - ĐẢM BẢO GAME LUÔN CÓ DỮ LIỆU
@@ -1036,6 +1079,12 @@
         }
 
         function startGame(level) {
+            const modalMenu = document.getElementById('topic-selection-overlay') || document.getElementById('campaign-modal') || document.querySelector('.campaign-menu-overlay');
+            if (modalMenu) {
+                modalMenu.style.display = 'none';
+                modalMenu.classList.add('hidden');
+            }
+
             state.level = level;
             const topicData = window.gameDatabase[window.selectedTopic] || window.gameDatabase[Object.keys(window.gameDatabase)[0]];
             const rawPairs = topicData[level] || topicData[1] || LEVEL1_PAIRS;
@@ -1046,11 +1095,10 @@
             pairsInfo.forEach(pair => {
                 const leftDisp = formatMathText(typeof pair.left === 'string' ? pair.left : String(pair.left || ''));
                 const rightDisp = formatMathText(typeof pair.right === 'string' ? pair.right : String(pair.right || ''));
-                items.push({ uniqueId: idCounter++, pairId: pair.id, side: 'left', display: leftDisp, matchValue: String(pair.right || ''), icon: pair.icon || 'fa-cat', themeColor: pair.themeColor || '#ffe600' });
-                items.push({ uniqueId: idCounter++, pairId: pair.id, side: 'right', display: rightDisp, matchValue: String(pair.right || ''), icon: pair.icon || 'fa-cat', themeColor: pair.themeColor || '#ffe600' });
+                items.push({ uniqueId: idCounter++, pairId: pair.id, side: 'left', display: leftDisp, matchValue: pair.id, icon: pair.icon || 'fa-cat', themeColor: pair.themeColor || '#ffe600' });
+                items.push({ uniqueId: idCounter++, pairId: pair.id, side: 'right', display: rightDisp, matchValue: pair.id, icon: pair.icon || 'fa-cat', themeColor: pair.themeColor || '#ffe600' });
             });
             items.sort(() => Math.random() - 0.5);
-
 
             let newGrid = Array(ROWS).fill(null).map(() => Array(COLS).fill(null));
             let itemIdx = 0;
@@ -1081,8 +1129,9 @@
             }, 1000);
 
             renderApp();
-        window.openTopicSelectMenu();
+            typesetMath([document.getElementById('board-container')]);
         }
+
 
         function handleTileClick(r, c) {
             if (state.isAnimating || !state.grid[r][c]) return;
@@ -1140,8 +1189,8 @@
                         }
                         
                         state.isAnimating = false;
-                        renderApp();
-        window.openTopicSelectMenu();
+                        renderBoard();
+                        renderGameHeader();
                     }, 400);
                 } else {
                     showToast("Đúng cặp nhưng bị chặn đường mất rồi!");
@@ -1175,8 +1224,8 @@
                 state.grid = shuffleBoard(state.grid);
                 state.shufflesLeft--;
                 state.selected = null;
-                renderApp();
-        window.openTopicSelectMenu();
+                renderBoard();
+                renderGameHeader();
             }
         }
 
@@ -1187,11 +1236,11 @@
                 reader.onload = function(event) {
                     state.logoSrc = event.target.result;
                     renderApp();
-        window.openTopicSelectMenu(); 
                 };
                 reader.readAsDataURL(file);
             }
         }
+
 
         function renderApp() {
             const app = document.getElementById('app');
@@ -1406,8 +1455,8 @@
             clearInterval(state.timerId);
             state.view = 'menu';
             renderApp();
-        window.openTopicSelectMenu();
         }
+
 
         function showLeaderboardModal() {
             const modalContainer = document.getElementById('modal-container');

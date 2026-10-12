@@ -110,6 +110,28 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/\{\s*\\?\((\\[a-zA-Z]+)\\?\)\s*/gi, '$1');
   str = str.replace(/\{\s*\\frac\s*([^{}]+)\s*\}\s*\{\s*([^{}]+)\s*\}/gi, '\\frac{$1}{$2}');
 
+  // 0b. Chuẩn hóa số mũ cơ số e và các lũy thừa: e^(3x) -> e^{3x}, e^(-x) -> e^{-x}, (x+1)^3 -> (x+1)^{3}
+  str = str.replace(/e\^\(([^)]+)\)/g, 'e^{$1}');
+  str = str.replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}');
+  str = str.replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}');
+  // Ký tự số mũ Unicode
+  str = str.replace(/²ˣ/g, '^{2x}');
+  str = str.replace(/⁻¹/g, '^{-1}');
+  str = str.replace(/ˣ/g, '^{x}');
+  str = str.replace(/ᵘ/g, '^{u}');
+  str = str.replace(/ⁿ/g, '^{n}');
+  str = str.replace(/¹/g, '^{1}');
+  str = str.replace(/²/g, '^{2}');
+  str = str.replace(/³/g, '^{3}');
+  str = str.replace(/⁴/g, '^{4}');
+  str = str.replace(/⁵/g, '^{5}');
+  str = str.replace(/⁶/g, '^{6}');
+  str = str.replace(/⁷/g, '^{7}');
+  str = str.replace(/⁸/g, '^{8}');
+  str = str.replace(/⁹/g, '^{9}');
+  str = str.replace(/⁰/g, '^{0}');
+  str = str.replace(/∫/g, '\\int ');
+
   // 1. Chuyển đổi $$...$$ thành \(...\) tránh làm vỡ layout thẻ game
   str = str.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
 
@@ -120,6 +142,7 @@ export function normalizeMathFormulas(text: string): string {
   if (/^\\\([\s\S]*?\\\)$/.test(str)) {
     return str;
   }
+
 
   // 4. Nếu toàn bộ chuỗi là phương trình hoặc phân số/căn thức toán học thuần
   // Ví dụ: \frac{1}{2}, \frac{\sqrt{3}}{2}, -\frac{1}{2}, y = x^3 - 3x, \sin 30^\circ, \sqrt{3}
