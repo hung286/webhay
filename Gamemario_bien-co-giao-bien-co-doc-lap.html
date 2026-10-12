@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Toán 11 - Mario Phiêu Lưu Ký | TOÁN PRO - THẦY HÙNG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #5C94FC; font-family: 'Nunito', sans-serif; touch-action: none; user-select: none;}
+        #gameCanvas { display: block; width: 100vw; height: 100vh; }
+        
+        .pixel-font { font-family: 'Press Start 2P', cursive; line-height: 1.5; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        
+        /* Modal Style */
+        #quizModal, #leaderboardModal, #startModal { backdrop-filter: blur(8px); }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:hover { transform: scale(1.02); }
+        .option-btn:active { transform: scale(0.95); }
+
+        /* Mobile Controls */
+        #mobileControls {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: none; justify-content: center; gap: 20px;
+            pointer-events: none; z-index: 10;
+        }
+        #mobileControls.show { display: flex; }
+        .control-btn {
+            width: 65px; height: 65px; background: rgba(255, 255, 255, 0.6);
+            border: 3px solid rgba(255, 255, 255, 0.9); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; pointer-events: auto; user-select: none; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); backdrop-filter: blur(2px);
+            transition: transform 0.1s, filter 0.1s;
+        }
+        .control-btn:active, .control-btn.pressed { transform: scale(0.9); filter: brightness(1.3); }
+
+        /* Neon Glow Effects */
+        .neon-text {
+            text-shadow: 0 0 10px rgba(34,211,238,0.6), 0 0 20px rgba(59,130,246,0.6);
+        }
+        .neon-box {
+            box-shadow: 0 0 20px rgba(59,130,246,0.4), inset 0 0 15px rgba(34,211,238,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ======================================================== -->
+    <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
+    <!-- ======================================================== -->
+    <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #1e3a8a 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Nunito', sans-serif;">
+      <div style="max-width: 960px; width: 100%; background: rgba(15, 23, 42, 0.96); border: 3px solid #facc15; border-radius: 28px; padding: 32px; box-shadow: 0 0 60px rgba(250, 204, 21, 0.35); backdrop-filter: blur(20px); text-align: center;">
+        
+        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 20px; border-radius: 9999px; background: rgba(250, 204, 21, 0.15); border: 1.5px solid #facc15; color: #facc15; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;" class="pixel-font">
+          🍄 SUPER MARIO MATH | TOÁN PRO - THẦY HÙNG
+        </div>
+        
+        <h1 style="color: #ffffff; font-size: clamp(1.6rem, 3.8vw, 2.4rem); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 8px 0; text-shadow: 0 0 25px rgba(250, 204, 21, 0.5);">
+          MARIO TOÁN 11: <span style="color: #facc15;">CHỌN MÀN CHƠI CHUYÊN ĐỀ</span>
+        </h1>
+        <p style="color: #94a3b8; font-size: 14px; margin: 0 0 24px 0; font-weight: 600;">
+          Chọn màn chơi chuyên đề để thử thách qua các khối gạch '?' xếp từ Dễ (Nấm xanh) ➡️ Vừa (Đồng xu vàng) ➡️ Khó (Bowser)!
+        </p>
+        
+        <!-- Grid các màn chơi -->
+        <div id="mario-topics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 24px; max-height: 52vh; overflow-y: auto; padding: 6px;" class="custom-scroll">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; font-size: 12px; color: #64748b; font-weight: 600;">
+          <span>⭐ Các khối gạch '?' sẽ được bố trí tự động theo độ khó tăng dần</span>
+          <span style="color: #facc15; font-weight: 800;" class="pixel-font">Mario Engine v3.8</span>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- MÀN HÌNH BẮT ĐẦU GAME -->
+    <div id="startModal" class="fixed inset-0 z-[100] bg-[#5C94FC] flex flex-col items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-white rounded-[2rem] p-8 shadow-2xl w-full max-w-md border-4 border-blue-500 relative flex flex-col items-center">
+            <h1 class="text-2xl md:text-3xl font-black text-center text-blue-600 mb-6 uppercase tracking-wide">Mario Xác Suất 11</h1>
+            
+            <!-- Khu vực Logo (Có thể bấm để đổi) -->
+            <div class="relative cursor-pointer mb-6 group" onclick="document.getElementById('logoUploadStart').click()" title="Đổi Logo">
+                <input type="file" id="logoUploadStart" accept="image/*" class="hidden">
+                <img id="startLogo" src="https://ui-avatars.com/api/?name=MH&background=0f172a&color=fde047&rounded=true&bold=true" class="w-24 h-24 rounded-full border-4 border-yellow-400 object-cover shadow-lg group-hover:scale-105 transition-transform">
+                <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span class="text-white text-xs font-bold">ĐỔI ẢNH</span>
+                </div>
+            </div>
+
+            <!-- Chọn Chuyên Đề -->
+            <button type="button" onclick="openMarioTopicMenu()" class="w-full mb-4 bg-gradient-to-r from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 text-slate-800 border-2 border-amber-400 py-3 px-4 rounded-xl font-black text-sm flex items-center justify-between shadow-sm transition">
+                <span class="flex items-center gap-2">
+                    <span class="text-xl">🍄</span>
+                    <span class="text-left font-bold truncate max-w-[200px]" id="startModalTopicName">Chuyên đề 1...</span>
+                </span>
+                <span class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider shrink-0">Đổi Màn 🔄</span>
+            </button>
+
+            <!-- Nhập Tên -->
+            <div class="w-full bg-blue-50 p-4 rounded-2xl border border-blue-200 mb-6 shadow-sm">
+                <label class="block text-sm font-extrabold text-blue-800 mb-2 uppercase tracking-wide text-center">Tên người chơi:</label>
+                <input type="text" id="startPlayerName" class="w-full px-4 py-3 rounded-xl border-2 border-blue-300 font-bold outline-none focus:border-blue-500 text-slate-700 text-center text-xl" placeholder="Nhập tên của bạn...">
+            </div>
+
+            <!-- Nút Bắt Đầu -->
+            <button onclick="startGame()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-black text-xl transition-colors shadow-md border-b-4 border-emerald-700 active:translate-y-1 active:border-b-0 uppercase tracking-widest flex justify-center items-center gap-2">
+                ▶ BẮT ĐẦU
+            </button>
+        </div>
+    </div>
+
+    <!-- HUD TỐI ƯU -->
+    <div id="top-bar" class="absolute top-4 left-4 right-4 flex justify-between items-start z-20 pointer-events-none">
+        
+        <!-- Trái: Thương hiệu TOÁN PRO - THẦY HÙNG & Nút Bật Tắt Điều Khiển -->
+        <div class="flex items-center pointer-events-auto bg-black/40 p-1.5 md:p-2 rounded-full border border-white/20 backdrop-blur-sm shadow-lg transition">
+            <input type="file" id="logoUpload" accept="image/*" class="hidden">
+            <img id="brandLogo" src="https://ui-avatars.com/api/?name=MH&background=0f172a&color=fde047&rounded=true&bold=true" class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-yellow-400 object-cover shadow-inner hover:scale-105 transition-transform cursor-pointer" onclick="document.getElementById('logoUpload').click()" title="Đổi Logo">
+            
+            <div class="flex flex-col px-2 md:px-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="openLeaderboard()" title="Xem Bảng Xếp Hạng">
+                <span class="text-yellow-400 font-black font-sans text-xs md:text-sm leading-tight tracking-wide uppercase">TOÁN PRO - THẦY HÙNG</span>
+                <span class="text-white text-[9px] md:text-[10px] font-bold mt-0.5">XẾP HẠNG 🏆</span>
+            </div>
+            
+            <button id="toggleControlsBtn" onclick="toggleControls()" class="flex flex-col items-center justify-center border-l border-white/20 pl-2 md:pl-3 pr-1 md:pr-2 h-full transition-colors opacity-70 hover:opacity-100 text-white" title="Bật/Tắt Nút Điều Khiển">
+                <span class="text-lg md:text-xl leading-none">🎮</span>
+                <span id="toggleControlsText" class="text-[8px] font-bold mt-1 whitespace-nowrap">HIỆN NÚT</span>
+            </button>
+        </div>
+
+        <!-- Giữa: Điểm số -->
+        <div class="flex flex-col items-center pointer-events-auto bg-black/40 px-4 py-2 md:px-6 md:py-3 rounded-2xl border border-white/20 backdrop-blur-sm pixel-font text-white text-xs md:text-lg text-shadow-md shadow-lg mt-1">
+            <div>ĐIỂM: <span id="scoreDisplay" class="text-yellow-400">0</span></div>
+            <div class="text-[8px] md:text-[10px] mt-1 opacity-80">CÂU: <span id="qCountDisplay">0/10</span></div>
+            <div id="active-mario-topic-badge" class="text-[9px] md:text-[11px] text-yellow-300 font-sans font-bold mt-1 max-w-[160px] md:max-w-[260px] truncate">Chuyên đề 1</div>
+        </div>
+
+        <!-- Phải: Tên người chơi & Thời gian & Âm thanh -->
+        <div class="flex flex-col items-end gap-1.5 pointer-events-auto mt-1">
+            <div class="flex gap-2 items-center">
+                <button onclick="openMarioTopicMenu()" class="bg-amber-500/90 hover:bg-amber-500 px-3 py-2 md:py-2.5 rounded-full border-2 border-amber-300 backdrop-blur-sm shadow-lg text-white font-bold text-xs md:text-sm transition-all flex items-center gap-1" title="Đổi Chuyên Đề Mới">
+                    🍄 Đổi Màn
+                </button>
+                <button id="soundToggleBtn" onclick="toggleSound()" class="bg-rose-500/80 hover:bg-rose-500 px-3 py-2 md:py-2.5 rounded-full border-2 border-rose-300 backdrop-blur-sm shadow-lg text-white font-bold text-xs md:text-sm transition-all flex items-center gap-1">
+                    🔇 Bật Âm Thanh
+                </button>
+
+                <div class="bg-blue-600/80 px-3 py-2 md:px-5 md:py-2.5 rounded-full border-2 border-blue-300 backdrop-blur-sm cursor-pointer hover:bg-blue-500 transition shadow-lg" onclick="openLeaderboard()">
+                    <span class="text-white font-black font-sans text-xs md:text-base flex items-center gap-2">
+                        <span class="text-lg md:text-xl">👤</span> <span id="playerNameDisplay" class="truncate max-w-[80px] md:max-w-[150px]">Người chơi</span>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="bg-black/60 px-4 py-1.5 rounded-full border border-white/20 text-white font-bold pixel-font text-[10px] md:text-sm shadow-md mt-1">
+                ⏱ <span id="timeDisplay">00:00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nền Game -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Mobile Controls -->
+    <div id="mobileControls">
+        <div class="control-btn" id="btnLeft">◀</div>
+        <div class="control-btn" id="btnJump" style="background: rgba(239, 68, 68, 0.6); border-color: #fca5a5;">▲</div>
+        <div class="control-btn" id="btnRight">▶</div>
+    </div>
+
+    <!-- BẢNG XẾP HẠNG MODAL -->
+    <div id="leaderboardModal" class="hidden fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-2xl w-full max-w-lg border-4 border-blue-500 relative flex flex-col max-h-[95vh] transform scale-95 transition-transform duration-300" id="lbContent">
+            <button id="lbCloseBtn" onclick="closeLeaderboard()" class="absolute top-4 right-4 bg-slate-200 hover:bg-slate-300 w-8 h-8 rounded-full font-bold text-slate-600 flex items-center justify-center transition-colors">X</button>
+            <h2 class="text-2xl md:text-3xl font-black text-center text-blue-600 mb-6 uppercase tracking-wide">Hồ Sơ & Xếp Hạng</h2>
+            
+            <!-- Section Đổi Tên -->
+            <div id="lbRenameSection" class="bg-blue-50 p-4 rounded-2xl border border-blue-200 mb-5 shrink-0 shadow-sm">
+                <label class="block text-xs md:text-sm font-extrabold text-blue-800 mb-2 uppercase tracking-wide">Đổi tên người chơi hiện tại:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="playerNameInput" class="flex-1 px-4 py-3 rounded-xl border-2 border-blue-300 font-bold outline-none focus:border-blue-500 text-slate-700 text-lg" placeholder="Nhập tên của bạn...">
+                    <button onclick="savePlayerName()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-colors shadow-md text-lg">Lưu</button>
+                </div>
+            </div>
+
+            <!-- Danh sách Xếp hạng -->
+            <h3 class="font-black text-slate-700 mb-3 shrink-0 flex items-center gap-2 border-b-2 border-slate-100 pb-2">
+                <span class="text-2xl">🏆</span> BẢNG VÀNG (Lưu tới 1000)
+            </h3>
+            <div id="leaderboardList" class="flex-1 overflow-y-auto custom-scroll pr-2 space-y-2.5">
+            </div>
+
+            <!-- Section ĐIỀU HƯỚNG MỚI -->
+            <div id="lbNextPlayerSection" class="hidden flex-col gap-4 mt-4 pt-5 border-t-2 border-slate-200">
+                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl">
+                    <h4 class="font-black text-emerald-700 text-center uppercase tracking-wide text-lg mb-1">Lượt Chơi Tiếp Theo</h4>
+                    <p class="text-xs text-center text-emerald-600/80 font-bold mb-3">Hệ thống sẽ chọn ngẫu nhiên bộ câu hỏi mới!</p>
+                    <input type="text" id="nextPlayerNameInput" class="w-full px-4 py-3 rounded-xl border-2 border-emerald-300 font-bold outline-none focus:border-emerald-500 text-slate-700 placeholder-slate-400 text-center text-lg" placeholder="Nhập tên người tiếp theo...">
+                </div>
+                
+                <div class="flex gap-2">
+                    <button onclick="goHome()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-3 rounded-xl font-black transition-colors shadow-md border-b-4 border-slate-400 active:translate-y-1 active:border-b-0 uppercase flex justify-center items-center gap-1 text-xs">
+                        🏠 Trang Chủ
+                    </button>
+                    <button onclick="openMarioTopicMenu()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-xl font-black transition-colors shadow-md border-b-4 border-amber-700 active:translate-y-1 active:border-b-0 uppercase flex justify-center items-center gap-1 text-xs">
+                        🍄 Đổi Màn
+                    </button>
+                    <button onclick="startNextPlayer()" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black transition-colors shadow-md border-b-4 border-emerald-700 active:translate-y-1 active:border-b-0 uppercase flex justify-center items-center gap-1 text-xs">
+                        ▶ Chơi Tiếp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUIZ MODAL (GIAO DIỆN NEON LỚN HƠN) -->
+    <div id="quizModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-slate-900 rounded-[2rem] p-6 md:p-10 neon-box w-full max-w-4xl transform scale-95 transition-transform duration-300 border border-cyan-500/50 relative flex flex-col items-center" id="modalContent">
+            <!-- Icon Dấu Hỏi / Nấm -->
+            <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-slate-800 w-24 h-24 rounded-full border-4 border-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.8)]">
+                <span class="text-5xl font-black text-yellow-400 pixel-font mt-2">?</span>
+            </div>
+            
+            <h2 class="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 mb-3 mt-6 text-center uppercase tracking-widest neon-text">
+                THỬ THÁCH TOÁN HỌC 11
+            </h2>
+            <div class="w-24 h-1.5 bg-cyan-500 mx-auto mb-8 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
+            
+            <div id="questionText" class="text-xl md:text-3xl font-bold text-white mb-10 text-center leading-relaxed w-full max-w-3xl drop-shadow-md">
+                Nội dung câu hỏi sẽ hiện ở đây...
+            </div>
+            
+            <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full max-w-3xl">
+                <!-- Các nút đáp án sẽ được chèn bằng JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO ĐÚNG/SAI/HOÀN THÀNH -->
+    <div id="feedbackToast" class="hidden fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[60] text-5xl md:text-7xl font-black pixel-font text-center drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)]">
+        +100
+    </div>
+
+    <script>
+        // Polyfill cho hàm vẽ khung bo góc 
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
+                this.beginPath(); this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r); this.arcTo(x, y, x + w, y, r);
+                this.closePath(); return this;
+            };
+        }
+
+        // ==========================================
+        // 🎵 HỆ THỐNG ÂM THANH 8-BIT 
+        // ==========================================
+        const SoundEngine = {
+            ctx: null, isMuted: true, bgmInterval: null,
+            init: function() {
+                if (!this.ctx) { window.AudioContext = window.AudioContext || window.webkitAudioContext; this.ctx = new AudioContext(); }
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                this.isMuted = false; this.playBGM();
+            },
+            mute: function() { this.isMuted = true; if (this.bgmInterval) clearInterval(this.bgmInterval); },
+            playTone: function(freq, type, duration, vol=0.05) {
+                if(this.isMuted || !this.ctx) return;
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + duration);
+            },
+            jump: function() {
+                if(this.isMuted || !this.ctx) return;
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.type = 'square'; osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                osc.connect(gain); gain.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + 0.2);
+            },
+            coin: function() {
+                this.playTone(987.77, 'square', 0.1, 0.05); setTimeout(() => this.playTone(1318.51, 'square', 0.3, 0.05), 100); 
+            },
+            bump: function() { this.playTone(150, 'square', 0.1, 0.1); },
+            wrong: function() {
+                this.playTone(200, 'sawtooth', 0.2, 0.08); setTimeout(() => this.playTone(150, 'sawtooth', 0.4, 0.08), 150);
+            },
+            win: function() {
+                const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+                notes.forEach((freq, i) => { setTimeout(() => this.playTone(freq, 'square', 0.15, 0.05), i * 150); });
+            },
+            playBGM: function() {
+                if (this.bgmInterval) clearInterval(this.bgmInterval);
+                if (this.isMuted) return;
+                const notes = [659, 0, 659, 0, 0, 659, 0, 523, 659, 0, 784, 0, 0, 0, 392, 0, 0, 0];
+                let i = 0;
+                this.bgmInterval = setInterval(() => {
+                    if (this.isMuted || gameState !== 'playing' && gameState !== 'autofinish') return;
+                    if (notes[i] > 0) this.playTone(notes[i], 'square', 0.1, 0.02);
+                    i = (i + 1) % notes.length;
+                }, 150);
+            }
+        };
+
+        window.toggleSound = function() {
+            const btn = document.getElementById('soundToggleBtn');
+            if (SoundEngine.isMuted) {
+                SoundEngine.init(); btn.innerHTML = "🔊 Tắt Âm Thanh";
+                btn.className = "bg-emerald-500/80 hover:bg-emerald-500 px-3 py-2 md:py-2.5 rounded-full border-2 border-emerald-300 backdrop-blur-sm shadow-lg text-white font-bold text-xs md:text-sm transition-all flex items-center gap-1";
+            } else {
+                SoundEngine.mute(); btn.innerHTML = "🔇 Bật Âm Thanh";
+                btn.className = "bg-rose-500/80 hover:bg-rose-500 px-3 py-2 md:py-2.5 rounded-full border-2 border-rose-300 backdrop-blur-sm shadow-lg text-white font-bold text-xs md:text-sm transition-all flex items-center gap-1";
+            }
+        }
+
+        // ==========================================
+        // QUẢN LÝ DỮ LIỆU & BẢNG XẾP HẠNG 
+        // ==========================================
+        let currentPlayerName = localStorage.getItem('mario_playerName') || '';
+        let leaderboardData = JSON.parse(localStorage.getItem('mario_leaderboard_toan11')) || [];
+        
+        // Cập nhật giá trị ban đầu vào Modal Start
+        document.getElementById('startPlayerName').value = currentPlayerName;
+
+        let gameTime = 0; 
+        function formatTime(seconds) {
+            let m = Math.floor(seconds / 60); let s = Math.floor(seconds % 60);
+            return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+        }
+
+        // Quản lý Đổi Logo (Tối ưu để ảnh dung lượng lớn không làm sập LocalStorage)
+        function updateLogos(b64) {
+            document.getElementById('brandLogo').src = b64;
+            document.getElementById('startLogo').src = b64;
+        }
+        
+        function handleLogoChange(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Nén ảnh: Resize tối đa 150x150 để đảm bảo LocalStorage luôn lưu được
+                        const canvas = document.createElement('canvas');
+                        const MAX_SIZE = 150;
+                        let w = img.width, h = img.height;
+                        if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } }
+                        else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Đổ nền trắng (phòng trường hợp ảnh trong suốt chuyển sang JPEG bị đen)
+                        ctx.fillStyle = "#ffffff";
+                        ctx.fillRect(0, 0, w, h);
+                        ctx.drawImage(img, 0, 0, w, h);
+                        
+                        // SỬA LỖI: Dùng image/jpeg và chất lượng 0.8 để giảm triệt để dung lượng
+                        const compressedB64 = canvas.toDataURL('image/jpeg', 0.8); 
+                        updateLogos(compressedB64);
+                        try { 
+                            localStorage.setItem('mario_logo_v2', compressedB64); 
+                        } catch(err) { 
+                            console.warn("Không thể lưu logo vào bộ nhớ tạm do ảnh quá lớn."); 
+                        }
+                    }
+                    img.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        document.getElementById('logoUpload').addEventListener('change', handleLogoChange);
+        document.getElementById('logoUploadStart').addEventListener('change', handleLogoChange);
+        
+        // SỬA LỖI: Đọc logo từ key mới (mario_logo_v2) hoặc fallback về key cũ
+        const savedLogo = localStorage.getItem('mario_logo_v2') || localStorage.getItem('mario_logo');
+        if(savedLogo) updateLogos(savedLogo);
+
+        // Nút BẮT ĐẦU từ màn hình chờ
+        window.startGame = function() {
+            const nameInput = document.getElementById('startPlayerName').value.trim();
+            if (!nameInput) {
+                alert("Vui lòng nhập tên của bạn để bắt đầu đua top!");
+                document.getElementById('startPlayerName').focus();
+                return;
+            }
+            
+            currentPlayerName = nameInput;
+            localStorage.setItem('mario_playerName', currentPlayerName);
+            document.getElementById('playerNameDisplay').textContent = currentPlayerName;
+            document.getElementById('playerNameInput').value = currentPlayerName;
+
+            // Tự động bật âm thanh khi bấm BẮT ĐẦU (Vì đây là user gesture hợp lệ)
+            if (SoundEngine.isMuted) {
+                toggleSound();
+            }
+
+            // Đóng Modal và chuyển state
+            document.getElementById('startModal').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('startModal').style.display = 'none';
+                gameState = 'playing';
+                gameTime = 0;
+            }, 300);
+        };
+
+        function savePlayerName() {
+            const inputVal = document.getElementById('playerNameInput').value.trim();
+            if (inputVal) {
+                currentPlayerName = inputVal;
+                localStorage.setItem('mario_playerName', currentPlayerName);
+                document.getElementById('playerNameDisplay').textContent = currentPlayerName;
+                
+                const btn = event.target; const originalText = btn.textContent;
+                btn.textContent = "Đã Lưu!"; btn.classList.replace('bg-blue-600', 'bg-emerald-500');
+                setTimeout(() => { btn.textContent = originalText; btn.classList.replace('bg-emerald-500', 'bg-blue-600'); }, 1500);
+            }
+        }
+
+        function updateLeaderboardData(finalScore, finalTime) {
+            const dateStr = new Date().toLocaleDateString('vi-VN');
+            
+            // Tìm người chơi trong bảng xếp hạng để cập nhật (Không tạo dòng trùng lặp)
+            const existingIndex = leaderboardData.findIndex(entry => entry.name.toLowerCase() === currentPlayerName.toLowerCase());
+            
+            if (existingIndex !== -1) {
+                // Nếu đã tồn tại, chỉ cập nhật nếu điểm mới CAO HƠN, hoặc bằng điểm nhưng giải NHANH HƠN
+                let oldRecord = leaderboardData[existingIndex];
+                if (finalScore > oldRecord.score || (finalScore === oldRecord.score && finalTime < oldRecord.time)) {
+                    leaderboardData[existingIndex].score = finalScore;
+                    leaderboardData[existingIndex].time = finalTime;
+                    leaderboardData[existingIndex].date = dateStr;
+                }
+            } else {
+                // Nếu là người mới tinh, thêm dòng mới
+                leaderboardData.push({ name: currentPlayerName, score: finalScore, time: finalTime, date: dateStr });
+            }
+            
+            // Sắp xếp lại bảng vàng
+            leaderboardData.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.time - b.time;
+            });
+            
+            // LƯU TỐI ĐA 1000 NGƯỜI CHƠI
+            leaderboardData = leaderboardData.slice(0, 1000);
+            localStorage.setItem('mario_leaderboard_toan11', JSON.stringify(leaderboardData));
+        }
+
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboardList');
+            container.innerHTML = '';
+            
+            if(leaderboardData.length === 0) {
+                container.innerHTML = '<div class="text-center text-slate-400 py-4 italic text-sm">Chưa có dữ liệu xếp hạng. Hãy là người đầu tiên chinh phục trò chơi!</div>';
+                return;
+            }
+
+            leaderboardData.forEach((entry, index) => {
+                let rankVisual = ''; let bgClass = 'bg-slate-50 border-slate-200';
+                
+                if (entry.name.toLowerCase() === currentPlayerName.toLowerCase() && gameState === 'gameover' && index < 10) {
+                    bgClass = 'bg-blue-50 border-blue-300 shadow-md';
+                } else if (index === 0) { rankVisual = '<span class="text-3xl">🥇</span>'; bgClass = 'bg-yellow-50 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]'; }
+                else if (index === 1) { rankVisual = '<span class="text-3xl">🥈</span>'; bgClass = 'bg-slate-100 border-slate-300'; }
+                else if (index === 2) { rankVisual = '<span class="text-3xl">🥉</span>'; bgClass = 'bg-orange-50 border-orange-300'; }
+                else { rankVisual = `<span class="text-base font-black text-slate-500 w-8 inline-block text-center">${index + 1}</span>`; }
+
+                container.innerHTML += `
+                    <div class="flex justify-between items-center p-3 rounded-xl border ${bgClass} transition-transform hover:scale-[1.02]">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            ${rankVisual}
+                            <span class="font-bold text-slate-700 text-lg truncate max-w-[120px] md:max-w-[180px]">${entry.name}</span>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <div class="text-right">
+                                <div class="font-black text-blue-600 text-xl flex items-center justify-end gap-2">
+                                    ${entry.score} 
+                                    <span class="text-[11px] bg-slate-200/80 text-slate-600 px-2 py-0.5 rounded-full font-bold whitespace-nowrap font-sans">⏱ ${formatTime(entry.time || 0)}</span>
+                                </div>
+                                <div class="text-[10px] text-slate-400 font-bold mt-0.5">${entry.date}</div>
+                            </div>
+                            <!-- NÚT XÓA NGƯỜI CHƠI -->
+                            <button onclick="deletePlayer(${index})" class="w-8 h-8 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors" title="Xóa người chơi này">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        let previousGameState = 'waiting';
+        window.openLeaderboard = function() {
+            if (gameState === 'playing' || gameState === 'autofinish') {
+                previousGameState = gameState; gameState = 'paused';
+                document.getElementById('lbCloseBtn').style.display = 'flex';
+                document.getElementById('lbRenameSection').style.display = 'block';
+                document.getElementById('lbNextPlayerSection').style.display = 'none';
+            }
+            renderLeaderboard();
+            const modal = document.getElementById('leaderboardModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => { document.getElementById('lbContent').classList.remove('scale-95'); document.getElementById('lbContent').classList.add('scale-100'); }, 10);
+        }
+
+        window.closeLeaderboard = function() {
+            document.getElementById('lbContent').classList.remove('scale-100');
+            document.getElementById('lbContent').classList.add('scale-95');
+            setTimeout(() => {
+                document.getElementById('leaderboardModal').classList.add('hidden');
+                if ((previousGameState === 'playing' || previousGameState === 'autofinish') && gameState !== 'gameover') {
+                    gameState = previousGameState;
+                }
+            }, 200);
+        }
+
+        window.startNextPlayer = function() {
+            const inputVal = document.getElementById('nextPlayerNameInput').value.trim();
+            if (inputVal) { localStorage.setItem('mario_playerName', inputVal); location.reload(); } 
+            else { alert("Vui lòng nhập tên người chơi tiếp theo để bắt đầu!"); document.getElementById('nextPlayerNameInput').focus(); }
+        };
+
+        window.goHome = function() {
+            location.reload(); 
+        };
+
+        // HÀM XỬ LÝ XÓA NGƯỜI CHƠI
+        window.deletePlayer = function(index) {
+            if(confirm(`Bạn có chắc chắn muốn xóa thành tích của "${leaderboardData[index].name}" khỏi bảng xếp hạng không?`)) {
+                leaderboardData.splice(index, 1);
+                localStorage.setItem('mario_leaderboard_toan11', JSON.stringify(leaderboardData));
+                renderLeaderboard(); // Tải lại bảng xếp hạng ngay lập tức
+            }
+        };
+
+        // ==========================================
+        // 📚 HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ: TOÁN 11 XÁC SUẤT
+        // ==========================================
+        window.gameDatabase = {
+          "Chuyên đề 1: Biến cố giao & Biến cố độc lập": {
+            "easy": [
+              {
+                "q": "Cho hai biến cố $A$ và $B$. Biến cố giao $AB$ (hoặc $A \cap B$) là biến cố:",
+                "options": ["Cả $A$ và $B$ cùng xảy ra", "Chỉ có $A$ hoặc $B$ xảy ra", "Ít nhất một trong hai biến cố xảy ra", "$A$ xảy ra nhưng $B$ không xảy ra"],
+                "correct": 0,
+                "explanation": "Biến cố giao AB xảy ra khi và chỉ khi cả A và B đồng thời xảy ra."
+              },
+              {
+                "q": "Nếu hai biến cố $A$ và $B$ độc lập thì công thức tính xác suất của biến cố giao $AB$ là:",
+                "options": ["$P(AB) = P(A) \cdot P(B)$", "$P(AB) = P(A) + P(B)$", "$P(AB) = P(A) + P(B) - P(A \cup B)$", "$P(AB) = P(A) / P(B)$"],
+                "correct": 0,
+                "explanation": "Theo định nghĩa hai biến cố độc lập: P(AB) = P(A).P(B)."
+              },
+              {
+                "q": "Cho hai biến cố độc lập $A$ và $B$ có $P(A) = 0.4$ và $P(B) = 0.5$. Xác suất $P(AB)$ bằng:",
+                "options": ["$0.20$", "$0.90$", "$0.10$", "$0.45$"],
+                "correct": 0,
+                "explanation": "P(AB) = P(A).P(B) = 0.4 * 0.5 = 0.20."
+              }
+            ],
+            "medium": [
+              {
+                "q": "Hai xạ thủ bắn bia độc lập. Xác suất bắn trúng của người 1 là $0.7$, người 2 là $0.8$. Xác suất cả hai người cùng bắn trúng là:",
+                "options": ["$0.56$", "$0.75$", "$0.94$", "$0.15$"],
+                "correct": 0,
+                "explanation": "P = 0.7 * 0.8 = 0.56."
+              },
+              {
+                "q": "Hai vận động viên ném bóng vào rổ độc lập. Xác suất ném trúng lần lượt là $0.6$ và $0.5$. Xác suất cả hai người đều ném trượt là:",
+                "options": ["$0.20$", "$0.30$", "$0.70$", "$0.10$"],
+                "correct": 0,
+                "explanation": "P = (1 - 0.6) * (1 - 0.5) = 0.4 * 0.5 = 0.20."
+              },
+              {
+                "q": "Hai máy tiện hoạt động độc lập. Xác suất máy 1 hỏng là $0.1$, máy 2 hỏng là $0.05$. Xác suất chỉ có đúng một máy bị hỏng là:",
+                "options": ["$0.14$", "$0.15$", "$0.005$", "$0.855$"],
+                "correct": 0,
+                "explanation": "P = 0.1*(1 - 0.05) + (1 - 0.1)*0.05 = 0.095 + 0.045 = 0.14."
+              }
+            ],
+            "hard": [
+              {
+                "q": "Ba xạ thủ độc lập cùng bắn vào mục tiêu với xác suất bắn trúng lần lượt là $0.6; 0.7; 0.8$. Xác suất mục tiêu bị trúng đúng 2 phát đạn là:",
+                "options": ["$0.452$", "$0.336$", "$0.658$", "$0.214$"],
+                "correct": 0,
+                "explanation": "P = 0.6*0.7*0.2 + 0.6*0.3*0.8 + 0.4*0.7*0.8 = 0.084 + 0.144 + 0.224 = 0.452."
+              },
+              {
+                "q": "Một hệ thống điện có hai bóng đèn mắc song song hoạt động độc lập. Xác suất mỗi bóng bị cháy sau 1000 giờ là $0.15$ và $0.2$. Xác suất hệ thống vẫn sáng sau 1000 giờ là:",
+                "options": ["$0.97$", "$0.68$", "$0.03$", "$0.85$"],
+                "correct": 0,
+                "explanation": "P = 1 - 0.15*0.2 = 1 - 0.03 = 0.97."
+              }
+            ]
+          },
+          "Chuyên đề 2: Biến cố hợp & Biến cố xung khắc": {
+            "easy": [
+              {
+                "q": "Hai biến cố $A$ và $B$ được gọi là xung khắc khi và chỉ khi:",
+                "options": ["$A \cap B = \emptyset$", "$A \cup B = \Omega$", "$P(A) + P(B) = 1$", "$P(AB) = P(A) \cdot P(B)$"],
+                "correct": 0,
+                "explanation": "Hai biến cố xung khắc không thể đồng thời xảy ra trong cùng một phép thử."
+              },
+              {
+                "q": "Nếu $A$ và $B$ là hai biến cố xung khắc thì khẳng định nào sau đây đúng?",
+                "options": ["$P(A \cup B) = P(A) + P(B)$", "$P(A \cup B) = P(A) \cdot P(B)$", "$P(AB) = P(A) + P(B)$", "$P(AB) > 0$"],
+                "correct": 0,
+                "explanation": "Vì A và B xung khắc nên P(AB) = 0 => P(A U B) = P(A) + P(B)."
+              },
+              {
+                "q": "Cho $A, B$ là hai biến cố xung khắc có $P(A) = 0.25$ và $P(B) = 0.45$. Tính $P(A \cup B)$.",
+                "options": ["$0.70$", "$0.20$", "$0.1125$", "$0.55$"],
+                "correct": 0,
+                "explanation": "P(A U B) = 0.25 + 0.45 = 0.70."
+              }
+            ],
+            "medium": [
+              {
+                "q": "Cho hai biến cố $A$ và $B$ bất kỳ có $P(A) = 0.4$, $P(B) = 0.5$ và $P(AB) = 0.15$. Tính $P(A \cup B)$.",
+                "options": ["$0.75$", "$0.90$", "$0.20$", "$0.60$"],
+                "correct": 0,
+                "explanation": "P(A U B) = P(A) + P(B) - P(AB) = 0.4 + 0.5 - 0.15 = 0.75."
+              },
+              {
+                "q": "Một hộp có 10 viên bi gồm 4 bi đỏ và 6 bi xanh. Lấy ngẫu nhiên 2 viên bi. Xác suất để 2 viên bi lấy ra cùng màu là:",
+                "options": ["$\frac{7}{15}$", "$\frac{8}{15}$", "$\frac{4}{15}$", "$\frac{1}{3}$"],
+                "correct": 0,
+                "explanation": "P = (C(4,2) + C(6,2)) / C(10,2) = (6 + 15) / 45 = 21/45 = 7/15."
+              },
+              {
+                "q": "Rút ngẫu nhiên một lá bài từ bộ bài tú lơ khơ 52 lá. Xác suất rút được lá Át (A) hoặc lá chất Bích (♠) là:",
+                "options": ["$\frac{4}{13}$", "$\frac{17}{52}$", "$\frac{1}{4}$", "$\frac{1}{13}$"],
+                "correct": 0,
+                "explanation": "P = (4 + 13 - 1) / 52 = 16/52 = 4/13."
+              }
+            ],
+            "hard": [
+              {
+                "q": "Cho hai biến cố $A$ và $B$ thỏa mãn $P(A) = 0.5$, $P(B) = 0.6$ và $P(A \cup B) = 0.8$. Xác suất của biến cố đối $\overline{A} \cap \overline{B}$ là:",
+                "options": ["$0.20$", "$0.30$", "$0.10$", "$0.40$"],
+                "correct": 0,
+                "explanation": "Theo De Morgan: not(A) cap not(B) = not(A cup B) => P = 1 - 0.8 = 0.20."
+              },
+              {
+                "q": "Một lớp có 40 học sinh gồm 25 học sinh giỏi Toán, 20 học sinh giỏi Văn và 5 học sinh không giỏi môn nào. Chọn ngẫu nhiên 1 bạn. Xác suất bạn đó giỏi cả Toán và Văn là:",
+                "options": ["$\frac{1}{4}$", "$\frac{5}{8}$", "$\frac{1}{2}$", "$\frac{3}{8}$"],
+                "correct": 0,
+                "explanation": "Số bạn giỏi ít nhất 1 môn là 40 - 5 = 35 => n(T cap V) = 25 + 20 - 35 = 10 => P = 10/40 = 1/4."
+              }
+            ]
+          },
+          "Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp": {
+            "easy": [
+              {
+                "q": "Biến cố đối của biến cố giao $(AB)$ theo công thức De Morgan là biến cố nào sau đây?",
+                "options": ["$\overline{A} \cup \overline{B}$", "$\overline{A} \cap \overline{B}$", "$\overline{A} \cdot \overline{B}$", "$A \cup \overline{B}$"],
+                "correct": 0,
+                "explanation": "Luật De Morgan: not(AB) = not(A) cup not(B)."
+              },
+              {
+                "q": "Cho biến cố $A$ có $P(A) = 0.7$. Xác suất của biến cố đối $\overline{A}$ là:",
+                "options": ["$0.3$", "$0.7$", "$-0.7$", "$1.7$"],
+                "correct": 0,
+                "explanation": "P(not A) = 1 - P(A) = 1 - 0.7 = 0.3."
+              },
+              {
+                "q": "Gieo một con xúc xắc cân đối 6 mặt. Xác suất xuất hiện mặt có số chấm chia hết cho 2 hoặc chia hết cho 3 là:",
+                "options": ["$\frac{2}{3}$", "$\frac{5}{6}$", "$\frac{1}{2}$", "$\frac{1}{3}$"],
+                "correct": 0,
+                "explanation": "Các mặt thỏa mãn là {2, 3, 4, 6} gồm 4 mặt => P = 4/6 = 2/3."
+              }
+            ],
+            "medium": [
+              {
+                "q": "Hai bạn An và Bình độc lập cùng giải một bài toán. Xác suất An giải được là $0.8$, Bình giải được là $0.7$. Xác suất bài toán được giải quyết là:",
+                "options": ["$0.94$", "$0.56$", "$0.85$", "$0.06$"],
+                "correct": 0,
+                "explanation": "P = 1 - (1 - 0.8)*(1 - 0.7) = 1 - 0.2*0.3 = 1 - 0.06 = 0.94."
+              },
+              {
+                "q": "Hai người bắn súng độc lập với xác suất bắn trúng lần lượt là $0.6$ và $0.7$. Xác suất có đúng một người bắn trúng là:",
+                "options": ["$0.46$", "$0.42$", "$0.12$", "$0.88$"],
+                "correct": 0,
+                "explanation": "P = 0.6*(1 - 0.7) + (1 - 0.6)*0.7 = 0.6*0.3 + 0.4*0.7 = 0.18 + 0.28 = 0.46."
+              },
+              {
+                "q": "Một xạ thủ bắn 3 phát độc lập với xác suất trúng mỗi phát là $0.8$. Xác suất người đó không bắn trúng phát nào là:",
+                "options": ["$0.008$", "$0.512$", "$0.064$", "$0.200$"],
+                "correct": 0,
+                "explanation": "P = (1 - 0.8)^3 = 0.2^3 = 0.008."
+              }
+            ],
+            "hard": [
+              {
+                "q": "Một xạ thủ bắn 3 phát độc lập vào bia với xác suất bắn trúng mỗi phát là $0.7$. Xác suất để người đó bắn trúng ít nhất 2 phát là:",
+                "options": ["$0.784$", "$0.441$", "$0.343$", "$0.657$"],
+                "correct": 0,
+                "explanation": "P = 3*(0.7^2)*0.3 + 0.7^3 = 0.441 + 0.343 = 0.784."
+              },
+              {
+                "q": "Tỉ lệ người mắc một căn bệnh trong cộng đồng là $10\%$. Một xét nghiệm có độ nhạy $95\%$ và độ đặc hiệu $90\%$. Chọn ngẫu nhiên một người xét nghiệm dương tính, xác suất người đó thực sự mắc bệnh xấp xỉ:",
+                "options": ["$51.4\%$", "$95.0\%$", "$85.2\%$", "$10.0\%$"],
+                "correct": 0,
+                "explanation": "Theo công thức Bayes: P(B|+) = (0.1*0.95) / (0.1*0.95 + 0.9*0.1) = 0.095 / 0.185 xấp xỉ 51.4%."
+              }
+            ]
+          }
+        };
+
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+        var questions = [];
+
+        function openMarioTopicMenu() {
+            if (gameState === 'playing' || gameState === 'autofinish') {
+                previousGameState = gameState;
+                gameState = 'paused';
+            }
+            renderMarioTopicMenuCards();
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.style.display = 'flex';
+        }
+
+        function renderMarioTopicMenuCards() {
+            const container = document.getElementById('mario-topics-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const topics = Object.keys(window.gameDatabase);
+            topics.forEach((topicName, idx) => {
+                const data = window.gameDatabase[topicName];
+                const eCount = (data.easy || []).length;
+                const mCount = (data.medium || []).length;
+                const hCount = (data.hard || []).length;
+                const total = eCount + mCount + hCount;
+
+                const isSelected = (window.selectedTopic === topicName);
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+                    border: 3px solid ${isSelected ? '#facc15' : 'rgba(255,255,255,0.15)'};
+                    border-radius: 20px; padding: 22px; text-align: left; cursor: pointer; transition: all 0.3s ease;
+                    display: flex; flex-direction: column; justify-content: space-between;
+                    box-shadow: ${isSelected ? '0 0 30px rgba(250, 204, 21, 0.45)' : '0 10px 25px rgba(0,0,0,0.3)'};
+                `;
+
+                card.onmouseover = () => { card.style.borderColor = '#facc15'; card.style.transform = 'translateY(-4px)'; };
+                card.onmouseout = () => {
+                    if (window.selectedTopic !== topicName) {
+                        card.style.borderColor = 'rgba(255,255,255,0.15)';
+                        card.style.transform = 'translateY(0)';
+                    }
+                };
+
+                card.innerHTML = `
+                    <div>
+                        <div style="font-size: 11px; font-weight: 800; color: #facc15; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;" class="pixel-font">
+                            WORLD ${idx + 1} (${total} CÂU)
+                        </div>
+                        <h3 style="color: #ffffff; font-size: 17px; font-weight: 800; margin: 0 0 12px 0; line-height: 1.4;">
+                            ${topicName}
+                        </h3>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; font-size: 12px; font-weight: 700;">
+                            <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; padding: 3px 10px; border-radius: 999px;">🟢 ${eCount} Dễ</span>
+                            <span style="background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid #eab308; padding: 3px 10px; border-radius: 999px;">🟡 ${mCount} Vừa</span>
+                            <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; padding: 3px 10px; border-radius: 999px;">🔴 ${hCount} Khó</span>
+                        </div>
+                    </div>
+                    <button onclick="selectMarioTopic('${topicName}', true)" style="
+                        width: 100%; padding: 12px 18px; border: none; border-radius: 12px;
+                        background: ${isSelected ? 'linear-gradient(90deg, #facc15, #eab308)' : 'linear-gradient(90deg, #ef4444, #dc2626)'};
+                        color: ${isSelected ? '#0f172a' : '#ffffff'}; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+                        cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    ">
+                        ${isSelected ? '✓ ĐANG CHỌN' : '🍄 VÀO MÀN NÀY'}
+                    </button>
+                `;
+
+                container.appendChild(card);
+            });
+
+            if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise().catch(e => {});
+        }
+
+        function selectMarioTopic(topicName, hideOverlay) {
+            window.selectedTopic = topicName;
+            const topicData = window.gameDatabase[topicName];
+            if (!topicData) return;
+
+            // Sắp xếp câu hỏi theo thứ tự Dễ -> Vừa -> Khó
+            const topicQuestions = [];
+            ['easy', 'medium', 'hard'].forEach(diff => {
+                (topicData[diff] || []).forEach(q => {
+                    const copyQ = {
+                        q: q.q,
+                        options: [...q.options],
+                        correct: q.correct
+                    };
+                    const correctStr = copyQ.options[copyQ.correct];
+                    for (let j = copyQ.options.length - 1; j > 0; j--) {
+                        const k = Math.floor(Math.random() * (j + 1));
+                        [copyQ.options[j], copyQ.options[k]] = [copyQ.options[k], copyQ.options[j]];
+                    }
+                    copyQ.correct = copyQ.options.indexOf(correctStr);
+                    topicQuestions.push(copyQ);
+                });
+            });
+
+            initMarioLevel(topicQuestions);
+
+            const badge = document.getElementById('active-mario-topic-badge');
+            if (badge) badge.innerText = topicName.length > 25 ? topicName.substring(0, 25) + '...' : topicName;
+            const modalTopicBadge = document.getElementById('startModalTopicName');
+            if (modalTopicBadge) modalTopicBadge.innerText = topicName;
+
+            if (hideOverlay) {
+                const overlay = document.getElementById('topic-selection-overlay');
+                if (overlay) overlay.style.display = 'none';
+
+                const startModal = document.getElementById('startModal');
+                if (gameState === 'waiting' && startModal && startModal.style.display !== 'none') {
+                    startModal.style.opacity = '1';
+                } else if (previousGameState === 'playing') {
+                    gameState = 'playing';
+                }
+            }
+        }
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let lastQuestionAttempts = 0; 
+
+        // ==========================================
+        // GAME ENGINE & PHYSICS
+        // ==========================================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function drawMario(p) {
+            ctx.save();
+            ctx.translate(p.x + p.w/2, p.y + p.h/2); 
+            if (!p.facingRight) ctx.scale(-1, 1); 
+
+            if (Math.abs(p.vx) > 0.5 && p.onGround) p.walkAnim = (p.walkAnim || 0) + 0.3; 
+            else p.walkAnim = 0;
+
+            const isJumping = !p.onGround;
+            const swing = isJumping ? 0 : Math.sin(p.walkAnim); 
+
+            const red = '#E52521', blue = '#0058F8', skin = '#FBD000', brown = '#8B4513', black = '#000000', white = '#FFFFFF';
+            const sx = p.w / 50; const sy = p.h / 70; ctx.scale(sx, sy);
+
+            ctx.fillStyle = blue; ctx.save(); ctx.translate(0, 15); ctx.rotate(isJumping ? -Math.PI/4 : swing * 0.6);
+            ctx.fillRect(-8, 0, 12, 16); ctx.fillStyle = brown; ctx.beginPath(); ctx.ellipse(-2, 16, 10, 7, 0, 0, Math.PI*2); ctx.fill(); ctx.restore();
+
+            ctx.fillStyle = red; ctx.save(); ctx.translate(-8, -5); ctx.rotate(isJumping ? Math.PI/3 : -swing * 0.6);
+            ctx.fillRect(-6, 0, 10, 18); ctx.fillStyle = white; ctx.beginPath(); ctx.arc(-1, 18, 7, 0, Math.PI*2); ctx.fill(); ctx.restore();
+
+            ctx.fillStyle = red; ctx.beginPath(); ctx.roundRect(-16, -12, 32, 28, 10); ctx.fill(); 
+            ctx.fillStyle = blue; ctx.beginPath(); ctx.roundRect(-18, 4, 36, 18, 8); ctx.fill(); 
+            ctx.fillStyle = '#F8B800'; ctx.beginPath(); ctx.arc(-10, 8, 4, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(10, 8, 4, 0, Math.PI*2); ctx.fill();
+
+            ctx.save(); ctx.translate(0, -24);
+            ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(0, 0, 17, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(16, 2, 6, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = black; ctx.beginPath(); ctx.ellipse(14, 8, 10, 4, -Math.PI/12, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(8, -5, 3, 5, 0, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = red; ctx.beginPath(); ctx.arc(-2, -6, 16, Math.PI, Math.PI*2); ctx.fill(); 
+            ctx.beginPath(); ctx.roundRect(-18, -6, 38, 6, 3); ctx.fill(); 
+            ctx.restore();
+
+            ctx.fillStyle = blue; ctx.save(); ctx.translate(0, 15); ctx.rotate(isJumping ? Math.PI/5 : -swing * 0.6);
+            ctx.fillRect(-2, 0, 12, 16); ctx.fillStyle = brown; ctx.beginPath(); ctx.ellipse(4, 16, 10, 7, 0, 0, Math.PI*2); ctx.fill(); ctx.restore();
+
+            ctx.fillStyle = red; ctx.save(); ctx.translate(8, -5);
+            if (isJumping) { ctx.translate(0, -8); ctx.rotate(Math.PI - 0.2); } else { ctx.rotate(swing * 0.6); }
+            ctx.fillRect(-5, 0, 10, 18); ctx.fillStyle = white; ctx.beginPath(); ctx.arc(0, 18, 7, 0, Math.PI*2); ctx.fill(); ctx.restore();
+
+            ctx.restore();
+        }
+
+        function drawQuestionBlock(x, y, w, h, hit) {
+            ctx.fillStyle = hit ? '#8B4513' : '#F8B800'; ctx.fillRect(x, y, w, h);
+            ctx.lineWidth = 2; ctx.strokeStyle = 'black'; ctx.strokeRect(x, y, w, h);
+            if (!hit) {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(x+3, y+3, 4, 4); ctx.fillRect(x+w-7, y+3, 4, 4); ctx.fillRect(x+3, y+h-7, 4, 4); ctx.fillRect(x+w-7, y+h-7, 4, 4);
+                ctx.fillStyle = 'white'; ctx.font = `900 ${h*0.6}px 'Press Start 2P', sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('?', x + w/2, y + h/2 + 2);
+            }
+        }
+
+        function drawGround(offsetX) {
+            const groundY = height - 100; ctx.fillStyle = '#E57339'; ctx.fillRect(0, groundY, width, 100);
+            ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 2; const tileSize = 40; const shift = offsetX % tileSize;
+            for (let i = -tileSize; i < width + tileSize; i += tileSize) {
+                for (let j = 0; j < 100; j += 20) ctx.strokeRect(i - shift + (j%40==0?0:20), groundY + j, tileSize, 20);
+            }
+            ctx.fillStyle = '#00A800'; ctx.fillRect(0, groundY, width, 15);
+        }
+
+        const player = { x: 100, y: 0, w: 56, h: 70, vx: 0, vy: 0, speed: 7, jumpForce: 23, gravity: 0.8, onGround: false, facingRight: true, walkAnim: 0 };
+        const blocks = []; const BLOCK_SIZE = 60;
+        let levelLength = 1200;
+
+        function initMarioLevel(qList) {
+            questions = qList || [];
+            blocks.length = 0;
+            const curGroundY = (typeof height !== 'undefined' && height) ? (height - 100) : (window.innerHeight - 100);
+            for (let i = 0; i < questions.length; i++) {
+                blocks.push({
+                    x: 400 + i * 400,
+                    y: curGroundY - 220,
+                    w: BLOCK_SIZE,
+                    h: BLOCK_SIZE,
+                    hit: false,
+                    questionData: questions[i],
+                    bounceY: 0
+                });
+            }
+            levelLength = blocks.length > 0 ? (blocks[blocks.length - 1].x + 800) : 1200;
+            currentQuestionIndex = 0;
+            score = 0;
+            lastQuestionAttempts = 0;
+            cameraX = 0;
+            if (typeof coins !== 'undefined') coins.length = 0;
+            player.x = 100;
+            player.y = 0;
+            player.vx = 0;
+            player.vy = 0;
+            player.onGround = false;
+
+            const scoreEl = document.getElementById('scoreDisplay');
+            if (scoreEl) scoreEl.textContent = "0";
+            const qCountEl = document.getElementById('qCountDisplay');
+            if (qCountEl) qCountEl.textContent = `0/${questions.length}`;
+        } 
+
+        let cameraX = 0; let keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, Space: false }; 
+        let gameState = 'waiting'; 
+
+        // --- ĐIỀU KHIỂN & NÚT BẤM ẢO ---
+        window.addEventListener('keydown', e => {
+            if(e.code === 'ArrowLeft') keys.ArrowLeft = true; if(e.code === 'ArrowRight') keys.ArrowRight = true; if(e.code === 'ArrowUp' || e.code === 'Space') keys.ArrowUp = true;
+        });
+        window.addEventListener('keyup', e => {
+            if(e.code === 'ArrowLeft') keys.ArrowLeft = false; if(e.code === 'ArrowRight') keys.ArrowRight = false; if(e.code === 'ArrowUp' || e.code === 'Space') keys.ArrowUp = false;
+        });
+
+        const btnL = document.getElementById('btnLeft'); const btnR = document.getElementById('btnRight'); const btnJ = document.getElementById('btnJump');
+
+        const addInputHandlers = (btn, key) => {
+            const press = (e) => { e.preventDefault(); keys[key] = true; btn.classList.add('pressed'); };
+            const release = (e) => { e.preventDefault(); keys[key] = false; btn.classList.remove('pressed'); };
+            btn.addEventListener('touchstart', press, {passive: false}); btn.addEventListener('touchend', release);
+            btn.addEventListener('mousedown', press); btn.addEventListener('mouseup', release); btn.addEventListener('mouseleave', release);
+        };
+        addInputHandlers(btnL, 'ArrowLeft'); addInputHandlers(btnR, 'ArrowRight'); addInputHandlers(btnJ, 'ArrowUp');
+
+        let controlsVisible = true; 
+        function updateControlsVisibility() {
+            const mc = document.getElementById('mobileControls'); const tbBtn = document.getElementById('toggleControlsBtn'); const tbText = document.getElementById('toggleControlsText');
+            if (controlsVisible) {
+                mc.classList.add('show');
+                if(tbText) tbText.textContent = "ẨN NÚT";
+                if(tbBtn) { tbBtn.classList.remove('opacity-70', 'text-white'); tbBtn.classList.add('opacity-100', 'text-amber-400'); }
+            } else {
+                mc.classList.remove('show');
+                if(tbText) tbText.textContent = "HIỆN NÚT";
+                if(tbBtn) { tbBtn.classList.add('opacity-70', 'text-white'); tbBtn.classList.remove('opacity-100', 'text-amber-400'); }
+            }
+        }
+        window.toggleControls = function() { controlsVisible = !controlsVisible; updateControlsVisibility(); };
+        window.addEventListener('load', updateControlsVisibility);
+
+        function checkCollision(r1, r2) { return r1.x < r2.x + r2.w && r1.x + r1.w > r2.x && r1.y < r2.y + r2.h && r1.y + r1.h > r2.y; }
+
+        let coins = []; 
+
+        function triggerFinish() {
+            document.getElementById('scoreDisplay').textContent = score;
+            gameState = 'gameover'; 
+            
+            SoundEngine.win(); 
+            updateLeaderboardData(score, gameTime);
+            
+            setTimeout(() => { showToast("HOÀN THÀNH!", "#fde047"); }, 500); 
+            
+            setTimeout(() => {
+                document.getElementById('lbCloseBtn').style.display = 'none'; 
+                document.getElementById('lbRenameSection').style.display = 'none'; 
+                document.getElementById('lbNextPlayerSection').style.display = 'flex'; 
+                document.getElementById('nextPlayerNameInput').value = ''; 
+                openLeaderboard();
+            }, 2500); 
+        }
+
+        function update() {
+            if (gameState !== 'playing' && gameState !== 'autofinish') return;
+
+            if (gameState === 'autofinish') {
+                keys.ArrowRight = true; keys.ArrowLeft = false; keys.ArrowUp = false;
+            }
+
+            if (keys.ArrowLeft) { player.vx = -player.speed; player.facingRight = false; }
+            else if (keys.ArrowRight) { player.vx = player.speed; player.facingRight = true; }
+            else { player.vx *= 0.8; } 
+
+            player.x += player.vx;
+            if (player.x < cameraX) player.x = cameraX;
+
+            player.vy += player.gravity; player.y += player.vy; player.onGround = false;
+
+            let currentGroundY = height - 100;
+            if (player.y + player.h > currentGroundY) { player.y = currentGroundY - player.h; player.vy = 0; player.onGround = true; }
+
+            if (keys.ArrowUp && player.onGround) { player.vy = -player.jumpForce; player.onGround = false; SoundEngine.jump(); }
+
+            for (let b of blocks) {
+                if (b.bounceY > 0) b.bounceY -= 1;
+                let bRect = {x: b.x, y: b.y - b.bounceY, w: b.w, h: b.h};
+
+                if (checkCollision(player, bRect)) {
+                    if (player.vy < 0 && player.y > bRect.y + bRect.h - 25) {
+                        player.y = bRect.y + bRect.h; player.vy = 0; SoundEngine.bump();
+                        if (!b.hit) triggerQuestion(b);
+                    } else if (player.vy > 0 && player.y + player.h < bRect.y + 30) {
+                        player.y = bRect.y - player.h; player.vy = 0; player.onGround = true;
+                    } else {
+                        if (player.vx > 0) player.x = bRect.x - player.w; if (player.vx < 0) player.x = bRect.x + bRect.w; player.vx = 0;
+                    }
+                }
+            }
+
+            let targetCameraX = player.x - width / 3;
+            if (targetCameraX > cameraX) { cameraX += (targetCameraX - cameraX) * 0.1; }
+
+            for (let i = coins.length - 1; i >= 0; i--) {
+                let c = coins[i]; c.y += c.vy; c.vy += 0.5; c.life--; if (c.life <= 0) coins.splice(i, 1);
+            }
+
+            if (player.x > levelLength && gameState !== 'gameover') {
+                triggerFinish();
+            }
+        }
+
+        let currentBlock = null;
+
+        function triggerQuestion(block) {
+            gameState = 'paused'; currentBlock = block; block.bounceY = 10; 
+            
+            const modal = document.getElementById('quizModal'); const content = document.getElementById('modalContent');
+            const qText = document.getElementById('questionText'); const optContainer = document.getElementById('optionsContainer');
+            
+            document.getElementById('qCountDisplay').textContent = `${currentQuestionIndex + 1}/${questions.length}`;
+            qText.innerHTML = block.questionData.q; optContainer.innerHTML = '';
+            
+            block.questionData.options.forEach((optHTML, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-5 px-6 rounded-2xl text-center text-lg md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[80px]";
+                btn.innerHTML = optHTML; btn.onclick = () => checkAnswer(idx); optContainer.appendChild(btn);
+            });
+
+            modal.classList.remove('hidden');
+            MathJax.typesetClear();
+            MathJax.typesetPromise().then(() => { setTimeout(() => { content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10); });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const modal = document.getElementById('quizModal'); const content = document.getElementById('modalContent');
+            content.classList.remove('scale-100'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 200);
+
+            const isCorrect = (selectedIndex === currentBlock.questionData.correct);
+            const isLastBlock = (currentBlock === blocks[blocks.length - 1]);
+            let resolvedLast = false;
+
+            if (isCorrect) {
+                score += 100; currentBlock.hit = true; currentQuestionIndex++;
+                coins.push({ x: currentBlock.x + BLOCK_SIZE/2, y: currentBlock.y, vy: -12, life: 35 });
+                showToast("+100", "#fde047"); SoundEngine.coin(); 
+                
+                if (isLastBlock) resolvedLast = true;
+            } else {
+                score = Math.max(0, score - 50); showToast("-50", "#ef4444"); SoundEngine.wrong(); 
+                
+                if (isLastBlock) {
+                    lastQuestionAttempts++;
+                    if (lastQuestionAttempts >= 3) {
+                        currentBlock.hit = true; 
+                        resolvedLast = true;
+                    }
+                }
+            }
+            
+            document.getElementById('scoreDisplay').textContent = score;
+            
+            setTimeout(() => { 
+                if (resolvedLast) { gameState = 'autofinish'; } 
+                else { gameState = 'playing'; }
+            }, 200);
+        }
+
+        function showToast(text, color) {
+            const toast = document.getElementById('feedbackToast'); toast.textContent = text; toast.style.color = color; toast.classList.remove('hidden');
+            toast.animate([ { transform: 'translate(-50%, -50%) scale(0)', opacity: 0 }, { transform: 'translate(-50%, -80%) scale(1.2)', opacity: 1, offset: 0.5 }, { transform: 'translate(-50%, -100%) scale(1)', opacity: 0 } ], { duration: 1500, easing: 'ease-out' });
+            setTimeout(() => { toast.classList.add('hidden'); }, 1500);
+        }
+
+        function draw() {
+            ctx.fillStyle = '#5C94FC'; ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            for(let i=0; i<5; i++) {
+                let cx = ((i*400) - cameraX*0.2) % (width + 200); if(cx < -100) cx += width + 200;
+                ctx.beginPath(); ctx.arc(cx, 100 + (i%2)*50, 40, 0, Math.PI*2); ctx.arc(cx+40, 100 + (i%2)*50, 50, 0, Math.PI*2); ctx.arc(cx+80, 100 + (i%2)*50, 40, 0, Math.PI*2); ctx.fill();
+            }
+
+            ctx.save(); ctx.translate(-cameraX, 0); 
+            for (let b of blocks) drawQuestionBlock(b.x, b.y - b.bounceY, b.w, b.h, b.hit);
+            for (let c of coins) {
+                ctx.fillStyle = '#F8B800'; ctx.beginPath(); ctx.ellipse(c.x, c.y, 14, 20, 0, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#fde047'; ctx.beginPath(); ctx.ellipse(c.x, c.y, 8, 14, 0, 0, Math.PI*2); ctx.fill();
+            }
+            drawMario(player);
+            
+            const curGroundY = height - 100;
+            const flagX = levelLength - 150;
+            ctx.fillStyle = '#fde047'; ctx.fillRect(flagX - 5, curGroundY - 500, 10, 500); 
+            ctx.fillStyle = '#22c55e'; ctx.fillRect(flagX, curGroundY - 480, 80, 60); 
+            ctx.fillStyle = 'white'; ctx.font = "20px 'Press Start 2P'"; ctx.fillText("ĐÍCH", flagX + 40, curGroundY - 445);
+            ctx.restore();
+            drawGround(cameraX);
+        }
+
+        let lastTime = 0;
+        function loop(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            let dt = (timestamp - lastTime) / 1000; lastTime = timestamp;
+            if (dt > 0.1) dt = 0.1;
+            
+            if (gameState === 'playing' || gameState === 'autofinish') { 
+                gameTime += dt; 
+                document.getElementById('timeDisplay').textContent = formatTime(gameTime); 
+            }
+            update(); draw(); requestAnimationFrame(loop);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMarioTopicMenuCards();
+            selectMarioTopic(window.selectedTopic, false);
+        });
+
+        document.fonts.ready.then(() => { requestAnimationFrame(loop); });
+    </script>
+<script src="/game-engine.js"></script>
+</body>
+</html>
