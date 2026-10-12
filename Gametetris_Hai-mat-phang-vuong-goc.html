@@ -123,19 +123,32 @@
 
         /* TỐI ƯU RESPONSIVE MOBILE (< 768px) */
         @media (max-width: 768px) {
+            body {
+                overflow: hidden !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+            }
             #game-board {
                 height: 52vh !important;
                 max-height: 54vh !important;
-                margin-top: 2px !important;
+                margin-top: 50px !important;
+                margin-bottom: 0 !important;
             }
             #mobileControls {
-                margin-top: 8px !important;
-                gap: 12px !important;
+                position: fixed !important;
+                bottom: 12px !important;
+                left: 0 !important;
+                right: 0 !important;
+                margin: 0 auto !important;
+                gap: 16px !important;
+                z-index: 40 !important;
+                display: flex !important;
             }
             .control-btn {
-                width: 52px !important;
-                height: 52px !important;
-                font-size: 22px !important;
+                width: 58px !important;
+                height: 58px !important;
+                font-size: 26px !important;
+                border-radius: 18px !important;
             }
         }
     </style>
@@ -182,8 +195,8 @@
     </div>
 
 
-    <!-- SIDEBAR THÔNG TIN -->
-    <div class="w-full md:w-80 flex-shrink-0 bg-[#0f172a] border-b md:border-b-0 md:border-r border-slate-800 flex flex-col shadow-2xl z-30 relative">
+    <!-- SIDEBAR THÔNG TIN (ẨN TRÊN MOBILE ĐỂ DÀNH TRỌN DIỆN TÍCH CHO BÀN CỜ VÀ NÚT BẤM) -->
+    <div class="hidden md:flex w-full md:w-80 flex-shrink-0 bg-[#0f172a] border-b md:border-b-0 md:border-r border-slate-800 flex-col shadow-2xl z-30 relative">
         
         <!-- THƯƠNG HIỆU -->
         <div class="p-4 md:p-6 border-b border-slate-800 bg-gradient-to-b from-[#1e293b] to-[#0f172a] flex items-center gap-4 relative group">
@@ -348,10 +361,12 @@
         <div class="flex flex-col items-center bg-black/40 px-3 py-1.5 rounded-xl border border-white/20 backdrop-blur-sm pixel-font text-white text-xs shadow-lg">
             <div><span id="mobileScoreDisplay" class="text-sky-400">0</span></div>
         </div>
+    </div>
+
     <!-- ========================================== -->
     <!-- MODAL BẢO MẬT: XÁC THỰC MÃ PIN "2806" (ẨN HOÀN TOÀN PLACEHOLDER) -->
     <!-- ========================================== -->
-    <div id="pin-prompt-modal" class="fixed inset-0 z-[10001] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="pin-prompt-modal" class="fixed inset-0 z-[100001] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="relative w-full max-w-sm bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-7 shadow-2xl text-center">
             <div class="w-16 h-16 mx-auto mb-4 bg-blue-600/20 border border-blue-500/30 rounded-2xl flex items-center justify-center text-3xl">
                 🔐
@@ -373,7 +388,7 @@
     <!-- ========================================== -->
     <!-- HỘP CÔNG CỤ QUẢN TRỊ IN-GAME (IN-GAME EDITOR MODAL) -->
     <!-- ========================================== -->
-    <div id="admin-editor-modal" class="fixed inset-0 z-[10002] bg-slate-950/90 backdrop-blur-md hidden flex-col justify-start p-2 sm:p-4 md:p-6 overflow-hidden">
+    <div id="admin-editor-modal" class="fixed inset-0 z-[100002] bg-slate-950/90 backdrop-blur-md hidden flex-col justify-start p-2 sm:p-4 md:p-6 overflow-hidden">
         <div class="w-full max-w-5xl mx-auto bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl flex flex-col h-full max-h-[96vh] overflow-hidden text-slate-100">
             <!-- MODAL HEADER -->
             <div class="p-4 sm:p-5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-900/95 shrink-0">
@@ -1133,21 +1148,30 @@
         addHoldControl(btnD, startDrop, stopDrop);
         addClickControl(btnRot, rotatePiece);
 
-        // Phát hiện Mobile/PC để hiện nút
-        let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
         function updateControlsVisibility() {
             const mc = document.getElementById('mobileControls');
             const mobileHud = document.getElementById('mobileHud');
-            if (isMobile) {
-                mc.classList.add('show');
-                mobileHud.classList.remove('hidden'); // Show small HUD on mobile
+            const isNarrow = window.innerWidth <= 768;
+            const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || isNarrow || isTouch;
+            
+            if (isMobileDevice) {
+                if (mc) mc.classList.add('show');
+                if (mobileHud) {
+                    mobileHud.classList.remove('hidden');
+                    mobileHud.classList.add('flex');
+                }
             } else {
-                mc.classList.remove('show');
-                mobileHud.classList.add('hidden'); // Hide small HUD on PC
+                if (mc) mc.classList.remove('show');
+                if (mobileHud) {
+                    mobileHud.classList.add('hidden');
+                    mobileHud.classList.remove('flex');
+                }
             }
         }
+        window.addEventListener('resize', updateControlsVisibility);
         window.addEventListener('load', updateControlsVisibility);
+        window.addEventListener('DOMContentLoaded', updateControlsVisibility);
 
 
         // --- LOGIC VÒNG LẶP RƠI TỰ ĐỘNG ---
@@ -1512,6 +1536,13 @@
                     if (topbar) {
                         topbar.classList.remove('hidden');
                         topbar.classList.add('flex');
+                    }
+                    const gearBtn = document.getElementById('btn-admin-gear');
+                    if (gearBtn) {
+                        gearBtn.onclick = function(e) {
+                            if (e) { e.preventDefault(); e.stopPropagation(); }
+                            openAdminPinPrompt();
+                        };
                     }
                     return true;
                 }

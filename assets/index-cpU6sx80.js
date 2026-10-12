@@ -39330,13 +39330,15 @@ var questions = window.quizData;
   });
 })();
 <\/script>
-`;l=gy(l,t)}else if(s.includes(`tetris`)||s.includes(`Gametetris`)){let e={},t=n||`Chuyên đề 1: Hai Mặt Phẳng Vuông Góc`;i.forEach(n=>{let r=n.topic?.trim()||t;e[r]||(e[r]={easy:[],medium:[],hard:[]});let i=n.difficulty===`Dễ`?`easy`:n.difficulty===`Khó`?`hard`:`medium`,a=n.options&&n.options.length===2||typeof n.question==`string`&&n.question.startsWith(`ĐÚNG HAY SAI:`)||n.type===`truefalse`,o=n.options&&n.options.length===1||n.type===`short_answer`;e[r][i].push({id:n.id,q:$(n.question),options:n.options&&n.options.length>0?n.options.map(e=>$(e)):[`A`,`B`,`C`,`D`],correct:typeof n.correctIndex==`number`?n.correctIndex:0,explanation:$(n.explanation||``),type:o?`short_answer`:a?`truefalse`:`abcd`,imageUrl:n.imageUrl||``})});let r=`
+`;l=gy(l,t)}else if(s.includes(`tetris`)||s.includes(`Gametetris`)){let e=[...i];if(e.length===0)try{let t=S.find(e=>e.title&&(e.title.toLowerCase().includes(`vuông góc`)||e.title.toLowerCase().includes(`hình học`)||e.title.toLowerCase().includes(`tetris`))||e.id&&(e.id.includes(`hinh_hoc`)||e.id.includes(`11_`)||e.id.includes(`tetris`)))||S.find(e=>e.questions&&e.questions.length>=10)||S[0];t&&t.questions&&t.questions.length>0&&(e=t.questions.map((e,n)=>({id:e.id||`ws_tetris_fb_${n}`,question:e.question,options:e.options||[`A`,`B`,`C`,`D`],correctIndex:typeof e.correctIndex==`number`?e.correctIndex:0,explanation:e.solution||``,difficulty:n%3==0?`Dễ`:n%3==1?`Trung bình`:`Khó`,topic:t.title||`Chuyên đề: Hai Mặt Phẳng Vuông Góc`})))}catch(e){console.warn(`Lỗi lấy worksheet dự phòng cho Tetris:`,e)}let t={},r=n||`Chuyên đề: Hai Mặt Phẳng Vuông Góc`;e.forEach(e=>{let n=e.topic?.trim()||r;t[n]||(t[n]={easy:[],medium:[],hard:[]});let i=e.difficulty===`Dễ`?`easy`:e.difficulty===`Khó`?`hard`:`medium`,a=e.options&&e.options.length===2||typeof e.question==`string`&&e.question.startsWith(`ĐÚNG HAY SAI:`)||e.type===`truefalse`,o=e.options&&e.options.length===1||e.type===`short_answer`;t[n][i].push({id:e.id,q:$(e.question),options:e.options&&e.options.length>0?e.options.map(e=>$(e)):[`A`,`B`,`C`,`D`],correct:typeof e.correctIndex==`number`?e.correctIndex:0,explanation:$(e.explanation||``),type:o?`short_answer`:a?`truefalse`:`abcd`,imageUrl:e.imageUrl||``})});let a=`
 <script>
-// [ADAPTER ENGINE: TETRIS XẾP GẠCH - DỮ LIỆU ĐÓNG GÓI, IN-GAME EDITOR & SECURITY GATE]
+// [ADAPTER ENGINE: TETRIS XẾP GẠCH - DỮ LIỆU ĐÓNG GÓI, DATA FALLBACK, IN-GAME EDITOR & SECURITY GATE]
 window.__GAME_TITLE__ = ${JSON.stringify(n)};
 window.__ADMIN_PIN__ = "2806";
-window.__INJECTED_TETRIS_DATA__ = ${JSON.stringify(e,null,2)};
-window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_TETRIS_DATA__));
+window.__INJECTED_TETRIS_DATA__ = ${JSON.stringify(t,null,2)};
+if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA__).length > 0) {
+  window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_TETRIS_DATA__));
+}
 
 (function() {
   function syncTetrisData() {
@@ -39379,24 +39381,22 @@ window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_TETRIS_DATA__)
   function setupAdminButtons() {
     try {
       const gearBtn = document.getElementById('btn-admin-gear');
-      if (gearBtn && !gearBtn.dataset.listenerAttached) {
-        gearBtn.dataset.listenerAttached = 'true';
-        gearBtn.addEventListener('click', function(e) {
-          e.preventDefault();
+      if (gearBtn) {
+        gearBtn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
           if (typeof window.openAdminPinPrompt === 'function') {
             window.openAdminPinPrompt();
           }
-        });
+        };
       }
       const topicBtn = document.getElementById('btn-chuyen-de');
-      if (topicBtn && !topicBtn.dataset.listenerAttached) {
-        topicBtn.dataset.listenerAttached = 'true';
-        topicBtn.addEventListener('click', function(e) {
-          e.preventDefault();
+      if (topicBtn) {
+        topicBtn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
           if (typeof window.openTetrisTopicMenu === 'function') {
             window.openTetrisTopicMenu();
           }
-        });
+        };
       }
     } catch(e) {}
   }
@@ -39430,7 +39430,7 @@ window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_TETRIS_DATA__)
   });
 })();
 <\/script>
-`;l=gy(l,r)}else{let e=`
+`;l=gy(l,a)}else{let e=`
 <script>
 // [ADAPTER ENGINE: GAME TOÁN HỌC CHUẨN]
 window.quizData = ${JSON.stringify(d,null,2)};
