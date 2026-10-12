@@ -1,11 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Delete, CornerDownLeft, Sparkles, Eye, Calculator } from 'lucide-react';
 
-declare global {
-  interface Window {
-    katex?: any;
-  }
-}
+
 
 interface VirtualMathKeyboardProps {
   isOpen: boolean;
@@ -143,14 +139,15 @@ export const VirtualMathKeyboard: React.FC<VirtualMathKeyboardProps> = ({
     }
 
     try {
-      if (window.katex) {
+      const katex = (window as any).katex;
+      if (katex && typeof katex.renderToString === 'function') {
         // Find $...$ or treat whole string as math if it contains backslashes or math operators
         const cleanText = text.includes('$') 
           ? text.replace(/\$(.*?)\$/g, (_, math) => {
-              try { return window.katex.renderToString(math, { throwOnError: false }); }
+              try { return katex.renderToString(math, { throwOnError: false }); }
               catch { return math; }
             })
-          : window.katex.renderToString(text, { throwOnError: false });
+          : katex.renderToString(text, { throwOnError: false });
         setPreviewHtml(cleanText);
       } else {
         setPreviewHtml(`<span>${text}</span>`);

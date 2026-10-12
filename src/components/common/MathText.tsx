@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 interface MathTextProps {
   text: string;
   className?: string;
-  as?: keyof JSX.IntrinsicElements;
+  as?: keyof React.JSX.IntrinsicElements;
 }
 
 declare global {

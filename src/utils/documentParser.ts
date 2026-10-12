@@ -296,7 +296,7 @@ export function parseDocumentQuestions(rawText: string, defaultTopic: string = '
         }
         return {
           id: `pair_${Date.now()}_${idx + 1}`,
-          question: cat.title,
+          question: cat.title || 'Câu hỏi',
           options: opts.slice(0, 4) as [string, string, string, string],
           correctIndex: 0,
           explanation: `Thuộc tính của: ${cat.title}`,
@@ -2381,6 +2381,9 @@ export async function downloadGameWordTemplate(gameIdentifier: string): Promise<
   if (cleanId.includes('ca-ngua') || cleanId.includes('ca_ngua') || cleanId.includes('ngua')) {
     return downloadCaNguaWordTemplate();
   }
+  if (cleanId.includes('tetris') || cleanId.includes('gametetris')) {
+    return downloadTetrisWordTemplate();
+  }
   if (cleanId.includes('pikachu') || cleanId.includes('pika')) {
     return downloadPikachuWordTemplate();
   }
@@ -2407,6 +2410,9 @@ export async function downloadGameExcelTemplate(gameIdentifier: string): Promise
   if (cleanId.includes('ca-ngua') || cleanId.includes('ca_ngua') || cleanId.includes('ngua')) {
     return downloadCaNguaExcelTemplate();
   }
+  if (cleanId.includes('tetris') || cleanId.includes('gametetris')) {
+    return downloadTetrisExcelTemplate();
+  }
   if (cleanId.includes('pikachu') || cleanId.includes('pika')) {
     return downloadPikachuExcelTemplate();
   }
@@ -2426,6 +2432,415 @@ export async function downloadGameExcelTemplate(gameIdentifier: string): Promise
     return downloadExcelTemplate();
   }
   return downloadChienHaoExcelTemplate();
+}
+
+/**
+ * HÀM TẠO BẢNG CÂU HỎI TRẮC NGHIỆM ABCD 7 DÒNG x 2 CỘT CHO GAME TETRIS (DOCX) - ĐEN TRẮNG TIÊU CHUẨN
+ */
+function createTetrisMCQTable(
+  qNum: number,
+  stem: string,
+  optA: string,
+  optB: string,
+  optC: string,
+  optD: string,
+  exp: string,
+  ans: string
+): Table {
+  return new Table({
+    width: { size: 10000, type: WidthType.DXA },
+    rows: [
+      // Dòng 1: Câu [N] (TN) | Đề bài
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: `Câu ${qNum} (TN)`, bold: true, color: "000000", size: 21 })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stem, color: "000000", size: 21 })] })]
+          })
+        ]
+      }),
+      // Dòng 2: A) | Đáp án A
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "A)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optA, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 3: B) | Đáp án B
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "B)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optB, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 4: C) | Đáp án C
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "C)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optC, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 5: D) | Đáp án D
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "D)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optD, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 6: Lời giải | Hướng dẫn giải chi tiết
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Lời giải", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: exp, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 7: Đáp án | Ký tự đáp án đúng (A, B, C, D)
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Đáp án", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ans, bold: true, color: "000000" })] })]
+          })
+        ]
+      })
+    ]
+  });
+}
+
+/**
+ * HÀM TẠO BẢNG CÂU HỎI ĐÚNG / SAI 9 DÒNG x 2 CỘT CHO GAME TETRIS (DOCX) - ĐEN TRẮNG TIÊU CHUẨN
+ */
+function createTetrisTFQuestionTable(
+  qNum: number,
+  stem: string,
+  stmtA: string, ansA: string, expA: string,
+  stmtB: string, ansB: string, expB: string,
+  stmtC: string, ansC: string, expC: string,
+  stmtD: string, ansD: string, expD: string
+): Table {
+  return new Table({
+    width: { size: 10000, type: WidthType.DXA },
+    rows: [
+      // Dòng 1: Cột 1: Câu [N] (Đ/S) | Cột 2: Lời dẫn / Đề bài tổng quát
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: `Câu ${qNum} (Đ/S)`, bold: true, color: "000000", size: 21 })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stem, color: "000000", size: 21 })] })]
+          })
+        ]
+      }),
+      // Dòng 2: A) | Phát biểu A
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "A)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtA, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 3: Đúng/Sai | Lời giải chi tiết A
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ansA, bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: expA, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 4: B) | Phát biểu B
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "B)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtB, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 5: Đúng/Sai | Lời giải chi tiết B
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ansB, bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: expB, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 6: C) | Phát biểu C
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "C)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtC, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 7: Đúng/Sai | Lời giải chi tiết C
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ansC, bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: expC, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 8: D) | Phát biểu D
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "D)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtD, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 9: Đúng/Sai | Lời giải chi tiết D
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ansD, bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: expD, color: "000000" })] })]
+          })
+        ]
+      })
+    ]
+  });
+}
+
+/**
+ * HÀM TẠO BẢNG CÂU HỎI TRẢ LỜI NGẮN 3 DÒNG x 2 CỘT CHO GAME TETRIS (DOCX) - ĐEN TRẮNG TIÊU CHUẨN
+ */
+function createTetrisShortAnswerTable(qNum: number, stem: string, answerNum: string, exp: string): Table {
+  return new Table({
+    width: { size: 10000, type: WidthType.DXA },
+    rows: [
+      // Dòng 1: Câu [N] (TLN) | Đề bài
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: `Câu ${qNum} (TLN)`, bold: true, color: "000000", size: 21 })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stem, color: "000000", size: 21 })] })]
+          })
+        ]
+      }),
+      // Dòng 2: Đáp án số | Giá trị số (tối đa 4 ký tự)
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Đáp án số", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: answerNum, bold: true, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 3: Lời giải | Chi tiết
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Lời giải", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: exp, color: "000000" })] })]
+          })
+        ]
+      })
+    ]
+  });
+}
+
+/**
+ * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHO GAME TETRIS (CHUẨN 3 DẠNG BẢNG ĐEN TRẮNG)
+ */
+export async function downloadTetrisWordTemplate(): Promise<void> {
+  const sectionsContent: any[] = [
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "MẪU ĐỀ GAME TETRIS XẾP GẠCH (CHUẨN 3 DẠNG BẢNG ĐEN TRẮNG)",
+          bold: true,
+          size: 26,
+          color: "000000"
+        })
+      ],
+      spacing: { after: 120 }
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "Chỉ thị cấu trúc chuẩn đen trắng (không tô màu nền ô, viền đơn rõ ràng):\n" +
+                "1. DẠNG TRẮC NGHIỆM ABCD (Bảng 2 cột x 7 dòng): Dòng 1: Câu [N] (TN) | Đề bài; Dòng 2..5: A), B), C), D); Dòng 6: Lời giải; Dòng 7: Đáp án A/B/C/D.\n" +
+                "2. DẠNG ĐÚNG / SAI 4 Ý (Bảng 2 cột x 9 dòng): Dòng 1: Câu [N] (Đ/S) | Lời dẫn chung; Dòng 2, 4, 6, 8: A), B), C), D); Dòng 3, 5, 7, 9: Đúng/Sai | Kết quả Đúng/Sai kèm lời giải. Hệ thống ghép lời dẫn với từng phát biểu độc lập khi chơi!\n" +
+                "3. DẠNG TRẢ LỜI NGẮN (Bảng 2 cột x 3 dòng): Dòng 1: Câu [N] (TLN) | Đề bài; Dòng 2: Đáp án số | Số kết quả (tối đa 4 ký tự, VD: 12, -3.5, 0.2); Dòng 3: Lời giải | Chi tiết.",
+          size: 19,
+          color: "333333"
+        })
+      ],
+      spacing: { after: 200 }
+    }),
+
+    // PHẦN 1: TRẮC NGHIỆM ABCD
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 1: CÂU HỎI TRẮC NGHIỆM ABCD (BẢNG 7 DÒNG x 2 CỘT)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    createTetrisMCQTable(
+      1,
+      "Cho hình chóp \\( S.ABC \\) có \\( SA \\perp (ABC) \\). Mặt phẳng \\( (SAB) \\) vuông góc với mặt phẳng nào sau đây?",
+      "\\( (ABC) \\)",
+      "\\( (SBC) \\)",
+      "\\( (SAC) \\)",
+      "Chưa đủ dữ kiện",
+      "Vì \\( SA \\perp (ABC) \\) và \\( SA \\subset (SAB) \\) nên \\( (SAB) \\perp (ABC) \\).",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+
+    // PHẦN 2: ĐÚNG / SAI 4 Ý
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 2: CÂU HỎI ĐÚNG / SAI (4 Ý) (BẢNG 9 DÒNG x 2 CỘT)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 250, after: 120 }
+    }),
+    createTetrisTFQuestionTable(
+      2,
+      "Cho hình chóp \\( S.ABCD \\) có đáy \\( ABCD \\) là hình vuông tâm \\( O \\), cạnh \\( a \\) và \\( SO \\perp (ABCD) \\). Xét tính Đúng/Sai của các khẳng định sau:",
+      "Đường thẳng \\( SO \\) vuông góc với mặt phẳng \\( (ABCD) \\).", "Đúng", "Theo giả thiết đề bài cho \\( SO \\perp (ABCD) \\).",
+      "Mặt phẳng \\( (SAC) \\) vuông góc với mặt phẳng \\( (SBD) \\).", "Đúng", "Vì đáy là hình vuông nên \\( AC \\perp BD \\), lại có \\( SO \\perp AC \\) nên \\( AC \\perp (SBD) \\), suy ra \\( (SAC) \\perp (SBD) \\).",
+      "Góc giữa hai mặt phẳng \\( (SAB) \\) và \\( (ABCD) \\) bằng \\( 90^\\circ \\).", "Sai", "Mặt phẳng \\( (SAB) \\) không vuông góc với đáy vì \\( O \\) không thuộc \\( AB \\).",
+      "Tam giác \\( SBD \\) là tam giác cân tại \\( S \\).", "Đúng", "Vì \\( O \\) là trung điểm \\( BD \\) và \\( SO \\perp BD \\) nên \\( SB = SD \\)."
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+
+    // PHẦN 3: TRẢ LỜI NGẮN
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 3: CÂU HỎI TRẢ LỜI NGẮN (BẢNG 3 DÒNG x 2 CỘT)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 250, after: 120 }
+    }),
+    createTetrisShortAnswerTable(
+      3,
+      "Cho hai mặt phẳng \\( (P) \\) và \\( (Q) \\) vuông góc với nhau. Góc giữa hai mặt phẳng đó bằng bao nhiêu độ?",
+      "90",
+      "Theo định nghĩa, hai mặt phẳng vuông góc với nhau khi và chỉ khi góc giữa chúng bằng 90 độ."
+    )
+  ];
+
+  const doc = new Document({
+    sections: [{ properties: {}, children: sectionsContent }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Mau_Game_Tetris_3_Dang_Cau_Hoi.docx");
+}
+
+/**
+ * SINH VÀ TẢI FILE EXCEL (.XLSX) MẪU CHO GAME TETRIS (3 DẠNG CÂU HỎI)
+ */
+export async function downloadTetrisExcelTemplate(): Promise<void> {
+  const { XLSX } = await loadDocumentLibraries();
+  const rows = [
+    ["Loại Dạng", "Cột 1: Câu / Ý", "Cột 2: Nội dung phát biểu / Đề bài", "Cột 3: Đáp án (A/B/C/D hoặc Đúng/Sai hoặc Số)", "Cột 4: Lời giải chi tiết"],
+    // Dạng 1: MC
+    ["MC", "Câu 1", "Cho hình chóp S.ABC có SA vuông góc với (ABC). Mặt phẳng (SAB) vuông góc với mặt phẳng nào?", "A", "SA vuông góc (ABC) và SA thuộc (SAB) nên (SAB) vuông góc (ABC)."],
+    ["MC", "A)", "(ABC)", "", ""],
+    ["MC", "B)", "(SBC)", "", ""],
+    ["MC", "C)", "(SAC)", "", ""],
+    ["MC", "D)", "Chưa đủ dữ kiện", "", ""],
+    // Dạng 2: TF
+    ["TF", "Câu 2", "Cho hình chóp S.ABCD đáy ABCD là hình vuông tâm O, SO vuông góc (ABCD). Xét tính Đúng/Sai:", "", ""],
+    ["TF", "A)", "Đường thẳng SO vuông góc với mặt phẳng (ABCD).", "Đúng", "Theo giả thiết đề bài."],
+    ["TF", "B)", "Mặt phẳng (SAC) vuông góc với mặt phẳng (SBD).", "Đúng", "AC vuông góc BD và AC vuông góc SO nên AC vuông góc (SBD)."],
+    ["TF", "C)", "Góc giữa (SAB) và (ABCD) bằng 90 độ.", "Sai", "(SAB) không vuông góc với đáy."],
+    ["TF", "D)", "Tam giác SBD là tam giác cân tại S.", "Đúng", "SO là đường cao đồng thời là trung tuyến."],
+    // Dạng 3: SHORT
+    ["SHORT", "Câu 3", "Hai mặt phẳng vuông góc với nhau thì góc giữa chúng bằng bao nhiêu độ?", "90", "Theo định nghĩa góc giữa 2 mặt phẳng vuông góc là 90 độ."]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{ wch: 12 }, { wch: 15 }, { wch: 55 }, { wch: 25 }, { wch: 45 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Tetris_3_Dang_De");
+  XLSX.writeFile(wb, "Mau_Game_Tetris_3_Dang_Cau_Hoi.xlsx");
 }
 
 /**
@@ -2679,6 +3094,321 @@ export async function parseCaNguaFromExcel(file: File): Promise<Question[]> {
   return questions;
 }
 
+/**
+ * BỘ PARSER FILE WORD (.DOCX) CHUẨN 3 DẠNG BẢNG CHO GAME TETRIS
+ * (7 dòng MC, 9 dòng TF ghép đề thông minh, 3 dòng Short Answer)
+ */
+export async function parseTetrisFromDocx(file: File): Promise<Question[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+
+  const questions: Question[] = [];
+
+  if (html.includes('<table')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+
+    tables.forEach((table, tIdx) => {
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length < 2) return;
+
+      const blocks: Element[][] = [];
+      let curBlock: Element[] = [];
+
+      rows.forEach((row) => {
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        const col1 = cells.length > 0 ? (cells[0].textContent || '').trim().toLowerCase() : '';
+        const isStart = /^câu\s*\d+/i.test(col1) || col1.startsWith('câu');
+
+        if (isStart && curBlock.length >= 2) {
+          blocks.push(curBlock);
+          curBlock = [row];
+        } else {
+          curBlock.push(row);
+        }
+      });
+      if (curBlock.length >= 2) {
+        blocks.push(curBlock);
+      }
+
+      const effectiveBlocks = blocks.length > 0 ? blocks : [rows];
+
+      effectiveBlocks.forEach((blockRows, bIdx) => {
+        const rowCount = blockRows.length;
+        const firstRowCells = Array.from(blockRows[0].querySelectorAll('td, th'));
+        if (firstRowCells.length < 2) return;
+
+        let stem = (firstRowCells[1].textContent || '').trim();
+        let stemImg = '';
+        const imgEl = firstRowCells[1].querySelector('img');
+        if (imgEl && imgEl.getAttribute('src')) {
+          stemImg = imgEl.getAttribute('src') || '';
+        }
+
+        // Kiểm tra Dạng 3: Trả lời ngắn (3 dòng hoặc có nhãn Đáp án số / TLN)
+        const isShortAnswer = rowCount <= 4 && blockRows.some(r => {
+          const c0 = (r.querySelector('td, th')?.textContent || '').toLowerCase();
+          return c0.includes('đáp án số') || c0.includes('giá trị số') || c0.includes('số kết quả') || c0.includes('tln');
+        });
+
+        // Kiểm tra Dạng 2: Đúng / Sai 4 ý (9 dòng hoặc chứa A, B, C, D kèm Đúng/Sai)
+        const is9RowTF = !isShortAnswer && rowCount >= 5 && blockRows.some((r, idx) => {
+          if (idx === 0) return false;
+          const c = Array.from(r.querySelectorAll('td, th'));
+          const text0 = (c[0]?.textContent || '').trim().toLowerCase();
+          return text0.includes('đúng') || text0.includes('sai') || text0.startsWith('a)') || text0.startsWith('b)');
+        });
+
+        if (isShortAnswer) {
+          let ansNum = '';
+          let explanation = '';
+          blockRows.slice(1).forEach(r => {
+            const cells = Array.from(r.querySelectorAll('td, th'));
+            if (cells.length < 2) return;
+            const c0 = (cells[0].textContent || '').toLowerCase();
+            const c1 = (cells[1].textContent || '').trim();
+            if (c0.includes('đáp án') || c0.includes('giá trị') || c0.includes('kết quả')) {
+              ansNum = c1;
+            } else if (c0.includes('lời giải') || c0.includes('chi tiết')) {
+              explanation = c1;
+            }
+          });
+
+          if (ansNum) {
+            questions.push({
+              id: `tetris_short_${Date.now()}_${tIdx}_${bIdx}`,
+              question: normalizeMathFormulas(stem),
+              options: [ansNum.trim()],
+              correctIndex: 0,
+              explanation: normalizeMathFormulas(explanation),
+              difficulty: 'Trung bình',
+              topic: 'Tetris - Trả Lời Ngắn',
+              source: 'Word Import (TLN 3 dòng)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              type: 'short_answer',
+              imageUrl: stemImg || undefined
+            });
+          }
+        } else if (is9RowTF) {
+          // Bóc tách Đúng/Sai ghép đề thông minh
+          const items: { letter: string; text: string; isCorrect: boolean; explanation: string; img?: string }[] = [];
+          let curLetter = '';
+          let curText = '';
+          let curImg = '';
+
+          for (let r = 1; r < blockRows.length; r++) {
+            const cells = Array.from(blockRows[r].querySelectorAll('td, th'));
+            if (cells.length < 2) continue;
+            const c0 = (cells[0].textContent || '').trim();
+            const c1 = (cells[1].textContent || '').trim();
+            const c0Lower = c0.toLowerCase();
+            const itemImgEl = cells[1].querySelector('img');
+            const itemImg = itemImgEl ? (itemImgEl.getAttribute('src') || '') : '';
+
+            const letterMatch = c0.match(/^[a-dA-D][\)\.\:\-]?$/i);
+            const isAnsRow = c0Lower.includes('đúng') || c0Lower.includes('sai') || c0Lower.includes('true') || c0Lower.includes('false');
+
+            if (letterMatch) {
+              curLetter = letterMatch[0].replace(/[\)\.\:\-]/g, '').toUpperCase();
+              curText = c1;
+              curImg = itemImg;
+            } else if (isAnsRow || (curLetter && !isAnsRow && (c1.toLowerCase().includes('đúng') || c1.toLowerCase().includes('sai')))) {
+              const isCorrect = c0Lower.includes('đúng') || c0Lower.includes('true') || (!c0Lower.includes('sai') && c1.toLowerCase().startsWith('đúng'));
+              const exp = c1;
+              const effectiveLetter = curLetter || String.fromCharCode(65 + items.length);
+
+              items.push({
+                letter: effectiveLetter,
+                text: curText,
+                isCorrect: isCorrect,
+                explanation: exp,
+                img: curImg || stemImg
+              });
+
+              curLetter = '';
+              curText = '';
+              curImg = '';
+            } else if (!curLetter && c0Lower) {
+              const combinedMatch = c0.match(/^([a-dA-D])[\)\.\:\-]?\s*(đúng|sai)/i);
+              if (combinedMatch) {
+                const letStr = combinedMatch[1].toUpperCase();
+                const isCor = combinedMatch[2].toLowerCase() === 'đúng';
+                items.push({
+                  letter: letStr,
+                  text: c1,
+                  isCorrect: isCor,
+                  explanation: '',
+                  img: itemImg || stemImg
+                });
+              }
+            }
+          }
+
+          items.forEach((item, itemIdx) => {
+            const cleanStem = normalizeMathFormulas(stem);
+            const cleanText = normalizeMathFormulas(item.text);
+            const questionStr = `ĐÚNG HAY SAI: ${cleanStem ? cleanStem + ' ' : ''}[Ý ${item.letter}]: ${cleanText}`;
+            const cleanExp = normalizeMathFormulas(item.explanation);
+
+            questions.push({
+              id: `tetris_tf_${Date.now()}_${tIdx}_${bIdx}_${itemIdx}`,
+              question: questionStr,
+              options: ['Đúng', 'Sai'],
+              correctIndex: item.isCorrect ? 0 : 1,
+              explanation: cleanExp,
+              difficulty: itemIdx === 0 ? 'Dễ' : (itemIdx === 3 ? 'Khó' : 'Trung bình'),
+              topic: 'Tetris - Đúng/Sai 4 Ý',
+              source: 'Word Import (Đ/S 9 dòng)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              type: 'truefalse',
+              imageUrl: item.img || stemImg || undefined
+            });
+          });
+        } else if (rowCount >= 5) {
+          // Dạng 1: Trắc nghiệm ABCD 7 dòng
+          let optA = '';
+          let optB = '';
+          let optC = '';
+          let optD = '';
+          let explanation = '';
+          let answerLetter = 'A';
+
+          blockRows.slice(1).forEach((row) => {
+            const cells = Array.from(row.querySelectorAll('td, th'));
+            if (cells.length < 2) return;
+            const c0 = (cells[0].textContent || '').trim().toLowerCase();
+            const c1 = (cells[1].textContent || '').trim();
+
+            if (c0.startsWith('a') || c0 === 'a)') optA = c1;
+            else if (c0.startsWith('b') || c0 === 'b)') optB = c1;
+            else if (c0.startsWith('c') || c0 === 'c)') optC = c1;
+            else if (c0.startsWith('d') || c0 === 'd)') optD = c1;
+            else if (c0.includes('lời giải') || c0.includes('giải thích')) explanation = c1;
+            else if (c0.includes('đáp án') || c0.includes('kết quả')) {
+              const m = c1.match(/[A-D]/i);
+              if (m) answerLetter = m[0].toUpperCase();
+            }
+          });
+
+          if (optA && optB) {
+            const letIdx = ['A', 'B', 'C', 'D'].indexOf(answerLetter);
+            questions.push({
+              id: `tetris_mc_${Date.now()}_${tIdx}_${bIdx}`,
+              question: normalizeMathFormulas(stem),
+              options: [
+                normalizeMathFormulas(optA),
+                normalizeMathFormulas(optB),
+                normalizeMathFormulas(optC || 'Đáp án C'),
+                normalizeMathFormulas(optD || 'Đáp án D')
+              ],
+              correctIndex: letIdx >= 0 ? letIdx : 0,
+              explanation: normalizeMathFormulas(explanation),
+              difficulty: 'Trung bình',
+              topic: 'Tetris - Trắc Nghiệm',
+              source: 'Word Import (TN 7 dòng)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              type: 'abcd',
+              imageUrl: stemImg || undefined
+            });
+          }
+        }
+      });
+    });
+  }
+
+  if (questions.length === 0) {
+    const rawText = await extractTextFromDocx(file);
+    return parseDocumentQuestions(rawText, 'Tetris Xếp Gạch');
+  }
+
+  return questions;
+}
+
+export async function parseTetrisFromExcel(file: File): Promise<Question[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rawRows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+  const questions: Question[] = [];
+  let currentStem = '';
+  let currentType = 'MC';
+
+  for (let i = 0; i < rawRows.length; i++) {
+    const row = rawRows[i];
+    if (!row || row.length === 0) continue;
+    const col0 = String(row[0] || '').trim();
+    const col1 = String(row[1] || '').trim();
+    const col2 = String(row[2] || '').trim();
+    const col3 = String(row[3] || '').trim();
+    const col4 = String(row[4] || '').trim();
+
+    const col0Upper = col0.toUpperCase();
+    if (col0Upper === 'MC' || col0Upper === 'TF' || col0Upper === 'SHORT') {
+      currentType = col0Upper;
+    }
+
+    if (/^câu\s*\d+/i.test(col1) || col1.toLowerCase().startsWith('câu')) {
+      currentStem = col2 || col1;
+      if (currentType === 'SHORT' || col0Upper === 'SHORT' || (!col0 && col3 && !isNaN(Number(col3)))) {
+        questions.push({
+          id: `tetris_xl_short_${Date.now()}_${i}`,
+          question: normalizeMathFormulas(currentStem),
+          options: [col3.trim()],
+          correctIndex: 0,
+          explanation: normalizeMathFormulas(col4),
+          difficulty: 'Trung bình',
+          topic: 'Tetris - Trả Lời Ngắn',
+          source: 'Excel Import',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          type: 'short_answer'
+        });
+      }
+      continue;
+    }
+
+    const letterMatch = col1.match(/^[a-dA-D][\)\.\:\-]?$/i);
+    if (letterMatch && col2) {
+      const letChar = letterMatch[0].replace(/[\)\.\:\-]/g, '').toUpperCase();
+      const isTF = currentType === 'TF' || col3.toLowerCase().includes('đúng') || col3.toLowerCase().includes('sai');
+
+      if (isTF) {
+        const isCorrect = col3.toLowerCase().includes('đúng') || col3.toLowerCase().includes('true');
+        const exp = col4 || (col3.toLowerCase().includes('đúng') || col3.toLowerCase().includes('sai') ? '' : col3);
+        const qText = `ĐÚNG HAY SAI: ${currentStem ? currentStem + ' ' : ''}[Ý ${letChar}]: ${col2}`;
+
+        questions.push({
+          id: `tetris_xl_tf_${Date.now()}_${i}`,
+          question: normalizeMathFormulas(qText),
+          options: ['Đúng', 'Sai'],
+          correctIndex: isCorrect ? 0 : 1,
+          explanation: normalizeMathFormulas(exp),
+          difficulty: 'Trung bình',
+          topic: 'Tetris - Đúng/Sai',
+          source: 'Excel Import',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          type: 'truefalse'
+        });
+      }
+    }
+  }
+
+  if (questions.length === 0) {
+    const csv = XLSX.utils.sheet_to_csv(sheet);
+    return parseDocumentQuestions(csv, 'Tetris Xếp Gạch');
+  }
+
+  return questions;
+}
 
 /**
  * BỘ PARSER FILE WORD (.DOCX) CHUẨN BẢNG 7 DÒNG x 2 CỘT CHO GAME BẢO VỆ CHIẾN HÀO
@@ -4456,6 +5186,9 @@ export async function parsePikachuFromDocx(file: File): Promise<Question[]> {
             question: normalizeMathFormulas(col1),
             options: [normalizeMathFormulas(col2)],
             correctIndex: 0,
+            explanation: `Cặp nối: ${col1} <-> ${col2}`,
+            source: 'Pikachu',
+            status: 'published',
             topic: currentTopic,
             difficulty: currentDifficulty,
             type: 'MULTIPLE_CHOICE'
@@ -4492,6 +5225,9 @@ export async function parsePikachuFromDocx(file: File): Promise<Question[]> {
             question: normalizeMathFormulas(parts[0]),
             options: [normalizeMathFormulas(parts[1])],
             correctIndex: 0,
+            explanation: `Cặp nối: ${parts[0]} <-> ${parts[1]}`,
+            source: 'Pikachu',
+            status: 'published',
             topic: curTopic,
             difficulty: curDiff,
             type: 'MULTIPLE_CHOICE'
@@ -4546,6 +5282,9 @@ export async function parsePikachuFromExcel(file: File): Promise<Question[]> {
         question: normalizeMathFormulas(col2),
         options: [normalizeMathFormulas(col3)],
         correctIndex: 0,
+        explanation: `Cặp nối: ${col2} <-> ${col3}`,
+        source: 'Pikachu',
+        status: 'published',
         topic: currentTopic,
         difficulty: currentDifficulty,
         type: 'MULTIPLE_CHOICE'
@@ -4573,6 +5312,9 @@ export async function parsePikachuFromExcel(file: File): Promise<Question[]> {
         question: normalizeMathFormulas(col0),
         options: [normalizeMathFormulas(col1)],
         correctIndex: 0,
+        explanation: `Cặp nối: ${col0} <-> ${col1}`,
+        source: 'Pikachu',
+        status: 'published',
         topic: currentTopic,
         difficulty: currentDifficulty,
         type: 'MULTIPLE_CHOICE'

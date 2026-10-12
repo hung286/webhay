@@ -13,6 +13,8 @@ export interface Question {
   status: QuestionStatus;
   createdAt?: string;
   imageUrl?: string; // Link ảnh / Tên file ảnh đính kèm
+  type?: string;
+  isDisabled?: boolean;
 }
 
 export type ThemeColor = 'blue' | 'indigo' | 'emerald' | 'rose' | 'amber' | 'purple';

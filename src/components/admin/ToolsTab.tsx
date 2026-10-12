@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TeachingTool, ToolType, ToolCategory, Question, DragDropCategory } from '../../types';
+import { TeachingTool, ToolType, ToolCategory, Question, DragDropCategory, DragDropTableRow } from '../../types';
 import { getTeachingTools, saveTeachingTools } from '../../utils/storage';
 import { getToolEmbedUrl } from '../../utils/tools';
 import { GameQuestionModal } from './GameQuestionModal';

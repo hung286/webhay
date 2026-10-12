@@ -1616,7 +1616,136 @@ var questions = window.quizData;
     htmlContent = injectScriptAtTop(htmlContent, caNguaScript);
   }
 
-  // NHÓM 6: CÁC GAME CHUẨN CÒN LẠI (Cầu Cá, Rắn Săn, Tetris, Mario...)
+  // NHÓM 5c: Game Tetris Xếp Gạch (Hỗ trợ Đa Chủ Đề, 3 dạng câu hỏi ABCD, Đúng/Sai, Trả lời ngắn & In-game Editor)
+  else if (cleanUrl.includes('tetris') || cleanUrl.includes('Gametetris')) {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    const defaultTopic = gameTitle || 'Chuyên đề 1: Hai Mặt Phẳng Vuông Góc';
+
+    questions.forEach(q => {
+      const topicName = q.topic?.trim() || defaultTopic;
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      const isTF = (q.options && q.options.length === 2) || (typeof q.question === 'string' && q.question.startsWith('ĐÚNG HAY SAI:')) || (q as any).type === 'truefalse';
+      const isShort = (q.options && q.options.length === 1) || (q as any).type === 'short_answer';
+
+      topicsMap[topicName][diffKey].push({
+        id: q.id,
+        q: normalizeMathFormulas(q.question),
+        options: (q.options && q.options.length > 0) ? q.options.map(o => normalizeMathFormulas(o)) : ['A', 'B', 'C', 'D'],
+        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: normalizeMathFormulas(q.explanation || ''),
+        type: isShort ? 'short_answer' : (isTF ? 'truefalse' : 'abcd'),
+        imageUrl: q.imageUrl || ''
+      });
+    });
+
+    const tetrisScript = `
+<script>
+// [ADAPTER ENGINE: TETRIS XẾP GẠCH - DỮ LIỆU ĐÓNG GÓI, IN-GAME EDITOR & SECURITY GATE]
+window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
+window.__ADMIN_PIN__ = "2806";
+window.__INJECTED_TETRIS_DATA__ = ${JSON.stringify(topicsMap, null, 2)};
+window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_TETRIS_DATA__));
+
+(function() {
+  function syncTetrisData() {
+    if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA__).length > 0) {
+      window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_TETRIS_DATA__));
+      if (!window.selectedTopic || !window.gameDatabase[window.selectedTopic]) {
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+      }
+      if (typeof renderTetrisTopicMenuCards === 'function') {
+        renderTetrisTopicMenuCards();
+      }
+      if (typeof selectTetrisTopic === 'function') {
+        selectTetrisTopic(window.selectedTopic, false);
+      }
+    }
+  }
+
+  function applyAdminSecurity() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
+      const adminTopbar = document.getElementById('admin-topbar');
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+      if (isAdmin) {
+        if (adminTopbar) adminTopbar.style.setProperty('display', 'flex', 'important');
+        adminBtns.forEach(btn => {
+          btn.classList.remove('hidden');
+          btn.style.setProperty('display', 'inline-flex', 'important');
+        });
+      } else {
+        if (adminTopbar) adminTopbar.style.setProperty('display', 'none', 'important');
+        adminBtns.forEach(btn => {
+          btn.classList.add('hidden');
+          btn.style.setProperty('display', 'none', 'important');
+        });
+      }
+    } catch(e) {}
+  }
+
+  function setupAdminButtons() {
+    try {
+      const gearBtn = document.getElementById('btn-admin-gear');
+      if (gearBtn && !gearBtn.dataset.listenerAttached) {
+        gearBtn.dataset.listenerAttached = 'true';
+        gearBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (typeof window.openAdminPinPrompt === 'function') {
+            window.openAdminPinPrompt();
+          }
+        });
+      }
+      const topicBtn = document.getElementById('btn-chuyen-de');
+      if (topicBtn && !topicBtn.dataset.listenerAttached) {
+        topicBtn.dataset.listenerAttached = 'true';
+        topicBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (typeof window.openTetrisTopicMenu === 'function') {
+            window.openTetrisTopicMenu();
+          }
+        });
+      }
+    } catch(e) {}
+  }
+
+  function triggerMathTypeset() {
+    try {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function() {});
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      syncTetrisData();
+      applyAdminSecurity();
+      setupAdminButtons();
+      triggerMathTypeset();
+    });
+  } else {
+    syncTetrisData();
+    applyAdminSecurity();
+    setupAdminButtons();
+    triggerMathTypeset();
+  }
+  window.addEventListener('load', function() {
+    syncTetrisData();
+    applyAdminSecurity();
+    setupAdminButtons();
+    triggerMathTypeset();
+  });
+})();
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, tetrisScript);
+  }
+
+  // NHÓM 6: CÁC GAME CHUẨN CÒN LẠI (Cầu Cá, Rắn Săn, Mario...)
   else {
     const stdScript = `
 <script>

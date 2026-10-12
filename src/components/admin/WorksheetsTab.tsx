@@ -655,7 +655,7 @@ export const WorksheetsTab: React.FC<WorksheetsTabProps> = ({ onOpenPreview }) =
                   <span>{isCreatingNew ? 'Tạo Phiếu Học Tập Mới' : `Chỉnh Sửa: ${editingWs.title}`}</span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Hỗ trợ công thức Toán LaTeX/KaTeX dạng <code className="text-blue-600 font-bold">$x^2$</code> hoặc <code className="text-blue-600 font-bold">$$\frac{a}{b}$$</code>
+                  Hỗ trợ công thức Toán LaTeX/KaTeX dạng <code className="text-blue-600 font-bold">{"$x^2$"}</code> hoặc <code className="text-blue-600 font-bold">{"$$\\frac{a}{b}$$"}</code>
                 </p>
               </div>
               <button
