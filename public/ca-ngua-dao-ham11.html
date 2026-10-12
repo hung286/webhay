@@ -468,7 +468,7 @@ window.quizData = ([
                         </div>
                     ` : ''}
                     <button onclick="rollDice()" ${(state.phase !== 'playing') ? 'disabled' : ''}
-                        class="w-full py-4 rounded-xl font-black text-sm sm:text-lg tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 ${(state.phase !== 'playing') ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : `${cp.bg} text-slate-950 hover:scale-105 active:scale-95 ${cp.shadow}`}">
+                        class="w-full py-4 rounded-xl font-black text-sm sm:text-lg tracking-widest uppercase whitespace-nowrap transition-all duration-300 flex items-center justify-center gap-2 ${(state.phase !== 'playing') ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : `${cp.bg} text-slate-950 hover:scale-105 active:scale-95 ${cp.shadow}`}">
                         ${btnText}
                     </button>
                 </div>
@@ -491,20 +491,60 @@ window.quizData = ([
             return `<svg width="60" height="60" viewBox="0 0 24 24" class="bg-slate-800 rounded-xl border border-white/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.8)] ${state.phase === 'rolling' ? 'animate-[spin_0.2s_linear_infinite] scale-110' : ''}" style="border-color: ${color}60">${dots}</svg>`;
         }
 
+        // Phát hiện câu hỏi Đúng/Sai
+        function isTrueFalseQuestion(q) {
+            return q && (q.type === 'truefalse' || (typeof q.q === 'string' && q.q.startsWith('ĐÚNG HAY SAI:')));
+        }
+
         function renderModal() {
             const mc = document.getElementById('modal-container');
             if (state.phase === 'question' && state.activeQuestion) {
                 const q = state.activeQuestion;
                 const cp = state.players[state.turn];
-                
-                const gridClass = q.options.length === 2 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2';
 
+                // ── NHÁNH ĐÚNG/SAI ──
+                if (isTrueFalseQuestion(q)) {
+                    mc.innerHTML = `
+                        <div class="absolute inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+                            <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-[2.5rem] animate-fade-in"></div>
+                            <div id="q-box" class="relative z-10 w-full max-w-2xl bg-slate-900 border-2 ${cp.border} rounded-3xl p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] animate-slide-up">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-xs font-black px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 uppercase tracking-widest">Đúng hay Sai?</span>
+                                    <div class="shrink-0 ml-4 text-right">
+                                        <p class="text-xs text-slate-400 uppercase tracking-widest">Thưởng</p>
+                                        <p class="font-black text-2xl ${cp.text} animate-pulse">+${state.dice[0]} bước</p>
+                                    </div>
+                                </div>
+                                <h2 class="text-base sm:text-lg font-medium leading-relaxed mb-6">${q.q}</h2>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <button onclick="answerTrueFalse(0)"
+                                        class="w-full py-5 rounded-xl font-black text-xl tracking-widest uppercase transition-all duration-200
+                                               bg-green-600/20 border-2 border-green-500 text-green-400 hover:bg-green-500/40 active:scale-95">
+                                        ✅ ĐÚNG
+                                    </button>
+                                    <button onclick="answerTrueFalse(1)"
+                                        class="w-full py-5 rounded-xl font-black text-xl tracking-widest uppercase transition-all duration-200
+                                               bg-red-600/20 border-2 border-red-500 text-red-400 hover:bg-red-500/40 active:scale-95">
+                                        ❌ SAI
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    try {
+                        if (window.renderMathInElement) window.renderMathInElement(document.getElementById('q-box'), { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
+                    } catch(e) {}
+                    return;
+                }
+
+                // ── NHÁNH TRẮC NGHIỆM THƯỜNG ──
+                const gridClass = q.options.length === 2 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2';
                 let opts = q.options.map((opt, i) => `
                     <button onclick="answerQuestion(${i})" class="w-full text-left p-4 rounded-xl border-2 font-medium transition-all bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 active:scale-95">
                         <span class="mr-2 font-bold">${String.fromCharCode(65+i)}.</span> ${opt}
                     </button>
                 `).join('');
-                
+
                 mc.innerHTML = `
                     <div class="absolute inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
                         <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-[2.5rem] animate-fade-in"></div>
@@ -520,24 +560,55 @@ window.quizData = ([
                         </div>
                     </div>
                 `;
-                
-                // Safe Math Render
                 try {
-                    if(window.renderMathInElement) window.renderMathInElement(document.getElementById('q-box'), { delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}] });
+                    if(window.renderMathInElement) window.renderMathInElement(document.getElementById('q-box'), { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
                 } catch(e) {}
 
             } else if (state.phase === 'show_answer') {
                 const q = state.activeQuestion;
                 const cp = state.players[state.turn];
-                const gridClass = q.options.length === 2 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2';
 
+                // ── HIỆN ĐÁP ÁN ĐÚNG/SAI ──
+                if (isTrueFalseQuestion(q)) {
+                    const isCorrect = state.selectedOpt === q.correct;
+                    const ansLabel = q.correct === 0 ? 'ĐÚNG' : 'SAI';
+                    mc.innerHTML = `
+                        <div class="absolute inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pointer-events-none">
+                            <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-[2.5rem]"></div>
+                            <div id="a-box" class="relative z-10 w-full max-w-2xl bg-slate-900 border-2 ${cp.border} rounded-3xl p-6 pointer-events-auto">
+                                <h2 class="text-base sm:text-lg font-medium leading-relaxed mb-4">${q.q}</h2>
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div class="w-full py-4 rounded-xl font-black text-xl text-center border-2
+                                        ${q.correct===0 ? 'bg-green-500/20 border-green-500 text-green-400' : (state.selectedOpt===0 ? 'bg-red-500/20 border-red-500 text-red-400 opacity-60' : 'bg-slate-800/50 border-slate-700 text-slate-500 opacity-40')}">
+                                        ✅ ĐÚNG
+                                    </div>
+                                    <div class="w-full py-4 rounded-xl font-black text-xl text-center border-2
+                                        ${q.correct===1 ? 'bg-green-500/20 border-green-500 text-green-400' : (state.selectedOpt===1 ? 'bg-red-500/20 border-red-500 text-red-400 opacity-60' : 'bg-slate-800/50 border-slate-700 text-slate-500 opacity-40')}">
+                                        ❌ SAI
+                                    </div>
+                                </div>
+                                <div class="p-4 rounded-xl border ${isCorrect?'bg-green-500/10 border-green-500/30':'bg-red-500/10 border-red-500/30'}">
+                                    <p class="font-bold mb-1 ${isCorrect?'text-green-400':'text-red-400'}">${isCorrect?'🎉 CHÍNH XÁC! Bạn được quyền đi ngựa.':'💥 SAI RỒI! Mất lượt.'} <span class="text-white/60 font-normal text-sm">Đáp án: ${ansLabel}</span></p>
+                                    <p class="text-sm text-slate-300"><span class="text-yellow-400 font-bold">Giải thích:</span> ${q.explanation}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    try {
+                        if(window.renderMathInElement) window.renderMathInElement(document.getElementById('a-box'), { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
+                    } catch(e) {}
+                    return;
+                }
+
+                // ── HIỆN ĐÁP ÁN TRẮC NGHIỆM ──
+                const gridClass = q.options.length === 2 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2';
                 let opts = q.options.map((opt, i) => {
                     let cls = "bg-slate-800/50 border-slate-800 text-slate-600 opacity-50";
                     if (i === q.correct) cls = "bg-green-500/20 border-green-500 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.3)]";
                     else if (i === state.selectedOpt) cls = "bg-red-500/20 border-red-500 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.3)]";
                     return `<div class="w-full text-left p-4 rounded-xl border-2 font-medium ${cls}"><span class="mr-2 font-bold">${String.fromCharCode(65+i)}.</span> ${opt}</div>`;
                 }).join('');
-                
+
                 let isCorrect = state.selectedOpt === q.correct;
                 mc.innerHTML = `
                     <div class="absolute inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pointer-events-none">
@@ -552,14 +623,18 @@ window.quizData = ([
                         </div>
                     </div>
                 `;
-                
                 try {
-                    if(window.renderMathInElement) window.renderMathInElement(document.getElementById('a-box'), { delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}] });
+                    if(window.renderMathInElement) window.renderMathInElement(document.getElementById('a-box'), { delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}] });
                 } catch (e) {}
             } else {
                 mc.innerHTML = '';
             }
         }
+
+        // Hàm trả lời Đúng/Sai: 0 = ĐÚNG, 1 = SAI
+        window.answerTrueFalse = function(idx) {
+            answerQuestion(idx);
+        };
 
         // ==========================================
         // 5. GAME LOGIC
@@ -828,7 +903,24 @@ window.quizData = ([
 <script src="/game-engine.js"></script>
 
 <!-- BỘ SỬA CÂU HỎI TRỰC TIẾP (IN-GAME EDITOR UI) -->
-<button id="admin-gear-btn" onclick="toggleAdminModal()" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #1f2937; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">⚙️</button>
+<!-- Nút admin: chỉ hiện khi URL có ?role=admin -->
+<div id="admin-controls" style="display:none; position:fixed; top:10px; right:10px; z-index:9999; display:none; gap:8px; align-items:center;">
+    <button onclick="toggleAdminModal()" style="background:#f97316; color:white; border:none; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:900; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.4); letter-spacing:0.05em;">
+        📋 CHUYÊN ĐỀ
+    </button>
+    <button onclick="toggleAdminModal()" style="background:#2563eb; color:white; border:none; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:900; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.4);">
+        ⚙️ SỬA DỮ LIỆU
+    </button>
+</div>
+<script>
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('role') === 'admin') {
+        const ctrl = document.getElementById('admin-controls');
+        if (ctrl) { ctrl.style.display = 'flex'; }
+    }
+})();
+</script>
 <div id="admin-editor-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; overflow-y: auto; padding: 20px; font-family: sans-serif;">
     <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 8px; padding: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">

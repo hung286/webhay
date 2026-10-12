@@ -310,6 +310,76 @@ export function parseDocumentQuestions(rawText: string, defaultTopic: string = '
     }
   }
 
+  // =====================================================================
+  // KIỂM TRA DẠNG ĐÚNG/SAI 4 Ý (BẢNG 2 CỘT × 9 DÒNG)
+  // Cấu trúc mỗi câu hỏi lớn gồm 9 dòng liên tiếp:
+  //   Dòng 1  : cột 2 = lời dẫn tổng quát
+  //   Dòng 2,4,6,8: cột 2 = phát biểu A,B,C,D
+  //   Dòng 3,5,7,9: cột 1 = "đúng"/"sai" | cột 2 = giải thích
+  // =====================================================================
+  const isStandardMCQCheck = /(?:Câu\s+\d+|[0-9]{1,3}\.)[:.]?/i.test(rawText) && /[A-D][\.:\)]/i.test(rawText);
+  const hasTrueFalseKeywords = (rawText.match(/\b(đúng|sai)\b/gi) || []).length >= 3;
+  const hasTwoColSeparator = rawText.includes('\t') || rawText.includes(';') || rawText.includes('|');
+  const isTrueFalseTable = hasTrueFalseKeywords && hasTwoColSeparator && !isStandardMCQCheck;
+
+  if (isTrueFalseTable) {
+    const tfResult: Question[] = [];
+    const allRows = rawText.split(/\r?\n/).filter(r => r.trim().length > 0);
+
+    const getSep = (row: string): string => {
+      if (row.includes('\t')) return '\t';
+      if (row.includes(';')) return ';';
+      return '|';
+    };
+
+    const splitRow = (row: string): [string, string] => {
+      const sep = getSep(row);
+      const parts = row.split(sep).map(p => p.trim());
+      return [parts[0] || '', parts[1] || ''];
+    };
+
+    let i = 0;
+    while (i + 8 < allRows.length) {
+      const block9 = allRows.slice(i, i + 9);
+      const [, titleRaw] = splitRow(block9[0]);
+      const title = normalizeMathFormulas(titleRaw || block9[0].trim());
+
+      const labels = ['A', 'B', 'C', 'D'];
+      for (let s = 0; s < 4; s++) {
+        const stmtRowIdx = 1 + s * 2;
+        const ansRowIdx  = 2 + s * 2;
+        if (stmtRowIdx >= block9.length || ansRowIdx >= block9.length) break;
+
+        const [, stmtRaw] = splitRow(block9[stmtRowIdx]);
+        const [ansRaw, explRaw] = splitRow(block9[ansRowIdx]);
+
+        const statementText  = normalizeMathFormulas(stmtRaw || block9[stmtRowIdx].trim());
+        const answerText     = (ansRaw || '').toLowerCase().trim();
+        const explanationText = normalizeMathFormulas(explRaw || '');
+        const isCorrect = answerText.includes('đúng');
+
+        if (!statementText) continue;
+
+        const difficulty: Difficulty = s < 2 ? 'Dễ' : (s < 3 ? 'Trung bình' : 'Khó');
+        tfResult.push({
+          id: `tf_${Date.now()}_${i}_${s}`,
+          question: `ĐÚNG HAY SAI: ${title} → Phát biểu ${labels[s]}: ${statementText}`,
+          options: ['ĐÚNG', 'SAI'],
+          correctIndex: isCorrect ? 0 : 1,
+          explanation: explanationText || `Phát biểu ${labels[s]} là ${isCorrect ? 'ĐÚNG' : 'SAI'}.`,
+          difficulty,
+          topic: defaultTopic,
+          source: defaultTopic,
+          status: 'published',
+          createdAt: new Date().toISOString()
+        } as Question);
+      }
+      i += 9;
+    }
+
+    if (tfResult.length > 0) return tfResult;
+  }
+
   // KIỂM TRA DẠNG TRẮC NGHIỆM TIÊU CHUẨN (CÂU 1. ... A. ... B. ...)
   const isStandardMCQ = /(?:Câu\s+\d+|[0-9]{1,3}\.)[:.]?/i.test(rawText) && /[A-D][\.:\)]/i.test(rawText);
 
