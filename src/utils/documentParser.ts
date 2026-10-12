@@ -752,6 +752,144 @@ function createChienHaoQuestionTable(qNum: number, qText: string, optA: string, 
 }
 
 /**
+ * HÀM TẠO BẢNG CÂU HỎI 8 DÒNG x 2 CỘT CHO GAME BẮN CHIM
+ * Dòng 1: Câu [Số]: [Mức độ] | Nội dung câu hỏi
+ * Dòng 2, 3, 4, 5, 6: A, B, C, D, E | Nội dung 5 đáp án tương ứng 5 chú chim
+ * Dòng 7: Lời giải | Hướng dẫn giải chi tiết
+ * Dòng 8: Đáp án | Ký tự duy nhất (A, B, C, D hoặc E)
+ */
+function createBanChimQuestionTable(
+  qNum: number,
+  levelText: string,
+  qText: string,
+  optA: string,
+  optB: string,
+  optC: string,
+  optD: string,
+  optE: string,
+  exp: string,
+  ans: string
+): Table {
+  return new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: {
+      top: { style: BorderStyle.SINGLE, size: 8, color: "888888" },
+      bottom: { style: BorderStyle.SINGLE, size: 8, color: "888888" },
+      left: { style: BorderStyle.SINGLE, size: 8, color: "888888" },
+      right: { style: BorderStyle.SINGLE, size: 8, color: "888888" },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 4, color: "CCCCCC" },
+      insideVertical: { style: BorderStyle.SINGLE, size: 4, color: "CCCCCC" }
+    },
+    rows: [
+      // Dòng 1: Câu [Số]: [Mức độ] | Nội dung câu hỏi
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2200, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: `Câu ${qNum}: [${levelText}]`, bold: true, color: "000000", size: 21 })] })]
+          }),
+          new TableCell({
+            width: { size: 7800, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: qText, color: "000000", size: 21 })] })]
+          })
+        ]
+      }),
+      // Dòng 2: A | Đáp án A
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2200, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "A", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7800, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optA, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 3: B | Đáp án B
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2200, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "B", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7800, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optB, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 4: C | Đáp án C
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2200, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "C", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7800, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optC, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 5: D | Đáp án D
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2200, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "D", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7800, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optD, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 6: E | Đáp án E
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2200, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "E", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7800, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: optE, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 7: Lời giải | Hướng dẫn giải
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2200, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Lời giải", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7800, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: exp, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 8: Đáp án | Ký tự đáp án đúng
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2200, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Đáp án", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 7800, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ans, bold: true, color: "000000" })] })]
+          })
+        ]
+      })
+    ]
+  });
+}
+
+/**
  * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHUẨN BẢNG 7 DÒNG x 2 CỘT CHO GAME BẢO VỆ CHIẾN HÀO
  */
 export async function downloadChienHaoWordTemplate(): Promise<void> {
@@ -1160,10 +1298,222 @@ export async function downloadSutPenExcelTemplate(): Promise<void> {
 }
 
 /**
+ * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHUẨN BẢNG 8 DÒNG x 2 CỘT CHO GAME BẮN CHIM (3 MỨC ĐỘ ĐỘ KHÓ)
+ */
+export async function downloadBanChimWordTemplate(): Promise<void> {
+  const sectionsContent: any[] = [
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "MẪU ĐỀ GAME BẮN CHIM (CHUẨN BẢNG 8 DÒNG x 2 CỘT)",
+          bold: true,
+          size: 26,
+          color: "000000"
+        })
+      ],
+      spacing: { after: 120 }
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "Chỉ thị cấu trúc bảng: Mỗi câu hỏi tương ứng 1 bảng gồm 2 cột x 8 dòng. Dòng 1: Câu [Số]: [Mức độ] | Đề bài (chấp nhận mã TeX và Link ảnh <img>). Dòng 2, 3, 4, 5, 6: A, B, C, D, E | Nội dung 5 đáp án hiển thị trên 5 con chim. Dòng 7: Lời giải | Hướng dẫn giải chi tiết (Hiển thị khi kết thúc sớm hoặc làm sai). Dòng 8: Đáp án | Ký tự duy nhất (A, B, C, D hoặc E).",
+          size: 19,
+          color: "333333"
+        })
+      ],
+      spacing: { after: 200 }
+    }),
+
+    // HEADING LEVEL 1
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 1: MỨC ĐỘ 1 (DỄ)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    createBanChimQuestionTable(
+      1,
+      "Dễ",
+      "Gieo một con xúc xắc cân đối, đồng chất. Số phần tử của không gian mẫu \\( n(\\Omega) \\) bằng bao nhiêu?",
+      "6",
+      "1",
+      "36",
+      "12",
+      "8",
+      "Không gian mẫu khi gieo một con xúc xắc là \\( \\Omega = \\{1, 2, 3, 4, 5, 6\\} \\), do đó \\( n(\\Omega) = 6 \\).",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+    createBanChimQuestionTable(
+      2,
+      "Dễ",
+      "Gieo một con xúc xắc. Gọi A là biến cố 'Xuất hiện mặt chẵn'. Số phần tử \\( n(A) \\) bằng bao nhiêu?",
+      "3",
+      "2",
+      "4",
+      "6",
+      "1",
+      "Các mặt chẵn là \\{2, 4, 6\\}, do đó \\( n(A) = 3 \\).",
+      "A"
+    ),
+
+    // HEADING LEVEL 2
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 250, after: 120 }
+    }),
+    createBanChimQuestionTable(
+      3,
+      "Trung bình",
+      "Một hộp có 4 viên bi Xanh và 3 viên bi Đỏ. Lấy ngẫu nhiên 2 viên bi. Số phần tử của không gian mẫu \\( n(\\Omega) \\) bằng:",
+      "21",
+      "12",
+      "7",
+      "42",
+      "14",
+      "Số phần tử của không gian mẫu là \\( C_7^2 = 21 \\).",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+    createBanChimQuestionTable(
+      4,
+      "Trung bình",
+      "Một hộp có 4 viên bi Xanh và 3 viên bi Đỏ. Lấy ngẫu nhiên 2 viên bi. Xác suất để cả 2 viên bi đều là màu Xanh bằng:",
+      "2/7",
+      "1/7",
+      "4/7",
+      "3/7",
+      "5/7",
+      "Số cách chọn 2 viên bi Xanh là \\( C_4^2 = 6 \\). Xác suất bằng \\( 6/21 = 2/7 \\).",
+      "A"
+    ),
+
+    // HEADING LEVEL 3
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 3: MỨC ĐỘ 3 (KHÓ)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 250, after: 120 }
+    }),
+    createBanChimQuestionTable(
+      5,
+      "Khó",
+      "Cho hai biến cố độc lập A và B. Biết \\( P(A) = 0.4 \\) và \\( P(B) = 0.5 \\). Tính xác suất \\( P(A \\cap B) \\).",
+      "0.2",
+      "0.9",
+      "0.1",
+      "0.45",
+      "0.25",
+      "Vì A và B độc lập nên \\( P(A \\cap B) = P(A) \\cdot P(B) = 0.4 \\times 0.5 = 0.2 \\).",
+      "A"
+    )
+  ];
+
+  const doc = new Document({
+    sections: [
+      {
+        properties: {},
+        children: sectionsContent
+      }
+    ]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Mau_Ban_Chim_8_Dong.docx");
+}
+
+/**
+ * SINH VÀ TẢI FILE EXCEL (.XLSX) MẪU CHO GAME BẮN CHIM
+ */
+export async function downloadBanChimExcelTemplate(): Promise<void> {
+  const { XLSX } = await loadDocumentLibraries();
+  const headers = [
+    "Mức Độ (Level 1, Level 2, Level 3)",
+    "Nội Dung Câu Hỏi (Hỗ trợ TeX)",
+    "Link/Tên Ảnh (Tùy chọn)",
+    "Lựa Chọn A",
+    "Lựa Chọn B",
+    "Lựa Chọn C",
+    "Lựa Chọn D",
+    "Lựa Chọn E",
+    "Đáp Án Đúng (A, B, C, D hoặc E)",
+    "Lời Giải Chi Tiết"
+  ];
+
+  const sampleRows = [
+    [
+      "Level 1",
+      "Gieo một con xúc xắc. Số phần tử của không gian mẫu bằng bao nhiêu?",
+      "",
+      "6",
+      "1",
+      "36",
+      "12",
+      "8",
+      "A",
+      "Không gian mẫu gồm 6 phần tử."
+    ],
+    [
+      "Level 1",
+      "Gieo một con xúc xắc. Gọi A là biến cố 'Xuất hiện mặt chẵn'. Số phần tử n(A) bằng:",
+      "",
+      "3",
+      "2",
+      "4",
+      "6",
+      "1",
+      "A",
+      "Có 3 mặt chẵn: 2, 4, 6."
+    ],
+    [
+      "Level 2",
+      "Một hộp có 4 bi Xanh, 3 bi Đỏ. Lấy ngẫu nhiên 2 viên bi. Số phần tử n(Ω) bằng:",
+      "",
+      "21",
+      "12",
+      "7",
+      "42",
+      "14",
+      "A",
+      "C(7,2) = 21."
+    ],
+    [
+      "Level 3",
+      "Cho hai biến cố độc lập A và B có P(A)=0.4, P(B)=0.5. Tính P(A ∩ B):",
+      "",
+      "0.2",
+      "0.9",
+      "0.1",
+      "0.45",
+      "0.25",
+      "A",
+      "P(A ∩ B) = P(A)*P(B) = 0.2."
+    ]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
+  ws['!cols'] = [
+    { wch: 18 },
+    { wch: 45 },
+    { wch: 30 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 12 },
+    { wch: 45 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Mau_Ban_Chim");
+  XLSX.writeFile(wb, "Mau_Ban_Chim.xlsx");
+}
+
+/**
  * TẢI FILE MẪU THEO ĐÚNG TỪNG GAME ĐANG CHỌN (KHÔNG DÙNG CHUNG)
  */
 export async function downloadGameWordTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('ban-chim') || cleanId.includes('ban_chim') || cleanId.includes('bird')) {
+    return downloadBanChimWordTemplate();
+  }
   if (cleanId.includes('sut-pen') || cleanId.includes('sut_pen') || cleanId.includes('penalty')) {
     return downloadSutPenWordTemplate();
   }
@@ -1178,6 +1528,9 @@ export async function downloadGameWordTemplate(gameIdentifier: string): Promise<
 
 export async function downloadGameExcelTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('ban-chim') || cleanId.includes('ban_chim') || cleanId.includes('bird')) {
+    return downloadBanChimExcelTemplate();
+  }
   if (cleanId.includes('sut-pen') || cleanId.includes('sut_pen') || cleanId.includes('penalty')) {
     return downloadSutPenExcelTemplate();
   }
@@ -1651,6 +2004,259 @@ export async function parseSutPenFromExcel(file: File): Promise<Question[]> {
       difficulty: diff,
       topic: 'Sút Penalty',
       source: 'Sút Penalty',
+      status: 'published',
+      createdAt: new Date().toISOString(),
+      imageUrl: imgUrl
+    });
+  });
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE WORD (.DOCX) CHUẨN BẢNG 8 DÒNG x 2 CỘT CHO GAME BẮN CHIM
+ * Hỗ trợ nhận diện 5 đáp án A, B, C, D, E, lời giải dòng 7, đáp án đúng dòng 8
+ */
+export async function parseBanChimFromDocx(file: File): Promise<Question[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+
+  const questions: Question[] = [];
+
+  if (html.includes('<table')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+
+    let currentDifficulty: Difficulty = 'Dễ';
+
+    tables.forEach((table) => {
+      // Kiểm tra tiêu đề phía trước bảng để gán độ khó
+      let prevEl = table.previousElementSibling;
+      while (prevEl) {
+        const pText = (prevEl.textContent || '').toLowerCase();
+        if (pText.includes('mức độ 1') || pText.includes('phần 1') || pText.includes('level 1') || pText.includes('dễ')) {
+          currentDifficulty = 'Dễ'; break;
+        } else if (pText.includes('mức độ 2') || pText.includes('phần 2') || pText.includes('level 2') || pText.includes('vừa') || pText.includes('trung bình')) {
+          currentDifficulty = 'Trung bình'; break;
+        } else if (pText.includes('mức độ 3') || pText.includes('phần 3') || pText.includes('level 3') || pText.includes('khó')) {
+          currentDifficulty = 'Khó'; break;
+        }
+        prevEl = prevEl.previousElementSibling;
+      }
+
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length < 5) return;
+
+      const questionBlocks: Element[][] = [];
+      let currentBlock: Element[] = [];
+
+      rows.forEach((row) => {
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        const col1Text = cells.length > 0 ? (cells[0].textContent || '').trim().toLowerCase() : '';
+        const isQuestionStart = col1Text.startsWith('câu') || /^câu\s*\d+/i.test(col1Text);
+
+        if (isQuestionStart && currentBlock.length >= 5) {
+          questionBlocks.push(currentBlock);
+          currentBlock = [row];
+        } else {
+          currentBlock.push(row);
+        }
+      });
+      if (currentBlock.length >= 5) {
+        questionBlocks.push(currentBlock);
+      } else if (questionBlocks.length === 0 && rows.length >= 5) {
+        for (let i = 0; i < rows.length; i += 8) {
+          const chunk = rows.slice(i, i + 8);
+          if (chunk.length >= 5) questionBlocks.push(chunk);
+        }
+      }
+
+      questionBlocks.forEach((blockRows) => {
+        let qText = '';
+        let optA = '';
+        let optB = '';
+        let optC = '';
+        let optD = '';
+        let optE = '';
+        let explanation = '';
+        let answerLetter = 'A';
+        let detectedImgUrl: string | undefined = undefined;
+        let detectedDiff: Difficulty | null = null;
+
+        blockRows.forEach((row, rIdx) => {
+          const cells = Array.from(row.querySelectorAll('td, th'));
+          if (cells.length < 2) return;
+          const col1Raw = (cells[0].textContent || '').trim();
+          const col1Text = col1Raw.toLowerCase();
+          const col2Text = (cells[1].textContent || '').trim();
+
+          // Trích xuất độ khó từ Cột 1 của Dòng 1 nếu có ghi [Mức độ ...]
+          if (rIdx === 0 || col1Text.startsWith('câu')) {
+            if (col1Text.includes('mức 1') || col1Text.includes('dễ') || col1Text.includes('level 1')) detectedDiff = 'Dễ';
+            else if (col1Text.includes('mức 2') || col1Text.includes('vừa') || col1Text.includes('trung bình') || col1Text.includes('level 2')) detectedDiff = 'Trung bình';
+            else if (col1Text.includes('mức 3') || col1Text.includes('khó') || col1Text.includes('level 3')) detectedDiff = 'Khó';
+          }
+
+          // Bóc tách ảnh từ thẻ img trong HTML
+          const imgEl = cells[1].querySelector('img');
+          if (imgEl && imgEl.getAttribute('src')) {
+            detectedImgUrl = imgEl.getAttribute('src') || undefined;
+          }
+
+          if (rIdx === 0 || col1Text.startsWith('câu')) {
+            qText = col2Text;
+          } else if (col1Text === 'a' || col1Text.startsWith('a)') || col1Text.startsWith('a.') || (rIdx === 1 && !optA)) {
+            optA = col2Text;
+          } else if (col1Text === 'b' || col1Text.startsWith('b)') || col1Text.startsWith('b.') || (rIdx === 2 && !optB)) {
+            optB = col2Text;
+          } else if (col1Text === 'c' || col1Text.startsWith('c)') || col1Text.startsWith('c.') || (rIdx === 3 && !optC)) {
+            optC = col2Text;
+          } else if (col1Text === 'd' || col1Text.startsWith('d)') || col1Text.startsWith('d.') || (rIdx === 4 && !optD)) {
+            optD = col2Text;
+          } else if (col1Text === 'e' || col1Text.startsWith('e)') || col1Text.startsWith('e.') || (rIdx === 5 && !optE && !col1Text.includes('lời giải'))) {
+            optE = col2Text;
+          } else if (col1Text.includes('lời giải') || col1Text.includes('giải thích') || rIdx === 6) {
+            explanation = col2Text;
+          } else if (col1Text.includes('đáp án') || col1Text.includes('chọn') || rIdx === 7) {
+            // Dòng 8: Cột 2 ghi duy nhất chữ cái đáp án đúng (A, B, C, D hoặc E)
+            const extracted = col2Text.replace(/[^A-Ea-e]/g, '').toUpperCase().charAt(0);
+            if (extracted) answerLetter = extracted;
+          }
+        });
+
+        if (!qText) return;
+
+        // Trích xuất link ảnh từ văn bản nếu chưa có thẻ img
+        const { cleanText, imageUrl } = extractImageUrl(qText);
+        qText = cleanText;
+        if (!detectedImgUrl && imageUrl) detectedImgUrl = imageUrl;
+
+        let correctIndex = 0;
+        if (answerLetter === 'B') correctIndex = 1;
+        else if (answerLetter === 'C') correctIndex = 2;
+        else if (answerLetter === 'D') correctIndex = 3;
+        else if (answerLetter === 'E') correctIndex = 4;
+
+        const diff: Difficulty = detectedDiff || currentDifficulty || (questions.length < 5 ? 'Dễ' : (questions.length < 10 ? 'Trung bình' : 'Khó'));
+
+        questions.push({
+          id: `banchim_${Date.now()}_${questions.length + 1}`,
+          question: normalizeMathFormulas(qText),
+          options: [
+            normalizeMathFormulas(optA || 'Lựa chọn A'),
+            normalizeMathFormulas(optB || 'Lựa chọn B'),
+            normalizeMathFormulas(optC || 'Lựa chọn C'),
+            normalizeMathFormulas(optD || 'Lựa chọn D'),
+            normalizeMathFormulas(optE || 'Lựa chọn E')
+          ],
+          correctIndex,
+          explanation: normalizeMathFormulas(explanation),
+          difficulty: diff,
+          topic: 'Bắn Chim Xác Suất',
+          source: 'Bắn Chim',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          imageUrl: detectedImgUrl
+        });
+      });
+    });
+  }
+
+  if (questions.length === 0) {
+    const rawResult = await mammoth.extractRawText({ arrayBuffer });
+    return parseDocumentQuestions(rawResult.value || '', 'Bắn Chim');
+  }
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE EXCEL (.XLSX) CHO GAME BẮN CHIM (HỖ TRỢ 5 ĐÁP ÁN A, B, C, D, E)
+ */
+export async function parseBanChimFromExcel(file: File): Promise<Question[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const firstSheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rows: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+  const questions: Question[] = [];
+
+  rows.forEach((row, idx) => {
+    if (!row || row.length === 0) return;
+    const col0 = String(row[0] || '').trim();
+    const col1 = String(row[1] || '').trim();
+
+    if (idx === 0 && (col0.toLowerCase().includes('mức độ') || col1.toLowerCase().includes('nội dung'))) return;
+
+    let diff: Difficulty = 'Dễ';
+    let qText = '';
+    let imgUrl: string | undefined = undefined;
+    let optA = '';
+    let optB = '';
+    let optC = '';
+    let optD = '';
+    let optE = '';
+    let ansLetter = 'A';
+    let explanation = '';
+
+    if (row.length >= 9) {
+      const lvlStr = col0.toLowerCase();
+      if (lvlStr.includes('3') || lvlStr.includes('khó')) diff = 'Khó';
+      else if (lvlStr.includes('2') || lvlStr.includes('vừa') || lvlStr.includes('trung')) diff = 'Trung bình';
+      else diff = 'Dễ';
+
+      qText = col1;
+      imgUrl = String(row[2] || '').trim() || undefined;
+      optA = String(row[3] || '').trim();
+      optB = String(row[4] || '').trim();
+      optC = String(row[5] || '').trim();
+      optD = String(row[6] || '').trim();
+      optE = String(row[7] || '').trim();
+      ansLetter = String(row[8] || '').trim().toUpperCase().charAt(0) || 'A';
+      explanation = String(row[9] || '').trim();
+    } else if (row.length >= 7) {
+      qText = col0;
+      optA = col1;
+      optB = String(row[2] || '').trim();
+      optC = String(row[3] || '').trim();
+      optD = String(row[4] || '').trim();
+      optE = String(row[5] || '').trim();
+      ansLetter = String(row[6] || '').trim().toUpperCase().charAt(0) || 'A';
+      explanation = String(row[7] || '').trim();
+    }
+
+    if (!qText) return;
+
+    const { cleanText, imageUrl: parsedImg } = extractImageUrl(qText);
+    qText = cleanText;
+    if (!imgUrl && parsedImg) imgUrl = parsedImg;
+
+    let correctIndex = 0;
+    if (ansLetter === 'B') correctIndex = 1;
+    else if (ansLetter === 'C') correctIndex = 2;
+    else if (ansLetter === 'D') correctIndex = 3;
+    else if (ansLetter === 'E') correctIndex = 4;
+
+    questions.push({
+      id: `banchim_xl_${Date.now()}_${idx + 1}`,
+      question: normalizeMathFormulas(qText),
+      options: [
+        normalizeMathFormulas(optA || 'Lựa chọn A'),
+        normalizeMathFormulas(optB || 'Lựa chọn B'),
+        normalizeMathFormulas(optC || 'Lựa chọn C'),
+        normalizeMathFormulas(optD || 'Lựa chọn D'),
+        normalizeMathFormulas(optE || 'Lựa chọn E')
+      ],
+      correctIndex,
+      explanation: normalizeMathFormulas(explanation),
+      difficulty: diff,
+      topic: 'Bắn Chim Xác Suất',
+      source: 'Bắn Chim',
       status: 'published',
       createdAt: new Date().toISOString(),
       imageUrl: imgUrl

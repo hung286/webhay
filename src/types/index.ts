@@ -4,8 +4,8 @@ export type QuestionStatus = 'draft' | 'published';
 export interface Question {
   id: string;
   question: string;
-  options: [string, string, string, string];
-  correctIndex: number; // 0, 1, 2, 3
+  options: string[];
+  correctIndex: number; // 0, 1, 2, 3, 4
   explanation: string;
   difficulty: Difficulty;
   topic: string;

@@ -625,24 +625,137 @@ window.penaltyDatabase = JSON.parse(JSON.stringify(window.__INJECTED_PENALTY_DAT
     htmlContent = injectScriptAtTop(htmlContent, penScript);
   }
 
-  // NHÓM 4: Game Bắn Chim (questionLevels theo level 1, 2, 3 với correct & wrongs)
-  else if (cleanUrl.includes('ban-chim')) {
-    const qlObj: Record<number, any[]> = { 1: [], 2: [], 3: [] };
-    standardizedData.forEach(q => {
-      const diff = q.difficulty || 1;
-      qlObj[diff].push({
-        q: q.q,
-        correct: q.options[q.correct] || q.options[0],
-        wrongs: q.options.filter((_, idx) => idx !== q.correct),
-        explanation: q.explanation
-      });
+  // NHÓM 4: Game Bắn Chim (3 Mức Độ, 5 Phương Án A-E & Data Fallback Xác Suất 10)
+  else if (cleanUrl.includes('ban-chim') || cleanUrl.includes('bird')) {
+    let activeQuestions = [...questions];
+    if (activeQuestions.length === 0) {
+      try {
+        const ws = DEFAULT_WORKSHEETS.find(w => 
+          (w.title && (w.title.toLowerCase().includes('xác suất') || w.title.toLowerCase().includes('xac suat'))) ||
+          (w.id && (w.id.includes('xac_suat') || w.id.includes('xacsuat') || w.id.includes('10_07') || w.id.includes('10_08')))
+        ) || DEFAULT_WORKSHEETS.find(w => w.questions && w.questions.length >= 10) || DEFAULT_WORKSHEETS[0];
+        
+        if (ws && ws.questions && ws.questions.length > 0) {
+          activeQuestions = ws.questions.map((q, idx) => ({
+            id: q.id || `ws_bc_fb_${idx}`,
+            question: q.question,
+            options: q.options || ['A', 'B', 'C', 'D'],
+            correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+            explanation: q.solution || '',
+            difficulty: idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'),
+            topic: ws.title || 'Xác Suất Lớp 10'
+          } as Question));
+        }
+      } catch (e) {
+        console.warn('Lỗi lấy worksheet dự phòng cho Bắn Chim:', e);
+      }
+    }
+
+    let d1 = activeQuestions.filter(q => q.difficulty === 'Dễ');
+    let d2 = activeQuestions.filter(q => q.difficulty === 'Trung bình');
+    let d3 = activeQuestions.filter(q => q.difficulty === 'Khó');
+
+    if (d1.length === 0 && d2.length === 0 && d3.length === 0 && activeQuestions.length > 0) {
+      d1 = activeQuestions.slice(0, Math.ceil(activeQuestions.length / 3));
+      d2 = activeQuestions.slice(Math.ceil(activeQuestions.length / 3), Math.ceil((2 * activeQuestions.length) / 3));
+      d3 = activeQuestions.slice(Math.ceil((2 * activeQuestions.length) / 3));
+    }
+
+    const allPool = [...d1, ...d2, ...d3];
+    if (allPool.length > 0) {
+      while (d1.length < 5) d1.push(allPool[d1.length % allPool.length]);
+      while (d2.length < 5) d2.push(allPool[d2.length % allPool.length]);
+      while (d3.length < 5) d3.push(allPool[d3.length % allPool.length]);
+    }
+
+    const mapBirdQuestions = (list: Question[]) => list.map(q => {
+      let opts = q.options ? [...q.options] : ['A', 'B', 'C', 'D'];
+      while (opts.length < 5) {
+        opts.push(`Phương án ${String.fromCharCode(65 + opts.length)}`);
+      }
+      opts = opts.slice(0, 5).map(o => normalizeMathFormulas(o));
+      const correctIdx = (typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < opts.length) ? q.correctIndex : 0;
+      const correctText = opts[correctIdx];
+      const wrongs = opts.filter((_, i) => i !== correctIdx);
+      return {
+        q: normalizeMathFormulas(q.question),
+        options: opts,
+        correct: correctText,
+        correctIndex: correctIdx,
+        wrongs: wrongs,
+        explanation: normalizeMathFormulas(q.explanation || ''),
+        imageUrl: q.imageUrl || ''
+      };
+    });
+
+    const birdDatabase = {
+      1: mapBirdQuestions(d1),
+      2: mapBirdQuestions(d2),
+      3: mapBirdQuestions(d3)
+    };
+
+    const flatQuizData = [...d1, ...d2, ...d3].map((q, idx) => {
+      let opts = q.options ? [...q.options] : ['A', 'B', 'C', 'D'];
+      while (opts.length < 5) opts.push(`Phương án ${String.fromCharCode(65 + opts.length)}`);
+      opts = opts.slice(0, 5).map(o => normalizeMathFormulas(o));
+      return {
+        id: q.id || `bc_q_${idx}`,
+        q: normalizeMathFormulas(q.question),
+        options: opts,
+        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: normalizeMathFormulas(q.explanation || ''),
+        difficulty: q.difficulty === 'Dễ' ? 1 : (q.difficulty === 'Khó' ? 3 : 2)
+      };
     });
 
     const bcScript = `
 <script>
-// [ADAPTER ENGINE: BẮN CHIM]
-window.quizData = ${JSON.stringify(standardizedData, null, 2)};
-const questionLevels = ${JSON.stringify(qlObj, null, 2)};
+// [ADAPTER ENGINE: BẮN CHIM 3 MỨC ĐỘ, 5 PHƯƠNG ÁN & DATA FALLBACK]
+window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
+window.__ADMIN_PIN__ = "2806";
+window.__INJECTED_BIRD_DATA__ = ${JSON.stringify(birdDatabase, null, 2)};
+window.birdQuizData = JSON.parse(JSON.stringify(window.__INJECTED_BIRD_DATA__));
+window.questionLevels = JSON.parse(JSON.stringify(window.__INJECTED_BIRD_DATA__));
+window.quizData = ${JSON.stringify(flatQuizData, null, 2)};
+
+(function() {
+  function syncBirdData() {
+    if (typeof ensureBirdData === 'function') {
+      ensureBirdData();
+    }
+  }
+
+  function applyAdminSecurity() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+      adminBtns.forEach(btn => {
+        if (isAdmin) {
+          btn.classList.remove('hidden');
+          btn.style.setProperty('display', 'inline-flex', 'important');
+        } else {
+          btn.classList.add('hidden');
+          btn.style.setProperty('display', 'none', 'important');
+        }
+      });
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      syncBirdData();
+      applyAdminSecurity();
+    });
+  } else {
+    syncBirdData();
+    applyAdminSecurity();
+  }
+  window.addEventListener('load', function() {
+    syncBirdData();
+    applyAdminSecurity();
+  });
+})();
 </script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, bcScript);
