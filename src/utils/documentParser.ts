@@ -2114,10 +2114,273 @@ export async function downloadYogaExcelTemplate(): Promise<void> {
 }
 
 /**
+ * HÀM TẠO BẢNG CÂU HỎI ĐÚNG / SAI 9 DÒNG x 2 CỘT CHO GAME CỜ CÁ NGỰA (DOCX) - ĐEN TRẮNG TIÊU CHUẨN
+ * Khớp 100% cấu trúc Bảng Đúng/Sai 4 ý (Bảng 2 cột x 9 dòng)
+ */
+function createCaNguaTFQuestionTable(
+  qNum: number,
+  stem: string,
+  stmtA: string, ansA: string, expA: string,
+  stmtB: string, ansB: string, expB: string,
+  stmtC: string, ansC: string, expC: string,
+  stmtD: string, ansD: string, expD: string
+): Table {
+  return new Table({
+    width: { size: 10000, type: WidthType.DXA },
+    rows: [
+      // Dòng 1: Cột 1: Câu [N] | Cột 2: Lời dẫn / Đề bài tổng quát
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: `Câu ${qNum}`, bold: true, color: "000000", size: 21 })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stem, color: "000000", size: 21 })] })]
+          })
+        ]
+      }),
+      // Dòng 2: A) | Phát biểu A
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "A)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtA, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 3: Đúng/Sai | Lời giải chi tiết A
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ansA, bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: expA, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 4: B) | Phát biểu B
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "B)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtB, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 5: Đúng/Sai | Lời giải chi tiết B
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ansB, bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: expB, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 6: C) | Phát biểu C
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "C)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtC, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 7: Đúng/Sai | Lời giải chi tiết C
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ansC, bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: expC, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 8: D) | Phát biểu D
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "D)", bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: stmtD, color: "000000" })] })]
+          })
+        ]
+      }),
+      // Dòng 9: Đúng/Sai | Lời giải chi tiết D
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: ansD, bold: true, color: "000000" })] })]
+          }),
+          new TableCell({
+            width: { size: 8000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: expD, color: "000000" })] })]
+          })
+        ]
+      })
+    ]
+  });
+}
+
+/**
+ * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHO GAME CỜ CÁ NGỰA (CHUẨN BẢNG ĐÚNG/SAI 9 DÒNG x 2 CỘT)
+ * Định dạng văn bản đen trắng tiêu chuẩn, không tô màu nền bảng
+ */
+export async function downloadCaNguaWordTemplate(): Promise<void> {
+  const sectionsContent: any[] = [
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "MẪU ĐỀ GAME CỜ CÁ NGỰA TOÁN HỌC (CHUẨN BẢNG ĐÚNG/SAI 9 DÒNG x 2 CỘT)",
+          bold: true,
+          size: 26,
+          color: "000000"
+        })
+      ],
+      spacing: { after: 120 }
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "HƯỚNG DẪN ĐỊNH DẠNG BẢNG ĐÚNG / SAI 4 Ý (BẢNG 2 CỘT x 9 DÒNG):\n" +
+                "• Bảng tiêu chuẩn đen trắng, không tô màu nền bảng.\n" +
+                "• Dòng 1: Cột 1 ghi 'Câu [Số]' | Cột 2 ghi Lời dẫn / Đề bài tổng quát (Hỗ trợ công thức TeX: \\( ... \\) và chèn ảnh qua thẻ <img>).\n" +
+                "• Dòng 2: Cột 1 ghi 'A)' | Cột 2 ghi nội dung phát biểu của ý A.\n" +
+                "• Dòng 3: Cột 1 ghi kết quả 'Đúng' hoặc 'Sai' | Cột 2 ghi 'Lời giải' chi tiết cho riêng ý A.\n" +
+                "• Dòng 4, 5: Tương tự cho ý 'B)' và Kết quả/Lời giải của ý B.\n" +
+                "• Dòng 6, 7: Tương tự cho ý 'C)' và Kết quả/Lời giải của ý C.\n" +
+                "• Dòng 8, 9: Tương tự cho ý 'D)' và Kết quả/Lời giải của ý D.\n" +
+                "Hệ thống sẽ tự động bóc tách từng ý kết hợp lời dẫn dòng 1 để sinh các câu hỏi Đúng/Sai độc lập cho game Cờ Cá Ngựa.",
+          size: 19,
+          color: "333333"
+        })
+      ],
+      spacing: { after: 200 }
+    }),
+
+    // Bảng Câu 1
+    createCaNguaTFQuestionTable(
+      1,
+      "Cho hàm số bậc hai \\( y = -x^2 - 4x + 5 \\) có đồ thị là parabol \\( (P) \\). Xét tính Đúng/Sai của các khẳng định sau:",
+      "Trục đối xứng của parabol \\( (P) \\) là đường thẳng \\( x = -2 \\).",
+      "Đúng",
+      "Trục đối xứng là \\( x = -\\frac{b}{2a} = -\\frac{-4}{2(-1)} = -2 \\).",
+      "Tọa độ đỉnh của parabol \\( (P) \\) là \\( I(-2; 9) \\).",
+      "Đúng",
+      "Thay \\( x = -2 \\) vào hàm số: \\( y = -(-2)^2 - 4(-2) + 5 = -4 + 8 + 5 = 9 \\).",
+      "Hàm số đồng biến trên khoảng \\( (-2; +\\infty) \\).",
+      "Sai",
+      "Vì hệ số \\( a = -1 < 0 \\) nên bề lõm quay xuống dưới, hàm số đồng biến trên \\( (-\\infty; -2) \\) và nghịch biến trên \\( (-2; +\\infty) \\).",
+      "Đồ thị hàm số cắt trục hoành tại hai điểm phân biệt có tọa độ \\( (1; 0) \\) và \\( (-5; 0) \\).",
+      "Đúng",
+      "Phương trình hoành độ giao điểm: \\( -x^2 - 4x + 5 = 0 \\Leftrightarrow x = 1 \\) hoặc \\( x = -5 \\)."
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+
+    // Bảng Câu 2
+    createCaNguaTFQuestionTable(
+      2,
+      "Cho hàm số bậc ba \\( y = f(x) = x^3 - 3x^2 + 2 \\). Xét tính Đúng/Sai của các mệnh đề sau:",
+      "Đạo hàm của hàm số là \\( f'(x) = 3x^2 - 6x \\).",
+      "Đúng",
+      "Ta có \\( (x^3)' = 3x^2 \\) và \\( (-3x^2)' = -6x \\), \\( (2)' = 0 \\).",
+      "Phương trình \\( f'(x) = 0 \\) có hai nghiệm phân biệt \\( x = 0 \\) và \\( x = 2 \\).",
+      "Đúng",
+      "Giải \\( 3x^2 - 6x = 0 \\Leftrightarrow 3x(x - 2) = 0 \\Leftrightarrow x = 0 \\) hoặc \\( x = 2 \\).",
+      "Hàm số đồng biến trên khoảng \\( (0; 2) \\).",
+      "Sai",
+      "Trên khoảng \\( (0; 2) \\), \\( f'(x) < 0 \\) nên hàm số nghịch biến trên khoảng \\( (0; 2) \\).",
+      "Hệ số góc của tiếp tuyến tại điểm có hoành độ \\( x_0 = 1 \\) bằng \\( -3 \\).",
+      "Đúng",
+      "Hệ số góc tiếp tuyến là \\( k = f'(1) = 3(1)^2 - 6(1) = -3 \\)."
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+
+    // Bảng Câu 3
+    createCaNguaTFQuestionTable(
+      3,
+      "Cho hàm số phân thức \\( y = \\frac{2x + 1}{x - 1} \\). Xét tính Đúng/Sai của các mệnh đề sau:",
+      "Tập xác định của hàm số là \\( D = \\mathbb{R} \\setminus \\{1\\} \\).",
+      "Đúng",
+      "Điều kiện xác định: mẫu số \\( x - 1 \\neq 0 \\Leftrightarrow x \\neq 1 \\).",
+      "Đạo hàm của hàm số là \\( y' = \\frac{-3}{(x - 1)^2} \\).",
+      "Đúng",
+      "Áp dụng công thức: \\( y' = \\frac{2(-1) - 1(1)}{(x-1)^2} = \\frac{-3}{(x-1)^2} \\).",
+      "Hàm số đồng biến trên từng khoảng xác định.",
+      "Sai",
+      "Vì \\( y' = \\frac{-3}{(x - 1)^2} < 0 \\) với mọi \\( x \\neq 1 \\) nên hàm số nghịch biến trên từng khoảng xác định.",
+      "Tiệm cận đứng là đường thẳng \\( x = 1 \\) và tiệm cận ngang là đường thẳng \\( y = 2 \\).",
+      "Đúng",
+      "Ta có \\( \\lim_{x \\to 1^+} y = +\\infty \\Rightarrow x = 1 \\) là TCĐ; \\( \\lim_{x \\to \\pm\\infty} y = 2 \\Rightarrow y = 2 \\) là TCN."
+    )
+  ];
+
+  const doc = new Document({
+    sections: [{ properties: {}, children: sectionsContent }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Mau_Game_Co_Ca_Ngua_Bang_Dung_Sai_9_Dong.docx");
+}
+
+export async function downloadCaNguaExcelTemplate(): Promise<void> {
+  const { XLSX } = await loadDocumentLibraries();
+  const rows = [
+    ["Cột 1: Câu / Ý", "Cột 2: Nội dung phát biểu / Lời dẫn", "Cột 3: Kết quả Đúng / Sai", "Cột 4: Lời giải chi tiết"],
+    ["Câu 1", "Cho hàm số y = -x^2 - 4x + 5. Xét tính Đúng/Sai của các mệnh đề sau:", "", ""],
+    ["A)", "Trục đối xứng của parabol là đường thẳng x = -2.", "Đúng", "x = -b/(2a) = -2."],
+    ["B)", "Tọa độ đỉnh của parabol là I(-2; 9).", "Đúng", "Thay x = -2 vào y = 9."],
+    ["C)", "Hàm số đồng biến trên khoảng (-2; +\\infty).", "Sai", "a = -1 < 0 nên nghịch biến trên (-2; +\\infty)."],
+    ["D)", "Đồ thị cắt trục hoành tại hai điểm (1; 0) và (-5; 0).", "Đúng", "-x^2 - 4x + 5 = 0 <=> x = 1 hoặc x = -5."],
+    ["Câu 2", "Cho hàm số y = x^3 - 3x^2 + 2. Xét tính Đúng/Sai:", "", ""],
+    ["A)", "Đạo hàm là f'(x) = 3x^2 - 6x.", "Đúng", "(x^3)' = 3x^2, (-3x^2)' = -6x."],
+    ["B)", "f'(x) = 0 có hai nghiệm phân biệt x = 0 và x = 2.", "Đúng", "3x(x - 2) = 0 <=> x = 0 hoặc x = 2."],
+    ["C)", "Hàm số đồng biến trên khoảng (0; 2).", "Sai", "f'(x) < 0 trên (0; 2) nên hàm số nghịch biến."],
+    ["D)", "Hệ số góc tiếp tuyến tại x0 = 1 bằng -3.", "Đúng", "k = f'(1) = 3(1)^2 - 6(1) = -3."]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{ wch: 15 }, { wch: 50 }, { wch: 25 }, { wch: 45 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Co_Ca_Ngua_9_Dong");
+  XLSX.writeFile(wb, "Mau_Game_Co_Ca_Ngua_Bang_Dung_Sai_9_Dong.xlsx");
+}
+
+/**
  * TẢI FILE MẪU THEO ĐÚNG TỪNG GAME ĐANG CHỌN (KHÔNG DÙNG CHUNG)
  */
 export async function downloadGameWordTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('ca-ngua') || cleanId.includes('ca_ngua') || cleanId.includes('ngua')) {
+    return downloadCaNguaWordTemplate();
+  }
   if (cleanId.includes('pikachu') || cleanId.includes('pika')) {
     return downloadPikachuWordTemplate();
   }
@@ -2141,6 +2404,9 @@ export async function downloadGameWordTemplate(gameIdentifier: string): Promise<
 
 export async function downloadGameExcelTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('ca-ngua') || cleanId.includes('ca_ngua') || cleanId.includes('ngua')) {
+    return downloadCaNguaExcelTemplate();
+  }
   if (cleanId.includes('pikachu') || cleanId.includes('pika')) {
     return downloadPikachuExcelTemplate();
   }
@@ -2160,6 +2426,257 @@ export async function downloadGameExcelTemplate(gameIdentifier: string): Promise
     return downloadExcelTemplate();
   }
   return downloadChienHaoExcelTemplate();
+}
+
+/**
+ * BỘ PARSER FILE WORD (.DOCX) CHUẨN BẢNG ĐÚNG/SAI 9 DÒNG x 2 CỘT CHO GAME CỜ CÁ NGỰA
+ * Trích xuất lời dẫn dòng 1 kết hợp từng ý dòng 2,4,6,8 kèm kết quả dòng 3,5,7,9 để sinh câu hỏi Đúng/Sai độc lập
+ */
+export async function parseCaNguaFromDocx(file: File): Promise<Question[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+
+  const questions: Question[] = [];
+
+  if (html.includes('<table')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+
+    tables.forEach((table, tIdx) => {
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length < 3) return;
+
+      const blocks: Element[][] = [];
+      let curBlock: Element[] = [];
+
+      rows.forEach((row) => {
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        const col1 = cells.length > 0 ? (cells[0].textContent || '').trim().toLowerCase() : '';
+        const isStart = /^câu\s*\d+/i.test(col1) || col1.startsWith('câu');
+
+        if (isStart && curBlock.length >= 3) {
+          blocks.push(curBlock);
+          curBlock = [row];
+        } else {
+          curBlock.push(row);
+        }
+      });
+      if (curBlock.length >= 3) {
+        blocks.push(curBlock);
+      } else if (blocks.length === 0 && rows.length >= 9) {
+        for (let i = 0; i < rows.length; i += 9) {
+          const chunk = rows.slice(i, i + 9);
+          if (chunk.length >= 3) blocks.push(chunk);
+        }
+      }
+
+      blocks.forEach((blockRows, bIdx) => {
+        const rowCount = blockRows.length;
+        const firstRowCells = Array.from(blockRows[0].querySelectorAll('td, th'));
+        if (firstRowCells.length < 2) return;
+
+        let stem = (firstRowCells[1].textContent || '').trim();
+        let stemImg = '';
+        const imgEl = firstRowCells[1].querySelector('img');
+        if (imgEl && imgEl.getAttribute('src')) {
+          stemImg = imgEl.getAttribute('src') || '';
+        }
+
+        const is9RowFormat = rowCount >= 5 && blockRows.some((r, idx) => {
+          if (idx === 0) return false;
+          const c = Array.from(r.querySelectorAll('td, th'));
+          const text0 = (c[0]?.textContent || '').trim().toLowerCase();
+          return text0.includes('đúng') || text0.includes('sai') || text0.startsWith('a)') || text0.startsWith('b)');
+        });
+
+        if (is9RowFormat) {
+          const items: { letter: string; text: string; isCorrect: boolean; explanation: string; img?: string }[] = [];
+          
+          let curLetter = '';
+          let curText = '';
+          let curImg = '';
+
+          for (let r = 1; r < blockRows.length; r++) {
+            const cells = Array.from(blockRows[r].querySelectorAll('td, th'));
+            if (cells.length < 2) continue;
+            const c0 = (cells[0].textContent || '').trim();
+            const c1 = (cells[1].textContent || '').trim();
+            const c0Lower = c0.toLowerCase();
+            const itemImgEl = cells[1].querySelector('img');
+            const itemImg = itemImgEl ? (itemImgEl.getAttribute('src') || '') : '';
+
+            const letterMatch = c0.match(/^[a-dA-D][\)\.\:\-]?$/i);
+            const isAnsRow = c0Lower.includes('đúng') || c0Lower.includes('sai') || c0Lower.includes('true') || c0Lower.includes('false');
+
+            if (letterMatch) {
+              curLetter = letterMatch[0].replace(/[\)\.\:\-]/g, '').toUpperCase();
+              curText = c1;
+              curImg = itemImg;
+            } else if (isAnsRow || (curLetter && !isAnsRow && (c1.toLowerCase().includes('đúng') || c1.toLowerCase().includes('sai')))) {
+              const isCorrect = c0Lower.includes('đúng') || c0Lower.includes('true') || (!c0Lower.includes('sai') && c1.toLowerCase().startsWith('đúng'));
+              const exp = c1;
+              const effectiveLetter = curLetter || String.fromCharCode(65 + items.length);
+
+              items.push({
+                letter: effectiveLetter,
+                text: curText,
+                isCorrect: isCorrect,
+                explanation: exp,
+                img: curImg || stemImg
+              });
+
+              curLetter = '';
+              curText = '';
+              curImg = '';
+            } else if (!curLetter && c0Lower) {
+              const combinedMatch = c0.match(/^([a-dA-D])[\)\.\:\-]?\s*(đúng|sai)/i);
+              if (combinedMatch) {
+                const letStr = combinedMatch[1].toUpperCase();
+                const isCor = combinedMatch[2].toLowerCase() === 'đúng';
+                items.push({
+                  letter: letStr,
+                  text: c1,
+                  isCorrect: isCor,
+                  explanation: '',
+                  img: itemImg || stemImg
+                });
+              }
+            }
+          }
+
+          items.forEach((item, itemIdx) => {
+            const cleanStem = normalizeMathFormulas(stem);
+            const cleanText = normalizeMathFormulas(item.text);
+            const questionStr = `ĐÚNG HAY SAI: ${cleanStem ? cleanStem + ' ' : ''}[Ý ${item.letter}]: ${cleanText}`;
+            const cleanExp = normalizeMathFormulas(item.explanation);
+
+            questions.push({
+              id: `cn_docx_${Date.now()}_${bIdx}_${itemIdx}`,
+              question: questionStr,
+              options: ['Đúng', 'Sai'],
+              correctIndex: item.isCorrect ? 0 : 1,
+              explanation: cleanExp,
+              difficulty: itemIdx === 0 ? 'Dễ' : (itemIdx === 3 ? 'Khó' : 'Trung bình'),
+              topic: 'Cờ Cá Ngựa - Đúng/Sai 4 Ý',
+              source: 'Word Import (9 dòng)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              imageUrl: item.img || stemImg || undefined
+            });
+          });
+        } else if (rowCount >= 6) {
+          let optA = '';
+          let optB = '';
+          let optC = '';
+          let optD = '';
+          let explanation = '';
+          let answerLetter = 'A';
+
+          blockRows.slice(1).forEach((row) => {
+            const cells = Array.from(row.querySelectorAll('td, th'));
+            if (cells.length < 2) return;
+            const c0 = (cells[0].textContent || '').trim().toLowerCase();
+            const c1 = (cells[1].textContent || '').trim();
+
+            if (c0.startsWith('a') || c0 === 'a)') optA = c1;
+            else if (c0.startsWith('b') || c0 === 'b)') optB = c1;
+            else if (c0.startsWith('c') || c0 === 'c)') optC = c1;
+            else if (c0.startsWith('d') || c0 === 'd)') optD = c1;
+            else if (c0.includes('lời giải') || c0.includes('giải thích')) explanation = c1;
+            else if (c0.includes('đáp án') || c0.includes('kết quả')) {
+              const m = c1.match(/[A-D]/i);
+              if (m) answerLetter = m[0].toUpperCase();
+            }
+          });
+
+          if (optA && optB) {
+            const letIdx = ['A', 'B', 'C', 'D'].indexOf(answerLetter);
+            questions.push({
+              id: `cn_docx_mc_${Date.now()}_${bIdx}`,
+              question: normalizeMathFormulas(stem),
+              options: [
+                normalizeMathFormulas(optA),
+                normalizeMathFormulas(optB),
+                normalizeMathFormulas(optC || 'Đáp án C'),
+                normalizeMathFormulas(optD || 'Đáp án D')
+              ],
+              correctIndex: letIdx >= 0 ? letIdx : 0,
+              explanation: normalizeMathFormulas(explanation),
+              difficulty: 'Trung bình',
+              topic: 'Cờ Cá Ngựa - Trắc Nghiệm',
+              source: 'Word Import (Trắc nghiệm)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              imageUrl: stemImg || undefined
+            });
+          }
+        }
+      });
+    });
+  }
+
+  if (questions.length === 0) {
+    const rawText = await extractTextFromDocx(file);
+    return parseDocumentQuestions(rawText, 'Cờ Cá Ngựa');
+  }
+
+  return questions;
+}
+
+export async function parseCaNguaFromExcel(file: File): Promise<Question[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rawRows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+  const questions: Question[] = [];
+  let currentStem = '';
+
+  for (let i = 0; i < rawRows.length; i++) {
+    const row = rawRows[i];
+    if (!row || row.length === 0) continue;
+    const col0 = String(row[0] || '').trim();
+    const col1 = String(row[1] || '').trim();
+    const col2 = String(row[2] || '').trim();
+    const col3 = String(row[3] || '').trim();
+
+    if (/^câu\s*\d+/i.test(col0) || col0.toLowerCase().startsWith('câu')) {
+      currentStem = col1 || col0;
+      continue;
+    }
+
+    const letterMatch = col0.match(/^[a-dA-D][\)\.\:\-]?$/i);
+    if (letterMatch && col1) {
+      const letChar = letterMatch[0].replace(/[\)\.\:\-]/g, '').toUpperCase();
+      const isCorrect = col2.toLowerCase().includes('đúng') || col2.toLowerCase().includes('true');
+      const exp = col3 || (col2.toLowerCase().includes('đúng') || col2.toLowerCase().includes('sai') ? '' : col2);
+
+      const qText = `ĐÚNG HAY SAI: ${currentStem ? currentStem + ' ' : ''}[Ý ${letChar}]: ${col1}`;
+      questions.push({
+        id: `cn_xlsx_${Date.now()}_${i}`,
+        question: normalizeMathFormulas(qText),
+        options: ['Đúng', 'Sai'],
+        correctIndex: isCorrect ? 0 : 1,
+        explanation: normalizeMathFormulas(exp),
+        difficulty: 'Trung bình',
+        topic: 'Cờ Cá Ngựa - Đúng/Sai',
+        source: 'Excel Import',
+        status: 'published',
+        createdAt: new Date().toISOString()
+      });
+    }
+  }
+
+  if (questions.length === 0) {
+    const csv = XLSX.utils.sheet_to_csv(sheet);
+    return parseDocumentQuestions(csv, 'Cờ Cá Ngựa');
+  }
+
+  return questions;
 }
 
 

@@ -1496,7 +1496,127 @@ window.yogaQuizData = JSON.parse(JSON.stringify(window.__INJECTED_YOGA_DATA__));
     htmlContent = injectScriptAtTop(htmlContent, yogaScript);
   }
 
-  // NHÓM 6: CÁC GAME CHUẨN CÒN LẠI (Cá Ngựa, Cầu Cá, Rắn Săn, Tetris, Mario...)
+  // NHÓM 5b: Game Cờ Cá Ngựa (cấu trúc Đa Câu Hỏi ABCD & Đúng/Sai 4 ý)
+  else if (cleanUrl.includes('ca-ngua') || cleanUrl.includes('ca_ngua') || cleanUrl.includes('ngua')) {
+    const formattedQuestions = questions.map((q, idx) => {
+      const isTF = (q.options && q.options.length === 2) || (typeof q.question === 'string' && q.question.startsWith('ĐÚNG HAY SAI:'));
+      return {
+        id: q.id || `cn_q_${idx + 1}`,
+        q: normalizeMathFormulas(q.question),
+        options: (q.options && q.options.length > 0) ? q.options.map(o => normalizeMathFormulas(o)) : ['Đúng', 'Sai'],
+        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: normalizeMathFormulas(q.explanation || ''),
+        difficulty: q.difficulty === 'Dễ' ? 1 : (q.difficulty === 'Khó' ? 3 : 2),
+        type: isTF ? 'truefalse' : 'abcd',
+        imageUrl: q.imageUrl || ''
+      };
+    });
+
+    const caNguaScript = `
+<script>
+// [ADAPTER ENGINE: CỜ CÁ NGỰA - DỮ LIỆU ĐÓNG GÓI & SECURITY GATE]
+window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
+window.__ADMIN_PIN__ = "2806";
+window.__INJECTED_CANGUA_DATA__ = ${JSON.stringify(formattedQuestions, null, 2)};
+window.quizData = JSON.parse(JSON.stringify(window.__INJECTED_CANGUA_DATA__));
+var QUESTION_BANK = window.quizData;
+var questions = window.quizData;
+
+(function() {
+  function syncCaNguaData() {
+    if (window.__INJECTED_CANGUA_DATA__ && window.__INJECTED_CANGUA_DATA__.length > 0) {
+      window.quizData = JSON.parse(JSON.stringify(window.__INJECTED_CANGUA_DATA__));
+      if (typeof QUESTION_BANK !== 'undefined') {
+        QUESTION_BANK = window.quizData;
+      }
+    }
+  }
+
+  function applyAdminSecurity() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
+      const adminTopbar = document.getElementById('admin-topbar');
+      const adminControls = document.getElementById('admin-controls');
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+      if (isAdmin) {
+        if (adminTopbar) adminTopbar.style.setProperty('display', 'flex', 'important');
+        if (adminControls) adminControls.style.setProperty('display', 'flex', 'important');
+        adminBtns.forEach(btn => {
+          btn.classList.remove('hidden');
+          btn.style.setProperty('display', 'inline-flex', 'important');
+        });
+      } else {
+        if (adminTopbar) adminTopbar.style.setProperty('display', 'none', 'important');
+        if (adminControls) adminControls.style.setProperty('display', 'none', 'important');
+        adminBtns.forEach(btn => {
+          btn.classList.add('hidden');
+          btn.style.setProperty('display', 'none', 'important');
+        });
+      }
+    } catch(e) {}
+  }
+
+  function setupAdminButtons() {
+    try {
+      const gearBtn = document.getElementById('btn-admin-gear');
+      if (gearBtn && !gearBtn.dataset.listenerAttached) {
+        gearBtn.dataset.listenerAttached = 'true';
+        gearBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (typeof window.openAdminPinPrompt === 'function') {
+            window.openAdminPinPrompt();
+          } else if (typeof window.toggleAdminModal === 'function') {
+            window.toggleAdminModal();
+          }
+        });
+      }
+    } catch(e) {}
+  }
+
+  function triggerMathTypeset() {
+    try {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function() {});
+      } else if (typeof window.renderMathInElement === 'function') {
+        window.renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\\\(", right: "\\\\)", display: false },
+            { left: "\\\\[", right: "\\\\]", display: true }
+          ]
+        });
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      syncCaNguaData();
+      applyAdminSecurity();
+      setupAdminButtons();
+      triggerMathTypeset();
+    });
+  } else {
+    syncCaNguaData();
+    applyAdminSecurity();
+    setupAdminButtons();
+    triggerMathTypeset();
+  }
+  window.addEventListener('load', function() {
+    syncCaNguaData();
+    applyAdminSecurity();
+    setupAdminButtons();
+    triggerMathTypeset();
+  });
+})();
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, caNguaScript);
+  }
+
+  // NHÓM 6: CÁC GAME CHUẨN CÒN LẠI (Cầu Cá, Rắn Săn, Tetris, Mario...)
   else {
     const stdScript = `
 <script>

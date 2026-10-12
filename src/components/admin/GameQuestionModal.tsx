@@ -21,11 +21,15 @@ import {
   parseYogaFromExcel,
   parsePikachuFromDocx,
   parsePikachuFromExcel,
+  parseCaNguaFromDocx,
+  parseCaNguaFromExcel,
   normalizeMathFormulas, 
   downloadWordTemplate, 
   downloadExcelTemplate,
   downloadGameWordTemplate,
   downloadGameExcelTemplate,
+  downloadCaNguaWordTemplate,
+  downloadCaNguaExcelTemplate,
   downloadPikachuWordTemplate,
   downloadPikachuExcelTemplate
 } from '../../utils/documentParser';
@@ -74,18 +78,20 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [isParsingDoc, setIsParsingDoc] = useState(false);
 
-  // Nhận diện chế độ Kéo Thả, Bảo Vệ Chiến Hào, Sút Penalty, Bắn Chim, Yoga Vận Động & Pikachu
+  // Nhận diện chế độ Kéo Thả, Bảo Vệ Chiến Hào, Sút Penalty, Bắn Chim, Yoga Vận Động, Pikachu & Cờ Cá Ngựa
   const isDragDropMode = selectedTemplateUrl.includes('keo-tha');
   const isChienHaoMode = selectedTemplateUrl.includes('chien-hao') || selectedTemplateUrl.includes('Bao-ve-chien-hao');
   const isSutPenMode = selectedTemplateUrl.includes('sut-pen') || selectedTemplateUrl.includes('penalty');
   const isBanChimMode = selectedTemplateUrl.includes('ban-chim') || selectedTemplateUrl.includes('bird');
   const isYogaMode = selectedTemplateUrl.includes('yoga');
   const isPikachuMode = selectedTemplateUrl.includes('pikachu');
+  const isCaNguaMode = selectedTemplateUrl.includes('ca-ngua') || selectedTemplateUrl.includes('ca_ngua') || selectedTemplateUrl.includes('ngua');
   const [chienHaoLevelFilter, setChienHaoLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [sutPenLevelFilter, setSutPenLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [banChimLevelFilter, setBanChimLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [yogaFilter, setYogaFilter] = useState<'ALL' | 'MC' | 'TF' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [pikachuLevelFilter, setPikachuLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
+  const [caNguaFilter, setCaNguaFilter] = useState<'ALL' | 'MC' | 'TF' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
 
   const chienHaoCounts = useMemo(() => {
     return {
@@ -121,6 +127,16 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
     };
   }, [questions]);
 
+  const caNguaCounts = useMemo(() => {
+    return {
+      mc: questions.filter(q => (q.options || []).length > 2 && !q.question.startsWith('ĐÚNG HAY SAI:')).length,
+      tf: questions.filter(q => (q.options || []).length === 2 || q.question.startsWith('ĐÚNG HAY SAI:')).length,
+      easy: questions.filter(q => q.difficulty === 'Dễ').length,
+      medium: questions.filter(q => q.difficulty === 'Trung bình').length,
+      hard: questions.filter(q => q.difficulty === 'Khó').length
+    };
+  }, [questions]);
+
   const displayedQuestions = useMemo(() => {
     if (isChienHaoMode && chienHaoLevelFilter !== 'ALL') {
       return questions.filter(q => q.difficulty === chienHaoLevelFilter);
@@ -139,8 +155,13 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
     if (isPikachuMode && pikachuLevelFilter !== 'ALL') {
       return questions.filter(q => q.difficulty === pikachuLevelFilter);
     }
+    if (isCaNguaMode && caNguaFilter !== 'ALL') {
+      if (caNguaFilter === 'MC') return questions.filter(q => (q.options || []).length > 2 && !q.question.startsWith('ĐÚNG HAY SAI:'));
+      if (caNguaFilter === 'TF') return questions.filter(q => (q.options || []).length === 2 || q.question.startsWith('ĐÚNG HAY SAI:'));
+      return questions.filter(q => q.difficulty === caNguaFilter);
+    }
     return questions;
-  }, [questions, isChienHaoMode, chienHaoLevelFilter, isSutPenMode, sutPenLevelFilter, isBanChimMode, banChimLevelFilter, isYogaMode, yogaFilter, isPikachuMode, pikachuLevelFilter]);
+  }, [questions, isChienHaoMode, chienHaoLevelFilter, isSutPenMode, sutPenLevelFilter, isBanChimMode, banChimLevelFilter, isYogaMode, yogaFilter, isPikachuMode, pikachuLevelFilter, isCaNguaMode, caNguaFilter]);
 
   // Quản lý Bảng Phân Cấp Đa Chuyên Đề & Đa Cấp Độ (Hierarchical Table View)
   const [tableRows, setTableRows] = useState<DragDropTableRow[]>(() => {
@@ -617,7 +638,23 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         }
         setQuestions(prev => [...prev, ...parsedQuestions]);
         soundFx.playCorrect();
-        alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CẶP NỐI GAME PIKACHU TỪ FILE:\n"${file.name}"!`);
+      } else if (isCaNguaMode) {
+        let parsedQuestions: Question[] = [];
+        if (ext === 'docx') {
+          parsedQuestions = await parseCaNguaFromDocx(file);
+        } else if (ext === 'xlsx' || ext === 'xls') {
+          parsedQuestions = await parseCaNguaFromExcel(file);
+        } else {
+          const rawText = await file.text();
+          parsedQuestions = parseDocumentQuestions(rawText, gameTitle);
+        }
+
+        if (parsedQuestions.length === 0) {
+          throw new Error('Không bóc tách được câu hỏi từ bảng 9 dòng x 2 cột của file. Vui lòng tải file mẫu để kiểm tra.');
+        }
+        setQuestions(prev => [...prev, ...parsedQuestions]);
+        soundFx.playCorrect();
+        alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI GAME CỜ CÁ NGỰA TỪ FILE:\n"${file.name}"!\nBao gồm cả các câu Đúng/Sai 4 ý và Trắc nghiệm ABCD.`);
       } else {
         let rawText = '';
         if (ext === 'docx') {
@@ -1713,6 +1750,84 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                 </div>
               )}
 
+              {isCaNguaMode && (
+                <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 shadow-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
+                      <span className="font-black text-xs sm:text-sm text-slate-800 uppercase tracking-wide">
+                        BỘ LỌC DẠNG CÂU & ĐỘ KHÓ GAME CỜ CÁ NGỰA
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                      🎲 Hỗ trợ Trắc nghiệm ABCD & Bảng Đúng / Sai (4 ý - 9 dòng)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                    <button
+                      onClick={() => { setCaNguaFilter('ALL'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition shrink-0 cursor-pointer ${
+                        caNguaFilter === 'ALL'
+                          ? 'bg-slate-900 text-white shadow-sm'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      Tất cả ({questions.length} câu)
+                    </button>
+                    <button
+                      onClick={() => { setCaNguaFilter('MC'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        caNguaFilter === 'MC'
+                          ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200 font-black'
+                          : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200'
+                      }`}
+                    >
+                      <span>🎯 CÂU HỎI TRẮC NGHIỆM ABCD ({caNguaCounts.mc})</span>
+                    </button>
+                    <button
+                      onClick={() => { setCaNguaFilter('TF'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        caNguaFilter === 'TF'
+                          ? 'bg-blue-600 text-white shadow-sm shadow-blue-200 font-black'
+                          : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200'
+                      }`}
+                    >
+                      <span>✅ CÂU HỎI ĐÚNG SAI (4 Ý) ({caNguaCounts.tf})</span>
+                    </button>
+                    <button
+                      onClick={() => { setCaNguaFilter('Dễ'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        caNguaFilter === 'Dễ'
+                          ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-200 font-black'
+                          : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                      }`}
+                    >
+                      <span>🟢 Dễ ({caNguaCounts.easy})</span>
+                    </button>
+                    <button
+                      onClick={() => { setCaNguaFilter('Trung bình'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        caNguaFilter === 'Trung bình'
+                          ? 'bg-amber-600 text-white shadow-sm shadow-amber-200 font-black'
+                          : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200'
+                      }`}
+                    >
+                      <span>🟡 Vừa ({caNguaCounts.medium})</span>
+                    </button>
+                    <button
+                      onClick={() => { setCaNguaFilter('Khó'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        caNguaFilter === 'Khó'
+                          ? 'bg-rose-600 text-white shadow-sm shadow-rose-200 font-black'
+                          : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+                      }`}
+                    >
+                      <span>🔴 Khó ({caNguaCounts.hard})</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {isPikachuMode && (
                 <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 shadow-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 pb-2.5">
@@ -1938,6 +2053,10 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
             ) : isBanChimMode ? (
               <>
                 Bắn Chim Xác Suất: <span className="text-emerald-600 font-bold">{banChimCounts.easy} Dễ</span> | <span className="text-amber-600 font-bold">{banChimCounts.medium} Vừa</span> | <span className="text-rose-600 font-bold">{banChimCounts.hard} Khó</span> (Tổng: <span className="text-violet-700 font-black">{questions.length}</span> câu hỏi)
+              </>
+            ) : isCaNguaMode ? (
+              <>
+                🎲 Cờ Cá Ngựa: <span className="text-indigo-600 font-bold">{caNguaCounts.mc} Trắc nghiệm ABCD</span> | <span className="text-blue-600 font-bold">{caNguaCounts.tf} Đúng/Sai (4 ý)</span> (Tổng: <span className="text-violet-700 font-black">{questions.length}</span> câu hỏi)
               </>
             ) : (
               <>Tổng cộng: <span className="text-violet-700 text-sm font-black">{questions.length}</span> câu hỏi đã cấu hình</>
