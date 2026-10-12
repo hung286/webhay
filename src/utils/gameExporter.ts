@@ -1617,11 +1617,36 @@ var questions = window.quizData;
   }
 
   // NHÓM 5c: Game Tetris Xếp Gạch (Hỗ trợ Đa Chủ Đề, 3 dạng câu hỏi ABCD, Đúng/Sai, Trả lời ngắn & In-game Editor)
+  // NHÓM 5c: Game Tetris Xếp Gạch (Hỗ trợ Đa Chủ Đề, 3 dạng câu hỏi ABCD, Đúng/Sai, Trả lời ngắn, Fallback Data & In-game Editor)
   else if (cleanUrl.includes('tetris') || cleanUrl.includes('Gametetris')) {
-    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
-    const defaultTopic = gameTitle || 'Chuyên đề 1: Hai Mặt Phẳng Vuông Góc';
+    let activeQuestions = [...questions];
+    if (activeQuestions.length === 0) {
+      try {
+        const ws = DEFAULT_WORKSHEETS.find(w => 
+          (w.title && (w.title.toLowerCase().includes('vuông góc') || w.title.toLowerCase().includes('hình học') || w.title.toLowerCase().includes('tetris'))) ||
+          (w.id && (w.id.includes('hinh_hoc') || w.id.includes('11_') || w.id.includes('tetris')))
+        ) || DEFAULT_WORKSHEETS.find(w => w.questions && w.questions.length >= 10) || DEFAULT_WORKSHEETS[0];
+        
+        if (ws && ws.questions && ws.questions.length > 0) {
+          activeQuestions = ws.questions.map((q, idx) => ({
+            id: q.id || `ws_tetris_fb_${idx}`,
+            question: q.question,
+            options: q.options || ['A', 'B', 'C', 'D'],
+            correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+            explanation: q.solution || '',
+            difficulty: idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'),
+            topic: ws.title || 'Chuyên đề: Hai Mặt Phẳng Vuông Góc'
+          } as Question));
+        }
+      } catch (e) {
+        console.warn('Lỗi lấy worksheet dự phòng cho Tetris:', e);
+      }
+    }
 
-    questions.forEach(q => {
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    const defaultTopic = gameTitle || 'Chuyên đề: Hai Mặt Phẳng Vuông Góc';
+
+    activeQuestions.forEach(q => {
       const topicName = q.topic?.trim() || defaultTopic;
       if (!topicsMap[topicName]) {
         topicsMap[topicName] = { easy: [], medium: [], hard: [] };
@@ -1643,11 +1668,13 @@ var questions = window.quizData;
 
     const tetrisScript = `
 <script>
-// [ADAPTER ENGINE: TETRIS XẾP GẠCH - DỮ LIỆU ĐÓNG GÓI, IN-GAME EDITOR & SECURITY GATE]
+// [ADAPTER ENGINE: TETRIS XẾP GẠCH - DỮ LIỆU ĐÓNG GÓI, DATA FALLBACK, IN-GAME EDITOR & SECURITY GATE]
 window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
 window.__ADMIN_PIN__ = "2806";
 window.__INJECTED_TETRIS_DATA__ = ${JSON.stringify(topicsMap, null, 2)};
-window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_TETRIS_DATA__));
+if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA__).length > 0) {
+  window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_TETRIS_DATA__));
+}
 
 (function() {
   function syncTetrisData() {
@@ -1690,24 +1717,22 @@ window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_TETRIS_DATA__)
   function setupAdminButtons() {
     try {
       const gearBtn = document.getElementById('btn-admin-gear');
-      if (gearBtn && !gearBtn.dataset.listenerAttached) {
-        gearBtn.dataset.listenerAttached = 'true';
-        gearBtn.addEventListener('click', function(e) {
-          e.preventDefault();
+      if (gearBtn) {
+        gearBtn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
           if (typeof window.openAdminPinPrompt === 'function') {
             window.openAdminPinPrompt();
           }
-        });
+        };
       }
       const topicBtn = document.getElementById('btn-chuyen-de');
-      if (topicBtn && !topicBtn.dataset.listenerAttached) {
-        topicBtn.dataset.listenerAttached = 'true';
-        topicBtn.addEventListener('click', function(e) {
-          e.preventDefault();
+      if (topicBtn) {
+        topicBtn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
           if (typeof window.openTetrisTopicMenu === 'function') {
             window.openTetrisTopicMenu();
           }
-        });
+        };
       }
     } catch(e) {}
   }
