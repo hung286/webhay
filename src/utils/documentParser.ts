@@ -1877,8 +1877,14 @@ export async function parseSutPenFromDocx(file: File): Promise<Question[]> {
           } else if (col1Text.includes('lời giải') || col1Text.includes('giải thích') || rIdx === 5) {
             explanation = col2Text;
           } else if (col1Text.includes('đáp án') || col1Text.includes('chọn') || rIdx === 6) {
-            const extracted = col2Text.replace(/[^A-Da-d]/g, '').toUpperCase().charAt(0);
-            if (extracted) answerLetter = extracted;
+            const match = col2Text.match(/(?:chọn|đáp án|câu)?\s*([A-D])\b/i) || col2Text.match(/\b([A-D])\b/i);
+            if (match) {
+              answerLetter = match[1].toUpperCase();
+            } else {
+              const cleaned = col2Text.replace(/^(?:đáp án|chọn|câu)\s*/i, '');
+              const charMatch = cleaned.match(/[A-D]/i);
+              if (charMatch) answerLetter = charMatch[0].toUpperCase();
+            }
           }
         });
 
@@ -1966,8 +1972,9 @@ export async function parseSutPenFromExcel(file: File): Promise<Question[]> {
       optA = String(row[3] || '').trim();
       optB = String(row[4] || '').trim();
       optC = String(row[5] || '').trim();
-      optD = String(row[6] || '').trim();
-      ansLetter = String(row[7] || '').trim().toUpperCase().charAt(0) || 'A';
+      const rawAns1 = String(row[7] || '').trim();
+      const match1 = rawAns1.match(/(?:chọn|đáp án|câu)?\s*([A-D])\b/i) || rawAns1.match(/([A-D])/i);
+      ansLetter = match1 ? match1[1].toUpperCase() : 'A';
       explanation = String(row[8] || '').trim();
     } else if (row.length >= 6) {
       qText = col0;
@@ -1975,7 +1982,9 @@ export async function parseSutPenFromExcel(file: File): Promise<Question[]> {
       optB = String(row[2] || '').trim();
       optC = String(row[3] || '').trim();
       optD = String(row[4] || '').trim();
-      ansLetter = String(row[5] || '').trim().toUpperCase().charAt(0) || 'A';
+      const rawAns2 = String(row[5] || '').trim();
+      const match2 = rawAns2.match(/(?:chọn|đáp án|câu)?\s*([A-D])\b/i) || rawAns2.match(/([A-D])/i);
+      ansLetter = match2 ? match2[1].toUpperCase() : 'A';
       explanation = String(row[6] || '').trim();
     }
 

@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Toán 10: Game Sút Pen: Giá trị lượng giác của 1 góc từ 0 đến 180 độ</title>
+    <!-- KaTeX Core & Auto-Render (Chuẩn hiển thị công thức sắc nét từ game Kéo Thả) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
     <!-- MathJax 3 cho hiển thị công thức toán học -->
     <script>
         window.MathJax = {
@@ -11,7 +16,9 @@
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']]
             },
-            svg: { fontCache: 'global' }
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -268,7 +275,7 @@
             <h3 class="text-base font-black uppercase tracking-wide mb-1">Xác Thực Quản Trị Viên</h3>
             <p class="text-xs text-slate-400 mb-4">Nhập mã PIN để mở hộp công cụ sửa đề</p>
             <form onsubmit="handleAdminPINSubmit(event)" class="space-y-3">
-                <input type="password" id="admin-pin-input" class="w-full text-center text-xl tracking-widest font-mono py-2.5 px-3 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500" placeholder="••••" maxlength="8" autocomplete="off" />
+                <input type="password" id="admin-pin-input" class="w-full text-center text-xl tracking-widest font-mono py-2.5 px-3 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500" placeholder="" maxlength="8" autocomplete="off" />
                 <div class="flex gap-2">
                     <button type="button" onclick="closeAdminPINModal()" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs">Hủy</button>
                     <button type="submit" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs uppercase tracking-wider">Xác Nhận</button>
@@ -351,115 +358,115 @@
             vongBang: [
                 {
                     q: "Tìm khẳng định đúng trong các khẳng định sau.",
-                    options: ["cos 80^\\circ > 0", "cos 80^\\circ < 0", "tan 80^\\circ < 0", "cot 80^\\circ < 0"],
+                    options: ["\\(\\cos 80^\\circ > 0\\)", "\\(\\cos 80^\\circ < 0\\)", "\\(\\tan 80^\\circ < 0\\)", "\\(\\cot 80^\\circ < 0\\)"],
                     correct: 0,
-                    explanation: "Chọn A. Vì góc 80 độ thuộc góc phần tư thứ I nên cos 80^\\circ > 0."
+                    explanation: "Chọn A. Vì góc 80° thuộc góc phần tư thứ I nên \\(\\cos 80^\\circ > 0\\)."
                 },
                 {
-                    q: "Tính giá trị của tan 120^\\circ.",
-                    options: ["-\\frac{1}{2}", "-\\frac{\\sqrt{3}}{3}", "-\\sqrt{3}", "\\frac{\\sqrt{3}}{2}"],
+                    q: "Tính giá trị của \\(\\tan 120^\\circ\\).",
+                    options: ["\\(-\\frac{1}{2}\\)", "\\(-\\frac{\\sqrt{3}}{3}\\)", "\\(-\\sqrt{3}\\)", "\\(\\frac{\\sqrt{3}}{2}\\)"],
                     correct: 2,
-                    explanation: "Chọn C. tan 120^\\circ = -tan(180^\\circ - 120^\\circ) = -tan 60^\\circ = -\\sqrt{3}."
+                    explanation: "Chọn C. \\(\\tan 120^\\circ = -\\tan(180^\\circ - 120^\\circ) = -\\tan 60^\\circ = -\\sqrt{3}\\)."
                 },
                 {
-                    q: "Biết cos \\alpha = \\frac{\\sqrt{2}}{2} với 0^\\circ \\le \\alpha \\le 180^\\circ. Tìm góc \\alpha.",
-                    options: ["\\alpha = 55^\\circ", "\\alpha = 30^\\circ", "\\alpha = 45^\\circ", "\\alpha = 60^\\circ"],
+                    q: "Biết \\(\\cos \\alpha = \\frac{\\sqrt{2}}{2}\\) với \\(0^\\circ \\le \\alpha \\le 180^\\circ\\). Tìm góc \\(\\alpha\\).",
+                    options: ["\\(\\alpha = 55^\\circ\\)", "\\(\\alpha = 30^\\circ\\)", "\\(\\alpha = 45^\\circ\\)", "\\(\\alpha = 60^\\circ\\)"],
                     correct: 2,
-                    explanation: "Chọn C. cos 45^\\circ = \\frac{\\sqrt{2}}{2}."
+                    explanation: "Chọn C. \\(\\cos 45^\\circ = \\frac{\\sqrt{2}}{2}\\)."
                 },
                 {
                     q: "Khẳng định nào sau đây là khẳng định đúng?",
-                    options: ["sin 180^\\circ = 1", "sin 90^\\circ = 1", "cos 120^\\circ = \\frac{\\sqrt{2}}{2}", "tan 15^\\circ = \\frac{\\sqrt{3}}{3}"],
+                    options: ["\\(\\sin 180^\\circ = 1\\)", "\\(\\sin 90^\\circ = 1\\)", "\\(\\cos 120^\\circ = \\frac{\\sqrt{2}}{2}\\)", "\\(\\tan 15^\\circ = \\frac{\\sqrt{3}}{3}\\)"],
                     correct: 1,
-                    explanation: "Chọn B. sin 90^\\circ = 1 là khẳng định đúng."
+                    explanation: "Chọn B. \\(\\sin 90^\\circ = 1\\) là khẳng định đúng."
                 },
                 {
-                    q: "Giá trị của sin 30^\\circ bằng bao nhiêu?",
-                    options: ["\\frac{1}{2}", "\\frac{\\sqrt{3}}{2}", "1", "\\frac{\\sqrt{2}}{2}"],
+                    q: "Giá trị của \\(\\sin 30^\\circ\\) bằng bao nhiêu?",
+                    options: ["\\(\\frac{1}{2}\\)", "\\(\\frac{\\sqrt{3}}{2}\\)", "\\(1\\)", "\\(\\frac{\\sqrt{2}}{2}\\)"],
                     correct: 0,
-                    explanation: "Chọn A. sin 30^\\circ = \\frac{1}{2}."
+                    explanation: "Chọn A. \\(\\sin 30^\\circ = \\frac{1}{2}\\)."
                 },
                 {
-                    q: "Giá trị của cos 60^\\circ bằng bao nhiêu?",
-                    options: ["\\frac{\\sqrt{3}}{2}", "\\frac{1}{2}", "0", "1"],
+                    q: "Giá trị của \\(\\cos 60^\\circ\\) bằng bao nhiêu?",
+                    options: ["\\(\\frac{\\sqrt{3}}{2}\\)", "\\(\\frac{1}{2}\\)", "\\(0\\)", "\\(1\\)"],
                     correct: 1,
-                    explanation: "Chọn B. cos 60^\\circ = \\frac{1}{2}."
+                    explanation: "Chọn B. \\(\\cos 60^\\circ = \\frac{1}{2}\\)."
                 }
             ],
             banKet: [
                 {
-                    q: "Tính giá trị của sin 150^\\circ.",
-                    options: ["\\frac{\\sqrt{3}}{2}", "\\frac{1}{2}", "-\\frac{1}{2}", "-\\frac{\\sqrt{3}}{2}"],
+                    q: "Tính giá trị của \\(\\sin 150^\\circ\\).",
+                    options: ["\\(\\frac{\\sqrt{3}}{2}\\)", "\\(\\frac{1}{2}\\)", "\\(-\\frac{1}{2}\\)", "\\(-\\frac{\\sqrt{3}}{2}\\)"],
                     correct: 1,
-                    explanation: "Chọn B. sin 150^\\circ = sin(180^\\circ - 30^\\circ) = sin 30^\\circ = \\frac{1}{2}."
+                    explanation: "Chọn B. \\(\\sin 150^\\circ = \\sin(180^\\circ - 30^\\circ) = \\sin 30^\\circ = \\frac{1}{2}\\)."
                 },
                 {
-                    q: "Tính giá trị của cos 135^\\circ.",
-                    options: ["\\frac{\\sqrt{2}}{2}", "-\\frac{\\sqrt{2}}{2}", "\\frac{1}{2}", "-\\frac{1}{2}"],
+                    q: "Tính giá trị của \\(\\cos 135^\\circ\\).",
+                    options: ["\\(\\frac{\\sqrt{2}}{2}\\)", "\\(-\\frac{\\sqrt{2}}{2}\\)", "\\(\\frac{1}{2}\\)", "\\(-\\frac{1}{2}\\)"],
                     correct: 1,
-                    explanation: "Chọn B. cos 135^\\circ = -cos 45^\\circ = -\\frac{\\sqrt{2}}{2}."
+                    explanation: "Chọn B. \\(\\cos 135^\\circ = -\\cos 45^\\circ = -\\frac{\\sqrt{2}}{2}\\)."
                 },
                 {
-                    q: "Hai góc bù nhau \\alpha và 180^\\circ - \\alpha. Khẳng định nào SAI?",
-                    options: ["sin(180^\\circ - \\alpha) = sin \\alpha", "cos(180^\\circ - \\alpha) = cos \\alpha", "tan(180^\\circ - \\alpha) = -tan \\alpha", "cot(180^\\circ - \\alpha) = -cot \\alpha"],
+                    q: "Hai góc bù nhau \\(\\alpha\\) và \\(180^\\circ - \\alpha\\). Khẳng định nào SAI?",
+                    options: ["\\(\\sin(180^\\circ - \\alpha) = \\sin \\alpha\\)", "\\(\\cos(180^\\circ - \\alpha) = \\cos \\alpha\\)", "\\(\\tan(180^\\circ - \\alpha) = -\\tan \\alpha\\)", "\\(\\cot(180^\\circ - \\alpha) = -\\cot \\alpha\\)"],
                     correct: 1,
-                    explanation: "Chọn B. Khẳng định đúng phải là cos(180^\\circ - \\alpha) = -cos \\alpha."
+                    explanation: "Chọn B. Khẳng định đúng phải là \\(\\cos(180^\\circ - \\alpha) = -\\cos \\alpha\\)."
                 },
                 {
-                    q: "Cho góc \\alpha (0^\\circ \\le \\alpha \\le 180^\\circ). Biểu thức nào luôn có giá trị bằng 1?",
-                    options: ["sin^2\\alpha + cos^2\\alpha", "sin\\alpha + cos\\alpha", "sin^2\\alpha - cos^2\\alpha", "tan\\alpha \\cdot cot\\alpha"],
+                    q: "Cho góc \\(\\alpha\\) (\\(0^\\circ \\le \\alpha \\le 180^\\circ\\)). Biểu thức nào luôn có giá trị bằng 1?",
+                    options: ["\\(\\sin^2\\alpha + \\cos^2\\alpha\\)", "\\(\\sin\\alpha + \\cos\\alpha\\)", "\\(\\sin^2\\alpha - \\cos^2\\alpha\\)", "\\(\\tan\\alpha \\cdot \\cot\\alpha\\)"],
                     correct: 0,
-                    explanation: "Chọn A. Hệ thức cơ bản sin^2\\alpha + cos^2\\alpha = 1 với mọi góc \\alpha."
+                    explanation: "Chọn A. Hệ thức cơ bản \\(\\sin^2\\alpha + \\cos^2\\alpha = 1\\) với mọi góc \\(\\alpha\\)."
                 },
                 {
-                    q: "Tính giá trị của cos 120^\\circ.",
-                    options: ["\\frac{1}{2}", "-\\frac{1}{2}", "\\frac{\\sqrt{3}}{2}", "-\\frac{\\sqrt{3}}{2}"],
+                    q: "Tính giá trị của \\(\\cos 120^\\circ\\).",
+                    options: ["\\(\\frac{1}{2}\\)", "\\(-\\frac{1}{2}\\)", "\\(\\frac{\\sqrt{3}}{2}\\)", "\\(-\\frac{\\sqrt{3}}{2}\\)"],
                     correct: 1,
-                    explanation: "Chọn B. cos 120^\\circ = -cos 60^\\circ = -\\frac{1}{2}."
+                    explanation: "Chọn B. \\(\\cos 120^\\circ = -\\cos 60^\\circ = -\\frac{1}{2}\\)."
                 },
                 {
-                    q: "Biết sin \\alpha = \\frac{3}{5} và 90^\\circ < \\alpha < 180^\\circ. Tính cos \\alpha.",
-                    options: ["\\frac{4}{5}", "-\\frac{4}{5}", "\\frac{16}{25}", "-\\frac{16}{25}"],
+                    q: "Biết \\(\\sin \\alpha = \\frac{3}{5}\\) và \\(90^\\circ < \\alpha < 180^\\circ\\). Tính \\(\\cos \\alpha\\).",
+                    options: ["\\(\\frac{4}{5}\\)", "\\(-\\frac{4}{5}\\)", "\\(\\frac{16}{25}\\)", "\\(-\\frac{16}{25}\\)"],
                     correct: 1,
-                    explanation: "Chọn B. Vì \\alpha tù nên cos \\alpha < 0, do đó cos \\alpha = -\\sqrt{1 - sin^2\\alpha} = -\\frac{4}{5}."
+                    explanation: "Chọn B. Vì \\(\\alpha\\) tù nên \\(\\cos \\alpha < 0\\), do đó \\(\\cos \\alpha = -\\sqrt{1 - \\sin^2\\alpha} = -\\frac{4}{5}\\)."
                 }
             ],
             chungKet: [
                 {
-                    q: "Nếu sin \\alpha = \\frac{1}{3} và 90^\\circ < \\alpha < 180^\\circ, thì cos \\alpha bằng?",
-                    options: ["\\frac{2\\sqrt{2}}{3}", "-\\frac{2\\sqrt{2}}{3}", "\\frac{8}{9}", "-\\frac{8}{9}"],
+                    q: "Nếu \\(\\sin \\alpha = \\frac{1}{3}\\) và \\(90^\\circ < \\alpha < 180^\\circ\\), thì \\(\\cos \\alpha\\) bằng?",
+                    options: ["\\(\\frac{2\\sqrt{2}}{3}\\)", "\\(-\\frac{2\\sqrt{2}}{3}\\)", "\\(\\frac{8}{9}\\)", "\\(-\\frac{8}{9}\\)"],
                     correct: 1,
-                    explanation: "Chọn B. cos \\alpha = -\\sqrt{1 - (1/3)^2} = -\\frac{2\\sqrt{2}}{3}."
+                    explanation: "Chọn B. \\(\\cos \\alpha = -\\sqrt{1 - (1/3)^2} = -\\frac{2\\sqrt{2}}{3}\\)."
                 },
                 {
-                    q: "Tính giá trị biểu thức P = sin 30^\\circ \\cdot cos 60^\\circ + sin 60^\\circ \\cdot cos 30^\\circ.",
-                    options: ["1", "0", "\\frac{\\sqrt{3}}{2}", "\\frac{1}{2}"],
+                    q: "Tính giá trị biểu thức \\(P = \\sin 30^\\circ \\cdot \\cos 60^\\circ + \\sin 60^\\circ \\cdot \\cos 30^\\circ\\).",
+                    options: ["\\(1\\)", "\\(0\\)", "\\(\\frac{\\sqrt{3}}{2}\\)", "\\(\\frac{1}{2}\\)"],
                     correct: 0,
-                    explanation: "Chọn A. P = (1/2)*(1/2) + (\\sqrt{3}/2)*(\\sqrt{3}/2) = 1/4 + 3/4 = 1."
+                    explanation: "Chọn A. \\(P = (1/2)*(1/2) + (\\sqrt{3}/2)*(\\sqrt{3}/2) = 1/4 + 3/4 = 1\\)."
                 },
                 {
-                    q: "Tính E = 2cos 30^\\circ + 3sin 120^\\circ - 4cos 150^\\circ.",
-                    options: ["\\frac{9\\sqrt{3}}{2}", "\\frac{5\\sqrt{3}}{2}", "\\frac{\\sqrt{3}}{2}", "-\\frac{\\sqrt{3}}{2}"],
+                    q: "Tính \\(E = 2\\cos 30^\\circ + 3\\sin 120^\\circ - 4\\cos 150^\\circ\\).",
+                    options: ["\\(\\frac{9\\sqrt{3}}{2}\\)", "\\(\\frac{5\\sqrt{3}}{2}\\)", "\\(\\frac{\\sqrt{3}}{2}\\)", "\\(-\\frac{9\\sqrt{3}}{2}\\)"],
                     correct: 0,
-                    explanation: "Chọn A. E = 2(\\sqrt{3}/2) + 3(\\sqrt{3}/2) - 4(-\\sqrt{3}/2) = \\sqrt{3} + 3\\sqrt{3}/2 + 2\\sqrt{3} = \\frac{9\\sqrt{3}}{2}."
+                    explanation: "Chọn A. \\(E = 2(\\sqrt{3}/2) + 3(\\sqrt{3}/2) - 4(-\\sqrt{3}/2) = \\sqrt{3} + 3\\sqrt{3}/2 + 2\\sqrt{3} = \\frac{9\\sqrt{3}}{2}\\)."
                 },
                 {
-                    q: "Biết cos \\alpha = -\\frac{1}{2} (0^\\circ \\le \\alpha \\le 180^\\circ). Góc \\alpha bằng bao nhiêu?",
-                    options: ["60^\\circ", "120^\\circ", "150^\\circ", "135^\\circ"],
+                    q: "Biết \\(\\cos \\alpha = -\\frac{1}{2}\\) (\\(0^\\circ \\le \\alpha \\le 180^\\circ\\)). Góc \\(\\alpha\\) bằng bao nhiêu?",
+                    options: ["\\(60^\\circ\\)", "\\(120^\\circ\\)", "\\(150^\\circ\\)", "\\(135^\\circ\\)"],
                     correct: 1,
-                    explanation: "Chọn B. cos 120^\\circ = -1/2."
+                    explanation: "Chọn B. \\(\\cos 120^\\circ = -1/2\\)."
                 },
                 {
                     q: "Cho tam giác ABC. Khẳng định nào sau đây là khẳng định đúng?",
-                    options: ["sin(A+B) = -sin C", "cos(A+B) = cos C", "sin(A+B) = sin C", "cos(A+B) = sin C"],
+                    options: ["\\(\\sin(A+B) = -\\sin C\\)", "\\(\\cos(A+B) = \\cos C\\)", "\\(\\sin(A+B) = \\sin C\\)", "\\(\\cos(A+B) = \\sin C\\)"],
                     correct: 2,
-                    explanation: "Chọn C. Vì A+B = 180^\\circ - C nên sin(A+B) = sin(180^\\circ - C) = sin C."
+                    explanation: "Chọn C. Vì A+B = 180° - C nên \\(\\sin(A+B) = \\sin(180^\\circ - C) = \\sin C\\)."
                 },
                 {
-                    q: "Cho góc x là góc tù thỏa mãn sin x = \\frac{4}{5}. Tính P = -cos x + 3sin x.",
-                    options: ["3,0", "-3,0", "1,8", "-1,8"],
+                    q: "Cho góc x là góc tù thỏa mãn \\(\\sin x = \\frac{4}{5}\\). Tính \\(P = -\\cos x + 3\\sin x\\).",
+                    options: ["\\(3{,}0\\)", "\\(-3{,}0\\)", "\\(1{,}8\\)", "\\(-1{,}8\\)"],
                     correct: 0,
-                    explanation: "Chọn A. cos x = -3/5, do đó P = -(-3/5) + 3*(4/5) = 3/5 + 12/5 = 15/5 = 3,0."
+                    explanation: "Chọn A. \\(\\cos x = -3/5\\), do đó \\(P = -(-3/5) + 3*(4/5) = 3/5 + 12/5 = 15/5 = 3{,}0\\)."
                 }
             ]
         };
@@ -469,16 +476,69 @@
 
         function typesetMath(elements) {
             try {
+                const targets = elements ? (Array.isArray(elements) ? elements : [elements]) : [document.body];
+                targets.forEach(el => {
+                    if (!el) return;
+                    // 1. Dùng KaTeX renderMathInElement đồng bộ tức thì (0ms)
+                    if (window.renderMathInElement) {
+                        try {
+                            window.renderMathInElement(el, {
+                                delimiters: [
+                                    { left: '$$', right: '$$', display: true },
+                                    { left: '$', right: '$', display: false },
+                                    { left: '\\(', right: '\\)', display: false },
+                                    { left: '\\[', right: '\\]', display: true }
+                                ],
+                                throwOnError: false
+                            });
+                        } catch (ke) {}
+                    }
+                });
+
+                // 2. Dùng MathJax 3 xử lý triệt để
                 if (window.MathJax && window.MathJax.typesetPromise) {
-                    window.MathJax.typesetPromise(elements).catch(() => {});
+                    window.MathJax.typesetPromise(targets).catch(() => {});
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.warn('typesetMath warning:', e);
+            }
         }
 
         function formatMathText(str) {
-            if (!str) return '';
-            let s = String(str);
-            // Chuẩn hóa công thức nếu chưa có bọc
+            if (!str && str !== 0) return '';
+            let s = String(str).trim();
+
+            // Sửa lỗi bọc kép hoặc lỗi font
+            s = s.replace(/\{\s*\\?\(\\?frac\\?\)\s*\{/gi, '\\frac{');
+            s = s.replace(/\{\s*\\?\(\\?sqrt\\?\)\s*\{/gi, '\\sqrt{');
+
+            // Nếu chuỗi đã được bọc trọn vẹn trong \(...\) hoặc $...$, trả về ngay
+            if (/^\\\([\s\S]*?\\\)$/.test(s) || /^\$([^\$]+)\$$/.test(s)) {
+                return s;
+            }
+
+            // Chuyển đổi $$...$$ hoặc $...$ sang \(...\)
+            s = s.replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => `\\(${m.trim()}\\)`);
+            s = s.replace(/\$([^\$]+?)\$/g, (_, m) => `\\(${m.trim()}\\)`);
+
+            // Nhận diện mẫu biểu thức toán học
+            const hasMathPattern = /\\(frac|sqrt|alpha|beta|theta|circ|sin|cos|tan|cot|cdot|le|ge|pm|times|vec)|[\^_]\{?[\w\d\\^\circ]+\}?|[0-9]+[a-zA-Z]|\b(sin|cos|tan|cot)\s*[0-9\w(^\\]+/i.test(s);
+            const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(s);
+
+            if (!s.includes('\\(')) {
+                if (hasMathPattern && !hasVietnamese) {
+                    return `\\(${s}\\)`;
+                } else if (hasMathPattern && hasVietnamese) {
+                    s = s.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (match) => {
+                        const trimmed = match.trim();
+                        if (!trimmed || trimmed.startsWith('\\(')) return match;
+                        return `\\(${trimmed}\\)`;
+                    });
+                    s = s.replace(/(?<!\\\(|\$)\b(sin|cos|tan|cot)\s+([0-9]+(?:\^\\circ|°)?)(?!\\\))/gi, '\\($1 $2\\)');
+                }
+            }
+
+            s = s.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
             return s;
         }
 
@@ -1276,18 +1336,26 @@
             }
 
             gameState.currentQ = gameState.questions.pop();
-            ui.qText.innerHTML = gameState.currentQ.q;
+            ui.qText.innerHTML = formatMathText(gameState.currentQ.q);
             
             ui.options.forEach((btn, idx) => {
                 const optText = (gameState.currentQ.options && gameState.currentQ.options[idx]) ? gameState.currentQ.options[idx] : `Lựa chọn ${['A','B','C','D'][idx]}`;
-                btn.innerHTML = `<span class="font-bold text-cyan-400 mr-2">${['A','B','C','D'][idx]}.</span><span>${optText}</span>`;
+                const formattedOpt = formatMathText(optText);
+                btn.innerHTML = `<span class="font-bold text-cyan-400 mr-2">${['A','B','C','D'][idx]}.</span><span>${formattedOpt}</span>`;
                 btn.className = 'option-btn'; btn.disabled = false;
             });
 
-            // Gọi MathJax render công thức đẹp mắt
+            // Gọi render công thức toán học KaTeX + MathJax ngay lập tức
             typesetMath([ui.qText, ...ui.options]);
 
-            setTimeout(() => { ui.panel.classList.remove('hidden'); gameState.isAnimating = false; }, 300);
+            setTimeout(() => { 
+                ui.panel.classList.remove('hidden'); 
+                gameState.isAnimating = false;
+                // Ép trình duyệt dịch lại toán khi bảng đã hiển thị trên DOM
+                requestAnimationFrame(() => {
+                    typesetMath([ui.qText, ...ui.options]);
+                });
+            }, 300);
         }
 
         function checkAnswer(selectedIdx) {
@@ -1333,11 +1401,13 @@
             const letters = ['A', 'B', 'C', 'D'];
             const correctLetter = letters[gameState.currentQ.correct] || 'A';
             const correctContent = gameState.currentQ.options ? gameState.currentQ.options[gameState.currentQ.correct] : '';
-            ui.expCorrect.innerHTML = `${correctLetter}. ${correctContent}`;
-            ui.expSolution.innerHTML = gameState.currentQ.explanation ? gameState.currentQ.explanation : 'Không có lời giải chi tiết.';
+            ui.expCorrect.innerHTML = `${correctLetter}. ${formatMathText(correctContent)}`;
+            ui.expSolution.innerHTML = formatMathText(gameState.currentQ.explanation ? gameState.currentQ.explanation : 'Không có lời giải chi tiết.');
             
             ui.expModal.classList.remove('hidden');
-            typesetMath([ui.expCorrect, ui.expSolution]);
+            requestAnimationFrame(() => {
+                typesetMath([ui.expCorrect, ui.expSolution]);
+            });
         }
 
         function closeExplanationModal() {
@@ -1462,6 +1532,39 @@
                 `;
                 container.appendChild(card);
             });
+            typesetMath(container);
+        }
+
+        function setupAdminButtons() {
+            const btnGear = document.getElementById('btn-admin-gear');
+            if (btnGear && !btnGear.dataset.hasListener) {
+                btnGear.dataset.hasListener = 'true';
+                btnGear.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openAdminModalWithPIN();
+                });
+            }
+
+            const btnChuyenDe = document.getElementById('btn-chuyen-de');
+            if (btnChuyenDe && !btnChuyenDe.dataset.hasListener) {
+                btnChuyenDe.dataset.hasListener = 'true';
+                btnChuyenDe.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showStartScreen();
+                });
+            }
+
+            const btnGearOverlay = document.getElementById('btn-admin-gear-overlay');
+            if (btnGearOverlay && !btnGearOverlay.dataset.hasListener) {
+                btnGearOverlay.dataset.hasListener = 'true';
+                btnGearOverlay.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openAdminModalWithPIN();
+                });
+            }
         }
 
         function handleEditorFocus(el) {
@@ -1575,12 +1678,14 @@
         window.addEventListener('DOMContentLoaded', () => {
             ensurePenaltyData();
             checkAdminSecurity();
+            setupAdminButtons();
             resizeCanvas();
             requestAnimationFrame(gameLoop);
         });
 
         window.addEventListener('load', () => {
             checkAdminSecurity();
+            setupAdminButtons();
             typesetMath([document.getElementById('question-panel')]);
         });
     </script>

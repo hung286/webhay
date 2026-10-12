@@ -606,18 +606,40 @@ window.penaltyDatabase = JSON.parse(JSON.stringify(window.__INJECTED_PENALTY_DAT
     } catch(e) {}
   }
 
+  function setupAdminHooks() {
+    if (typeof setupAdminButtons === 'function') {
+      setupAdminButtons();
+    }
+  }
+
+  function triggerMathTypeset() {
+    try {
+      if (typeof typesetMath === 'function') {
+        typesetMath([document.getElementById('question-panel')]);
+      } else if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function() {});
+      }
+    } catch(e) {}
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       syncPenaltyData();
       applyAdminSecurity();
+      setupAdminHooks();
+      triggerMathTypeset();
     });
   } else {
     syncPenaltyData();
     applyAdminSecurity();
+    setupAdminHooks();
+    triggerMathTypeset();
   }
   window.addEventListener('load', function() {
     syncPenaltyData();
     applyAdminSecurity();
+    setupAdminHooks();
+    triggerMathTypeset();
   });
 })();
 </script>
