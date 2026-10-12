@@ -956,10 +956,217 @@ export async function downloadChienHaoExcelTemplate(): Promise<void> {
 }
 
 /**
+ * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHUẨN BẢNG 7 DÒNG x 2 CỘT CHO GAME SÚT PENALTY (3 GIAI ĐOẠN ĐỘ KHÓ)
+ */
+export async function downloadSutPenWordTemplate(): Promise<void> {
+  const sectionsContent: any[] = [
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "MẪU ĐỀ GAME SÚT PENALTY (CHUẨN BẢNG 7 DÒNG x 2 CỘT)",
+          bold: true,
+          size: 26,
+          color: "000000"
+        })
+      ],
+      spacing: { after: 120 }
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "Chỉ thị cấu trúc bảng: Mỗi câu hỏi tương ứng 1 bảng gồm 2 cột x 7 dòng. Dòng 1: Câu [Số] | Đề bài (chấp nhận mã TeX và Link ảnh <img>). Dòng 2, 3, 4, 5: A), B), C), D) | Nội dung các đáp án. Dòng 6: Lời giải | Hướng dẫn giải chi tiết (Hiển thị khi sút trượt). Dòng 7: Đáp án | Ký tự duy nhất (A, B, C hoặc D).",
+          size: 19,
+          color: "333333"
+        })
+      ],
+      spacing: { after: 200 }
+    }),
+
+    // HEADING LEVEL 1: VÒNG BẢNG
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 1: MỨC ĐỘ 1 (DỄ)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    createChienHaoQuestionTable(
+      1,
+      "Giá trị của \\sin 30^\\circ bằng bao nhiêu?",
+      "\\frac{1}{2}",
+      "\\frac{\\sqrt{3}}{2}",
+      "1",
+      "\\frac{\\sqrt{2}}{2}",
+      "Theo bảng giá trị lượng giác các góc đặc biệt: \\sin 30^\\circ = \\frac{1}{2}.",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+    createChienHaoQuestionTable(
+      2,
+      "Giá trị của \\cos 60^\\circ bằng bao nhiêu?",
+      "\\frac{1}{2}",
+      "0",
+      "\\frac{\\sqrt{3}}{2}",
+      "-1",
+      "Theo bảng giá trị lượng giác: \\cos 60^\\circ = \\frac{1}{2}.",
+      "A"
+    ),
+
+    // HEADING LEVEL 2: BÁN KẾT
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 250, after: 120 }
+    }),
+    createChienHaoQuestionTable(
+      3,
+      "Giá trị của \\sin 150^\\circ bằng bao nhiêu?",
+      "\\frac{1}{2}",
+      "-\\frac{1}{2}",
+      "\\frac{\\sqrt{3}}{2}",
+      "0",
+      "Ta có \\sin 150^\\circ = \\sin(180^\\circ - 30^\\circ) = \\sin 30^\\circ = \\frac{1}{2}.",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 150 } }),
+    createChienHaoQuestionTable(
+      4,
+      "Giá trị của \\cos 120^\\circ bằng bao nhiêu?",
+      "-\\frac{1}{2}",
+      "\\frac{1}{2}",
+      "-\\frac{\\sqrt{3}}{2}",
+      "0",
+      "Ta có \\cos 120^\\circ = -\\cos(180^\\circ - 120^\\circ) = -\\cos 60^\\circ = -\\frac{1}{2}.",
+      "A"
+    ),
+
+    // HEADING LEVEL 3: CHUNG KẾT
+    new Paragraph({
+      children: [new TextRun({ text: "PHẦN 3: MỨC ĐỘ 3 (KHÓ)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 250, after: 120 }
+    }),
+    createChienHaoQuestionTable(
+      5,
+      "Cho góc tù \\alpha có \\sin \\alpha = \\frac{3}{5}. Tính \\cos \\alpha:",
+      "-\\frac{4}{5}",
+      "\\frac{4}{5}",
+      "\\frac{1}{5}",
+      "-\\frac{3}{5}",
+      "Vì \\alpha là góc tù (90^\\circ < \\alpha < 180^\\circ) nên \\cos \\alpha < 0. Do đó \\cos \\alpha = -\\sqrt{1 - \\sin^2 \\alpha} = -\\frac{4}{5}.",
+      "A"
+    )
+  ];
+
+  const doc = new Document({
+    sections: [
+      {
+        properties: {},
+        children: sectionsContent
+      }
+    ]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Mau_Sut_Penalty_7_Dong.docx");
+}
+
+/**
+ * SINH VÀ TẢI FILE EXCEL (.XLSX) MẪU CHO GAME SÚT PENALTY
+ */
+export async function downloadSutPenExcelTemplate(): Promise<void> {
+  const { XLSX } = await loadDocumentLibraries();
+  const headers = [
+    "Mức Độ (Level 1, Level 2, Level 3)",
+    "Nội Dung Câu Hỏi (Hỗ trợ TeX)",
+    "Link/Tên Ảnh (Tùy chọn)",
+    "Lựa Chọn A",
+    "Lựa Chọn B",
+    "Lựa Chọn C",
+    "Lựa Chọn D",
+    "Đáp Án Đúng (A, B, C, hoặc D)",
+    "Lời Giải Chi Tiết"
+  ];
+
+  const sampleRows = [
+    [
+      "Level 1",
+      "Giá trị của \\sin 30^\\circ bằng bao nhiêu?",
+      "",
+      "\\frac{1}{2}",
+      "\\frac{\\sqrt{3}}{2}",
+      "1",
+      "\\frac{\\sqrt{2}}{2}",
+      "A",
+      "\\sin 30^\\circ = 1/2."
+    ],
+    [
+      "Level 1",
+      "Giá trị của \\cos 60^\\circ bằng bao nhiêu?",
+      "",
+      "\\frac{1}{2}",
+      "0",
+      "\\frac{\\sqrt{3}}{2}",
+      "-1",
+      "A",
+      "\\cos 60^\\circ = 1/2."
+    ],
+    [
+      "Level 2",
+      "Giá trị của \\sin 150^\\circ bằng bao nhiêu?",
+      "",
+      "\\frac{1}{2}",
+      "-\\frac{1}{2}",
+      "\\frac{\\sqrt{3}}{2}",
+      "0",
+      "A",
+      "\\sin 150^\\circ = \\sin(180^\\circ - 30^\\circ) = 1/2."
+    ],
+    [
+      "Level 2",
+      "Giá trị của \\cos 120^\\circ bằng bao nhiêu?",
+      "",
+      "-\\frac{1}{2}",
+      "\\frac{1}{2}",
+      "-\\frac{\\sqrt{3}}{2}",
+      "0",
+      "A",
+      "\\cos 120^\\circ = -\\cos 60^\\circ = -1/2."
+    ],
+    [
+      "Level 3",
+      "Cho góc tù \\alpha có \\sin \\alpha = \\frac{3}{5}. Tính \\cos \\alpha:",
+      "",
+      "-\\frac{4}{5}",
+      "\\frac{4}{5}",
+      "\\frac{1}{5}",
+      "-\\frac{3}{5}",
+      "A",
+      "Góc tù có \\cos < 0 nên \\cos \\alpha = -4/5."
+    ]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
+  ws['!cols'] = [
+    { wch: 18 },
+    { wch: 45 },
+    { wch: 30 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 12 },
+    { wch: 45 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Mau_Sut_Penalty");
+  XLSX.writeFile(wb, "Mau_Sut_Penalty.xlsx");
+}
+
+/**
  * TẢI FILE MẪU THEO ĐÚNG TỪNG GAME ĐANG CHỌN (KHÔNG DÙNG CHUNG)
  */
 export async function downloadGameWordTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('sut-pen') || cleanId.includes('sut_pen') || cleanId.includes('penalty')) {
+    return downloadSutPenWordTemplate();
+  }
   if (cleanId.includes('chien-hao') || cleanId.includes('chien_hao') || cleanId.includes('bao-ve')) {
     return downloadChienHaoWordTemplate();
   }
@@ -971,6 +1178,9 @@ export async function downloadGameWordTemplate(gameIdentifier: string): Promise<
 
 export async function downloadGameExcelTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('sut-pen') || cleanId.includes('sut_pen') || cleanId.includes('penalty')) {
+    return downloadSutPenExcelTemplate();
+  }
   if (cleanId.includes('chien-hao') || cleanId.includes('chien_hao') || cleanId.includes('bao-ve')) {
     return downloadChienHaoExcelTemplate();
   }
@@ -1210,6 +1420,237 @@ export async function parseChienHaoFromExcel(file: File): Promise<Question[]> {
       difficulty: diff,
       topic: 'Bảo Vệ Chiến Hào',
       source: 'Bảo Vệ Chiến Hào',
+      status: 'published',
+      createdAt: new Date().toISOString(),
+      imageUrl: imgUrl
+    });
+  });
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE WORD (.DOCX) CHUẨN BẢNG 7 DÒNG x 2 CỘT CHO GAME SÚT PENALTY
+ * Hỗ trợ 3 phần phân cấp: Vòng Bảng (Dễ), Bán Kết (Trung bình), Chung Kết (Khó)
+ */
+export async function parseSutPenFromDocx(file: File): Promise<Question[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+
+  const questions: Question[] = [];
+
+  if (html.includes('<table')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+
+    let currentDifficulty: Difficulty = 'Dễ';
+
+    tables.forEach((table) => {
+      // Kiểm tra tiêu đề phía trước bảng để gán độ khó / giai đoạn
+      let prevEl = table.previousElementSibling;
+      while (prevEl) {
+        const pText = (prevEl.textContent || '').toLowerCase();
+        if (pText.includes('vòng bảng') || pText.includes('mức độ 1') || pText.includes('phần 1') || pText.includes('level 1') || pText.includes('dễ')) {
+          currentDifficulty = 'Dễ'; break;
+        } else if (pText.includes('bán kết') || pText.includes('mức độ 2') || pText.includes('phần 2') || pText.includes('level 2') || pText.includes('vừa') || pText.includes('trung bình')) {
+          currentDifficulty = 'Trung bình'; break;
+        } else if (pText.includes('chung kết') || pText.includes('mức độ 3') || pText.includes('phần 3') || pText.includes('level 3') || pText.includes('khó')) {
+          currentDifficulty = 'Khó'; break;
+        }
+        prevEl = prevEl.previousElementSibling;
+      }
+
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length < 5) return;
+
+      const questionBlocks: Element[][] = [];
+      let currentBlock: Element[] = [];
+
+      rows.forEach((row) => {
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        const col1Text = cells.length > 0 ? (cells[0].textContent || '').trim().toLowerCase() : '';
+        const isQuestionStart = col1Text.startsWith('câu') || /^câu\s*\d+/i.test(col1Text);
+
+        if (isQuestionStart && currentBlock.length >= 5) {
+          questionBlocks.push(currentBlock);
+          currentBlock = [row];
+        } else {
+          currentBlock.push(row);
+        }
+      });
+      if (currentBlock.length >= 5) {
+        questionBlocks.push(currentBlock);
+      } else if (questionBlocks.length === 0 && rows.length >= 5) {
+        for (let i = 0; i < rows.length; i += 7) {
+          const chunk = rows.slice(i, i + 7);
+          if (chunk.length >= 5) questionBlocks.push(chunk);
+        }
+      }
+
+      questionBlocks.forEach((blockRows) => {
+        let qText = '';
+        let optA = '';
+        let optB = '';
+        let optC = '';
+        let optD = '';
+        let explanation = '';
+        let answerLetter = 'A';
+        let detectedImgUrl: string | undefined = undefined;
+
+        blockRows.forEach((row, rIdx) => {
+          const cells = Array.from(row.querySelectorAll('td, th'));
+          if (cells.length < 2) return;
+          const col1Text = (cells[0].textContent || '').trim().toLowerCase();
+          const col2Text = (cells[1].textContent || '').trim();
+
+          const imgEl = cells[1].querySelector('img');
+          if (imgEl && imgEl.getAttribute('src')) {
+            detectedImgUrl = imgEl.getAttribute('src') || undefined;
+          }
+
+          if (rIdx === 0 || col1Text.startsWith('câu')) {
+            qText = col2Text;
+          } else if (col1Text.startsWith('a') || (rIdx === 1 && !optA)) {
+            optA = col2Text;
+          } else if (col1Text.startsWith('b') || (rIdx === 2 && !optB)) {
+            optB = col2Text;
+          } else if (col1Text.startsWith('c') || (rIdx === 3 && !optC)) {
+            optC = col2Text;
+          } else if (col1Text.startsWith('d') || (rIdx === 4 && !optD)) {
+            optD = col2Text;
+          } else if (col1Text.includes('lời giải') || col1Text.includes('giải thích') || rIdx === 5) {
+            explanation = col2Text;
+          } else if (col1Text.includes('đáp án') || col1Text.includes('chọn') || rIdx === 6) {
+            const extracted = col2Text.replace(/[^A-Da-d]/g, '').toUpperCase().charAt(0);
+            if (extracted) answerLetter = extracted;
+          }
+        });
+
+        if (!qText) return;
+
+        const { cleanText, imageUrl } = extractImageUrl(qText);
+        qText = cleanText;
+        if (!detectedImgUrl && imageUrl) detectedImgUrl = imageUrl;
+
+        let correctIndex = 0;
+        if (answerLetter === 'B') correctIndex = 1;
+        else if (answerLetter === 'C') correctIndex = 2;
+        else if (answerLetter === 'D') correctIndex = 3;
+
+        const diff: Difficulty = currentDifficulty || (questions.length < 5 ? 'Dễ' : (questions.length < 10 ? 'Trung bình' : 'Khó'));
+
+        questions.push({
+          id: `sutpen_${Date.now()}_${questions.length + 1}`,
+          question: normalizeMathFormulas(qText),
+          options: [
+            normalizeMathFormulas(optA || 'Lựa chọn A'),
+            normalizeMathFormulas(optB || 'Lựa chọn B'),
+            normalizeMathFormulas(optC || 'Lựa chọn C'),
+            normalizeMathFormulas(optD || 'Lựa chọn D')
+          ],
+          correctIndex,
+          explanation: normalizeMathFormulas(explanation),
+          difficulty: diff,
+          topic: 'Sút Penalty',
+          source: 'Sút Penalty',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          imageUrl: detectedImgUrl
+        });
+      });
+    });
+  }
+
+  if (questions.length === 0) {
+    const rawResult = await mammoth.extractRawText({ arrayBuffer });
+    return parseDocumentQuestions(rawResult.value || '', 'Sút Penalty');
+  }
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE EXCEL (.XLSX) CHO GAME SÚT PENALTY
+ */
+export async function parseSutPenFromExcel(file: File): Promise<Question[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const firstSheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rows: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+  const questions: Question[] = [];
+
+  rows.forEach((row, idx) => {
+    if (!row || row.length === 0) return;
+    const col0 = String(row[0] || '').trim();
+    const col1 = String(row[1] || '').trim();
+
+    if (idx === 0 && (col0.toLowerCase().includes('mức độ') || col0.toLowerCase().includes('giai đoạn') || col1.toLowerCase().includes('nội dung'))) return;
+
+    let diff: Difficulty = 'Dễ';
+    let qText = '';
+    let imgUrl: string | undefined = undefined;
+    let optA = '';
+    let optB = '';
+    let optC = '';
+    let optD = '';
+    let ansLetter = 'A';
+    let explanation = '';
+
+    if (row.length >= 8) {
+      const lvlStr = col0.toLowerCase();
+      if (lvlStr.includes('3') || lvlStr.includes('khó') || lvlStr.includes('chung kết')) diff = 'Khó';
+      else if (lvlStr.includes('2') || lvlStr.includes('vừa') || lvlStr.includes('trung') || lvlStr.includes('bán kết')) diff = 'Trung bình';
+      else diff = 'Dễ';
+
+      qText = col1;
+      imgUrl = String(row[2] || '').trim() || undefined;
+      optA = String(row[3] || '').trim();
+      optB = String(row[4] || '').trim();
+      optC = String(row[5] || '').trim();
+      optD = String(row[6] || '').trim();
+      ansLetter = String(row[7] || '').trim().toUpperCase().charAt(0) || 'A';
+      explanation = String(row[8] || '').trim();
+    } else if (row.length >= 6) {
+      qText = col0;
+      optA = col1;
+      optB = String(row[2] || '').trim();
+      optC = String(row[3] || '').trim();
+      optD = String(row[4] || '').trim();
+      ansLetter = String(row[5] || '').trim().toUpperCase().charAt(0) || 'A';
+      explanation = String(row[6] || '').trim();
+    }
+
+    if (!qText) return;
+
+    const { cleanText, imageUrl: parsedImg } = extractImageUrl(qText);
+    qText = cleanText;
+    if (!imgUrl && parsedImg) imgUrl = parsedImg;
+
+    let correctIndex = 0;
+    if (ansLetter === 'B') correctIndex = 1;
+    else if (ansLetter === 'C') correctIndex = 2;
+    else if (ansLetter === 'D') correctIndex = 3;
+
+    questions.push({
+      id: `sutpen_xl_${Date.now()}_${idx + 1}`,
+      question: normalizeMathFormulas(qText),
+      options: [
+        normalizeMathFormulas(optA || 'Lựa chọn A'),
+        normalizeMathFormulas(optB || 'Lựa chọn B'),
+        normalizeMathFormulas(optC || 'Lựa chọn C'),
+        normalizeMathFormulas(optD || 'Lựa chọn D')
+      ],
+      correctIndex,
+      explanation: normalizeMathFormulas(explanation),
+      difficulty: diff,
+      topic: 'Sút Penalty',
+      source: 'Sút Penalty',
       status: 'published',
       createdAt: new Date().toISOString(),
       imageUrl: imgUrl

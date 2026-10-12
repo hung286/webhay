@@ -13,6 +13,8 @@ import {
   parseDragDropFromDocx,
   parseChienHaoFromDocx,
   parseChienHaoFromExcel,
+  parseSutPenFromDocx,
+  parseSutPenFromExcel,
   normalizeMathFormulas, 
   downloadWordTemplate, 
   downloadExcelTemplate,
@@ -64,10 +66,12 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [isParsingDoc, setIsParsingDoc] = useState(false);
 
-  // Nhận diện chế độ Kéo Thả Phân Loại Thuộc Tính & Bảo Vệ Chiến Hào
+  // Nhận diện chế độ Kéo Thả, Bảo Vệ Chiến Hào & Sút Penalty
   const isDragDropMode = selectedTemplateUrl.includes('keo-tha');
   const isChienHaoMode = selectedTemplateUrl.includes('chien-hao') || selectedTemplateUrl.includes('Bao-ve-chien-hao');
+  const isSutPenMode = selectedTemplateUrl.includes('sut-pen') || selectedTemplateUrl.includes('penalty');
   const [chienHaoLevelFilter, setChienHaoLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
+  const [sutPenLevelFilter, setSutPenLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
 
   const chienHaoCounts = useMemo(() => {
     return {
@@ -78,9 +82,14 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   }, [questions]);
 
   const displayedQuestions = useMemo(() => {
-    if (!isChienHaoMode || chienHaoLevelFilter === 'ALL') return questions;
-    return questions.filter(q => q.difficulty === chienHaoLevelFilter);
-  }, [questions, isChienHaoMode, chienHaoLevelFilter]);
+    if (isChienHaoMode && chienHaoLevelFilter !== 'ALL') {
+      return questions.filter(q => q.difficulty === chienHaoLevelFilter);
+    }
+    if (isSutPenMode && sutPenLevelFilter !== 'ALL') {
+      return questions.filter(q => q.difficulty === sutPenLevelFilter);
+    }
+    return questions;
+  }, [questions, isChienHaoMode, chienHaoLevelFilter, isSutPenMode, sutPenLevelFilter]);
 
   // Quản lý Bảng Phân Cấp Đa Chuyên Đề & Đa Cấp Độ (Hierarchical Table View)
   const [tableRows, setTableRows] = useState<DragDropTableRow[]>(() => {
@@ -473,7 +482,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         } else {
           throw new Error('Không bóc tách được bảng dữ liệu hợp lệ từ file. Thầy cô vui lòng kiểm tra file theo mẫu tải về.');
         }
-      } else if (selectedTemplateUrl.includes('chien-hao') || selectedTemplateUrl.includes('Bao-ve-chien-hao')) {
+      } else if (isChienHaoMode) {
         let parsedQuestions: Question[] = [];
         if (ext === 'docx') {
           parsedQuestions = await parseChienHaoFromDocx(file);
@@ -490,6 +499,23 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         setQuestions(prev => [...prev, ...parsedQuestions]);
         soundFx.playCorrect();
         alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI BẢO VỆ CHIẾN HÀO TỪ FILE:\n"${file.name}"!`);
+      } else if (isSutPenMode) {
+        let parsedQuestions: Question[] = [];
+        if (ext === 'docx') {
+          parsedQuestions = await parseSutPenFromDocx(file);
+        } else if (ext === 'xlsx' || ext === 'xls') {
+          parsedQuestions = await parseSutPenFromExcel(file);
+        } else {
+          const rawText = await file.text();
+          parsedQuestions = parseDocumentQuestions(rawText, gameTitle);
+        }
+
+        if (parsedQuestions.length === 0) {
+          throw new Error('Không bóc tách được câu hỏi từ bảng 7 dòng x 2 cột của file. Vui lòng tải file mẫu để kiểm tra.');
+        }
+        setQuestions(prev => [...prev, ...parsedQuestions]);
+        soundFx.playCorrect();
+        alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI SÚT PENALTY TỪ FILE:\n"${file.name}"!`);
       } else {
         let rawText = '';
         if (ext === 'docx') {
@@ -1367,6 +1393,73 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                 </div>
               )}
 
+              {isSutPenMode && (
+                <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 shadow-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="font-black text-xs sm:text-sm text-slate-800 uppercase tracking-wide">
+                        3 GIAI ĐOẠN GIẢI ĐẤU PENALTY (CHIA THEO ĐỘ KHÓ)
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                      ⚽ Tự động bốc ngẫu nhiên đúng 5 câu/giai đoạn làm bia sút bóng chống học vẹt
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                    <button
+                      onClick={() => { setSutPenLevelFilter('ALL'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition shrink-0 cursor-pointer ${
+                        sutPenLevelFilter === 'ALL'
+                          ? 'bg-slate-900 text-white shadow-sm'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      Tất cả ({questions.length} câu)
+                    </button>
+                    <button
+                      onClick={() => { setSutPenLevelFilter('Dễ'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        sutPenLevelFilter === 'Dễ'
+                          ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-200 font-black'
+                          : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                      }`}
+                    >
+                      <span>🟢 PHẦN 1: MỨC ĐỘ 1 (DỄ) - VÒNG BẢNG</span>
+                      <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${sutPenLevelFilter === 'Dễ' ? 'bg-emerald-800 text-white' : 'bg-emerald-200 text-emerald-800'}`}>
+                        {chienHaoCounts.easy}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => { setSutPenLevelFilter('Trung bình'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        sutPenLevelFilter === 'Trung bình'
+                          ? 'bg-amber-600 text-white shadow-sm shadow-amber-200 font-black'
+                          : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200'
+                      }`}
+                    >
+                      <span>🟡 PHẦN 2: MỨC ĐỘ 2 (TRUNG BÌNH) - BÁN KẾT</span>
+                      <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${sutPenLevelFilter === 'Trung bình' ? 'bg-amber-800 text-white' : 'bg-amber-200 text-amber-800'}`}>
+                        {chienHaoCounts.medium}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => { setSutPenLevelFilter('Khó'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        sutPenLevelFilter === 'Khó'
+                          ? 'bg-rose-600 text-white shadow-sm shadow-rose-200 font-black'
+                          : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+                      }`}
+                    >
+                      <span>🔴 PHẦN 3: MỨC ĐỘ 3 (KHÓ) - CHUNG KẾT</span>
+                      <span className={`text-[10px] font-black px-1.5 py-0.2 rounded-full ${sutPenLevelFilter === 'Khó' ? 'bg-rose-800 text-white' : 'bg-rose-200 text-rose-800'}`}>
+                        {chienHaoCounts.hard}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {displayedQuestions.length === 0 ? (
                 <div className="text-center py-16 text-slate-400 bg-white rounded-2xl border-2 border-dashed border-slate-200 p-8">
                   <Sparkles className="w-12 h-12 text-violet-300 mx-auto mb-3" />
@@ -1513,6 +1606,10 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
             ) : isChienHaoMode ? (
               <>
                 Bảo Vệ Chiến Hào: <span className="text-emerald-600 font-bold">{chienHaoCounts.easy} Dễ</span> | <span className="text-amber-600 font-bold">{chienHaoCounts.medium} Vừa</span> | <span className="text-rose-600 font-bold">{chienHaoCounts.hard} Khó</span> (Tổng: <span className="text-violet-700 font-black">{questions.length}</span> câu hỏi)
+              </>
+            ) : isSutPenMode ? (
+              <>
+                Sút Penalty: <span className="text-emerald-600 font-bold">{chienHaoCounts.easy} Vòng Bảng</span> | <span className="text-amber-600 font-bold">{chienHaoCounts.medium} Bán Kết</span> | <span className="text-rose-600 font-bold">{chienHaoCounts.hard} Chung Kết</span> (Tổng: <span className="text-violet-700 font-black">{questions.length}</span> câu hỏi)
               </>
             ) : (
               <>Tổng cộng: <span className="text-violet-700 text-sm font-black">{questions.length}</span> câu hỏi đã cấu hình</>

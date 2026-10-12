@@ -516,26 +516,110 @@ window.useStaticTopic = true;
     htmlContent = injectScriptAtTop(htmlContent, ghepCapScript);
   }
 
-  // NHÓM 3: Game Sút Penalty (phân chia 3 vòng đấu: Vòng Bảng, Bán Kết, Chung Kết)
-  else if (cleanUrl.includes('sut-pen')) {
-    const d1 = standardizedData.filter(q => q.difficulty === 1);
-    const d2 = standardizedData.filter(q => q.difficulty === 2);
-    const d3 = standardizedData.filter(q => q.difficulty === 3);
+  // NHÓM 3: Game Sút Penalty (phân chia 3 vòng đấu: Vòng Bảng, Bán Kết, Chung Kết & Data Fallback)
+  else if (cleanUrl.includes('sut-pen') || cleanUrl.includes('penalty')) {
+    let activeQuestions = [...questions];
+    if (activeQuestions.length === 0) {
+      try {
+        const ws = DEFAULT_WORKSHEETS.find(w => 
+          (w.title && (w.title.toLowerCase().includes('lượng giác') || w.title.toLowerCase().includes('luong giac'))) ||
+          (w.id && (w.id.includes('luong_giac') || w.id.includes('10_05') || w.id.includes('10_06') || w.id.includes('10_07')))
+        ) || DEFAULT_WORKSHEETS.find(w => w.questions && w.questions.length >= 10) || DEFAULT_WORKSHEETS[0];
+        
+        if (ws && ws.questions && ws.questions.length > 0) {
+          activeQuestions = ws.questions.map((q, idx) => ({
+            id: q.id || `ws_pen_fb_${idx}`,
+            question: q.question,
+            options: q.options || ['A', 'B', 'C', 'D'],
+            correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+            explanation: q.solution || '',
+            difficulty: idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'),
+            topic: ws.title || 'Giá Trị Lượng Giác'
+          } as Question));
+        }
+      } catch (e) {
+        console.warn('Lỗi lấy worksheet dự phòng cho Sút Penalty:', e);
+      }
+    }
+
+    let d1 = activeQuestions.filter(q => q.difficulty === 'Dễ');
+    let d2 = activeQuestions.filter(q => q.difficulty === 'Trung bình');
+    let d3 = activeQuestions.filter(q => q.difficulty === 'Khó');
+
+    if (d1.length === 0 && d2.length === 0 && d3.length === 0 && activeQuestions.length > 0) {
+      d1 = activeQuestions.slice(0, Math.ceil(activeQuestions.length / 3));
+      d2 = activeQuestions.slice(Math.ceil(activeQuestions.length / 3), Math.ceil((2 * activeQuestions.length) / 3));
+      d3 = activeQuestions.slice(Math.ceil((2 * activeQuestions.length) / 3));
+    }
+
+    // Đảm bảo mỗi giai đoạn có tối thiểu 5 câu hỏi để random sampling chống học vẹt
+    const allPool = [...d1, ...d2, ...d3];
+    if (allPool.length > 0) {
+      while (d1.length < 5) d1.push(allPool[d1.length % allPool.length]);
+      while (d2.length < 5) d2.push(allPool[d2.length % allPool.length]);
+      while (d3.length < 5) d3.push(allPool[d3.length % allPool.length]);
+    }
+
+    const mapStageQuestions = (list: Question[]) => list.map(q => ({
+      q: normalizeMathFormulas(q.question),
+      options: (q.options || ['A', 'B', 'C', 'D']).map(o => normalizeMathFormulas(o)),
+      correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+      explanation: normalizeMathFormulas(q.explanation || ''),
+      imageUrl: q.imageUrl || ''
+    }));
+
+    const penaltyData = {
+      vongBang: mapStageQuestions(d1),
+      banKet: mapStageQuestions(d2),
+      chungKet: mapStageQuestions(d3)
+    };
 
     const penScript = `
 <script>
-// [ADAPTER ENGINE: SÚT PENALTY]
-window.quizData = ${JSON.stringify(standardizedData, null, 2)};
-window.addEventListener('DOMContentLoaded', function() {
-  if (typeof levels !== 'undefined' && Array.isArray(levels)) {
-    const q1 = ${JSON.stringify(d1.length > 0 ? d1 : standardizedData)};
-    const q2 = ${JSON.stringify(d2.length > 0 ? d2 : standardizedData)};
-    const q3 = ${JSON.stringify(d3.length > 0 ? d3 : standardizedData)};
-    if (levels.length >= 1) levels[0].questions = q1;
-    if (levels.length >= 2) levels[1].questions = q2;
-    if (levels.length >= 3) levels[2].questions = q3;
+// [ADAPTER ENGINE: SÚT PENALTY 3 GIAI ĐOẠN & DATA FALLBACK]
+window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
+window.__ADMIN_PIN__ = "2806";
+window.__INJECTED_PENALTY_DATA__ = ${JSON.stringify(penaltyData, null, 2)};
+window.penaltyDatabase = JSON.parse(JSON.stringify(window.__INJECTED_PENALTY_DATA__));
+
+(function() {
+  function syncPenaltyData() {
+    if (typeof ensurePenaltyData === 'function') {
+      ensurePenaltyData();
+    }
   }
-});
+
+  function applyAdminSecurity() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, #btn-admin-gear-overlay, [data-admin-control="true"]');
+      adminBtns.forEach(btn => {
+        if (isAdmin) {
+          btn.classList.remove('hidden');
+          btn.style.setProperty('display', 'inline-flex', 'important');
+        } else {
+          btn.classList.add('hidden');
+          btn.style.setProperty('display', 'none', 'important');
+        }
+      });
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      syncPenaltyData();
+      applyAdminSecurity();
+    });
+  } else {
+    syncPenaltyData();
+    applyAdminSecurity();
+  }
+  window.addEventListener('load', function() {
+    syncPenaltyData();
+    applyAdminSecurity();
+  });
+})();
 </script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, penScript);
