@@ -428,62 +428,6 @@ window.useStaticTopic = true;
     htmlContent = injectScriptAtTop(htmlContent, dhScript);
   }
 
-  // NHÓM MARIO PHIÊU LƯU KÝ (cấu trúc Đa Chủ Đề & Đa Độ Khó)
-  else if (cleanUrl.includes('mario') || cleanUrl.includes('Gamemario')) {
-    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
-    questions.forEach(q => {
-      const topicName = q.topic?.trim() || gameTitle;
-      if (!topicsMap[topicName]) {
-        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
-      }
-      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
-      topicsMap[topicName][diffKey].push({
-        q: q.question,
-        options: q.options || ['A', 'B', 'C', 'D'],
-        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-        explanation: q.explanation || ''
-      });
-    });
-
-    const marioScript = `
-<script>
-// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - MARIO PHIÊU LƯU KÝ]
-window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
-window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
-window.useStaticTopic = true;
-</script>
-`;
-    htmlContent = injectScriptAtTop(htmlContent, marioScript);
-  }
-
-  // NHÓM TETRIS XẾP GẠCH (cấu trúc Đa Chủ Đề & Đa Độ Khó)
-  else if (cleanUrl.includes('tetris') || cleanUrl.includes('Gametetris')) {
-    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
-    questions.forEach(q => {
-      const topicName = q.topic?.trim() || gameTitle;
-      if (!topicsMap[topicName]) {
-        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
-      }
-      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
-      topicsMap[topicName][diffKey].push({
-        q: q.question,
-        options: q.options || ['A', 'B', 'C', 'D'],
-        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-        explanation: q.explanation || ''
-      });
-    });
-
-    const tetrisScript = `
-<script>
-// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - TETRIS XẾP GẠCH]
-window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
-window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
-window.useStaticTopic = true;
-</script>
-`;
-    htmlContent = injectScriptAtTop(htmlContent, tetrisScript);
-  }
-
   // NHÓM GHÉP CẶP LƯỢNG GIÁC & CÔNG THỨC (cấu trúc Đa Chủ Đề & Đa Độ Khó)
   else if (cleanUrl.includes('ghep-cap')) {
     const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
@@ -1770,7 +1714,169 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
     htmlContent = injectScriptAtTop(htmlContent, tetrisScript);
   }
 
-  // NHÓM 6: CÁC GAME CHUẨN CÒN LẠI (Cầu Cá, Rắn Săn, Mario...)
+  // NHÓM 5d: Game Mario Math (Hỗ trợ 3 Chuyên đề, 3 dạng câu hỏi ABCD, Đúng/Sai, Trả lời ngắn, Fallback Data, In-game Editor & Auto-Sampling)
+  else if (cleanUrl.includes('mario') || cleanUrl.includes('Gamemario')) {
+    let activeQuestions = [...questions];
+    if (activeQuestions.length === 0) {
+      try {
+        const ws = DEFAULT_WORKSHEETS.find(w => 
+          (w.title && (w.title.toLowerCase().includes('xác suất') || w.title.toLowerCase().includes('biến cố') || w.title.toLowerCase().includes('mario'))) ||
+          (w.id && (w.id.includes('xac_suat') || w.id.includes('11_07') || w.id.includes('11_08') || w.id.includes('mario')))
+        ) || DEFAULT_WORKSHEETS.find(w => w.questions && w.questions.length >= 8) || DEFAULT_WORKSHEETS[0];
+        
+        if (ws && ws.questions && ws.questions.length > 0) {
+          activeQuestions = ws.questions.map((q, idx) => ({
+            id: q.id || `ws_mario_fb_${idx}`,
+            question: q.question,
+            options: q.options || ['A', 'B', 'C', 'D'],
+            correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+            explanation: q.solution || '',
+            difficulty: idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'),
+            topic: ws.title || 'Chuyên đề 1: Biến cố giao & Biến cố độc lập'
+          } as Question));
+        }
+      } catch (e) {
+        console.warn('Lỗi lấy worksheet dự phòng cho Mario:', e);
+      }
+    }
+
+    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    const defaultTopic = gameTitle || 'Chuyên đề 1: Biến cố giao & Biến cố độc lập';
+
+    activeQuestions.forEach(q => {
+      let topicName = q.topic?.trim() || defaultTopic;
+      const tLow = topicName.toLowerCase();
+      if (tLow.includes('chuyên đề 1') || tLow.includes('chủ đề 1') || (tLow.includes('giao') && tLow.includes('độc lập'))) {
+        topicName = 'Chuyên đề 1: Biến cố giao & Biến cố độc lập';
+      } else if (tLow.includes('chuyên đề 2') || tLow.includes('chủ đề 2') || (tLow.includes('hợp') && tLow.includes('xung khắc'))) {
+        topicName = 'Chuyên đề 2: Biến cố hợp & Biến cố xung khắc';
+      } else if (tLow.includes('chuyên đề 3') || tLow.includes('chủ đề 3') || (tLow.includes('cộng') && tLow.includes('nhân'))) {
+        topicName = 'Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp';
+      }
+
+      if (!topicsMap[topicName]) {
+        topicsMap[topicName] = { easy: [], medium: [], hard: [] };
+      }
+      const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
+      const isTF = (q.options && q.options.length === 2) || (typeof q.question === 'string' && q.question.startsWith('ĐÚNG HAY SAI:')) || (q as any).type === 'truefalse';
+      const isShort = (q.options && q.options.length === 1) || (q as any).type === 'short_answer';
+
+      topicsMap[topicName][diffKey].push({
+        id: q.id,
+        q: normalizeMathFormulas(q.question),
+        options: (q.options && q.options.length > 0) ? q.options.map(o => normalizeMathFormulas(o)) : ['A', 'B', 'C', 'D'],
+        correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+        explanation: normalizeMathFormulas(q.explanation || ''),
+        type: isShort ? 'short_answer' : (isTF ? 'truefalse' : 'abcd'),
+        imageUrl: q.imageUrl || ''
+      });
+    });
+
+    const marioScript = `
+<script>
+// [ADAPTER ENGINE: MARIO MATH - DỮ LIỆU ĐÓNG GÓI, DATA FALLBACK, IN-GAME EDITOR & SECURITY GATE]
+window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
+window.__ADMIN_PIN__ = "2806";
+window.__INJECTED_MARIO_DATA__ = ${JSON.stringify(topicsMap, null, 2)};
+if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__).length > 0) {
+  window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_MARIO_DATA__));
+}
+
+(function() {
+  function syncMarioData() {
+    if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__).length > 0) {
+      window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_MARIO_DATA__));
+      if (!window.selectedTopic || !window.gameDatabase[window.selectedTopic]) {
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+      }
+      if (typeof renderMarioTopicMenuCards === 'function') {
+        renderMarioTopicMenuCards();
+      }
+      if (typeof selectMarioTopic === 'function') {
+        selectMarioTopic(window.selectedTopic, false);
+      }
+    }
+  }
+
+  function applyAdminSecurity() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
+      const adminTopbar = document.getElementById('admin-topbar');
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+      if (isAdmin) {
+        if (adminTopbar) adminTopbar.style.setProperty('display', 'flex', 'important');
+        adminBtns.forEach(btn => {
+          btn.classList.remove('hidden');
+          btn.style.setProperty('display', 'inline-flex', 'important');
+        });
+      } else {
+        if (adminTopbar) adminTopbar.style.setProperty('display', 'none', 'important');
+        adminBtns.forEach(btn => {
+          btn.classList.add('hidden');
+          btn.style.setProperty('display', 'none', 'important');
+        });
+      }
+    } catch(e) {}
+  }
+
+  function setupAdminButtons() {
+    try {
+      const gearBtn = document.getElementById('btn-admin-gear');
+      if (gearBtn) {
+        gearBtn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          if (typeof window.openAdminPinPrompt === 'function') {
+            window.openAdminPinPrompt();
+          }
+        };
+      }
+      const topicBtn = document.getElementById('btn-chuyen-de');
+      if (topicBtn) {
+        topicBtn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          if (typeof window.openMarioTopicMenu === 'function') {
+            window.openMarioTopicMenu();
+          }
+        };
+      }
+    } catch(e) {}
+  }
+
+  function triggerMathTypeset() {
+    try {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function() {});
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      syncMarioData();
+      applyAdminSecurity();
+      setupAdminButtons();
+      triggerMathTypeset();
+    });
+  } else {
+    syncMarioData();
+    applyAdminSecurity();
+    setupAdminButtons();
+    triggerMathTypeset();
+  }
+  window.addEventListener('load', function() {
+    syncMarioData();
+    applyAdminSecurity();
+    setupAdminButtons();
+    triggerMathTypeset();
+  });
+})();
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, marioScript);
+  }
+
+  // NHÓM 6: CÁC GAME CHUẨN CÒN LẠI (Cầu Cá, Rắn Săn...)
   else {
     const stdScript = `
 <script>

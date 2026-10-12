@@ -54,6 +54,13 @@
         .neon-box {
             box-shadow: 0 0 20px rgba(59,130,246,0.4), inset 0 0 15px rgba(34,211,238,0.2);
         }
+
+        /* MathJax Spacer Fix - ngăn dính chữ và công thức toán */
+        .MathJax, mjx-container, .mjx-chtml {
+            margin: 0 4px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
     </style>
 </head>
 <body>
@@ -140,6 +147,16 @@
             <button id="toggleControlsBtn" onclick="toggleControls()" class="flex flex-col items-center justify-center border-l border-white/20 pl-2 md:pl-3 pr-1 md:pr-2 h-full transition-colors opacity-70 hover:opacity-100 text-white" title="Bật/Tắt Nút Điều Khiển">
                 <span class="text-lg md:text-xl leading-none">🎮</span>
                 <span id="toggleControlsText" class="text-[8px] font-bold mt-1 whitespace-nowrap">HIỆN NÚT</span>
+            </button>
+        </div>
+
+        <!-- CẶP NÚT CÔNG CỤ CHUẨN ĐỒNG BỘ TỪ KÉO THẢ (CHỈ HIỆN KHI ?role=admin) -->
+        <div id="admin-topbar" class="hidden pointer-events-auto items-center gap-2 mt-1">
+            <button id="btn-chuyen-de" onclick="openMarioTopicMenu()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs shadow-md border-b-2 border-amber-700 active:translate-y-0.5 transition flex items-center gap-1.5 cursor-pointer">
+                <span>📚</span> CHUYÊN ĐỀ
+            </button>
+            <button id="btn-admin-gear" onclick="openAdminPinPrompt()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-md border-b-2 border-blue-800 active:translate-y-0.5 transition flex items-center gap-1.5 cursor-pointer">
+                <span>⚙️</span> SỬA DỮ LIỆU
             </button>
         </div>
 
@@ -254,6 +271,109 @@
     <!-- THÔNG BÁO ĐÚNG/SAI/HOÀN THÀNH -->
     <div id="feedbackToast" class="hidden fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[60] text-5xl md:text-7xl font-black pixel-font text-center drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)]">
         +100
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL BẢO MẬT: XÁC THỰC MÃ PIN "2806" (ẨN HOÀN TOÀN PLACEHOLDER) -->
+    <!-- ========================================== -->
+    <div id="pin-prompt-modal" class="fixed inset-0 z-[100001] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="relative w-full max-w-sm bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-7 shadow-2xl text-center">
+            <div class="w-16 h-16 mx-auto mb-4 bg-blue-600/20 border border-blue-500/30 rounded-2xl flex items-center justify-center text-3xl">
+                🔐
+            </div>
+            <h3 class="text-xl font-black text-white mb-1 uppercase tracking-wider">Xác Thực Quản Trị</h3>
+            <p class="text-xs text-slate-400 mb-5">Nhập mã bảo mật để mở Hộp công cụ sửa đề</p>
+            
+            <form id="admin-pin-form" onsubmit="handlePinFormSubmit(event)" class="space-y-4">
+                <input type="password" id="admin-pin-input" class="w-full px-4 py-3 bg-slate-800/90 border border-slate-600 focus:border-blue-500 rounded-xl text-center text-2xl font-mono tracking-widest text-white outline-none focus:ring-2 focus:ring-blue-500/40 transition-all" maxlength="10" autocomplete="off" />
+                <p id="pin-error-msg" class="text-xs font-bold text-red-400 hidden">Mã PIN không chính xác! Vui lòng thử lại.</p>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeAdminPinPrompt()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition-all cursor-pointer text-sm">HỦY</button>
+                    <button type="submit" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl shadow-lg shadow-blue-600/30 transition-all cursor-pointer text-sm">XÁC NHẬN</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- HỘP CÔNG CỤ QUẢN TRỊ IN-GAME (IN-GAME EDITOR MODAL) -->
+    <!-- ========================================== -->
+    <div id="admin-editor-modal" class="fixed inset-0 z-[100002] bg-slate-950/90 backdrop-blur-md hidden flex-col justify-start p-2 sm:p-4 md:p-6 overflow-hidden">
+        <div class="w-full max-w-5xl mx-auto bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl flex flex-col h-full max-h-[96vh] overflow-hidden text-slate-100">
+            <!-- MODAL HEADER -->
+            <div class="p-4 sm:p-5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-900/95 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">🍄</div>
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-black text-white uppercase tracking-wide">Quản Trị Đề Thi Mario Xác Suất 11</h2>
+                        <p class="text-xs text-slate-400">Chỉnh sửa 3 chuyên đề & 3 dạng câu hỏi (ABCD, Đúng/Sai, Trả lời ngắn), gõ tiếng Việt Telex và xuất file HTML</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeAdminEditorModal()" class="px-4 py-2 bg-slate-800 hover:bg-red-500/20 hover:text-red-400 text-slate-400 font-bold rounded-xl transition-all cursor-pointer text-sm border border-slate-700">ĐÓNG ✕</button>
+                </div>
+            </div>
+
+            <!-- CHUYÊN ĐỀ SELECTION & TABS -->
+            <div class="p-3 sm:p-4 bg-slate-950/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                <!-- BỘ LỌC DẠNG CÂU HỎI -->
+                <div class="flex flex-wrap items-center gap-2 bg-slate-800/80 p-1 rounded-xl border border-slate-700">
+                    <button type="button" id="tab-btn-all" onclick="setEditorFilter('all')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all bg-amber-500 text-slate-950 shadow">
+                        TẤT CẢ (<span id="count-all">0</span>)
+                    </button>
+                    <button type="button" id="tab-btn-abcd" onclick="setEditorFilter('abcd')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white">
+                        TRẮC NGHIỆM ABCD (<span id="count-abcd">0</span>)
+                    </button>
+                    <button type="button" id="tab-btn-tf" onclick="setEditorFilter('truefalse')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white">
+                        ĐÚNG / SAI 4 Ý (<span id="count-tf">0</span>)
+                    </button>
+                    <button type="button" id="tab-btn-short" onclick="setEditorFilter('short')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white">
+                        TRẢ LỜI NGẮN (<span id="count-short">0</span>)
+                    </button>
+                </div>
+
+                <!-- CHỌN CHUYÊN ĐỀ CẦN SỬA -->
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-400">Chuyên đề:</span>
+                    <select id="editor-topic-select" onchange="changeEditorTopic(this.value)" class="bg-slate-800 border border-slate-700 text-yellow-300 font-bold text-xs rounded-xl px-3 py-2 outline-none focus:border-yellow-400 max-w-[240px]">
+                    </select>
+                </div>
+
+                <!-- NÚT THÊM CÂU HỎI MỚI -->
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="addNewQuestion('abcd')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer flex items-center gap-1.5">
+                        <span>➕</span> Thêm ABCD
+                    </button>
+                    <button type="button" onclick="addNewQuestion('truefalse')" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer flex items-center gap-1.5">
+                        <span>➕</span> Thêm Đúng/Sai
+                    </button>
+                    <button type="button" onclick="addNewQuestion('short')" class="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer flex items-center gap-1.5">
+                        <span>➕</span> Thêm Điền Số
+                    </button>
+                </div>
+            </div>
+
+            <!-- DANH SÁCH CÂU HỎI (CUỘN ĐƯỢC) -->
+            <div id="editor-questions-list" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                <!-- Render danh sách câu hỏi qua renderAdminEditor() -->
+            </div>
+
+            <!-- MODAL FOOTER -->
+            <div class="p-3 sm:p-4 bg-slate-900 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                <div class="text-xs text-slate-400 font-semibold flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Tự động giải phóng phím điều khiển khi gõ tiếng Việt Telex</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="saveAdminQuestions()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl text-sm shadow-lg shadow-blue-600/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95">
+                        <span>💾</span> LƯU TẠM (LOCALSTORAGE)
+                    </button>
+                    <button type="button" onclick="exportUpdatedMarioHtml()" class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black rounded-xl text-sm shadow-lg shadow-yellow-500/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95">
+                        <span>⚡</span> XUẤT FILE HTML MỚI
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -800,28 +920,84 @@
             if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise().catch(e => {});
         }
 
+        // ==========================================
+        // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN (MATHJAX SPACER FIX)
+        // ==========================================
+        function formatMathSpacers(str) {
+            if (!str || typeof str !== 'string') return '';
+            let text = str;
+            // 1. Tự động bọc / sửa ký hiệu tập hợp viết liền: AcapB -> \(A \cap B\), AcupB -> \(A \cup B\)
+            text = text.replace(/\b([A-Z])cap([A-Z])\b/g, '\\($1 \\cap $2\\)');
+            text = text.replace(/\b([A-Z])cup([A-Z])\b/g, '\\($1 \\cup $2\\)');
+            text = text.replace(/([A-Z])\\cap([A-Z])/g, '$1 \\cap $2');
+            text = text.replace(/([A-Z])\\cup([A-Z])/g, '$1 \\cup $2');
+
+            // 2. Tách từ dính giữa chữ tiếng Việt và ký hiệu toán in hoa (Ví dụ: CảA -> Cả A, vàB -> và B)
+            text = text.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
+            // Ký tự in hoa toán học đi liền ngay sau đó là từ tiếng Việt (Ví dụ: Axảy -> A xảy, Bkhông -> B không)
+            text = text.replace(/(^|\s|[^A-Za-z0-9])([A-Z])([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]{2,})/g, '$1$2 $3');
+
+            return text;
+        }
+
+        function sampleFromPool(pool, count) {
+            if (!pool || pool.length === 0) return [];
+            const shuffled = [...pool].sort(() => Math.random() - 0.5);
+            const result = [];
+            for (let i = 0; i < count; i++) {
+                result.push(shuffled[i % shuffled.length]);
+            }
+            return result;
+        }
+
+        // ==========================================
+        // 🍄 CHỌN MÀN CHƠI CHUYÊN ĐỀ & AUTO-SAMPLING (3 DỄ - 3 VỪA - 2 KHÓ = 8 CÂU)
+        // ==========================================
         function selectMarioTopic(topicName, hideOverlay) {
             window.selectedTopic = topicName;
             const topicData = window.gameDatabase[topicName];
             if (!topicData) return;
 
-            // Sắp xếp câu hỏi theo thứ tự Dễ -> Vừa -> Khó
-            const topicQuestions = [];
-            ['easy', 'medium', 'hard'].forEach(diff => {
-                (topicData[diff] || []).forEach(q => {
-                    const copyQ = {
-                        q: q.q,
-                        options: [...q.options],
-                        correct: q.correct
-                    };
+            // Thuật toán Auto-Sampling: Khóa cứng đúng 3 Dễ, 3 Vừa, 2 Khó từ kho câu hỏi
+            const easyPool = topicData.easy || [];
+            const medPool = topicData.medium || [];
+            const hardPool = topicData.hard || [];
+
+            const sampledEasy = sampleFromPool(easyPool, 3);
+            const sampledMed = sampleFromPool(medPool, 3);
+            const sampledHard = sampleFromPool(hardPool, 2);
+
+            let sampledList = [...sampledEasy, ...sampledMed, ...sampledHard];
+
+            // Dự phòng nếu ngân hàng câu hỏi thiếu hụt ở một mức độ
+            if (sampledList.length < 8) {
+                const allQs = [...easyPool, ...medPool, ...hardPool];
+                while (sampledList.length < 8 && allQs.length > 0) {
+                    sampledList.push(sampleFromPool(allQs, 1)[0]);
+                }
+            }
+
+            const topicQuestions = sampledList.map(q => {
+                const copyQ = {
+                    id: q.id,
+                    q: formatMathSpacers(q.q),
+                    options: (q.options || []).map(opt => formatMathSpacers(opt)),
+                    correct: typeof q.correct === 'number' ? q.correct : 0,
+                    explanation: formatMathSpacers(q.explanation || ''),
+                    type: q.type || ((q.options && q.options.length === 2) ? 'truefalse' : ((q.options && q.options.length === 1) ? 'short_answer' : 'abcd')),
+                    imageUrl: q.imageUrl || ''
+                };
+
+                // Trộn ngẫu nhiên thứ tự 4 đáp án đối với dạng ABCD chống học vẹt
+                if (copyQ.type === 'abcd' && copyQ.options.length === 4) {
                     const correctStr = copyQ.options[copyQ.correct];
                     for (let j = copyQ.options.length - 1; j > 0; j--) {
                         const k = Math.floor(Math.random() * (j + 1));
                         [copyQ.options[j], copyQ.options[k]] = [copyQ.options[k], copyQ.options[j]];
                     }
                     copyQ.correct = copyQ.options.indexOf(correctStr);
-                    topicQuestions.push(copyQ);
-                });
+                }
+                return copyQ;
             });
 
             initMarioLevel(topicQuestions);
@@ -1080,25 +1256,82 @@
             const qText = document.getElementById('questionText'); const optContainer = document.getElementById('optionsContainer');
             
             document.getElementById('qCountDisplay').textContent = `${currentQuestionIndex + 1}/${questions.length}`;
-            qText.innerHTML = block.questionData.q; optContainer.innerHTML = '';
             
-            block.questionData.options.forEach((optHTML, idx) => {
-                const btn = document.createElement('button');
-                btn.className = "option-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-5 px-6 rounded-2xl text-center text-lg md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[80px]";
-                btn.innerHTML = optHTML; btn.onclick = () => checkAnswer(idx); optContainer.appendChild(btn);
-            });
+            let qHtml = '';
+            if (block.questionData.imageUrl) {
+                qHtml += `<div class="mb-4 text-center"><img src="${block.questionData.imageUrl}" class="max-h-48 max-w-full mx-auto rounded-xl border border-cyan-500/40 shadow-lg object-contain" /></div>`;
+            }
+            qHtml += block.questionData.q;
+            qText.innerHTML = qHtml;
+            optContainer.innerHTML = '';
+            
+            const qType = block.questionData.type || ((block.questionData.options && block.questionData.options.length === 2) ? 'truefalse' : ((block.questionData.options && block.questionData.options.length === 1) ? 'short_answer' : 'abcd'));
+
+            if (qType === 'short_answer' || qType === 'short' || (block.questionData.options && block.questionData.options.length === 1)) {
+                // Dạng 3: Điền số ngắn
+                optContainer.className = "flex flex-col sm:flex-row items-center gap-4 w-full max-w-2xl mx-auto";
+                optContainer.innerHTML = `
+                    <input type="text" id="shortAnswerInput" placeholder="Nhập đáp án (ví dụ: 0.25 hoặc 1/4)..." class="flex-1 w-full px-6 py-4 bg-slate-800 border-2 border-cyan-400 rounded-2xl text-white text-xl font-bold outline-none focus:ring-4 focus:ring-cyan-500/40 text-center" autocomplete="off" />
+                    <button type="button" id="submitShortAnswerBtn" onclick="checkShortAnswer()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-xl rounded-2xl shadow-lg transition-all active:scale-95 cursor-pointer">TRẢ LỜI</button>
+                `;
+                const inputEl = document.getElementById('shortAnswerInput');
+                if (inputEl) {
+                    ['keydown', 'keyup', 'keypress'].forEach(evt => {
+                        inputEl.addEventListener(evt, e => e.stopPropagation());
+                    });
+                    inputEl.addEventListener('keydown', e => {
+                        if (e.key === 'Enter') checkShortAnswer();
+                    });
+                    setTimeout(() => inputEl.focus(), 150);
+                }
+            } else if (qType === 'truefalse' || (block.questionData.options && block.questionData.options.length === 2)) {
+                // Dạng 2: Đúng / Sai
+                optContainer.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 w-full max-w-2xl mx-auto";
+                const isFirstTrue = (block.questionData.options && block.questionData.options[0] && block.questionData.options[0].toLowerCase().includes('sai')) ? false : true;
+                const trueIdx = isFirstTrue ? 0 : 1;
+                const falseIdx = isFirstTrue ? 1 : 0;
+
+                const trueBtn = document.createElement('button');
+                trueBtn.className = "option-btn w-full bg-emerald-600 hover:bg-emerald-500 border-2 border-emerald-400 text-white font-black py-6 px-6 rounded-2xl text-center text-2xl shadow-[0_4px_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer";
+                trueBtn.innerHTML = `<span>✓</span> ĐÚNG`;
+                trueBtn.onclick = () => checkAnswer(trueIdx);
+                optContainer.appendChild(trueBtn);
+
+                const falseBtn = document.createElement('button');
+                falseBtn.className = "option-btn w-full bg-rose-600 hover:bg-rose-500 border-2 border-rose-400 text-white font-black py-6 px-6 rounded-2xl text-center text-2xl shadow-[0_4px_15px_rgba(244,63,94,0.3)] hover:shadow-[0_0_20px_rgba(244,63,94,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer";
+                falseBtn.innerHTML = `<span>✕</span> SAI`;
+                falseBtn.onclick = () => checkAnswer(falseIdx);
+                optContainer.appendChild(falseBtn);
+            } else {
+                // Dạng 1: Trắc nghiệm ABCD
+                optContainer.className = "grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full max-w-3xl";
+                (block.questionData.options || []).forEach((optHTML, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "option-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-5 px-6 rounded-2xl text-center text-lg md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[80px] cursor-pointer";
+                    btn.innerHTML = optHTML;
+                    btn.onclick = () => checkAnswer(idx);
+                    optContainer.appendChild(btn);
+                });
+            }
 
             modal.classList.remove('hidden');
-            MathJax.typesetClear();
-            MathJax.typesetPromise().then(() => { setTimeout(() => { content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10); });
+            if (window.MathJax) {
+                if (window.MathJax.typesetClear) window.MathJax.typesetClear();
+                window.MathJax.typesetPromise().then(() => {
+                    setTimeout(() => { content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
+                }).catch(err => {
+                    content.classList.remove('scale-95'); content.classList.add('scale-100');
+                });
+            } else {
+                content.classList.remove('scale-95'); content.classList.add('scale-100');
+            }
         }
 
-        function checkAnswer(selectedIndex) {
+        function resolveAnswerOutcome(isCorrect) {
             const modal = document.getElementById('quizModal'); const content = document.getElementById('modalContent');
             content.classList.remove('scale-100'); content.classList.add('scale-95');
             setTimeout(() => { modal.classList.add('hidden'); }, 200);
 
-            const isCorrect = (selectedIndex === currentBlock.questionData.correct);
             const isLastBlock = (currentBlock === blocks[blocks.length - 1]);
             let resolvedLast = false;
 
@@ -1126,6 +1359,25 @@
                 if (resolvedLast) { gameState = 'autofinish'; } 
                 else { gameState = 'playing'; }
             }, 200);
+        }
+
+        function checkAnswer(selectedIndex) {
+            const isCorrect = (selectedIndex === currentBlock.questionData.correct);
+            resolveAnswerOutcome(isCorrect);
+        }
+
+        function checkShortAnswer() {
+            const input = document.getElementById('shortAnswerInput');
+            if (!input || !currentBlock) return;
+            const userVal = input.value.trim().toLowerCase().replace(',', '.');
+            const targetRaw = (currentBlock.questionData.options && currentBlock.questionData.options[0]) || currentBlock.questionData.correctAnswer || currentBlock.questionData.correct || '';
+            const correctVal = String(targetRaw).trim().toLowerCase().replace(',', '.');
+            
+            let isCorrect = (userVal === correctVal);
+            if (!isCorrect && !isNaN(parseFloat(userVal)) && !isNaN(parseFloat(correctVal))) {
+                isCorrect = Math.abs(parseFloat(userVal) - parseFloat(correctVal)) < 0.0001;
+            }
+            resolveAnswerOutcome(isCorrect);
         }
 
         function showToast(text, color) {
@@ -1172,9 +1424,421 @@
             update(); draw(); requestAnimationFrame(loop);
         }
 
+        // ==========================================
+        // 🔐 BẢO MẬT & HỘP SỬA ĐỀ TRONG GAME (IN-GAME EDITOR)
+        // ==========================================
+        let editorActiveFilter = 'all';
+        let editorActiveTopic = '';
+
+        function applyAdminSecurity() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdmin = urlParams.get('role') === 'admin';
+            const topbar = document.getElementById('admin-topbar');
+            if (topbar) {
+                topbar.style.display = isAdmin ? 'flex' : 'none';
+            }
+        }
+
+        function openAdminPinPrompt() {
+            if (gameState === 'playing' || gameState === 'autofinish') {
+                previousGameState = gameState;
+                gameState = 'paused';
+            }
+            const modal = document.getElementById('pin-prompt-modal');
+            const input = document.getElementById('admin-pin-input');
+            const errorMsg = document.getElementById('pin-error-msg');
+            if (errorMsg) errorMsg.classList.add('hidden');
+            if (input) { input.value = ''; }
+            if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+            setTimeout(() => { if (input) input.focus(); }, 100);
+        }
+
+        function closeAdminPinPrompt() {
+            const modal = document.getElementById('pin-prompt-modal');
+            if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+            if (previousGameState === 'playing' && gameState === 'paused') {
+                gameState = 'playing';
+            }
+        }
+
+        function handlePinFormSubmit(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const input = document.getElementById('admin-pin-input');
+            const errorMsg = document.getElementById('pin-error-msg');
+            const val = input ? input.value.trim() : '';
+            if (val === '2806') {
+                closeAdminPinPrompt();
+                openAdminEditorModal();
+            } else {
+                if (errorMsg) errorMsg.classList.remove('hidden');
+                if (input) { input.value = ''; input.focus(); }
+            }
+        }
+
+        function openAdminEditorModal() {
+            if (gameState === 'playing' || gameState === 'autofinish') {
+                previousGameState = gameState;
+                gameState = 'paused';
+            }
+            const modal = document.getElementById('admin-editor-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            // Đồng bộ danh sách chuyên đề vào select box
+            const select = document.getElementById('editor-topic-select');
+            if (select) {
+                select.innerHTML = '';
+                const topics = Object.keys(window.gameDatabase);
+                topics.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t;
+                    opt.textContent = t;
+                    if (t === window.selectedTopic) opt.selected = true;
+                    select.appendChild(opt);
+                });
+                editorActiveTopic = select.value || topics[0];
+            } else {
+                editorActiveTopic = window.selectedTopic;
+            }
+
+            editorActiveFilter = 'all';
+            updateEditorFilterButtons();
+            renderAdminEditor();
+        }
+
+        function closeAdminEditorModal() {
+            const modal = document.getElementById('admin-editor-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            if (previousGameState === 'playing' && gameState === 'paused') {
+                gameState = 'playing';
+            }
+        }
+
+        function setEditorFilter(filterType) {
+            editorActiveFilter = filterType;
+            updateEditorFilterButtons();
+            renderAdminEditor();
+        }
+
+        function updateEditorFilterButtons() {
+            ['all', 'abcd', 'truefalse', 'short'].forEach(f => {
+                const btn = document.getElementById(`tab-btn-${f === 'truefalse' ? 'tf' : f}`);
+                if (btn) {
+                    if (f === editorActiveFilter) {
+                        btn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all bg-amber-500 text-slate-950 shadow";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white";
+                    }
+                }
+            });
+        }
+
+        function changeEditorTopic(newTopic) {
+            editorActiveTopic = newTopic;
+            renderAdminEditor();
+        }
+
+        function getTopicQuestionsFlat(topicName) {
+            const topic = window.gameDatabase[topicName];
+            if (!topic) return [];
+            const result = [];
+            ['easy', 'medium', 'hard'].forEach(diff => {
+                (topic[diff] || []).forEach((q, idx) => {
+                    result.push({ ...q, _diff: diff, _idxInPool: idx });
+                });
+            });
+            return result;
+        }
+
+        function renderAdminEditor() {
+            const listContainer = document.getElementById('editor-questions-list');
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+
+            const allQs = getTopicQuestionsFlat(editorActiveTopic);
+
+            // Cập nhật số đếm thống kê
+            let countAbcd = 0, countTf = 0, countShort = 0;
+            allQs.forEach(q => {
+                const t = q.type || ((q.options && q.options.length === 2) ? 'truefalse' : ((q.options && q.options.length === 1) ? 'short' : 'abcd'));
+                if (t === 'truefalse') countTf++;
+                else if (t === 'short' || t === 'short_answer') countShort++;
+                else countAbcd++;
+            });
+
+            const countAllEl = document.getElementById('count-all');
+            const countAbcdEl = document.getElementById('count-abcd');
+            const countTfEl = document.getElementById('count-tf');
+            const countShortEl = document.getElementById('count-short');
+            if (countAllEl) countAllEl.innerText = allQs.length;
+            if (countAbcdEl) countAbcdEl.innerText = countAbcd;
+            if (countTfEl) countTfEl.innerText = countTf;
+            if (countShortEl) countShortEl.innerText = countShort;
+
+            // Lọc câu hỏi theo tab
+            const filtered = allQs.filter(q => {
+                const t = q.type || ((q.options && q.options.length === 2) ? 'truefalse' : ((q.options && q.options.length === 1) ? 'short' : 'abcd'));
+                if (editorActiveFilter === 'all') return true;
+                if (editorActiveFilter === 'abcd') return t === 'abcd';
+                if (editorActiveFilter === 'truefalse') return t === 'truefalse';
+                if (editorActiveFilter === 'short') return t === 'short' || t === 'short_answer';
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-12 text-slate-500 font-bold">
+                        <div class="text-4xl mb-2">📭</div>
+                        Chưa có câu hỏi nào trong danh mục này. Hãy bấm các nút "➕ Thêm" ở trên để bổ sung!
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach((q, renderIndex) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-800/80 border border-slate-700 rounded-2xl p-4 sm:p-5 shadow-lg space-y-3 transition-all hover:border-slate-600";
+                
+                const qType = q.type || ((q.options && q.options.length === 2) ? 'truefalse' : ((q.options && q.options.length === 1) ? 'short' : 'abcd'));
+                const diffBadgeColor = q._diff === 'easy' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : (q._diff === 'medium' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-rose-500/20 text-rose-400 border-rose-500/30');
+                const diffLabel = q._diff === 'easy' ? '🟢 DỄ' : (q._diff === 'medium' ? '🟡 VỪA' : '🔴 KHÓ');
+
+                let specificControlsHtml = '';
+
+                if (qType === 'short' || qType === 'short_answer') {
+                    const ansVal = (q.options && q.options[0]) || q.correctAnswer || '';
+                    specificControlsHtml = `
+                        <div class="pt-2">
+                            <label class="text-xs font-bold text-amber-400 mb-1 block">Đáp án chính xác (Số / Phân số):</label>
+                            <input type="text" value="${String(ansVal).replace(/"/g, '&quot;')}" onchange="updateQuestionShortAnswer('${q._diff}', ${q._idxInPool}, this.value)" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono text-sm focus:border-amber-400 outline-none" placeholder="Ví dụ: 0.25 hoặc 1/4" />
+                        </div>
+                    `;
+                } else if (qType === 'truefalse') {
+                    const isTrue = q.correct === 0;
+                    specificControlsHtml = `
+                        <div class="pt-2 flex items-center gap-4">
+                            <span class="text-xs font-bold text-indigo-400">Khẳng định này là:</span>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-emerald-400">
+                                <input type="radio" name="tf_${q._diff}_${q._idxInPool}" ${isTrue ? 'checked' : ''} onchange="updateQuestionCorrect('${q._diff}', ${q._idxInPool}, 0)" /> ĐÚNG
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-rose-400">
+                                <input type="radio" name="tf_${q._diff}_${q._idxInPool}" ${!isTrue ? 'checked' : ''} onchange="updateQuestionCorrect('${q._diff}', ${q._idxInPool}, 1)" /> SAI
+                            </label>
+                        </div>
+                    `;
+                } else {
+                    // ABCD
+                    const opts = q.options || ['', '', '', ''];
+                    specificControlsHtml = `
+                        <div class="space-y-2 pt-2">
+                            <label class="text-xs font-bold text-slate-400 block">4 Đáp án lựa chọn (chọn nút tròn để đánh dấu đáp án đúng):</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${['A', 'B', 'C', 'D'].map((label, optIdx) => `
+                                    <div class="flex items-center gap-2 bg-slate-900/60 p-2 rounded-xl border border-slate-700/60">
+                                        <input type="radio" name="corr_${q._diff}_${q._idxInPool}" ${q.correct === optIdx ? 'checked' : ''} onchange="updateQuestionCorrect('${q._diff}', ${q._idxInPool}, ${optIdx})" class="cursor-pointer" title="Chọn làm đáp án đúng" />
+                                        <span class="text-xs font-black text-cyan-400">${label}:</span>
+                                        <input type="text" value="${String(opts[optIdx] || '').replace(/"/g, '&quot;')}" onchange="updateQuestionOption('${q._diff}', ${q._idxInPool}, ${optIdx}, this.value)" class="flex-1 bg-transparent text-xs text-white outline-none" placeholder="Nội dung phương án ${label}..." />
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/60 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-black border ${diffBadgeColor}">
+                                ${diffLabel}
+                            </span>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                Câu #${renderIndex + 1} (${qType.toUpperCase()})
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select onchange="updateQuestionDifficulty('${q._diff}', ${q._idxInPool}, this.value)" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2 py-1 outline-none">
+                                <option value="easy" ${q._diff === 'easy' ? 'selected' : ''}>🟢 Dễ</option>
+                                <option value="medium" ${q._diff === 'medium' ? 'selected' : ''}>🟡 Vừa</option>
+                                <option value="hard" ${q._diff === 'hard' ? 'selected' : ''}>🔴 Khó</option>
+                            </select>
+                            <button type="button" onclick="deleteAdminQuestion('${q._diff}', ${q._idxInPool})" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white rounded-lg text-xs font-bold transition-all cursor-pointer border border-rose-500/30">
+                                🗑 Xóa
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 mb-1 block">Nội dung câu hỏi (hỗ trợ MathJax TeX như \\(A \\cap B\\)):</label>
+                        <textarea rows="2" onchange="updateQuestionText('${q._diff}', ${q._idxInPool}, this.value)" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-cyan-400 resize-y">${q.q || ''}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 mb-1 block">Link hình ảnh minh họa (tùy chọn):</label>
+                        <input type="text" value="${String(q.imageUrl || '').replace(/"/g, '&quot;')}" onchange="updateQuestionImage('${q._diff}', ${q._idxInPool}, this.value)" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs outline-none focus:border-cyan-400" placeholder="https://..." />
+                    </div>
+
+                    ${specificControlsHtml}
+                `;
+
+                listContainer.appendChild(card);
+            });
+        }
+
+        // ==========================================
+        // ✍️ CÁC HÀM CẬP NHẬT DỮ LIỆU IN-PLACE
+        // ==========================================
+        function updateQuestionText(diff, idx, val) {
+            const topic = window.gameDatabase[editorActiveTopic];
+            if (topic && topic[diff] && topic[diff][idx]) {
+                topic[diff][idx].q = formatMathSpacers(val);
+            }
+        }
+
+        function updateQuestionImage(diff, idx, val) {
+            const topic = window.gameDatabase[editorActiveTopic];
+            if (topic && topic[diff] && topic[diff][idx]) {
+                topic[diff][idx].imageUrl = val.trim();
+            }
+        }
+
+        function updateQuestionOption(diff, qIdx, optIdx, val) {
+            const topic = window.gameDatabase[editorActiveTopic];
+            if (topic && topic[diff] && topic[diff][qIdx]) {
+                if (!topic[diff][qIdx].options) topic[diff][qIdx].options = [];
+                topic[diff][qIdx].options[optIdx] = formatMathSpacers(val);
+            }
+        }
+
+        function updateQuestionCorrect(diff, qIdx, correctIdx) {
+            const topic = window.gameDatabase[editorActiveTopic];
+            if (topic && topic[diff] && topic[diff][qIdx]) {
+                topic[diff][qIdx].correct = correctIdx;
+            }
+        }
+
+        function updateQuestionShortAnswer(diff, qIdx, val) {
+            const topic = window.gameDatabase[editorActiveTopic];
+            if (topic && topic[diff] && topic[diff][qIdx]) {
+                topic[diff][qIdx].options = [val.trim()];
+                topic[diff][qIdx].correctAnswer = val.trim();
+                topic[diff][qIdx].correct = 0;
+            }
+        }
+
+        function updateQuestionDifficulty(oldDiff, idx, newDiff) {
+            if (oldDiff === newDiff) return;
+            const topic = window.gameDatabase[editorActiveTopic];
+            if (topic && topic[oldDiff] && topic[oldDiff][idx]) {
+                const item = topic[oldDiff].splice(idx, 1)[0];
+                if (!topic[newDiff]) topic[newDiff] = [];
+                topic[newDiff].push(item);
+                renderAdminEditor();
+            }
+        }
+
+        function addNewQuestion(type) {
+            const topic = window.gameDatabase[editorActiveTopic];
+            if (!topic) return;
+            if (!topic.easy) topic.easy = [];
+
+            let newQ = {
+                id: 'mario_' + Date.now(),
+                q: 'Nội dung câu hỏi mới...',
+                type: type,
+                correct: 0,
+                explanation: ''
+            };
+
+            if (type === 'short') {
+                newQ.options = ['0.5'];
+                newQ.correctAnswer = '0.5';
+            } else if (type === 'truefalse') {
+                newQ.options = ['Đúng', 'Sai'];
+            } else {
+                newQ.options = ['Phương án A', 'Phương án B', 'Phương án C', 'Phương án D'];
+            }
+
+            topic.easy.push(newQ);
+            renderAdminEditor();
+        }
+
+        function deleteAdminQuestion(diff, idx) {
+            const topic = window.gameDatabase[editorActiveTopic];
+            if (topic && topic[diff]) {
+                topic[diff].splice(idx, 1);
+                renderAdminEditor();
+            }
+        }
+
+        function saveAdminQuestions() {
+            try {
+                localStorage.setItem('mario_custom_quiz', JSON.stringify(window.gameDatabase));
+                selectMarioTopic(window.selectedTopic, false);
+                alert("✓ Đã lưu thành công toàn bộ dữ liệu vào LocalStorage của trình duyệt!");
+            } catch(e) {
+                alert("Lỗi khi lưu dữ liệu: " + e.message);
+            }
+        }
+
+        function exportUpdatedMarioHtml() {
+            try {
+                let htmlContent = document.documentElement.outerHTML;
+                const dbJson = JSON.stringify(window.gameDatabase, null, 2);
+                htmlContent = htmlContent.replace(/window\.gameDatabase\s*=\s*\{[\s\S]*?\n\s*\};/, `window.gameDatabase = ${dbJson};`);
+                
+                const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Gamemario_toan11_xacsuat_${new Date().toISOString().slice(0,10)}.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch(e) {
+                alert("Lỗi khi xuất file HTML: " + e.message);
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            // 1. Kiểm tra nếu có dữ liệu lưu tạm trong LocalStorage
+            try {
+                const saved = localStorage.getItem('mario_custom_quiz');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && typeof parsed === 'object') {
+                        window.gameDatabase = parsed;
+                    }
+                }
+            } catch(e) {}
+
+            // 2. Kiểm tra nếu có window.__INJECTED_MARIO_DATA__ (từ Studio Game Exporter)
+            if (window.__INJECTED_MARIO_DATA__ && typeof window.__INJECTED_MARIO_DATA__ === 'object') {
+                window.gameDatabase = window.__INJECTED_MARIO_DATA__;
+            }
+
+            // 3. Khởi tạo menu & level
+            window.selectedTopic = Object.keys(window.gameDatabase)[0];
             renderMarioTopicMenuCards();
             selectMarioTopic(window.selectedTopic, false);
+
+            // 4. Phân quyền admin
+            applyAdminSecurity();
+
+            // 5. Chống kẹt phím Telex / điều khiển Mario khi nhập liệu
+            ['admin-editor-modal', 'pin-prompt-modal'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    ['keydown', 'keyup', 'keypress'].forEach(evt => {
+                        el.addEventListener(evt, e => e.stopPropagation());
+                    });
+                }
+            });
         });
 
         document.fonts.ready.then(() => { requestAnimationFrame(loop); });

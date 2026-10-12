@@ -2381,6 +2381,9 @@ export async function downloadGameWordTemplate(gameIdentifier: string): Promise<
   if (cleanId.includes('ca-ngua') || cleanId.includes('ca_ngua') || cleanId.includes('ngua')) {
     return downloadCaNguaWordTemplate();
   }
+  if (cleanId.includes('mario') || cleanId.includes('gamemario')) {
+    return downloadMarioWordTemplate();
+  }
   if (cleanId.includes('tetris') || cleanId.includes('gametetris')) {
     return downloadTetrisWordTemplate();
   }
@@ -2409,6 +2412,9 @@ export async function downloadGameExcelTemplate(gameIdentifier: string): Promise
   const cleanId = (gameIdentifier || '').toLowerCase();
   if (cleanId.includes('ca-ngua') || cleanId.includes('ca_ngua') || cleanId.includes('ngua')) {
     return downloadCaNguaExcelTemplate();
+  }
+  if (cleanId.includes('mario') || cleanId.includes('gamemario')) {
+    return downloadMarioExcelTemplate();
   }
   if (cleanId.includes('tetris') || cleanId.includes('gametetris')) {
     return downloadTetrisExcelTemplate();
@@ -2841,6 +2847,198 @@ export async function downloadTetrisExcelTemplate(): Promise<void> {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Tetris_3_Dang_De");
   XLSX.writeFile(wb, "Mau_Game_Tetris_3_Dang_Cau_Hoi.xlsx");
+}
+
+/**
+ * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHO GAME MARIO PHIÊU LƯU KÝ (CHUẨN 3 CHUYÊN ĐỀ x 3 DẠNG BẢNG ĐEN TRẮNG)
+ */
+export async function downloadMarioWordTemplate(): Promise<void> {
+  const sectionsContent: any[] = [
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "MẪU ĐỀ GAME MARIO PHIÊU LƯU KÝ (CHUẨN 3 CHUYÊN ĐỀ x 3 DẠNG BẢNG ĐEN TRẮNG)",
+          bold: true,
+          size: 26,
+          color: "000000"
+        })
+      ],
+      spacing: { after: 120 }
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "HƯỚNG DẪN CẤU TRÚC SOẠN ĐỀ CHO GAME MARIO:\n" +
+                "1. Game bao gồm 3 Chuyên đề (World): Chuyên đề 1 (Biến cố giao & độc lập), Chuyên đề 2 (Biến cố hợp & xung khắc), Chuyên đề 3 (Công thức cộng & nhân tổng hợp).\n" +
+                "2. Mỗi Chuyên đề hỗ trợ 3 dạng câu hỏi chuẩn đen trắng (không tô màu nền ô, viền đơn rõ ràng):\n" +
+                "   - DẠNG TRẮC NGHIỆM ABCD (Bảng 7 dòng x 2 cột): Dòng 1: Câu [N] (TN) | Đề bài; Dòng 2..5: A), B), C), D); Dòng 6: Lời giải; Dòng 7: Đáp án A/B/C/D.\n" +
+                "   - DẠNG ĐÚNG / SAI 4 Ý (Bảng 9 dòng x 2 cột): Dòng 1: Câu [N] (Đ/S) | Lời dẫn chung; Dòng 2, 4, 6, 8: A), B), C), D); Dòng 3, 5, 7, 9: Đúng/Sai | Lời giải chi tiết. Hệ thống ghép lời dẫn với từng phát biểu độc lập khi chơi!\n" +
+                "   - DẠNG TRẢ LỜI NGẮN / ĐIỀN SỐ (Bảng 3 dòng x 2 cột): Dòng 1: Câu [N] (TLN) | Đề bài; Dòng 2: Đáp án số | Số kết quả (tối đa 4 ký tự); Dòng 3: Lời giải.\n" +
+                "3. THUẬT TOÁN AUTO-SAMPLING: Mỗi World cố định 8 khối gạch '?' (3 Dễ, 3 Vừa, 2 Khó). Thầy cô có thể soạn bao nhiêu câu tùy ý, Mario Engine sẽ tự động bốc ngẫu nhiên đúng 3 Dễ, 3 Vừa, 2 Khó rải vào map gạch theo độ khó tăng dần!",
+          size: 19,
+          color: "333333"
+        })
+      ],
+      spacing: { after: 220 }
+    }),
+
+    // WORLD 1
+    new Paragraph({
+      children: [new TextRun({ text: "CHUYÊN ĐỀ 1: BIẾN CỐ GIAO & BIẾN CỐ ĐỘC LẬP (WORLD 1)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    createTetrisMCQTable(
+      1,
+      "Cho hai biến cố \\( A \\) và \\( B \\). Biến cố giao \\( AB \\) (hoặc \\( A \\cap B \\)) là biến cố:",
+      "Cả \\( A \\) và \\( B \\) cùng xảy ra",
+      "Chỉ có \\( A \\) hoặc \\( B \\) xảy ra",
+      "Ít nhất một trong hai biến cố xảy ra",
+      "\\( A \\) xảy ra nhưng \\( B \\) không xảy ra",
+      "Biến cố giao AB xảy ra khi và chỉ khi cả A và B đồng thời xảy ra.",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisTFQuestionTable(
+      2,
+      "Hai xạ thủ bắn bia độc lập. Xác suất bắn trúng của người 1 là \\( 0.7 \\), người 2 là \\( 0.8 \\). Xét tính Đúng/Sai của các khẳng định sau:",
+      "Xác suất cả hai người cùng bắn trúng bằng \\( 0.56 \\).", "Đúng", "P = 0.7 * 0.8 = 0.56.",
+      "Xác suất cả hai người đều bắn trượt bằng \\( 0.06 \\).", "Đúng", "P = (1 - 0.7)*(1 - 0.8) = 0.3 * 0.2 = 0.06.",
+      "Xác suất người 1 bắn trúng và người 2 bắn trượt bằng \\( 0.14 \\).", "Đúng", "P = 0.7 * (1 - 0.8) = 0.14.",
+      "Xác suất có ít nhất một người bắn trúng bằng \\( 0.90 \\).", "Sai", "P = 1 - 0.06 = 0.94."
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisShortAnswerTable(
+      3,
+      "Cho hai biến cố độc lập \\( A \\) và \\( B \\) có \\( P(A) = 0.4 \\) và \\( P(B) = 0.5 \\). Giá trị của \\( P(AB) \\) bằng bao nhiêu?",
+      "0.2",
+      "P(AB) = P(A) * P(B) = 0.4 * 0.5 = 0.2."
+    ),
+    new Paragraph({ text: "", spacing: { after: 200 } }),
+
+    // WORLD 2
+    new Paragraph({
+      children: [new TextRun({ text: "CHUYÊN ĐỀ 2: BIẾN CỐ HỢP & BIẾN CỐ XUNG KHẮC (WORLD 2)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    createTetrisMCQTable(
+      4,
+      "Hai biến cố \\( A \\) và \\( B \\) được gọi là xung khắc khi và chỉ khi:",
+      "\\( A \\cap B = \\emptyset \\)",
+      "\\( A \\cup B = \\Omega \\)",
+      "\\( P(A) + P(B) = 1 \\)",
+      "\\( P(AB) = P(A) \\cdot P(B) \\)",
+      "Hai biến cố xung khắc không thể đồng thời xảy ra.",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisTFQuestionTable(
+      5,
+      "Cho \\( A, B \\) là hai biến cố xung khắc có \\( P(A) = 0.25 \\) và \\( P(B) = 0.45 \\). Xét tính Đúng/Sai của các khẳng định sau:",
+      "Biến cố giao có xác suất \\( P(AB) = 0 \\).", "Đúng", "Hai biến cố xung khắc không thể đồng thời xảy ra.",
+      "Xác suất biến cố hợp \\( P(A \\cup B) = 0.70 \\).", "Đúng", "P(A U B) = P(A) + P(B) = 0.25 + 0.45 = 0.70.",
+      "Xác suất biến cố hợp \\( P(A \\cup B) = P(A) \\cdot P(B) \\).", "Sai", "Công thức nhân chỉ đúng cho hai biến cố độc lập.",
+      "Biến cố đối của \\( A \\) có xác suất là \\( 0.75 \\).", "Đúng", "P(not A) = 1 - 0.25 = 0.75."
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisShortAnswerTable(
+      6,
+      "Cho hai biến cố \\( A \\) và \\( B \\) thỏa mãn \\( P(A) = 0.5 \\), \\( P(B) = 0.6 \\) và \\( P(A \\cup B) = 0.8 \\). Xác suất của biến cố đối \\( \\overline{A} \\cap \\overline{B} \\) bằng bao nhiêu?",
+      "0.2",
+      "Theo luật De Morgan: not(A) cap not(B) = not(A cup B) => P = 1 - 0.8 = 0.2."
+    ),
+    new Paragraph({ text: "", spacing: { after: 200 } }),
+
+    // WORLD 3
+    new Paragraph({
+      children: [new TextRun({ text: "CHUYÊN ĐỀ 3: CÔNG THỨC CỘNG & NHÂN XÁC SUẤT TỔNG HỢP (WORLD 3)", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    createTetrisMCQTable(
+      7,
+      "Cho biến cố \\( A \\) có \\( P(A) = 0.7 \\). Xác suất của biến cố đối \\( \\overline{A} \\) là:",
+      "\\( 0.3 \\)",
+      "\\( 0.7 \\)",
+      "\\( -0.7 \\)",
+      "\\( 1.7 \\)",
+      "P(not A) = 1 - P(A) = 1 - 0.7 = 0.3.",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisTFQuestionTable(
+      8,
+      "Hai bạn An và Bình độc lập cùng giải một bài toán. Xác suất An giải được là \\( 0.8 \\), Bình giải được là \\( 0.7 \\). Xét tính Đúng/Sai:",
+      "Xác suất cả hai bạn cùng giải được là \\( 0.56 \\).", "Đúng", "P = 0.8 * 0.7 = 0.56.",
+      "Xác suất cả hai bạn đều không giải được là \\( 0.06 \\).", "Đúng", "P = (1 - 0.8)*(1 - 0.7) = 0.06.",
+      "Xác suất bài toán được giải quyết là \\( 0.94 \\).", "Đúng", "P = 1 - 0.06 = 0.94.",
+      "Xác suất chỉ có đúng một bạn giải được là \\( 0.40 \\).", "Sai", "P = 0.8*0.3 + 0.2*0.7 = 0.38."
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisShortAnswerTable(
+      9,
+      "Một xạ thủ bắn 3 phát độc lập với xác suất trúng mỗi phát là \\( 0.8 \\). Xác suất người đó không bắn trúng phát nào bằng bao nhiêu?",
+      "0.008",
+      "P = (1 - 0.8)^3 = 0.2^3 = 0.008."
+    )
+  ];
+
+  const doc = new Document({
+    sections: [{ properties: {}, children: sectionsContent }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Mau_Game_Mario_3_Chuyen_De_3_Dang_De.docx");
+}
+
+/**
+ * SINH VÀ TẢI FILE EXCEL (.XLSX) MẪU CHO GAME MARIO PHIÊU LƯU KÝ (3 CHUYÊN ĐỀ x 3 DẠNG CÂU HỎI)
+ */
+export async function downloadMarioExcelTemplate(): Promise<void> {
+  const { XLSX } = await loadDocumentLibraries();
+  const rows = [
+    ["Chuyên đề", "Loại Dạng", "Cột 1: Câu / Ý", "Cột 2: Nội dung phát biểu / Đề bài", "Cột 3: Đáp án (A/B/C/D hoặc Đúng/Sai hoặc Số)", "Cột 4: Lời giải chi tiết"],
+    // World 1
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "MC", "Câu 1", "Cho hai biến cố A và B. Biến cố giao AB là biến cố:", "A", "Cả A và B đồng thời xảy ra."],
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "MC", "A)", "Cả A và B cùng xảy ra", "", ""],
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "MC", "B)", "Chỉ có A hoặc B xảy ra", "", ""],
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "MC", "C)", "Ít nhất một trong hai biến cố xảy ra", "", ""],
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "MC", "D)", "A xảy ra nhưng B không xảy ra", "", ""],
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "TF", "Câu 2", "Hai xạ thủ bắn bia độc lập với xác suất trúng là 0.7 và 0.8. Xét tính Đúng/Sai:", "", ""],
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "TF", "A)", "Xác suất cả hai người cùng bắn trúng bằng 0.56.", "Đúng", "P = 0.7 * 0.8 = 0.56."],
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "TF", "B)", "Xác suất cả hai người đều bắn trượt bằng 0.06.", "Đúng", "P = 0.3 * 0.2 = 0.06."],
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "TF", "C)", "Xác suất người 1 bắn trúng và người 2 bắn trượt bằng 0.14.", "Đúng", "P = 0.7 * 0.2 = 0.14."],
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "TF", "D)", "Xác suất có ít nhất một người bắn trúng bằng 0.90.", "Sai", "P = 1 - 0.06 = 0.94."],
+    ["Chuyên đề 1: Biến cố giao & Biến cố độc lập", "SHORT", "Câu 3", "Cho hai biến cố độc lập A và B có P(A) = 0.4 và P(B) = 0.5. Giá trị P(AB) bằng bao nhiêu?", "0.2", "P(AB) = 0.4 * 0.5 = 0.2."],
+    // World 2
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "MC", "Câu 4", "Hai biến cố A và B được gọi là xung khắc khi và chỉ khi:", "A", "Hai biến cố xung khắc không thể đồng thời xảy ra."],
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "MC", "A)", "A ∩ B = ∅", "", ""],
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "MC", "B)", "A ∪ B = Ω", "", ""],
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "MC", "C)", "P(A) + P(B) = 1", "", ""],
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "MC", "D)", "P(AB) = P(A) . P(B)", "", ""],
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "TF", "Câu 5", "Cho A, B là hai biến cố xung khắc có P(A) = 0.25 và P(B) = 0.45. Xét tính Đúng/Sai:", "", ""],
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "TF", "A)", "Biến cố giao có xác suất P(AB) = 0.", "Đúng", "Hai biến cố xung khắc không thể đồng thời xảy ra."],
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "TF", "B)", "Xác suất biến cố hợp P(A ∪ B) = 0.70.", "Đúng", "P = 0.25 + 0.45 = 0.70."],
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "TF", "C)", "Xác suất biến cố hợp P(A ∪ B) = P(A) . P(B).", "Sai", "Công thức nhân chỉ áp dụng cho biến cố độc lập."],
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "TF", "D)", "Biến cố đối của A có xác suất là 0.75.", "Đúng", "P = 1 - 0.25 = 0.75."],
+    ["Chuyên đề 2: Biến cố hợp & Biến cố xung khắc", "SHORT", "Câu 6", "Cho hai biến cố A và B thỏa mãn P(A) = 0.5, P(B) = 0.6 và P(A ∪ B) = 0.8. Xác suất của biến cố đối A gạch đầu giao B gạch đầu bằng bao nhiêu?", "0.2", "P = 1 - 0.8 = 0.2."],
+    // World 3
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "MC", "Câu 7", "Cho biến cố A có P(A) = 0.7. Xác suất của biến cố đối A gạch đầu là:", "A", "P(not A) = 1 - 0.7 = 0.3."],
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "MC", "A)", "0.3", "", ""],
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "MC", "B)", "0.7", "", ""],
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "MC", "C)", "-0.7", "", ""],
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "MC", "D)", "1.7", "", ""],
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "TF", "Câu 8", "Hai bạn An và Bình độc lập cùng giải bài toán với xác suất 0.8 và 0.7. Xét tính Đúng/Sai:", "", ""],
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "TF", "A)", "Xác suất cả hai bạn cùng giải được là 0.56.", "Đúng", "P = 0.8 * 0.7 = 0.56."],
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "TF", "B)", "Xác suất cả hai bạn đều không giải được là 0.06.", "Đúng", "P = (1 - 0.8)*(1 - 0.7) = 0.06."],
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "TF", "C)", "Xác suất bài toán được giải quyết là 0.94.", "Đúng", "P = 1 - 0.06 = 0.94."],
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "TF", "D)", "Xác suất chỉ có đúng một bạn giải được là 0.40.", "Sai", "P = 0.8*0.3 + 0.2*0.7 = 0.38."],
+    ["Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp", "SHORT", "Câu 9", "Một xạ thủ bắn 3 phát độc lập với xác suất trúng mỗi phát là 0.8. Xác suất người đó không bắn trúng phát nào bằng bao nhiêu?", "0.008", "P = (1 - 0.8)^3 = 0.008."]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{ wch: 35 }, { wch: 12 }, { wch: 15 }, { wch: 55 }, { wch: 25 }, { wch: 45 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Mario_3_Chuyen_De");
+  XLSX.writeFile(wb, "Mau_Game_Mario_3_Chuyen_De_3_Dang_De.xlsx");
 }
 
 /**
@@ -3405,6 +3603,403 @@ export async function parseTetrisFromExcel(file: File): Promise<Question[]> {
   if (questions.length === 0) {
     const csv = XLSX.utils.sheet_to_csv(sheet);
     return parseDocumentQuestions(csv, 'Tetris Xếp Gạch');
+  }
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE WORD (.DOCX) CHUẨN 3 CHUYÊN ĐỀ x 3 DẠNG BẢNG CHO GAME MARIO PHIÊU LƯU KÝ
+ * (7 dòng MC, 9 dòng TF ghép đề thông minh, 3 dòng Short Answer)
+ */
+export async function parseMarioFromDocx(file: File): Promise<Question[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+
+  const questions: Question[] = [];
+
+  if (html.includes('<table')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+
+    let currentTopic = 'Chuyên đề 1: Biến cố giao & Biến cố độc lập';
+    let currentDifficulty: Difficulty = 'Dễ';
+
+    tables.forEach((table, tIdx) => {
+      // Xác định Chuyên đề và Mức độ từ các thẻ heading / đoạn văn phía trước bảng
+      let prevEl = table.previousElementSibling;
+      while (prevEl) {
+        const text = (prevEl.textContent || '').trim().toLowerCase();
+        if (text.includes('chuyên đề 1') || text.includes('chủ đề 1') || (text.includes('biến cố giao') && text.includes('độc lập'))) {
+          currentTopic = 'Chuyên đề 1: Biến cố giao & Biến cố độc lập';
+        } else if (text.includes('chuyên đề 2') || text.includes('chủ đề 2') || (text.includes('biến cố hợp') && text.includes('xung khắc'))) {
+          currentTopic = 'Chuyên đề 2: Biến cố hợp & Biến cố xung khắc';
+        } else if (text.includes('chuyên đề 3') || text.includes('chủ đề 3') || (text.includes('công thức cộng') && text.includes('nhân'))) {
+          currentTopic = 'Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp';
+        }
+
+        if (text.includes('mức độ 1') || text.includes('level 1') || text.includes('dễ') || text.includes('easy')) {
+          currentDifficulty = 'Dễ';
+        } else if (text.includes('mức độ 3') || text.includes('level 3') || text.includes('khó') || text.includes('hard')) {
+          currentDifficulty = 'Khó';
+        } else if (text.includes('mức độ 2') || text.includes('level 2') || text.includes('vừa') || text.includes('trung bình') || text.includes('medium')) {
+          currentDifficulty = 'Trung bình';
+        }
+
+        if (text.includes('chuyên đề') || text.includes('chủ đề') || text.includes('world') || text.includes('mức độ')) break;
+        prevEl = prevEl.previousElementSibling;
+      }
+
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length < 2) return;
+
+      const blocks: Element[][] = [];
+      let curBlock: Element[] = [];
+
+      rows.forEach((row) => {
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        const col1 = cells.length > 0 ? (cells[0].textContent || '').trim().toLowerCase() : '';
+        const isStart = /^câu\s*\d+/i.test(col1) || col1.startsWith('câu');
+
+        if (isStart && curBlock.length >= 2) {
+          blocks.push(curBlock);
+          curBlock = [row];
+        } else {
+          curBlock.push(row);
+        }
+      });
+      if (curBlock.length >= 2) {
+        blocks.push(curBlock);
+      }
+
+      const effectiveBlocks = blocks.length > 0 ? blocks : [rows];
+
+      effectiveBlocks.forEach((blockRows, bIdx) => {
+        const rowCount = blockRows.length;
+        const firstRowCells = Array.from(blockRows[0].querySelectorAll('td, th'));
+        if (firstRowCells.length < 2) return;
+
+        let stem = (firstRowCells[1].textContent || '').trim();
+        let stemImg = '';
+        const imgEl = firstRowCells[1].querySelector('img');
+        if (imgEl && imgEl.getAttribute('src')) {
+          stemImg = imgEl.getAttribute('src') || '';
+        }
+
+        const isShortAnswer = rowCount <= 4 && blockRows.some(r => {
+          const c0 = (r.querySelector('td, th')?.textContent || '').toLowerCase();
+          return c0.includes('đáp án số') || c0.includes('giá trị số') || c0.includes('số kết quả') || c0.includes('tln');
+        });
+
+        const is9RowTF = !isShortAnswer && rowCount >= 5 && blockRows.some((r, idx) => {
+          if (idx === 0) return false;
+          const c = Array.from(r.querySelectorAll('td, th'));
+          const text0 = (c[0]?.textContent || '').trim().toLowerCase();
+          return text0.includes('đúng') || text0.includes('sai') || text0.startsWith('a)') || text0.startsWith('b)');
+        });
+
+        if (isShortAnswer) {
+          let ansNum = '';
+          let explanation = '';
+          blockRows.slice(1).forEach(r => {
+            const cells = Array.from(r.querySelectorAll('td, th'));
+            if (cells.length < 2) return;
+            const c0 = (cells[0].textContent || '').toLowerCase();
+            const c1 = (cells[1].textContent || '').trim();
+            if (c0.includes('đáp án') || c0.includes('giá trị') || c0.includes('kết quả')) {
+              ansNum = c1;
+            } else if (c0.includes('lời giải') || c0.includes('chi tiết')) {
+              explanation = c1;
+            }
+          });
+
+          if (ansNum) {
+            questions.push({
+              id: `mario_short_${Date.now()}_${tIdx}_${bIdx}`,
+              question: normalizeMathFormulas(stem),
+              options: [ansNum.trim()],
+              correctIndex: 0,
+              explanation: normalizeMathFormulas(explanation),
+              difficulty: currentDifficulty,
+              topic: currentTopic,
+              source: 'Word Import (TLN 3 dòng)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              type: 'short_answer',
+              imageUrl: stemImg || undefined
+            });
+          }
+        } else if (is9RowTF) {
+          const items: { letter: string; text: string; isCorrect: boolean; explanation: string; img?: string }[] = [];
+          let curLetter = '';
+          let curText = '';
+          let curImg = '';
+
+          for (let r = 1; r < blockRows.length; r++) {
+            const cells = Array.from(blockRows[r].querySelectorAll('td, th'));
+            if (cells.length < 2) continue;
+            const c0 = (cells[0].textContent || '').trim();
+            const c1 = (cells[1].textContent || '').trim();
+            const c0Lower = c0.toLowerCase();
+            const itemImgEl = cells[1].querySelector('img');
+            const itemImg = itemImgEl ? (itemImgEl.getAttribute('src') || '') : '';
+
+            const letterMatch = c0.match(/^[a-dA-D][\)\.\:\-]?$/i);
+            const isAnsRow = c0Lower.includes('đúng') || c0Lower.includes('sai') || c0Lower.includes('true') || c0Lower.includes('false');
+
+            if (letterMatch) {
+              curLetter = letterMatch[0].replace(/[\)\.\:\-]/g, '').toUpperCase();
+              curText = c1;
+              curImg = itemImg;
+            } else if (isAnsRow || (curLetter && !isAnsRow && (c1.toLowerCase().includes('đúng') || c1.toLowerCase().includes('sai')))) {
+              const isCorrect = c0Lower.includes('đúng') || c0Lower.includes('true') || (!c0Lower.includes('sai') && c1.toLowerCase().startsWith('đúng'));
+              const exp = c1;
+              const effectiveLetter = curLetter || String.fromCharCode(65 + items.length);
+
+              items.push({
+                letter: effectiveLetter,
+                text: curText,
+                isCorrect: isCorrect,
+                explanation: exp,
+                img: curImg || stemImg
+              });
+
+              curLetter = '';
+              curText = '';
+              curImg = '';
+            } else if (!curLetter && c0Lower) {
+              const combinedMatch = c0.match(/^([a-dA-D])[\)\.\:\-]?\s*(đúng|sai)/i);
+              if (combinedMatch) {
+                const letStr = combinedMatch[1].toUpperCase();
+                const isCor = combinedMatch[2].toLowerCase() === 'đúng';
+                items.push({
+                  letter: letStr,
+                  text: c1,
+                  isCorrect: isCor,
+                  explanation: '',
+                  img: itemImg || stemImg
+                });
+              }
+            }
+          }
+
+          items.forEach((item, itemIdx) => {
+            const cleanStem = normalizeMathFormulas(stem);
+            const cleanText = normalizeMathFormulas(item.text);
+            const questionStr = `ĐÚNG HAY SAI: ${cleanStem ? cleanStem + ' ' : ''}[Ý ${item.letter}]: ${cleanText}`;
+            const cleanExp = normalizeMathFormulas(item.explanation);
+
+            questions.push({
+              id: `mario_tf_${Date.now()}_${tIdx}_${bIdx}_${itemIdx}`,
+              question: questionStr,
+              options: ['Đúng', 'Sai'],
+              correctIndex: item.isCorrect ? 0 : 1,
+              explanation: cleanExp,
+              difficulty: currentDifficulty,
+              topic: currentTopic,
+              source: 'Word Import (Đ/S 9 dòng)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              type: 'truefalse',
+              imageUrl: item.img || stemImg || undefined
+            });
+          });
+        } else if (rowCount >= 5) {
+          let optA = '';
+          let optB = '';
+          let optC = '';
+          let optD = '';
+          let explanation = '';
+          let answerLetter = 'A';
+
+          blockRows.slice(1).forEach((row) => {
+            const cells = Array.from(row.querySelectorAll('td, th'));
+            if (cells.length < 2) return;
+            const c0 = (cells[0].textContent || '').trim().toLowerCase();
+            const c1 = (cells[1].textContent || '').trim();
+
+            if (c0.startsWith('a') || c0 === 'a)') optA = c1;
+            else if (c0.startsWith('b') || c0 === 'b)') optB = c1;
+            else if (c0.startsWith('c') || c0 === 'c)') optC = c1;
+            else if (c0.startsWith('d') || c0 === 'd)') optD = c1;
+            else if (c0.includes('lời giải') || c0.includes('giải thích')) explanation = c1;
+            else if (c0.includes('đáp án') || c0.includes('kết quả')) {
+              const m = c1.match(/[A-D]/i);
+              if (m) answerLetter = m[0].toUpperCase();
+            }
+          });
+
+          if (optA && optB) {
+            const letIdx = ['A', 'B', 'C', 'D'].indexOf(answerLetter);
+            questions.push({
+              id: `mario_mc_${Date.now()}_${tIdx}_${bIdx}`,
+              question: normalizeMathFormulas(stem),
+              options: [
+                normalizeMathFormulas(optA),
+                normalizeMathFormulas(optB),
+                normalizeMathFormulas(optC || 'Đáp án C'),
+                normalizeMathFormulas(optD || 'Đáp án D')
+              ],
+              correctIndex: letIdx >= 0 ? letIdx : 0,
+              explanation: normalizeMathFormulas(explanation),
+              difficulty: currentDifficulty,
+              topic: currentTopic,
+              source: 'Word Import (TN 7 dòng)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              type: 'abcd',
+              imageUrl: stemImg || undefined
+            });
+          }
+        }
+      });
+    });
+  }
+
+  if (questions.length === 0) {
+    const rawText = await extractTextFromDocx(file);
+    return parseDocumentQuestions(rawText, 'Mario Xác Suất');
+  }
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE EXCEL (.XLSX) CHO GAME MARIO PHIÊU LƯU KÝ (3 CHUYÊN ĐỀ x 3 DẠNG CÂU HỎI)
+ */
+export async function parseMarioFromExcel(file: File): Promise<Question[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rawRows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+  const questions: Question[] = [];
+  let currentTopic = 'Chuyên đề 1: Biến cố giao & Biến cố độc lập';
+  let currentStem = '';
+  let currentType = 'MC';
+
+  for (let i = 0; i < rawRows.length; i++) {
+    const row = rawRows[i];
+    if (!row || row.length === 0) continue;
+    const col0 = String(row[0] || '').trim();
+    const col1 = String(row[1] || '').trim();
+    const col2 = String(row[2] || '').trim();
+    const col3 = String(row[3] || '').trim();
+    const col4 = String(row[4] || '').trim();
+    const col5 = String(row[5] || '').trim();
+
+    if (col0.toLowerCase().includes('chuyên đề 1') || col0.toLowerCase().includes('biến cố giao')) {
+      currentTopic = 'Chuyên đề 1: Biến cố giao & Biến cố độc lập';
+    } else if (col0.toLowerCase().includes('chuyên đề 2') || col0.toLowerCase().includes('biến cố hợp')) {
+      currentTopic = 'Chuyên đề 2: Biến cố hợp & Biến cố xung khắc';
+    } else if (col0.toLowerCase().includes('chuyên đề 3') || col0.toLowerCase().includes('công thức cộng')) {
+      currentTopic = 'Chuyên đề 3: Công thức cộng & nhân xác suất tổng hợp';
+    }
+
+    const typeStr = (col1 || col0).toUpperCase();
+    if (typeStr === 'SHORT' || typeStr.includes('TLN') || typeStr.includes('TRẢ LỜI NGẮN')) {
+      currentType = 'SHORT';
+      const stemText = col3 || col2;
+      const ansNum = col4 || col3;
+      const exp = col5 || col4 || '';
+      if (stemText && ansNum && !ansNum.toLowerCase().includes('đáp án')) {
+        questions.push({
+          id: `mario_xl_short_${Date.now()}_${i}`,
+          question: normalizeMathFormulas(stemText),
+          options: [ansNum.trim()],
+          correctIndex: 0,
+          explanation: normalizeMathFormulas(exp),
+          difficulty: 'Trung bình',
+          topic: currentTopic,
+          source: 'Excel Import',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          type: 'short_answer'
+        });
+      }
+      continue;
+    }
+
+    if (typeStr === 'TF' || typeStr.includes('Đ/S') || typeStr.includes('ĐÚNG')) {
+      currentType = 'TF';
+    } else if (typeStr === 'MC' || typeStr.includes('TRẮC NGHIỆM')) {
+      currentType = 'MC';
+    }
+
+    const cellCol1 = col2 || col1;
+    const cellCol2 = col3 || col2;
+
+    if (/^câu\s*\d+/i.test(cellCol1) || cellCol1.toLowerCase().startsWith('câu')) {
+      currentStem = cellCol2 || cellCol1;
+
+      if (currentType === 'MC' && (col4 || col3) && !['a)', 'b)', 'c)', 'd)'].includes(String(col4 || col3).toLowerCase())) {
+        const ansLetter = String(col4 || col3).toUpperCase().charAt(0);
+        const exp = col5 || col4 || '';
+
+        const optA = String(rawRows[i + 1]?.[3] || rawRows[i + 1]?.[2] || 'A');
+        const optB = String(rawRows[i + 2]?.[3] || rawRows[i + 2]?.[2] || 'B');
+        const optC = String(rawRows[i + 3]?.[3] || rawRows[i + 3]?.[2] || 'C');
+        const optD = String(rawRows[i + 4]?.[3] || rawRows[i + 4]?.[2] || 'D');
+
+        const letIdx = ['A', 'B', 'C', 'D'].indexOf(ansLetter);
+        questions.push({
+          id: `mario_xl_mc_${Date.now()}_${i}`,
+          question: normalizeMathFormulas(currentStem),
+          options: [
+            normalizeMathFormulas(optA),
+            normalizeMathFormulas(optB),
+            normalizeMathFormulas(optC),
+            normalizeMathFormulas(optD)
+          ],
+          correctIndex: letIdx >= 0 ? letIdx : 0,
+          explanation: normalizeMathFormulas(exp),
+          difficulty: 'Trung bình',
+          topic: currentTopic,
+          source: 'Excel Import',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          type: 'abcd'
+        });
+        i += 4;
+      }
+      continue;
+    }
+
+    const letterMatch = cellCol1.match(/^[a-dA-D][\)\.\:\-]?$/i);
+    if (letterMatch && cellCol2) {
+      const letChar = letterMatch[0].replace(/[\)\.\:\-]/g, '').toUpperCase();
+      const colAns = col4 || col3;
+      const isTF = currentType === 'TF' || colAns.toLowerCase().includes('đúng') || colAns.toLowerCase().includes('sai');
+
+      if (isTF) {
+        const isCorrect = colAns.toLowerCase().includes('đúng') || colAns.toLowerCase().includes('true');
+        const exp = col5 || (colAns.toLowerCase().includes('đúng') || colAns.toLowerCase().includes('sai') ? '' : colAns);
+        const qText = `ĐÚNG HAY SAI: ${currentStem ? currentStem + ' ' : ''}[Ý ${letChar}]: ${cellCol2}`;
+
+        questions.push({
+          id: `mario_xl_tf_${Date.now()}_${i}`,
+          question: normalizeMathFormulas(qText),
+          options: ['Đúng', 'Sai'],
+          correctIndex: isCorrect ? 0 : 1,
+          explanation: normalizeMathFormulas(exp),
+          difficulty: 'Trung bình',
+          topic: currentTopic,
+          source: 'Excel Import',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          type: 'truefalse'
+        });
+      }
+    }
+  }
+
+  if (questions.length === 0) {
+    const csv = XLSX.utils.sheet_to_csv(sheet);
+    return parseDocumentQuestions(csv, 'Mario Xác Suất');
   }
 
   return questions;
