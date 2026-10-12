@@ -121,39 +121,68 @@
         }
         .quiz-btn:active { transform: scale(0.98); }
 
-        /* TỐI ƯU RESPONSIVE MOBILE (< 768px) */
+        .MathJax, mjx-container, .mjx-chtml {
+            margin: 0 4px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+
+        /* TỐI ƯU RESPONSIVE MOBILE (< 768px) VỚI ĐƠN VỊ 100dvh & CHỐNG TRÀN KHUNG */
         @media (max-width: 768px) {
             body {
                 overflow: hidden !important;
-                height: 100vh !important;
-                max-height: 100vh !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                width: 100vw !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #mainGameArea {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                padding: 4px 4px 96px 4px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                overflow: hidden !important;
             }
             #game-board {
-                height: 52vh !important;
-                max-height: 54vh !important;
-                margin-top: 50px !important;
-                margin-bottom: 0 !important;
+                height: calc(100dvh - 165px) !important;
+                max-height: calc(100dvh - 165px) !important;
+                aspect-ratio: 10 / 20 !important;
+                margin: 44px auto 0 auto !important;
+                padding: 2px !important;
+                border-width: 2px !important;
             }
             #mobileControls {
                 position: fixed !important;
-                bottom: 12px !important;
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) !important;
                 left: 0 !important;
                 right: 0 !important;
                 margin: 0 auto !important;
-                gap: 16px !important;
+                width: 100% !important;
+                max-width: 360px !important;
+                gap: 12px !important;
                 z-index: 40 !important;
                 display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 0 8px !important;
+                pointer-events: auto !important;
             }
             .control-btn {
-                width: 58px !important;
-                height: 58px !important;
-                font-size: 26px !important;
+                width: 64px !important;
+                height: 64px !important;
+                font-size: 28px !important;
                 border-radius: 18px !important;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.6) !important;
+                flex-shrink: 0 !important;
             }
         }
     </style>
 </head>
-<body class="flex flex-col md:flex-row h-screen w-screen bg-[#09090b]">
+<body class="flex flex-col md:flex-row h-[100dvh] max-h-[100dvh] w-screen bg-[#09090b] overflow-hidden">
 
     <!-- TOPBAR CÔNG CỤ DÀNH CHO ADMIN (Mặc định ẩn với học sinh, chỉ hiện khi URL có ?role=admin hoặc preview=true hoặc admin=1) -->
     <div id="admin-topbar" class="fixed top-3 right-4 z-[99999] hidden items-center gap-2 pointer-events-auto">
@@ -245,7 +274,7 @@
     </div>
 
     <!-- MAIN GAME AREA -->
-    <div class="flex-1 flex flex-col relative justify-center items-center p-2 md:p-4">
+    <div id="mainGameArea" class="flex-1 flex flex-col relative justify-center items-center p-2 md:p-4 h-[100dvh] max-h-[100dvh] overflow-hidden">
         
         <!-- Bảng xếp hình -->
         <div id="game-board">
@@ -256,7 +285,7 @@
         <div id="mobileControls" class="w-full flex justify-center items-center gap-3 md:gap-5 mt-6 z-30">
             <div class="control-btn" id="btnLeft" title="Sang trái">◀</div>
             <div class="control-btn" id="btnRotate" title="Xoay 90 độ" style="background: rgba(168, 85, 247, 0.25); border-color: rgba(168, 85, 247, 0.6); color: #e9d5ff;">↻</div>
-            <div class="control-btn" id="btnDown" title="Rơi nhanh">▼</div>
+            <div class="control-btn" id="btnDown" title="Rơi nhanh (Nhấp đúp rơi kịch sàn)">▼</div>
             <div class="control-btn" id="btnRight" title="Sang phải">▶</div>
         </div>
     </div>
@@ -287,9 +316,9 @@
         </div>
     </div>
 
-    <!-- MODAL CÂU HỎI (NEON) -->
-    <div id="quizModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#0f172a] rounded-[2rem] p-8 md:p-12 w-full max-w-4xl transform scale-95 transition-transform duration-300 neon-box relative flex flex-col items-center" id="modalContent">
+    <!-- MODAL CÂU HỎI (NEON) - KHÔNG BỊ CẮT CHỮ VỚI MAX-HEIGHT 75dvh VÀ TOUCH SCROLL -->
+    <div id="quizModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-[#0f172a] rounded-[2rem] p-5 sm:p-8 md:p-10 w-full max-w-4xl max-h-[75dvh] overflow-y-auto custom-scroll transform scale-95 transition-transform duration-300 neon-box relative flex flex-col items-center" id="modalContent" style="-webkit-overflow-scrolling: touch;">
             
             <div class="absolute -top-8 bg-[#09090b] px-6 py-2 rounded-full border-2 border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.6)]">
                 <span class="text-lg font-black text-sky-400 uppercase tracking-widest neon-text-blue">Thử Thách Hình Học</span>
@@ -1146,6 +1175,7 @@
         addHoldControl(btnL, startLeft, stopLeft);
         addHoldControl(btnR, startRight, stopRight);
         addHoldControl(btnD, startDrop, stopDrop);
+        btnD.addEventListener('dblclick', (e) => { e.preventDefault(); hardDrop(); });
         addClickControl(btnRot, rotatePiece);
 
         function updateControlsVisibility() {
@@ -1197,6 +1227,29 @@
         requestAnimationFrame(loop);
 
 
+        // ==========================================
+        // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN (MATHJAX SPACER FIX)
+        // ==========================================
+        function formatMathSpacers(str) {
+            if (!str || typeof str !== 'string') return '';
+            let text = str;
+            // 1. Tự động bọc / sửa ký hiệu tập hợp viết liền: AcapB -> \(A \cap B\), AcupB -> \(A \cup B\)
+            text = text.replace(/\b([A-Z])cap([A-Z])\b/g, '\\($1 \\cap $2\\)');
+            text = text.replace(/\b([A-Z])cup([A-Z])\b/g, '\\($1 \\cup $2\\)');
+            text = text.replace(/([A-Z])\\cap([A-Z])/g, '$1 \\cap $2');
+            text = text.replace(/([A-Z])\\cup([A-Z])/g, '$1 \\cup $2');
+
+            // 2. Tách từ dính giữa chữ tiếng Việt và ký hiệu toán in hoa (Ví dụ: CảA -> Cả A, vàB -> và B)
+            text = text.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
+            text = text.replace(/(^|\s|[^A-Za-z0-9])([A-Z])([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]{2,})/g, '$1$2 $3');
+
+            // 3. Chuẩn hóa cơ số e và số mũ e^{...}
+            text = text.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
+            text = text.replace(/\be\^\(([^)]+)\)/g, 'e^{$1}');
+
+            return text;
+        }
+
         // --- QUIZ LOGIC (HỖ TRỢ 3 DẠNG CÂU HỎI: ABCD, ĐÚNG/SAI 4 Ý GHÉP ĐỀ, TRẢ LỜI NGẮN) ---
         let currentQuizCorrectIdx = 0;
         let currentQuizType = 'abcd';
@@ -1220,6 +1273,11 @@
             const isShort = qData.type === 'short_answer' || 
                             (Array.isArray(qData.options) && qData.options.length === 1 && typeof qData.correct === 'number' && qData.correct === 0);
 
+            let imgHtml = '';
+            if (qData.imageUrl) {
+                imgHtml = `<div class="mb-4 text-center"><img src="${qData.imageUrl}" class="max-h-48 max-w-full mx-auto rounded-xl border border-sky-500/40 shadow-lg object-contain" /></div>`;
+            }
+
             if (isShort) {
                 // ==========================================
                 // DẠNG 3: TRẢ LỜI NGẮN (4 Ô SỐ)
@@ -1232,8 +1290,9 @@
                     <div class="inline-block px-3 py-1 bg-amber-500/20 border border-amber-400/40 text-amber-300 font-black text-xs uppercase tracking-wider rounded-full mb-3">
                         🔢 THỬ THÁCH TRẢ LỜI NGẮN
                     </div>
+                    ${imgHtml}
                     <div class="text-lg md:text-2xl font-bold text-white leading-relaxed">
-                        ${qData.q}
+                        ${formatMathSpacers(qData.q)}
                     </div>
                 `;
 
@@ -1242,7 +1301,7 @@
                     <div class="w-full max-w-md bg-slate-900/90 border border-slate-700 p-5 rounded-2xl flex flex-col items-center gap-3">
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Nhập đáp án số kết quả (tối đa 4-6 ký tự):</label>
                         <div class="relative w-full max-w-xs">
-                            <input type="text" id="shortAnswerInput" maxlength="6" autocomplete="off"
+                            <input type="text" id="shortAnswerInput" maxlength="8" autocomplete="off"
                                 class="w-full px-4 py-3 bg-[#020617] border-2 border-sky-400 focus:border-cyan-300 text-sky-300 font-mono text-2xl sm:text-3xl text-center rounded-2xl tracking-widest outline-none shadow-[0_0_20px_rgba(56,189,248,0.3)] focus:shadow-[0_0_25px_rgba(56,189,248,0.7)] transition-all" 
                                 placeholder="" />
                         </div>
@@ -1258,12 +1317,12 @@
                     const inp = document.getElementById('shortAnswerInput');
                     if (inp) {
                         inp.focus();
+                        ['keydown', 'keyup', 'keypress'].forEach(evt => {
+                            inp.addEventListener(evt, e => e.stopPropagation());
+                        });
                         inp.addEventListener('keydown', (e) => {
-                            e.stopPropagation();
                             if (e.key === 'Enter') submitShortAnswer();
                         });
-                        inp.addEventListener('keyup', (e) => e.stopPropagation());
-                        inp.addEventListener('keypress', (e) => e.stopPropagation());
                     }
                 }, 100);
 
@@ -1286,12 +1345,13 @@
                         <div class="inline-block px-3 py-1 bg-blue-500/20 border border-blue-400/40 text-blue-300 font-black text-xs uppercase tracking-wider rounded-full mb-3">
                             ✅ THỬ THÁCH ĐÚNG / SAI (4 Ý)
                         </div>
+                        ${imgHtml}
                         <div class="text-base md:text-xl font-bold text-white mb-3 text-left">
-                            ${qData.stem || qData.q}
+                            ${formatMathSpacers(qData.stem || qData.q)}
                         </div>
                         <div class="p-4 bg-sky-950/40 border-2 border-sky-400/40 rounded-2xl text-left w-full shadow-inner">
                             <span class="text-amber-400 font-black mr-2 text-base md:text-lg">[Ý ${stmt.letter}]:</span>
-                            <span class="text-sky-100 font-bold text-base md:text-lg">${stmt.text}</span>
+                            <span class="text-sky-100 font-bold text-base md:text-lg">${formatMathSpacers(stmt.text)}</span>
                         </div>
                     `;
                 } else {
@@ -1300,8 +1360,9 @@
                         <div class="inline-block px-3 py-1 bg-blue-500/20 border border-blue-400/40 text-blue-300 font-black text-xs uppercase tracking-wider rounded-full mb-3">
                             ✅ THỬ THÁCH ĐÚNG / SAI
                         </div>
+                        ${imgHtml}
                         <div class="text-lg md:text-2xl font-bold text-white leading-relaxed">
-                            ${qData.q}
+                            ${formatMathSpacers(qData.q)}
                         </div>
                     `;
                 }
@@ -1333,8 +1394,9 @@
                     <div class="inline-block px-3 py-1 bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 font-black text-xs uppercase tracking-wider rounded-full mb-3">
                         🎯 THỬ THÁCH TRẮC NGHIỆM ABCD
                     </div>
+                    ${imgHtml}
                     <div class="text-lg md:text-2xl font-bold text-white leading-relaxed">
-                        ${qData.q}
+                        ${formatMathSpacers(qData.q)}
                     </div>
                 `;
 
@@ -1349,18 +1411,24 @@
 
                 options.forEach((optHTML, idx) => {
                     const btn = document.createElement('button');
-                    btn.className = "option-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-5 px-6 rounded-2xl text-center text-lg md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[80px] active:scale-95 cursor-pointer";
-                    btn.innerHTML = `<span class="w-full leading-relaxed">${optHTML}</span>`;
+                    btn.className = "option-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-5 px-6 rounded-2xl text-center text-lg md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[72px] active:scale-95 cursor-pointer";
+                    btn.innerHTML = `<span class="w-full leading-relaxed">${formatMathSpacers(optHTML)}</span>`;
                     btn.onclick = () => answerQuiz(idx, qData.explanation);
                     optContainer.appendChild(btn);
                 });
             }
 
             modal.classList.remove('hidden');
-            if (window.MathJax && MathJax.typesetPromise) {
-                MathJax.typesetPromise([qText, optContainer]).catch(() => {});
+            if (window.MathJax) {
+                if (window.MathJax.typesetClear) window.MathJax.typesetClear();
+                window.MathJax.typesetPromise([qText, optContainer]).then(() => {
+                    setTimeout(() => { content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
+                }).catch(() => {
+                    content.classList.remove('scale-95'); content.classList.add('scale-100');
+                });
+            } else {
+                content.classList.remove('scale-95'); content.classList.add('scale-100');
             }
-            setTimeout(() => { content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
         }
 
         function submitShortAnswer() {
@@ -2037,17 +2105,35 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Nạp dữ liệu câu hỏi đã lưu nếu có
-            try {
-                const savedQuiz = localStorage.getItem('tetris_custom_quiz');
-                if (savedQuiz) {
-                    const parsed = JSON.parse(savedQuiz);
-                    if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
-                        window.gameDatabase = parsed;
-                    }
-                }
-            } catch(e) {}
+            // 1. Fallback lưu trữ mặc định ban đầu
+            if (!window.__DEFAULT_TETRIS_DB__ && window.gameDatabase) {
+                window.__DEFAULT_TETRIS_DB__ = JSON.parse(JSON.stringify(window.gameDatabase));
+            }
 
+            // 2. Nạp dữ liệu tiêm từ Studio nếu có
+            if (window.__INJECTED_TETRIS_DATA__ && typeof window.__INJECTED_TETRIS_DATA__ === 'object' && Object.keys(window.__INJECTED_TETRIS_DATA__).length > 0) {
+                window.gameDatabase = window.__INJECTED_TETRIS_DATA__;
+            } else {
+                // Nạp dữ liệu câu hỏi đã lưu LocalStorage nếu có
+                try {
+                    const savedQuiz = localStorage.getItem('tetris_custom_quiz');
+                    if (savedQuiz) {
+                        const parsed = JSON.parse(savedQuiz);
+                        if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+                            window.gameDatabase = parsed;
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            // 3. Data Fallback: Nếu rỗng thì phục hồi dữ liệu gốc, chống màn hình đen
+            if (!window.gameDatabase || typeof window.gameDatabase !== 'object' || Object.keys(window.gameDatabase).length === 0) {
+                if (window.__DEFAULT_TETRIS_DB__) {
+                    window.gameDatabase = JSON.parse(JSON.stringify(window.__DEFAULT_TETRIS_DB__));
+                }
+            }
+
+            window.selectedTopic = Object.keys(window.gameDatabase)[0];
             renderTetrisTopicMenuCards();
             selectTetrisTopic(window.selectedTopic, false);
             checkAdminRole();
