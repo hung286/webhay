@@ -19,11 +19,15 @@ import {
   parseBanChimFromExcel,
   parseYogaFromDocx,
   parseYogaFromExcel,
+  parsePikachuFromDocx,
+  parsePikachuFromExcel,
   normalizeMathFormulas, 
   downloadWordTemplate, 
   downloadExcelTemplate,
   downloadGameWordTemplate,
-  downloadGameExcelTemplate
+  downloadGameExcelTemplate,
+  downloadPikachuWordTemplate,
+  downloadPikachuExcelTemplate
 } from '../../utils/documentParser';
 
 // Bộ xem trước công thức KaTeX thời gian thực
@@ -70,16 +74,18 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [isParsingDoc, setIsParsingDoc] = useState(false);
 
-  // Nhận diện chế độ Kéo Thả, Bảo Vệ Chiến Hào, Sút Penalty, Bắn Chim & Yoga Vận Động
+  // Nhận diện chế độ Kéo Thả, Bảo Vệ Chiến Hào, Sút Penalty, Bắn Chim, Yoga Vận Động & Pikachu
   const isDragDropMode = selectedTemplateUrl.includes('keo-tha');
   const isChienHaoMode = selectedTemplateUrl.includes('chien-hao') || selectedTemplateUrl.includes('Bao-ve-chien-hao');
   const isSutPenMode = selectedTemplateUrl.includes('sut-pen') || selectedTemplateUrl.includes('penalty');
   const isBanChimMode = selectedTemplateUrl.includes('ban-chim') || selectedTemplateUrl.includes('bird');
   const isYogaMode = selectedTemplateUrl.includes('yoga');
+  const isPikachuMode = selectedTemplateUrl.includes('pikachu');
   const [chienHaoLevelFilter, setChienHaoLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [sutPenLevelFilter, setSutPenLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [banChimLevelFilter, setBanChimLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [yogaFilter, setYogaFilter] = useState<'ALL' | 'MC' | 'TF' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
+  const [pikachuLevelFilter, setPikachuLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
 
   const chienHaoCounts = useMemo(() => {
     return {
@@ -107,6 +113,14 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
     };
   }, [questions]);
 
+  const pikachuCounts = useMemo(() => {
+    return {
+      easy: questions.filter(q => q.difficulty === 'Dễ').length,
+      medium: questions.filter(q => q.difficulty === 'Trung bình').length,
+      hard: questions.filter(q => q.difficulty === 'Khó').length
+    };
+  }, [questions]);
+
   const displayedQuestions = useMemo(() => {
     if (isChienHaoMode && chienHaoLevelFilter !== 'ALL') {
       return questions.filter(q => q.difficulty === chienHaoLevelFilter);
@@ -122,8 +136,11 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       if (yogaFilter === 'TF') return questions.filter(q => (q.options || []).length === 2);
       return questions.filter(q => q.difficulty === yogaFilter);
     }
+    if (isPikachuMode && pikachuLevelFilter !== 'ALL') {
+      return questions.filter(q => q.difficulty === pikachuLevelFilter);
+    }
     return questions;
-  }, [questions, isChienHaoMode, chienHaoLevelFilter, isSutPenMode, sutPenLevelFilter, isBanChimMode, banChimLevelFilter, isYogaMode, yogaFilter]);
+  }, [questions, isChienHaoMode, chienHaoLevelFilter, isSutPenMode, sutPenLevelFilter, isBanChimMode, banChimLevelFilter, isYogaMode, yogaFilter, isPikachuMode, pikachuLevelFilter]);
 
   // Quản lý Bảng Phân Cấp Đa Chuyên Đề & Đa Cấp Độ (Hierarchical Table View)
   const [tableRows, setTableRows] = useState<DragDropTableRow[]>(() => {
@@ -584,6 +601,23 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         setQuestions(prev => [...prev, ...parsedQuestions]);
         soundFx.playCorrect();
         alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI GAME YOGA TỪ FILE:\n"${file.name}"!`);
+      } else if (isPikachuMode) {
+        let parsedQuestions: Question[] = [];
+        if (ext === 'docx') {
+          parsedQuestions = await parsePikachuFromDocx(file);
+        } else if (ext === 'xlsx' || ext === 'xls') {
+          parsedQuestions = await parsePikachuFromExcel(file);
+        } else {
+          const rawText = await file.text();
+          parsedQuestions = parseDocumentQuestions(rawText, gameTitle);
+        }
+
+        if (parsedQuestions.length === 0) {
+          throw new Error('Không bóc tách được cặp nối từ bảng dài 2 cột của file. Vui lòng tải file mẫu để kiểm tra.');
+        }
+        setQuestions(prev => [...prev, ...parsedQuestions]);
+        soundFx.playCorrect();
+        alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CẶP NỐI GAME PIKACHU TỪ FILE:\n"${file.name}"!`);
       } else {
         let rawText = '';
         if (ext === 'docx') {
@@ -1674,6 +1708,64 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                       }`}
                     >
                       <span>🔴 Khó ({yogaCounts.hard})</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {isPikachuMode && (
+                <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 shadow-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
+                      <span className="font-black text-xs sm:text-sm text-slate-800 uppercase tracking-wide">
+                        BỘ LỌC CẤP ĐỘ GAME PIKACHU TOÁN HỌC
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                      ⚡ Bảng 48 ô • Tự động chọn ngẫu nhiên 24 cặp thẻ mỗi lượt
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                    <button
+                      onClick={() => { setPikachuLevelFilter('ALL'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition shrink-0 cursor-pointer ${
+                        pikachuLevelFilter === 'ALL'
+                          ? 'bg-slate-900 text-white shadow-sm'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      Tất cả ({questions.length} cặp)
+                    </button>
+                    <button
+                      onClick={() => { setPikachuLevelFilter('Dễ'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        pikachuLevelFilter === 'Dễ'
+                          ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-200 font-black'
+                          : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                      }`}
+                    >
+                      <span>🟢 Level 1: Dễ ({pikachuCounts.easy})</span>
+                    </button>
+                    <button
+                      onClick={() => { setPikachuLevelFilter('Trung bình'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        pikachuLevelFilter === 'Trung bình'
+                          ? 'bg-amber-600 text-white shadow-sm shadow-amber-200 font-black'
+                          : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200'
+                      }`}
+                    >
+                      <span>🟡 Level 2: Vừa ({pikachuCounts.medium})</span>
+                    </button>
+                    <button
+                      onClick={() => { setPikachuLevelFilter('Khó'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        pikachuLevelFilter === 'Khó'
+                          ? 'bg-rose-600 text-white shadow-sm shadow-rose-200 font-black'
+                          : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+                      }`}
+                    >
+                      <span>🔴 Level 3: Khó ({pikachuCounts.hard})</span>
                     </button>
                   </div>
                 </div>

@@ -1170,15 +1170,17 @@ if (typeof window.gameDatabase !== 'undefined') {
     htmlContent = injectScriptAtTop(htmlContent, tiltScript);
   }
 
-  // NHÓM PIKACHU NỐI CẶP ĐẠO HÀM (cấu trúc Đa Chủ Đề: pairs 24 cặp thẻ cho 48 ô)
+  // NHÓM PIKACHU NỐI CẶP ĐẠO HÀM (cấu trúc Đa Chủ Đề: pairs 24+ cặp thẻ cho bàn 48 ô)
   else if (cleanUrl.includes('pikachu')) {
     const topicsMap: Record<string, Record<number, any[]>> = {};
     const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
     const icons = ['fa-cat', 'fa-dog', 'fa-hippo', 'fa-otter', 'fa-kiwi-bird', 'fa-fish', 'fa-dragon', 'fa-spider', 'fa-crow'];
     const colors = ['#ffe600', '#00b8ff', '#ff2a6d', '#01ffc3', '#ff7b00', '#b300ff', '#6a00ff', '#bfff00', '#ff00a0'];
 
+    // Nhóm câu hỏi theo chủ đề
     const groupedByTopic: Record<string, Question[]> = {};
-    questions.forEach(q => {
+    const activeQuestions = questions.filter(q => !q.isDisabled);
+    (activeQuestions.length > 0 ? activeQuestions : questions).forEach(q => {
       const tName = q.topic?.trim() || defaultTopic;
       if (!groupedByTopic[tName]) groupedByTopic[tName] = [];
       groupedByTopic[tName].push(q);
@@ -1188,21 +1190,30 @@ if (typeof window.gameDatabase !== 'undefined') {
       const qList = groupedByTopic[tName];
       topicsMap[tName] = { 1: [], 2: [], 3: [] };
 
+      // Phân chia theo level (difficulty)
+      const byDiff: Record<number, Question[]> = { 1: [], 2: [], 3: [] };
+      qList.forEach(q => {
+        const d = q.difficulty === 'Dễ' ? 1 : q.difficulty === 'Khó' ? 3 : 2;
+        byDiff[d].push(q);
+      });
+
       [1, 2, 3].forEach(lvl => {
-        const pairs: any[] = [];
-        for (let i = 0; i < 24; i++) {
-          const q = qList[i % qList.length];
-          const rightText = (q.options && typeof q.correctIndex === 'number' && q.options[q.correctIndex]) 
-            ? q.options[q.correctIndex] 
-            : (q.options?.[0] || 'Đáp án');
-          pairs.push({
+        // Nếu level không có câu, dùng chung tất cả
+        const source = byDiff[lvl].length > 0 ? byDiff[lvl] : qList;
+        const pairs: any[] = source.map((q, i) => {
+          const rightText = normalizeMathFormulas(
+            (q.options && typeof q.correctIndex === 'number' && q.options[q.correctIndex])
+              ? q.options[q.correctIndex]
+              : (q.options?.[0] || 'Đáp án')
+          );
+          return {
             id: i + 1,
-            left: q.question,
+            left: normalizeMathFormulas(q.question || ''),
             right: rightText,
             icon: icons[i % icons.length],
             themeColor: colors[i % colors.length]
-          });
-        }
+          };
+        });
         topicsMap[tName][lvl] = pairs;
       });
     });
@@ -1210,11 +1221,49 @@ if (typeof window.gameDatabase !== 'undefined') {
     const pikachuScript = `
 <script>
 // [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - PIKACHU NỐI CẶP]
-if (typeof window.gameDatabase !== 'undefined') {
-  Object.assign(window.gameDatabase, ${JSON.stringify(topicsMap, null, 2)});
-  window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
-}
-</script>
+// Inject dữ liệu từ Studio vào biến chuẩn
+window.__INJECTED_PIKACHU_DATA__ = ${JSON.stringify(topicsMap, null, 2)};
+window.pikachuQuizData = window.__INJECTED_PIKACHU_DATA__;
+window.__ADMIN_PIN__ = "2806";
+
+// Gán vào gameDatabase nếu đã sẵn sàng, hoặc chờ script load xong
+(function applyPikachuData() {
+  if (typeof window.gameDatabase !== 'undefined') {
+    Object.assign(window.gameDatabase, window.__INJECTED_PIKACHU_DATA__);
+    window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+    if (typeof window.renderPikachuTopicCards === 'function') window.renderPikachuTopicCards();
+  } else {
+    window.addEventListener('DOMContentLoaded', function() {
+      if (typeof window.gameDatabase !== 'undefined') {
+        Object.assign(window.gameDatabase, window.__INJECTED_PIKACHU_DATA__);
+        window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+        if (typeof window.renderPikachuTopicCards === 'function') window.renderPikachuTopicCards();
+        if (typeof window.ensurePikachuData === 'function') window.ensurePikachuData();
+      }
+    });
+  }
+})();
+
+// Admin security - áp dụng ngay khi DOM sẵn sàng
+(function applyAdminSecurity() {
+  function _checkAdmin() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const isAdmin = params.get('role') === 'admin' || params.get('admin') === '1' || params.get('preview') === 'true';
+      const topbar = document.getElementById('admin-topbar');
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+      if (isAdmin) {
+        if (topbar) topbar.style.setProperty('display', 'flex', 'important');
+        adminBtns.forEach(btn => { btn.classList.remove('hidden'); btn.style.setProperty('display', 'inline-flex', 'important'); });
+      } else {
+        if (topbar) topbar.style.setProperty('display', 'none', 'important');
+        adminBtns.forEach(btn => { btn.classList.add('hidden'); btn.style.setProperty('display', 'none', 'important'); });
+      }
+    } catch(e) {}
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', _checkAdmin); } else { _checkAdmin(); }
+})();
+<\/script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, pikachuScript);
   }

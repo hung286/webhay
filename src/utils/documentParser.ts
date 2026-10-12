@@ -2025,6 +2025,9 @@ export async function downloadYogaExcelTemplate(): Promise<void> {
  */
 export async function downloadGameWordTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('pikachu') || cleanId.includes('pika')) {
+    return downloadPikachuWordTemplate();
+  }
   if (cleanId.includes('yoga')) {
     return downloadYogaWordTemplate();
   }
@@ -2045,6 +2048,9 @@ export async function downloadGameWordTemplate(gameIdentifier: string): Promise<
 
 export async function downloadGameExcelTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('pikachu') || cleanId.includes('pika')) {
+    return downloadPikachuExcelTemplate();
+  }
   if (cleanId.includes('yoga')) {
     return downloadYogaExcelTemplate();
   }
@@ -2062,6 +2068,7 @@ export async function downloadGameExcelTemplate(gameIdentifier: string): Promise
   }
   return downloadChienHaoExcelTemplate();
 }
+
 
 /**
  * BỘ PARSER FILE WORD (.DOCX) CHUẨN BẢNG 7 DÒNG x 2 CỘT CHO GAME BẢO VỆ CHIẾN HÀO
@@ -3399,4 +3406,569 @@ export function parseDragDropFromText(rawText: string): DragDropTableRow[] {
   });
 
   return result;
+}
+
+/**
+ * HÀM TẠO BẢNG DÀI 2 CỘT CHO GAME PIKACHU NỐI CẶP (DOCX) - ĐEN TRẮNG CHUẨN
+ */
+function createPikachuTopicTable(
+  topicName: string,
+  levels: { level: string; pairs: [string, string][] }[]
+): Table {
+  const rows: TableRow[] = [];
+
+  // Dòng 1: Chủ đề | Tên chủ đề
+  rows.push(
+    new TableRow({
+      children: [
+        new TableCell({
+          width: { size: 4000, type: WidthType.DXA },
+          children: [new Paragraph({ children: [new TextRun({ text: "Chủ đề", bold: true, color: "000000", size: 22 })] })]
+        }),
+        new TableCell({
+          width: { size: 6000, type: WidthType.DXA },
+          children: [new Paragraph({ children: [new TextRun({ text: topicName, bold: true, color: "000000", size: 22 })] })]
+        })
+      ]
+    })
+  );
+
+  // Duyệt qua từng mức độ và các cặp nối
+  levels.forEach(lvl => {
+    // Dòng Mức độ: Mức độ | Dễ / Trung bình / Khó
+    rows.push(
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 4000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: "Mức độ", bold: true, color: "000000", size: 21 })] })]
+          }),
+          new TableCell({
+            width: { size: 6000, type: WidthType.DXA },
+            children: [new Paragraph({ children: [new TextRun({ text: lvl.level, bold: true, color: "000000", size: 21 })] })]
+          })
+        ]
+      })
+    );
+
+    // Các cặp nối: Vế trái | Vế phải
+    lvl.pairs.forEach(([left, right]) => {
+      rows.push(
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 4000, type: WidthType.DXA },
+              children: [new Paragraph({ children: [new TextRun({ text: left, color: "000000", size: 20 })] })]
+            }),
+            new TableCell({
+              width: { size: 6000, type: WidthType.DXA },
+              children: [new Paragraph({ children: [new TextRun({ text: right, color: "000000", size: 20 })] })]
+            })
+          ]
+        })
+      );
+    });
+  });
+
+  return new Table({
+    width: { size: 10000, type: WidthType.DXA },
+    borders: {
+      top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+      bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+      left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+      right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "000000" }
+    },
+    rows
+  });
+}
+
+/**
+ * TẠO VÀ TẢI FILE MẪU WORD (.DOCX) ĐEN TRẮNG BẢNG DÀI CHO GAME PIKACHU NỐI CẶP
+ */
+export async function downloadPikachuWordTemplate(): Promise<void> {
+  const topic1PairsEasy: [string, string][] = [
+    ["(C)'", "0"],
+    ["(x^n)'", "n \\cdot x^{n-1}"],
+    ["(\\sqrt{x})'", "\\frac{1}{2\\sqrt{x}}"],
+    ["(\\frac{1}{x})'", "-\\frac{1}{x^2}"],
+    ["(5)'", "0"],
+    ["(x^3)'", "3x^2"],
+    ["(4\\sqrt{x})'", "\\frac{2}{\\sqrt{x}}"],
+    ["(\\frac{3}{x})'", "-\\frac{3}{x^2}"],
+    ["(u+v)'", "u' + v'"],
+    ["(u-v)'", "u' - v'"],
+    ["(u \\cdot v)'", "u'v + uv'"],
+    ["(\\frac{u}{v})'", "\\frac{u'v - uv'}{v^2}"],
+    ["(x^2 + x)'", "2x + 1"],
+    ["(x^3 - x)'", "3x^2 - 1"],
+    ["(x \\cdot \\sin x)'", "\\sin x + x\\cos x"],
+    ["(\\frac{x}{e^x})'", "\\frac{1-x}{e^x}"],
+    ["(\\sin x)'", "\\cos x"],
+    ["(\\cos x)'", "-\\sin x"],
+    ["(\\tan x)'", "\\frac{1}{\\cos^2 x}"],
+    ["(e^x)'", "e^x"],
+    ["(2\\sin x)'", "2\\cos x"],
+    ["(3\\cos x)'", "-3\\sin x"],
+    ["(2\\tan x)'", "\\frac{2}{\\cos^2 x}"],
+    ["(5e^x)'", "5e^x"],
+    ["(7x)'", "7"],
+    ["(x^4)'", "4x^3"]
+  ];
+
+  const topic1PairsMedium: [string, string][] = [
+    ["(u^n)'", "n \\cdot u^{n-1} \\cdot u'"],
+    ["(\\sqrt{u})'", "\\frac{u'}{2\\sqrt{u}}"],
+    ["(\\frac{1}{u})'", "-\\frac{u'}{u^2}"],
+    ["(e^u)'", "u' \\cdot e^u"],
+    ["((2x+1)^3)'", "6(2x+1)^2"],
+    ["(\\sqrt{x^2+1})'", "\\frac{x}{\\sqrt{x^2+1}}"],
+    ["(\\frac{1}{2x-1})'", "-\\frac{2}{(2x-1)^2}"],
+    ["(e^{2x})'", "2e^{2x}"],
+    ["(\\sin u)'", "u' \\cdot \\cos u"],
+    ["(\\cos u)'", "-u' \\cdot \\sin u"],
+    ["(\\tan u)'", "\\frac{u'}{\\cos^2 u}"],
+    ["(\\cot u)'", "-\\frac{u'}{\\sin^2 u}"],
+    ["(\\sin 3x)'", "3\\cos 3x"],
+    ["(\\cos x^2)'", "-2x\\sin x^2"],
+    ["(\\tan 2x)'", "\\frac{2}{\\cos^2 2x}"],
+    ["(\\cot 3x)'", "-\\frac{3}{\\sin^2 3x}"],
+    ["(\\ln x)'", "\\frac{1}{x}"],
+    ["(\\ln u)'", "\\frac{u'}{u}"],
+    ["(a^x)'", "a^x \\cdot \\ln a"],
+    ["(\\log_a x)'", "\\frac{1}{x \\ln a}"],
+    ["(3\\ln x)'", "\\frac{3}{x}"],
+    ["(\\ln(x^2+1))'", "\\frac{2x}{x^2+1}"],
+    ["(2^x)'", "2^x \\cdot \\ln 2"],
+    ["(\\log_2 x)'", "\\frac{1}{x \\ln 2}"],
+    ["(e^{3x})'", "3e^{3x}"],
+    ["(\\ln(2x+1))'", "\\frac{2}{2x+1}"]
+  ];
+
+  const topic1PairsHard: [string, string][] = [
+    ["(\\frac{x+1}{x-1})'", "-\\frac{2}{(x-1)^2}"],
+    ["(\\frac{2x-3}{x+2})'", "\\frac{7}{(x+2)^2}"],
+    ["(\\frac{x}{2x+1})'", "\\frac{1}{(2x+1)^2}"],
+    ["(\\frac{3x+1}{2-x})'", "\\frac{7}{(2-x)^2}"],
+    ["(\\frac{x^2+1}{x})'", "\\frac{x^2-1}{x^2}"],
+    ["(\\frac{x^2-x+1}{x-1})'", "\\frac{x^2-2x}{(x-1)^2}"],
+    ["(\\frac{1}{x^2+2})'", "-\\frac{2x}{(x^2+2)^2}"],
+    ["(\\frac{x}{x^2+1})'", "\\frac{1-x^2}{(x^2+1)^2}"],
+    ["(\\sqrt{2x+3})'", "\\frac{1}{\\sqrt{2x+3}}"],
+    ["(\\sqrt{4-x^2})'", "-\\frac{x}{\\sqrt{4-x^2}}"],
+    ["(x\\sqrt{x})'", "\\frac{3\\sqrt{x}}{2}"],
+    ["(\\sqrt{x^3+1})'", "\\frac{3x^2}{2\\sqrt{x^3+1}}"],
+    ["(\\frac{1}{\\sqrt{x}})'", "-\\frac{1}{2x\\sqrt{x}}"],
+    ["(\\sqrt{x^2+4x})'", "\\frac{x+2}{\\sqrt{x^2+4x}}"],
+    ["(\\sin^2 x)'", "\\sin 2x"],
+    ["(\\cos^2 x)'", "-\\sin 2x"],
+    ["(\\tan^2 x)'", "\\frac{2\\sin x}{\\cos^3 x}"],
+    ["(\\sin^3 x)'", "3\\sin^2 x \\cdot \\cos x"],
+    ["(e^{x^2})'", "2x \\cdot e^{x^2}"],
+    ["(\\ln^2 x)'", "\\frac{2\\ln x}{x}"],
+    ["(x \\cdot e^{-x})'", "e^{-x}(1-x)"],
+    ["(\\ln(\\sin x))'", "\\cot x"],
+    ["(\\sqrt{\\ln x})'", "\\frac{1}{2x\\sqrt{\\ln x}}"],
+    ["(x \\cdot 2^x)'", "2^x(1 + x\\ln 2)"],
+    ["(\\cos^3 x)'", "-3\\cos^2 x \\cdot \\sin x"],
+    ["(e^{\\sin x})'", "\\cos x \\cdot e^{\\sin x}"]
+  ];
+
+  const doc = new Document({
+    sections: [
+      {
+        properties: {},
+        children: [
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "MẪU SOẠN ĐỀ GAME PIKACHU TOÁN HỌC (CHUẨN BẢNG DÀI 2 CỘT)",
+                bold: true,
+                size: 26,
+                color: "000000"
+              })
+            ],
+            spacing: { after: 120 }
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "HƯỚNG DẪN: Mỗi bảng đại diện cho 1 Chủ đề. Cột 1 ghi 'Chủ đề' | Cột 2 ghi Tên chủ đề. Dòng tiếp theo ghi 'Mức độ' | 'Dễ' (hoặc 'Trung bình', 'Khó'). Các dòng sau là các CẶP NỐI CHÍNH XÁC (Cột 1: Vế trái | Cột 2: Vế phải). Bảng chơi Pikachu bắt buộc có 24 cặp thẻ (48 ô). Thầy cô có thể soạn nhiều hơn 24 cặp thẻ, hệ thống sẽ tự động CHỌN NGẪU NHIÊN 24 cặp chống học vẹt!",
+                color: "000000",
+                size: 20
+              })
+            ],
+            spacing: { after: 200 }
+          }),
+
+          // BẢNG 1
+          createPikachuTopicTable("Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", [
+            { level: "Dễ", pairs: topic1PairsEasy },
+            { level: "Trung bình", pairs: topic1PairsMedium },
+            { level: "Khó", pairs: topic1PairsHard }
+          ]),
+          new Paragraph({ text: "", spacing: { after: 250 } }),
+
+          // BẢNG 2
+          createPikachuTopicTable("Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", [
+            {
+              level: "Dễ",
+              pairs: [
+                ["\\int 0 \\, dx", "C"],
+                ["\\int 1 \\, dx", "x + C"],
+                ["\\int x \\, dx", "\\frac{x^2}{2} + C"],
+                ["\\int x^2 \\, dx", "\\frac{x^3}{3} + C"],
+                ["\\int 4 \\, dx", "4x + C"],
+                ["\\int 2x \\, dx", "x^2 + C"],
+                ["\\int 3x^2 \\, dx", "x^3 + C"],
+                ["\\int 4x^3 \\, dx", "x^4 + C"],
+                ["\\int \\frac{1}{x} \\, dx", "\\ln|x| + C"],
+                ["\\int e^x \\, dx", "e^x + C"],
+                ["\\int a^x \\, dx", "\\frac{a^x}{\\ln a} + C"],
+                ["\\int 2^x \\, dx", "\\frac{2^x}{\\ln 2} + C"],
+                ["\\int \\sin x \\, dx", "-\\cos x + C"],
+                ["\\int \\cos x \\, dx", "\\sin x + C"],
+                ["\\int \\frac{1}{\\cos^2 x} \\, dx", "\\tan x + C"],
+                ["\\int \\frac{1}{\\sin^2 x} \\, dx", "-\\cot x + C"],
+                ["\\int 2\\sin x \\, dx", "-2\\cos x + C"],
+                ["\\int 3\\cos x \\, dx", "3\\sin x + C"],
+                ["\\int 5^x \\, dx", "\\frac{5^x}{\\ln 5} + C"],
+                ["\\int 3e^x \\, dx", "3e^x + C"],
+                ["\\int 5x^4 \\, dx", "x^5 + C"],
+                ["\\int \\frac{2}{x} \\, dx", "2\\ln|x| + C"],
+                ["\\int 6x \\, dx", "3x^2 + C"],
+                ["\\int 7 \\, dx", "7x + C"]
+              ]
+            },
+            {
+              level: "Trung bình",
+              pairs: [
+                ["\\int e^{2x} \\, dx", "\\frac{1}{2}e^{2x} + C"],
+                ["\\int e^{3x} \\, dx", "\\frac{1}{3}e^{3x} + C"],
+                ["\\int e^{-x} \\, dx", "-e^{-x} + C"],
+                ["\\int 2e^{2x} \\, dx", "e^{2x} + C"],
+                ["\\int (2x+1) \\, dx", "x^2 + x + C"],
+                ["\\int (3x^2-2) \\, dx", "x^3 - 2x + C"],
+                ["\\int \\sin 2x \\, dx", "-\\frac{1}{2}\\cos 2x + C"],
+                ["\\int \\cos 2x \\, dx", "\\frac{1}{2}\\sin 2x + C"],
+                ["\\int \\frac{1}{x+1} \\, dx", "\\ln|x+1| + C"],
+                ["\\int \\frac{1}{2x-1} \\, dx", "\\frac{1}{2}\\ln|2x-1| + C"],
+                ["\\int \\frac{1}{x^2} \\, dx", "-\\frac{1}{x} + C"],
+                ["\\int \\frac{1}{\\sqrt{x}} \\, dx", "2\\sqrt{x} + C"],
+                ["\\int \\sqrt{x} \\, dx", "\\frac{2}{3}x\\sqrt{x} + C"],
+                ["\\int (4x-3) \\, dx", "2x^2 - 3x + C"],
+                ["\\int \\sin 3x \\, dx", "-\\frac{1}{3}\\cos 3x + C"],
+                ["\\int \\cos 4x \\, dx", "\\frac{1}{4}\\sin 4x + C"],
+                ["\\int (6x^2+1) \\, dx", "2x^3 + x + C"],
+                ["\\int \\frac{2}{2x+3} \\, dx", "\\ln|2x+3| + C"],
+                ["\\int 3\\sqrt{x} \\, dx", "2x\\sqrt{x} + C"],
+                ["\\int \\frac{2}{x^2} \\, dx", "-\\frac{2}{x} + C"],
+                ["\\int \\frac{3}{\\sqrt{x}} \\, dx", "6\\sqrt{x} + C"],
+                ["\\int e^{4x} \\, dx", "\\frac{1}{4}e^{4x} + C"],
+                ["\\int \\cos 3x \\, dx", "\\frac{1}{3}\\sin 3x + C"],
+                ["\\int \\sin 4x \\, dx", "-\\frac{1}{4}\\cos 4x + C"]
+              ]
+            },
+            {
+              level: "Khó",
+              pairs: [
+                ["\\int 2x \\cdot e^{x^2} \\, dx", "e^{x^2} + C"],
+                ["\\int \\frac{2x}{x^2+1} \\, dx", "\\ln(x^2+1) + C"],
+                ["\\int 2x\\sqrt{x^2+1} \\, dx", "\\frac{2}{3}(x^2+1)\\sqrt{x^2+1} + C"],
+                ["\\int \\sin x \\cos x \\, dx", "\\frac{1}{2}\\sin^2 x + C"],
+                ["\\int \\frac{\\ln x}{x} \\, dx", "\\frac{\\ln^2 x}{2} + C"],
+                ["\\int \\tan x \\, dx", "-\\ln|\\cos x| + C"],
+                ["\\int \\cot x \\, dx", "\\ln|\\sin x| + C"],
+                ["\\int e^{\\sin x}\\cos x \\, dx", "e^{\\sin x} + C"],
+                ["\\int (2x+3)^4 \\, dx", "\\frac{(2x+3)^5}{10} + C"],
+                ["\\int (3x-1)^5 \\, dx", "\\frac{(3x-1)^6}{18} + C"],
+                ["\\int \\sqrt{2x+1} \\, dx", "\\frac{1}{3}(2x+1)\\sqrt{2x+1} + C"],
+                ["\\int \\frac{1}{(x-2)^2} \\, dx", "-\\frac{1}{x-2} + C"],
+                ["\\int x \\cdot e^x \\, dx", "e^x(x-1) + C"],
+                ["\\int x \\cdot \\cos x \\, dx", "x\\sin x + \\cos x + C"],
+                ["\\int x \\cdot \\sin x \\, dx", "-x\\cos x + \\sin x + C"],
+                ["\\int \\ln x \\, dx", "x\\ln x - x + C"],
+                ["\\int (x+1)e^x \\, dx", "x \\cdot e^x + C"],
+                ["\\int 2x\\ln x \\, dx", "x^2\\ln x - \\frac{x^2}{2} + C"],
+                ["\\int \\frac{e^x}{e^x+1} \\, dx", "\\ln(e^x+1) + C"],
+                ["\\int \\frac{1}{x\\ln x} \\, dx", "\\ln|\\ln x| + C"],
+                ["\\int \\frac{3x^2}{x^3+1} \\, dx", "\\ln|x^3+1| + C"],
+                ["\\int x \\cdot e^{2x} \\, dx", "\\frac{e^{2x}}{4}(2x-1) + C"],
+                ["\\int \\cos^2 x \\, dx", "\\frac{x}{2} + \\frac{\\sin 2x}{4} + C"],
+                ["\\int \\sin^2 x \\, dx", "\\frac{x}{2} - \\frac{\\sin 2x}{4} + C"]
+              ]
+            }
+          ])
+        ]
+      }
+    ]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Mau_Game_Pikachu_Toan_Hoc.docx");
+}
+
+/**
+ * TẠO VÀ TẢI FILE MẪU EXCEL (.XLSX) CHO GAME PIKACHU NỐI CẶP
+ */
+export async function downloadPikachuExcelTemplate(): Promise<void> {
+  const { XLSX } = await loadDocumentLibraries();
+  const headers = ["Chủ đề", "Mức độ", "Vế trái (Hàm số / Công thức)", "Vế phải (Đạo hàm / Kết quả)"];
+
+  const sampleRows = [
+    // Chủ đề 1: Dễ
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Dễ", "(C)'", "0"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Dễ", "(x^n)'", "n \\cdot x^{n-1}"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Dễ", "(\\sqrt{x})'", "\\frac{1}{2\\sqrt{x}}"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Dễ", "(\\frac{1}{x})'", "-\\frac{1}{x^2}"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Dễ", "(5)'", "0"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Dễ", "(x^3)'", "3x^2"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Dễ", "(u+v)'", "u' + v'"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Dễ", "(\\sin x)'", "\\cos x"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Dễ", "(\\cos x)'", "-\\sin x"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Dễ", "(e^x)'", "e^x"],
+
+    // Chủ đề 1: Trung bình
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Trung bình", "(u^n)'", "n \\cdot u^{n-1} \\cdot u'"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Trung bình", "(\\sqrt{u})'", "\\frac{u'}{2\\sqrt{u}}"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Trung bình", "(e^u)'", "u' \\cdot e^u"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Trung bình", "((2x+1)^3)'", "6(2x+1)^2"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Trung bình", "(\\sin 3x)'", "3\\cos 3x"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Trung bình", "(\\ln x)'", "\\frac{1}{x}"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Trung bình", "(2^x)'", "2^x \\cdot \\ln 2"],
+
+    // Chủ đề 1: Khó
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Khó", "(\\frac{x+1}{x-1})'", "-\\frac{2}{(x-1)^2}"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Khó", "(\\sqrt{2x+3})'", "\\frac{1}{\\sqrt{2x+3}}"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Khó", "(\\sin^2 x)'", "\\sin 2x"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Khó", "(e^{x^2})'", "2x \\cdot e^{x^2}"],
+    ["Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp", "Khó", "(x \\cdot e^{-x})'", "e^{-x}(1-x)"],
+
+    // Chủ đề 2: Dễ
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Dễ", "\\int 0 \\, dx", "C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Dễ", "\\int 1 \\, dx", "x + C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Dễ", "\\int x \\, dx", "\\frac{x^2}{2} + C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Dễ", "\\int \\frac{1}{x} \\, dx", "\\ln|x| + C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Dễ", "\\int e^x \\, dx", "e^x + C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Dễ", "\\int \\sin x \\, dx", "-\\cos x + C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Dễ", "\\int \\cos x \\, dx", "\\sin x + C"],
+
+    // Chủ đề 2: Trung bình
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Trung bình", "\\int e^{2x} \\, dx", "\\frac{1}{2}e^{2x} + C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Trung bình", "\\int (2x+1) \\, dx", "x^2 + x + C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Trung bình", "\\int \\sin 2x \\, dx", "-\\frac{1}{2}\\cos 2x + C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Trung bình", "\\int \\frac{1}{x+1} \\, dx", "\\ln|x+1| + C"],
+
+    // Chủ đề 2: Khó
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Khó", "\\int 2x \\cdot e^{x^2} \\, dx", "e^{x^2} + C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Khó", "\\int \\frac{2x}{x^2+1} \\, dx", "\\ln(x^2+1) + C"],
+    ["Chủ đề 2: Nguyên Hàm & Tích Phân Cơ Bản", "Khó", "\\int x \\cdot e^x \\, dx", "e^x(x-1) + C"]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
+  ws['!cols'] = [
+    { wch: 38 },
+    { wch: 16 },
+    { wch: 35 },
+    { wch: 35 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Mau_Pikachu");
+  XLSX.writeFile(wb, "Mau_Game_Pikachu_Toan_Hoc.xlsx");
+}
+
+/**
+ * BỘ PARSER FILE WORD (.DOCX) CHUẨN BẢNG DÀI 2 CỘT CHO GAME PIKACHU
+ */
+export async function parsePikachuFromDocx(file: File): Promise<Question[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+  const questions: Question[] = [];
+
+  if (html.includes('<table')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+
+    let currentTopic = 'Chủ đề 1: Đạo Hàm Các Hàm Số & Hàm Hợp';
+    let currentDifficulty: Difficulty = 'Dễ';
+
+    tables.forEach((table, tIdx) => {
+      // Kiểm tra tiêu đề phía trước bảng nếu có
+      let prevEl = table.previousElementSibling;
+      while (prevEl) {
+        const text = (prevEl.textContent || '').trim();
+        if (/chủ đề|chuyên đề/i.test(text)) {
+          currentTopic = text.replace(/^(chủ đề|chuyên đề)\s*\d*[:\-\s]*/i, '').trim() || text;
+          break;
+        }
+        prevEl = prevEl.previousElementSibling;
+      }
+
+      const rows = Array.from(table.querySelectorAll('tr'));
+      rows.forEach((row) => {
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        if (cells.length < 2) return;
+
+        const col1 = (cells[0].textContent || '').trim();
+        const col2 = (cells[1].textContent || '').trim();
+
+        if (!col1 && !col2) return;
+
+        const col1Low = col1.toLowerCase();
+        // Kiểm tra dòng Chủ đề
+        if (col1Low === 'chủ đề' || col1Low.startsWith('chủ đề') || col1Low === 'chuyên đề') {
+          if (col2) currentTopic = col2;
+          return;
+        }
+
+        // Kiểm tra dòng Mức độ
+        if (col1Low === 'mức độ' || col1Low.startsWith('mức độ') || col1Low === 'cấp độ' || col1Low === 'level') {
+          const col2Low = col2.toLowerCase();
+          if (col2Low.includes('dễ') || col2Low.includes('1') || col2Low.includes('easy')) {
+            currentDifficulty = 'Dễ';
+          } else if (col2Low.includes('khó') || col2Low.includes('3') || col2Low.includes('hard')) {
+            currentDifficulty = 'Khó';
+          } else {
+            currentDifficulty = 'Trung bình';
+          }
+          return;
+        }
+
+        // Cặp nối hợp lệ: Vế trái (Hàm số) | Vế phải (Đạo hàm/Kết quả)
+        if (col1 && col2) {
+          questions.push({
+            id: `pika_${Date.now()}_${tIdx}_${questions.length + 1}`,
+            question: normalizeMathFormulas(col1),
+            options: [normalizeMathFormulas(col2)],
+            correctIndex: 0,
+            topic: currentTopic,
+            difficulty: currentDifficulty,
+            type: 'MULTIPLE_CHOICE'
+          });
+        }
+      });
+    });
+  }
+
+  // Fallback: nếu không thấy table, bóc tách theo dòng văn bản
+  if (questions.length === 0) {
+    const rawText = await extractTextFromDocx(file);
+    const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+    let curTopic = 'Chủ đề 1: Đạo Hàm Các Hàm Số';
+    let curDiff: Difficulty = 'Dễ';
+
+    lines.forEach((line) => {
+      if (/^chủ đề|^chuyên đề/i.test(line)) {
+        curTopic = line;
+        return;
+      }
+      if (/^mức độ|^cấp độ|^level/i.test(line)) {
+        const lLow = line.toLowerCase();
+        if (lLow.includes('dễ') || lLow.includes('1')) curDiff = 'Dễ';
+        else if (lLow.includes('khó') || lLow.includes('3')) curDiff = 'Khó';
+        else curDiff = 'Trung bình';
+        return;
+      }
+      if (line.includes('|') || line.includes('\t') || line.includes(';')) {
+        const parts = line.split(/[|\t;]/).map(p => p.trim()).filter(Boolean);
+        if (parts.length >= 2) {
+          questions.push({
+            id: `pika_txt_${Date.now()}_${questions.length + 1}`,
+            question: normalizeMathFormulas(parts[0]),
+            options: [normalizeMathFormulas(parts[1])],
+            correctIndex: 0,
+            topic: curTopic,
+            difficulty: curDiff,
+            type: 'MULTIPLE_CHOICE'
+          });
+        }
+      }
+    });
+  }
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE EXCEL (.XLSX) CHO GAME PIKACHU NỐI CẶP
+ */
+export async function parsePikachuFromExcel(file: File): Promise<Question[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const firstSheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+
+  const questions: Question[] = [];
+  let currentTopic = 'Chủ đề 1: Đạo Hàm Các Hàm Số';
+  let currentDifficulty: Difficulty = 'Dễ';
+
+  rawRows.forEach((row, rIdx) => {
+    if (!row || row.length === 0) return;
+    const col0 = String(row[0] || '').trim();
+    const col1 = String(row[1] || '').trim();
+    const col2 = String(row[2] || '').trim();
+    const col3 = String(row[3] || '').trim();
+
+    // Bỏ qua dòng tiêu đề chung
+    if (rIdx === 0 && (col0.toLowerCase().includes('chủ đề') && col1.toLowerCase().includes('mức độ') && col2.toLowerCase().includes('vế'))) {
+      return;
+    }
+
+    // Định dạng 4 cột chuẩn: [Chủ đề, Mức độ, Vế trái, Vế phải]
+    if (row.length >= 4 && col2 && col3) {
+      if (col0) currentTopic = col0;
+      if (col1) {
+        const dLow = col1.toLowerCase();
+        if (dLow.includes('dễ') || dLow.includes('1')) currentDifficulty = 'Dễ';
+        else if (dLow.includes('khó') || dLow.includes('3')) currentDifficulty = 'Khó';
+        else currentDifficulty = 'Trung bình';
+      }
+
+      questions.push({
+        id: `pika_xl_${Date.now()}_${questions.length + 1}`,
+        question: normalizeMathFormulas(col2),
+        options: [normalizeMathFormulas(col3)],
+        correctIndex: 0,
+        topic: currentTopic,
+        difficulty: currentDifficulty,
+        type: 'MULTIPLE_CHOICE'
+      });
+      return;
+    }
+
+    // Định dạng 2 cột: [Cột 1, Cột 2]
+    if (col0 && col1) {
+      const c0Low = col0.toLowerCase();
+      if (c0Low === 'chủ đề' || c0Low.startsWith('chủ đề')) {
+        currentTopic = col1;
+        return;
+      }
+      if (c0Low === 'mức độ' || c0Low.startsWith('mức độ')) {
+        const c1Low = col1.toLowerCase();
+        if (c1Low.includes('dễ') || c1Low.includes('1')) currentDifficulty = 'Dễ';
+        else if (c1Low.includes('khó') || c1Low.includes('3')) currentDifficulty = 'Khó';
+        else currentDifficulty = 'Trung bình';
+        return;
+      }
+
+      questions.push({
+        id: `pika_xl2_${Date.now()}_${questions.length + 1}`,
+        question: normalizeMathFormulas(col0),
+        options: [normalizeMathFormulas(col1)],
+        correctIndex: 0,
+        topic: currentTopic,
+        difficulty: currentDifficulty,
+        type: 'MULTIPLE_CHOICE'
+      });
+    }
+  });
+
+  return questions;
 }
