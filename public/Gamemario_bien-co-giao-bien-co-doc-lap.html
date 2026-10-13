@@ -16,8 +16,26 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
-        body { margin: 0; overflow: hidden; background-color: #5C94FC; font-family: 'Nunito', sans-serif; touch-action: none; user-select: none;}
-        #gameCanvas { display: block; width: 100vw; height: 100vh; }
+        html, body { 
+            margin: 0; 
+            padding: 0;
+            width: 100vw;
+            height: 100dvh;
+            max-height: 100dvh;
+            overflow: hidden; 
+            background-color: #5C94FC; 
+            font-family: 'Nunito', sans-serif; 
+            touch-action: none; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #gameCanvas { display: block; width: 100vw; height: 100dvh; }
+
+        @media (max-width: 900px) and (orientation: portrait) {
+            #rotateDeviceOverlay {
+                display: flex !important;
+            }
+        }
         
         .pixel-font { font-family: 'Press Start 2P', cursive; line-height: 1.5; }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
@@ -101,6 +119,36 @@
 </head>
 <body>
 
+    <!-- ========================================== -->
+    <!-- 🔄 OVERLAY YÊU CẦU XOAY NGANG MÀN HÌNH DI ĐỘNG -->
+    <!-- ========================================== -->
+    <div id="rotateDeviceOverlay" style="display: none;" class="fixed inset-0 z-[999999] bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center text-white select-none">
+        <div class="w-24 h-24 mb-6 rounded-3xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-5xl animate-bounce shadow-[0_0_30px_rgba(245,158,11,0.4)]">
+            📱🔄
+        </div>
+        <h2 class="text-2xl md:text-3xl font-black text-amber-400 mb-3 uppercase tracking-wider pixel-font">
+            XOAY NGANG ĐIỆN THOẠI
+        </h2>
+        <p class="text-sm md:text-base text-slate-300 max-w-md font-bold leading-relaxed mb-6">
+            Vui lòng xoay ngang điện thoại để trải nghiệm trò chơi tốt nhất 🔄
+        </p>
+        <div class="px-5 py-2.5 rounded-full bg-slate-800 border border-slate-600 text-xs text-amber-300 font-mono font-bold flex items-center gap-2">
+            <span>⚡</span> Trò chơi sẽ tự động tiếp tục khi xoay ngang
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TOPBAR CÔNG CỤ DÀNH CHO ADMIN (Mặc định ẩn với học sinh, chỉ hiện khi URL có ?role=admin hoặc preview=true hoặc admin=1) -->
+    <!-- ========================================== -->
+    <div id="admin-topbar" class="fixed top-3 right-4 z-[99999] hidden items-center gap-2 pointer-events-auto">
+        <button id="btn-chuyen-de" type="button" onclick="openMarioTopicMenu()" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-amber-300/40 cursor-pointer" title="Chọn chuyên đề bài giảng">
+            <span>📚</span> CHUYÊN ĐỀ
+        </button>
+        <button id="btn-admin-gear" type="button" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-cyan-300/40 cursor-pointer" title="Quyền Quản Trị - Chỉnh sửa chuyên đề và xuất file HTML mới">
+            <span>⚙️</span> SỬA DỮ LIỆU
+        </button>
+    </div>
+
     <!-- ======================================================== -->
     <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
     <!-- ======================================================== -->
@@ -183,16 +231,6 @@
             <button id="toggleControlsBtn" onclick="toggleControls()" class="flex flex-col items-center justify-center border-l border-white/20 pl-2 md:pl-3 pr-1 md:pr-2 h-full transition-colors opacity-70 hover:opacity-100 text-white" title="Bật/Tắt Nút Điều Khiển">
                 <span class="text-lg md:text-xl leading-none">🎮</span>
                 <span id="toggleControlsText" class="text-[8px] font-bold mt-1 whitespace-nowrap">HIỆN NÚT</span>
-            </button>
-        </div>
-
-        <!-- CẶP NÚT CÔNG CỤ CHUẨN ĐỒNG BỘ TỪ KÉO THẢ (CHỈ HIỆN KHI ?role=admin) -->
-        <div id="admin-topbar" class="hidden pointer-events-auto items-center gap-2 mt-1">
-            <button id="btn-chuyen-de" onclick="openMarioTopicMenu()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs shadow-md border-b-2 border-amber-700 active:translate-y-0.5 transition flex items-center gap-1.5 cursor-pointer">
-                <span>📚</span> CHUYÊN ĐỀ
-            </button>
-            <button id="btn-admin-gear" onclick="openAdminPinPrompt()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-md border-b-2 border-blue-800 active:translate-y-0.5 transition flex items-center gap-1.5 cursor-pointer">
-                <span>⚙️</span> SỬA DỮ LIỆU
             </button>
         </div>
 
@@ -968,20 +1006,27 @@
         function formatMathSpacers(str) {
             if (!str || typeof str !== 'string') return '';
             let text = str;
-            // 1. Tự động bọc / sửa ký hiệu tập hợp viết liền: AcapB -> \(A \cap B\), AcupB -> \(A \cup B\)
+
+            // 1. Tự động bọc / sửa ký hiệu viết thô & tập hợp: cdot -> \cdot, AcapB -> \(A \cap B\), AcupB -> \(A \cup B\)
             text = text.replace(/\b([A-Z])cap([A-Z])\b/g, '\\($1 \\cap $2\\)');
             text = text.replace(/\b([A-Z])cup([A-Z])\b/g, '\\($1 \\cup $2\\)');
             text = text.replace(/([A-Z])\\cap([A-Z])/g, '$1 \\cap $2');
             text = text.replace(/([A-Z])\\cup([A-Z])/g, '$1 \\cup $2');
+            text = text.replace(/([0-9a-zA-Z\)\}\]])\s*cdot\s*([0-9a-zA-Z\(\{\\])/g, '$1 \\cdot $2');
+            text = text.replace(/\bcdot\b/g, '\\cdot');
 
-            // 2. Tách từ dính giữa chữ tiếng Việt và ký hiệu toán in hoa (Ví dụ: CảA -> Cả A, vàB -> và B)
+            // 2. Tách từ dính giữa chữ tiếng Việt và biến toán in hoa (Ví dụ: CảA -> Cả A, vàB -> và B)
             text = text.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
-            // Ký tự in hoa toán học đi liền ngay sau đó là từ tiếng Việt (Ví dụ: Axảy -> A xảy, Bkhông -> B không)
-            text = text.replace(/(^|\s|[^A-Za-z0-9])([A-Z])([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]{2,})/g, '$1$2 $3');
+            
+            // Tách biến đơn A, B khi bị dính liền với từ nối thông dụng (Ví dụ: AvàB -> A và B, Axảy -> A xảy, Bkhông -> B không)
+            text = text.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/gi, '$1$2 $3');
 
             // 3. Chuẩn hóa cơ số e và số mũ e^{...}
             text = text.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
             text = text.replace(/\be\^\(([^)]+)\)/g, 'e^{$1}');
+
+            // 4. Bọc các biểu thức xác suất P(...) nếu chưa có ký hiệu toán
+            text = text.replace(/(^|[^\$\\\(])(P\([A-Za-z\s\\\,\cap\cup\cdot\+\-]+\))([^\$\\\)]|$)/g, '$1\\($2\\)$3');
 
             return text;
         }
@@ -1081,8 +1126,12 @@
             height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
+            if (typeof checkDeviceOrientation === 'function') checkDeviceOrientation();
         }
         window.addEventListener('resize', resize);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resize, 150);
+        });
         resize();
 
         function drawMario(p) {
@@ -1190,9 +1239,13 @@
 
         // --- ĐIỀU KHIỂN & NÚT BẤM ẢO ---
         window.addEventListener('keydown', e => {
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT') return;
             if(e.code === 'ArrowLeft') keys.ArrowLeft = true; if(e.code === 'ArrowRight') keys.ArrowRight = true; if(e.code === 'ArrowUp' || e.code === 'Space') keys.ArrowUp = true;
         });
         window.addEventListener('keyup', e => {
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT') return;
             if(e.code === 'ArrowLeft') keys.ArrowLeft = false; if(e.code === 'ArrowRight') keys.ArrowRight = false; if(e.code === 'ArrowUp' || e.code === 'Space') keys.ArrowUp = false;
         });
 
@@ -1493,13 +1546,58 @@
         let editorActiveFilter = 'all';
         let editorActiveTopic = '';
 
-        function applyAdminSecurity() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const isAdmin = urlParams.get('role') === 'admin';
-            const topbar = document.getElementById('admin-topbar');
-            if (topbar) {
-                topbar.style.display = isAdmin ? 'flex' : 'none';
+        function checkDeviceOrientation() {
+            const overlay = document.getElementById('rotateDeviceOverlay');
+            if (!overlay) return;
+            const isMobile = window.innerWidth <= 900 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const isPortrait = window.innerHeight > window.innerWidth;
+            if (isMobile && isPortrait) {
+                overlay.style.display = 'flex';
+            } else {
+                overlay.style.display = 'none';
             }
+        }
+
+        function isolateEditorInputs() {
+            const selector = '#admin-editor-modal input, #admin-editor-modal textarea, #admin-editor-modal select, #admin-pin-input, #shortAnswerInput, #startPlayerName, #playerNameInput, #nextPlayerNameInput';
+            document.querySelectorAll(selector).forEach(el => {
+                ['keydown', 'keyup', 'keypress'].forEach(evt => {
+                    el.addEventListener(evt, e => e.stopPropagation());
+                });
+                el.addEventListener('focus', () => { el.placeholder = ''; });
+            });
+        }
+
+        function applyAdminSecurity() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const role = params.get('role');
+                const admin = params.get('admin');
+                const preview = params.get('preview');
+                const isHashAdmin = window.location.hash.includes('admin') || window.location.hash.includes('role=admin');
+                const isLocalAdmin = localStorage.getItem('mario_is_admin') === 'true';
+
+                const isAdmin = role === 'admin' || admin === '1' || preview === 'true' || isHashAdmin || isLocalAdmin || window.isAdmin;
+                const topbar = document.getElementById('admin-topbar');
+                if (topbar) {
+                    if (isAdmin) {
+                        topbar.classList.remove('hidden');
+                        topbar.classList.add('flex');
+                        topbar.style.display = 'flex';
+                    } else {
+                        topbar.classList.add('hidden');
+                        topbar.classList.remove('flex');
+                        topbar.style.display = 'none';
+                    }
+                }
+                const gearBtn = document.getElementById('btn-admin-gear');
+                if (gearBtn) {
+                    gearBtn.onclick = function(e) {
+                        if (e) { e.preventDefault(); e.stopPropagation(); }
+                        openAdminPinPrompt();
+                    };
+                }
+            } catch(e) {}
         }
 
         function openAdminPinPrompt() {
@@ -1511,9 +1609,16 @@
             const input = document.getElementById('admin-pin-input');
             const errorMsg = document.getElementById('pin-error-msg');
             if (errorMsg) errorMsg.classList.add('hidden');
-            if (input) { input.value = ''; }
-            if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+            if (input) { 
+                input.value = ''; 
+                input.placeholder = ''; // Ẩn hoàn toàn placeholder theo yêu cầu
+            }
+            if (modal) { 
+                modal.classList.remove('hidden'); 
+                modal.classList.add('flex'); 
+            }
             setTimeout(() => { if (input) input.focus(); }, 100);
+            isolateEditorInputs();
         }
 
         function closeAdminPinPrompt() {
@@ -1530,11 +1635,19 @@
             const errorMsg = document.getElementById('pin-error-msg');
             const val = input ? input.value.trim() : '';
             if (val === '2806') {
+                localStorage.setItem('mario_is_admin', 'true');
                 closeAdminPinPrompt();
                 openAdminEditorModal();
             } else {
                 if (errorMsg) errorMsg.classList.remove('hidden');
-                if (input) { input.value = ''; input.focus(); }
+                if (input) { 
+                    input.classList.add('border-red-500', 'ring-2', 'ring-red-500/50');
+                    setTimeout(() => {
+                        input.classList.remove('border-red-500', 'ring-2', 'ring-red-500/50');
+                    }, 1200);
+                    input.value = ''; 
+                    input.focus(); 
+                }
             }
         }
 
@@ -1900,16 +2013,8 @@
 
             // 4. Phân quyền admin
             applyAdminSecurity();
-
-            // 5. Chống kẹt phím Telex / điều khiển Mario khi nhập liệu
-            ['admin-editor-modal', 'pin-prompt-modal'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    ['keydown', 'keyup', 'keypress'].forEach(evt => {
-                        el.addEventListener(evt, e => e.stopPropagation());
-                    });
-                }
-            });
+            checkDeviceOrientation();
+            isolateEditorInputs();
         });
 
         document.fonts.ready.then(() => { requestAnimationFrame(loop); });
