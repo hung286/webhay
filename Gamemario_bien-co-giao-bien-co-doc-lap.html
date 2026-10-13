@@ -1046,6 +1046,12 @@
             if (!str || typeof str !== 'string') return '';
             let text = str.trim();
 
+            // Sửa lỗi cách chữ đầu câu: Đảm bảo chữ đầu câu viết liền đúng chính tả tiếng Việt (Sửa "N ếu" -> "Nếu", "C ả" -> "Cả", v.v.)
+            text = text.replace(/\bN\s+ếu\b/gi, 'Nếu');
+            text = text.replace(/\bC\s+ả\b/gi, 'Cả');
+            text = text.replace(/\bK\s+hi\b/gi, 'Khi');
+            text = text.replace(/\bC\s+hỉ\b/gi, 'Chỉ');
+
             // 1. Sửa lỗi dấu gạch chéo đỏ: Lọc và xóa sạch các ký tự gạch chéo \ lỗi dạng \ ( P(A) \ ) hoặc \ ( ... \ )
             text = text.replace(/\\+\s*\(\s*/g, '\\(');
             text = text.replace(/\s*\\+\s*\)/g, '\\)');
@@ -1067,8 +1073,8 @@
             // 4. Tách từ dính giữa chữ tiếng Việt và biến toán in hoa (Ví dụ: CảA -> Cả A, vàB -> và B)
             text = text.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
             
-            // Tách biến đơn A, B khi bị dính liền với từ nối thông dụng (Ví dụ: AvàB -> A và B, Axảy -> A xảy, Bkhông -> B không)
-            text = text.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/gi, '$1$2 $3');
+            // Tách biến đơn A, B khi bị dính liền với từ nối thông dụng (Ví dụ: AvàB -> A và B, Axảy -> A xảy, Bkhông -> B không) - DÙNG CỜ /g (KHÔNG DÙNG /gi) ĐỂ KHÔNG TỰ CẮT CHỮ TIẾNG VIỆT
+            text = text.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
 
             // 5. Chuẩn hóa cơ số e và số mũ e^{...}
             text = text.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
