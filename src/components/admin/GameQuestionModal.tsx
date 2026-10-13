@@ -58,6 +58,8 @@ const MathLivePreview: React.FC<{ formula: string }> = ({ formula }) => {
       clean = clean.replace(/^rac\s*\{/g, '\\frac{');
       clean = clean.replace(/\bN\s+ếu\b/g, 'Nếu').replace(/\bH\s+ai\b/g, 'Hai').replace(/\bC\s+ho\b/g, 'Cho').replace(/\bC\s+ả\b/g, 'Cả').replace(/\bK\s+hi\b/g, 'Khi').replace(/\bC\s+hỉ\b/g, 'Chỉ').replace(/\bT\s+ính\b/g, 'Tính').replace(/\bT\s+rong\b/g, 'Trong').replace(/\bK\s+hẳng\b/g, 'Khẳng').replace(/\bđ\s+ịnh\b/g, 'định').replace(/\bH\s+ình\b/g, 'Hình').replace(/\bM\s+ặt\b/g, 'Mặt').replace(/\bđ\s+ường\b/g, 'đường').replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
       clean = clean.replace(/\bAcupB\b/g, 'A \\cup B').replace(/\bAcapB\b/g, 'A \\cap B').replace(/(?<!\\)\bcdot\b/g, '\\cdot').replace(/(?<!\\)\bOmega\b/g, '\\Omega').replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+      clean = clean.replace(/e\^\(([^)]+)\)/g, 'e^{$1}').replace(/e\^\{([^}]+)\}/g, 'e^{$1}').replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}');
+      clean = clean.replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}').replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}').replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
       clean = clean.replace(/^\\\(/, '').replace(/\\\)$/, '').replace(/^\$/, '').replace(/\$$/, '');
       html = (window as any).katex.renderToString(clean, { throwOnError: false });
     } catch (e) {}
@@ -102,7 +104,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const isSutPenMode = selectedTemplateUrl.includes('sut-pen') || selectedTemplateUrl.includes('penalty');
   const isBanChimMode = selectedTemplateUrl.includes('ban-chim') || selectedTemplateUrl.includes('bird');
   const isYogaMode = selectedTemplateUrl.includes('yoga');
-  const isPikachuMode = selectedTemplateUrl.includes('pikachu');
+  const isPikachuMode = selectedTemplateUrl.includes('pikachu') || selectedTemplateUrl.includes('ghep-cap');
   const isCaNguaMode = selectedTemplateUrl.includes('ca-ngua') || selectedTemplateUrl.includes('ca_ngua') || selectedTemplateUrl.includes('ngua');
   const isTetrisMode = selectedTemplateUrl.includes('tetris') || selectedTemplateUrl.includes('Gametetris');
   const isMarioMode = selectedTemplateUrl.includes('mario') || selectedTemplateUrl.includes('Gamemario');
@@ -1100,7 +1102,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-2 sm:p-5 h-[100dvh] max-h-[100dvh] overflow-hidden">
-      <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[92dvh] sm:max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border-2 border-violet-200 animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[80dvh] sm:max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border-2 border-violet-200 animate-in zoom-in-95 duration-200">
         
         {/* HEADER CÔNG CỤ */}
         <div className="flex justify-between items-center p-4 sm:p-5 border-b border-slate-100 bg-gradient-to-r from-slate-900 via-violet-950 to-slate-900 text-white">
@@ -2496,7 +2498,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       {/* MODAL CON: DÁN ĐỀ BÀI VĂN BẢN (SMART PARSER) */}
       {showPasteModal && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-white rounded-3xl p-5 sm:p-6 max-w-2xl w-full flex flex-col shadow-2xl border-4 border-violet-200">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 max-w-2xl w-full max-h-[80dvh] sm:max-h-[85vh] overflow-y-auto flex flex-col shadow-2xl border-4 border-violet-200" style={{ WebkitOverflowScrolling: 'touch' }}>
             <div className="flex justify-between items-center pb-3 border-b border-slate-200 mb-3">
               <div>
                 <h4 className="text-base sm:text-lg font-black text-slate-800 flex items-center gap-2">

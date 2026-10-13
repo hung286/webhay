@@ -481,6 +481,37 @@ window.useStaticTopic = true;
 
   // NHÓM GHÉP CẶP LƯỢNG GIÁC & CÔNG THỨC (cấu trúc Đa Chủ Đề & Đa Độ Khó)
   else if (cleanUrl.includes('ghep-cap')) {
+    const cleanFormula = (text: string): string => {
+      if (!text) return '';
+      let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+      res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
+               .replace(/\bH\s+ai\b/g, 'Hai')
+               .replace(/\bC\s+ho\b/g, 'Cho')
+               .replace(/\bC\s+ả\b/g, 'Cả')
+               .replace(/\bK\s+hi\b/g, 'Khi')
+               .replace(/\bC\s+hỉ\b/g, 'Chỉ')
+               .replace(/\bT\s+ính\b/g, 'Tính')
+               .replace(/\bT\s+rong\b/g, 'Trong')
+               .replace(/\bK\s+hẳng\b/g, 'Khẳng')
+               .replace(/\bđ\s+ịnh\b/g, 'định')
+               .replace(/\bH\s+ình\b/g, 'Hình')
+               .replace(/\bM\s+ặt\b/g, 'Mặt')
+               .replace(/\bđ\s+ường\b/g, 'đường')
+               .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
+      res = res.replace(/\bAcupB\b/g, 'A \\cup B')
+               .replace(/\bAcapB\b/g, 'A \\cap B')
+               .replace(/(?<!\\)\bcdot\b/g, '\\cdot')
+               .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
+               .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+      res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}')
+               .replace(/e\^\{([^}]+)\}/g, 'e^{$1}')
+               .replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}')
+               .replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}')
+               .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
+               .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
+      return normalizeMathFormulas(res);
+    };
+
     const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
     questions.forEach(q => {
       const topicName = q.topic?.trim() || gameTitle;
@@ -489,14 +520,16 @@ window.useStaticTopic = true;
       }
       const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
       const correctText = (q.options && typeof q.correctIndex === 'number') ? q.options[q.correctIndex] : (q.options ? q.options[0] : '');
+      const cleanedQuestion = cleanFormula(q.question);
+      const cleanedCorrect = cleanFormula(correctText);
       topicsMap[topicName][diffKey].push({
         id: topicsMap[topicName][diffKey].length + 1,
-        left: q.question,
-        right: correctText,
-        q: q.question,
-        options: q.options || ['A', 'B', 'C', 'D'],
+        left: cleanedQuestion,
+        right: cleanedCorrect,
+        q: cleanedQuestion,
+        options: (q.options || ['A', 'B', 'C', 'D']).map(o => cleanFormula(o)),
         correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-        explanation: q.explanation || ''
+        explanation: cleanFormula(q.explanation || '')
       });
     });
 
@@ -1635,8 +1668,39 @@ if (typeof window.gameDatabase !== 'undefined') {
     htmlContent = injectScriptAtTop(htmlContent, tiltScript);
   }
 
-  // NHÓM PIKACHU NỐI CẶP ĐẠO HÀM (cấu trúc Đa Chủ Đề: pairs 24+ cặp thẻ cho bàn 48 ô)
+  // NHÓM PIKACHU NỐI CẶP ĐẠO HÀM / GHÉP CẶP LƯỢNG GIÁC (cấu trúc Đa Chủ Đề: pairs 24+ cặp thẻ cho bàn 48 ô)
   else if (cleanUrl.includes('pikachu')) {
+    const cleanFormula = (text: string): string => {
+      if (!text) return '';
+      let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+      res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
+               .replace(/\bH\s+ai\b/g, 'Hai')
+               .replace(/\bC\s+ho\b/g, 'Cho')
+               .replace(/\bC\s+ả\b/g, 'Cả')
+               .replace(/\bK\s+hi\b/g, 'Khi')
+               .replace(/\bC\s+hỉ\b/g, 'Chỉ')
+               .replace(/\bT\s+ính\b/g, 'Tính')
+               .replace(/\bT\s+rong\b/g, 'Trong')
+               .replace(/\bK\s+hẳng\b/g, 'Khẳng')
+               .replace(/\bđ\s+ịnh\b/g, 'định')
+               .replace(/\bH\s+ình\b/g, 'Hình')
+               .replace(/\bM\s+ặt\b/g, 'Mặt')
+               .replace(/\bđ\s+ường\b/g, 'đường')
+               .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
+      res = res.replace(/\bAcupB\b/g, 'A \\cup B')
+               .replace(/\bAcapB\b/g, 'A \\cap B')
+               .replace(/(?<!\\)\bcdot\b/g, '\\cdot')
+               .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
+               .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+      res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}')
+               .replace(/e\^\{([^}]+)\}/g, 'e^{$1}')
+               .replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}')
+               .replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}')
+               .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
+               .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
+      return normalizeMathFormulas(res);
+    };
+
     const topicsMap: Record<string, Record<number, any[]>> = {};
     const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
     const icons = ['fa-cat', 'fa-dog', 'fa-hippo', 'fa-otter', 'fa-kiwi-bird', 'fa-fish', 'fa-dragon', 'fa-spider', 'fa-crow'];
@@ -1666,14 +1730,13 @@ if (typeof window.gameDatabase !== 'undefined') {
         // Nếu level không có câu, dùng chung tất cả
         const source = byDiff[lvl].length > 0 ? byDiff[lvl] : qList;
         const pairs: any[] = source.map((q, i) => {
-          const rightText = normalizeMathFormulas(
-            (q.options && typeof q.correctIndex === 'number' && q.options[q.correctIndex])
-              ? q.options[q.correctIndex]
-              : (q.options?.[0] || 'Đáp án')
-          );
+          const rawRight = (q.options && typeof q.correctIndex === 'number' && q.options[q.correctIndex])
+            ? q.options[q.correctIndex]
+            : (q.options?.[0] || 'Đáp án');
+          const rightText = cleanFormula(rawRight);
           return {
             id: i + 1,
-            left: normalizeMathFormulas(q.question || ''),
+            left: cleanFormula(q.question || ''),
             right: rightText,
             icon: icons[i % icons.length],
             themeColor: colors[i % colors.length]
@@ -1685,28 +1748,104 @@ if (typeof window.gameDatabase !== 'undefined') {
 
     const pikachuScript = `
 <script>
-// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - PIKACHU NỐI CẶP]
+// [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - PIKACHU NỐI CẶP & GHÉP CẶP LƯỢNG GIÁC]
 // Inject dữ liệu từ Studio vào biến chuẩn
 window.__INJECTED_PIKACHU_DATA__ = ${JSON.stringify(topicsMap, null, 2)};
 window.pikachuQuizData = window.__INJECTED_PIKACHU_DATA__;
 window.__ADMIN_PIN__ = "2806";
 
+// Tiêm CSS Responsive Mobile, 100dvh, Touch scroll & MathJax / KaTeX NoWrap
+(function injectPikachuStyles() {
+  try {
+    if (!document.getElementById('pikachu-mobile-fix-style')) {
+      const style = document.createElement('style');
+      style.id = 'pikachu-mobile-fix-style';
+      style.textContent = \`
+        html, body {
+            min-height: 100dvh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+        }
+        @media (max-width: 768px) {
+            body {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                overflow: hidden !important;
+            }
+            #app {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                padding: 4px !important;
+                padding-top: 4px !important;
+            }
+            #game-header {
+                padding: 4px 8px !important;
+                margin-bottom: 4px !important;
+                border-radius: 12px !important;
+            }
+            .game-tile {
+                border-radius: 6px !important;
+                border-bottom-width: 2px !important;
+            }
+            .animal-glass {
+                font-size: 70cqmin !important;
+            }
+            #topic-selection-overlay > div,
+            #admin-editor-modal > div,
+            #modal-container > div {
+                max-height: 80dvh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+        }
+        .math-content, .katex, .katex-html, .mjx-chtml, mjx-container {
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+        .math-content .katex *, .math-content mjx-container *, .katex *, mjx-container * {
+            white-space: nowrap !important;
+        }
+      \`;
+      document.head.appendChild(style);
+    }
+  } catch(e) {}
+})();
+
 // Gán vào gameDatabase nếu đã sẵn sàng, hoặc chờ script load xong
 (function applyPikachuData() {
-  if (typeof window.gameDatabase !== 'undefined') {
-    Object.assign(window.gameDatabase, window.__INJECTED_PIKACHU_DATA__);
-    window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
-    if (typeof window.renderPikachuTopicCards === 'function') window.renderPikachuTopicCards();
-  } else {
-    window.addEventListener('DOMContentLoaded', function() {
-      if (typeof window.gameDatabase !== 'undefined') {
-        Object.assign(window.gameDatabase, window.__INJECTED_PIKACHU_DATA__);
-        window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
-        if (typeof window.renderPikachuTopicCards === 'function') window.renderPikachuTopicCards();
-        if (typeof window.ensurePikachuData === 'function') window.ensurePikachuData();
+  function syncData() {
+    if (typeof window.gameDatabase !== 'undefined') {
+      Object.assign(window.gameDatabase, window.__INJECTED_PIKACHU_DATA__);
+      window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+      if (typeof window.renderPikachuTopicCards === 'function') window.renderPikachuTopicCards();
+      if (typeof window.ensurePikachuData === 'function') window.ensurePikachuData();
+    }
+    // Đảm bảo ẩn overlay menu khi bấm chọn level
+    const origSelect = window.selectPikachuTopic;
+    if (typeof origSelect === 'function' && !origSelect._patched) {
+      window.selectPikachuTopic = function(tName, lvl) {
+        const overlay = document.getElementById('topic-selection-overlay');
+        if (overlay) {
+          overlay.style.display = 'none';
+          overlay.classList.add('hidden');
+        }
+        return origSelect.apply(this, arguments);
+      };
+      window.selectPikachuTopic._patched = true;
+    }
+    try {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function() {});
       }
-    });
+    } catch(e) {}
   }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncData);
+  } else {
+    syncData();
+  }
+  window.addEventListener('load', syncData);
 })();
 
 // Admin security - áp dụng ngay khi DOM sẵn sàng
