@@ -39493,6 +39493,52 @@ if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__
     } catch(e) {}
   }
 
+  function setupFullscreen() {
+    try {
+      if (typeof window.triggerToggleFullscreen !== 'function') {
+        window.triggerToggleFullscreen = function() {
+          const gameElement = document.documentElement;
+          if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+            if (gameElement.requestFullscreen) {
+              const p = gameElement.requestFullscreen();
+              if (p && p.catch) p.catch(function() {});
+            } else if (gameElement.webkitRequestFullscreen) {
+              gameElement.webkitRequestFullscreen();
+            } else if (gameElement.mozRequestFullScreen) {
+              gameElement.mozRequestFullScreen();
+            } else if (gameElement.msRequestFullscreen) {
+              gameElement.msRequestFullscreen();
+            }
+          } else {
+            if (document.exitFullscreen) {
+              const p = document.exitFullscreen();
+              if (p && p.catch) p.catch(function() {});
+            } else if (document.webkitExitFullscreen) {
+              document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+              document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+              document.msExitFullscreen();
+            }
+          }
+        };
+      }
+      const fsBtn = document.getElementById('fullscreenToggleBtn');
+      if (fsBtn && !fsBtn.dataset.fsBound) {
+        fsBtn.dataset.fsBound = 'true';
+        fsBtn.onclick = function(e) {
+          if (e) e.stopPropagation();
+          window.triggerToggleFullscreen();
+        };
+        fsBtn.ontouchstart = function(e) {
+          if (e && e.cancelable) e.preventDefault();
+          if (e) e.stopPropagation();
+          window.triggerToggleFullscreen();
+        };
+      }
+    } catch(e) {}
+  }
+
   function triggerMathTypeset() {
     try {
       if (window.MathJax && window.MathJax.typesetPromise) {
@@ -39506,18 +39552,21 @@ if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__
       syncMarioData();
       applyAdminSecurity();
       setupAdminButtons();
+      setupFullscreen();
       triggerMathTypeset();
     });
   } else {
     syncMarioData();
     applyAdminSecurity();
     setupAdminButtons();
+    setupFullscreen();
     triggerMathTypeset();
   }
   window.addEventListener('load', function() {
     syncMarioData();
     applyAdminSecurity();
     setupAdminButtons();
+    setupFullscreen();
     triggerMathTypeset();
   });
 })();
