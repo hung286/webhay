@@ -1501,10 +1501,15 @@
             let text = str.trim();
 
             // 0. Làm sạch triệt để control characters và Form Feed \x0c / \f
-            text = text.replace(/[\u000c\x0c]+rac/g, '\\frac');
+            // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f nếu có xuất hiện trong chuỗi đáp án
+            if (typeof text === 'string') {
+                text = text.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+                text = text.replace(/[\u000c\x0c]/g, '');
+                // Chuẩn hóa và phục hồi cú pháp phân số \frac{ nếu \f bị tách rời
+                text = text.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
+                text = text.replace(/^rac\s*\{/g, '\\frac{');
+            }
             text = text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
-            text = text.replace(/\\*rac\s*\{/g, '\\frac{');
-            text = text.replace(/\\+f\s*rac\s*\{/g, '\\frac{');
 
             // Sửa lỗi cách chữ đầu câu
             text = text.replace(/\bN\s+ếu\b/gi, 'Nếu');

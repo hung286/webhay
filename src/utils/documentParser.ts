@@ -107,8 +107,10 @@ export function normalizeMathFormulas(text: string): string {
   // 0. Làm sạch triệt để control characters và Form Feed \x0c / \f bị lỗi khi parser JS/Word/Excel
   str = str.replace(/[\u000c\x0c]+rac/g, '\\frac');
   str = str.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
-  str = str.replace(/\\*rac\s*\{/g, '\\frac{');
-  str = str.replace(/\\+f\s*rac\s*\{/g, '\\frac{');
+  // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f nếu có xuất hiện trong chuỗi đáp án
+  str = str.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+  str = str.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
+  str = str.replace(/^rac\s*\{/g, '\\frac{');
 
   // Sửa chữa các chuỗi lỗi font/TeX đã bị hỏng trước đó (ví dụ: {\(\frac\){sqrt{3}}{2}})
   str = str.replace(/\{\s*\\?\(\\?frac\\?\)\s*\{/gi, '\\frac{');

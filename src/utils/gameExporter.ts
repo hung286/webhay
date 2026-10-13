@@ -2098,7 +2098,16 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
       topicsMap[topicName][diffKey].push({
         id: q.id,
         q: normalizeMathFormulas(q.question),
-        options: (q.options && q.options.length > 0) ? q.options.map(o => normalizeMathFormulas(o)) : ['A', 'B', 'C', 'D'],
+        options: (q.options && q.options.length > 0) ? q.options.map(o => {
+          let answerString = normalizeMathFormulas(o);
+          // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f nếu có xuất hiện trong chuỗi đáp án
+          if (typeof answerString === 'string') {
+            answerString = answerString.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+            answerString = answerString.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
+            answerString = answerString.replace(/^rac\s*\{/g, '\\frac{');
+          }
+          return answerString;
+        }) : ['A', 'B', 'C', 'D'],
         correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
         explanation: normalizeMathFormulas(q.explanation || ''),
         type: isShort ? 'short_answer' : (isTF ? 'truefalse' : 'abcd'),
