@@ -86,7 +86,27 @@
                 drop-shadow(1.5px -1.5px 0px #000) 
                 drop-shadow(-1.5px 1.5px 0px #000)
                 drop-shadow(0 4px 8px rgba(0,0,0,0.9));
-            white-space: nowrap;
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+
+        .math-content .katex,
+        .math-content .katex-html,
+        .math-content .mjx-chtml,
+        .math-content mjx-container,
+        .katex,
+        .katex-html,
+        .mjx-chtml,
+        mjx-container {
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+
+        .math-content .katex *,
+        .math-content mjx-container *,
+        .katex *,
+        mjx-container * {
+            white-space: nowrap !important;
         }
 
         /* --- PATH NEON GLOW --- */
@@ -110,9 +130,51 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+
+        html, body {
+            min-height: 100dvh;
+            height: 100dvh;
+            max-height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                padding: 0 !important;
+            }
+            #app {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                padding: 4px !important;
+                padding-top: 4px !important;
+            }
+            #game-header {
+                padding: 4px 8px !important;
+                margin-bottom: 4px !important;
+                border-radius: 12px !important;
+            }
+            .game-tile {
+                border-radius: 6px !important;
+                border-bottom-width: 2px !important;
+            }
+            .animal-glass {
+                font-size: 70cqmin !important;
+            }
+            #topic-selection-overlay > div,
+            #admin-editor-modal > div,
+            #modal-container > div {
+                max-height: 80dvh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen bg-[radial-gradient(ellipse_at_center,_#1e1e2f,_#000000)] overflow-hidden flex flex-col relative text-white">
+<body class="min-h-[100dvh] h-[100dvh] bg-[radial-gradient(ellipse_at_center,_#1e1e2f,_#000000)] overflow-hidden flex flex-col relative text-white">
 
     <!-- ======================================================== -->
     <!-- THANH CÔNG CỤ ADMIN (ẨN MẶC ĐỊNH - CHỈ HIỆN KHI ?admin=1) -->
@@ -216,32 +278,32 @@
     <!-- ======================================================== -->
     <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
     <!-- ======================================================== -->
-    <div id="topic-selection-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-950/85 backdrop-blur-2xl transition-all duration-300">
-        <div class="rounded-3xl w-full max-w-5xl border-2 border-cyan-400/40 flex flex-col max-h-[92vh] overflow-hidden bg-gradient-to-br from-slate-950/95 via-indigo-950/90 to-slate-950/95 shadow-[0_0_60px_rgba(6,182,212,0.3)]">
+    <div id="topic-selection-overlay" style="display: none;" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-6 bg-slate-950/85 backdrop-blur-2xl transition-all duration-300">
+        <div class="rounded-3xl w-full max-w-5xl border-2 border-cyan-400/40 flex flex-col max-h-[80dvh] sm:max-h-[92vh] overflow-hidden bg-gradient-to-br from-slate-950/95 via-indigo-950/90 to-slate-950/95 shadow-[0_0_60px_rgba(6,182,212,0.3)]">
             
-            <div class="p-6 border-b border-white/10 text-center relative">
+            <div class="p-4 sm:p-6 border-b border-white/10 text-center relative">
                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-black tracking-widest uppercase mb-2">
                     ⚡ ĐẤU TRƯỜNG NỐI CẶP TOÁN HỌC | TOÁN PRO - THẦY HÙNG
                 </div>
-                <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-fuchsia-400 tracking-tight mb-2">
+                <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-fuchsia-400 tracking-tight mb-2">
                     CHỌN CHUYÊN ĐỀ PIKACHU TOÁN HỌC
                 </h1>
-                <p class="text-slate-300 text-sm sm:text-base font-semibold max-w-2xl mx-auto">
+                <p class="text-slate-300 text-xs sm:text-base font-semibold max-w-2xl mx-auto">
                     Nối các cặp thẻ Hàm số và Đạo hàm/Nguyên hàm tương ứng theo quy tắc Pikachu (tối đa 2 góc vuông).
                 </p>
-                <button onclick="document.getElementById('topic-selection-overlay').classList.add('hidden')" class="absolute top-6 right-6 text-gray-400 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-2xl transition-colors">
+                <button onclick="window.closeTopicSelectMenu()" class="absolute top-4 sm:top-6 right-4 sm:right-6 text-gray-400 hover:text-white bg-white/10 hover:bg-white/20 p-2 sm:p-2.5 rounded-2xl transition-colors">
                     ✕
                 </button>
             </div>
 
             <!-- Grid danh sách chuyên đề -->
-            <div id="pikachu-topics-grid" class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-5 flex-1">
+            <div id="pikachu-topics-grid" class="p-4 sm:p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-5 flex-1" style="-webkit-overflow-scrolling: touch;">
                 <!-- Rendered dynamically -->
             </div>
 
-            <div class="p-4 border-t border-white/10 bg-black/40 flex flex-wrap justify-between items-center text-xs text-slate-400 font-semibold px-8">
+            <div class="p-3 sm:p-4 border-t border-white/10 bg-black/40 flex flex-wrap justify-between items-center text-[10px] sm:text-xs text-slate-400 font-semibold px-4 sm:px-8">
                 <span>⭐ Bảng chơi 48 ô tiêu chuẩn quốc tế - Thuật toán tìm đường Neon Glow</span>
-                <span class="text-cyan-400 font-mono">PikachuMath Engine v3.6</span>
+                <span class="text-cyan-400 font-mono">PikachuMath Engine v3.8</span>
             </div>
         </div>
     </div>
@@ -568,6 +630,15 @@
             if (!overlay) return;
             window.renderPikachuTopicCards();
             overlay.classList.remove('hidden');
+            overlay.style.display = 'flex';
+        };
+
+        window.closeTopicSelectMenu = function() {
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.style.display = 'none';
+            }
         };
 
         window.renderPikachuTopicCards = function() {
@@ -623,7 +694,12 @@
 
         window.selectPikachuTopic = function(topicName, level) {
             window.selectedTopic = topicName;
-            const modalMenu = document.getElementById('topic-selection-overlay') || document.getElementById('campaign-modal') || document.querySelector('.campaign-menu-overlay');
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+                overlay.classList.add('hidden');
+            }
+            const modalMenu = document.getElementById('campaign-modal') || document.querySelector('.campaign-menu-overlay');
             if (modalMenu) {
                 modalMenu.style.display = 'none';
                 modalMenu.classList.add('hidden');
@@ -636,14 +712,39 @@
         // ========================================================
         function convertExponentAndFormulas(str) {
             if (!str || typeof str !== 'string') return '';
-            let res = str.trim();
+            let res = str.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+
+            // Sửa lỗi tự ý chèn khoảng trắng sau ký tự đầu tiên
+            res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
+                     .replace(/\bH\s+ai\b/g, 'Hai')
+                     .replace(/\bC\s+ho\b/g, 'Cho')
+                     .replace(/\bC\s+ả\b/g, 'Cả')
+                     .replace(/\bK\s+hi\b/g, 'Khi')
+                     .replace(/\bC\s+hỉ\b/g, 'Chỉ')
+                     .replace(/\bT\s+ính\b/g, 'Tính')
+                     .replace(/\bT\s+rong\b/g, 'Trong')
+                     .replace(/\bK\s+hẳng\b/g, 'Khẳng')
+                     .replace(/\bđ\s+ịnh\b/g, 'định')
+                     .replace(/\bH\s+ình\b/g, 'Hình')
+                     .replace(/\bM\s+ặt\b/g, 'Mặt')
+                     .replace(/\bđ\s+ường\b/g, 'đường')
+                     .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
+
+            // Chuyển đổi các chữ mã thô viết liền
+            res = res.replace(/\bAcupB\b/g, 'A \\cup B')
+                     .replace(/\bAcapB\b/g, 'A \\cap B')
+                     .replace(/(?<!\\)\bcdot\b/g, '\\cdot')
+                     .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
+                     .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
 
             // 1. Chuẩn hóa số mũ cơ số e: e^(3x) -> e^{3x}, e^(-x) -> e^{-x}, e^(2x) -> e^{2x}, 2e^(2x) -> 2e^{2x}
             res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}');
+            res = res.replace(/e\^\{([^}]+)\}/g, 'e^{$1}');
             res = res.replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}');
 
             // Tổng quát cho các biểu thức số mũ dạng cơ số khác: (x+1)^3 -> (x+1)^{3}, a^(2x) -> a^{2x}, 2^x -> 2^{x}
             res = res.replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}');
+            res = res.replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}');
             res = res.replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
 
             // 2. Chuyển các ký tự Unicode số mũ sang TeX mũ
@@ -677,7 +778,7 @@
 
         function formatMathText(text) {
             if (!text || typeof text !== 'string') return text || '';
-            let str = text.trim();
+            let str = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
 
             // Nếu đã bọc \(...\) thì bóc ra chuẩn hóa số mũ bên trong
             if (str.startsWith('\\(') && str.endsWith('\\)')) {
@@ -1079,11 +1180,10 @@
         }
 
         function startGame(level) {
-            const modalMenu = document.getElementById('topic-selection-overlay') || document.getElementById('campaign-modal') || document.querySelector('.campaign-menu-overlay');
-            if (modalMenu) {
-                modalMenu.style.display = 'none';
-                modalMenu.classList.add('hidden');
-            }
+            document.querySelectorAll('#topic-selection-overlay, #campaign-modal, .campaign-menu-overlay, #modal-container').forEach(el => {
+                el.style.display = 'none';
+                el.classList.add('hidden');
+            });
 
             state.level = level;
             const topicData = window.gameDatabase[window.selectedTopic] || window.gameDatabase[Object.keys(window.gameDatabase)[0]];
@@ -1311,8 +1411,8 @@
                 app.innerHTML = `
                     <div id="game-header" class="w-full max-w-[1200px] flex-shrink-0 flex items-center justify-between mb-2 sm:mb-4 bg-slate-900/50 backdrop-blur-xl p-3 px-4 rounded-2xl shadow-xl border border-white/10 relative z-10"></div>
 
-                    <div style="aspect-ratio: 10/8; max-height: calc(100vh - 140px); max-width: min(100vw - 16px, 1200px, calc((100vh - 140px) * 1.25)); width: 100%;" 
-                         class="relative bg-slate-950/60 backdrop-blur-2xl rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] border-[4px] border-white/5 p-1 sm:p-2 z-10 flex flex-col mx-auto">
+                    <div style="aspect-ratio: 10/8; max-height: calc(100dvh - 90px); max-width: min(100vw - 8px, 1200px, calc((100dvh - 90px) * 1.25)); width: 100%;" 
+                         class="relative bg-slate-950/60 backdrop-blur-2xl rounded-2xl sm:rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.8)] border-2 sm:border-[4px] border-white/5 p-1 sm:p-2 z-10 flex flex-col mx-auto">
                         
                         <div class="w-full h-full relative" id="game-area">
                             <div id="board-container" class="absolute inset-0"></div>
@@ -1489,7 +1589,7 @@
             }
 
             modalContainer.innerHTML = `
-                <div class="bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-sm w-full shadow-[0_0_50px_rgba(0,0,0,0.8)] relative animate-[scaleIn_0.3s_ease-out]">
+                <div class="bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-sm w-full max-h-[80dvh] overflow-y-auto shadow-[0_0_50px_rgba(0,0,0,0.8)] relative animate-[scaleIn_0.3s_ease-out]" style="-webkit-overflow-scrolling: touch;">
                     <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 bg-white/5 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-red-500/80 transition-all">
                         <i class="fas fa-times"></i>
                     </button>
@@ -1502,7 +1602,7 @@
                         <p class="text-xs text-slate-400">TOÁN PRO - THẦY HÙNG - Cao thủ Đạo Hàm</p>
                     </div>
 
-                    <div class="max-h-60 overflow-y-auto pr-2">
+                    <div class="max-h-60 overflow-y-auto pr-2" style="-webkit-overflow-scrolling: touch;">
                         ${listHtml}
                     </div>
                 </div>
@@ -1517,7 +1617,7 @@
             const icon = isWin ? '<i class="fas fa-trophy text-6xl text-yellow-400 relative z-10 drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]"></i>' : '<i class="fas fa-skull text-6xl text-rose-500 relative z-10 drop-shadow-[0_0_20px_rgba(244,63,94,0.6)]"></i>';
 
             modalContainer.innerHTML = `
-                <div class="bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 max-w-sm w-full text-center shadow-[0_0_50px_rgba(0,0,0,0.9)] animate-[scaleIn_0.3s_ease-out]">
+                <div class="bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-sm w-full max-h-[80dvh] overflow-y-auto text-center shadow-[0_0_50px_rgba(0,0,0,0.9)] animate-[scaleIn_0.3s_ease-out]" style="-webkit-overflow-scrolling: touch;">
                     <div class="relative inline-block mb-6">
                         <div class="absolute inset-0 bg-white/10 blur-xl opacity-50 rounded-full"></div>
                         ${icon}
@@ -1581,12 +1681,10 @@
             document.addEventListener('DOMContentLoaded', function() {
                 window.ensurePikachuData();
                 checkAdminSecurity();
-                window.openTopicSelectMenu();
             });
         } else {
             window.ensurePikachuData();
             checkAdminSecurity();
-            window.openTopicSelectMenu();
         }
     </script>
 <script src="/game-engine.js"></script>
