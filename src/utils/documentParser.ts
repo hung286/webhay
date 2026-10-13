@@ -116,6 +116,14 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/\\+\s+([a-zA-Z0-9])/g, '$1');
   str = str.replace(/\\+P\s*\(/g, 'P(');
 
+  // Sửa lỗi cách chữ đầu câu & dính chữ tiếng Việt với biến toán
+  str = str.replace(/\bN\s+ếu\b/gi, 'Nếu');
+  str = str.replace(/\bC\s+ả\b/gi, 'Cả');
+  str = str.replace(/\bK\s+hi\b/gi, 'Khi');
+  str = str.replace(/\bC\s+hỉ\b/gi, 'Chỉ');
+  str = str.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
+  str = str.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
+
   // 0b. Tự động sửa: AcupB -> A \cup B, AcapB -> A \cap B
   str = str.replace(/\b([A-Z])cap([A-Z])\b/gi, '$1 \\cap $2');
   str = str.replace(/\b([A-Z])cup([A-Z])\b/gi, '$1 \\cup $2');

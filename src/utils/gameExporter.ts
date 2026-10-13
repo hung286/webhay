@@ -1681,6 +1681,37 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
     } catch(e) {}
   }
 
+  function setupFullscreen() {
+    try {
+      if (typeof window.toggleMobileFullscreen !== 'function') {
+        window.toggleMobileFullscreen = function() {
+          const element = document.documentElement;
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (element.requestFullscreen) { element.requestFullscreen(); }
+            else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); }
+          } else {
+            if (document.exitFullscreen) { document.exitFullscreen(); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+          }
+        };
+      }
+      window.triggerToggleFullscreen = window.toggleMobileFullscreen;
+      const fsBtn = document.getElementById('fullscreenToggleBtn');
+      if (fsBtn && !fsBtn.dataset.fsBound) {
+        fsBtn.dataset.fsBound = 'true';
+        fsBtn.onclick = function(e) {
+          if (e) e.stopPropagation();
+          window.toggleMobileFullscreen();
+        };
+        fsBtn.ontouchstart = function(e) {
+          if (e && e.cancelable) e.preventDefault();
+          if (e) e.stopPropagation();
+          window.toggleMobileFullscreen();
+        };
+      }
+    } catch(e) {}
+  }
+
   function triggerMathTypeset() {
     try {
       if (window.MathJax && window.MathJax.typesetPromise) {
@@ -1694,18 +1725,21 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
       syncTetrisData();
       applyAdminSecurity();
       setupAdminButtons();
+      setupFullscreen();
       triggerMathTypeset();
     });
   } else {
     syncTetrisData();
     applyAdminSecurity();
     setupAdminButtons();
+    setupFullscreen();
     triggerMathTypeset();
   }
   window.addEventListener('load', function() {
     syncTetrisData();
     applyAdminSecurity();
     setupAdminButtons();
+    setupFullscreen();
     triggerMathTypeset();
   });
 })();
