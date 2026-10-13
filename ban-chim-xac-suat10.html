@@ -174,34 +174,56 @@
             box-shadow: 0 4px 0 #991b1b;
         }
 
+        /* 1. NEO CỐ ĐỊNH KHUNG ĐỀ BÀI LÊN ĐỈNH MÀN HÌNH (TOP FIXED POSITIONING) */
+        .question-container-box {
+            position: absolute !important;
+            top: 5px !important; /* Đẩy sát lên cạnh trên cùng của khung cảnh, nằm dưới thanh Topbar */
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 95% !important; /* Co giãn ôm sát viền ngang màn hình */
+            max-width: 680px !important;
+            max-height: 12vh !important; /* Thu hẹp chiều cao khung chữ để không chiếm diện tích */
+            z-index: 20 !important; /* Đảm bảo layer hiển thị rõ ràng */
+            background: rgba(255, 255, 255, 0.9) !important; /* Giữ màu trắng tinh tế */
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            box-sizing: border-box !important;
+        }
+
         @media (max-width: 768px) {
             #mobile-bird-dock {
                 display: flex;
             }
-            #in-game-ui {
-                padding: 6px;
-                flex-direction: column;
-                align-items: center;
-                gap: 4px;
-            }
             .brand-logo {
                 display: none;
             }
-            #math-question-box {
-                max-width: 96vw;
-                padding: 6px 14px;
-                margin-top: 2px;
-                border-radius: 20px;
+            /* Điều chỉnh cỡ chữ câu hỏi trên di động cho gọn gàng */
+            .question-container-box {
+                top: 2px !important;
+                font-size: 0.85rem !important;
+                padding: 6px 12px !important;
+                max-height: 12vh !important;
+                width: 95% !important;
+            }
+            #top-left-hud {
+                position: absolute;
+                top: calc(12vh + 5px);
+                left: 8px;
+            }
+            #top-right-hud {
+                position: absolute;
+                top: calc(12vh + 5px);
+                right: 8px;
             }
             #math-question {
-                font-size: 14px;
-                line-height: 1.35;
-                max-height: 20dvh;
+                font-size: 13px;
+                line-height: 1.3;
+                max-height: calc(12vh - 12px);
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
             }
             .pill-box {
-                padding: 4px 12px;
+                padding: 3px 10px;
             }
         }
     </style>
@@ -217,31 +239,32 @@
     </div>
 
     <!-- UI Overlay (Khi đang chơi) -->
-    <div id="in-game-ui" class="ui-layer p-4 flex justify-between items-start hidden">
-        <div class="flex flex-wrap gap-3 items-center">
+    <div id="in-game-ui" class="ui-layer p-2 sm:p-4 flex justify-between items-start pointer-events-none hidden">
+        <!-- Cụm điểm số và thời gian -->
+        <div id="top-left-hud" class="flex flex-wrap gap-1.5 sm:gap-3 items-center z-30 pointer-events-auto">
             <!-- Điểm số và Tên -->
-            <div class="pill-box border-blue-400 bg-white shadow-lg flex flex-col items-center p-2 px-5">
-                <span id="display-name" class="text-gray-600 font-bold text-xs uppercase mb-0.5 border-b-2 border-gray-200 pb-0.5 w-full text-center">Khách</span>
-                <span class="text-blue-600 font-black text-xl" style="text-shadow: 1px 1px 0 #fff;">ĐIỂM: <span id="score">0</span></span>
-                <span class="text-red-500 font-bold text-xs">🔥 COMBO x<span id="combo">1</span></span>
+            <div class="pill-box border-blue-400 bg-white/95 shadow-md flex flex-col items-center py-1 px-3 sm:p-2 sm:px-5">
+                <span id="display-name" class="text-gray-600 font-bold text-[10px] sm:text-xs uppercase mb-0.5 border-b border-gray-200 pb-0.5 w-full text-center">Khách</span>
+                <span class="text-blue-600 font-black text-sm sm:text-xl" style="text-shadow: 1px 1px 0 #fff;">ĐIỂM: <span id="score">0</span></span>
+                <span class="text-red-500 font-bold text-[10px] sm:text-xs">🔥 COMBO x<span id="combo">1</span></span>
             </div>
             <!-- Thời gian -->
-            <div class="pill-box border-red-500 bg-white shadow-lg flex flex-col items-center p-2 px-5">
-                <span class="text-red-600 font-black text-xl">⏳ <span id="timer">60</span>s</span>
+            <div class="pill-box border-red-500 bg-white/95 shadow-md flex flex-col items-center py-1 px-3 sm:p-2 sm:px-5">
+                <span class="text-red-600 font-black text-sm sm:text-xl">⏳ <span id="timer">60</span>s</span>
             </div>
         </div>
 
-        <!-- Câu hỏi Toán học -->
-        <div id="math-question-box" onclick="openBirdQuestionModal()" class="pill-box border-yellow-400 border-4 bg-white shadow-lg relative px-6 py-2.5 mt-1 max-w-2xl text-center cursor-pointer hover:border-yellow-500 transition group" title="Bấm để mở to câu hỏi & 5 đáp án A, B, C, D, E">
+        <!-- Khung đề bài Toán học (NEO CỐ ĐỊNH LÊN ĐỈNH MÀN HÌNH) -->
+        <div id="math-question-box" onclick="openBirdQuestionModal()" class="question-container-box pill-box border-yellow-400 border-2 sm:border-4 bg-white shadow-lg text-center cursor-pointer hover:border-yellow-500 transition group pointer-events-auto" title="Bấm để mở to câu hỏi & 5 đáp án A, B, C, D, E">
             <div id="level-badge" class="title-badge uppercase">TOÁN 10: XÁC SUẤT - BẮN ĐÁP ÁN ĐÚNG</div>
-            <div id="math-question" class="text-slate-800 font-bold text-base sm:text-lg leading-snug question-box-content">Đang tải câu hỏi...</div>
-            <div class="text-[10px] text-amber-600 font-bold mt-0.5 sm:hidden flex items-center justify-center gap-1">
-                <span>📋 Chạm để phóng to đề & 5 đáp án</span>
+            <div id="math-question" class="text-slate-800 font-bold text-xs sm:text-base leading-snug question-box-content">Đang tải câu hỏi...</div>
+            <div class="text-[9px] sm:text-[10px] text-amber-600 font-bold sm:hidden flex items-center justify-center gap-1">
+                <span>📋 Chạm xem đề to & 5 đáp án</span>
             </div>
         </div>
 
         <!-- Cặp nút đồng bộ từ Game Kéo Thả & Nút Kết thúc sớm -->
-        <div class="flex items-center gap-2">
+        <div id="top-right-hud" class="flex items-center gap-1.5 sm:gap-2 z-30 pointer-events-auto">
             <!-- Nút CHUYÊN ĐỀ (Màu cam) - Mặc định ẩn, chỉ hiện khi ?role=admin -->
             <button id="btn-chuyen-de" data-admin-control="true" class="hidden interactive px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-black text-xs uppercase tracking-wider shadow-md transition items-center gap-1.5 cursor-pointer" style="display: none !important;" onclick="returnToMenu()" title="Quay lại Menu chọn chuyên đề">
                 <span>🎯 CHUYÊN ĐỀ</span>
@@ -252,8 +275,8 @@
                 <span>⚙️ SỬA DỮ LIỆU</span>
             </button>
 
-            <!-- Nút KẾT THÚC SỚM -->
-            <button id="btn-end-early" onclick="endGame()" class="interactive pill-box border-red-500 bg-red-500 hover:bg-red-600 text-white font-black px-4 py-2 text-xs uppercase tracking-wider shadow-md transition cursor-pointer">
+            <!-- Nút KẾT THÚC SỚM (Ẩn trên mobile vì đã có ở dock đáy) -->
+            <button id="btn-end-early" onclick="endGame()" class="hidden sm:inline-flex interactive pill-box border-red-500 bg-red-500 hover:bg-red-600 text-white font-black px-4 py-2 text-xs uppercase tracking-wider shadow-md transition cursor-pointer">
                 ❌ KẾT THÚC SỚM
             </button>
         </div>
