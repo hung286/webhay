@@ -10,12 +10,21 @@
     <script>
         window.MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            options: { enableErrorNotifications: false },
             svg: { fontCache: 'global' }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
+        .mjx-error, [data-mjx-error] {
+            color: inherit !important;
+            background: transparent !important;
+            border: none !important;
+            font-family: inherit !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -825,14 +834,14 @@
           "Chuyên đề 1: Biến cố giao & Biến cố độc lập": {
             "easy": [
               {
-                "q": "Cho hai biến cố $A$ và $B$. Biến cố giao $AB$ (hoặc $A \cap B$) là biến cố:",
+                "q": "Cho hai biến cố $A$ và $B$. Biến cố giao $AB$ (hoặc $A \\cap B$) là biến cố:",
                 "options": ["Cả $A$ và $B$ cùng xảy ra", "Chỉ có $A$ hoặc $B$ xảy ra", "Ít nhất một trong hai biến cố xảy ra", "$A$ xảy ra nhưng $B$ không xảy ra"],
                 "correct": 0,
                 "explanation": "Biến cố giao AB xảy ra khi và chỉ khi cả A và B đồng thời xảy ra."
               },
               {
                 "q": "Nếu hai biến cố $A$ và $B$ độc lập thì công thức tính xác suất của biến cố giao $AB$ là:",
-                "options": ["$P(AB) = P(A) \cdot P(B)$", "$P(AB) = P(A) + P(B)$", "$P(AB) = P(A) + P(B) - P(A \cup B)$", "$P(AB) = P(A) / P(B)$"],
+                "options": ["$P(AB) = P(A) \\cdot P(B)$", "$P(AB) = P(A) + P(B)$", "$P(AB) = P(A) + P(B) - P(A \\cup B)$", "$P(AB) = P(A) / P(B)$"],
                 "correct": 0,
                 "explanation": "Theo định nghĩa hai biến cố độc lập: P(AB) = P(A).P(B)."
               },
@@ -882,18 +891,18 @@
             "easy": [
               {
                 "q": "Hai biến cố $A$ và $B$ được gọi là xung khắc khi và chỉ khi:",
-                "options": ["$A \cap B = \emptyset$", "$A \cup B = \Omega$", "$P(A) + P(B) = 1$", "$P(AB) = P(A) \cdot P(B)$"],
+                "options": ["$A \\cap B = \\emptyset$", "$A \\cup B = \\Omega$", "$P(A) + P(B) = 1$", "$P(AB) = P(A) \\cdot P(B)$"],
                 "correct": 0,
                 "explanation": "Hai biến cố xung khắc không thể đồng thời xảy ra trong cùng một phép thử."
               },
               {
                 "q": "Nếu $A$ và $B$ là hai biến cố xung khắc thì khẳng định nào sau đây đúng?",
-                "options": ["$P(A \cup B) = P(A) + P(B)$", "$P(A \cup B) = P(A) \cdot P(B)$", "$P(AB) = P(A) + P(B)$", "$P(AB) > 0$"],
+                "options": ["$P(A \\cup B) = P(A) + P(B)$", "$P(A \\cup B) = P(A) \\cdot P(B)$", "$P(AB) = P(A) + P(B)$", "$P(AB) > 0$"],
                 "correct": 0,
                 "explanation": "Vì A và B xung khắc nên P(AB) = 0 => P(A U B) = P(A) + P(B)."
               },
               {
-                "q": "Cho $A, B$ là hai biến cố xung khắc có $P(A) = 0.25$ và $P(B) = 0.45$. Tính $P(A \cup B)$.",
+                "q": "Cho $A, B$ là hai biến cố xung khắc có $P(A) = 0.25$ và $P(B) = 0.45$. Tính $P(A \\cup B)$.",
                 "options": ["$0.70$", "$0.20$", "$0.1125$", "$0.55$"],
                 "correct": 0,
                 "explanation": "P(A U B) = 0.25 + 0.45 = 0.70."
@@ -901,34 +910,34 @@
             ],
             "medium": [
               {
-                "q": "Cho hai biến cố $A$ và $B$ bất kỳ có $P(A) = 0.4$, $P(B) = 0.5$ và $P(AB) = 0.15$. Tính $P(A \cup B)$.",
+                "q": "Cho hai biến cố $A$ và $B$ bất kỳ có $P(A) = 0.4$, $P(B) = 0.5$ và $P(AB) = 0.15$. Tính $P(A \\cup B)$.",
                 "options": ["$0.75$", "$0.90$", "$0.20$", "$0.60$"],
                 "correct": 0,
                 "explanation": "P(A U B) = P(A) + P(B) - P(AB) = 0.4 + 0.5 - 0.15 = 0.75."
               },
               {
                 "q": "Một hộp có 10 viên bi gồm 4 bi đỏ và 6 bi xanh. Lấy ngẫu nhiên 2 viên bi. Xác suất để 2 viên bi lấy ra cùng màu là:",
-                "options": ["$\frac{7}{15}$", "$\frac{8}{15}$", "$\frac{4}{15}$", "$\frac{1}{3}$"],
+                "options": ["\\( \\frac{7}{15} \\)", "\\( \\frac{8}{15} \\)", "\\( \\frac{4}{15} \\)", "\\( \\frac{1}{3} \\)"],
                 "correct": 0,
                 "explanation": "P = (C(4,2) + C(6,2)) / C(10,2) = (6 + 15) / 45 = 21/45 = 7/15."
               },
               {
                 "q": "Rút ngẫu nhiên một lá bài từ bộ bài tú lơ khơ 52 lá. Xác suất rút được lá Át (A) hoặc lá chất Bích (♠) là:",
-                "options": ["$\frac{4}{13}$", "$\frac{17}{52}$", "$\frac{1}{4}$", "$\frac{1}{13}$"],
+                "options": ["\\( \\frac{4}{13} \\)", "\\( \\frac{17}{52} \\)", "\\( \\frac{1}{4} \\)", "\\( \\frac{1}{13} \\)"],
                 "correct": 0,
                 "explanation": "P = (4 + 13 - 1) / 52 = 16/52 = 4/13."
               }
             ],
             "hard": [
               {
-                "q": "Cho hai biến cố $A$ và $B$ thỏa mãn $P(A) = 0.5$, $P(B) = 0.6$ và $P(A \cup B) = 0.8$. Xác suất của biến cố đối $\overline{A} \cap \overline{B}$ là:",
+                "q": "Cho hai biến cố $A$ và $B$ thỏa mãn $P(A) = 0.5$, $P(B) = 0.6$ và $P(A \\cup B) = 0.8$. Xác suất của biến cố đối $\\overline{A} \\cap \\overline{B}$ là:",
                 "options": ["$0.20$", "$0.30$", "$0.10$", "$0.40$"],
                 "correct": 0,
                 "explanation": "Theo De Morgan: not(A) cap not(B) = not(A cup B) => P = 1 - 0.8 = 0.20."
               },
               {
                 "q": "Một lớp có 40 học sinh gồm 25 học sinh giỏi Toán, 20 học sinh giỏi Văn và 5 học sinh không giỏi môn nào. Chọn ngẫu nhiên 1 bạn. Xác suất bạn đó giỏi cả Toán và Văn là:",
-                "options": ["$\frac{1}{4}$", "$\frac{5}{8}$", "$\frac{1}{2}$", "$\frac{3}{8}$"],
+                "options": ["\\( \\frac{1}{4} \\)", "\\( \\frac{5}{8} \\)", "\\( \\frac{1}{2} \\)", "\\( \\frac{3}{8} \\)"],
                 "correct": 0,
                 "explanation": "Số bạn giỏi ít nhất 1 môn là 40 - 5 = 35 => n(T cap V) = 25 + 20 - 35 = 10 => P = 10/40 = 1/4."
               }
@@ -938,19 +947,19 @@
             "easy": [
               {
                 "q": "Biến cố đối của biến cố giao $(AB)$ theo công thức De Morgan là biến cố nào sau đây?",
-                "options": ["$\overline{A} \cup \overline{B}$", "$\overline{A} \cap \overline{B}$", "$\overline{A} \cdot \overline{B}$", "$A \cup \overline{B}$"],
+                "options": ["$\\overline{A} \\cup \\overline{B}$", "$\\overline{A} \\cap \\overline{B}$", "$\\overline{A} \\cdot \\overline{B}$", "$A \\cup \\overline{B}$"],
                 "correct": 0,
                 "explanation": "Luật De Morgan: not(AB) = not(A) cup not(B)."
               },
               {
-                "q": "Cho biến cố $A$ có $P(A) = 0.7$. Xác suất của biến cố đối $\overline{A}$ là:",
+                "q": "Cho biến cố $A$ có $P(A) = 0.7$. Xác suất của biến cố đối $\\overline{A}$ là:",
                 "options": ["$0.3$", "$0.7$", "$-0.7$", "$1.7$"],
                 "correct": 0,
                 "explanation": "P(not A) = 1 - P(A) = 1 - 0.7 = 0.3."
               },
               {
                 "q": "Gieo một con xúc xắc cân đối 6 mặt. Xác suất xuất hiện mặt có số chấm chia hết cho 2 hoặc chia hết cho 3 là:",
-                "options": ["$\frac{2}{3}$", "$\frac{5}{6}$", "$\frac{1}{2}$", "$\frac{1}{3}$"],
+                "options": ["\\( \\frac{2}{3} \\)", "\\( \\frac{5}{6} \\)", "\\( \\frac{1}{2} \\)", "\\( \\frac{1}{3} \\)"],
                 "correct": 0,
                 "explanation": "Các mặt thỏa mãn là {2, 3, 4, 6} gồm 4 mặt => P = 4/6 = 2/3."
               }
@@ -1073,6 +1082,12 @@
             if (!str || typeof str !== 'string') return '';
             let text = str.trim();
 
+            // 0. Làm sạch triệt để control characters và ký tự Form Feed \x0c / \f bị lỗi khi parser JS/JSON
+            text = text.replace(/[\u000c\x0c]+rac/g, '\\frac');
+            text = text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+            text = text.replace(/\\*rac\s*\{/g, '\\frac{');
+            text = text.replace(/\\+f\s*rac\s*\{/g, '\\frac{');
+
             // Sửa lỗi cách chữ đầu câu: Đảm bảo chữ đầu câu viết liền đúng chính tả tiếng Việt (Sửa "N ếu" -> "Nếu", "C ả" -> "Cả", v.v.)
             text = text.replace(/\bN\s+ếu\b/gi, 'Nếu');
             text = text.replace(/\bC\s+ả\b/gi, 'Cả');
@@ -1085,7 +1100,19 @@
             text = text.replace(/\\+\s+([a-zA-Z0-9])/g, '$1');
             text = text.replace(/\\+P\s*\(/g, 'P(');
 
-            // 2. Tự động sửa tập hợp và biến: AcapB -> A \cap B, AcupB -> A \cup B
+            // 2. Tự động chuyển đổi các ký hiệu toán:
+            // Omega -> \Omega, emptyset -> \emptyset
+            text = text.replace(/(^|[^\\a-zA-Z])Omega\b/g, '$1\\Omega');
+            text = text.replace(/(^|[^\\a-zA-Z])emptyset\b/g, '$1\\emptyset');
+
+            // overlineAcapoverlineB và các biến thể -> \overline{A} \cap \overline{B}
+            text = text.replace(/overlineAcapoverlineB/gi, '\\overline{A} \\cap \\overline{B}');
+            text = text.replace(/overlineAcupoverlineB/gi, '\\overline{A} \\cup \\overline{B}');
+            text = text.replace(/\\?overline\s*\{?A\}?\s*\\?cap\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cap \\overline{B}');
+            text = text.replace(/\\?overline\s*\{?A\}?\s*\\?cup\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cup \\overline{B}');
+            text = text.replace(/\\?overline\s*([A-Za-z])\b/g, '\\overline{$1}');
+
+            // AcapB -> A \cap B, AcupB -> A \cup B
             text = text.replace(/\b([A-Z])cap([A-Z])\b/gi, '$1 \\cap $2');
             text = text.replace(/\b([A-Z])cup([A-Z])\b/gi, '$1 \\cup $2');
             text = text.replace(/([A-Z])\s*\\?cap\s*([A-Z])/gi, '$1 \\cap $2');
@@ -1099,23 +1126,59 @@
 
             // 4. Tách từ dính giữa chữ tiếng Việt và biến toán in hoa (Ví dụ: CảA -> Cả A, vàB -> và B)
             text = text.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
-            
-            // Tách biến đơn A, B khi bị dính liền với từ nối thông dụng (Ví dụ: AvàB -> A và B, Axảy -> A xảy, Bkhông -> B không) - DÙNG CỜ /g (KHÔNG DÙNG /gi) ĐỂ KHÔNG TỰ CẮT CHỮ TIẾNG VIỆT
             text = text.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
 
             // 5. Chuẩn hóa cơ số e và số mũ e^{...}
             text = text.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
             text = text.replace(/\be\^\(([^)]+)\)/g, 'e^{$1}');
 
-            // 6. Xử lý bọc ký hiệu TeX nếu chưa được bọc
-            if (!text.includes('\\(') && !text.includes('$')) {
-                if (/\\(?:cap|cup|cdot|frac|sqrt|int|sum|lim|emptyset|Omega)\b/.test(text)) {
-                    text = `\\(${text}\\)`;
+            // 6. Chuẩn hóa phân số nguyên: a/b hoặc [A]. a/b -> \( \frac{a}{b} \)
+            if (/^[-+]?\d+\s*\/\s*\d+$/.test(text)) {
+                const parts = text.split('/');
+                return `\\( \\frac{${parts[0].trim()}}{${parts[1].trim()}} \\)`;
+            }
+            if (/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/.test(text)) {
+                return text.replace(/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/, (_, prefix, num, den) => {
+                    return `${prefix}\\( \\frac{${num.trim()}}{${den.trim()}} \\)`;
+                });
+            }
+
+            // 7. Chuẩn hóa số nguyên hoặc số thập phân đơn thuần (e.g. 0.75, 0.20, 25, 51.4%)
+            if (/^[-+]?\d+(?:\.\d+)?%?$/.test(text)) {
+                if (text.endsWith('%')) {
+                    const numPart = text.slice(0, -1);
+                    return `\\( ${numPart}\\% \\)`;
+                }
+                return `\\( ${text} \\)`;
+            }
+            if (/^([A-D]\.\s*)([-+]?\d+(?:\.\d+)?%?)$/.test(text)) {
+                return text.replace(/^([A-D]\.\s*)([-+]?\d+(?:\.\d+)?)(%?)$/, (_, prefix, num, pct) => {
+                    return pct ? `${prefix}\\( ${num}\\% \\)` : `${prefix}\\( ${num} \\)`;
+                });
+            }
+
+            // 8. Chuyển đổi $$...$$ và $...$ thành \(...\)
+            text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
+            text = text.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
+
+            // 9. Xử lý bọc ký hiệu TeX nếu chưa được bọc
+            if (!text.includes('\\(')) {
+                if (/\\(?:cap|cup|cdot|frac|sqrt|int|sum|lim|emptyset|Omega|overline)\b/.test(text)) {
+                    if (!/[àáạảãâầấậẩẫăằắặẳẵèéẻẽẹêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text)) {
+                        text = `\\(${text}\\)`;
+                    } else {
+                        text = text.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (match) => {
+                            const trimmed = match.trim();
+                            if (!trimmed || trimmed.startsWith('\\(')) return match;
+                            return `\\(${trimmed}\\)`;
+                        });
+                    }
                 }
             }
 
             // Làm sạch các dấu ngoặc bọc lặp lại \( \( ... \) \)
             text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
+            text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
             text = text.replace(/\\\(\s*\$([\s\S]*?)\$\s*\\\)/g, '\\($1\\)');
 
             return text;

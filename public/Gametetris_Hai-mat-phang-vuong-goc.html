@@ -11,12 +11,21 @@
     <script>
         window.MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            options: { enableErrorNotifications: false },
             svg: { fontCache: 'global' }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
+        .mjx-error, [data-mjx-error] {
+            color: inherit !important;
+            background: transparent !important;
+            border: none !important;
+            font-family: inherit !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
         body { 
             font-family: 'Nunito', sans-serif; 
             background-color: #09090b; 
@@ -1265,17 +1274,39 @@
             if (!str || typeof str !== 'string') return '';
             let text = str.trim();
 
+            // 0. Làm sạch triệt để control characters và Form Feed \x0c / \f
+            text = text.replace(/[\u000c\x0c]+rac/g, '\\frac');
+            text = text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+            text = text.replace(/\\*rac\s*\{/g, '\\frac{');
+            text = text.replace(/\\+f\s*rac\s*\{/g, '\\frac{');
+
+            // Sửa lỗi cách chữ đầu câu
+            text = text.replace(/\bN\s+ếu\b/gi, 'Nếu');
+            text = text.replace(/\bC\s+ả\b/gi, 'Cả');
+            text = text.replace(/\bK\s+hi\b/gi, 'Khi');
+            text = text.replace(/\bC\s+hỉ\b/gi, 'Chỉ');
+
             // 1. Sửa lỗi dấu gạch chéo đỏ: Lọc và xóa sạch các ký tự gạch chéo \ lỗi dạng \ ( P(A) \ ) hoặc \ ( ... \ )
             text = text.replace(/\\+\s*\(\s*/g, '\\(');
             text = text.replace(/\s*\\+\s*\)/g, '\\)');
             text = text.replace(/\\+\s+([a-zA-Z0-9])/g, '$1');
             text = text.replace(/\\+P\s*\(/g, 'P(');
 
-            // 2. Tự động sửa tập hợp và biến: AcapB -> A \cap B, AcupB -> A \cup B
+            // 2. Tự động chuyển đổi các ký hiệu toán:
+            text = text.replace(/(^|[^\\a-zA-Z])Omega\b/g, '$1\\Omega');
+            text = text.replace(/(^|[^\\a-zA-Z])emptyset\b/g, '$1\\emptyset');
+
+            text = text.replace(/overlineAcapoverlineB/gi, '\\overline{A} \\cap \\overline{B}');
+            text = text.replace(/overlineAcupoverlineB/gi, '\\overline{A} \\cup \\overline{B}');
+            text = text.replace(/\\?overline\s*\{?A\}?\s*\\?cap\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cap \\overline{B}');
+            text = text.replace(/\\?overline\s*\{?A\}?\s*\\?cup\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cup \\overline{B}');
+            text = text.replace(/\\?overline\s*([A-Za-z])\b/g, '\\overline{$1}');
+
+            // AcapB -> A \cap B, AcupB -> A \cup B
             text = text.replace(/\b([A-Z])cap([A-Z])\b/gi, '$1 \\cap $2');
             text = text.replace(/\b([A-Z])cup([A-Z])\b/gi, '$1 \\cup $2');
             text = text.replace(/([A-Z])\s*\\?cap\s*([A-Z])/gi, '$1 \\cap $2');
-            text = text.replace(/([A-Z])\s*\\?cup\s*([A-Z])/gi, '$1 \\cap $2');
+            text = text.replace(/([A-Z])\s*\\?cup\s*([A-Z])/gi, '$1 \\cup $2');
 
             // 3. Tự động sửa mã ký hiệu dấu nhân: chuyển từ chữ thô cdot hoặc . thành \cdot
             text = text.replace(/([0-9a-zA-Z\)\}\]])\s*\\?cdot\s*([0-9a-zA-Z\(\{\\])/g, '$1 \\cdot $2');
@@ -1283,25 +1314,61 @@
             text = text.replace(/(P\([^\)]+\))\s*\*\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
             text = text.replace(/\bcdot\b/g, '\\cdot');
 
-            // 4. Tách từ dính giữa chữ tiếng Việt và biến toán in hoa (Ví dụ: CảA -> Cả A, vàB -> và B)
+            // 4. Tách từ dính giữa chữ tiếng Việt và biến toán in hoa
             text = text.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
-            
-            // Tách biến đơn A, B khi bị dính liền với từ nối thông dụng (Ví dụ: AvàB -> A và B, Axảy -> A xảy, Bkhông -> B không)
-            text = text.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/gi, '$1$2 $3');
+            text = text.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
 
             // 5. Chuẩn hóa cơ số e và số mũ e^{...}
             text = text.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
             text = text.replace(/\be\^\(([^)]+)\)/g, 'e^{$1}');
 
-            // 6. Xử lý bọc ký hiệu TeX nếu chưa được bọc
-            if (!text.includes('\\(') && !text.includes('$')) {
-                if (/\\(?:cap|cup|cdot|frac|sqrt|int|sum|lim|emptyset|Omega)\b/.test(text)) {
-                    text = `\\(${text}\\)`;
+            // 6. Chuẩn hóa phân số nguyên: a/b hoặc [A]. a/b -> \( \frac{a}{b} \)
+            if (/^[-+]?\d+\s*\/\s*\d+$/.test(text)) {
+                const parts = text.split('/');
+                return `\\( \\frac{${parts[0].trim()}}{${parts[1].trim()}} \\)`;
+            }
+            if (/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/.test(text)) {
+                return text.replace(/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/, (_, prefix, num, den) => {
+                    return `${prefix}\\( \\frac{${num.trim()}}{${den.trim()}} \\)`;
+                });
+            }
+
+            // 7. Chuẩn hóa số nguyên hoặc số thập phân đơn thuần (e.g. 0.75, 0.20, 25, 51.4%)
+            if (/^[-+]?\d+(?:\.\d+)?%?$/.test(text)) {
+                if (text.endsWith('%')) {
+                    const numPart = text.slice(0, -1);
+                    return `\\( ${numPart}\\% \\)`;
+                }
+                return `\\( ${text} \\)`;
+            }
+            if (/^([A-D]\.\s*)([-+]?\d+(?:\.\d+)?%?)$/.test(text)) {
+                return text.replace(/^([A-D]\.\s*)([-+]?\d+(?:\.\d+)?)(%?)$/, (_, prefix, num, pct) => {
+                    return pct ? `${prefix}\\( ${num}\\% \\)` : `${prefix}\\( ${num} \\)`;
+                });
+            }
+
+            // 8. Chuyển đổi $$...$$ và $...$ thành \(...\)
+            text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
+            text = text.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
+
+            // 9. Xử lý bọc ký hiệu TeX nếu chưa được bọc
+            if (!text.includes('\\(')) {
+                if (/\\(?:cap|cup|cdot|frac|sqrt|int|sum|lim|emptyset|Omega|overline)\b/.test(text)) {
+                    if (!/[àáạảãâầấậẩẫăằắặẳẵèéẻẽẹêềếểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text)) {
+                        text = `\\(${text}\\)`;
+                    } else {
+                        text = text.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (match) => {
+                            const trimmed = match.trim();
+                            if (!trimmed || trimmed.startsWith('\\(')) return match;
+                            return `\\(${trimmed}\\)`;
+                        });
+                    }
                 }
             }
 
             // Làm sạch các dấu ngoặc bọc lặp lại \( \( ... \) \)
             text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
+            text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
             text = text.replace(/\\\(\s*\$([\s\S]*?)\$\s*\\\)/g, '\\($1\\)');
 
             return text;

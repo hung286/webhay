@@ -104,7 +104,13 @@ export function normalizeMathFormulas(text: string): string {
   if (!text || typeof text !== 'string') return '';
   let str = text.trim();
 
-  // 0. Sửa chữa các chuỗi lỗi font/TeX đã bị hỏng trước đó (ví dụ: {\(\frac\){sqrt{3}}{2}})
+  // 0. Làm sạch triệt để control characters và Form Feed \x0c / \f bị lỗi khi parser JS/Word/Excel
+  str = str.replace(/[\u000c\x0c]+rac/g, '\\frac');
+  str = str.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+  str = str.replace(/\\*rac\s*\{/g, '\\frac{');
+  str = str.replace(/\\+f\s*rac\s*\{/g, '\\frac{');
+
+  // Sửa chữa các chuỗi lỗi font/TeX đã bị hỏng trước đó (ví dụ: {\(\frac\){sqrt{3}}{2}})
   str = str.replace(/\{\s*\\?\(\\?frac\\?\)\s*\{/gi, '\\frac{');
   str = str.replace(/\{\s*\\?\(\\?sqrt\\?\)\s*\{/gi, '\\sqrt{');
   str = str.replace(/\{\s*\\?\((\\[a-zA-Z]+)\\?\)\s*/gi, '$1');
@@ -124,7 +130,19 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
   str = str.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
 
-  // 0b. Tự động sửa: AcupB -> A \cup B, AcapB -> A \cap B
+  // 0b. Tự động chuyển đổi các ký hiệu toán:
+  // Omega -> \Omega, emptyset -> \emptyset
+  str = str.replace(/(^|[^\\a-zA-Z])Omega\b/g, '$1\\Omega');
+  str = str.replace(/(^|[^\\a-zA-Z])emptyset\b/g, '$1\\emptyset');
+
+  // overlineAcapoverlineB và các biến thể -> \overline{A} \cap \overline{B}
+  str = str.replace(/overlineAcapoverlineB/gi, '\\overline{A} \\cap \\overline{B}');
+  str = str.replace(/overlineAcupoverlineB/gi, '\\overline{A} \\cup \\overline{B}');
+  str = str.replace(/\\?overline\s*\{?A\}?\s*\\?cap\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cap \\overline{B}');
+  str = str.replace(/\\?overline\s*\{?A\}?\s*\\?cup\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cup \\overline{B}');
+  str = str.replace(/\\?overline\s*([A-Za-z])\b/g, '\\overline{$1}');
+
+  // AcupB -> A \cup B, AcapB -> A \cap B
   str = str.replace(/\b([A-Z])cap([A-Z])\b/gi, '$1 \\cap $2');
   str = str.replace(/\b([A-Z])cup([A-Z])\b/gi, '$1 \\cup $2');
   str = str.replace(/([A-Z])\s*\\?cap\s*([A-Z])/gi, '$1 \\cap $2');
@@ -158,6 +176,31 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/⁰/g, '^{0}');
   str = str.replace(/∫/g, '\\int ');
 
+  // 0e. Chuẩn hóa phân số nguyên: a/b hoặc [A]. a/b -> \( \frac{a}{b} \)
+  if (/^[-+]?\d+\s*\/\s*\d+$/.test(str)) {
+    const parts = str.split('/');
+    return `\\( \\frac{${parts[0].trim()}}{${parts[1].trim()}} \\)`;
+  }
+  if (/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/.test(str)) {
+    return str.replace(/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/, (_, prefix, num, den) => {
+      return `${prefix}\\( \\frac{${num.trim()}}{${den.trim()}} \\)`;
+    });
+  }
+
+  // 0f. Chuẩn hóa số nguyên hoặc số thập phân đơn thuần (e.g. 0.75, 0.20, 25, 51.4%)
+  if (/^[-+]?\d+(?:\.\d+)?%?$/.test(str)) {
+    if (str.endsWith('%')) {
+      const numPart = str.slice(0, -1);
+      return `\\( ${numPart}\\% \\)`;
+    }
+    return `\\( ${str} \\)`;
+  }
+  if (/^([A-D]\.\s*)([-+]?\d+(?:\.\d+)?%?)$/.test(str)) {
+    return str.replace(/^([A-D]\.\s*)([-+]?\d+(?:\.\d+)?)(%?)$/, (_, prefix, num, pct) => {
+      return pct ? `${prefix}\\( ${num}\\% \\)` : `${prefix}\\( ${num} \\)`;
+    });
+  }
+
   // 1. Chuyển đổi $$...$$ thành \(...\) tránh làm vỡ layout thẻ game
   str = str.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
 
@@ -168,7 +211,6 @@ export function normalizeMathFormulas(text: string): string {
   if (/^\\\([\s\S]*?\\\)$/.test(str)) {
     return str;
   }
-
 
   // 4. Nếu toàn bộ chuỗi là phương trình hoặc phân số/căn thức toán học thuần
   // Ví dụ: \frac{1}{2}, \frac{\sqrt{3}}{2}, -\frac{1}{2}, y = x^3 - 3x, \sin 30^\circ, \sqrt{3}
