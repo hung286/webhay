@@ -1407,14 +1407,71 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
 
   // NHÓM KÉO THẢ TƯƠNG TÁC (cấu trúc Đa Chủ Đề & Đa Cấp Độ GAME_LEVELS)
   else if (cleanUrl.includes('keo-tha')) {
+    const cleanFormula = (text: string): string => {
+      if (!text) return '';
+      let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+      res = res.replace(/\bN\s+?u\b/g, 'Nếu')
+               .replace(/\bH\s+ai\b/g, 'Hai')
+               .replace(/\bC\s+ho\b/g, 'Cho')
+               .replace(/\bC\s+?\b/g, 'Có')
+               .replace(/\bK\s+hi\b/g, 'Khi')
+               .replace(/\bC\s+h?\b/g, 'Chỉ')
+               .replace(/\bT\s+ính\b/g, 'Tính')
+               .replace(/\bT\s+rong\b/g, 'Trong')
+               .replace(/\bK\s+h?ng\b/g, 'Không')
+               .replace(/\bd\s+?nh\b/g, 'định')
+               .replace(/\bH\s+ình\b/g, 'Hình')
+               .replace(/\bM\s+?t\b/g, 'Một')
+               .replace(/\bd\s+u?ng\b/g, 'đường')
+               .replace(/Hai\s+m\s+?t\s+ph\s+?ng/g, 'Hai mặt phẳng');
+      res = res.replace(/\bAcupB\b/g, 'A \\cup B')
+               .replace(/\bAcapB\b/g, 'A \\cap B')
+               .replace(/(?<!\\)\bcdot\b/g, '\\cdot')
+               .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
+               .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+      res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}')
+               .replace(/e\^\{([^}]+)\}/g, 'e^{$1}')
+               .replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}')
+               .replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}')
+               .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
+               .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
+      return normalizeMathFormulas(res);
+    };
+
     const topicsMap: Record<string, any> = {};
     const defaultTopic = gameTitle || 'Chuyên đề Tùy Chọn';
     const themeColors = ['blue', 'emerald', 'violet', 'amber', 'rose', 'cyan'];
 
+    let activeRows = customDragDropRows;
+    let activeCats = customCategories;
+    let activeQuestions = questions.filter(q => !q.isDisabled);
+    if (activeQuestions.length === 0) activeQuestions = questions;
+
+    // Fallback nếu không có dữ liệu tùy chỉnh từ người dùng
+    if ((!activeRows || activeRows.length === 0) && (!activeCats || activeCats.length === 0) && activeQuestions.length === 0) {
+      try {
+        const ws = DEFAULT_WORKSHEETS.find(w =>
+          (w.title && (w.title.toLowerCase().includes('đơn điệu') || w.title.toLowerCase().includes('cực trị') || w.title.toLowerCase().includes('hàm số') || w.title.toLowerCase().includes('kéo thả'))) ||
+          (w.id && (w.id.includes('don_dieu') || w.id.includes('cuc_tri') || w.id.includes('12_01')))
+        ) || DEFAULT_WORKSHEETS[0];
+        if (ws && ws.questions && ws.questions.length > 0) {
+          activeQuestions = ws.questions.map((q: any, idx: number) => ({
+            id: q.id || `ws_keotha_fb_${idx}`,
+            question: q.question,
+            options: q.options || [],
+            correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+            explanation: q.solution || '',
+            difficulty: (q.difficulty || (idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'))) as any,
+            topic: q.topic || ws.title || 'Chuyên đề Tùy Chọn'
+          } as Question));
+        }
+      } catch(e) {}
+    }
+
     // Ưu tiên 1: Sử dụng customDragDropRows (Bảng Phân Cấp Đa Chuyên Đề & Đa Cấp Độ)
-    if (customDragDropRows && customDragDropRows.length > 0) {
+    if (activeRows && activeRows.length > 0) {
       const topicGroups: Record<string, DragDropTableRow[]> = {};
-      customDragDropRows.forEach(r => {
+      activeRows.forEach(r => {
         const t = r.topic?.trim() || defaultTopic;
         if (!topicGroups[t]) topicGroups[t] = [];
         topicGroups[t].push(r);
@@ -1442,7 +1499,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
             const funcId = `f${rIdx + 1}`;
             funcs.push({
               id: funcId,
-              tex: normalizeMathFormulas(row.category),
+              tex: cleanFormula(row.category),
               theme: row.theme || themeColors[rIdx % themeColors.length]
             });
 
@@ -1450,7 +1507,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
               props.push({
                 id: `p${rIdx + 1}_${aIdx + 1}`,
                 funcId: funcId,
-                text: normalizeMathFormulas(attr)
+                text: cleanFormula(attr)
               });
             });
           });
@@ -1465,15 +1522,15 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
           };
         });
       });
-    } else if (customCategories && customCategories.length > 0) {
+    } else if (activeCats && activeCats.length > 0) {
       // Ưu tiên 2: Sử dụng customCategories (Mẫu 2 cột phẳng)
       topicsMap[defaultTopic] = {};
       const chunkSize = 3;
-      const totalLevels = Math.min(5, Math.max(1, Math.ceil(customCategories.length / chunkSize)));
+      const totalLevels = Math.min(5, Math.max(1, Math.ceil(activeCats.length / chunkSize)));
 
       for (let lvl = 1; lvl <= totalLevels; lvl++) {
         const sliceStart = (lvl - 1) * chunkSize;
-        const sliceCats = customCategories.slice(sliceStart, sliceStart + chunkSize);
+        const sliceCats = activeCats.slice(sliceStart, sliceStart + chunkSize);
         if (sliceCats.length === 0) break;
 
         const funcs: any[] = [];
@@ -1483,7 +1540,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
           const funcId = `f${idx + 1}`;
           funcs.push({
             id: funcId,
-            tex: normalizeMathFormulas(cat.title),
+            tex: cleanFormula(cat.title),
             theme: cat.theme || themeColors[idx % themeColors.length]
           });
 
@@ -1491,7 +1548,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
             props.push({
               id: `p${idx + 1}_${pIdx + 1}`,
               funcId: funcId,
-              text: normalizeMathFormulas(attr)
+              text: cleanFormula(attr)
             });
           });
         });
@@ -1508,7 +1565,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
     } else {
       // Ưu tiên 3: Chuyển đổi từ mảng questions tiêu chuẩn
       const groupedByTopic: Record<string, Question[]> = {};
-      questions.forEach(q => {
+      activeQuestions.forEach(q => {
         const tName = q.topic?.trim() || defaultTopic;
         if (!groupedByTopic[tName]) groupedByTopic[tName] = [];
         groupedByTopic[tName].push(q);
@@ -1533,7 +1590,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
             const funcId = `f${idx + 1}`;
             funcs.push({
               id: funcId,
-              tex: normalizeMathFormulas(q.question),
+              tex: cleanFormula(q.question),
               theme: themeColors[idx % themeColors.length]
             });
 
@@ -1541,7 +1598,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
               props.push({
                 id: `p${idx + 1}_${pIdx + 1}`,
                 funcId: funcId,
-                text: normalizeMathFormulas(opt)
+                text: cleanFormula(opt)
               });
             });
           });
@@ -1563,6 +1620,80 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
 // [ADAPTER ENGINE: DYNAMIC MULTI-TOPIC ARCHITECTURE - KÉO THẢ TƯƠNG TÁC]
 window.__ADMIN_PIN__ = "2806";
 window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
+
+// Tiêm CSS Responsive Mobile, 100dvh, Touch scroll & MathJax / KaTeX NoWrap
+(function injectKeoThaStyles() {
+  try {
+    if (!document.getElementById('keo-tha-mobile-fix-style')) {
+      const style = document.createElement('style');
+      style.id = 'keo-tha-mobile-fix-style';
+      style.textContent = \`
+        html, body {
+            min-height: 100dvh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        @media (max-width: 768px) {
+            body {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                overflow: hidden !important;
+            }
+            .card-func {
+                padding: 8px 10px !important;
+                min-width: 130px !important;
+                max-width: 160px !important;
+            }
+            .card-prop {
+                padding: 6px 10px !important;
+                font-size: 11px !important;
+                min-width: 100px !important;
+                max-width: 180px !important;
+                line-height: 1.3 !important;
+            }
+            #overlay-content,
+            #ingame-editor-modal > div {
+                max-height: 80dvh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+        }
+        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container {
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+        .math-text .katex *, .math-text mjx-container *, .math-content .katex *, .math-content mjx-container *, .katex *, mjx-container * {
+            white-space: nowrap !important;
+        }
+      \`;
+      document.head.appendChild(style);
+    }
+  } catch(e) {}
+})();
+
+// Xử lý Fullscreen Mobile đa nền tảng
+window.toggleMobileFullscreen = function() {
+  try {
+    const doc = document;
+    const el = doc.documentElement;
+    const isFs = doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement;
+    if (!isFs) {
+      if (el.requestFullscreen) { el.requestFullscreen().catch(()=>{}); }
+      else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); }
+      else if (el.mozRequestFullScreen) { el.mozRequestFullScreen(); }
+      else if (el.msRequestFullscreen) { el.msRequestFullscreen(); }
+    } else {
+      if (doc.exitFullscreen) { doc.exitFullscreen().catch(()=>{}); }
+      else if (doc.webkitExitFullscreen) { doc.webkitExitFullscreen(); }
+      else if (doc.mozCancelFullScreen) { doc.mozCancelFullScreen(); }
+      else if (doc.msExitFullscreen) { doc.msExitFullscreen(); }
+    }
+  } catch(e) {}
+};
+
 (function() {
   function syncKeoThaDb() {
     if (typeof window.gameDatabase !== 'undefined' && window.__INJECTED_GAME_DATABASE__ && Object.keys(window.__INJECTED_GAME_DATABASE__).length > 0) {
@@ -1572,6 +1703,11 @@ window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
         window.showOverlay('start');
       }
     }
+    try {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function() {});
+      }
+    } catch(e) {}
   }
 
   // [BƯỚC 3: SECURITY GATE - KHÓA BẢO MẬT NÚT ADMIN CHO HỌC SINH]
