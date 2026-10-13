@@ -44,24 +44,42 @@ export const LearningGamesMode: React.FC<LearningGamesModeProps> = ({ student })
     }
   }, []);
 
+  const toggleFullscreen = () => {
+    const docEl = document.documentElement as any;
+    const doc = document as any;
+    const isNative = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+    
+    if (!isNative) {
+      const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+      if (rfs) {
+        try { rfs.call(docEl).catch(() => {}); } catch(e) {}
+      }
+      setIsFullscreen(true);
+    } else {
+      const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+      if (efs) {
+        try { efs.call(doc).catch(() => {}); } catch(e) {}
+      }
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleMsg = (e: MessageEvent) => {
+      if (e.data && e.data.type === 'TOGGLE_FULLSCREEN') {
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener('message', handleMsg);
+    return () => window.removeEventListener('message', handleMsg);
+  }, []);
+
   const handlePlayGame = (game: TeachingTool) => {
     soundFx.playClick();
     if (game.type === 'url') {
       window.open(game.url, '_blank');
     } else {
       setActiveGame(game);
-    }
-  };
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-      setIsFullscreen(true);
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
-      setIsFullscreen(false);
     }
   };
 
@@ -123,6 +141,7 @@ export const LearningGamesMode: React.FC<LearningGamesModeProps> = ({ student })
                 height="100%"
                 style={{ border: 'none', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
                 allowFullScreen
+                allow="fullscreen; screen-wake-lock; orientation;"
                 title={activeGame.name}
               />
             );

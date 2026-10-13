@@ -27,6 +27,8 @@ import {
   parseTetrisFromExcel,
   parseMarioFromDocx,
   parseMarioFromExcel,
+  parseHaiTaoFromDocx,
+  parseHaiTaoFromExcel,
   normalizeMathFormulas, 
   downloadWordTemplate, 
   downloadExcelTemplate,
@@ -38,6 +40,8 @@ import {
   downloadTetrisExcelTemplate,
   downloadMarioWordTemplate,
   downloadMarioExcelTemplate,
+  downloadHaiTaoWordTemplate,
+  downloadHaiTaoExcelTemplate,
   downloadPikachuWordTemplate,
   downloadPikachuExcelTemplate
 } from '../../utils/documentParser';
@@ -96,6 +100,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const isCaNguaMode = selectedTemplateUrl.includes('ca-ngua') || selectedTemplateUrl.includes('ca_ngua') || selectedTemplateUrl.includes('ngua');
   const isTetrisMode = selectedTemplateUrl.includes('tetris') || selectedTemplateUrl.includes('Gametetris');
   const isMarioMode = selectedTemplateUrl.includes('mario') || selectedTemplateUrl.includes('Gamemario');
+  const isHaiTaoMode = selectedTemplateUrl.includes('hai-tao') || selectedTemplateUrl.includes('hai_tao') || selectedTemplateUrl.includes('haitao') || selectedTemplateUrl.includes('apple');
   const [chienHaoLevelFilter, setChienHaoLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [sutPenLevelFilter, setSutPenLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [banChimLevelFilter, setBanChimLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
@@ -104,6 +109,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const [caNguaFilter, setCaNguaFilter] = useState<'ALL' | 'MC' | 'TF' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [tetrisFilter, setTetrisFilter] = useState<'ALL' | 'MC' | 'TF' | 'SHORT' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [marioFilter, setMarioFilter] = useState<'ALL' | 'MC' | 'TF' | 'SHORT' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
+  const [haiTaoFilter, setHaiTaoFilter] = useState<'ALL' | 'MC' | 'TF' | 'SHORT' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
 
   const chienHaoCounts = useMemo(() => {
     return {
@@ -171,6 +177,17 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
     };
   }, [questions]);
 
+  const haiTaoCounts = useMemo(() => {
+    return {
+      mc: questions.filter(q => (q.options || []).length > 2 && !q.question.startsWith('ĐÚNG HAY SAI:')).length,
+      tf: questions.filter(q => (q.options || []).length === 2 || q.question.startsWith('ĐÚNG HAY SAI:')).length,
+      short: questions.filter(q => (q.options || []).length === 1 || (q as any).type === 'short_answer').length,
+      easy: questions.filter(q => q.difficulty === 'Dễ').length,
+      medium: questions.filter(q => q.difficulty === 'Trung bình').length,
+      hard: questions.filter(q => q.difficulty === 'Khó').length
+    };
+  }, [questions]);
+
   const displayedQuestions = useMemo(() => {
     if (isChienHaoMode && chienHaoLevelFilter !== 'ALL') {
       return questions.filter(q => q.difficulty === chienHaoLevelFilter);
@@ -206,8 +223,14 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       if (marioFilter === 'SHORT') return questions.filter(q => (q.options || []).length === 1 || (q as any).type === 'short_answer');
       return questions.filter(q => q.difficulty === marioFilter);
     }
+    if (isHaiTaoMode && haiTaoFilter !== 'ALL') {
+      if (haiTaoFilter === 'MC') return questions.filter(q => (q.options || []).length > 2 && !q.question.startsWith('ĐÚNG HAY SAI:'));
+      if (haiTaoFilter === 'TF') return questions.filter(q => (q.options || []).length === 2 || q.question.startsWith('ĐÚNG HAY SAI:'));
+      if (haiTaoFilter === 'SHORT') return questions.filter(q => (q.options || []).length === 1 || (q as any).type === 'short_answer');
+      return questions.filter(q => q.difficulty === haiTaoFilter);
+    }
     return questions;
-  }, [questions, isChienHaoMode, chienHaoLevelFilter, isSutPenMode, sutPenLevelFilter, isBanChimMode, banChimLevelFilter, isYogaMode, yogaFilter, isPikachuMode, pikachuLevelFilter, isCaNguaMode, caNguaFilter, isTetrisMode, tetrisFilter, isMarioMode, marioFilter]);
+  }, [questions, isChienHaoMode, chienHaoLevelFilter, isSutPenMode, sutPenLevelFilter, isBanChimMode, banChimLevelFilter, isYogaMode, yogaFilter, isPikachuMode, pikachuLevelFilter, isCaNguaMode, caNguaFilter, isTetrisMode, tetrisFilter, isMarioMode, marioFilter, isHaiTaoMode, haiTaoFilter]);
 
   // Quản lý Bảng Phân Cấp Đa Chuyên Đề & Đa Cấp Độ (Hierarchical Table View)
   const [tableRows, setTableRows] = useState<DragDropTableRow[]>(() => {
@@ -735,6 +758,23 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         setQuestions(prev => [...prev, ...parsedQuestions]);
         soundFx.playCorrect();
         alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI GAME MARIO TỪ FILE:\n"${file.name}"!\nBao gồm 3 Chuyên đề và 3 dạng câu hỏi (ABCD, Đúng/Sai, Trả lời ngắn).`);
+      } else if (isHaiTaoMode) {
+        let parsedQuestions: Question[] = [];
+        if (ext === 'docx') {
+          parsedQuestions = await parseHaiTaoFromDocx(file);
+        } else if (ext === 'xlsx' || ext === 'xls') {
+          parsedQuestions = await parseHaiTaoFromExcel(file);
+        } else {
+          const rawText = await file.text();
+          parsedQuestions = parseDocumentQuestions(rawText, gameTitle);
+        }
+
+        if (parsedQuestions.length === 0) {
+          throw new Error('Không bóc tách được câu hỏi từ file Hái Táo Luân Phiên. Vui lòng tải file mẫu để kiểm tra.');
+        }
+        setQuestions(prev => [...prev, ...parsedQuestions]);
+        soundFx.playCorrect();
+        alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI GAME HÁI TÁO LUÂN PHIÊN TỪ FILE:\n"${file.name}"!\nBao gồm 3 Chuyên đề và 3 dạng câu hỏi (ABCD, Đúng/Sai, Trả lời ngắn).`);
       } else {
         let rawText = '';
         if (ext === 'docx') {
@@ -2079,6 +2119,95 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                       }`}
                     >
                       <span>🔴 Khó ({marioCounts.hard})</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {isHaiTaoMode && (
+                <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 shadow-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="font-black text-xs sm:text-sm text-slate-800 uppercase tracking-wide">
+                        BỘ LỌC 3 DẠNG CÂU & ĐỘ KHÓ GAME HÁI TÁO LUÂN PHIÊN
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                      🍎 Chuẩn 3 Dạng: Trắc nghiệm ABCD • Đúng/Sai ghép đề • Trả lời ngắn
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                    <button
+                      onClick={() => { setHaiTaoFilter('ALL'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer ${
+                        haiTaoFilter === 'ALL'
+                          ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-200 font-black'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                      }`}
+                    >
+                      TẤT CẢ ({questions.length})
+                    </button>
+                    <button
+                      onClick={() => { setHaiTaoFilter('MC'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        haiTaoFilter === 'MC'
+                          ? 'bg-blue-600 text-white shadow-sm shadow-blue-200 font-black'
+                          : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200'
+                      }`}
+                    >
+                      <span>🔘 TRẮC NGHIỆM ABCD ({haiTaoCounts.mc})</span>
+                    </button>
+                    <button
+                      onClick={() => { setHaiTaoFilter('TF'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        haiTaoFilter === 'TF'
+                          ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-200 font-black'
+                          : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200'
+                      }`}
+                    >
+                      <span>⚖️ ĐÚNG / SAI ({haiTaoCounts.tf})</span>
+                    </button>
+                    <button
+                      onClick={() => { setHaiTaoFilter('SHORT'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        haiTaoFilter === 'SHORT'
+                          ? 'bg-purple-600 text-white shadow-sm shadow-purple-200 font-black'
+                          : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200'
+                      }`}
+                    >
+                      <span>🔢 TRẢ LỜI NGẮN ({haiTaoCounts.short})</span>
+                    </button>
+                    <div className="w-px h-5 bg-slate-300 mx-1 shrink-0" />
+                    <button
+                      onClick={() => { setHaiTaoFilter('Dễ'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        haiTaoFilter === 'Dễ'
+                          ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-200 font-black'
+                          : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                      }`}
+                    >
+                      <span>🟢 Dễ ({haiTaoCounts.easy})</span>
+                    </button>
+                    <button
+                      onClick={() => { setHaiTaoFilter('Trung bình'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        haiTaoFilter === 'Trung bình'
+                          ? 'bg-amber-600 text-white shadow-sm shadow-amber-200 font-black'
+                          : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200'
+                      }`}
+                    >
+                      <span>🟡 Vừa ({haiTaoCounts.medium})</span>
+                    </button>
+                    <button
+                      onClick={() => { setHaiTaoFilter('Khó'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                        haiTaoFilter === 'Khó'
+                          ? 'bg-rose-600 text-white shadow-sm shadow-rose-200 font-black'
+                          : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+                      }`}
+                    >
+                      <span>🔴 Khó ({haiTaoCounts.hard})</span>
                     </button>
                   </div>
                 </div>

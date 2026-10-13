@@ -127,6 +127,30 @@
             vertical-align: middle !important;
         }
 
+        /* Hybrid Native + CSS Viewport Fullscreen Fallback */
+        html.mobile-fullscreen-forced {
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+        }
+        body.mobile-fullscreen-forced {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            width: 100dvw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-width: 100vw !important;
+            max-height: 100dvh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            z-index: 2147483647 !important;
+        }
+
         /* TỐI ƯU RESPONSIVE MOBILE (< 768px) VỚI ĐƠN VỊ 100dvh & CHỐNG TRÀN KHUNG */
         @media (max-width: 768px) {
             body {
@@ -1284,38 +1308,159 @@
         }
 
         // ==========================================
-        // ⛶ KÍCH HOẠT CHẾ ĐỘ TOÀN MÀN HÌNH TRÊN WEB ĐIỆN THOẠI (MULTI-VENDOR MOBILE API)
+        // ⛶ KÍCH HOẠT CHẾ ĐỘ TOÀN MÀN HÌNH TRÊN WEB ĐIỆN THOẠI (HYBRID NATIVE + CSS VIEWPORT FALLBACK)
         // ==========================================
-        function toggleMobileFullscreen() {
-            const element = document.documentElement;
-            try {
-                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                    if (element.requestFullscreen) { element.requestFullscreen(); }
-                    else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); }
-                    else if (element.mozRequestFullScreen) { element.mozRequestFullScreen(); }
-                    else if (element.msRequestFullscreen) { element.msRequestFullscreen(); }
-                } else {
-                    if (document.exitFullscreen) { document.exitFullscreen(); }
-                    else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
-                    else if (document.mozCancelFullScreen) { document.mozCancelFullScreen(); }
-                    else if (document.msExitFullscreen) { document.msExitFullscreen(); }
-                }
-            } catch(err) {
-                console.warn('Fullscreen toggle:', err);
+        function isFullscreenActive() {
+            const doc = document;
+            return !!(
+                doc.fullscreenElement || 
+                doc.webkitFullscreenElement || 
+                doc.mozFullScreenElement || 
+                doc.msFullscreenElement || 
+                doc.documentElement.classList.contains('mobile-fullscreen-forced') ||
+                doc.body.classList.contains('mobile-fullscreen-forced')
+            );
+        }
+
+        let _tetrisLastFsTime = 0;
+        function toggleMobileFullscreen(e) {
+            if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+            const now = Date.now();
+            if (now - _tetrisLastFsTime < 450) {
+                return; // Chống double-tap / touchend + click kép trên màn hình di động
             }
+            _tetrisLastFsTime = now;
+
+            const doc = document;
+            const docEl = document.documentElement;
+            const body = document.body;
+            const isFs = isFullscreenActive();
+
+            if (!isFs) {
+                // 1. Áp dụng CSS Viewport Fullscreen ngay lập tức (100% hoạt động trên iOS Safari / iPhone / Android WebView)
+                docEl.classList.add('mobile-fullscreen-forced');
+                body.classList.add('mobile-fullscreen-forced');
+
+                // 2. Thử kích hoạt Native Fullscreen nếu trình duyệt hỗ trợ
+                try {
+                    const rfs = docEl.requestFullscreen || 
+                                docEl.webkitRequestFullscreen || 
+                                docEl.webkitRequestFullScreen || 
+                                docEl.mozRequestFullScreen || 
+                                docEl.msRequestFullscreen;
+                    if (rfs) {
+                        const p = rfs.call(docEl);
+                        if (p && typeof p.then === 'function') {
+                            p.then(function() {
+                                updateFullscreenUI();
+                            }).catch(function(err) {
+                                console.warn('Native requestFullscreen note:', err);
+                            });
+                        }
+                    }
+                } catch(err) {
+                    console.warn('Native fullscreen fallback:', err);
+                }
+
+                // 3. Iframe Bridge: Báo trang cha (nếu chạy trong Iframe web app) cùng kích hoạt Fullscreen
+                try {
+                    if (window.self !== window.top && window.parent) {
+                        window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'enter' }, '*');
+                    }
+                } catch(e) {}
+
+                // 4. Cuộn nhẹ để ẩn thanh địa chỉ URL trên trình duyệt di động
+                try { window.scrollTo(0, 1); } catch(e) {}
+
+                // 5. Khóa xoay ngang nếu trình duyệt hỗ trợ
+                try {
+                    if (screen.orientation && typeof screen.orientation.lock === 'function') {
+                        screen.orientation.lock('landscape').catch(function() {});
+                    }
+                } catch(e) {}
+            } else {
+                // Thoát chế độ toàn màn hình
+                docEl.classList.remove('mobile-fullscreen-forced');
+                body.classList.remove('mobile-fullscreen-forced');
+
+                try {
+                    const isNative = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+                    if (isNative) {
+                        const efs = doc.exitFullscreen || 
+                                    doc.webkitExitFullscreen || 
+                                    doc.webkitCancelFullScreen || 
+                                    doc.mozCancelFullScreen || 
+                                    doc.msExitFullscreen;
+                        if (efs) {
+                            const p = efs.call(doc);
+                            if (p && typeof p.then === 'function') {
+                                p.catch(function(e) {});
+                            }
+                        }
+                    }
+                } catch(err) {
+                    console.warn('Exit fullscreen:', err);
+                }
+
+                try {
+                    if (window.self !== window.top && window.parent) {
+                        window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'exit' }, '*');
+                    }
+                } catch(e) {}
+
+                try {
+                    if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+                        screen.orientation.unlock();
+                    }
+                } catch(e) {}
+            }
+
+            updateFullscreenUI();
+
+            // 6. Cập nhật kích thước khung hình Tetris
+            const triggerResize = () => {
+                try {
+                    window.dispatchEvent(new Event('resize'));
+                } catch(e) {}
+            };
+            triggerResize();
+            setTimeout(triggerResize, 100);
+            setTimeout(triggerResize, 300);
+            setTimeout(triggerResize, 600);
         }
         window.toggleMobileFullscreen = toggleMobileFullscreen;
         window.triggerToggleFullscreen = toggleMobileFullscreen;
 
         function updateFullscreenUI() {
-            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+            const isFs = isFullscreenActive();
             const fsIcon = document.getElementById('fullscreenIcon');
             const fsText = document.getElementById('fullscreenText');
             if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
             if (fsText) fsText.textContent = isFs ? 'THU NHỎ' : 'TOÀN MÀN HÌNH';
         }
-        document.addEventListener('fullscreenchange', updateFullscreenUI);
-        document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+
+        const handleFullscreenChange = function() {
+            const isNative = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+            if (!isNative) {
+                document.documentElement.classList.remove('mobile-fullscreen-forced');
+                document.body.classList.remove('mobile-fullscreen-forced');
+            }
+            updateFullscreenUI();
+            try {
+                window.dispatchEvent(new Event('resize'));
+            } catch(e) {}
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+        const fsBtn = document.getElementById('fullscreenToggleBtn');
+        if (fsBtn && !fsBtn.dataset.fsBound) {
+            fsBtn.dataset.fsBound = 'true';
+            fsBtn.addEventListener('click', toggleMobileFullscreen);
+        }
 
         // --- QUIZ LOGIC (HỖ TRỢ 3 DẠNG CÂU HỎI: ABCD, ĐÚNG/SAI 4 Ý GHÉP ĐỀ, TRẢ LỜI NGẮN) ---
         let currentQuizCorrectIdx = 0;

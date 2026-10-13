@@ -2404,6 +2404,9 @@ export async function downloadCaNguaExcelTemplate(): Promise<void> {
  */
 export async function downloadGameWordTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('hai-tao') || cleanId.includes('hai_tao') || cleanId.includes('haitao') || cleanId.includes('apple')) {
+    return downloadHaiTaoWordTemplate();
+  }
   if (cleanId.includes('ca-ngua') || cleanId.includes('ca_ngua') || cleanId.includes('ngua')) {
     return downloadCaNguaWordTemplate();
   }
@@ -2436,6 +2439,9 @@ export async function downloadGameWordTemplate(gameIdentifier: string): Promise<
 
 export async function downloadGameExcelTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('hai-tao') || cleanId.includes('hai_tao') || cleanId.includes('haitao') || cleanId.includes('apple')) {
+    return downloadHaiTaoExcelTemplate();
+  }
   if (cleanId.includes('ca-ngua') || cleanId.includes('ca_ngua') || cleanId.includes('ngua')) {
     return downloadCaNguaExcelTemplate();
   }
@@ -3065,6 +3071,198 @@ export async function downloadMarioExcelTemplate(): Promise<void> {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Mario_3_Chuyen_De");
   XLSX.writeFile(wb, "Mau_Game_Mario_3_Chuyen_De_3_Dang_De.xlsx");
+}
+
+/**
+ * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHO GAME HÁI TÁO LUÂN PHIÊN (3 CHUYÊN ĐỀ x 3 DẠNG BẢNG ĐEN TRẮNG)
+ */
+export async function downloadHaiTaoWordTemplate(): Promise<void> {
+  const sectionsContent: any[] = [
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "MẪU ĐỀ GAME HÁI TÁO LUÂN PHIÊN (CHUẨN 3 CHUYÊN ĐỀ x 3 DẠNG BẢNG ĐEN TRẮNG)",
+          bold: true,
+          size: 26,
+          color: "000000"
+        })
+      ],
+      spacing: { after: 120 }
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: "HƯỚNG DẪN CẤU TRÚC SOẠN ĐỀ CHO GAME HÁI TÁO LUÂN PHIÊN:\n" +
+                "1. Game bao gồm 3 Chuyên đề (Chủ đề): Chủ đề 1 (Phương trình & Bất phương trình Mũ), Chủ đề 2 (Phương trình & Bất phương trình Logarit), Chủ đề 3 (Bài toán Lãi kép & Ứng dụng Thực tế).\n" +
+                "2. Mỗi Chuyên đề hỗ trợ 3 dạng câu hỏi chuẩn đen trắng (không tô màu nền ô, viền đơn rõ ràng):\n" +
+                "   - DẠNG TRẮC NGHIỆM ABCD (Bảng 7 dòng x 2 cột): Dòng 1: Câu [N] (TN) | Đề bài; Dòng 2..5: A), B), C), D); Dòng 6: Lời giải; Dòng 7: Đáp án A/B/C/D.\n" +
+                "   - DẠNG ĐÚNG / SAI 4 Ý (Bảng 9 dòng x 2 cột): Dòng 1: Câu [N] (Đ/S) | Lời dẫn chung; Dòng 2, 4, 6, 8: A), B), C), D); Dòng 3, 5, 7, 9: Đúng/Sai | Lời giải chi tiết. Game tự động ghép lời dẫn dòng 1 với 1 ý ngẫu nhiên thành khẳng định khi thi đấu!\n" +
+                "   - DẠNG TRẢ LỜI NGẮN / ĐIỀN SỐ (Bảng 3 dòng x 2 cột): Dòng 1: Câu [N] (TLN) | Đề bài; Dòng 2: Đáp án số | Số kết quả (tối đa 4-8 ký tự); Dòng 3: Lời giải. Hệ thống hiển thị 4 ô vuông trống điền số, coi dấu '.' và dấu ',' như nhau!\n" +
+                "3. THUẬT TOÁN AUTO-SAMPLING: Game hỗ trợ kho câu hỏi không giới hạn. Khi vào trận đấu luân phiên, hệ thống tự động bốc ngẫu nhiên từ kho đề để phân phối vào cây táo cho hai đội, chống học sinh học vẹt!",
+          size: 19,
+          color: "333333"
+        })
+      ],
+      spacing: { after: 220 }
+    }),
+
+    // CHỦ ĐỀ 1
+    new Paragraph({
+      children: [new TextRun({ text: "CHỦ ĐỀ 1: PHƯƠNG TRÌNH & BẤT PHƯƠNG TRÌNH MŨ", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    createTetrisMCQTable(
+      1,
+      "Nghiệm của phương trình \\( 3^{x+1} = 27 \\) là:",
+      "\\( x = 1 \\)",
+      "\\( x = 2 \\)",
+      "\\( x = 3 \\)",
+      "\\( x = 4 \\)",
+      "\\( 3^{x+1} = 3^3 \\Rightarrow x+1=3 \\Rightarrow x=2 \\).",
+      "B"
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisTFQuestionTable(
+      2,
+      "Cho phương trình \\( 4^x - 3 \\cdot 2^x + 2 = 0 \\). Xét tính Đúng/Sai của các khẳng định sau:",
+      "Đặt \\( t = 2^x \\ (t>0) \\), ta được phương trình \\( t^2 - 3t + 2 = 0 \\).", "Đúng", "Ta có \\( 4^x = (2^x)^2 = t^2 \\).",
+      "Phương trình bậc hai theo t có nghiệm \\( t=1 \\) và \\( t=-2 \\).", "Sai", "Nghiệm của phương trình là t = 1 và t = 2.",
+      "Phương trình ban đầu có nghiệm \\( x=0 \\) và \\( x=1 \\).", "Đúng", "\\( 2^x = 1 \\Rightarrow x = 0 \\); \\( 2^x = 2 \\Rightarrow x = 1 \\).",
+      "Tổng các nghiệm của phương trình bằng 2.", "Sai", "Tổng các nghiệm bằng 0 + 1 = 1."
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisShortAnswerTable(
+      3,
+      "Tổng tất cả các nghiệm của phương trình \\( 2^{x^2 - x} = 4 \\) bằng bao nhiêu?",
+      "1",
+      "\\( 2^{x^2 - x} = 2^2 \\Rightarrow x^2 - x - 2 = 0 \\Rightarrow x_1 + x_2 = 1 \\)."
+    ),
+    new Paragraph({ text: "", spacing: { after: 200 } }),
+
+    // CHỦ ĐỀ 2
+    new Paragraph({
+      children: [new TextRun({ text: "CHỦ ĐỀ 2: PHƯƠNG TRÌNH & BẤT PHƯƠNG TRÌNH LOGARIT", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    createTetrisMCQTable(
+      4,
+      "Nghiệm của phương trình \\( \\log_2(x+3) = 3 \\) là:",
+      "\\( x = 5 \\)",
+      "\\( x = 6 \\)",
+      "\\( x = 8 \\)",
+      "\\( x = 11 \\)",
+      "\\( x + 3 = 2^3 = 8 \\Rightarrow x = 5 \\).",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisTFQuestionTable(
+      5,
+      "Cho bất phương trình \\( \\log_2(x-1) + \\log_2(x+1) < 3 \\). Xét tính Đúng/Sai của các khẳng định sau:",
+      "Điều kiện xác định là \\( x > 1 \\).", "Đúng", "Điều kiện: x - 1 > 0 và x + 1 > 0 => x > 1.",
+      "Bất phương trình tương đương \\( x^2 - 1 < 3 \\).", "Sai", "Tương đương log_2(x^2 - 1) < 3 => x^2 - 1 < 8.",
+      "Tập nghiệm của bất phương trình là \\( (1; 3) \\).", "Đúng", "x^2 < 9 và x > 1 => 1 < x < 3.",
+      "Bất phương trình có 2 nghiệm nguyên.", "Sai", "Chỉ có nghiệm nguyên x = 2 (1 nghiệm nguyên)."
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisShortAnswerTable(
+      6,
+      "Tổng tất cả các nghiệm của phương trình \\( \\log_2(x^2 - 6x) = 4 \\) bằng bao nhiêu?",
+      "6",
+      "x^2 - 6x = 16 => x^2 - 6x - 16 = 0 => x_1 + x_2 = 6."
+    ),
+    new Paragraph({ text: "", spacing: { after: 200 } }),
+
+    // CHỦ ĐỀ 3
+    new Paragraph({
+      children: [new TextRun({ text: "CHỦ ĐỀ 3: BÀI TOÁN LÃI KÉP & ỨNG DỤNG THỰC TẾ", bold: true, color: "000000", size: 24 })],
+      spacing: { before: 200, after: 120 }
+    }),
+    createTetrisMCQTable(
+      7,
+      "Công thức tính số tiền cả vốn lẫn lãi sau n kỳ hạn gửi theo thể thức lãi kép là:",
+      "\\( T = A(1+r)^n \\)",
+      "\\( T = A(1+nr) \\)",
+      "\\( T = A + nr \\)",
+      "\\( T = A(1-r)^n \\)",
+      "Công thức lãi kép chuẩn: T = A(1+r)^n.",
+      "A"
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisTFQuestionTable(
+      8,
+      "Một người gửi 50 triệu đồng vào ngân hàng với lãi suất lãi kép 7%/năm. Xét tính Đúng/Sai của các khẳng định sau:",
+      "Sau 2 năm số tiền nhận được là \\( 50 \\cdot (1+0.07)^2 \\) triệu đồng.", "Đúng", "Áp dụng công thức T = A(1+r)^2.",
+      "Số tiền lãi sau năm thứ nhất là 3.5 triệu đồng.", "Đúng", "Lãi năm 1: 50 * 0.07 = 3.5 triệu.",
+      "Số tiền sau 2 năm vượt quá 60 triệu đồng.", "Sai", "50 * (1.07)^2 = 57.245 triệu < 60 triệu.",
+      "Cần ít nhất 11 năm để số tiền nhận được gấp đôi ban đầu.", "Đúng", "(1.07)^n >= 2 => n >= ln 2 / ln 1.07 = 10.24 => cần 11 năm."
+    ),
+    new Paragraph({ text: "", spacing: { after: 120 } }),
+    createTetrisShortAnswerTable(
+      9,
+      "Cường độ âm tăng gấp 1000 lần thì mức cường độ âm L tăng thêm bao nhiêu dB?",
+      "30",
+      "delta L = 10 * log(1000) = 10 * 3 = 30 dB."
+    )
+  ];
+
+  const doc = new Document({
+    sections: [{ properties: {}, children: sectionsContent }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Mau_Game_Hai_Tao_Luan_Phien_3_Dang_De.docx");
+}
+
+/**
+ * SINH VÀ TẢI FILE EXCEL (.XLSX) MẪU CHO GAME HÁI TÁO LUÂN PHIÊN (3 CHUYÊN ĐỀ x 3 DẠNG CÂU HỎI)
+ */
+export async function downloadHaiTaoExcelTemplate(): Promise<void> {
+  const { XLSX } = await loadDocumentLibraries();
+  const rows = [
+    ["Chuyên đề", "Loại Dạng", "Cột 1: Câu / Ý", "Cột 2: Nội dung phát biểu / Đề bài", "Cột 3: Đáp án (A/B/C/D hoặc Đúng/Sai hoặc Số)", "Cột 4: Lời giải chi tiết"],
+    // Chủ đề 1
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "MC", "Câu 1", "Nghiệm của phương trình 3^{x+1} = 27 là:", "B", "3^{x+1} = 3^3 => x+1=3 => x=2."],
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "MC", "A)", "x = 1", "", ""],
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "MC", "B)", "x = 2", "", ""],
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "MC", "C)", "x = 3", "", ""],
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "MC", "D)", "x = 4", "", ""],
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "TF", "Câu 2", "Cho phương trình 4^x - 3 . 2^x + 2 = 0. Xét tính Đúng/Sai:", "", ""],
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "TF", "A)", "Đặt t = 2^x (t>0), ta được t^2 - 3t + 2 = 0.", "Đúng", "4^x = t^2."],
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "TF", "B)", "Phương trình bậc hai có nghiệm t=1 và t=-2.", "Sai", "Nghiệm t=1 và t=2."],
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "TF", "C)", "Phương trình ban đầu có nghiệm x=0 và x=1.", "Đúng", "2^x = 1 => x=0; 2^x = 2 => x=1."],
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "TF", "D)", "Tổng các nghiệm của phương trình bằng 2.", "Sai", "Tổng các nghiệm bằng 1."],
+    ["Chủ đề 1: Phương trình & Bất phương trình Mũ", "SHORT", "Câu 3", "Tổng các nghiệm của phương trình 2^{x^2 - x} = 4 bằng bao nhiêu?", "1", "x^2 - x = 2 => x_1 + x_2 = 1."],
+    // Chủ đề 2
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "MC", "Câu 4", "Nghiệm của phương trình log_2(x+3) = 3 là:", "A", "x+3 = 8 => x = 5."],
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "MC", "A)", "x = 5", "", ""],
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "MC", "B)", "x = 6", "", ""],
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "MC", "C)", "x = 8", "", ""],
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "MC", "D)", "x = 11", "", ""],
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "TF", "Câu 5", "Cho bất phương trình log_2(x-1) + log_2(x+1) < 3. Xét tính Đúng/Sai:", "", ""],
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "TF", "A)", "Điều kiện xác định là x > 1.", "Đúng", "x > 1."],
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "TF", "B)", "Bất phương trình tương đương x^2 - 1 < 3.", "Sai", "log_2(x^2 - 1) < 3 => x^2 - 1 < 8."],
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "TF", "C)", "Tập nghiệm là (1; 3).", "Đúng", "1 < x < 3."],
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "TF", "D)", "Bất phương trình có 2 nghiệm nguyên.", "Sai", "Chỉ có x = 2."],
+    ["Chủ đề 2: Phương trình & Bất phương trình Logarit", "SHORT", "Câu 6", "Tổng các nghiệm của phương trình log_2(x^2 - 6x) = 4 bằng bao nhiêu?", "6", "x_1 + x_2 = 6."],
+    // Chủ đề 3
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "MC", "Câu 7", "Công thức tính số tiền nhận được sau n kỳ hạn lãi kép là:", "A", "T = A(1+r)^n."],
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "MC", "A)", "T = A(1+r)^n", "", ""],
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "MC", "B)", "T = A(1+nr)", "", ""],
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "MC", "C)", "T = A + nr", "", ""],
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "MC", "D)", "T = A(1-r)^n", "", ""],
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "TF", "Câu 8", "Gửi 50 triệu đồng lãi kép 7%/năm. Xét tính Đúng/Sai:", "", ""],
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "TF", "A)", "Sau 2 năm số tiền là 50 . (1+0.07)^2 triệu.", "Đúng", "T = A(1+r)^2."],
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "TF", "B)", "Số tiền lãi sau năm thứ 1 là 3.5 triệu.", "Đúng", "50 * 0.07 = 3.5."],
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "TF", "C)", "Số tiền sau 2 năm vượt quá 60 triệu.", "Sai", "57.245 triệu < 60."],
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "TF", "D)", "Cần ít nhất 11 năm để số tiền gấp đôi.", "Đúng", "n >= 10.24 => 11 năm."],
+    ["Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế", "SHORT", "Câu 9", "Cường độ âm tăng 1000 lần thì mức cường độ âm tăng thêm bao nhiêu dB?", "30", "10 * log(1000) = 30 dB."]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{ wch: 38 }, { wch: 12 }, { wch: 15 }, { wch: 55 }, { wch: 25 }, { wch: 45 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Hai_Tao_3_Chuyen_De");
+  XLSX.writeFile(wb, "Mau_Game_Hai_Tao_3_Chuyen_De_3_Dang_De.xlsx");
 }
 
 /**
@@ -4026,6 +4224,404 @@ export async function parseMarioFromExcel(file: File): Promise<Question[]> {
   if (questions.length === 0) {
     const csv = XLSX.utils.sheet_to_csv(sheet);
     return parseDocumentQuestions(csv, 'Mario Xác Suất');
+  }
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE WORD (.DOCX) CHUẨN 3 BẢNG (ABCD 7 DÒNG, ĐÚNG/SAI 9 DÒNG, TLN 3 DÒNG) CHO GAME HÁI TÁO LUÂN PHIÊN
+ */
+export async function parseHaiTaoFromDocx(file: File): Promise<Question[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+
+  const questions: Question[] = [];
+
+  if (html.includes('<table')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+
+    let currentTopic = 'Chủ đề 1: Phương trình & Bất phương trình Mũ';
+    let currentDifficulty: Difficulty = 'Dễ';
+
+    tables.forEach((table, tIdx) => {
+      let prevEl = table.previousElementSibling;
+      while (prevEl) {
+        const text = (prevEl.textContent || '').trim().toLowerCase();
+        if (text.includes('chủ đề 1') || text.includes('chuyên đề 1') || text.includes('phương trình mũ') || (text.includes('mũ') && !text.includes('logarit'))) {
+          currentTopic = 'Chủ đề 1: Phương trình & Bất phương trình Mũ';
+        } else if (text.includes('chủ đề 2') || text.includes('chuyên đề 2') || text.includes('logarit')) {
+          currentTopic = 'Chủ đề 2: Phương trình & Bất phương trình Logarit';
+        } else if (text.includes('chủ đề 3') || text.includes('chuyên đề 3') || text.includes('lãi kép') || text.includes('thực tế')) {
+          currentTopic = 'Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế';
+        } else if (text.includes('chủ đề') || text.includes('chuyên đề')) {
+          currentTopic = (prevEl.textContent || '').trim();
+        }
+
+        if (text.includes('mức độ 1') || text.includes('level 1') || text.includes('dễ') || text.includes('easy')) {
+          currentDifficulty = 'Dễ';
+        } else if (text.includes('mức độ 3') || text.includes('level 3') || text.includes('khó') || text.includes('hard')) {
+          currentDifficulty = 'Khó';
+        } else if (text.includes('mức độ 2') || text.includes('level 2') || text.includes('vừa') || text.includes('trung bình') || text.includes('medium')) {
+          currentDifficulty = 'Trung bình';
+        }
+
+        if (text.includes('chuyên đề') || text.includes('chủ đề') || text.includes('mức độ')) break;
+        prevEl = prevEl.previousElementSibling;
+      }
+
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length < 2) return;
+
+      const blocks: Element[][] = [];
+      let curBlock: Element[] = [];
+
+      rows.forEach((row) => {
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        const col1 = cells.length > 0 ? (cells[0].textContent || '').trim().toLowerCase() : '';
+        const isStart = /^câu\s*\d+/i.test(col1) || col1.startsWith('câu');
+
+        if (isStart && curBlock.length >= 2) {
+          blocks.push(curBlock);
+          curBlock = [row];
+        } else {
+          curBlock.push(row);
+        }
+      });
+      if (curBlock.length >= 2) {
+        blocks.push(curBlock);
+      }
+
+      const effectiveBlocks = blocks.length > 0 ? blocks : [rows];
+
+      effectiveBlocks.forEach((blockRows, bIdx) => {
+        const rowCount = blockRows.length;
+        const firstRowCells = Array.from(blockRows[0].querySelectorAll('td, th'));
+        if (firstRowCells.length < 2) return;
+
+        let stem = (firstRowCells[1].textContent || '').trim();
+        let stemImg = '';
+        const imgEl = firstRowCells[1].querySelector('img');
+        if (imgEl && imgEl.getAttribute('src')) {
+          stemImg = imgEl.getAttribute('src') || '';
+        }
+
+        const isShortAnswer = rowCount <= 4 && blockRows.some(r => {
+          const c0 = (r.querySelector('td, th')?.textContent || '').toLowerCase();
+          return c0.includes('đáp án số') || c0.includes('giá trị số') || c0.includes('số kết quả') || c0.includes('tln');
+        });
+
+        const is9RowTF = !isShortAnswer && rowCount >= 5 && blockRows.some((r, idx) => {
+          if (idx === 0) return false;
+          const c = Array.from(r.querySelectorAll('td, th'));
+          const text0 = (c[0]?.textContent || '').trim().toLowerCase();
+          return text0.includes('đúng') || text0.includes('sai') || text0.startsWith('a)') || text0.startsWith('b)');
+        });
+
+        if (isShortAnswer) {
+          let ansNum = '';
+          let explanation = '';
+          blockRows.slice(1).forEach(r => {
+            const cells = Array.from(r.querySelectorAll('td, th'));
+            if (cells.length < 2) return;
+            const c0 = (cells[0].textContent || '').toLowerCase();
+            const c1 = (cells[1].textContent || '').trim();
+            if (c0.includes('đáp án') || c0.includes('giá trị') || c0.includes('kết quả')) {
+              ansNum = c1;
+            } else if (c0.includes('lời giải') || c0.includes('chi tiết')) {
+              explanation = c1;
+            }
+          });
+
+          if (ansNum) {
+            questions.push({
+              id: `haitao_short_${Date.now()}_${tIdx}_${bIdx}`,
+              question: normalizeMathFormulas(stem),
+              options: [ansNum.trim()],
+              correctIndex: 0,
+              explanation: normalizeMathFormulas(explanation),
+              difficulty: currentDifficulty,
+              topic: currentTopic,
+              source: 'Word Import (TLN 3 dòng)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              type: 'short_answer',
+              imageUrl: stemImg || undefined
+            });
+          }
+        } else if (is9RowTF) {
+          const items: { letter: string; text: string; isCorrect: boolean; explanation: string; img?: string }[] = [];
+          let curLetter = '';
+          let curText = '';
+          let curImg = '';
+
+          for (let r = 1; r < blockRows.length; r++) {
+            const cells = Array.from(blockRows[r].querySelectorAll('td, th'));
+            if (cells.length < 2) continue;
+            const c0 = (cells[0].textContent || '').trim();
+            const c1 = (cells[1].textContent || '').trim();
+            const c0Lower = c0.toLowerCase();
+            const itemImgEl = cells[1].querySelector('img');
+            const itemImg = itemImgEl ? (itemImgEl.getAttribute('src') || '') : '';
+
+            const letterMatch = c0.match(/^[a-dA-D][\)\.\:\-]?$/i);
+            const isAnsRow = c0Lower.includes('đúng') || c0Lower.includes('sai') || c0Lower.includes('true') || c0Lower.includes('false');
+
+            if (letterMatch) {
+              curLetter = letterMatch[0].replace(/[\)\.\:\-]/g, '').toUpperCase();
+              curText = c1;
+              curImg = itemImg;
+            } else if (isAnsRow || (curLetter && !isAnsRow && (c1.toLowerCase().includes('đúng') || c1.toLowerCase().includes('sai')))) {
+              const isCorrect = c0Lower.includes('đúng') || c0Lower.includes('true') || (!c0Lower.includes('sai') && c1.toLowerCase().startsWith('đúng'));
+              const exp = c1;
+              const effectiveLetter = curLetter || String.fromCharCode(65 + items.length);
+
+              items.push({
+                letter: effectiveLetter,
+                text: curText,
+                isCorrect: isCorrect,
+                explanation: exp,
+                img: curImg || stemImg
+              });
+
+              curLetter = '';
+              curText = '';
+              curImg = '';
+            } else if (!curLetter && c0Lower) {
+              const combinedMatch = c0.match(/^([a-dA-D])[\)\.\:\-]?\s*(đúng|sai)/i);
+              if (combinedMatch) {
+                const letStr = combinedMatch[1].toUpperCase();
+                const isCor = combinedMatch[2].toLowerCase() === 'đúng';
+                items.push({
+                  letter: letStr,
+                  text: c1,
+                  isCorrect: isCor,
+                  explanation: '',
+                  img: itemImg || stemImg
+                });
+              }
+            }
+          }
+
+          items.forEach((item, itemIdx) => {
+            const cleanStem = normalizeMathFormulas(stem);
+            const cleanText = normalizeMathFormulas(item.text);
+            const questionStr = `ĐÚNG HAY SAI: ${cleanStem ? cleanStem + ' ' : ''}[Ý ${item.letter}]: ${cleanText}`;
+            const cleanExp = normalizeMathFormulas(item.explanation);
+
+            questions.push({
+              id: `haitao_tf_${Date.now()}_${tIdx}_${bIdx}_${itemIdx}`,
+              question: questionStr,
+              options: ['Đúng', 'Sai'],
+              correctIndex: item.isCorrect ? 0 : 1,
+              explanation: cleanExp,
+              difficulty: currentDifficulty,
+              topic: currentTopic,
+              source: 'Word Import (Đ/S 9 dòng)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              type: 'truefalse',
+              imageUrl: item.img || stemImg || undefined
+            });
+          });
+        } else if (rowCount >= 5) {
+          let optA = '';
+          let optB = '';
+          let optC = '';
+          let optD = '';
+          let explanation = '';
+          let answerLetter = 'A';
+
+          blockRows.slice(1).forEach((row) => {
+            const cells = Array.from(row.querySelectorAll('td, th'));
+            if (cells.length < 2) return;
+            const c0 = (cells[0].textContent || '').trim().toLowerCase();
+            const c1 = (cells[1].textContent || '').trim();
+
+            if (c0.startsWith('a') || c0 === 'a)') optA = c1;
+            else if (c0.startsWith('b') || c0 === 'b)') optB = c1;
+            else if (c0.startsWith('c') || c0 === 'c)') optC = c1;
+            else if (c0.startsWith('d') || c0 === 'd)') optD = c1;
+            else if (c0.includes('lời giải') || c0.includes('giải thích')) explanation = c1;
+            else if (c0.includes('đáp án') || c0.includes('kết quả')) {
+              const m = c1.match(/[A-D]/i);
+              if (m) answerLetter = m[0].toUpperCase();
+            }
+          });
+
+          const optList = [optA, optB, optC, optD].filter(Boolean);
+          if (optList.length >= 2) {
+            const letIdx = ['A', 'B', 'C', 'D'].indexOf(answerLetter);
+            questions.push({
+              id: `haitao_mc_${Date.now()}_${tIdx}_${bIdx}`,
+              question: normalizeMathFormulas(stem),
+              options: [
+                normalizeMathFormulas(optA || 'A'),
+                normalizeMathFormulas(optB || 'B'),
+                normalizeMathFormulas(optC || 'C'),
+                normalizeMathFormulas(optD || 'D')
+              ],
+              correctIndex: letIdx >= 0 ? letIdx : 0,
+              explanation: normalizeMathFormulas(explanation),
+              difficulty: currentDifficulty,
+              topic: currentTopic,
+              source: 'Word Import (MCQ 7 dòng)',
+              status: 'published',
+              createdAt: new Date().toISOString(),
+              type: 'abcd',
+              imageUrl: stemImg || undefined
+            });
+          }
+        }
+      });
+    });
+  }
+
+  if (questions.length === 0) {
+    const rawText = html.replace(/<[^>]+>/g, '\n');
+    return parseDocumentQuestions(rawText, 'Hái Táo Luân Phiên');
+  }
+
+  return questions;
+}
+
+/**
+ * BỘ PARSER FILE EXCEL (.XLSX) CHUẨN 3 DẠNG CÂU HỎI CHO GAME HÁI TÁO LUÂN PHIÊN
+ */
+export async function parseHaiTaoFromExcel(file: File): Promise<Question[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rawRows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+  const questions: Question[] = [];
+  let currentTopic = 'Chủ đề 1: Phương trình & Bất phương trình Mũ';
+  let currentStem = '';
+  let currentType = 'MC';
+
+  for (let i = 0; i < rawRows.length; i++) {
+    const row = rawRows[i];
+    if (!row || row.length === 0) continue;
+    const col0 = String(row[0] || '').trim();
+    const col1 = String(row[1] || '').trim();
+    const col2 = String(row[2] || '').trim();
+    const col3 = String(row[3] || '').trim();
+    const col4 = String(row[4] || '').trim();
+    const col5 = String(row[5] || '').trim();
+
+    if (col0.toLowerCase().includes('chủ đề 1') || col0.toLowerCase().includes('chuyên đề 1') || (col0.toLowerCase().includes('mũ') && !col0.toLowerCase().includes('logarit'))) {
+      currentTopic = 'Chủ đề 1: Phương trình & Bất phương trình Mũ';
+    } else if (col0.toLowerCase().includes('chủ đề 2') || col0.toLowerCase().includes('chuyên đề 2') || col0.toLowerCase().includes('logarit')) {
+      currentTopic = 'Chủ đề 2: Phương trình & Bất phương trình Logarit';
+    } else if (col0.toLowerCase().includes('chủ đề 3') || col0.toLowerCase().includes('chuyên đề 3') || col0.toLowerCase().includes('lãi kép') || col0.toLowerCase().includes('thực tế')) {
+      currentTopic = 'Chủ đề 3: Bài toán Lãi kép & Ứng dụng Thực tế';
+    } else if (col0 && (col0.toLowerCase().includes('chủ đề') || col0.toLowerCase().includes('chuyên đề'))) {
+      currentTopic = col0;
+    }
+
+    const typeStr = (col1 || col0).toUpperCase();
+    if (typeStr === 'SHORT' || typeStr.includes('TLN') || typeStr.includes('TRẢ LỜI NGẮN')) {
+      currentType = 'SHORT';
+      const stemText = col3 || col2;
+      const ansNum = col4 || col3;
+      const exp = col5 || col4 || '';
+      if (stemText && ansNum && !ansNum.toLowerCase().includes('đáp án')) {
+        questions.push({
+          id: `haitao_xl_short_${Date.now()}_${i}`,
+          question: normalizeMathFormulas(stemText),
+          options: [ansNum.trim()],
+          correctIndex: 0,
+          explanation: normalizeMathFormulas(exp),
+          difficulty: 'Khó',
+          topic: currentTopic,
+          source: 'Excel Import (TLN 3 dòng)',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          type: 'short_answer'
+        });
+      }
+      continue;
+    } else if (typeStr === 'TF' || typeStr.includes('ĐÚNG') || typeStr.includes('Đ/S')) {
+      currentType = 'TF';
+    } else if (typeStr === 'MC' || typeStr.includes('TRẮC NGHIỆM') || typeStr.includes('TN')) {
+      currentType = 'MC';
+    }
+
+    const cellCol1 = col2 || col1;
+    const cellCol2 = col3 || col2;
+
+    if (/^câu\s*\d+/i.test(cellCol1) || cellCol1.toLowerCase().startsWith('câu')) {
+      currentStem = cellCol2 || cellCol1;
+
+      if (currentType === 'MC' && (col4 || col3) && !['a)', 'b)', 'c)', 'd)'].includes(String(col4 || col3).toLowerCase())) {
+        const ansLetter = String(col4 || col3).toUpperCase().charAt(0);
+        const exp = col5 || col4 || '';
+
+        const optA = String(rawRows[i + 1]?.[3] || rawRows[i + 1]?.[2] || 'A');
+        const optB = String(rawRows[i + 2]?.[3] || rawRows[i + 2]?.[2] || 'B');
+        const optC = String(rawRows[i + 3]?.[3] || rawRows[i + 3]?.[2] || 'C');
+        const optD = String(rawRows[i + 4]?.[3] || rawRows[i + 4]?.[2] || 'D');
+
+        const letIdx = ['A', 'B', 'C', 'D'].indexOf(ansLetter);
+        questions.push({
+          id: `haitao_xl_mc_${Date.now()}_${i}`,
+          question: normalizeMathFormulas(currentStem),
+          options: [
+            normalizeMathFormulas(optA),
+            normalizeMathFormulas(optB),
+            normalizeMathFormulas(optC),
+            normalizeMathFormulas(optD)
+          ],
+          correctIndex: letIdx >= 0 ? letIdx : 0,
+          explanation: normalizeMathFormulas(exp),
+          difficulty: 'Dễ',
+          topic: currentTopic,
+          source: 'Excel Import (MCQ)',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          type: 'abcd'
+        });
+        i += 4;
+      }
+      continue;
+    }
+
+    const letterMatch = cellCol1.match(/^[a-dA-D][\)\.\:\-]?$/i);
+    if (letterMatch && cellCol2) {
+      const letChar = letterMatch[0].replace(/[\)\.\:\-]/g, '').toUpperCase();
+      const colAns = col4 || col3;
+      const isTF = currentType === 'TF' || colAns.toLowerCase().includes('đúng') || colAns.toLowerCase().includes('sai');
+
+      if (isTF) {
+        const isCorrect = colAns.toLowerCase().includes('đúng') || colAns.toLowerCase().includes('true');
+        const exp = col5 || (colAns.toLowerCase().includes('đúng') || colAns.toLowerCase().includes('sai') ? '' : colAns);
+        const qText = `ĐÚNG HAY SAI: ${currentStem ? currentStem + ' ' : ''}[Ý ${letChar}]: ${cellCol2}`;
+
+        questions.push({
+          id: `haitao_xl_tf_${Date.now()}_${i}`,
+          question: normalizeMathFormulas(qText),
+          options: ['Đúng', 'Sai'],
+          correctIndex: isCorrect ? 0 : 1,
+          explanation: normalizeMathFormulas(exp),
+          difficulty: 'Trung bình',
+          topic: currentTopic,
+          source: 'Excel Import (Đ/S 9 dòng)',
+          status: 'published',
+          createdAt: new Date().toISOString(),
+          type: 'truefalse'
+        });
+      }
+    }
+  }
+
+  if (questions.length === 0) {
+    const csv = XLSX.utils.sheet_to_csv(sheet);
+    return parseDocumentQuestions(csv, 'Hái Táo Luân Phiên');
   }
 
   return questions;

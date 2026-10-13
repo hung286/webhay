@@ -746,10 +746,33 @@ var questions = window.quizData;
     htmlContent = injectScriptAtTop(htmlContent, tpScript);
   }
 
-  // NHÓM HÁI TÁO LUÂN PHIÊN (cấu trúc Đa Chủ Đề & Đa Độ Khó 2 Đội)
-  else if (cleanUrl.includes('hai-tao')) {
-    const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
-    questions.forEach(q => {
+  // NHÓM HÁI TÁO LUÂN PHIÊN (cấu trúc Đa Chủ Đề, 3 dạng câu hỏi ABCD, Đúng/Sai ghép đề, Trả lời ngắn, Fallback Data & In-game Editor)
+  else if (cleanUrl.includes('hai-tao') || cleanUrl.includes('haitao')) {
+    let topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
+    let activeQuestions = [...questions];
+
+    // Fallback Data nếu mảng questions trống
+    if (!activeQuestions || activeQuestions.length === 0) {
+      try {
+        const matchingWs = DEFAULT_WORKSHEETS.find((w: any) =>
+          (w.title && (w.title.toLowerCase().includes('mũ') || w.title.toLowerCase().includes('logarit') || w.title.toLowerCase().includes('táo') || w.title.toLowerCase().includes('hái táo'))) ||
+          (w.id && (w.id.includes('hai-tao') || w.id.includes('mu_logarit') || w.id.includes('11_')))
+        ) || DEFAULT_WORKSHEETS[0];
+
+        if (matchingWs && matchingWs.questions && matchingWs.questions.length > 0) {
+          activeQuestions = matchingWs.questions.map((q: any, idx: number) => ({
+            ...q,
+            id: q.id || `ws_haitao_fb_${idx}`,
+            topic: q.topic || matchingWs.title || gameTitle,
+            difficulty: q.difficulty || (idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'))
+          }));
+        }
+      } catch (e) {
+        console.warn('Lỗi lấy worksheet dự phòng cho Hái Táo:', e);
+      }
+    }
+
+    activeQuestions.forEach(q => {
       const topicName = q.topic?.trim() || gameTitle;
       if (!topicsMap[topicName]) {
         topicsMap[topicName] = { easy: [], medium: [], hard: [] };
@@ -757,29 +780,248 @@ var questions = window.quizData;
       const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
       const letters = ['A', 'B', 'C', 'D'];
       const ansLetter = (typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < 4) ? letters[q.correctIndex] : 'A';
-      const opts = (q.options || ['A', 'B', 'C', 'D']).map((o, idx) => `${letters[idx]}. ${o}`);
+      const opts = (q.options || ['A', 'B', 'C', 'D']).map((o, idx) => {
+        const cleanO = String(o).replace(/^[A-Da-d][\)\.\:\-]\s*/, '').trim();
+        return `${letters[idx]}. ${cleanO}`;
+      });
       const weight = diffKey === 'easy' ? 3 : (diffKey === 'medium' ? 5 : 8);
       const badge = diffKey === 'easy' ? 'Dễ' : (diffKey === 'medium' ? 'Vừa' : 'Khó');
       const color = diffKey === 'easy' ? '#2ecc71' : (diffKey === 'medium' ? '#f39c12' : '#e74c3c');
 
-      topicsMap[topicName][diffKey].push({
-        type: 'abcd',
-        badge: badge,
-        color: color,
-        q: q.question,
-        opts: opts,
-        ans: ansLetter,
-        w: weight,
-        explanation: q.explanation || ''
-      });
+      const isShort = q.type === 'short_answer' || ((q.options || []).length === 1);
+      const isTF = q.type === 'truefalse' || ((q.options || []).length === 2) || q.question.startsWith('ĐÚNG HAY SAI:');
+
+      if (isShort) {
+        topicsMap[topicName][diffKey].push({
+          type: 'short',
+          badge: badge,
+          color: color,
+          q: q.question,
+          ans: String((q.options && q.options[0]) || '1').trim(),
+          w: weight,
+          explanation: q.explanation || '',
+          imageUrl: q.imageUrl || ''
+        });
+      } else if (isTF) {
+        topicsMap[topicName][diffKey].push({
+          type: 'tf',
+          badge: badge,
+          color: color,
+          q: q.question,
+          stem: (q as any).stem || q.question,
+          opts: q.options || ['Đúng', 'Sai'],
+          ans: q.correctIndex === 0 ? 'Đ' : 'S',
+          w: weight,
+          explanation: q.explanation || '',
+          imageUrl: q.imageUrl || ''
+        });
+      } else {
+        topicsMap[topicName][diffKey].push({
+          type: 'abcd',
+          badge: badge,
+          color: color,
+          q: q.question,
+          opts: opts,
+          ans: ansLetter,
+          w: weight,
+          explanation: q.explanation || '',
+          imageUrl: q.imageUrl || ''
+        });
+      }
     });
 
     const haiTaoScript = `
 <script>
 // [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - HÁI TÁO LUÂN PHIÊN]
-window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
-window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
-window.useStaticTopic = true;
+window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
+window.__ADMIN_PIN__ = "2806";
+window.__INJECTED_HAITAO_DATA__ = ${JSON.stringify(topicsMap, null, 2)};
+if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA__).length > 0) {
+  window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_HAITAO_DATA__));
+  window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
+}
+
+(function() {
+  function syncHaiTaoData() {
+    if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA__).length > 0) {
+      window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_HAITAO_DATA__));
+      if (!window.selectedTopic || !window.gameDatabase[window.selectedTopic]) {
+        window.selectedTopic = Object.keys(window.gameDatabase)[0];
+      }
+      if (typeof window.renderAppleTopicCards === 'function') {
+        window.renderAppleTopicCards();
+      }
+      if (typeof window.playAppleTopic === 'function') {
+        window.playAppleTopic(window.selectedTopic, 'all');
+      }
+    }
+  }
+
+  function applyAdminSecurity() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1' || window.location.hash.includes('admin');
+      const adminTopbar = document.getElementById('admin-topbar');
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+      if (isAdmin) {
+        if (adminTopbar) adminTopbar.style.setProperty('display', 'flex', 'important');
+        adminBtns.forEach(btn => {
+          btn.classList.remove('hidden');
+          btn.style.setProperty('display', 'inline-flex', 'important');
+        });
+      } else {
+        if (adminTopbar) adminTopbar.style.setProperty('display', 'none', 'important');
+        adminBtns.forEach(btn => {
+          btn.classList.add('hidden');
+          btn.style.setProperty('display', 'none', 'important');
+        });
+      }
+    } catch(e) {}
+  }
+
+  function setupAdminButtons() {
+    try {
+      const gearBtn = document.getElementById('btn-admin-gear');
+      if (gearBtn) {
+        gearBtn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          if (typeof window.openAdminPinPrompt === 'function') {
+            window.openAdminPinPrompt();
+          }
+        };
+      }
+      const topicBtn = document.getElementById('btn-chuyen-de');
+      if (topicBtn) {
+        topicBtn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          if (typeof window.openAppleTopicMenu === 'function') {
+            window.openAppleTopicMenu();
+          }
+        };
+      }
+    } catch(e) {}
+  }
+
+  function setupFullscreen() {
+    try {
+      let _exporterLastFsTime = 0;
+      window.toggleMobileFullscreen = function(e) {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        const now = Date.now();
+        if (now - _exporterLastFsTime < 450) return;
+        _exporterLastFsTime = now;
+
+        const doc = document;
+        const docEl = document.documentElement;
+        const body = document.body;
+        const isNative = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+        const isForced = docEl.classList.contains('mobile-fullscreen-forced') || body.classList.contains('mobile-fullscreen-forced');
+
+        if (!isNative && !isForced) {
+          docEl.classList.add('mobile-fullscreen-forced');
+          body.classList.add('mobile-fullscreen-forced');
+
+          const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+          if (rfs) {
+            try {
+              const res = rfs.call(docEl);
+              if (res && typeof res.then === 'function') {
+                res.then(() => { updateFsUI(); }).catch(function() {});
+              }
+            } catch(e) {}
+          }
+          try {
+            if (window.self !== window.top && window.parent) {
+              window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'enter' }, '*');
+            }
+          } catch(e) {}
+          try { window.scrollTo(0, 1); } catch(e) {}
+          try {
+            if (screen.orientation && typeof screen.orientation.lock === 'function') {
+              screen.orientation.lock('landscape').catch(function() {});
+            }
+          } catch(e) {}
+          updateFsUI();
+        } else {
+          docEl.classList.remove('mobile-fullscreen-forced');
+          body.classList.remove('mobile-fullscreen-forced');
+          if (isNative) {
+            const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+            if (efs) { try { efs.call(doc); } catch(e) {} }
+          }
+          try {
+            if (window.self !== window.top && window.parent) {
+              window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'exit' }, '*');
+            }
+          } catch(e) {}
+          try {
+            if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+              screen.orientation.unlock();
+            }
+          } catch(e) {}
+          updateFsUI();
+        }
+
+        const triggerResize = () => {
+          try { window.dispatchEvent(new Event('resize')); } catch(e) {}
+        };
+        triggerResize();
+        setTimeout(triggerResize, 100);
+        setTimeout(triggerResize, 300);
+        setTimeout(triggerResize, 600);
+      };
+
+      function updateFsUI() {
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.documentElement.classList.contains('mobile-fullscreen-forced'));
+        const fsIcon = document.getElementById('fullscreenIcon');
+        const fsText = document.getElementById('fullscreenText');
+        if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
+        if (fsText) fsText.textContent = isFs ? '[ 🗗 ] THU NHỎ' : '[ ⛶ ] TOÀN MÀN HÌNH';
+      }
+
+      window.triggerToggleFullscreen = window.toggleMobileFullscreen;
+      document.addEventListener('fullscreenchange', updateFsUI);
+      document.addEventListener('webkitfullscreenchange', updateFsUI);
+
+      const fsBtn = document.getElementById('fullscreenToggleBtn');
+      if (fsBtn && !fsBtn.dataset.fsBound) {
+        fsBtn.dataset.fsBound = 'true';
+        fsBtn.addEventListener('click', window.toggleMobileFullscreen);
+      }
+    } catch(e) {}
+  }
+
+  function triggerMathTypeset() {
+    try {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function() {});
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      syncHaiTaoData();
+      applyAdminSecurity();
+      setupAdminButtons();
+      setupFullscreen();
+      triggerMathTypeset();
+    });
+  } else {
+    syncHaiTaoData();
+    applyAdminSecurity();
+    setupAdminButtons();
+    setupFullscreen();
+    triggerMathTypeset();
+  }
+  window.addEventListener('load', function() {
+    syncHaiTaoData();
+    applyAdminSecurity();
+    setupAdminButtons();
+    setupFullscreen();
+    triggerMathTypeset();
+  });
+})();
 </script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, haiTaoScript);
@@ -1683,31 +1925,89 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
 
   function setupFullscreen() {
     try {
-      if (typeof window.toggleMobileFullscreen !== 'function') {
-        window.toggleMobileFullscreen = function() {
-          const element = document.documentElement;
-          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-            if (element.requestFullscreen) { element.requestFullscreen(); }
-            else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); }
-          } else {
-            if (document.exitFullscreen) { document.exitFullscreen(); }
-            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+      let _exporterLastFsTime = 0;
+      window.toggleMobileFullscreen = function(e) {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        const now = Date.now();
+        if (now - _exporterLastFsTime < 450) return;
+        _exporterLastFsTime = now;
+
+        const doc = document;
+        const docEl = document.documentElement;
+        const body = document.body;
+        const isNative = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+        const isForced = docEl.classList.contains('mobile-fullscreen-forced') || body.classList.contains('mobile-fullscreen-forced');
+
+        if (!isNative && !isForced) {
+          docEl.classList.add('mobile-fullscreen-forced');
+          body.classList.add('mobile-fullscreen-forced');
+
+          const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+          if (rfs) {
+            try {
+              const res = rfs.call(docEl);
+              if (res && typeof res.then === 'function') {
+                res.then(() => { updateFsUI(); }).catch(function() {});
+              }
+            } catch(e) {}
           }
+          try {
+            if (window.self !== window.top && window.parent) {
+              window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'enter' }, '*');
+            }
+          } catch(e) {}
+          try { window.scrollTo(0, 1); } catch(e) {}
+          try {
+            if (screen.orientation && typeof screen.orientation.lock === 'function') {
+              screen.orientation.lock('landscape').catch(function() {});
+            }
+          } catch(e) {}
+          updateFsUI();
+        } else {
+          docEl.classList.remove('mobile-fullscreen-forced');
+          body.classList.remove('mobile-fullscreen-forced');
+          if (isNative) {
+            const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+            if (efs) { try { efs.call(doc); } catch(e) {} }
+          }
+          try {
+            if (window.self !== window.top && window.parent) {
+              window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'exit' }, '*');
+            }
+          } catch(e) {}
+          try {
+            if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+              screen.orientation.unlock();
+            }
+          } catch(e) {}
+          updateFsUI();
+        }
+
+        const triggerResize = () => {
+          try { window.dispatchEvent(new Event('resize')); } catch(e) {}
         };
+        triggerResize();
+        setTimeout(triggerResize, 100);
+        setTimeout(triggerResize, 300);
+        setTimeout(triggerResize, 600);
+      };
+
+      function updateFsUI() {
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.documentElement.classList.contains('mobile-fullscreen-forced'));
+        const fsIcon = document.getElementById('fullscreenIcon');
+        const fsText = document.getElementById('fullscreenText');
+        if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
+        if (fsText) fsText.textContent = isFs ? '[ 🗗 ] THU NHỎ' : '[ ⛶ ] TOÀN MÀN HÌNH';
       }
+
       window.triggerToggleFullscreen = window.toggleMobileFullscreen;
+      document.addEventListener('fullscreenchange', updateFsUI);
+      document.addEventListener('webkitfullscreenchange', updateFsUI);
+
       const fsBtn = document.getElementById('fullscreenToggleBtn');
       if (fsBtn && !fsBtn.dataset.fsBound) {
         fsBtn.dataset.fsBound = 'true';
-        fsBtn.onclick = function(e) {
-          if (e) e.stopPropagation();
-          window.toggleMobileFullscreen();
-        };
-        fsBtn.ontouchstart = function(e) {
-          if (e && e.cancelable) e.preventDefault();
-          if (e) e.stopPropagation();
-          window.toggleMobileFullscreen();
-        };
+        fsBtn.addEventListener('click', window.toggleMobileFullscreen);
       }
     } catch(e) {}
   }
@@ -1879,31 +2179,89 @@ if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__
 
   function setupFullscreen() {
     try {
-      if (typeof window.toggleMobileFullscreen !== 'function') {
-        window.toggleMobileFullscreen = function() {
-          const element = document.documentElement;
-          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-            if (element.requestFullscreen) { element.requestFullscreen(); }
-            else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); }
-          } else {
-            if (document.exitFullscreen) { document.exitFullscreen(); }
-            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+      let _exporterLastFsTime = 0;
+      window.toggleMobileFullscreen = function(e) {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        const now = Date.now();
+        if (now - _exporterLastFsTime < 450) return;
+        _exporterLastFsTime = now;
+
+        const doc = document;
+        const docEl = document.documentElement;
+        const body = document.body;
+        const isNative = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+        const isForced = docEl.classList.contains('mobile-fullscreen-forced') || body.classList.contains('mobile-fullscreen-forced');
+
+        if (!isNative && !isForced) {
+          docEl.classList.add('mobile-fullscreen-forced');
+          body.classList.add('mobile-fullscreen-forced');
+
+          const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+          if (rfs) {
+            try {
+              const res = rfs.call(docEl);
+              if (res && typeof res.then === 'function') {
+                res.then(() => { updateFsUI(); }).catch(function() {});
+              }
+            } catch(e) {}
           }
+          try {
+            if (window.self !== window.top && window.parent) {
+              window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'enter' }, '*');
+            }
+          } catch(e) {}
+          try { window.scrollTo(0, 1); } catch(e) {}
+          try {
+            if (screen.orientation && typeof screen.orientation.lock === 'function') {
+              screen.orientation.lock('landscape').catch(function() {});
+            }
+          } catch(e) {}
+          updateFsUI();
+        } else {
+          docEl.classList.remove('mobile-fullscreen-forced');
+          body.classList.remove('mobile-fullscreen-forced');
+          if (isNative) {
+            const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+            if (efs) { try { efs.call(doc); } catch(e) {} }
+          }
+          try {
+            if (window.self !== window.top && window.parent) {
+              window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'exit' }, '*');
+            }
+          } catch(e) {}
+          try {
+            if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+              screen.orientation.unlock();
+            }
+          } catch(e) {}
+          updateFsUI();
+        }
+
+        const triggerResize = () => {
+          try { window.dispatchEvent(new Event('resize')); } catch(e) {}
         };
+        triggerResize();
+        setTimeout(triggerResize, 100);
+        setTimeout(triggerResize, 300);
+        setTimeout(triggerResize, 600);
+      };
+
+      function updateFsUI() {
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.documentElement.classList.contains('mobile-fullscreen-forced'));
+        const fsIcon = document.getElementById('fullscreenIcon');
+        const fsText = document.getElementById('fullscreenText');
+        if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
+        if (fsText) fsText.textContent = isFs ? '[ 🗗 ] THU NHỎ' : '[ ⛶ ] TOÀN MÀN HÌNH';
       }
+
       window.triggerToggleFullscreen = window.toggleMobileFullscreen;
+      document.addEventListener('fullscreenchange', updateFsUI);
+      document.addEventListener('webkitfullscreenchange', updateFsUI);
+
       const fsBtn = document.getElementById('fullscreenToggleBtn');
       if (fsBtn && !fsBtn.dataset.fsBound) {
         fsBtn.dataset.fsBound = 'true';
-        fsBtn.onclick = function(e) {
-          if (e) e.stopPropagation();
-          window.toggleMobileFullscreen();
-        };
-        fsBtn.ontouchstart = function(e) {
-          if (e && e.cancelable) e.preventDefault();
-          if (e) e.stopPropagation();
-          window.toggleMobileFullscreen();
-        };
+        fsBtn.addEventListener('click', window.toggleMobileFullscreen);
       }
     } catch(e) {}
   }
