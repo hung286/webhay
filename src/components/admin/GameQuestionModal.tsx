@@ -56,6 +56,7 @@ const MathLivePreview: React.FC<{ formula: string }> = ({ formula }) => {
       clean = clean.replace(/[\u000c\x0c]/g, '');
       clean = clean.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
       clean = clean.replace(/^rac\s*\{/g, '\\frac{');
+      clean = clean.replace(/\bN\s+ếu\b/g, 'Nếu').replace(/\bH\s+ai\b/g, 'Hai').replace(/\bC\s+ho\b/g, 'Cho').replace(/\bC\s+ả\b/g, 'Cả').replace(/\bK\s+hi\b/g, 'Khi').replace(/\bC\s+hỉ\b/g, 'Chỉ').replace(/\bT\s+ính\b/g, 'Tính').replace(/\bT\s+rong\b/g, 'Trong').replace(/\bK\s+hẳng\b/g, 'Khẳng').replace(/\bđ\s+ịnh\b/g, 'định').replace(/\bH\s+ình\b/g, 'Hình').replace(/\bM\s+ặt\b/g, 'Mặt').replace(/\bđ\s+ường\b/g, 'đường').replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
       clean = clean.replace(/\bAcupB\b/g, 'A \\cup B').replace(/\bAcapB\b/g, 'A \\cap B').replace(/(?<!\\)\bcdot\b/g, '\\cdot').replace(/(?<!\\)\bOmega\b/g, '\\Omega').replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
       clean = clean.replace(/^\\\(/, '').replace(/\\\)$/, '').replace(/^\$/, '').replace(/\$$/, '');
       html = (window as any).katex.renderToString(clean, { throwOnError: false });
@@ -65,9 +66,9 @@ const MathLivePreview: React.FC<{ formula: string }> = ({ formula }) => {
     <div className="mt-1 px-2.5 py-1 bg-cyan-950/40 border border-cyan-500/30 rounded-lg flex items-center gap-2">
       <span className="text-[10px] uppercase font-bold text-cyan-400 shrink-0">Hiển thị KaTeX:</span>
       {html ? (
-        <span className="text-xs text-cyan-200" dangerouslySetInnerHTML={{ __html: html }} />
+        <span className="text-xs text-cyan-200 whitespace-nowrap inline-block" dangerouslySetInnerHTML={{ __html: html }} />
       ) : (
-        <span className="text-xs font-mono text-cyan-200 font-bold">{formula}</span>
+        <span className="text-xs font-mono text-cyan-200 font-bold whitespace-nowrap inline-block">{formula}</span>
       )}
     </div>
   );
