@@ -15,6 +15,10 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
+    <!-- MathJax 3 - High Quality Formula Render -->
+    <script>window.MathJax = { tex: { inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['\\[','\\]'],['$$','$$']] }, options: { skipHtmlTags: ['script','noscript','style','textarea'] }, startup: { typeset: false } };</script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+
     <style>
         :root {
             --bg-deep: #050505;
@@ -25,11 +29,17 @@
             --glass-border: rgba(255, 255, 255, 0.08);
         }
 
+        html, body {
+            min-height: 100dvh;
+            height: 100dvh;
+            max-height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            overflow: hidden; 
-            margin: 0; 
-            padding: 0;
             background-color: var(--bg-deep);
             color: #f8fafc;
             user-select: none;
@@ -68,11 +78,56 @@
             color: #e2e8f0;
             font-weight: 500;
         }
-        .math-text .katex { 
+        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container { 
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+        .math-text *, .math-content *, .katex *, mjx-container *, .mjx-chtml * {
+            white-space: nowrap !important;
+        }
+        .math-text .katex, .math-content .katex { 
             color: var(--accent-cyan);
             font-family: 'JetBrains Mono', monospace;
             text-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
             font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+            }
+            #game-board {
+                padding-top: 4.5rem !important;
+                padding-bottom: 0.5rem !important;
+                height: 100dvh !important;
+            }
+            .card-func {
+                min-width: 140px !important;
+                max-width: 160px !important;
+                padding: 0.75rem !important;
+                border-radius: 1rem !important;
+            }
+            .card-func .math-content {
+                font-size: 1rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            .card-prop {
+                padding: 0.5rem 0.75rem !important;
+                max-width: 220px !important;
+                font-size: 0.85rem !important;
+                border-radius: 0.75rem !important;
+            }
+            .math-text {
+                font-size: 0.85rem !important;
+                line-height: 1.3 !important;
+            }
+            #overlay-content,
+            #ingame-editor-modal > div {
+                max-height: 80dvh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
         }
 
         /* Glassmorphism Classes */
@@ -174,31 +229,37 @@
         .life-lost { color: #334155; opacity: 0.5; }
     </style>
 </head>
-<body class="relative w-screen h-screen">
+<body class="relative w-screen min-h-[100dvh] h-[100dvh] overflow-hidden">
 
     <div class="bg-nebula"></div>
     <div class="bg-cyber"></div>
 
     <!-- Topbar: Logo, Thương Hiệu, Đổi Chuyên Đề, Nút Admin ⚙️ (Ẩn mặc định) -->
-    <div class="absolute top-0 left-0 w-full z-40 p-4 sm:p-6 flex justify-between items-start pointer-events-none">
+    <div class="absolute top-0 left-0 w-full z-40 p-3 sm:p-6 flex justify-between items-start pointer-events-none">
         
-        <div class="pointer-events-auto flex items-center gap-2 sm:gap-3 flex-wrap">
-            <div class="glass-panel px-4 sm:px-5 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-3 border border-white/10" onclick="window.showOverlay('start')">
-                <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-600 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                    <span class="text-cyan-400 text-xl font-bold font-mono">∑</span>
+        <div class="pointer-events-auto flex items-center gap-1.5 sm:gap-3 flex-wrap">
+            <div class="glass-panel px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-2 sm:gap-3 border border-white/10" onclick="window.showOverlay('start')">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-600 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                    <span class="text-cyan-400 text-lg sm:text-xl font-bold font-mono">∑</span>
                 </div>
                 <div class="flex flex-col">
-                    <span class="font-bold text-white text-sm sm:text-base tracking-wide uppercase">TOÁN PRO<span class="text-cyan-400"> - THẦY HÙNG</span></span>
+                    <span class="font-bold text-white text-xs sm:text-base tracking-wide uppercase">TOÁN PRO<span class="text-cyan-400"> - THẦY HÙNG</span></span>
                 </div>
             </div>
 
-            <button onclick="window.showOverlay('start')" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-amber-300/40" title="Chọn chuyên đề bài giảng">
+            <button onclick="window.showOverlay('start')" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1 sm:gap-1.5 transition-all active:scale-95 border border-amber-300/40" title="Chọn chuyên đề bài giảng">
                 <span>📚</span> Chuyên Đề
             </button>
 
             <!-- Nút Quản Trị Admin: MẶC ĐỊNH ẨN HOÀN TOÀN, CHỈ HIỆN KHI URL CÓ ?role=admin -->
-            <button id="btn-admin-gear" data-admin-control="true" class="hidden px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-cyan-300/40" title="Quyền Quản Trị - Chỉnh sửa chuyên đề và xuất file HTML mới">
+            <button id="btn-admin-gear" data-admin-control="true" class="hidden px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1 sm:gap-1.5 transition-all active:scale-95 border border-cyan-300/40" title="Quyền Quản Trị - Chỉnh sửa chuyên đề và xuất file HTML mới">
                 <span>⚙️</span> Sửa Dữ Liệu
+            </button>
+
+            <!-- Nút Toàn Màn Hình Mobile Multi-Vendor API -->
+            <button id="fullscreenToggleBtn" type="button" onclick="toggleMobileFullscreen()" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-lg flex items-center gap-1 sm:gap-1.5 transition-all active:scale-95 border border-white/10" title="[ ⛶ ] Toàn màn hình">
+                <span id="fullscreenIcon" class="text-sm">⛶</span>
+                <span id="fullscreenText" class="hidden sm:inline">TOÀN MÀN HÌNH</span>
             </button>
         </div>
 
@@ -240,15 +301,15 @@
     </div>
 
     <!-- Menu Bắt Đầu & Kết Thúc (Giữ nguyên 100% logic gốc) -->
-    <div id="overlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-8">
-        <div id="overlay-content" class="glass-panel rounded-[2rem] w-full max-w-4xl border border-white/10 flex flex-col max-h-[95vh] relative overflow-hidden bg-slate-900/90 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-            <div id="menu-dynamic-content" class="relative z-10 w-full p-6 sm:p-10 overflow-y-auto custom-scrollbar"></div>
+    <div id="overlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-8">
+        <div id="overlay-content" class="glass-panel rounded-[2rem] w-full max-w-4xl border border-white/10 flex flex-col max-h-[80dvh] sm:max-h-[92vh] relative overflow-hidden bg-slate-900/90 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div id="menu-dynamic-content" class="relative z-10 w-full p-4 sm:p-10 overflow-y-auto custom-scrollbar" style="-webkit-overflow-scrolling: touch;"></div>
         </div>
     </div>
 
     <!-- IN-GAME ADMIN EDITOR MODAL (Ẩn mặc định, bật khi Admin click ⚙️) -->
-    <div id="ingame-editor-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 hidden">
-        <div class="glass-panel bg-slate-900 border border-cyan-500/30 rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(6,182,212,0.3)] overflow-hidden">
+    <div id="ingame-editor-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-5 hidden">
+        <div class="glass-panel bg-slate-900 border border-cyan-500/30 rounded-3xl w-full max-w-4xl max-h-[80dvh] sm:max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(6,182,212,0.3)] overflow-hidden">
             <div class="flex justify-between items-center p-4 sm:p-5 border-b border-white/10 bg-slate-950">
                 <div class="flex items-center gap-2">
                     <span class="text-xl">⚙️</span>
@@ -265,7 +326,7 @@
                 <div class="flex items-center gap-1.5" id="editor-level-buttons"></div>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar">
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar" style="-webkit-overflow-scrolling: touch;">
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-xs font-black text-cyan-400 uppercase tracking-wider">Hộp Phân Loại / Hàm Số Cốt Lõi</span>
@@ -294,6 +355,114 @@
     </div>
 
     <script>
+        // Multi-Vendor Mobile Fullscreen API
+        window.toggleMobileFullscreen = function(e) {
+          if (e && e.preventDefault) e.preventDefault();
+          const doc = document;
+          const docEl = document.documentElement;
+          const body = document.body;
+          const isFs = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement || docEl.classList.contains('mobile-fullscreen-forced'));
+          const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+          const isNative = !!rfs;
+
+          if (!isFs) {
+            docEl.classList.add('mobile-fullscreen-forced');
+            body.classList.add('mobile-fullscreen-forced');
+            if (isNative) {
+              try {
+                const res = rfs.call(docEl);
+                if (res && typeof res.then === 'function') {
+                  res.then(() => { updateFsUI(); }).catch(function() {});
+                }
+              } catch(err) {}
+            }
+            try {
+              if (window.self !== window.top && window.parent) {
+                window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'enter' }, '*');
+              }
+            } catch(err) {}
+            try { window.scrollTo(0, 1); } catch(err) {}
+            try {
+              if (screen.orientation && typeof screen.orientation.lock === 'function') {
+                screen.orientation.lock('landscape').catch(function() {});
+              }
+            } catch(err) {}
+            updateFsUI();
+          } else {
+            docEl.classList.remove('mobile-fullscreen-forced');
+            body.classList.remove('mobile-fullscreen-forced');
+            if (isNative) {
+              const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+              if (efs) { try { efs.call(doc); } catch(err) {} }
+            }
+            try {
+              if (window.self !== window.top && window.parent) {
+                window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'exit' }, '*');
+              }
+            } catch(err) {}
+            try {
+              if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+                screen.orientation.unlock();
+              }
+            } catch(err) {}
+            updateFsUI();
+          }
+
+          const triggerResize = () => {
+            try { window.dispatchEvent(new Event('resize')); } catch(err) {}
+          };
+          triggerResize();
+          setTimeout(triggerResize, 100);
+          setTimeout(triggerResize, 300);
+        };
+
+        function updateFsUI() {
+          const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.documentElement.classList.contains('mobile-fullscreen-forced'));
+          const fsIcon = document.getElementById('fullscreenIcon');
+          const fsText = document.getElementById('fullscreenText');
+          if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
+          if (fsText) fsText.textContent = isFs ? 'THU NHỎ' : 'TOÀN MÀN HÌNH';
+        }
+
+        window.triggerToggleFullscreen = window.toggleMobileFullscreen;
+        document.addEventListener('fullscreenchange', updateFsUI);
+        document.addEventListener('webkitfullscreenchange', updateFsUI);
+
+        // String cleaner and math format parser
+        function cleanDragDropMath(text) {
+            if (!text || typeof text !== 'string') return text || '';
+            let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+            res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
+                     .replace(/\bH\s+ai\b/g, 'Hai')
+                     .replace(/\bC\s+ho\b/g, 'Cho')
+                     .replace(/\bC\s+ả\b/g, 'Cả')
+                     .replace(/\bK\s+hi\b/g, 'Khi')
+                     .replace(/\bC\s+hỉ\b/g, 'Chỉ')
+                     .replace(/\bT\s+ính\b/g, 'Tính')
+                     .replace(/\bT\s+rong\b/g, 'Trong')
+                     .replace(/\bK\s+hẳng\b/g, 'Khẳng')
+                     .replace(/\bđ\s+ịnh\b/g, 'định')
+                     .replace(/\bH\s+ình\b/g, 'Hình')
+                     .replace(/\bM\s+ặt\b/g, 'Mặt')
+                     .replace(/\bđ\s+ường\b/g, 'đường')
+                     .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
+
+            res = res.replace(/\bAcupB\b/g, 'A \\cup B')
+                     .replace(/\bAcapB\b/g, 'A \\cap B')
+                     .replace(/(?<!\\)\bcdot\b/g, '\\cdot')
+                     .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
+                     .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+
+            res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}')
+                     .replace(/e\^\{([^}]+)\}/g, 'e^{$1}')
+                     .replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}')
+                     .replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}')
+                     .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
+                     .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
+
+            return res;
+        }
+
         const COLOR_THEMES = {
             blue: { hex: '#3b82f6', rgb: '59, 130, 246' },
             emerald: { hex: '#10b981', rgb: '16, 185, 129' },
@@ -734,7 +903,7 @@
                 
                 // Render KaTeX trên hộp
                 try {
-                    const cleanTex = func.tex.replace(/^\\\(/, '').replace(/\\\)$/, '');
+                    const cleanTex = cleanDragDropMath(func.tex).replace(/^\\\(/, '').replace(/\\\)$/, '');
                     katex.render(cleanTex, el.querySelector('.math-content'), { throwOnError: false, displayMode: true });
                 } catch(e) {
                     el.querySelector('.math-content').innerText = func.tex;
@@ -753,7 +922,7 @@
                 el.dataset.funcId = prop.funcId;
                 el.className = `card-prop`;
                 
-                el.innerHTML = `<div class="relative z-10 pointer-events-none math-text">${prop.text}</div>`;
+                el.innerHTML = `<div class="relative z-10 pointer-events-none math-text">${cleanDragDropMath(prop.text)}</div>`;
                 
                 el.addEventListener('click', () => handleSelect(el));
                 el.addEventListener('mouseenter', () => { if(gameState==='playing') el.dataset.hovered = 'true'; });
@@ -771,6 +940,11 @@
                         ],
                         throwOnError: false
                     });
+                } catch(e) {}
+                try {
+                    if (window.MathJax && window.MathJax.typesetPromise) {
+                        window.MathJax.typesetPromise([el]).catch(() => {});
+                    }
                 } catch(e) {}
                 
                 movingCards.push({
