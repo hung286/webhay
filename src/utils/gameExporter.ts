@@ -289,6 +289,49 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
       }
     }
 
+    const cleanChienHaoMathString = (text: string): string => {
+      if (!text || typeof text !== 'string') return text || '';
+      let cleaned = text.trim();
+      cleaned = cleaned.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+      cleaned = cleaned.replace(/[\u000c\x0c]/g, '');
+      cleaned = cleaned.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
+      cleaned = cleaned.replace(/^rac\s*\{/g, '\\frac{');
+
+      // Vá lỗi tự ý chèn khoảng trắng sau ký tự chữ cái đầu tiên
+      cleaned = cleaned.replace(/\bN\s+ếu\b/g, 'Nếu');
+      cleaned = cleaned.replace(/\bH\s+ai\b/g, 'Hai');
+      cleaned = cleaned.replace(/\bC\s+ho\b/g, 'Cho');
+      cleaned = cleaned.replace(/\bC\s+ả\b/g, 'Cả');
+      cleaned = cleaned.replace(/\bK\s+hi\b/g, 'Khi');
+      cleaned = cleaned.replace(/\bC\s+hỉ\b/g, 'Chỉ');
+      cleaned = cleaned.replace(/\bT\s+ính\b/g, 'Tính');
+      cleaned = cleaned.replace(/\bT\s+rong\b/g, 'Trong');
+      cleaned = cleaned.replace(/\bK\s+hẳng\b/g, 'Khẳng');
+      cleaned = cleaned.replace(/\bđ\s+ịnh\b/g, 'định');
+      cleaned = cleaned.replace(/\bH\s+ình\b/g, 'Hình');
+      cleaned = cleaned.replace(/\bM\s+ặt\b/g, 'Mặt');
+      cleaned = cleaned.replace(/\bđ\s+ường\b/g, 'đường');
+      cleaned = cleaned.replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
+
+      // Tự động chuyển đổi các chữ mã TeX thô viết liền
+      cleaned = cleaned.replace(/\bAcupB\b/g, 'A \\cup B');
+      cleaned = cleaned.replace(/\bAcapB\b/g, 'A \\cap B');
+      cleaned = cleaned.replace(/(?<!\\)\bcdot\b/g, '\\cdot');
+      cleaned = cleaned.replace(/(?<!\\)\bOmega\b/g, '\\Omega');
+      cleaned = cleaned.replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+      cleaned = cleaned.replace(/(?<!\\)\bcup\b/g, '\\cup');
+      cleaned = cleaned.replace(/(?<!\\)\bcap\b/g, '\\cap');
+
+      cleaned = normalizeMathFormulas(cleaned);
+
+      if (!cleaned.includes('\\(') && !cleaned.includes('$')) {
+        if (/[\\^_{}]|sin|cos|tan|cot|sqrt|frac|alpha|beta|pi|pm|cdot|circ|degree|le|ge|ne|in|cup|cap|Omega|emptyset/.test(cleaned)) {
+          cleaned = `\\(${cleaned}\\)`;
+        }
+      }
+      return cleaned;
+    };
+
     const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
     const defaultTopic = gameTitle || 'Chiến Dịch: Tác Chiến Căn Cứ';
 
@@ -298,15 +341,15 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
         topicsMap[topicName] = { easy: [], medium: [], hard: [] };
       }
       const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
-      const cleanQ = normalizeMathFormulas(q.question);
-      const cleanOpts = (q.options || ['A', 'B', 'C', 'D']).map(o => normalizeMathFormulas(o));
+      const cleanQ = cleanChienHaoMathString(q.question);
+      const cleanOpts = (q.options || ['A', 'B', 'C', 'D']).map(o => cleanChienHaoMathString(o));
       const correctIdx = typeof q.correctIndex === 'number' ? q.correctIndex : 0;
 
       topicsMap[topicName][diffKey].push({
         q: cleanQ,
         options: cleanOpts,
         correct: correctIdx,
-        explanation: normalizeMathFormulas(q.explanation || ''),
+        explanation: cleanChienHaoMathString(q.explanation || ''),
         imageUrl: q.imageUrl || ''
       });
     });
@@ -362,6 +405,14 @@ window.useStaticTopic = true;
     }
     if (typeof renderCampaignMenu === 'function') {
       renderCampaignMenu();
+    }
+    if (typeof setupMobileControls === 'function') {
+      setupMobileControls();
+    }
+    if (window.MathJax && window.MathJax.typesetPromise) {
+      try {
+        window.MathJax.typesetPromise().catch(function() {});
+      } catch(e) {}
     }
   }
 

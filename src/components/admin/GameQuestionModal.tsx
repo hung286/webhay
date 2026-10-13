@@ -52,7 +52,11 @@ const MathLivePreview: React.FC<{ formula: string }> = ({ formula }) => {
   let html = '';
   if (typeof window !== 'undefined' && (window as any).katex) {
     try {
-      const clean = formula.replace(/^\\\(/, '').replace(/\\\)$/, '').replace(/^\$/, '').replace(/\$$/, '');
+      let clean = formula.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+      clean = clean.replace(/[\u000c\x0c]/g, '');
+      clean = clean.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
+      clean = clean.replace(/^rac\s*\{/g, '\\frac{');
+      clean = clean.replace(/^\\\(/, '').replace(/\\\)$/, '').replace(/^\$/, '').replace(/\$$/, '');
       html = (window as any).katex.renderToString(clean, { throwOnError: false });
     } catch (e) {}
   }
@@ -1093,8 +1097,8 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-3 sm:p-5">
-      <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border-2 border-violet-200 animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-2 sm:p-5 h-[100dvh] max-h-[100dvh] overflow-hidden">
+      <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[92dvh] sm:max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border-2 border-violet-200 animate-in zoom-in-95 duration-200">
         
         {/* HEADER CÔNG CỤ */}
         <div className="flex justify-between items-center p-4 sm:p-5 border-b border-slate-100 bg-gradient-to-r from-slate-900 via-violet-950 to-slate-900 text-white">
@@ -1297,7 +1301,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         </div>
 
         {/* THÂN BẢNG SOẠN THẢO */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-slate-50 space-y-4 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-5 bg-slate-50 space-y-4 custom-scrollbar" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* CHẾ ĐỘ 1: KÉO THẢ PHÂN LOẠI THUỘC TÍNH (GRID / TABLE VIEW & QUẢN LÝ CHUYÊN ĐỀ ĐỘNG) */}
           {isDragDropMode ? (
             <div className="space-y-4">
