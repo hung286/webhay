@@ -271,7 +271,7 @@
             </button>
 
             <!-- Nút [ ⛶ ] Toàn màn hình (Hỗ trợ Vendor Prefixes Mobile) -->
-            <button id="fullscreenToggleBtn" type="button" onclick="triggerToggleFullscreen()" class="flex flex-col items-center justify-center border-l border-white/20 pl-2 md:pl-3 pr-1 md:pr-2 h-full transition-colors hover:text-amber-400 text-white cursor-pointer" title="[ ⛶ ] Toàn màn hình">
+            <button id="fullscreenToggleBtn" type="button" onclick="toggleMobileFullscreen()" class="flex flex-col items-center justify-center border-l border-white/20 pl-2 md:pl-3 pr-1 md:pr-2 h-full transition-colors hover:text-amber-400 text-white cursor-pointer" title="[ ⛶ ] Toàn màn hình">
                 <span id="fullscreenIcon" class="text-base sm:text-lg md:text-xl leading-none">⛶</span>
                 <span id="fullscreenText" class="text-[8px] font-bold mt-1 whitespace-nowrap">[ ⛶ ] TOÀN MÀN HÌNH</span>
             </button>
@@ -1040,32 +1040,50 @@
         }
 
         // ==========================================
-        // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN (MATHJAX SPACER FIX)
+        // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN (MATHJAX SPACER FIX & RED SLASH FILTER)
         // ==========================================
         function formatMathSpacers(str) {
             if (!str || typeof str !== 'string') return '';
-            let text = str;
+            let text = str.trim();
 
-            // 1. Tự động bọc / sửa ký hiệu viết thô & tập hợp: cdot -> \cdot, AcapB -> \(A \cap B\), AcupB -> \(A \cup B\)
-            text = text.replace(/\b([A-Z])cap([A-Z])\b/g, '\\($1 \\cap $2\\)');
-            text = text.replace(/\b([A-Z])cup([A-Z])\b/g, '\\($1 \\cup $2\\)');
-            text = text.replace(/([A-Z])\\cap([A-Z])/g, '$1 \\cap $2');
-            text = text.replace(/([A-Z])\\cup([A-Z])/g, '$1 \\cup $2');
-            text = text.replace(/([0-9a-zA-Z\)\}\]])\s*cdot\s*([0-9a-zA-Z\(\{\\])/g, '$1 \\cdot $2');
+            // 1. Sửa lỗi dấu gạch chéo đỏ: Lọc và xóa sạch các ký tự gạch chéo \ lỗi dạng \ ( P(A) \ ) hoặc \ ( ... \ )
+            text = text.replace(/\\+\s*\(\s*/g, '\\(');
+            text = text.replace(/\s*\\+\s*\)/g, '\\)');
+            text = text.replace(/\\+\s+([a-zA-Z0-9])/g, '$1');
+            text = text.replace(/\\+P\s*\(/g, 'P(');
+
+            // 2. Tự động sửa tập hợp và biến: AcapB -> A \cap B, AcupB -> A \cup B
+            text = text.replace(/\b([A-Z])cap([A-Z])\b/gi, '$1 \\cap $2');
+            text = text.replace(/\b([A-Z])cup([A-Z])\b/gi, '$1 \\cup $2');
+            text = text.replace(/([A-Z])\s*\\?cap\s*([A-Z])/gi, '$1 \\cap $2');
+            text = text.replace(/([A-Z])\s*\\?cup\s*([A-Z])/gi, '$1 \\cup $2');
+
+            // 3. Tự động sửa mã ký hiệu dấu nhân: chuyển từ chữ thô cdot hoặc . thành \cdot
+            text = text.replace(/([0-9a-zA-Z\)\}\]])\s*\\?cdot\s*([0-9a-zA-Z\(\{\\])/g, '$1 \\cdot $2');
+            text = text.replace(/(P\([^\)]+\))\s*\.\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
+            text = text.replace(/(P\([^\)]+\))\s*\*\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
             text = text.replace(/\bcdot\b/g, '\\cdot');
 
-            // 2. Tách từ dính giữa chữ tiếng Việt và biến toán in hoa (Ví dụ: CảA -> Cả A, vàB -> và B)
+            // 4. Tách từ dính giữa chữ tiếng Việt và biến toán in hoa (Ví dụ: CảA -> Cả A, vàB -> và B)
             text = text.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
             
             // Tách biến đơn A, B khi bị dính liền với từ nối thông dụng (Ví dụ: AvàB -> A và B, Axảy -> A xảy, Bkhông -> B không)
             text = text.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/gi, '$1$2 $3');
 
-            // 3. Chuẩn hóa cơ số e và số mũ e^{...}
+            // 5. Chuẩn hóa cơ số e và số mũ e^{...}
             text = text.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
             text = text.replace(/\be\^\(([^)]+)\)/g, 'e^{$1}');
 
-            // 4. Bọc các biểu thức xác suất P(...) nếu chưa có ký hiệu toán
-            text = text.replace(/(^|[^\$\\\(])(P\([A-Za-z\s\\\,\cap\cup\cdot\+\-]+\))([^\$\\\)]|$)/g, '$1\\($2\\)$3');
+            // 6. Xử lý bọc ký hiệu TeX nếu chưa được bọc
+            if (!text.includes('\\(') && !text.includes('$')) {
+                if (/\\(?:cap|cup|cdot|frac|sqrt|int|sum|lim|emptyset|Omega)\b/.test(text)) {
+                    text = `\\(${text}\\)`;
+                }
+            }
+
+            // Làm sạch các dấu ngoặc bọc lặp lại \( \( ... \) \)
+            text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
+            text = text.replace(/\\\(\s*\$([\s\S]*?)\$\s*\\\)/g, '\\($1\\)');
 
             return text;
         }
@@ -1290,37 +1308,28 @@
         });
 
         // ==========================================
-        // ⛶ FULLSCREEN API TƯƠNG THÍCH ĐA NỀN TẢNG (SAFARI IOS / CHROME ANDROID)
+        // ⛶ KÍCH HOẠT CHẾ ĐỘ TOÀN MÀN HÌNH TRÊN WEB ĐIỆN THOẠI (MULTI-VENDOR MOBILE API)
         // ==========================================
-        function triggerToggleFullscreen() {
-            const gameElement = document.documentElement; // Khung bọc bao ngoài trò chơi
-            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
-                // Thực hiện lệnh mở Full màn hình trên mọi dòng điện thoại
-                if (gameElement.requestFullscreen) {
-                    const p = gameElement.requestFullscreen();
-                    if (p && p.catch) p.catch(() => {});
-                } else if (gameElement.webkitRequestFullscreen) { 
-                    gameElement.webkitRequestFullscreen(); // Ép chạy trên Safari iOS / Chrome Mobile
-                } else if (gameElement.mozRequestFullScreen) {
-                    gameElement.mozRequestFullScreen();
-                } else if (gameElement.msRequestFullscreen) {
-                    gameElement.msRequestFullscreen();
+        function toggleMobileFullscreen() {
+            const element = document.documentElement;
+            try {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    if (element.requestFullscreen) { element.requestFullscreen(); }
+                    else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); } // Chạy mượt trên iPhone/Android
+                    else if (element.mozRequestFullScreen) { element.mozRequestFullScreen(); }
+                    else if (element.msRequestFullscreen) { element.msRequestFullscreen(); }
+                } else {
+                    if (document.exitFullscreen) { document.exitFullscreen(); }
+                    else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+                    else if (document.mozCancelFullScreen) { document.mozCancelFullScreen(); }
+                    else if (document.msExitFullscreen) { document.msExitFullscreen(); }
                 }
-            } else {
-                // Thực hiện lệnh thoát chế độ Toàn màn hình
-                if (document.exitFullscreen) {
-                    const p = document.exitFullscreen();
-                    if (p && p.catch) p.catch(() => {});
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
+            } catch(err) {
+                console.warn('Fullscreen toggle:', err);
             }
         }
-        window.triggerToggleFullscreen = triggerToggleFullscreen;
+        window.toggleMobileFullscreen = toggleMobileFullscreen;
+        window.triggerToggleFullscreen = toggleMobileFullscreen;
 
         function updateFullscreenUI() {
             const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
@@ -1365,12 +1374,12 @@
         if (fsBtn) {
             fsBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                triggerToggleFullscreen();
+                toggleMobileFullscreen();
             });
             fsBtn.addEventListener('touchstart', (e) => {
                 if (e.cancelable) e.preventDefault();
                 e.stopPropagation();
-                triggerToggleFullscreen();
+                toggleMobileFullscreen();
             }, { passive: false });
         }
 

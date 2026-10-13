@@ -110,7 +110,25 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/\{\s*\\?\((\\[a-zA-Z]+)\\?\)\s*/gi, '$1');
   str = str.replace(/\{\s*\\frac\s*([^{}]+)\s*\}\s*\{\s*([^{}]+)\s*\}/gi, '\\frac{$1}{$2}');
 
-  // 0b. Chuẩn hóa số mũ cơ số e và các lũy thừa: e^(3x) -> e^{3x}, e^(-x) -> e^{-x}, (x+1)^3 -> (x+1)^{3}
+  // 0a. Sửa lỗi dấu gạch chéo đỏ: Lọc sạch ký tự gạch chéo lỗi dạng \ ( ... \ ) hoặc \ ( P(A) \ )
+  str = str.replace(/\\+\s*\(\s*/g, '\\(');
+  str = str.replace(/\s*\\+\s*\)/g, '\\)');
+  str = str.replace(/\\+\s+([a-zA-Z0-9])/g, '$1');
+  str = str.replace(/\\+P\s*\(/g, 'P(');
+
+  // 0b. Tự động sửa: AcupB -> A \cup B, AcapB -> A \cap B
+  str = str.replace(/\b([A-Z])cap([A-Z])\b/gi, '$1 \\cap $2');
+  str = str.replace(/\b([A-Z])cup([A-Z])\b/gi, '$1 \\cup $2');
+  str = str.replace(/([A-Z])\s*\\?cap\s*([A-Z])/gi, '$1 \\cap $2');
+  str = str.replace(/([A-Z])\s*\\?cup\s*([A-Z])/gi, '$1 \\cup $2');
+
+  // 0c. Tự động sửa mã ký hiệu dấu nhân: chuyển từ chữ thô cdot hoặc . thành \cdot
+  str = str.replace(/([0-9a-zA-Z\)\}\]])\s*\\?cdot\s*([0-9a-zA-Z\(\{\\])/g, '$1 \\cdot $2');
+  str = str.replace(/(P\([^\)]+\))\s*\.\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
+  str = str.replace(/(P\([^\)]+\))\s*\*\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
+  str = str.replace(/\bcdot\b/g, '\\cdot');
+
+  // 0d. Chuẩn hóa số mũ cơ số e và các lũy thừa: e^(3x) -> e^{3x}, e^(-x) -> e^{-x}, (x+1)^3 -> (x+1)^{3}
   str = str.replace(/e\^\(([^)]+)\)/g, 'e^{$1}');
   str = str.replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}');
   str = str.replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}');

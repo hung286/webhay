@@ -1845,45 +1845,30 @@ if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__
 
   function setupFullscreen() {
     try {
-      if (typeof window.triggerToggleFullscreen !== 'function') {
-        window.triggerToggleFullscreen = function() {
-          const gameElement = document.documentElement;
-          if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
-            if (gameElement.requestFullscreen) {
-              const p = gameElement.requestFullscreen();
-              if (p && p.catch) p.catch(function() {});
-            } else if (gameElement.webkitRequestFullscreen) {
-              gameElement.webkitRequestFullscreen();
-            } else if (gameElement.mozRequestFullScreen) {
-              gameElement.mozRequestFullScreen();
-            } else if (gameElement.msRequestFullscreen) {
-              gameElement.msRequestFullscreen();
-            }
+      if (typeof window.toggleMobileFullscreen !== 'function') {
+        window.toggleMobileFullscreen = function() {
+          const element = document.documentElement;
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (element.requestFullscreen) { element.requestFullscreen(); }
+            else if (element.webkitRequestFullscreen) { element.webkitRequestFullscreen(); }
           } else {
-            if (document.exitFullscreen) {
-              const p = document.exitFullscreen();
-              if (p && p.catch) p.catch(function() {});
-            } else if (document.webkitExitFullscreen) {
-              document.webkitExitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-              document.mozCancelFullScreen();
-            } else if (document.msExitFullscreen) {
-              document.msExitFullscreen();
-            }
+            if (document.exitFullscreen) { document.exitFullscreen(); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
           }
         };
       }
+      window.triggerToggleFullscreen = window.toggleMobileFullscreen;
       const fsBtn = document.getElementById('fullscreenToggleBtn');
       if (fsBtn && !fsBtn.dataset.fsBound) {
         fsBtn.dataset.fsBound = 'true';
         fsBtn.onclick = function(e) {
           if (e) e.stopPropagation();
-          window.triggerToggleFullscreen();
+          window.toggleMobileFullscreen();
         };
         fsBtn.ontouchstart = function(e) {
           if (e && e.cancelable) e.preventDefault();
           if (e) e.stopPropagation();
-          window.triggerToggleFullscreen();
+          window.toggleMobileFullscreen();
         };
       }
     } catch(e) {}

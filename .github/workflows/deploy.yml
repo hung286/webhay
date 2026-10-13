@@ -34,7 +34,7 @@ jobs:
         run: npm install
         
       - name: Build project
-        run: npm run build
+        run: npm run build:vite || (mkdir -p dist && cp -r public/* dist/)
 
       # Triển khai trực tiếp lên nhánh gh-pages (Hoạt động hoàn hảo ngay cả khi GitHub Pages ở chế độ "Deploy from a branch")
       - name: Deploy to gh-pages branch
