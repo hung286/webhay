@@ -16,20 +16,47 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
-        html, body { 
+        * { 
+            box-sizing: border-box; 
             margin: 0; 
-            padding: 0;
-            width: 100vw;
-            height: 100dvh;
-            max-height: 100dvh;
-            overflow: hidden; 
+            padding: 0; 
+        }
+        html {
+            width: 100%;
+            height: 100%;
+            background-color: #5C94FC;
+        }
+        body, .game-app-wrapper { 
+            width: 100%; 
+            min-height: 100dvh; /* Dynamic Viewport Height co giãn chuẩn từ SE đến Ultra */
+            display: flex; 
+            flex-direction: column; 
+            overflow-y: auto; /* Kích hoạt thanh cuộn vuốt trượt lướt lên xuống tự do để bắt đầu game */
+            -webkit-overflow-scrolling: touch; /* Bật tính năng vuốt mượt bằng ngón tay trên iOS/Android */
             background-color: #5C94FC; 
             font-family: 'Nunito', sans-serif; 
-            touch-action: none; 
             user-select: none;
             -webkit-user-select: none;
+            position: relative;
         }
-        #gameCanvas { display: block; width: 100vw; height: 100dvh; }
+        .canvas-container {
+            width: 100%;
+            flex: 1 1 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background-color: #5C94FC;
+            min-height: 100dvh;
+        }
+        #gameCanvas { 
+            display: block; 
+            width: 100%; 
+            height: 100%; 
+            min-height: 100dvh;
+            background-color: #5C94FC;
+        }
 
         @media (max-width: 900px) and (orientation: portrait) {
             #rotateDeviceOverlay {
@@ -48,57 +75,67 @@
         .option-btn:hover { transform: scale(1.02); }
         .option-btn:active { transform: scale(0.95); }
 
-        /* Mobile Controls (Retro Layout) */
-        #mobileControls {
+        /* Mobile Controls Toolbar (.bottom-nav mẫu - Gom cụm phím ảo ở đáy màn hình) */
+        .bottom-nav {
             position: fixed;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+            bottom: 0;
             left: 0;
             right: 0;
-            padding: 0 20px;
+            width: 100%;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 2px solid rgba(250, 204, 21, 0.6);
+            padding: 8px 16px;
+            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
-            pointer-events: none;
-            z-index: 30;
+            gap: 12px;
+            z-index: 40;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
         }
         @media (min-width: 1024px) {
-            #mobileControls {
-                display: none;
+            .bottom-nav {
+                display: none !important;
             }
         }
-        .control-btn {
-            width: 66px;
-            height: 66px;
-            background: rgba(15, 23, 42, 0.75);
-            border: 3px solid rgba(250, 204, 21, 0.85);
-            border-radius: 20px;
+        .bottom-nav .control-btn {
+            flex: 1;
+            max-width: 140px;
+            height: 52px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid rgba(250, 204, 21, 0.85);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 26px;
             color: #fef08a;
-            pointer-events: auto;
-            user-select: none;
-            -webkit-user-select: none;
+            font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.5), inset 0 0 10px rgba(250, 204, 21, 0.25);
-            backdrop-filter: blur(4px);
-            transition: transform 0.08s, background 0.08s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 0 8px rgba(250, 204, 21, 0.2);
             touch-action: manipulation;
+            transition: transform 0.05s, background 0.05s;
+            -webkit-tap-highlight-color: transparent;
         }
-        .control-btn:active, .control-btn.pressed {
+        .bottom-nav .control-btn:active, .bottom-nav .control-btn.pressed {
             transform: scale(0.92);
-            background: rgba(234, 179, 8, 0.7);
+            background: rgba(234, 179, 8, 0.85);
             color: #ffffff;
         }
-        .jump-btn {
-            background: rgba(225, 29, 72, 0.8) !important;
+        .bottom-nav .jump-btn {
+            background: linear-gradient(135deg, rgba(225, 29, 72, 0.9) 0%, rgba(190, 18, 60, 0.95) 100%) !important;
             border-color: rgba(251, 113, 133, 0.95) !important;
             color: #ffffff !important;
-            box-shadow: 0 6px 18px rgba(225, 29, 72, 0.45), inset 0 0 10px rgba(251, 113, 133, 0.3) !important;
+            box-shadow: 0 4px 14px rgba(225, 29, 72, 0.5), inset 0 0 10px rgba(251, 113, 133, 0.3) !important;
         }
-        .jump-btn:active, .jump-btn.pressed {
-            background: rgba(244, 63, 94, 0.95) !important;
+        .bottom-nav .jump-btn:active, .bottom-nav .jump-btn.pressed {
+            transform: scale(0.92);
+            background: linear-gradient(135deg, rgba(244, 63, 94, 1) 0%, rgba(225, 29, 72, 1) 100%) !important;
         }
 
         /* Neon Glow Effects */
@@ -117,7 +154,7 @@
         }
     </style>
 </head>
-<body>
+<body class="game-app-wrapper">
 
     <!-- ========================================== -->
     <!-- 🔄 OVERLAY YÊU CẦU XOAY NGANG MÀN HÌNH DI ĐỘNG -->
@@ -179,9 +216,9 @@
     </div>
 
 
-    <!-- MÀN HÌNH BẮT ĐẦU GAME -->
-    <div id="startModal" class="fixed inset-0 z-[100] bg-[#5C94FC] flex flex-col items-center justify-center p-4 transition-opacity duration-300">
-        <div class="bg-white rounded-[2rem] p-8 shadow-2xl w-full max-w-md border-4 border-blue-500 relative flex flex-col items-center">
+    <!-- MÀN HÌNH BẮT ĐẦU GAME (HỖ TRỢ VUỐT TRƯỢT CHỐNG KẸT CỨNG MÀN HÌNH NHỎ) -->
+    <div id="startModal" class="fixed inset-0 z-[100] bg-[#5C94FC] flex flex-col items-center justify-center p-4 overflow-y-auto custom-scroll transition-opacity duration-300" style="-webkit-overflow-scrolling: touch;">
+        <div class="bg-white rounded-[2rem] p-6 sm:p-8 shadow-2xl w-full max-w-md border-4 border-blue-500 relative flex flex-col items-center my-auto max-h-[92dvh] overflow-y-auto custom-scroll" style="-webkit-overflow-scrolling: touch;">
             <h1 class="text-2xl md:text-3xl font-black text-center text-blue-600 mb-6 uppercase tracking-wide">Mario Xác Suất 11</h1>
             
             <!-- Khu vực Logo (Có thể bấm để đổi) -->
@@ -209,75 +246,77 @@
             </div>
 
             <!-- Nút Bắt Đầu -->
-            <button onclick="startGame()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-black text-xl transition-colors shadow-md border-b-4 border-emerald-700 active:translate-y-1 active:border-b-0 uppercase tracking-widest flex justify-center items-center gap-2">
+            <button onclick="startGame()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-black text-xl transition-colors shadow-md border-b-4 border-emerald-700 active:translate-y-1 active:border-b-0 uppercase tracking-widest flex justify-center items-center gap-2 cursor-pointer">
                 ▶ BẮT ĐẦU
             </button>
         </div>
     </div>
 
     <!-- HUD TỐI ƯU -->
-    <div id="top-bar" class="absolute top-4 left-4 right-4 flex justify-between items-start z-20 pointer-events-none">
+    <div id="top-bar" class="absolute top-3 left-3 right-3 flex justify-between items-start z-20 pointer-events-none">
         
-        <!-- Trái: Thương hiệu TOÁN PRO - THẦY HÙNG & Nút Bật Tắt Điều Khiển -->
-        <div class="flex items-center pointer-events-auto bg-black/40 p-1.5 md:p-2 rounded-full border border-white/20 backdrop-blur-sm shadow-lg transition">
+        <!-- Trái: Thương hiệu TOÁN PRO - THẦY HÙNG, Nút Bật Tắt Điều Khiển & Nút Toàn Màn Hình -->
+        <div class="flex items-center pointer-events-auto bg-black/40 p-1.5 md:p-2 rounded-full border border-white/20 backdrop-blur-sm shadow-lg transition gap-1 sm:gap-2">
             <input type="file" id="logoUpload" accept="image/*" class="hidden">
-            <img id="brandLogo" src="https://ui-avatars.com/api/?name=MH&background=0f172a&color=fde047&rounded=true&bold=true" class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-yellow-400 object-cover shadow-inner hover:scale-105 transition-transform cursor-pointer" onclick="document.getElementById('logoUpload').click()" title="Đổi Logo">
+            <img id="brandLogo" src="https://ui-avatars.com/api/?name=MH&background=0f172a&color=fde047&rounded=true&bold=true" class="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full border-2 border-yellow-400 object-cover shadow-inner hover:scale-105 transition-transform cursor-pointer" onclick="document.getElementById('logoUpload').click()" title="Đổi Logo">
             
-            <div class="flex flex-col px-2 md:px-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="openLeaderboard()" title="Xem Bảng Xếp Hạng">
-                <span class="text-yellow-400 font-black font-sans text-xs md:text-sm leading-tight tracking-wide uppercase">TOÁN PRO - THẦY HÙNG</span>
-                <span class="text-white text-[9px] md:text-[10px] font-bold mt-0.5">XẾP HẠNG 🏆</span>
+            <div class="flex flex-col px-1.5 sm:px-2 md:px-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="openLeaderboard()" title="Xem Bảng Xếp Hạng">
+                <span class="text-yellow-400 font-black font-sans text-[11px] sm:text-xs md:text-sm leading-tight tracking-wide uppercase">TOÁN PRO - THẦY HÙNG</span>
+                <span class="text-white text-[8px] sm:text-[9px] md:text-[10px] font-bold mt-0.5">XẾP HẠNG 🏆</span>
             </div>
             
-            <button id="toggleControlsBtn" onclick="toggleControls()" class="flex flex-col items-center justify-center border-l border-white/20 pl-2 md:pl-3 pr-1 md:pr-2 h-full transition-colors opacity-70 hover:opacity-100 text-white" title="Bật/Tắt Nút Điều Khiển">
-                <span class="text-lg md:text-xl leading-none">🎮</span>
+            <button id="toggleControlsBtn" onclick="toggleControls()" class="flex flex-col items-center justify-center border-l border-white/20 pl-2 md:pl-3 pr-1 md:pr-2 h-full transition-colors opacity-70 hover:opacity-100 text-white cursor-pointer" title="Bật/Tắt Nút Điều Khiển">
+                <span class="text-base sm:text-lg md:text-xl leading-none">🎮</span>
                 <span id="toggleControlsText" class="text-[8px] font-bold mt-1 whitespace-nowrap">HIỆN NÚT</span>
+            </button>
+
+            <!-- Nút [ ⛶ ] Toàn màn hình (Hỗ trợ Vendor Prefixes Mobile) -->
+            <button id="fullscreenToggleBtn" type="button" onclick="triggerToggleFullscreen()" class="flex flex-col items-center justify-center border-l border-white/20 pl-2 md:pl-3 pr-1 md:pr-2 h-full transition-colors hover:text-amber-400 text-white cursor-pointer" title="[ ⛶ ] Toàn màn hình">
+                <span id="fullscreenIcon" class="text-base sm:text-lg md:text-xl leading-none">⛶</span>
+                <span id="fullscreenText" class="text-[8px] font-bold mt-1 whitespace-nowrap">[ ⛶ ] TOÀN MÀN HÌNH</span>
             </button>
         </div>
 
         <!-- Giữa: Điểm số -->
-        <div class="flex flex-col items-center pointer-events-auto bg-black/40 px-4 py-2 md:px-6 md:py-3 rounded-2xl border border-white/20 backdrop-blur-sm pixel-font text-white text-xs md:text-lg text-shadow-md shadow-lg mt-1">
+        <div class="flex flex-col items-center pointer-events-auto bg-black/40 px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-2xl border border-white/20 backdrop-blur-sm pixel-font text-white text-[10px] sm:text-xs md:text-lg text-shadow-md shadow-lg mt-0.5">
             <div>ĐIỂM: <span id="scoreDisplay" class="text-yellow-400">0</span></div>
-            <div class="text-[8px] md:text-[10px] mt-1 opacity-80">CÂU: <span id="qCountDisplay">0/10</span></div>
-            <div id="active-mario-topic-badge" class="text-[10px] md:text-[13px] text-yellow-300 font-sans font-extrabold mt-1 max-w-[320px] md:max-w-[480px] text-center whitespace-normal leading-snug px-3 py-1 bg-yellow-400/10 rounded-xl border border-yellow-400/20">Chuyên đề 1</div>
+            <div class="text-[7px] sm:text-[8px] md:text-[10px] mt-0.5 opacity-80">CÂU: <span id="qCountDisplay">0/10</span></div>
+            <div id="active-mario-topic-badge" class="text-[9px] sm:text-[10px] md:text-[13px] text-yellow-300 font-sans font-extrabold mt-1 max-w-[260px] sm:max-w-[340px] md:max-w-[480px] text-center whitespace-normal leading-snug px-2 py-0.5 sm:px-3 sm:py-1 bg-yellow-400/10 rounded-xl border border-yellow-400/20">Chuyên đề 1</div>
         </div>
 
         <!-- Phải: Tên người chơi & Thời gian & Âm thanh -->
-        <div class="flex flex-col items-end gap-1.5 pointer-events-auto mt-1">
-            <div class="flex gap-2 items-center">
-                <button onclick="openMarioTopicMenu()" class="bg-amber-500/90 hover:bg-amber-500 px-3 py-2 md:py-2.5 rounded-full border-2 border-amber-300 backdrop-blur-sm shadow-lg text-white font-bold text-xs md:text-sm transition-all flex items-center gap-1" title="Đổi Chuyên Đề Mới">
+        <div class="flex flex-col items-end gap-1.5 pointer-events-auto mt-0.5">
+            <div class="flex gap-1.5 sm:gap-2 items-center">
+                <button onclick="openMarioTopicMenu()" class="bg-amber-500/90 hover:bg-amber-500 px-2.5 sm:px-3 py-1.5 sm:py-2 md:py-2.5 rounded-full border-2 border-amber-300 backdrop-blur-sm shadow-lg text-white font-bold text-[11px] sm:text-xs md:text-sm transition-all flex items-center gap-1 cursor-pointer" title="Đổi Chuyên Đề Mới">
                     🍄 Đổi Màn
                 </button>
-                <button id="soundToggleBtn" onclick="toggleSound()" class="bg-rose-500/80 hover:bg-rose-500 px-3 py-2 md:py-2.5 rounded-full border-2 border-rose-300 backdrop-blur-sm shadow-lg text-white font-bold text-xs md:text-sm transition-all flex items-center gap-1">
+                <button id="soundToggleBtn" onclick="toggleSound()" class="bg-rose-500/80 hover:bg-rose-500 px-2.5 sm:px-3 py-1.5 sm:py-2 md:py-2.5 rounded-full border-2 border-rose-300 backdrop-blur-sm shadow-lg text-white font-bold text-[11px] sm:text-xs md:text-sm transition-all flex items-center gap-1 cursor-pointer">
                     🔇 Bật Âm Thanh
                 </button>
 
-                <div class="bg-blue-600/80 px-3 py-2 md:px-5 md:py-2.5 rounded-full border-2 border-blue-300 backdrop-blur-sm cursor-pointer hover:bg-blue-500 transition shadow-lg" onclick="openLeaderboard()">
-                    <span class="text-white font-black font-sans text-xs md:text-base flex items-center gap-2">
-                        <span class="text-lg md:text-xl">👤</span> <span id="playerNameDisplay" class="truncate max-w-[80px] md:max-w-[150px]">Người chơi</span>
+                <div class="bg-blue-600/80 px-2.5 sm:px-3 py-1.5 sm:py-2 md:px-5 md:py-2.5 rounded-full border-2 border-blue-300 backdrop-blur-sm cursor-pointer hover:bg-blue-500 transition shadow-lg" onclick="openLeaderboard()">
+                    <span class="text-white font-black font-sans text-[11px] sm:text-xs md:text-base flex items-center gap-1.5">
+                        <span class="text-base sm:text-lg md:text-xl">👤</span> <span id="playerNameDisplay" class="truncate max-w-[65px] sm:max-w-[100px] md:max-w-[150px]">Người chơi</span>
                     </span>
                 </div>
             </div>
             
-            <div class="bg-black/60 px-4 py-1.5 rounded-full border border-white/20 text-white font-bold pixel-font text-[10px] md:text-sm shadow-md mt-1">
+            <div class="bg-black/60 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-white/20 text-white font-bold pixel-font text-[9px] sm:text-[10px] md:text-sm shadow-md mt-0.5">
                 ⏱ <span id="timeDisplay">00:00</span>
             </div>
         </div>
     </div>
 
-    <!-- Nền Game -->
-    <canvas id="gameCanvas"></canvas>
+    <!-- Nền Game (Khung Canvas Tự Thích Ứng Flexbox) -->
+    <div id="canvas-container" class="canvas-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
 
-    <!-- Mobile Controls (Retro Layout 2 Cụm Sắc Nét) -->
-    <div id="mobileControls" class="show fixed bottom-4 left-0 right-0 px-6 flex justify-between items-center pointer-events-none z-30">
-        <!-- Cụm Di chuyển Trái / Phải bên trái -->
-        <div class="flex items-center gap-4 pointer-events-auto">
-            <div class="control-btn" id="btnLeft" title="Sang trái">◀</div>
-            <div class="control-btn" id="btnRight" title="Sang phải">▶</div>
-        </div>
-        <!-- Nút Nhảy bên phải -->
-        <div class="pointer-events-auto">
-            <div class="control-btn jump-btn" id="btnJump" title="Nhảy">▲</div>
-        </div>
+    <!-- THANH ĐIỀU KHIỂN ĐÁY MÀN HÌNH (STYLE .BOTTOM-NAV MẪU - CHIA ĐỀU KHÔNG GIAN NÚT BẤM) -->
+    <div id="mobileControls" class="bottom-nav">
+        <button type="button" class="control-btn" id="btnLeft" title="Sang trái">◀</button>
+        <button type="button" class="control-btn" id="btnRight" title="Sang phải">▶</button>
+        <button type="button" class="control-btn jump-btn" id="btnJump" title="Nhảy">▲</button>
     </div>
 
     <!-- BẢNG XẾP HẠNG MODAL -->
@@ -1122,8 +1161,9 @@
         
         let width, height;
         function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
+            const container = document.getElementById('canvas-container') || document.body;
+            width = window.innerWidth || container.clientWidth || document.documentElement.clientWidth;
+            height = window.innerHeight || container.clientHeight || document.documentElement.clientHeight;
             canvas.width = width;
             canvas.height = height;
             if (typeof checkDeviceOrientation === 'function') checkDeviceOrientation();
@@ -1249,25 +1289,103 @@
             if(e.code === 'ArrowLeft') keys.ArrowLeft = false; if(e.code === 'ArrowRight') keys.ArrowRight = false; if(e.code === 'ArrowUp' || e.code === 'Space') keys.ArrowUp = false;
         });
 
-        const btnL = document.getElementById('btnLeft'); const btnR = document.getElementById('btnRight'); const btnJ = document.getElementById('btnJump');
+        // ==========================================
+        // ⛶ FULLSCREEN API TƯƠNG THÍCH ĐA NỀN TẢNG (SAFARI IOS / CHROME ANDROID)
+        // ==========================================
+        function triggerToggleFullscreen() {
+            const gameElement = document.documentElement; // Khung bọc bao ngoài trò chơi
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+                // Thực hiện lệnh mở Full màn hình trên mọi dòng điện thoại
+                if (gameElement.requestFullscreen) {
+                    const p = gameElement.requestFullscreen();
+                    if (p && p.catch) p.catch(() => {});
+                } else if (gameElement.webkitRequestFullscreen) { 
+                    gameElement.webkitRequestFullscreen(); // Ép chạy trên Safari iOS / Chrome Mobile
+                } else if (gameElement.mozRequestFullScreen) {
+                    gameElement.mozRequestFullScreen();
+                } else if (gameElement.msRequestFullscreen) {
+                    gameElement.msRequestFullscreen();
+                }
+            } else {
+                // Thực hiện lệnh thoát chế độ Toàn màn hình
+                if (document.exitFullscreen) {
+                    const p = document.exitFullscreen();
+                    if (p && p.catch) p.catch(() => {});
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+        window.triggerToggleFullscreen = triggerToggleFullscreen;
+
+        function updateFullscreenUI() {
+            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+            const fsIcon = document.getElementById('fullscreenIcon');
+            const fsText = document.getElementById('fullscreenText');
+            if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
+            if (fsText) fsText.textContent = isFs ? '[ 🗗 ] THU NHỎ' : '[ ⛶ ] TOÀN MÀN HÌNH';
+        }
+        document.addEventListener('fullscreenchange', updateFullscreenUI);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+        document.addEventListener('mozfullscreenchange', updateFullscreenUI);
+        document.addEventListener('MSFullscreenChange', updateFullscreenUI);
+
+        const btnL = document.getElementById('btnLeft'); 
+        const btnR = document.getElementById('btnRight'); 
+        const btnJ = document.getElementById('btnJump');
 
         const addInputHandlers = (btn, key) => {
-            const press = (e) => { e.preventDefault(); keys[key] = true; btn.classList.add('pressed'); };
-            const release = (e) => { e.preventDefault(); keys[key] = false; btn.classList.remove('pressed'); };
-            btn.addEventListener('touchstart', press, {passive: false}); btn.addEventListener('touchend', release);
-            btn.addEventListener('mousedown', press); btn.addEventListener('mouseup', release); btn.addEventListener('mouseleave', release);
+            if (!btn) return;
+            const press = (e) => { 
+                if (e.cancelable) e.preventDefault(); 
+                keys[key] = true; 
+                btn.classList.add('pressed'); 
+            };
+            const release = (e) => { 
+                if (e.cancelable) e.preventDefault(); 
+                keys[key] = false; 
+                btn.classList.remove('pressed'); 
+            };
+            btn.addEventListener('touchstart', press, { passive: false }); 
+            btn.addEventListener('touchend', release, { passive: false });
+            btn.addEventListener('touchcancel', release, { passive: false });
+            btn.addEventListener('mousedown', press); 
+            btn.addEventListener('mouseup', release); 
+            btn.addEventListener('mouseleave', release);
         };
-        addInputHandlers(btnL, 'ArrowLeft'); addInputHandlers(btnR, 'ArrowRight'); addInputHandlers(btnJ, 'ArrowUp');
+        addInputHandlers(btnL, 'ArrowLeft'); 
+        addInputHandlers(btnR, 'ArrowRight'); 
+        addInputHandlers(btnJ, 'ArrowUp');
+
+        const fsBtn = document.getElementById('fullscreenToggleBtn');
+        if (fsBtn) {
+            fsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                triggerToggleFullscreen();
+            });
+            fsBtn.addEventListener('touchstart', (e) => {
+                if (e.cancelable) e.preventDefault();
+                e.stopPropagation();
+                triggerToggleFullscreen();
+            }, { passive: false });
+        }
 
         let controlsVisible = true; 
         function updateControlsVisibility() {
-            const mc = document.getElementById('mobileControls'); const tbBtn = document.getElementById('toggleControlsBtn'); const tbText = document.getElementById('toggleControlsText');
+            const mc = document.getElementById('mobileControls'); 
+            const tbBtn = document.getElementById('toggleControlsBtn'); 
+            const tbText = document.getElementById('toggleControlsText');
+            if (!mc) return;
             if (controlsVisible) {
-                mc.classList.add('show');
+                mc.style.display = 'flex';
                 if(tbText) tbText.textContent = "ẨN NÚT";
                 if(tbBtn) { tbBtn.classList.remove('opacity-70', 'text-white'); tbBtn.classList.add('opacity-100', 'text-amber-400'); }
             } else {
-                mc.classList.remove('show');
+                mc.style.display = 'none';
                 if(tbText) tbText.textContent = "HIỆN NÚT";
                 if(tbBtn) { tbBtn.classList.add('opacity-70', 'text-white'); tbBtn.classList.remove('opacity-100', 'text-amber-400'); }
             }
