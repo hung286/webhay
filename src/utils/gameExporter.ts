@@ -621,7 +621,45 @@ window.__INJECTED_PENALTY_DATA__ = ${JSON.stringify(penaltyData, null, 2)};
 window.penaltyDatabase = JSON.parse(JSON.stringify(window.__INJECTED_PENALTY_DATA__));
 
 (function() {
+  function injectMathNowrapStyle() {
+    try {
+      if (!document.getElementById('penalty-math-nowrap-style')) {
+        const style = document.createElement('style');
+        style.id = 'penalty-math-nowrap-style';
+        style.textContent = `
+          .question-text .mjx-chtml,
+          .question-text mjx-container,
+          .option-btn .mjx-chtml,
+          .option-btn mjx-container,
+          .mjx-chtml,
+          mjx-container,
+          .MathJax,
+          .katex,
+          .katex-html {
+              white-space: nowrap !important;
+              display: inline-block !important;
+              max-width: 100% !important;
+              vertical-align: middle !important;
+          }
+          mjx-container *,
+          .mjx-chtml *,
+          .katex * {
+              white-space: nowrap !important;
+          }
+          .question-box-content {
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+              display: inline-block;
+              max-width: 100%;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    } catch(e) {}
+  }
+
   function syncPenaltyData() {
+    injectMathNowrapStyle();
     if (typeof ensurePenaltyData === 'function') {
       ensurePenaltyData();
     }
@@ -665,18 +703,21 @@ window.penaltyDatabase = JSON.parse(JSON.stringify(window.__INJECTED_PENALTY_DAT
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
+      injectMathNowrapStyle();
       syncPenaltyData();
       applyAdminSecurity();
       setupAdminHooks();
       triggerMathTypeset();
     });
   } else {
+    injectMathNowrapStyle();
     syncPenaltyData();
     applyAdminSecurity();
     setupAdminHooks();
     triggerMathTypeset();
   }
   window.addEventListener('load', function() {
+    injectMathNowrapStyle();
     syncPenaltyData();
     applyAdminSecurity();
     setupAdminHooks();

@@ -103,10 +103,41 @@
         #question-panel.hidden { transform: translate(-50%, 120dvh) scale(0.7); opacity: 0; pointer-events: none; }
 
         .question-text {
-            text-align: center; font-size: clamp(1.05rem, 3.8vw, 1.35rem); color: #fff; font-weight: 700;
-            margin-bottom: 16px; min-height: 50px; display: flex; align-items: center; justify-content: center;
-            line-height: 1.5; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            text-align: center; font-size: clamp(0.95rem, 3.4vw, 1.25rem); color: #fff; font-weight: 700;
+            margin-bottom: 16px; min-height: 48px; display: block;
+            line-height: 1.6; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
             flex-shrink: 0;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* KHỐI NỘI DUNG CÂU HỎI VÀ ÉP TOÀN BỘ CÔNG THỨC MATHJAX / PHÂN SỐ KHÔNG ĐƯỢC TỰ Ý XUỐNG DÒNG */
+        .question-box-content {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        .question-text .mjx-chtml,
+        .question-text mjx-container,
+        .option-btn .mjx-chtml,
+        .option-btn mjx-container,
+        .mjx-chtml,
+        mjx-container,
+        .MathJax,
+        .katex,
+        .katex-html {
+            white-space: nowrap !important; /* Ép buộc toàn bộ biểu thức toán học phải nằm trên một dòng duy nhất, tuyệt đối không được tự ý xuống dòng */
+            display: inline-block !important;
+            max-width: 100% !important;
+            vertical-align: middle !important;
+        }
+
+        mjx-container *,
+        .mjx-chtml *,
+        .katex * {
+            white-space: nowrap !important;
         }
 
         .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(10px, 2.5vw, 15px); }
@@ -1498,12 +1529,12 @@
             }
 
             gameState.currentQ = gameState.questions.pop();
-            ui.qText.innerHTML = formatMathText(gameState.currentQ.q);
+            ui.qText.innerHTML = `<div class="question-box-content">${formatMathText(gameState.currentQ.q)}</div>`;
             
             ui.options.forEach((btn, idx) => {
                 const optText = (gameState.currentQ.options && gameState.currentQ.options[idx]) ? gameState.currentQ.options[idx] : `Lựa chọn ${['A','B','C','D'][idx]}`;
                 const formattedOpt = formatMathText(optText);
-                btn.innerHTML = `<span class="font-bold text-cyan-400 mr-2">${['A','B','C','D'][idx]}.</span><span>${formattedOpt}</span>`;
+                btn.innerHTML = `<span class="font-bold text-cyan-400 mr-2 shrink-0">${['A','B','C','D'][idx]}.</span><span class="question-box-content">${formattedOpt}</span>`;
                 btn.className = 'option-btn'; btn.disabled = false;
             });
 
@@ -1571,8 +1602,8 @@
             const letters = ['A', 'B', 'C', 'D'];
             const correctLetter = letters[gameState.currentQ.correct] || 'A';
             const correctContent = gameState.currentQ.options ? gameState.currentQ.options[gameState.currentQ.correct] : '';
-            ui.expCorrect.innerHTML = `${correctLetter}. ${formatMathText(correctContent)}`;
-            ui.expSolution.innerHTML = formatMathText(gameState.currentQ.explanation ? gameState.currentQ.explanation : 'Không có lời giải chi tiết.');
+            ui.expCorrect.innerHTML = `<span class="question-box-content">${correctLetter}. ${formatMathText(correctContent)}</span>`;
+            ui.expSolution.innerHTML = `<div class="question-box-content">${formatMathText(gameState.currentQ.explanation ? gameState.currentQ.explanation : 'Không có lời giải chi tiết.')}</div>`;
             
             ui.expModal.classList.remove('hidden');
             requestAnimationFrame(() => {
