@@ -37,12 +37,12 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { margin: 0; overflow: hidden; background-color: #020617; font-family: var(--font-body); width: 100vw; height: 100vh; touch-action: none; }
+        html, body { margin: 0; overflow: hidden; background-color: #020617; font-family: var(--font-body); width: 100vw; height: 100vh; height: 100dvh; min-height: 100dvh; touch-action: none; }
 
         /* Canvas game */
-        #game-canvas { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; display: block; }
+        #game-canvas { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; z-index: 1; display: block; }
 
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; height: 100dvh; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
         .interactive { pointer-events: auto; }
 
         #top-hud { display: flex; justify-content: space-between; align-items: center; padding: max(15px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 10px max(20px, env(safe-area-inset-left)); }
@@ -68,39 +68,65 @@
         .score-badge { background: var(--dark-glass); color: #fff; font-family: var(--font-display); font-size: clamp(1.8rem, 6vw, 2.5rem); padding: 5px 40px; border-radius: 12px; border: 2px solid var(--neon-blue); box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); text-transform: uppercase; letter-spacing: 2px; line-height: 1.2;}
         .score-val { color: var(--gold); font-size: clamp(2.2rem, 7vw, 3rem); text-shadow: 0 0 10px var(--gold); }
 
+        .question-header-badge {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(0, 102, 255, 0.3));
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-family: var(--font-display);
+            font-size: clamp(1.1rem, 3.8vw, 1.4rem);
+            letter-spacing: 1.5px;
+            padding: 6px 14px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            flex-shrink: 0;
+        }
+
         #question-panel {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1);
-            background: var(--dark-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-radius: 20px; padding: clamp(15px, 4vw, 25px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(255,255,255,0.1);
-            width: 92%; max-width: 720px; max-height: 85vh; overflow-y: auto;
+            background: var(--dark-glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-radius: 20px; padding: clamp(14px, 3.5vw, 24px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7), inset 0 0 0 2px rgba(255,255,255,0.1), 0 0 30px rgba(0, 243, 255, 0.25);
+            width: 94%; max-width: 720px;
+            max-height: 80dvh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
             z-index: 25;
             border-top: 5px solid var(--neon-blue);
+            display: flex;
+            flex-direction: column;
         }
-        #question-panel.hidden { transform: translate(-50%, 120vh) scale(0.7); opacity: 0; pointer-events: none; }
+        #question-panel.hidden { transform: translate(-50%, 120dvh) scale(0.7); opacity: 0; pointer-events: none; }
 
         .question-text {
-            text-align: center; font-size: clamp(1.1rem, 4vw, 1.35rem); color: #fff; font-weight: 700;
-            margin-bottom: 20px; min-height: 60px; display: flex; align-items: center; justify-content: center;
+            text-align: center; font-size: clamp(1.05rem, 3.8vw, 1.35rem); color: #fff; font-weight: 700;
+            margin-bottom: 16px; min-height: 50px; display: flex; align-items: center; justify-content: center;
             line-height: 1.5; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            flex-shrink: 0;
         }
 
-        .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(10px, 3vw, 15px); }
+        .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(10px, 2.5vw, 15px); }
         
         .option-btn {
             background: linear-gradient(145deg, #1e293b, #0f172a); color: #fff;
             border: 2px solid #334155; border-radius: 12px;
-            padding: 12px; font-size: clamp(1.05rem, 3.5vw, 1.25rem); font-weight: 700; font-family: var(--font-body);
-            cursor: pointer; box-shadow: 0 6px 0px #020617;
-            transition: all 0.1s; display: flex; align-items: center; justify-content: center;
-            min-height: clamp(60px, 12vw, 70px);
+            padding: 12px; font-size: clamp(1.0rem, 3.2vw, 1.2rem); font-weight: 700; font-family: var(--font-body);
+            cursor: pointer; box-shadow: 0 5px 0px #020617;
+            transition: all 0.1s; display: flex; align-items: center; justify-content: flex-start;
+            min-height: clamp(52px, 11vw, 68px);
+            text-align: left;
+            -webkit-user-select: none; user-select: none;
+            touch-action: manipulation;
         }
-        .option-btn:active:not(:disabled) { transform: translateY(6px); box-shadow: 0 0px 0px #020617; }
-        .option-btn.correct { background: linear-gradient(145deg, #059669, #047857) !important; border-color: var(--neon-green) !important; box-shadow: 0 6px 0px #022c22 !important; color: #fff !important; text-shadow: 0 0 5px #fff; }
-        .option-btn.wrong { background: linear-gradient(145deg, #e11d48, #be123c) !important; border-color: var(--neon-red) !important; box-shadow: 0 6px 0px #4c0519 !important; color: #fff !important; text-shadow: 0 0 5px #fff; }
+        .option-btn:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 0px 0px #020617; }
+        .option-btn.correct { background: linear-gradient(145deg, #059669, #047857) !important; border-color: var(--neon-green) !important; box-shadow: 0 5px 0px #022c22 !important; color: #fff !important; text-shadow: 0 0 5px #fff; }
+        .option-btn.wrong { background: linear-gradient(145deg, #e11d48, #be123c) !important; border-color: var(--neon-red) !important; box-shadow: 0 5px 0px #4c0519 !important; color: #fff !important; text-shadow: 0 0 5px #fff; }
 
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(15, 23, 42, 0.95) 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.4s; padding: 20px; text-align: center; overflow-y: auto;}
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; height: 100dvh; max-height: 100dvh; background: radial-gradient(circle at center, rgba(15, 23, 42, 0.95) 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.4s; padding: 20px; text-align: center; overflow-y: auto;}
         .overlay.hidden { opacity: 0; pointer-events: none; }
 
         .game-title { font-family: var(--font-display); font-size: clamp(3.5rem, 12vw, 6rem); color: #fff; text-transform: uppercase; line-height: 0.9; text-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.5); margin-bottom: 0.5rem; margin-top: 20px;}
@@ -136,7 +162,76 @@
         .feedback-goal { color: var(--gold); text-shadow: 0 0 20px var(--gold), 0 0 50px #ff8c00; }
         .feedback-miss { color: var(--neon-red); text-shadow: 0 0 20px var(--neon-red), 0 0 50px #8b0000; }
 
-        @media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+        /* CỤM PHÍM BẤM ẢO DI ĐỘNG */
+        #mobile-penalty-dock {
+            position: absolute;
+            bottom: max(10px, env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 20;
+            pointer-events: auto;
+            background: rgba(10, 15, 30, 0.85);
+            padding: 6px 10px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 243, 255, 0.35);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7), 0 0 15px rgba(0,243,255,0.2);
+        }
+        .mobile-touch-btn {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            color: #fff;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 800;
+            font-family: var(--font-body);
+            cursor: pointer;
+            box-shadow: 0 4px 0 #020617;
+            transition: all 0.1s;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .mobile-touch-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #020617;
+        }
+        .mobile-touch-btn.active-aim {
+            background: linear-gradient(145deg, #0284c7, #0369a1);
+            border-color: var(--neon-blue);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.6), 0 4px 0 #075985;
+        }
+        .mobile-touch-btn-ball {
+            background: linear-gradient(145deg, #f59e0b, #d97706);
+            border-color: #fbbf24;
+            color: #000;
+            font-weight: 900;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.4), 0 4px 0 #b45309;
+        }
+
+        @media (min-width: 769px) {
+            #mobile-penalty-dock { display: none; }
+        }
+        @media (max-width: 768px) {
+            #top-hud { padding: 8px 10px; }
+            .level-badge { font-size: 1.2rem; padding: 0 10px; }
+            .lives-container { padding: 4px 8px; gap: 5px; }
+            .audio-toggle { width: 32px; height: 32px; font-size: 16px; margin-left: 6px; }
+            #bottom-hud { padding-bottom: 58px; }
+            .score-badge { font-size: 1.3rem; padding: 3px 18px; }
+            .score-val { font-size: 1.6rem; }
+            .options-grid { grid-template-columns: 1fr; gap: 8px; }
+            .option-btn { min-height: 48px; padding: 10px; font-size: 0.98rem; }
+            #question-panel { width: 96%; max-height: 80dvh; padding: 14px 12px; }
+            .setup-panel { max-width: 95vw; padding: 15px; }
+        }
     </style>
 </head>
 <body>
@@ -168,6 +263,9 @@
         <div id="action-feedback">VÀO!</div>
 
         <div id="question-panel" class="interactive hidden">
+            <div class="question-header-badge">
+                <span>⚽ THỬ THÁCH TRẮC NGHIỆM ĐỂ SÚT BÓNG</span>
+            </div>
             <div class="question-text" id="question-text">Đang tải dữ liệu...</div>
             <div class="options-grid" id="options-container">
                 <button class="option-btn" onclick="checkAnswer(0)"></button>
@@ -175,6 +273,14 @@
                 <button class="option-btn" onclick="checkAnswer(2)"></button>
                 <button class="option-btn" onclick="checkAnswer(3)"></button>
             </div>
+        </div>
+
+        <!-- CỤM PHÍM BẤM ẢO DI ĐỘNG (ZERO-LATENCY TOUCH CONTROLS) -->
+        <div id="mobile-penalty-dock" class="interactive">
+            <button type="button" class="mobile-touch-btn pen-aim-btn" data-corner="left" id="m-btn-aim-left" title="Sút Góc Trái">↖️ TRÁI</button>
+            <button type="button" class="mobile-touch-btn pen-aim-btn active-aim" data-corner="center" id="m-btn-aim-center" title="Sút Giữa Khung Thành">⬆️ GIỮA</button>
+            <button type="button" class="mobile-touch-btn pen-aim-btn" data-corner="right" id="m-btn-aim-right" title="Sút Góc Phải">↗️ PHẢI</button>
+            <button type="button" class="mobile-touch-btn mobile-touch-btn-ball" id="m-btn-challenge" title="Mở Bảng Câu Hỏi Đề Sút">📋 ĐỀ SÚT</button>
         </div>
 
         <div id="bottom-hud" class="interactive">
@@ -508,9 +614,45 @@
             if (!str && str !== 0) return '';
             let s = String(str).trim();
 
-            // Sửa lỗi bọc kép hoặc lỗi font
+            // 1. Khử triệt để ký tự rác \f, \f\f và form-feed bám trên phân số
+            s = s.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+            s = s.replace(/[\u000c\x0c]/g, '');
+
+            // Khôi phục \frac nếu bị cắt thành rac{
+            s = s.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
+            s = s.replace(/^rac\s*\{/g, '\\frac{');
+
+            // 2. Vá lỗi tự ý chèn khoảng trắng sau ký tự chữ cái đầu tiên
+            s = s.replace(/\bN\s+ếu\b/g, 'Nếu');
+            s = s.replace(/\bH\s+ai\b/g, 'Hai');
+            s = s.replace(/\bC\s+ho\b/g, 'Cho');
+            s = s.replace(/\bC\s+ả\b/g, 'Cả');
+            s = s.replace(/\bK\s+hi\b/g, 'Khi');
+            s = s.replace(/\bC\s+hỉ\b/g, 'Chỉ');
+            s = s.replace(/\bT\s+ính\b/g, 'Tính');
+            s = s.replace(/\bT\s+rong\b/g, 'Trong');
+            s = s.replace(/\bK\s+hẳng\b/g, 'Khẳng');
+            s = s.replace(/\bđ\s+ịnh\b/g, 'định');
+            s = s.replace(/\bH\s+ình\b/g, 'Hình');
+            s = s.replace(/\bM\s+ặt\b/g, 'Mặt');
+            s = s.replace(/\bđ\s+ường\b/g, 'đường');
+            s = s.replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
+
+            // 3. Tự động chuyển đổi các chữ mã TeX thô viết liền
+            s = s.replace(/\bAcupB\b/g, 'A \\cup B');
+            s = s.replace(/\bAcapB\b/g, 'A \\cap B');
+            s = s.replace(/(?<!\\)\bcdot\b/g, '\\cdot');
+            s = s.replace(/(?<!\\)\bOmega\b/g, '\\Omega');
+            s = s.replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+            s = s.replace(/(?<!\\)\bcup\b/g, '\\cup');
+            s = s.replace(/(?<!\\)\bcap\b/g, '\\cap');
+
+            // 4. Sửa lỗi bọc kép hoặc lỗi font từ worksheet
             s = s.replace(/\{\s*\\?\(\\?frac\\?\)\s*\{/gi, '\\frac{');
             s = s.replace(/\{\s*\\?\(\\?sqrt\\?\)\s*\{/gi, '\\sqrt{');
+            s = s.replace(/\$\{([^}]+)\}/g, '\\($1\\)');
+            s = s.replace(/\{\s*\\\(\s*([^}]+)\s*\\\)\s*\}/g, '\\($1\\)');
+            s = s.replace(/\{\s*(\\frac\{[^}]+\}\{[^}]+\})\s*\}/g, '\\($1\\)');
 
             // Nếu chuỗi đã được bọc trọn vẹn trong \(...\) hoặc $...$, trả về ngay
             if (/^\\\([\s\S]*?\\\)$/.test(s) || /^\$([^\$]+)\$$/.test(s)) {
@@ -522,7 +664,7 @@
             s = s.replace(/\$([^\$]+?)\$/g, (_, m) => `\\(${m.trim()}\\)`);
 
             // Nhận diện mẫu biểu thức toán học
-            const hasMathPattern = /\\(frac|sqrt|alpha|beta|theta|circ|sin|cos|tan|cot|cdot|le|ge|pm|times|vec)|[\^_]\{?[\w\d\\^\circ]+\}?|[0-9]+[a-zA-Z]|\b(sin|cos|tan|cot)\s*[0-9\w(^\\]+/i.test(s);
+            const hasMathPattern = /\\(frac|sqrt|alpha|beta|theta|circ|sin|cos|tan|cot|cdot|le|ge|pm|times|vec|Omega|emptyset|cup|cap)|[\^_]\{?[\w\d\\^\circ]+\}?|[0-9]+[a-zA-Z]|\b(sin|cos|tan|cot)\s*[0-9\w(^\\]+/i.test(s);
             const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(s);
 
             if (!s.includes('\\(')) {
@@ -811,6 +953,18 @@
         let groundYInsideGoal = 0;
         let ballTrail = []; 
         let kickerOffsetX = 0; 
+        let selectedAimCorner = 'center'; // 'left', 'center', 'right'
+
+        function setAimCorner(corner) {
+            selectedAimCorner = corner;
+            document.querySelectorAll('.pen-aim-btn').forEach(btn => {
+                if (btn.dataset.corner === corner) {
+                    btn.classList.add('active-aim');
+                } else {
+                    btn.classList.remove('active-aim');
+                }
+            });
+        }
 
         function resizeCanvas() {
             cw = canvas.width = window.innerWidth;
@@ -818,11 +972,11 @@
             horizonY = ch * 0.35;
             pitchBottomY = ch;
 
-            let gWidth = Math.min(cw * 0.7, 500);
+            let gWidth = Math.min(cw * (cw < 768 ? 0.88 : 0.7), 500);
             let gHeight = gWidth * 0.45;
-            goalRect = { x: (cw - gWidth) / 2, y: horizonY + (ch - horizonY) * 0.1, w: gWidth, h: gHeight };
+            goalRect = { x: (cw - gWidth) / 2, y: horizonY + (ch - horizonY) * (cw < 768 ? 0.05 : 0.1), w: gWidth, h: gHeight };
             
-            let offsetX = playerSettings.foot === 'right' ? -(cw * 0.15) : (cw * 0.15);
+            let offsetX = playerSettings.foot === 'right' ? -(cw * (cw < 768 ? 0.18 : 0.15)) : (cw * (cw < 768 ? 0.18 : 0.15));
             kicker.x = cw/2 + offsetX;
             kicker.y = pitchBottomY - ch * 0.05;
             
@@ -1154,9 +1308,17 @@
             shotStartX = ball.x; shotStartY = ball.y; shotTargetScale = 0.25; ballVelocityY = 0; netShakeTime = 0; ballHitPost = false;
 
             if (isCorrect) {
-                const isLeft = Math.random() > 0.5;
-                shotTargetX = goalRect.x + (isLeft ? goalRect.w * 0.1 : goalRect.w * 0.9);
-                shotTargetY = goalRect.y + goalRect.h * 0.2; 
+                let targetCorner = selectedAimCorner || 'center';
+                if (targetCorner === 'left') {
+                    shotTargetX = goalRect.x + goalRect.w * 0.15;
+                    shotTargetY = goalRect.y + goalRect.h * 0.25;
+                } else if (targetCorner === 'right') {
+                    shotTargetX = goalRect.x + goalRect.w * 0.85;
+                    shotTargetY = goalRect.y + goalRect.h * 0.25;
+                } else {
+                    shotTargetX = goalRect.x + goalRect.w * 0.5;
+                    shotTargetY = goalRect.y + goalRect.h * 0.2;
+                }
                 isGoalScored = true;
             } else {
                 const rand = Math.random();
@@ -1355,6 +1517,14 @@
                 requestAnimationFrame(() => {
                     typesetMath([ui.qText, ...ui.options]);
                 });
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    try {
+                        window.MathJax.typesetPromise([ui.panel]).catch(() => {});
+                    } catch(e) {}
+                }
+                if (typeof setupMobilePenaltyControls === 'function') {
+                    setupMobilePenaltyControls();
+                }
             }, 300);
         }
 
@@ -1674,11 +1844,47 @@
             }
         }, true);
 
+        function setupMobilePenaltyControls() {
+            const bindTouch = (id, fn) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const handler = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fn();
+                };
+                el.addEventListener('touchstart', handler, { passive: false });
+                el.addEventListener('click', handler);
+            };
+
+            bindTouch('m-btn-aim-left', () => setAimCorner('left'));
+            bindTouch('m-btn-aim-center', () => setAimCorner('center'));
+            bindTouch('m-btn-aim-right', () => setAimCorner('right'));
+            bindTouch('m-btn-challenge', () => {
+                if (ui.panel) {
+                    ui.panel.classList.remove('hidden');
+                    typesetMath([ui.panel]);
+                }
+            });
+
+            // Gán sự kiện cảm ứng trễ 0ms cho các nút đáp án A, B, C, D
+            const optButtons = document.querySelectorAll('.option-btn');
+            optButtons.forEach((btn, idx) => {
+                btn.ontouchstart = (e) => {
+                    if (btn.disabled || gameState.isAnimating) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    checkAnswer(idx);
+                };
+            });
+        }
+
         // Khởi động khi tải xong trang
         window.addEventListener('DOMContentLoaded', () => {
             ensurePenaltyData();
             checkAdminSecurity();
             setupAdminButtons();
+            setupMobilePenaltyControls();
             resizeCanvas();
             requestAnimationFrame(gameLoop);
         });
@@ -1686,6 +1892,7 @@
         window.addEventListener('load', () => {
             checkAdminSecurity();
             setupAdminButtons();
+            setupMobilePenaltyControls();
             typesetMath([document.getElementById('question-panel')]);
         });
     </script>

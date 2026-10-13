@@ -56,6 +56,7 @@ const MathLivePreview: React.FC<{ formula: string }> = ({ formula }) => {
       clean = clean.replace(/[\u000c\x0c]/g, '');
       clean = clean.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
       clean = clean.replace(/^rac\s*\{/g, '\\frac{');
+      clean = clean.replace(/\bAcupB\b/g, 'A \\cup B').replace(/\bAcapB\b/g, 'A \\cap B').replace(/(?<!\\)\bcdot\b/g, '\\cdot').replace(/(?<!\\)\bOmega\b/g, '\\Omega').replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
       clean = clean.replace(/^\\\(/, '').replace(/\\\)$/, '').replace(/^\$/, '').replace(/\$$/, '');
       html = (window as any).katex.renderToString(clean, { throwOnError: false });
     } catch (e) {}
