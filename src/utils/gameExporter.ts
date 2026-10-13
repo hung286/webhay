@@ -2099,11 +2099,43 @@ if (typeof window.gameDatabase !== 'undefined' && Object.keys(${JSON.stringify(t
 
   // NHÓM YOGA PHẢN XẠ XÁC SUẤT (cấu trúc Đa Chủ Đề & Đa Độ Khó: TF & MC + Data Fallback)
   else if (cleanUrl.includes('yoga')) {
+    const cleanFormula = (text: string): string => {
+      if (!text) return '';
+      let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+      res = res.replace(/\bN\s+?u\b/g, 'Nếu')
+               .replace(/\bH\s+ai\b/g, 'Hai')
+               .replace(/\bC\s+ho\b/g, 'Cho')
+               .replace(/\bC\s+?\b/g, 'Có')
+               .replace(/\bK\s+hi\b/g, 'Khi')
+               .replace(/\bC\s+h?\b/g, 'Chỉ')
+               .replace(/\bT\s+ính\b/g, 'Tính')
+               .replace(/\bT\s+rong\b/g, 'Trong')
+               .replace(/\bK\s+h?ng\b/g, 'Không')
+               .replace(/\bd\s+?nh\b/g, 'định')
+               .replace(/\bH\s+ình\b/g, 'Hình')
+               .replace(/\bM\s+?t\b/g, 'Một')
+               .replace(/\bd\s+u?ng\b/g, 'đường')
+               .replace(/Hai\s+m\s+?t\s+ph\s+?ng/g, 'Hai mặt phẳng');
+      res = res.replace(/\bAcupB\b/g, 'A \\cup B')
+               .replace(/\bAcapB\b/g, 'A \\cap B')
+               .replace(/(?<!\\)\bcdot\b/g, '\\cdot')
+               .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
+               .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+      res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}')
+               .replace(/e\^\{([^}]+)\}/g, 'e^{$1}')
+               .replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}')
+               .replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}')
+               .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
+               .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
+      return normalizeMathFormulas(res);
+    };
+
     const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
     const defaultTopic = gameTitle || 'Chủ đề 1: Biến Cố Giao, Hợp & Biến Cố Độc Lập';
     const letters = ['A', 'B', 'C', 'D'];
 
-    let activeQuestions = [...questions];
+    let activeQuestions = questions.filter(q => !q.isDisabled);
+    if (activeQuestions.length === 0) activeQuestions = [...questions];
     if (activeQuestions.length === 0) {
       try {
         const ws = DEFAULT_WORKSHEETS.find(w => 
@@ -2112,14 +2144,14 @@ if (typeof window.gameDatabase !== 'undefined' && Object.keys(${JSON.stringify(t
         ) || DEFAULT_WORKSHEETS.find(w => w.questions && w.questions.length >= 10) || DEFAULT_WORKSHEETS[0];
         
         if (ws && ws.questions && ws.questions.length > 0) {
-          activeQuestions = ws.questions.map((q, idx) => ({
+          activeQuestions = ws.questions.map((q: any, idx: number) => ({
             id: q.id || `ws_yoga_fb_${idx}`,
             question: q.question,
             options: q.options || ['A', 'B', 'C', 'D'],
             correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
             explanation: q.solution || '',
-            difficulty: idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'),
-            topic: ws.title || defaultTopic
+            difficulty: (q.difficulty || (idx % 3 === 0 ? 'Dễ' : (idx % 3 === 1 ? 'Trung bình' : 'Khó'))) as any,
+            topic: q.topic || ws.title || defaultTopic
           } as Question));
         }
       } catch (e) {
@@ -2139,25 +2171,25 @@ if (typeof window.gameDatabase !== 'undefined' && Object.keys(${JSON.stringify(t
       if (q.options && q.options.length === 2) {
         topicsMap[topicName][diffKey].push({
           type: 'TF',
-          text: normalizeMathFormulas(q.question),
-          left: normalizeMathFormulas(q.options[0] || 'Đúng'),
-          right: normalizeMathFormulas(q.options[1] || 'Sai'),
+          text: cleanFormula(q.question),
+          left: cleanFormula(q.options[0] || 'Đúng'),
+          right: cleanFormula(q.options[1] || 'Sai'),
           correct: ansIdx === 0 ? 'LEFT' : 'RIGHT',
-          explanation: normalizeMathFormulas(q.explanation || '')
+          explanation: cleanFormula(q.explanation || '')
         });
       } else {
         const optsObj = {
-          A: normalizeMathFormulas(q.options?.[0] || 'A'),
-          B: normalizeMathFormulas(q.options?.[1] || 'B'),
-          C: normalizeMathFormulas(q.options?.[2] || 'C'),
-          D: normalizeMathFormulas(q.options?.[3] || 'D')
+          A: cleanFormula(q.options?.[0] || 'A'),
+          B: cleanFormula(q.options?.[1] || 'B'),
+          C: cleanFormula(q.options?.[2] || 'C'),
+          D: cleanFormula(q.options?.[3] || 'D')
         };
         topicsMap[topicName][diffKey].push({
           type: 'MC',
-          text: normalizeMathFormulas(q.question),
+          text: cleanFormula(q.question),
           opts: optsObj,
           correct: ansLetter,
-          explanation: normalizeMathFormulas(q.explanation || '')
+          explanation: cleanFormula(q.explanation || '')
         });
       }
     });
@@ -2170,6 +2202,128 @@ window.__ADMIN_PIN__ = "2806";
 window.__INJECTED_YOGA_DATA__ = ${JSON.stringify(topicsMap, null, 2)};
 window.gameDatabase = JSON.parse(JSON.stringify(window.__INJECTED_YOGA_DATA__));
 window.yogaQuizData = JSON.parse(JSON.stringify(window.__INJECTED_YOGA_DATA__));
+
+// Tiêm CSS Responsive Mobile, 100dvh, Touch scroll & MathJax / KaTeX NoWrap
+(function injectYogaStyles() {
+  try {
+    if (!document.getElementById('yoga-mobile-fix-style')) {
+      const style = document.createElement('style');
+      style.id = 'yoga-mobile-fix-style';
+      style.textContent = \`
+        html, body {
+            min-height: 100dvh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container {
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+        .math-text .katex *, .math-text mjx-container *, .math-content .katex *, .math-content mjx-container *, .katex *, mjx-container * {
+            white-space: nowrap !important;
+        }
+        @media (max-width: 768px) {
+            body {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                overflow: hidden !important;
+            }
+            .brand-title {
+                font-size: 13px !important;
+                letter-spacing: 0.5px !important;
+            }
+            .camera-container {
+                width: 175px !important;
+                height: 175px !important;
+                border-width: 4px !important;
+            }
+            #question-text-box {
+                top: 55px !important;
+                width: 95% !important;
+                max-width: 95% !important;
+                padding: 8px 12px !important;
+                min-height: auto !important;
+                border-radius: 16px !important;
+            }
+            #question-text {
+                font-size: 13px !important;
+                line-height: 1.35 !important;
+                max-height: 18vh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            #layout-tf {
+                padding: 0 8px !important;
+                top: 50% !important;
+            }
+            #layout-tf .option-card {
+                width: 33% !important;
+                padding: 8px 6px !important;
+                border-radius: 16px !important;
+            }
+            #tf-text-left, #tf-text-right {
+                font-size: 18px !important;
+                margin-bottom: 2px !important;
+            }
+            #layout-mc .option-card {
+                width: 36% !important;
+                padding: 5px 6px !important;
+                border-radius: 14px !important;
+            }
+            #mc-A { top: 29% !important; left: 2% !important; }
+            #mc-B { top: 29% !important; right: 2% !important; }
+            #mc-C { bottom: 8% !important; left: 2% !important; }
+            #mc-D { bottom: 8% !important; right: 2% !important; }
+            #camera-wrapper {
+                top: 50% !important;
+            }
+            #instruction-hint {
+                font-size: 10px !important;
+                padding: 3px 8px !important;
+                margin-top: 4px !important;
+            }
+            #topic-selection-overlay > div,
+            #admin-editor-modal > div,
+            #pin-prompt-modal > div {
+                max-height: 80dvh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            #yoga-topics-grid,
+            #editor-questions-list {
+                max-height: 60dvh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+        }
+      \`;
+      document.head.appendChild(style);
+    }
+  } catch(e) {}
+})();
+
+// Fullscreen API đa nền tảng cho thiết bị di động
+window.toggleMobileFullscreen = function() {
+  try {
+    const doc = document;
+    const el = doc.documentElement;
+    const isFs = doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement;
+    if (!isFs) {
+      if (el.requestFullscreen) { el.requestFullscreen().catch(()=>{}); }
+      else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); }
+      else if (el.mozRequestFullScreen) { el.mozRequestFullScreen(); }
+      else if (el.msRequestFullscreen) { el.msRequestFullscreen(); }
+    } else {
+      if (doc.exitFullscreen) { doc.exitFullscreen().catch(()=>{}); }
+      else if (doc.webkitExitFullscreen) { doc.webkitExitFullscreen(); }
+      else if (doc.mozCancelFullScreen) { doc.mozCancelFullScreen(); }
+      else if (doc.msExitFullscreen) { doc.msExitFullscreen(); }
+    }
+  } catch(e) {}
+};
 
 (function() {
   function syncYogaData() {

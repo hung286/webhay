@@ -31,11 +31,16 @@
         @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
 
-        body {
+        html, body {
+            min-height: 100dvh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
             font-family: 'Baloo 2', cursive;
             background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             color: white;
-            overflow: hidden;
         }
 
         .camera-container {
@@ -93,6 +98,15 @@
             letter-spacing: 2px;
         }
 
+        /* Toán học MathJax & KaTeX hiển thị trên 1 dòng duy nhất chống ngắt dòng */
+        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container {
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+        .math-text .katex *, .math-text mjx-container *, .math-content .katex *, .math-content mjx-container *, .katex *, mjx-container * {
+            white-space: nowrap !important;
+        }
+
         mjx-container {
             max-width: 100% !important;
             overflow-x: auto !important;
@@ -101,9 +115,146 @@
         }
 
         .stickman { width: 80px; height: 80px; margin-bottom: 15px; }
+
+        /* TỐI ƯU RESPONSIVE MOBILE TOÀN MÀN HÌNH CHỐNG TRÀN LAYOUT */
+        @media (max-width: 768px) {
+            body {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                overflow: hidden !important;
+            }
+            .brand-title {
+                font-size: 13px !important;
+                letter-spacing: 0.5px !important;
+            }
+            .camera-container {
+                width: 175px !important;
+                height: 175px !important;
+                border-width: 4px !important;
+            }
+            #question-text-box {
+                top: 55px !important;
+                width: 95% !important;
+                max-width: 95% !important;
+                padding: 8px 12px !important;
+                min-height: auto !important;
+                border-radius: 16px !important;
+            }
+            #question-text {
+                font-size: 13px !important;
+                line-height: 1.35 !important;
+                max-height: 18vh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            #layout-tf {
+                padding: 0 8px !important;
+                top: 50% !important;
+            }
+            #layout-tf .option-card {
+                width: 33% !important;
+                padding: 8px 6px !important;
+                border-radius: 16px !important;
+            }
+            #tf-text-left, #tf-text-right {
+                font-size: 18px !important;
+                margin-bottom: 2px !important;
+            }
+            #layout-tf .option-card .text-sm {
+                font-size: 9px !important;
+                padding: 2px 4px !important;
+            }
+            #layout-mc .option-card {
+                width: 36% !important;
+                padding: 5px 6px !important;
+                border-radius: 14px !important;
+            }
+            #mc-A { top: 29% !important; left: 2% !important; }
+            #mc-B { top: 29% !important; right: 2% !important; }
+            #mc-C { bottom: 8% !important; left: 2% !important; }
+            #mc-D { bottom: 8% !important; right: 2% !important; }
+            #layout-mc .stickman {
+                width: 34px !important;
+                height: 34px !important;
+                margin-bottom: 2px !important;
+            }
+            #layout-mc .option-card div {
+                font-size: 11px !important;
+                line-height: 1.2 !important;
+            }
+            #camera-wrapper {
+                top: 50% !important;
+            }
+            #instruction-hint {
+                font-size: 10px !important;
+                padding: 3px 8px !important;
+                margin-top: 4px !important;
+            }
+            #top-left-hud {
+                top: 8px !important;
+                left: 8px !important;
+            }
+            #top-left-hud .logo-avatar {
+                width: 36px !important;
+                height: 36px !important;
+            }
+            #top-right-hud {
+                top: 8px !important;
+                right: 8px !important;
+            }
+            #top-right-hud .text-3xl {
+                font-size: 14px !important;
+            }
+            #top-right-hud .text-lg {
+                font-size: 11px !important;
+            }
+            #hud-topic-label {
+                display: none !important;
+            }
+            #topic-selection-overlay > div,
+            #admin-editor-modal > div,
+            #pin-prompt-modal > div {
+                max-height: 80dvh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            #yoga-topics-grid,
+            #editor-questions-list {
+                max-height: 60dvh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            #start-screen h2 {
+                font-size: 26px !important;
+                margin-bottom: 8px !important;
+            }
+            #start-screen h3 {
+                font-size: 18px !important;
+                margin-bottom: 12px !important;
+            }
+            #start-screen .flex.space-x-8 {
+                flex-direction: column !important;
+                gap: 8px !important;
+                padding: 12px !important;
+                margin-bottom: 12px !important;
+            }
+            #start-screen .w-1\/2 {
+                width: 100% !important;
+            }
+            #start-screen .w-px {
+                display: none !important;
+            }
+            #start-screen p {
+                font-size: 12px !important;
+            }
+            #start-screen h4 {
+                font-size: 14px !important;
+                margin-bottom: 4px !important;
+            }
+        }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col items-center justify-center relative">
+<body class="min-h-[100dvh] h-[100dvh] max-h-[100dvh] w-screen flex flex-col items-center justify-center relative overflow-hidden">
 
     <!-- ======================================================== -->
     <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
@@ -280,8 +431,8 @@
 
     <input type="file" id="logo-upload" accept="image/*" style="display: none;">
 
-    <div class="absolute top-6 left-6 flex items-center space-x-3 z-50">
-        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white overflow-hidden cursor-pointer hover:scale-105" onclick="document.getElementById('logo-upload').click()" title="Đổi Logo">
+    <div id="top-left-hud" class="absolute top-6 left-6 flex items-center space-x-3 z-50">
+        <div class="logo-avatar w-16 h-16 bg-white rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white overflow-hidden cursor-pointer hover:scale-105" onclick="document.getElementById('logo-upload').click()" title="Đổi Logo">
             <img id="logo-img-1" src="https://i.pravatar.cc/150?img=12" class="w-full h-full object-cover">
         </div>
         <div>
@@ -299,11 +450,15 @@
                 <button id="btn-admin-gear" onclick="window.openAdminEditorPrompt()" style="display: none !important;" class="hidden px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wide shadow-lg border border-blue-400/40 items-center gap-1.5 transition-all active:scale-95 cursor-pointer">
                     <span>⚙️ SỬA DỮ LIỆU</span>
                 </button>
+                <!-- Nút Toàn Màn Hình Mobile Multi-Vendor -->
+                <button id="fullscreenToggleBtn" onclick="window.toggleMobileFullscreen()" class="px-2.5 py-1 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-white/20 text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Toàn màn hình">
+                    <span>⛶ Toàn màn hình</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="absolute top-6 right-6 text-right z-50">
+    <div id="top-right-hud" class="absolute top-6 right-6 text-right z-50">
         <div class="text-3xl font-bold text-white drop-shadow-md">Điểm: <span id="score" class="text-yellow-400">0</span>/<span id="total-q1">0</span></div>
         <div class="text-lg text-white/80">Câu: <span id="question-number">1</span>/<span id="total-q2">0</span></div>
     </div>
@@ -360,7 +515,7 @@
     <div id="game-ui" class="w-full h-full flex flex-col items-center justify-center relative opacity-0 transition-opacity duration-500 pt-16">
         
         <!-- Khung Câu hỏi -->
-        <div class="absolute top-20 z-20 bg-black/70 backdrop-blur-md px-10 py-6 rounded-3xl border border-white/20 shadow-2xl max-w-5xl w-full text-center min-h-[120px] flex items-center justify-center">
+        <div id="question-text-box" class="absolute top-20 z-20 bg-black/70 backdrop-blur-md px-10 py-6 rounded-3xl border border-white/20 shadow-2xl max-w-5xl w-full text-center min-h-[120px] flex items-center justify-center">
             <h3 id="question-text" class="text-2xl font-semibold leading-relaxed">Đang tải...</h3>
         </div>
 
@@ -440,7 +595,7 @@
         </div>
 
         <!-- Camera (Ở giữa) -->
-        <div class="flex flex-col items-center absolute top-[55%] left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div id="camera-wrapper" class="flex flex-col items-center absolute top-[55%] left-1/2 -translate-x-1/2 -translate-y-1/2">
             <div class="camera-container relative">
                 <video class="input_video" autoplay playsinline></video>
                 <svg class="absolute top-0 left-0 w-full h-full pointer-events-none" viewBox="0 0 380 380">
@@ -461,26 +616,56 @@
         // ========================================================
         // 0. CHUẨN HÓA CÔNG THỨC TOÁN & BỘ RENDER KATEX / MATHJAX
         // ========================================================
-        function formatMathText(str) {
-            if (!str || typeof str !== 'string') return '';
-            let text = str.trim();
-            // Chuyển đổi $$...$$ thành \(...\)
-            text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
-            // Chuyển đổi $...$ thành \(...\)
-            text = text.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
-            if (/^\\\([\s\S]*?\\\)$/.test(text)) return text;
-            // Bọc lệnh TeX trần
-            if (!text.includes('\\(') && /\\[a-zA-Z]+/.test(text)) {
-                if (!/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text)) {
-                    return `\\(${text}\\)`;
+        function cleanYogaMathText(text) {
+            if (!text || typeof text !== 'string') return '';
+            let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+
+            res = res.replace(/\bN\s+?u\b/g, 'Nếu')
+                     .replace(/\bH\s+ai\b/g, 'Hai')
+                     .replace(/\bC\s+ho\b/g, 'Cho')
+                     .replace(/\bC\s+?\b/g, 'Có')
+                     .replace(/\bK\s+hi\b/g, 'Khi')
+                     .replace(/\bC\s+h?\b/g, 'Chỉ')
+                     .replace(/\bT\s+ính\b/g, 'Tính')
+                     .replace(/\bT\s+rong\b/g, 'Trong')
+                     .replace(/\bK\s+h?ng\b/g, 'Không')
+                     .replace(/\bd\s+?nh\b/g, 'định')
+                     .replace(/\bH\s+ình\b/g, 'Hình')
+                     .replace(/\bM\s+?t\b/g, 'Một')
+                     .replace(/\bd\s+u?ng\b/g, 'đường')
+                     .replace(/Hai\s+m\s+?t\s+ph\s+?ng/g, 'Hai mặt phẳng');
+
+            res = res.replace(/\bAcupB\b/g, 'A \\cup B')
+                     .replace(/\bAcapB\b/g, 'A \\cap B')
+                     .replace(/(?<!\\)\bcdot\b/g, '\\cdot')
+                     .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
+                     .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+
+            res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}')
+                     .replace(/e\^\{([^}]+)\}/g, 'e^{$1}')
+                     .replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}')
+                     .replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}')
+                     .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
+                     .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
+
+            res = res.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
+            res = res.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
+
+            if (!res.includes('\\(') && /\\[a-zA-Z]+/.test(res)) {
+                if (!/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(res)) {
+                    return `\\(${res}\\)`;
                 }
-                text = text.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (m) => {
+                res = res.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (m) => {
                     const tr = m.trim();
                     if (!tr || tr.startsWith('\\(')) return m;
                     return `\\(${tr}\\)`;
                 });
             }
-            return text;
+            return res;
+        }
+
+        function formatMathText(str) {
+            return cleanYogaMathText(str);
         }
 
         function typesetMath(elements) {
@@ -502,9 +687,41 @@
                 }
             });
             if (window.MathJax && window.MathJax.typesetPromise) {
-                window.MathJax.typesetPromise().catch(function() {});
+                window.MathJax.typesetPromise(targets).catch(function() {});
             }
         }
+
+        // Fullscreen API đa trình duyệt (Safari iOS / Chrome Mobile / Desktop)
+        window.toggleMobileFullscreen = function() {
+            try {
+                const doc = document;
+                const el = doc.documentElement;
+                const isFs = doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement;
+                if (!isFs) {
+                    if (el.requestFullscreen) { el.requestFullscreen().catch(()=>{}); }
+                    else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); }
+                    else if (el.mozRequestFullScreen) { el.mozRequestFullScreen(); }
+                    else if (el.msRequestFullscreen) { el.msRequestFullscreen(); }
+                } else {
+                    if (doc.exitFullscreen) { doc.exitFullscreen().catch(()=>{}); }
+                    else if (doc.webkitExitFullscreen) { doc.webkitExitFullscreen(); }
+                    else if (doc.mozCancelFullScreen) { doc.mozCancelFullScreen(); }
+                    else if (doc.msExitFullscreen) { doc.msExitFullscreen(); }
+                }
+            } catch(e) {}
+        };
+
+        function updateFsUI() {
+            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+            const btn = document.getElementById('fullscreenToggleBtn');
+            if (btn) {
+                btn.innerHTML = isFs ? '<span>⛶ Thu nhỏ</span>' : '<span>⛶ Toàn màn hình</span>';
+            }
+        }
+        document.addEventListener('fullscreenchange', updateFsUI);
+        document.addEventListener('webkitfullscreenchange', updateFsUI);
+        document.addEventListener('mozfullscreenchange', updateFsUI);
+        document.addEventListener('MSFullscreenChange', updateFsUI);
 
         // ========================================================
         // HỆ THỐNG ĐA CHỦ ĐỀ - ĐA ĐỘ KHÓ (GAME DATABASE ARCHITECTURE)
