@@ -872,6 +872,39 @@ window.quizData = ${JSON.stringify(flatQuizData, null, 2)};
         const style = document.createElement('style');
         style.id = 'bird-math-nowrap-style';
         style.textContent = \`
+          .question-container-box {
+              position: absolute !important;
+              top: 5px !important;
+              left: 50% !important;
+              transform: translateX(-50%) !important;
+              width: 95% !important;
+              max-width: 680px !important;
+              max-height: 12vh !important;
+              z-index: 20 !important;
+              background: rgba(255, 255, 255, 0.9) !important;
+              overflow-y: auto !important;
+              -webkit-overflow-scrolling: touch !important;
+              box-sizing: border-box !important;
+          }
+          @media (max-width: 768px) {
+              .question-container-box {
+                  top: 2px !important;
+                  font-size: 0.85rem !important;
+                  padding: 6px 12px !important;
+                  max-height: 12vh !important;
+                  width: 95% !important;
+              }
+              #top-left-hud {
+                  position: absolute !important;
+                  top: calc(12vh + 5px) !important;
+                  left: 8px !important;
+              }
+              #top-right-hud {
+                  position: absolute !important;
+                  top: calc(12vh + 5px) !important;
+                  right: 8px !important;
+              }
+          }
           .question-text .mjx-chtml,
           .question-text mjx-container,
           #math-question .mjx-chtml,
@@ -909,6 +942,12 @@ window.quizData = ${JSON.stringify(flatQuizData, null, 2)};
 
   function syncBirdData() {
     injectBirdMathNowrapStyle();
+    try {
+      var qBox = document.getElementById('math-question-box');
+      if (qBox && !qBox.classList.contains('question-container-box')) {
+        qBox.classList.add('question-container-box');
+      }
+    } catch(e) {}
     if (typeof ensureBirdData === 'function') {
       ensureBirdData();
     }
