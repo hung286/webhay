@@ -1171,7 +1171,7 @@ var questions = window.quizData;
       const letters = ['A', 'B', 'C', 'D'];
       const ansLetter = (typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex < 4) ? letters[q.correctIndex] : 'A';
       const opts = (q.options || ['A', 'B', 'C', 'D']).map((o, idx) => {
-        const cleanO = String(o).replace(/^[A-Da-d][\)\.\:\-]\s*/, '').trim();
+        const cleanO = normalizeMathFormulas(String(o).replace(/^[A-Da-d][\)\.\:\-]\s*/, '').trim());
         return `${letters[idx]}. ${cleanO}`;
       });
       const weight = diffKey === 'easy' ? 3 : (diffKey === 'medium' ? 5 : 8);
@@ -1186,10 +1186,10 @@ var questions = window.quizData;
           type: 'short',
           badge: badge,
           color: color,
-          q: q.question,
+          q: normalizeMathFormulas(q.question),
           ans: String((q.options && q.options[0]) || '1').trim(),
           w: weight,
-          explanation: q.explanation || '',
+          explanation: normalizeMathFormulas(q.explanation || ''),
           imageUrl: q.imageUrl || ''
         });
       } else if (isTF) {
@@ -1197,12 +1197,12 @@ var questions = window.quizData;
           type: 'tf',
           badge: badge,
           color: color,
-          q: q.question,
-          stem: (q as any).stem || q.question,
-          opts: q.options || ['Đúng', 'Sai'],
+          q: normalizeMathFormulas(q.question),
+          stem: normalizeMathFormulas((q as any).stem || q.question),
+          opts: (q.options || ['Đúng', 'Sai']).map(o => normalizeMathFormulas(o)),
           ans: q.correctIndex === 0 ? 'Đ' : 'S',
           w: weight,
-          explanation: q.explanation || '',
+          explanation: normalizeMathFormulas(q.explanation || ''),
           imageUrl: q.imageUrl || ''
         });
       } else {
@@ -1210,11 +1210,11 @@ var questions = window.quizData;
           type: 'abcd',
           badge: badge,
           color: color,
-          q: q.question,
+          q: normalizeMathFormulas(q.question),
           opts: opts,
           ans: ansLetter,
           w: weight,
-          explanation: q.explanation || '',
+          explanation: normalizeMathFormulas(q.explanation || ''),
           imageUrl: q.imageUrl || ''
         });
       }

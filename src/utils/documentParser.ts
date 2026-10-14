@@ -126,13 +126,17 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/\\+P\s*\(/g, 'P(');
 
   // Sửa lỗi cách chữ đầu câu & dính chữ tiếng Việt với biến toán
+  str = str.replace(/\bT\s+ìm\b/gi, 'Tìm');
   str = str.replace(/\bN\s+ếu\b/gi, 'Nếu');
   str = str.replace(/\bH\s+ai\b/gi, 'Hai');
   str = str.replace(/\bC\s+ho\b/gi, 'Cho');
   str = str.replace(/\bC\s+ả\b/gi, 'Cả');
   str = str.replace(/\bK\s+hi\b/gi, 'Khi');
   str = str.replace(/\bC\s+hỉ\b/gi, 'Chỉ');
+  str = str.replace(/\bB\s+iết\b/gi, 'Biết');
   str = str.replace(/\bT\s+ính\b/gi, 'Tính');
+  str = str.replace(/\bN\s+ghiệm\b/gi, 'Nghiệm');
+  str = str.replace(/\bT\s+ập\b/gi, 'Tập');
   str = str.replace(/\bT\s+rong\b/gi, 'Trong');
   str = str.replace(/\bV\s+ới\b/gi, 'Với');
   str = str.replace(/\bĐ\s+ạo\b/gi, 'Đạo');
@@ -164,10 +168,17 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/(P\([^\)]+\))\s*\*\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
   str = str.replace(/\bcdot\b/g, '\\cdot');
 
-  // 0d. Chuẩn hóa số mũ cơ số e và các lũy thừa: e^(3x) -> e^{3x}, e^(-x) -> e^{-x}, (x+1)^3 -> (x+1)^{3}
+  // 0d. Chuẩn hóa số mũ cơ số e và các lũy thừa: e^(3x) -> e^{3x}, e^(-x) -> e^{-x}, (x+1)^3 -> (x+1)^{3}, 3^(x+1) -> 3^{x+1}
   str = str.replace(/e\^\(([^)]+)\)/g, 'e^{$1}');
   str = str.replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}');
-  str = str.replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}');
+  str = str.replace(/([0-9a-zA-Z\)])\^\(([^)]+)\)/g, '$1^{$2}');
+  str = str.replace(/([0-9a-zA-Z\)])\^([a-zA-Z0-9\+\-]+)(?=[^0-9a-zA-Z\^]|$)/g, '$1^{$2}');
+
+  // Chuẩn hóa hàm logarit: log_a b -> \log_{a} b, ln(x) -> \ln(x)
+  str = str.replace(/(^|[^\\])\blog_([0-9a-zA-Z]+|\{[^}]+\})/g, '$1\\log_{$2}');
+  str = str.replace(/(^|[^\\])\blog\b(?![a-zA-Z])/g, '$1\\log');
+  str = str.replace(/(^|[^\\])\bln\b(?![a-zA-Z])/g, '$1\\ln');
+  str = str.replace(/\\log_\{(\{[^}]+\})\}/g, '\\log_$1');
   // Ký tự số mũ Unicode
   str = str.replace(/²ˣ/g, '^{2x}');
   str = str.replace(/⁻¹/g, '^{-1}');
