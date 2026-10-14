@@ -61,13 +61,11 @@
         #game-container, #canvas-container, .canvas-container, .mario-canvas-container, .game-container {
             position: relative !important;
             width: 100% !important;
-            height: calc(100vh - 50px) !important;
-            height: calc(100dvh - 50px) !important; /* Tương thích mượt mà trên trình duyệt Mobile */
+            height: calc(100vh - 45px) !important;
+            height: calc(100dvh - 45px) !important; /* Tương thích mượt mà trên trình duyệt Mobile */
             margin-top: 45px !important; /* Khoảng trống an toàn dưới thanh bảng điểm đen */
             overflow: hidden !important;
-            transform: scale(0.9);
-            transform-origin: top center;
-            background-color: #5C94FC;
+            background-color: #5c94fc !important;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -77,7 +75,9 @@
             width: 100% !important;
             height: 100% !important;
             object-fit: contain !important; /* Ép bàn cảnh game tự động co giãn vuông vắn trên cả Laptop và Điện thoại */
-            background-color: #5C94FC;
+            transform: scale(0.9);
+            transform-origin: top center;
+            background-color: #5c94fc;
         }
 
         /* ÉP PHÂN SỐ TOÁN HỌC HIỂN THỊ THẲNG HÀNG CHỐNG NGẮT DÒNG VÔ LÝ */
@@ -1702,10 +1702,21 @@
         // GAME ENGINE & PHYSICS
         // ==========================================
         const canvas = document.getElementById('game-canvas') || document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        let ctx = null;
+        if (canvas) {
+            ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error("Không thể khởi tạo Canvas Context 2D!");
+            } else {
+                console.log("Canvas Context 2D đã được phục hồi thành công!");
+            }
+        }
+        window.marioCanvas = canvas;
+        window.marioCtx = ctx;
         
         let width, height;
         function resize() {
+            if (!canvas) return;
             const container = document.getElementById('game-container') || document.getElementById('canvas-container') || document.body;
             const topbar = document.getElementById('game-topbar');
             const topOffset = topbar ? topbar.offsetHeight : 45;
@@ -1718,6 +1729,12 @@
                 const curGroundY = height - 100;
                 for (let b of blocks) {
                     b.y = Math.max(35, curGroundY - 180);
+                }
+            }
+            if (typeof player !== 'undefined' && player) {
+                const curGroundY = height - 100;
+                if (typeof gameState === 'undefined' || gameState === 'waiting' || player.onGround) {
+                    player.y = curGroundY - player.h;
                 }
             }
         }
@@ -1790,7 +1807,7 @@
             ctx.fillStyle = '#00A800'; ctx.fillRect(0, groundY, width, 15);
         }
 
-        const player = { x: 100, y: 0, w: 56, h: 70, vx: 0, vy: 0, speed: 7, jumpForce: 23, gravity: 0.8, onGround: false, facingRight: true, walkAnim: 0 };
+        const player = { x: 100, y: 300, w: 56, h: 70, vx: 0, vy: 0, speed: 7, jumpForce: 23, gravity: 0.8, onGround: true, facingRight: true, walkAnim: 0 };
         const blocks = []; const BLOCK_SIZE = 60;
         let levelLength = 1200;
 
@@ -1819,10 +1836,10 @@
             cameraX = 0;
             if (typeof coins !== 'undefined') coins.length = 0;
             player.x = 100;
-            player.y = 0;
+            player.y = curGroundY - player.h;
             player.vx = 0;
             player.vy = 0;
-            player.onGround = false;
+            player.onGround = true;
 
             const scoreEl = document.getElementById('scoreDisplay');
             if (scoreEl) scoreEl.textContent = "0";
@@ -2279,6 +2296,7 @@
         }
 
         function draw() {
+            if (!ctx) return;
             ctx.fillStyle = '#5C94FC'; ctx.fillRect(0, 0, width, height);
             ctx.fillStyle = 'rgba(255,255,255,0.8)';
             for(let i=0; i<5; i++) {
@@ -2311,9 +2329,26 @@
             
             if (gameState === 'playing' || gameState === 'autofinish') { 
                 gameTime += dt; 
-                document.getElementById('timeDisplay').textContent = formatTime(gameTime); 
+                const timeEl = document.getElementById('timeDisplay');
+                if (timeEl) timeEl.textContent = formatTime(gameTime); 
             }
-            update(); draw(); requestAnimationFrame(loop);
+            update(); 
+            draw(); 
+            requestAnimationFrame(loop);
+        }
+        window.marioLoop = loop;
+
+        let marioLoopRunning = false;
+        function startMarioLoop() {
+            if (!marioLoopRunning) {
+                marioLoopRunning = true;
+                requestAnimationFrame(loop);
+                console.log("[MarioEngine] Game loop đã khởi chạy thành công!");
+            }
+        }
+        // Khởi động vòng lặp game ngay lập tức không phụ thuộc font mạng
+        if (typeof loop === 'function') {
+            startMarioLoop();
         }
 
         // ==========================================
@@ -2803,7 +2838,15 @@
             }
         });
 
-        document.fonts.ready.then(() => { requestAnimationFrame(loop); });
+        // 6. Khởi chạy vòng lặp game ngay lập tức không phụ thuộc font mạng
+        startMarioLoop();
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                startMarioLoop();
+            }).catch(() => {
+                startMarioLoop();
+            });
+        }
     </script>
 <script src="/game-engine.js"></script>
 </body>
