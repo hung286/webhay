@@ -466,60 +466,246 @@ window.useStaticTopic = true;
     } catch(e) {}
   }
 
+  function executeMobileFullscreen() {
+    const docEl = document.documentElement;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (docEl.requestFullscreen) docEl.requestFullscreen().catch(function(){});
+      else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen().catch(function(){});
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+  }
+  window.executeMobileFullscreen = executeMobileFullscreen;
+
+  window.exitGameOrMenu = function() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
+      }
+    } catch(e) {}
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = '/trang-chu.html';
+    }
+  };
+
+  function updateFsUI() {
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const fsIcon = document.getElementById('fullscreenIcon');
+    const fsText = document.getElementById('fullscreenText');
+    if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
+    if (fsText) fsText.textContent = isFs ? 'Thu nhỏ' : 'Toàn màn hình';
+  }
+  document.addEventListener('fullscreenchange', updateFsUI);
+  document.addEventListener('webkitfullscreenchange', updateFsUI);
+
+  function setupFullscreenBtn() {
+    const fsBtn = document.getElementById('fullscreenToggleBtn');
+    if (fsBtn) {
+      fsBtn.onclick = executeMobileFullscreen;
+      fsBtn.ontouchstart = function(e) {
+        e.preventDefault();
+        executeMobileFullscreen();
+      };
+    }
+    if (window.self !== window.top) {
+      const topbar = document.getElementById('game-topbar');
+      if (topbar) topbar.style.display = 'none';
+    }
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       syncBattlefieldDb();
       applyAdminSecurity();
+      setupFullscreenBtn();
     });
   } else {
     syncBattlefieldDb();
     applyAdminSecurity();
+    setupFullscreenBtn();
   }
   window.addEventListener('load', function() {
     syncBattlefieldDb();
     applyAdminSecurity();
+    setupFullscreenBtn();
   });
 })();
 </script>
 `;
     const landscapeStyleFix = `
-<!-- BẢN VÁ MOBILE XOAY NGANG & TOÁN MIKTEX V3.8 -->
+<!-- BẢN VÁ MOBILE DỌC/NGANG & TOÁN MIKTEX V3.8 -->
 <style>
 /* TIÊM CSS TỐI ƯU CẢM ỨNG CHỐNG TRỄ 300MS */
-button, input[type="button"], select, a, .clickable-game-item, .answer-btn, .shoot-btn {
+button, input[type="button"], select, a, .clickable-game-item, .answer-btn, .shoot-btn, .mobile-touch-btn, .mobile-ans-btn, .mobile-shoot-btn {
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent !important;
 }
-/* CSS Lớp phủ cảnh báo xoay máy */
-#edu-rotate-warning {
-    display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: #1e1b4b; color: #ffffff; z-index: 999999;
-    flex-direction: column; justify-content: center; align-items: center; text-align: center;
-    font-family: 'Segoe UI', Roboto, sans-serif; padding: 20px; box-sizing: border-box;
-}
-#edu-rotate-warning h2 { font-size: 1.6rem; margin: 0 0 10px 0; font-weight: 600; }
-#edu-rotate-warning p { font-size: 1rem; color: #94a3b8; margin: 0; }
-#edu-rotate-warning .edu-rotate-icon { font-size: 60px; margin-bottom: 20px; animation: eduRotateDevice 2s infinite ease-in-out; }
-@keyframes eduRotateDevice { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
 
-/* BẬT CẢNH BÁO KHI CẦM DỌC ĐIỆN THOẠI (PORTRAIT MEDIA QUERY) */
-@media screen and (orientation: portrait) and (max-width: 1024px) {
-    #edu-rotate-warning { display: flex !important; }
-    /* Ẩn toàn bộ đấu trường game chiến hào, topbar, khung câu hỏi và đáp án khi cầm dọc máy */
-    #game-container, #game-canvas, main, .game-warzone-wrapper, .answers-controls-container, #game-wrapper, #hud-top, #question-panel, #battle-arena, #mobile-combat-dock, #topic-selection-overlay { 
-        display: none !important; 
-    }
+/* 1. THANH TOPBAR ĐEN TỐI GIẢN CHUẨN HÌNH 1 (CAO TỐI ĐA 35PX, FONT 0.75 - 0.8REM) */
+#game-topbar {
+    height: 35px !important;
+    max-height: 35px !important;
+    min-height: 35px !important;
+    background: #020617 !important;
+    border-bottom: 1px solid #1e293b !important;
+    padding: 0 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    z-index: 150 !important;
+    position: relative !important;
+}
+#game-topbar button {
+    height: 24px !important;
+    font-size: 0.75rem !important;
+    line-height: 1 !important;
+    touch-action: manipulation !important;
+}
+#game-topbar #topbar-game-title {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
 }
 
-/* CHỐNG BẺ ĐÔI BIỂU THỨC VÀ HIỂN THỊ CHUẨN TRÊN ZOMBIE */
-.zombie-text, .question-text, mjx-container {
-    white-space: nowrap !important;
-    display: inline-block !important;
+/* 2. KHÔI PHỤC BẢNG ĐÁP ÁN BÁM THEO ZOMBIE CHUẨN HÌNH 2 (MÀU VÀNG RỰC, VIỀN NÂU, CHỮ TOÁN ĐEN SẮC NÉT) */
+.zombie-badge-board, .answer-banner {
+    background: #fef08a !important; /* Màu vàng rực chuẩn Hình 2 */
+    border: 1.5px solid #ca8a04 !important; /* Viền gỗ nâu đậm bóng bẩy */
+    border-image: none !important;
+    border-radius: 12px !important; /* Bo góc tròn mịn */
+    padding: 4px 12px !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    width: max-content !important;
+    min-width: 140px !important;
+    min-height: 40px !important;
+    color: #0f172a !important;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4)) !important;
+    margin-left: -15px !important;
 }
-.zombie-text, .zombie-text *, .zombie-text mjx-container, .zombie-text mjx-container * {
-    white-space: nowrap !important;
-    display: inline-block !important;
+/* Nhãn tròn chứa chữ cái A, B, C, D màu cam */
+.zombie-letter-circle, .label-circle {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    background: #f97316 !important; /* Màu cam nổi bật chuẩn Hình 2 */
     color: #ffffff !important;
+    font-weight: bold !important;
+    font-size: 0.8rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    border: none !important;
+    margin-right: 0 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+}
+/* Biểu thức công thức toán chữ đen bên cạnh nhãn tròn */
+.zombie-math-text, .answer-text, .zombie-text {
+    color: #0f172a !important; /* Chữ đen đậm cực kỳ dễ đọc trên nền vàng như Hình 2 */
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    white-space: nowrap !important; /* Ép công thức lượng giác phân số, căn thức nằm thẳng hàng ngang */
+    display: inline-block !important;
+}
+/* Ép MathJax hiển thị chữ đen trên bảng zombie */
+.zombie-badge-board mjx-container, .answer-banner mjx-container,
+.zombie-badge-board mjx-container *, .answer-banner mjx-container *,
+.zombie-badge-board .MathJax, .answer-banner .MathJax,
+.zombie-badge-board .MathJax *, .answer-banner .MathJax * {
+    color: #0f172a !important;
+    fill: #0f172a !important;
+    white-space: nowrap !important;
+}
+
+/* 3. CỤM PHÍM BẤM DÀN HÀNG NGANG CHUẨN HÌNH 2 (PILL DOCK CONTROLS) */
+.mobile-controls-dock, .answers-controls-container, #mobile-combat-dock {
+    position: fixed !important;
+    bottom: 6px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(8px) !important;
+    padding: 6px 16px !important;
+    border-radius: 30px !important;
+    z-index: 99999 !important;
+    width: auto !important;
+    max-width: 95% !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.mobile-ans-btn, #mobile-combat-dock .mobile-touch-btn:not(.mobile-shoot-btn):not(#m-btn-fire):not(#m-btn-modal) {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: #334155 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    font-size: 0.9rem !important;
+    border: 1px solid #475569 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+}
+.mobile-shoot-btn, #m-btn-fire {
+    padding: 0 16px !important;
+    height: 36px !important;
+    border-radius: 18px !important;
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    font-size: 0.85rem !important;
+    border: none !important;
+    text-transform: uppercase !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important;
+}
+#m-btn-modal {
+    padding: 0 12px !important;
+    height: 36px !important;
+    border-radius: 18px !important;
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    font-size: 0.8rem !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+}
+
+/* 4. CHO PHÉP CHƠI CẢ DỌC VÀ NGANG - KHUNG CÂU HỎI CUỘN DỌC MƯỢT MÀ */
+#question-panel {
+    max-height: 75dvh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+.question-text, mjx-container {
+    white-space: nowrap !important;
+    display: inline-block !important;
+}
+#game-wrapper, .game-warzone-wrapper {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
@@ -643,12 +829,6 @@ button, input[type="button"], select, a, .clickable-game-item, .answer-btn, .sho
     width: 40px !important;
     height: 40px !important;
   }
-  .answer-banner {
-    min-width: 90px !important;
-    min-height: 32px !important;
-    padding: 2px 6px 2px 10px !important;
-    font-size: 0.78rem !important;
-  }
   .label-circle {
     width: 18px !important;
     height: 18px !important;
@@ -659,52 +839,39 @@ button, input[type="button"], select, a, .clickable-game-item, .answer-btn, .sho
     width: 70px !important;
     height: 70px !important;
   }
-  .answers-controls-container, #mobile-combat-dock, #combat-modal-options {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 6px !important;
-    width: 95% !important;
-    margin: 6px auto 14px auto !important;
-    position: relative !important;
-    bottom: auto !important;
-    left: auto !important;
-    transform: none !important;
-    padding: 6px 10px !important;
-    border-radius: 12px !important;
-    z-index: 100 !important;
-    flex-shrink: 0 !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-  .answers-controls-container button,
-  #mobile-combat-dock button {
-    width: 100% !important;
-    height: 36px !important;
-    min-height: 36px !important;
-    font-size: 0.9rem !important;
-    border-radius: 8px !important;
-    margin: 0 !important;
-  }
-  .mobile-touch-btn-fire {
-    font-size: 0.8rem !important;
-  }
-  .mobile-touch-btn-challenge {
-    font-size: 0.75rem !important;
-  }
 }
 </style>
 `;
-    if (!htmlContent.includes('id="edu-rotate-warning"')) {
-      const rotateWarningHtml = `
-<div id="edu-rotate-warning">
-    <div class="edu-rotate-icon">🔄</div>
-    <h2>Vui lòng xoay ngang màn hình</h2>
-    <p>Để có trải nghiệm học tập và chơi game tốt nhất!</p>
-</div>
+    // Gỡ bỏ hoàn toàn cảnh báo xoay màn hình nếu có
+    htmlContent = htmlContent.replace(/<div id="edu-rotate-warning">[\s\S]*?<\/div>/gi, '');
+    htmlContent = htmlContent.replace(/#edu-rotate-warning[\s\S]*?}/gi, '');
+
+    // Chèn Topbar đen nếu chưa có
+    if (!htmlContent.includes('id="game-topbar"')) {
+      const topbarHtml = `
+        <header id="game-topbar" class="w-full h-[35px] max-h-[35px] bg-slate-950/95 border-b border-slate-800 text-white flex items-center justify-between px-3 z-[150] shrink-0 backdrop-blur-md select-none">
+            <div class="flex items-center gap-2">
+                <button id="btn-exit-game" type="button" onclick="window.exitGameOrMenu()" class="h-6 px-2 sm:px-2.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-bold text-[0.75rem] sm:text-[0.8rem] flex items-center gap-1 cursor-pointer transition active:scale-95" title="Rời khỏi trò chơi">
+                    ✕ <span class="hidden sm:inline">Rời khỏi trò chơi</span>
+                </button>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-sm">🎮</span>
+                    <h1 id="topbar-game-title" class="font-bold text-[0.75rem] sm:text-[0.8rem] text-slate-200 tracking-wide truncate max-w-[200px] sm:max-w-md">${gameTitle}</h1>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="fullscreenToggleBtn" type="button" onclick="executeMobileFullscreen()" class="h-6 px-2 sm:px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-[0.75rem] sm:text-[0.8rem] flex items-center gap-1 cursor-pointer transition active:scale-95" title="Toàn màn hình">
+                    <span id="fullscreenIcon">⛶</span> <span id="fullscreenText" class="hidden sm:inline">Toàn màn hình</span>
+                </button>
+            </div>
+        </header>
 `;
-      htmlContent = htmlContent.replace(/<body[^>]*>/i, (m) => `${m}\n${rotateWarningHtml}`);
+      if (htmlContent.includes('<div id="game-wrapper"')) {
+        htmlContent = htmlContent.replace(/(<div id="game-wrapper"[^>]*>)/i, `$1\n${topbarHtml}`);
+      }
     }
-    if (!htmlContent.includes('BẢN VÁ MOBILE XOAY NGANG')) {
+
+    if (!htmlContent.includes('BẢN VÁ MOBILE DỌC/NGANG & TOÁN MIKTEX V3.8')) {
       htmlContent = htmlContent.replace('</head>', `${landscapeStyleFix}\n</head>`);
     }
     htmlContent = injectScriptAtTop(htmlContent, trenchScript);

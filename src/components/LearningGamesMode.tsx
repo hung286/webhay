@@ -68,6 +68,8 @@ export const LearningGamesMode: React.FC<LearningGamesModeProps> = ({ student })
     const handleMsg = (e: MessageEvent) => {
       if (e.data && e.data.type === 'TOGGLE_FULLSCREEN') {
         toggleFullscreen();
+      } else if (e.data && e.data.type === 'EXIT_GAME') {
+        setActiveGame(null);
       }
     };
     window.addEventListener('message', handleMsg);
@@ -99,33 +101,33 @@ export const LearningGamesMode: React.FC<LearningGamesModeProps> = ({ student })
   if (activeGame) {
     return (
       <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col h-screen w-screen animate-in fade-in duration-200">
-        <div className="flex justify-between items-center px-4 py-3 bg-slate-900 border-b border-slate-800 shadow-xl relative z-20">
-          <div className="flex items-center gap-3">
+        <div className="flex justify-between items-center px-3 h-[35px] max-h-[35px] bg-slate-900 border-b border-slate-800 shadow-xl relative z-20 shrink-0">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 setActiveGame(null);
                 soundFx.playClick();
               }}
-              className="px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-xl transition font-bold border border-rose-500/30 flex items-center gap-2 text-sm"
+              className="h-6 px-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg transition font-bold border border-rose-500/30 flex items-center gap-1.5 text-[0.75rem] sm:text-[0.8rem]"
             >
               ✕ <span className="hidden sm:inline">Rời khỏi trò chơi</span>
             </button>
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-violet-500/20 text-violet-400">
-                <Gamepad2 className="w-5 h-5" />
+            <div className="flex items-center gap-1.5">
+              <span className="p-1 rounded-md bg-violet-500/20 text-violet-400">
+                <Gamepad2 className="w-3.5 h-3.5" />
               </span>
-              <h3 className="text-base sm:text-lg font-black text-white truncate max-w-xs sm:max-w-md">
+              <h3 className="text-[0.75rem] sm:text-[0.8rem] font-black text-white truncate max-w-xs sm:max-w-md">
                 {activeGame.name}
               </h3>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={toggleFullscreen}
-              className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition font-semibold text-xs sm:text-sm flex items-center gap-1.5"
+              className="h-6 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition font-semibold text-[0.75rem] sm:text-[0.8rem] flex items-center gap-1.5"
             >
-              {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              {isFullscreen ? <Minimize className="w-3.5 h-3.5" /> : <Maximize className="w-3.5 h-3.5" />}
               <span className="hidden sm:inline">{isFullscreen ? 'Thu nhỏ' : 'Toàn màn hình'}</span>
             </button>
           </div>
