@@ -366,52 +366,155 @@
             position: relative;
         }
 
+        /* ÉP BIỂU THỨC TOÁN NẰM NGANG CHỐNG NGẮT DÒNG */
+        .zombie-text, .question-text, .answer-text, .mjx-chtml, mjx-container, .MathJax {
+            white-space: nowrap !important; /* Ép buộc phân số, căn thức lượng giác luôn nằm trên một dòng duy nhất, không được tự ý xuống dòng */
+            display: inline-block !important;
+        }
+        .mjx-chtml *, mjx-container *, .MathJax * {
+            white-space: nowrap !important;
+        }
+        #question-panel .mjx-chtml, #question-panel mjx-container, #question-panel .MathJax,
+        #question-panel .mjx-chtml *, #question-panel mjx-container *, #question-panel .MathJax *,
+        #combat-question-modal .mjx-chtml, #combat-question-modal mjx-container, #combat-question-modal .MathJax,
+        #combat-question-modal .mjx-chtml *, #combat-question-modal mjx-container *, #combat-question-modal .MathJax * {
+            color: #ffffff !important;
+        }
+
         @media (max-width: 768px) {
+            /* 1. THU GỌN KHỐI CHỈ SỐ TOPBAR (TỐI ĐA 40PX, FONT MẢNH 0.8REM, KHÔNG ĐÈ CHỮ) */
             #hud-top {
-                padding: 6px 10px !important;
-                gap: 6px !important;
+                max-height: 40px !important;
+                height: 40px !important;
+                padding: 2px 6px !important;
+                gap: 4px !important;
+                overflow: hidden !important;
+                align-items: center !important;
             }
             .esport-panel {
-                padding: 4px 6px !important;
+                padding: 2px 6px !important;
                 font-size: 0.75rem !important;
+                gap: 6px !important;
+                border-radius: 6px !important;
+                background: rgba(0, 0, 0, 0.6) !important;
+            }
+            .esport-panel .fa-user-astronaut {
+                display: none !important;
+            }
+            .esport-panel .h-12 {
+                height: 18px !important;
+                margin: 0 4px !important;
+            }
+            #hud-top .text-sm {
+                font-size: 0.65rem !important;
+                line-height: 1 !important;
+                letter-spacing: 0px !important;
+                margin-bottom: 1px !important;
             }
             #hud-top .text-2xl, #hud-top .text-3xl {
-                font-size: 1.15rem !important;
+                font-size: 0.85rem !important;
+                line-height: 1.1 !important;
+            }
+            #hud-top #display-name {
+                font-size: 0.8rem !important;
+                line-height: 1.1 !important;
+                max-width: 65px !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+            #hud-top #display-rank {
+                font-size: 0.8rem !important;
+                line-height: 1.1 !important;
+                white-space: nowrap !important;
+            }
+            #hud-top .lives-container {
+                gap: 3px !important;
+                margin-right: 0 !important;
+            }
+            #hud-top .heart-icon {
+                font-size: 0.8rem !important;
+            }
+            #hud-top .border-r {
+                padding-right: 4px !important;
+                border-right-width: 1px !important;
             }
             #hud-top .w-56 {
-                width: 85px !important;
-                margin-left: 4px !important;
+                width: 92px !important;
+                margin-left: 3px !important;
             }
-            #question-panel {
-                top: 56px !important;
-                min-width: 94vw !important;
-                max-width: 96vw !important;
-                padding: 10px 14px !important;
-                font-size: 0.95rem !important;
-                max-height: 75dvh !important;
+            #hud-top .w-56 .text-xs {
+                font-size: 0.65rem !important;
+                line-height: 1 !important;
+                margin-bottom: 2px !important;
+                white-space: nowrap !important;
+            }
+            #hud-top .w-56 .h-4 {
+                height: 6px !important;
+            }
+            #btn-chuyen-de, #btn-admin-gear {
+                padding: 2px 6px !important;
+                font-size: 10px !important;
+                border-radius: 8px !important;
+                gap: 2px !important;
+            }
+
+            /* 2. NỚI RỘNG CHIẾN TRƯỜNG ZOMBIE (TỐI THIỂU 80% DIỆN TÍCH) */
+            html, body, #game-wrapper {
+                min-height: 100dvh !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+            }
+            .env-sky {
+                height: 18% !important;
+            }
+            .env-ground {
+                height: 82% !important;
             }
             #battle-arena {
+                height: 82% !important;
+                flex: 1 1 82% !important;
                 padding: 0 !important;
                 margin: 0 !important;
             }
-            .target-entity {
-                min-width: 220px !important;
-                height: 65px !important;
+
+            /* 3. THU HẸP KHUNG ĐỀ BÀI CHỐNG CHE KHUẤT TẦM NHÌN */
+            #question-panel {
+                top: 45px !important;
+                width: calc(100% - 16px) !important;
+                min-width: unset !important;
+                max-width: 96vw !important;
+                padding: 6px 12px !important;
+                font-size: 0.85rem !important;
+                max-height: 35vh !important;
+                border-radius: 10px !important;
             }
-            .zombie-sprite {
-                width: 60px !important;
+            #question-panel .absolute.-top-4 {
+                font-size: 0.65rem !important;
+                padding: 1px 6px !important;
+                top: -9px !important;
+                left: 10px !important;
+            }
+
+            /* 4. CĂN CHỈNH KÍCH THƯỚC ZOMBIE VÀ BANNER ĐÁP ÁN TRÊN MOBILE */
+            .target-entity {
+                min-width: 200px !important;
                 height: 60px !important;
             }
+            .zombie-sprite {
+                width: 55px !important;
+                height: 55px !important;
+            }
             .answer-banner {
-                min-width: 130px !important;
-                min-height: 48px !important;
-                padding: 4px 8px 4px 16px !important;
-                font-size: 0.9rem !important;
+                min-width: 120px !important;
+                min-height: 42px !important;
+                padding: 2px 6px 2px 14px !important;
+                font-size: 0.85rem !important;
             }
             .label-circle {
-                width: 26px !important;
-                height: 26px !important;
-                font-size: 0.8rem !important;
+                width: 24px !important;
+                height: 24px !important;
+                font-size: 0.75rem !important;
                 margin-right: 6px !important;
             }
             #weapon-dock {
@@ -419,9 +522,33 @@
             }
             #mobile-combat-dock {
                 display: flex !important;
+                bottom: 4px !important;
+                padding: 4px 6px !important;
+                gap: 5px !important;
+            }
+            .mobile-touch-btn {
+                width: 38px !important;
+                height: 38px !important;
+                font-size: 0.95rem !important;
+                touch-action: manipulation !important;
+            }
+            .mobile-touch-btn-fire {
+                width: 62px !important;
+                height: 38px !important;
+                font-size: 0.78rem !important;
+                touch-action: manipulation !important;
+            }
+            .mobile-touch-btn-challenge {
+                width: 42px !important;
+                height: 38px !important;
+                font-size: 0.7rem !important;
+                touch-action: manipulation !important;
             }
             .esport-box {
-                padding: 18px 16px !important;
+                padding: 16px 14px !important;
+                max-height: 75dvh !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
             }
         }
 
@@ -1488,55 +1615,89 @@
                 });
         }
 
-        function cleanMathString(text) {
-            if (!text || typeof text !== 'string') return text || '';
-            let cleaned = text.trim();
+        function formatWarzoneMathStringToTeX(inputString) {
+            if (!inputString || typeof inputString !== 'string') return inputString || '';
+            let cleanStr = inputString;
 
             // 1. Khử triệt để ký tự rác \f, \f\f và form-feed bám trên phân số
-            cleaned = cleaned.replace(/\\f\\f/g, '').replace(/\\f/g, '');
-            cleaned = cleaned.replace(/[\u000c\x0c]/g, '');
+            cleanStr = cleanStr.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+            cleanStr = cleanStr.replace(/[\u000c\x0c]/g, '');
 
-            // Khôi phục \frac nếu bị cắt mất \f thành rac{
-            cleaned = cleaned.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
-            cleaned = cleaned.replace(/^rac\s*\{/g, '\\frac{');
+            // 2. Khắc phục rác / thiếu f của phân số
+            cleanStr = cleanStr.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
+            cleanStr = cleanStr.replace(/^rac\s*\{/g, '\\frac{');
+            cleanStr = cleanStr.replace(/\brac\b/g, '\\frac');
 
-            // 2. Vá lỗi regex tự ý chèn khoảng trắng sau chữ hoa tiếng Việt
-            cleaned = cleaned.replace(/\bN\s+ếu\b/g, 'Nếu');
-            cleaned = cleaned.replace(/\bH\s+ai\b/g, 'Hai');
-            cleaned = cleaned.replace(/\bC\s+ho\b/g, 'Cho');
-            cleaned = cleaned.replace(/\bC\s+ả\b/g, 'Cả');
-            cleaned = cleaned.replace(/\bK\s+hi\b/g, 'Khi');
-            cleaned = cleaned.replace(/\bC\s+hỉ\b/g, 'Chỉ');
-            cleaned = cleaned.replace(/\bT\s+ính\b/g, 'Tính');
-            cleaned = cleaned.replace(/\bT\s+rong\b/g, 'Trong');
-            cleaned = cleaned.replace(/\bK\s+hẳng\b/g, 'Khẳng');
-            cleaned = cleaned.replace(/\bđ\s+ịnh\b/g, 'định');
-            cleaned = cleaned.replace(/\bH\s+ình\b/g, 'Hình');
-            cleaned = cleaned.replace(/\bM\s+ặt\b/g, 'Mặt');
-            cleaned = cleaned.replace(/\bđ\s+ường\b/g, 'đường');
-            cleaned = cleaned.replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
+            // 3. Khắc phục lỗi dính chữ cdot
+            cleanStr = cleanStr.replace(/(\d+)cdot(\d+)/g, '$1 \\cdot $2');
+            cleanStr = cleanStr.replace(/(\d+)cdot/g, '$1 \\cdot ');
+            cleanStr = cleanStr.replace(/cdot(\d+)/g, ' \\cdot $1');
 
-            // 3. Tự động chuyển đổi các chữ mã TeX thô viết liền
-            cleaned = cleaned.replace(/\bAcupB\b/g, 'A \\cup B');
-            cleaned = cleaned.replace(/\bAcapB\b/g, 'A \\cap B');
-            cleaned = cleaned.replace(/(?<!\\)\bcdot\b/g, '\\cdot');
-            cleaned = cleaned.replace(/(?<!\\)\bOmega\b/g, '\\Omega');
-            cleaned = cleaned.replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
-            cleaned = cleaned.replace(/(?<!\\)\bcup\b/g, '\\cup');
-            cleaned = cleaned.replace(/(?<!\\)\bcap\b/g, '\\cap');
+            // 4. Khắc phục thiếu dấu gạch chéo ngược cho các token toán học
+            cleanStr = cleanStr.replace(/(?<!\\)sin/g, '\\sin')
+                               .replace(/(?<!\\)cos/g, '\\cos')
+                               .replace(/(?<!\\)tan/g, '\\tan')
+                               .replace(/(?<!\\)cot/g, '\\cot')
+                               .replace(/(?<!\\)cdot/g, '\\cdot')
+                               .replace(/(?<!\\)sqrt/g, '\\sqrt')
+                               .replace(/(?<!\\)frac/g, '\\frac');
 
-            // 4. Chuyển đổi cú pháp ${...} từ defaultWorksheets sang \(...\)
-            cleaned = cleaned.replace(/\$\{([^}]+)\}/g, '\\($1\\)');
-            cleaned = cleaned.replace(/\{\s*\\\(\s*([^}]+)\s*\\\)\s*\}/g, '\\($1\\)');
-            cleaned = cleaned.replace(/\{\s*(\\frac\{[^}]+\}\{[^}]+\})\s*\}/g, '\\($1\\)');
+            // 5. Khử dấu ngoặc vuông display math xung đột nếu có
+            cleanStr = cleanStr.replace(/\\\[/g, '').replace(/\\\]/g, '');
 
-            // 5. Chuẩn hóa TeX: bọc \( ... \) nếu có ký hiệu toán mà chưa có delimiters
-            if (!cleaned.includes('\\(') && !cleaned.includes('$')) {
-                if (/[\\^_{}]|sin|cos|tan|cot|sqrt|frac|alpha|beta|pi|pm|cdot|circ|degree|le|ge|ne|in|cup|cap|Omega|emptyset/.test(cleaned)) {
-                    cleaned = `\\(${cleaned}\\)`;
+            // 6. Vá lỗi regex tự ý chèn khoảng trắng sau chữ hoa tiếng Việt
+            cleanStr = cleanStr.replace(/\bN\s+ếu\b/g, 'Nếu')
+                               .replace(/\bH\s+ai\b/g, 'Hai')
+                               .replace(/\bC\s+ho\b/g, 'Cho')
+                               .replace(/\bC\s+ả\b/g, 'Cả')
+                               .replace(/\bK\s+hi\b/g, 'Khi')
+                               .replace(/\bC\s+hỉ\b/g, 'Chỉ')
+                               .replace(/\bT\s+ính\b/g, 'Tính')
+                               .replace(/\bT\s+rong\b/g, 'Trong')
+                               .replace(/\bK\s+hẳng\b/g, 'Khẳng')
+                               .replace(/\bđ\s+ịnh\b/g, 'định')
+                               .replace(/\bH\s+ình\b/g, 'Hình')
+                               .replace(/\bM\s+ặt\b/g, 'Mặt')
+                               .replace(/\bđ\s+ường\b/g, 'đường')
+                               .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
+
+            // 7. Token xác suất và hình học
+            cleanStr = cleanStr.replace(/\bAcupB\b/g, 'A \\cup B');
+            cleanStr = cleanStr.replace(/\bAcapB\b/g, 'A \\cap B');
+            cleanStr = cleanStr.replace(/(?<!\\)\bOmega\b/g, '\\Omega');
+            cleanStr = cleanStr.replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+            cleanStr = cleanStr.replace(/(?<!\\)\bcup\b/g, '\\cup');
+            cleanStr = cleanStr.replace(/(?<!\\)\bcap\b/g, '\\cap');
+
+            // 8. Chuyển đổi cú pháp ${...}
+            cleanStr = cleanStr.replace(/\$\{([^}]+)\}/g, '\\($1\\)');
+            cleanStr = cleanStr.replace(/\{\s*\\\(\s*([^}]+)\s*\\\)\s*\}/g, '\\($1\\)');
+            cleanStr = cleanStr.replace(/\{\s*(\\frac\{[^}]+\}\{[^}]+\})\s*\}/g, '\\($1\\)');
+
+            cleanStr = cleanStr.trim();
+
+            // 9. Chuẩn hóa delimiters inline TeX
+            if (!cleanStr.includes('\\(') && !cleanStr.includes('$')) {
+                const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(cleanStr);
+                const hasMathTokens = /[\\^_{}]|sin|cos|tan|cot|sqrt|frac|alpha|beta|pi|pm|cdot|circ|degree|le|ge|ne|in|cup|cap|Omega|emptyset/.test(cleanStr);
+
+                if (!hasVietnamese && hasMathTokens) {
+                    cleanStr = `\\(${cleanStr}\\)`;
+                } else if (hasVietnamese && hasMathTokens) {
+                    cleanStr = cleanStr.replace(/(\\[a-zA-Z]+(?:\{[^{}]*\}|\[[^\]]*\])*(?:\^[0-9a-zA-Z{}]+|_[0-9a-zA-Z{}]+)*(?:\s*[0-9a-zA-Z+\-*/=()^_{}]+)*)/g, (match) => {
+                        const tr = match.trim();
+                        if (!tr || tr.startsWith('\\(')) return match;
+                        return `\\(${tr}\\)`;
+                    });
                 }
             }
-            return cleaned;
+
+            return cleanStr;
+        }
+        window.formatWarzoneMathStringToTeX = formatWarzoneMathStringToTeX;
+
+        function cleanMathString(text) {
+            return formatWarzoneMathStringToTeX(text);
         }
 
         function openCombatQuestionModal() {
@@ -1571,7 +1732,7 @@
                     btn.onclick = () => selectCombatOption(idx);
                     btn.innerHTML = `
                         <span class="w-7 h-7 rounded-full bg-cyan-500 text-black font-black flex items-center justify-center shrink-0 text-sm shadow-[0_0_8px_#00f0ff]">${labels[idx]}</span>
-                        <span class="flex-1 text-sm sm:text-base text-gray-100 font-medium">${cleanMathString(opt)}</span>
+                        <span class="flex-1 text-sm sm:text-base text-gray-100 font-medium question-text answer-text">${cleanMathString(opt)}</span>
                     `;
                     optContainer.appendChild(btn);
                 });
@@ -1801,7 +1962,7 @@
 
                 targetDiv.innerHTML = `
                     ${zombieSVG}
-                    <div class="answer-banner"><div class="label-circle">${labels[laneIdx]}</div><div class="answer-text">${cleanOpt}</div></div>
+                    <div class="answer-banner"><div class="label-circle">${labels[laneIdx]}</div><div class="answer-text zombie-text">${cleanOpt}</div></div>
                 `;
                 
                 targetDiv.onclick = () => { setPlayerLane(laneIdx); shootCurrentLane(); };
