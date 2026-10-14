@@ -57,39 +57,38 @@
             -webkit-user-select: none;
             position: relative;
         }
-        /* Dịch chuyển toàn bộ màn chơi Mario lùi xuống dưới, tách biệt hoàn toàn khỏi thanh bảng điểm màu đen */
-        #game-canvas, #gameCanvas, .mario-canvas-container, .canvas-container {
-            margin-top: 50px !important; /* Tạo một khoảng khoảng trống vừa đủ dưới thanh bảng điểm đen để lộ toàn bộ khối gạch */
+        /* 1. ĐỊNH VỊ KHÔNG GIAN BẰNG PADDING AN TOÀN VÀ ZOOM OUT CHO KHUNG BỌC #game-container */
+        #game-container, #canvas-container, .canvas-container, .mario-canvas-container, .game-container {
             position: relative !important;
-        }
-        .canvas-container, .mario-canvas-container {
-            width: 100%;
-            flex: 1 1 auto;
-            height: calc(100dvh - 50px) !important;
-            min-height: calc(100dvh - 50px) !important;
-            max-height: calc(100dvh - 50px) !important;
+            width: 100% !important;
+            height: calc(100vh - 50px) !important;
+            height: calc(100dvh - 50px) !important; /* Tương thích mượt mà trên trình duyệt Mobile */
+            margin-top: 45px !important; /* Khoảng trống an toàn dưới thanh bảng điểm đen */
+            overflow: hidden !important;
+            transform: scale(0.9);
+            transform-origin: top center;
+            background-color: #5C94FC;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            background-color: #5C94FC;
         }
-        #gameCanvas, #game-canvas { 
-            display: block; 
-            width: 100%; 
-            height: 100%; 
+        #game-canvas, #gameCanvas {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important; /* Ép bàn cảnh game tự động co giãn vuông vắn trên cả Laptop và Điện thoại */
             background-color: #5C94FC;
-            transform: scale(0.85);
-            transform-origin: top center;
         }
 
         /* ÉP PHÂN SỐ TOÁN HỌC HIỂN THỊ THẲNG HÀNG CHỐNG NGẮT DÒNG VÔ LÝ */
         .question-text, .answer-btn, .option-btn, .mjx-chtml, mjx-container, .MathJax {
             white-space: nowrap !important; /* Ép buộc toàn bộ biểu thức toán học LaTeX phải nằm trên một dòng duy nhất, tuyệt đối không được tự ý xuống dòng */
             display: inline-block !important;
+            color: #ffffff !important;
         }
         .mjx-chtml *, mjx-container *, .MathJax * {
             white-space: nowrap !important;
+            color: #ffffff !important;
         }
         /* Đối với khung chứa văn bản tổng quát bên ngoài, cho phép tự động xuống dòng theo từ */
         .question-box-content {
@@ -383,8 +382,8 @@
     </div>
 
     <!-- Nền Game (Khung Canvas Tự Thích Ứng Flexbox) -->
-    <div id="canvas-container" class="canvas-container mario-canvas-container game-container">
-        <canvas id="gameCanvas"></canvas>
+    <div id="game-container" class="canvas-container mario-canvas-container game-container">
+        <canvas id="game-canvas"></canvas>
     </div>
 
     <!-- THANH ĐIỀU KHIỂN ĐÁY MÀN HÌNH (STYLE .BOTTOM-NAV MẪU - CHIA ĐỀU KHÔNG GIAN NÚT BẤM) -->
@@ -452,7 +451,7 @@
             </h2>
             <div class="w-24 h-1.5 bg-cyan-500 mx-auto mb-8 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
             
-            <div id="questionText" class="text-xl md:text-3xl font-bold text-white mb-10 text-center leading-relaxed w-full max-w-3xl drop-shadow-md">
+            <div id="questionText" class="question-text text-xl md:text-3xl font-bold text-white mb-10 text-center leading-relaxed w-full max-w-3xl drop-shadow-md">
                 Nội dung câu hỏi sẽ hiện ở đây...
             </div>
             
@@ -708,15 +707,14 @@
         const savedLogo = localStorage.getItem('mario_logo_v2') || localStorage.getItem('mario_logo');
         if(savedLogo) updateLogos(savedLogo);
 
-        // Bộ tương thích định danh giao diện (Container Alias Resolvers)
-        const _origGetElementById = document.getElementById.bind(document);
-        document.getElementById = function(id) {
-            let el = _origGetElementById(id);
-            if (!el && (id === 'main-menu-container' || id === 'main-menu')) el = _origGetElementById('topic-selection-overlay');
-            if (!el && id === 'game-container') el = _origGetElementById('canvas-container');
-            if (!el && id === 'game-canvas') el = _origGetElementById('gameCanvas');
+        // Bộ tương thích định danh giao diện (Container Alias Resolvers) - Hàm phụ trợ an toàn, KHÔNG đè document.getElementById
+        function resolveContainerId(id) {
+            let el = document.getElementById(id);
+            if (!el && (id === 'main-menu-container' || id === 'main-menu')) el = document.getElementById('topic-selection-overlay');
+            if (!el && id === 'game-container') el = document.getElementById('canvas-container');
+            if (!el && id === 'game-canvas') el = document.getElementById('gameCanvas');
             return el;
-        };
+        }
 
         // Nút BẮT ĐẦU từ màn hình chờ hoặc từ menu chọn World
         window.startGame = function(worldIndex) {
@@ -748,13 +746,13 @@
                 startModal.style.opacity = '0';
                 startModal.style.display = 'none';
             }
-            const mainMenuContainer = document.getElementById('main-menu-container') || document.querySelector('.main-menu') || document.getElementById('topic-selection-overlay');
-            if (mainMenuContainer) {
-                mainMenuContainer.style.display = 'none';
+            const topicOverlay = document.getElementById('topic-selection-overlay');
+            if (topicOverlay) {
+                topicOverlay.style.display = 'none';
             }
-            const gameCanvasContainer = document.getElementById('game-container') || document.getElementById('game-canvas') || document.getElementById('canvas-container');
-            if (gameCanvasContainer) {
-                gameCanvasContainer.style.display = 'block';
+            const canvasContainer = document.getElementById('game-container') || document.getElementById('canvas-container');
+            if (canvasContainer) {
+                canvasContainer.style.display = 'flex';
             }
             const mobileControls = document.getElementById('mobileControls');
             if (mobileControls) {
@@ -1331,9 +1329,9 @@
                     window.selectedTopic = topicName;
                     
                     // 2. Ép ẩn hoàn toàn khối giao diện Menu chính màu đen
-                    const mainMenuContainer = document.getElementById('main-menu-container') || document.querySelector('.main-menu');
-                    if (mainMenuContainer) {
-                        mainMenuContainer.style.display = 'none'; // Ẩn menu đi ngay lập tức
+                    const topicOverlay = document.getElementById('topic-selection-overlay');
+                    if (topicOverlay) {
+                        topicOverlay.style.display = 'none';
                     }
                     const startModal = document.getElementById('startModal');
                     if (startModal) {
@@ -1342,9 +1340,9 @@
                     }
                     
                     // 3. Ép hiển thị đấu trường chơi Canvas và cụm phím ảo di động lên
-                    const gameCanvasContainer = document.getElementById('game-container') || document.getElementById('game-canvas');
-                    if (gameCanvasContainer) {
-                        gameCanvasContainer.style.display = 'block';
+                    const canvasContainer = document.getElementById('game-container') || document.getElementById('canvas-container');
+                    if (canvasContainer) {
+                        canvasContainer.style.display = 'flex';
                     }
                     const mobileControls = document.getElementById('mobileControls');
                     if (mobileControls) {
@@ -1396,6 +1394,30 @@
         // ==========================================
         // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN (MATHJAX SPACER FIX & RED SLASH FILTER)
         // ==========================================
+        function formatMarioStringToTeX(str) {
+            if (typeof str !== 'string') return str || '';
+            let cleanStr = str;
+            cleanStr = cleanStr.replace(/\brac\b/g, '\\frac').replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
+            cleanStr = cleanStr.replace(/(\d*)cdot(\d*)/g, '$1 \\cdot $2').replace(/\s*cdot\s*/g, ' \\cdot ');
+            cleanStr = cleanStr.replace(/(?<!\\)cdot/g, '\\cdot').replace(/(?<!\\)frac/g, '\\frac')
+                               .replace(/(?<!\\)Omega/g, '\\Omega').replace(/(?<!\\)emptyset/g, '\\emptyset')
+                               .replace(/(?<!\\)cup/g, '\\cup').replace(/(?<!\\)cap/g, '\\cap');
+            cleanStr = cleanStr.replace(/\\\[/g, '').replace(/\\\]/g, '').replace(/\\\\\\\\/g, '\\');
+            cleanStr = cleanStr.trim();
+            if (!cleanStr.startsWith('\\(') && !cleanStr.endsWith('\\)')) {
+                if (/[à-ỹ]/i.test(cleanStr) && cleanStr.includes(' ')) {
+                    if (typeof formatMathSpacers === 'function') {
+                        cleanStr = formatMathSpacers(cleanStr);
+                    }
+                } else {
+                    cleanStr = cleanStr.replace(/^\$+|\$+$/g, '').replace(/^\\\(|\\\)$/g, '').trim();
+                    cleanStr = '\\(' + cleanStr + '\\)';
+                }
+            }
+            return cleanStr;
+        }
+        window.formatMarioStringToTeX = formatMarioStringToTeX;
+
         function formatMathStringToTeX(inputString) {
             if (typeof inputString !== 'string') return inputString || '';
             let cleanStr = inputString;
@@ -1631,10 +1653,10 @@
             const topicQuestions = sampledList.map(q => {
                 const copyQ = {
                     id: q.id,
-                    q: formatMathSpacers(q.q),
-                    options: (q.options || []).map(opt => formatMathSpacers(opt)),
+                    q: formatMarioStringToTeX(q.q),
+                    options: (q.options || []).map(opt => formatMarioStringToTeX(opt)),
                     correct: typeof q.correct === 'number' ? q.correct : 0,
-                    explanation: formatMathSpacers(q.explanation || ''),
+                    explanation: formatMarioStringToTeX(q.explanation || ''),
                     type: q.type || ((q.options && q.options.length === 2) ? 'truefalse' : ((q.options && q.options.length === 1) ? 'short_answer' : 'abcd')),
                     imageUrl: q.imageUrl || ''
                 };
@@ -1659,7 +1681,7 @@
             if (modalTopicBadge) modalTopicBadge.innerText = topicName;
 
             if (hideOverlay) {
-                const overlay = document.getElementById('topic-selection-overlay') || document.getElementById('main-menu-container') || document.querySelector('.main-menu');
+                const overlay = document.getElementById('topic-selection-overlay');
                 if (overlay) overlay.style.display = 'none';
 
                 const startModal = document.getElementById('startModal');
@@ -1679,16 +1701,16 @@
         // ==========================================
         // GAME ENGINE & PHYSICS
         // ==========================================
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('game-canvas') || document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
         let width, height;
         function resize() {
-            const container = document.getElementById('canvas-container') || document.body;
-            width = container.clientWidth || window.innerWidth || document.documentElement.clientWidth;
+            const container = document.getElementById('game-container') || document.getElementById('canvas-container') || document.body;
             const topbar = document.getElementById('game-topbar');
-            const topOffset = topbar ? topbar.offsetHeight : 50;
-            height = container.clientHeight || (window.innerHeight - topOffset) || (document.documentElement.clientHeight - topOffset);
+            const topOffset = topbar ? topbar.offsetHeight : 45;
+            width = (container && container.clientWidth > 100) ? container.clientWidth : (window.innerWidth || 1200);
+            height = (container && container.clientHeight > 100) ? container.clientHeight : ((window.innerHeight || 800) - topOffset);
             canvas.width = width;
             canvas.height = height;
             if (typeof checkDeviceOrientation === 'function') checkDeviceOrientation();
@@ -2122,15 +2144,15 @@
                         ✅ THỬ THÁCH ĐÚNG / SAI (4 Ý)
                     </div>
                     <div class="text-base md:text-xl font-bold text-white mb-3 text-left">
-                        ${formatMathSpacers(block.questionData.q)}
+                        ${formatMarioStringToTeX(block.questionData.q)}
                     </div>
                     <div class="p-4 bg-sky-950/40 border-2 border-sky-400/40 rounded-2xl text-left w-full shadow-inner">
                         <span class="text-amber-400 font-black mr-2 text-base md:text-lg">[Ý ${stmt.letter}]:</span>
-                        <span class="text-sky-100 font-bold text-base md:text-lg">${formatMathSpacers(stmt.text)}</span>
+                        <span class="text-sky-100 font-bold text-base md:text-lg">${formatMarioStringToTeX(stmt.text)}</span>
                     </div>
                 `;
             } else {
-                qHtml += formatMathSpacers(block.questionData.q);
+                qHtml += formatMarioStringToTeX(block.questionData.q);
             }
             qText.innerHTML = qHtml;
             optContainer.innerHTML = '';
@@ -2178,7 +2200,7 @@
                 (block.questionData.options || []).forEach((optHTML, idx) => {
                     const btn = document.createElement('button');
                     btn.className = "option-btn answer-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-5 px-6 rounded-2xl text-center text-lg md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[80px] cursor-pointer";
-                    btn.innerHTML = formatMathSpacers(optHTML);
+                    btn.innerHTML = formatMarioStringToTeX(optHTML);
                     btn.onclick = () => checkAnswer(idx);
                     optContainer.appendChild(btn);
                 });
