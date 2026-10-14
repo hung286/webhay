@@ -98,6 +98,16 @@
             white-space: normal !important;
         }
 
+        /* Cấu hình các nhãn độ khó Dễ - Vừa - Khó chống đè chữ và bo viền tròn chuẩn */
+        .difficulty-badge, .badge-item {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 4px 10px !important;
+            margin: 4px !important;
+            white-space: nowrap !important;
+        }
+
         /* Thu nhỏ bảng điểm xám 40%, font chữ mảnh gọn 0.85rem */
         .mario-compact-scoreboard {
             font-size: 0.85rem !important;
@@ -251,7 +261,7 @@
     <!-- ======================================================== -->
     <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
     <!-- ======================================================== -->
-    <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #1e3a8a 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Nunito', sans-serif;">
+    <div id="topic-selection-overlay" class="main-menu main-menu-container" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #1e3a8a 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Nunito', sans-serif;">
       <div style="max-width: 960px; width: 100%; background: rgba(15, 23, 42, 0.96); border: 3px solid #facc15; border-radius: 28px; padding: 32px; box-shadow: 0 0 60px rgba(250, 204, 21, 0.35); backdrop-filter: blur(20px); text-align: center;">
         
         <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 20px; border-radius: 9999px; background: rgba(250, 204, 21, 0.15); border: 1.5px solid #facc15; color: #facc15; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;" class="pixel-font">
@@ -373,7 +383,7 @@
     </div>
 
     <!-- Nền Game (Khung Canvas Tự Thích Ứng Flexbox) -->
-    <div id="canvas-container" class="canvas-container mario-canvas-container">
+    <div id="canvas-container" class="canvas-container mario-canvas-container game-container">
         <canvas id="gameCanvas"></canvas>
     </div>
 
@@ -698,32 +708,78 @@
         const savedLogo = localStorage.getItem('mario_logo_v2') || localStorage.getItem('mario_logo');
         if(savedLogo) updateLogos(savedLogo);
 
-        // Nút BẮT ĐẦU từ màn hình chờ
-        window.startGame = function() {
-            const nameInput = document.getElementById('startPlayerName').value.trim();
+        // Bộ tương thích định danh giao diện (Container Alias Resolvers)
+        const _origGetElementById = document.getElementById.bind(document);
+        document.getElementById = function(id) {
+            let el = _origGetElementById(id);
+            if (!el && (id === 'main-menu-container' || id === 'main-menu')) el = _origGetElementById('topic-selection-overlay');
+            if (!el && id === 'game-container') el = _origGetElementById('canvas-container');
+            if (!el && id === 'game-canvas') el = _origGetElementById('gameCanvas');
+            return el;
+        };
+
+        // Nút BẮT ĐẦU từ màn hình chờ hoặc từ menu chọn World
+        window.startGame = function(worldIndex) {
+            let nameInput = '';
+            const nameEl = document.getElementById('startPlayerName');
+            if (nameEl) nameInput = nameEl.value.trim();
+
             if (!nameInput) {
-                alert("Vui lòng nhập tên của bạn để bắt đầu đua top!");
-                document.getElementById('startPlayerName').focus();
-                return;
+                const saved = localStorage.getItem('mario_playerName');
+                nameInput = saved || "Mario";
+                if (nameEl) nameEl.value = nameInput;
             }
             
             currentPlayerName = nameInput;
             localStorage.setItem('mario_playerName', currentPlayerName);
-            document.getElementById('playerNameDisplay').textContent = currentPlayerName;
-            document.getElementById('playerNameInput').value = currentPlayerName;
+            const pDisp = document.getElementById('playerNameDisplay');
+            if (pDisp) pDisp.textContent = currentPlayerName;
+            const pInp = document.getElementById('playerNameInput');
+            if (pInp) pInp.value = currentPlayerName;
 
             // Tự động bật âm thanh khi bấm BẮT ĐẦU (Vì đây là user gesture hợp lệ)
-            if (SoundEngine.isMuted) {
-                toggleSound();
+            if (typeof SoundEngine !== 'undefined' && SoundEngine.isMuted) {
+                if (typeof toggleSound === 'function') toggleSound();
             }
 
-            // Đóng Modal và chuyển state
-            document.getElementById('startModal').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('startModal').style.display = 'none';
-                gameState = 'playing';
-                gameTime = 0;
-            }, 300);
+            // Đóng Modal và chuyển state ngay lập tức
+            const startModal = document.getElementById('startModal');
+            if (startModal) {
+                startModal.style.opacity = '0';
+                startModal.style.display = 'none';
+            }
+            const mainMenuContainer = document.getElementById('main-menu-container') || document.querySelector('.main-menu') || document.getElementById('topic-selection-overlay');
+            if (mainMenuContainer) {
+                mainMenuContainer.style.display = 'none';
+            }
+            const gameCanvasContainer = document.getElementById('game-container') || document.getElementById('game-canvas') || document.getElementById('canvas-container');
+            if (gameCanvasContainer) {
+                gameCanvasContainer.style.display = 'block';
+            }
+            const mobileControls = document.getElementById('mobileControls');
+            if (mobileControls) {
+                mobileControls.style.display = 'flex';
+            }
+
+            gameState = 'playing';
+            gameTime = 0;
+            if (typeof resize === 'function') resize();
+        };
+
+        // Hàm khởi trận Game Round toàn cục theo chuẩn Mario Math Engine
+        window.initGameRound = function(worldIndex) {
+            console.log("[Mario Math] initGameRound called with worldIndex: ", worldIndex);
+            ensureMarioDatabase();
+            const topics = Object.keys(window.gameDatabase || {});
+            let targetTopic = window.selectedTopic;
+            if (typeof worldIndex === 'number' && topics[worldIndex]) {
+                targetTopic = topics[worldIndex];
+            } else if (typeof worldIndex === 'string' && window.gameDatabase[worldIndex]) {
+                targetTopic = worldIndex;
+            }
+            window.selectedTopic = targetTopic;
+            selectMarioTopic(targetTopic, false);
+            window.startGame(worldIndex);
         };
 
         function savePlayerName() {
@@ -1244,23 +1300,72 @@
                         <h3 style="color: #ffffff; font-size: 17px; font-weight: 800; margin: 0 0 12px 0; line-height: 1.4;">
                             ${topicName}
                         </h3>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; font-size: 12px; font-weight: 700;">
-                            <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; padding: 3px 10px; border-radius: 999px;">🟢 ${eCount} Dễ</span>
-                            <span style="background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid #eab308; padding: 3px 10px; border-radius: 999px;">🟡 ${mCount} Vừa</span>
-                            <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; padding: 3px 10px; border-radius: 999px;">🔴 ${hCount} Khó</span>
+                        <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 18px; font-size: 12px; font-weight: 700;">
+                            <span class="difficulty-badge badge-item" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; border-radius: 999px;">🟢 ${eCount} Dễ</span>
+                            <span class="difficulty-badge badge-item" style="background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid #eab308; border-radius: 999px;">🟡 ${mCount} Vừa</span>
+                            <span class="difficulty-badge badge-item" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; border-radius: 999px;">🔴 ${hCount} Khó</span>
                         </div>
                     </div>
-                    <button onclick="selectMarioTopic('${cleanTopicTitle}', true)" style="
-                        width: 100%; padding: 12px 18px; border: none; border-radius: 12px;
-                        background: ${theme.btnGradient};
-                        color: #ffffff; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
-                        cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                        display: flex; align-items: center; justify-content: center; gap: 6px;
-                    ">
-                        ${isSelected ? '✓ ĐANG CHỌN (SẴN SÀNG)' : '🍄 VÀO ' + theme.worldLabel}
-                    </button>
                 `;
 
+                // Đảm bảo nút bấm bốc đúng Chuyên đề/Thế giới được chọn và kích hoạt màn chơi
+                const buttonElement = document.createElement('button');
+                buttonElement.className = "world-action-btn";
+                buttonElement.style.cssText = `
+                    width: 100%; padding: 12px 18px; border: none; border-radius: 12px;
+                    background: ${theme.btnGradient};
+                    color: #ffffff; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+                    cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    display: flex; align-items: center; justify-content: center; gap: 6px;
+                `;
+                buttonElement.innerHTML = isSelected ? '✓ ĐANG CHỌN (SẴN SÀNG)' : ('👇 VÀO ' + theme.worldLabel);
+
+                const worldIndex = idx;
+                buttonElement.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Đã click chọn thế giới: ", worldIndex);
+                    
+                    // 1. Lưu thông tin thế giới/chuyên đề đã chọn vào biến cấu hình game toàn cục
+                    window.currentSelectedWorld = worldIndex; 
+                    window.selectedTopic = topicName;
+                    
+                    // 2. Ép ẩn hoàn toàn khối giao diện Menu chính màu đen
+                    const mainMenuContainer = document.getElementById('main-menu-container') || document.querySelector('.main-menu');
+                    if (mainMenuContainer) {
+                        mainMenuContainer.style.display = 'none'; // Ẩn menu đi ngay lập tức
+                    }
+                    const startModal = document.getElementById('startModal');
+                    if (startModal) {
+                        startModal.style.opacity = '0';
+                        startModal.style.display = 'none';
+                    }
+                    
+                    // 3. Ép hiển thị đấu trường chơi Canvas và cụm phím ảo di động lên
+                    const gameCanvasContainer = document.getElementById('game-container') || document.getElementById('game-canvas');
+                    if (gameCanvasContainer) {
+                        gameCanvasContainer.style.display = 'block';
+                    }
+                    const mobileControls = document.getElementById('mobileControls');
+                    if (mobileControls) {
+                        mobileControls.style.display = 'flex';
+                    }
+                    
+                    // 4. Kích hoạt hàm khởi trận và chạy vòng lặp Game Engine gốc
+                    if (typeof window.initGameRound === 'function') {
+                        window.initGameRound(worldIndex);
+                    } else if (typeof window.startGame === 'function') {
+                        window.startGame(worldIndex);
+                    }
+                });
+
+                card.addEventListener('click', (e) => {
+                    if (e.target !== buttonElement && !buttonElement.contains(e.target)) {
+                        buttonElement.click();
+                    }
+                });
+
+                card.appendChild(buttonElement);
                 container.appendChild(card);
             });
 
@@ -1352,7 +1457,13 @@
                      .replace(/\bH\s+ình\b/gi, 'Hình')
                      .replace(/\bM\s+ặt\b/gi, 'Mặt')
                      .replace(/\bđ\s+ường\b/gi, 'đường')
-                     .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/gi, 'Hai mặt phẳng');
+                     .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/gi, 'Hai mặt phẳng')
+                     .replace(/([0-9]+)\s*D\s+ễ/gi, '$1 Dễ')
+                     .replace(/\b[Dd]\s+ễ\b/gi, 'Dễ')
+                     .replace(/([0-9]+)\s*V\s+ừa/gi, '$1 Vừa')
+                     .replace(/\b[Vv]\s+ừa\b/gi, 'Vừa')
+                     .replace(/([0-9]+)\s*K\s+hó/gi, '$1 Khó')
+                     .replace(/\b[Kk]\s+hó\b/gi, 'Khó');
 
             // 3. Chuẩn hóa mã lệnh LaTeX tự động bổ sung dấu \
             res = res.replace(/(^|[^\\a-zA-Z])Omega\b/g, '$1\\Omega')
@@ -1548,17 +1659,19 @@
             if (modalTopicBadge) modalTopicBadge.innerText = topicName;
 
             if (hideOverlay) {
-                const overlay = document.getElementById('topic-selection-overlay');
+                const overlay = document.getElementById('topic-selection-overlay') || document.getElementById('main-menu-container') || document.querySelector('.main-menu');
                 if (overlay) overlay.style.display = 'none';
 
                 const startModal = document.getElementById('startModal');
-                if (gameState === 'waiting' && startModal && startModal.style.display !== 'none') {
-                    startModal.style.opacity = '1';
-                } else if (previousGameState === 'playing') {
-                    gameState = 'playing';
+                if (startModal) {
+                    startModal.style.opacity = '0';
+                    startModal.style.display = 'none';
                 }
+                gameState = 'playing';
+                if (typeof resize === 'function') resize();
             }
         }
+        window.selectMarioTopic = selectMarioTopic;
         let currentQuestionIndex = 0;
         let score = 0;
         let lastQuestionAttempts = 0; 
