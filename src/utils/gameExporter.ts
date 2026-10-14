@@ -1735,6 +1735,8 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
         if (!isNative && !isForced) {
           docEl.classList.add('mobile-fullscreen-forced');
           body.classList.add('mobile-fullscreen-forced');
+          body.style.setProperty('overflow-y', 'auto', 'important');
+          body.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
 
           const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
           if (rfs) {
@@ -1760,6 +1762,8 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
         } else {
           docEl.classList.remove('mobile-fullscreen-forced');
           body.classList.remove('mobile-fullscreen-forced');
+          body.style.removeProperty('overflow-y');
+          body.style.removeProperty('-webkit-overflow-scrolling');
           if (isNative) {
             const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
             if (efs) { try { efs.call(doc); } catch(e) {} }
@@ -1788,6 +1792,10 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
 
       function updateFsUI() {
         const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.documentElement.classList.contains('mobile-fullscreen-forced'));
+        if (isFs) {
+          document.body.style.setProperty('overflow-y', 'auto', 'important');
+          document.body.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+        }
         const fsIcon = document.getElementById('fullscreenIcon');
         const fsText = document.getElementById('fullscreenText');
         if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
@@ -3683,6 +3691,8 @@ if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__
         if (!isNative && !isForced) {
           docEl.classList.add('mobile-fullscreen-forced');
           body.classList.add('mobile-fullscreen-forced');
+          body.style.setProperty('overflow-y', 'auto', 'important');
+          body.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
 
           const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
           if (rfs) {
@@ -3708,6 +3718,8 @@ if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__
         } else {
           docEl.classList.remove('mobile-fullscreen-forced');
           body.classList.remove('mobile-fullscreen-forced');
+          body.style.removeProperty('overflow-y');
+          body.style.removeProperty('-webkit-overflow-scrolling');
           if (isNative) {
             const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
             if (efs) { try { efs.call(doc); } catch(e) {} }
@@ -3736,6 +3748,10 @@ if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__
 
       function updateFsUI() {
         const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.documentElement.classList.contains('mobile-fullscreen-forced'));
+        if (isFs) {
+          document.body.style.setProperty('overflow-y', 'auto', 'important');
+          document.body.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+        }
         const fsIcon = document.getElementById('fullscreenIcon');
         const fsText = document.getElementById('fullscreenText');
         if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
