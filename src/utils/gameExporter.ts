@@ -474,6 +474,181 @@ window.useStaticTopic = true;
 })();
 </script>
 `;
+    const landscapeStyleFix = `
+<style>
+@media (orientation: landscape) and (max-height: 500px) {
+  html, body {
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100dvh !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .game-warzone-wrapper, #game-container, #game-wrapper {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #environment {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 0 !important;
+  }
+  #hud-top {
+    max-height: 30px !important;
+    height: 30px !important;
+    padding: 1px 8px !important;
+    gap: 4px !important;
+    overflow: hidden !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+  }
+  .esport-panel {
+    padding: 1px 6px !important;
+    font-size: 0.75rem !important;
+    gap: 4px !important;
+    border-radius: 4px !important;
+  }
+  .esport-panel .fa-user-astronaut {
+    display: none !important;
+  }
+  .esport-panel .h-12 {
+    height: 14px !important;
+    margin: 0 2px !important;
+  }
+  #hud-top .text-sm {
+    font-size: 0.6rem !important;
+    line-height: 1 !important;
+    margin-bottom: 0 !important;
+  }
+  #hud-top .text-2xl, #hud-top .text-3xl {
+    font-size: 0.75rem !important;
+    line-height: 1 !important;
+  }
+  #hud-top #display-name, #hud-top #display-rank {
+    font-size: 0.75rem !important;
+    line-height: 1 !important;
+  }
+  #hud-top .lives-container {
+    gap: 2px !important;
+  }
+  #hud-top .heart-icon {
+    font-size: 0.7rem !important;
+  }
+  #hud-top .w-56 {
+    width: 70px !important;
+    margin-left: 2px !important;
+  }
+  #hud-top .w-56 .text-xs {
+    font-size: 0.6rem !important;
+    line-height: 1 !important;
+    margin-bottom: 0 !important;
+  }
+  #hud-top .w-56 .h-4 {
+    height: 4px !important;
+  }
+  #btn-chuyen-de, #btn-admin-gear {
+    padding: 1px 5px !important;
+    font-size: 9px !important;
+    border-radius: 6px !important;
+  }
+  #question-panel {
+    top: 32px !important;
+    width: calc(100% - 16px) !important;
+    max-width: 96vw !important;
+    padding: 2px 10px !important;
+    max-height: 45px !important;
+    font-size: 0.8rem !important;
+    border-radius: 8px !important;
+    border-width: 1px !important;
+    flex-shrink: 0 !important;
+  }
+  #question-panel .absolute.-top-4 {
+    font-size: 0.55rem !important;
+    padding: 0 4px !important;
+    top: -7px !important;
+    left: 8px !important;
+  }
+  #question-text {
+    margin-top: 1px !important;
+    font-size: 0.8rem !important;
+    line-height: 1.2 !important;
+  }
+  #game-canvas, .canvas-layer, #battle-arena {
+    height: 55vh !important;
+    max-height: 60vh !important;
+    min-height: 160px !important;
+    object-fit: contain !important;
+    flex: none !important;
+    position: relative !important;
+    margin-top: 34px !important;
+  }
+  .target-entity {
+    min-width: 150px !important;
+    height: 40px !important;
+  }
+  .zombie-sprite {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  .answer-banner {
+    min-width: 90px !important;
+    min-height: 32px !important;
+    padding: 2px 6px 2px 10px !important;
+    font-size: 0.78rem !important;
+  }
+  .label-circle {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 0.65rem !important;
+    margin-right: 4px !important;
+  }
+  #player-container {
+    width: 70px !important;
+    height: 70px !important;
+  }
+  .answers-controls-container, #mobile-combat-dock {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    width: 95% !important;
+    margin: 6px auto 14px auto !important;
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    padding: 6px 10px !important;
+    border-radius: 12px !important;
+    z-index: 100 !important;
+    flex-shrink: 0 !important;
+  }
+  .answers-controls-container button,
+  #mobile-combat-dock button {
+    width: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 0.9rem !important;
+    border-radius: 8px !important;
+    margin: 0 !important;
+  }
+  .mobile-touch-btn-fire {
+    font-size: 0.8rem !important;
+  }
+  .mobile-touch-btn-challenge {
+    font-size: 0.75rem !important;
+  }
+}
+</style>
+`;
+    if (!htmlContent.includes('BẢN VÁ MOBILE XOAY NGANG')) {
+      htmlContent = htmlContent.replace('</head>', `${landscapeStyleFix}\n</head>`);
+    }
     htmlContent = injectScriptAtTop(htmlContent, trenchScript);
   }
   // NHÓM ĐẠO HÀM CẤP 2 (cấu trúc Đa Chủ Đề & Đa Độ Khó)
