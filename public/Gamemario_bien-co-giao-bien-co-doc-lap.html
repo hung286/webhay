@@ -57,13 +57,13 @@
             -webkit-user-select: none;
             position: relative;
         }
-        /* SỬA LỖI KHUẤT HÀNG GẠCH "?" BẰNG CSS VIEWPORT AN TOÀN 100% */
+        /* SỬA LỖI KHUẤT HÀNG GẠCH "?" BẰNG CSS VIEWPORT AN TOÀN 100% VÀ ZOOM CAMERA 10% */
         #game-container, #canvas-container, .canvas-container, .mario-canvas-container, .game-container {
             position: relative !important;
             width: 100% !important;
-            height: calc(100vh - 30px) !important;
-            height: calc(100dvh - 30px) !important; /* Tương thích mượt mà trên Mobile */
-            margin-top: 30px !important; /* Tạo khoảng trống an toàn ngay dưới thanh bảng điểm đen thu nhỏ 30px */
+            height: calc(100vh - 45px) !important;
+            height: calc(100dvh - 45px) !important; /* Tương thích mượt mà trên Mobile */
+            margin-top: 45px !important; /* Tạo khoảng trống an toàn dynamic dưới thanh bảng điểm đen */
             overflow: hidden !important;
             background-color: #5c94fc !important;
         }
@@ -71,12 +71,14 @@
             display: block !important;
             width: 100% !important;
             height: 100% !important;
-            object-fit: contain !important; /* Ép bàn cảnh tự động co giãn vừa vặn, nhìn thấy toàn cảnh trên cả Laptop và Mobile */
+            transform: scale(0.9) !important;
+            transform-origin: top center !important; /* Zoom thu nhỏ camera 10%, lộ diện toàn cảnh map và hàng gạch '?' vàng 100% */
+            object-fit: contain !important;
             background-color: #5c94fc;
         }
 
-        /* ÉP BIỂU THỨC TOÁN INLINE MATHJAX THẲNG HÀNG CHỐNG BẺ ĐÔI PHÂN SỐ, CHO PHÉP CÂU HỎI XUỐNG DÒNG */
-        .mjx-chtml, mjx-container, .MathJax {
+        /* ÉP BIỂU THỨC TOÁN INLINE MATHJAX THẲNG HÀNG CHỐNG BẺ ĐÔI PHÂN SỐ, CHỮ TRẮNG RÕ NÉT */
+        .question-text, .answer-btn, .option-btn, mjx-container, .mjx-chtml, .MathJax {
             white-space: nowrap !important;
             display: inline-block !important;
             vertical-align: middle !important;
@@ -86,14 +88,10 @@
             white-space: nowrap !important;
             color: #ffffff !important;
         }
-        .question-text, .question-box-content {
+        .question-box-content {
             word-wrap: break-word !important;
             overflow-wrap: break-word !important;
             white-space: normal !important;
-        }
-        .answer-btn, .option-btn {
-            word-wrap: break-word !important;
-            overflow-wrap: break-word !important;
         }
 
         /* Cấu hình các nhãn độ khó Dễ - Vừa - Khó chống đè chữ và bo viền tròn chuẩn */
@@ -102,13 +100,15 @@
             align-items: center !important;
             justify-content: center !important;
             padding: 4px 10px !important;
-            margin: 4px !important;
+            margin: 3px !important;
             white-space: nowrap !important;
+            border-radius: 9999px !important;
+            line-height: 1.2 !important;
         }
 
-        /* Thu nhỏ bảng điểm xám 40%-50%, font chữ mảnh gọn 0.8rem */
+        /* Thu nhỏ bảng điểm xám 40%, font chữ mảnh gọn 0.85rem */
         .mario-compact-scoreboard {
-            font-size: 0.8rem !important;
+            font-size: 0.85rem !important;
         }
 
         @media (max-width: 900px) and (orientation: portrait) {
@@ -338,13 +338,13 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- THANH TOPBAR GAME & BẢNG ĐIỂM GỌN GÀNG (30PX) -->
+    <!-- THANH TOPBAR GAME & BẢNG ĐIỂM GỌN GÀNG (40PX) -->
     <!-- ========================================== -->
-    <div id="game-topbar" class="fixed top-0 left-0 right-0 z-40 h-[30px] max-h-[30px] bg-slate-950/95 backdrop-blur-md border-b border-white/10 px-2 sm:px-3 flex items-center justify-between pointer-events-auto">
+    <div id="game-topbar" class="fixed top-0 left-0 right-0 z-40 h-[40px] max-h-[40px] bg-slate-950/95 backdrop-blur-md border-b border-white/10 px-2 sm:px-3 flex items-center justify-between pointer-events-auto">
         <!-- Trái: Logo & Nút Toàn màn hình -->
         <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <input type="file" id="logoUpload" accept="image/*" class="hidden">
-            <img id="brandLogo" src="https://ui-avatars.com/api/?name=MH&background=0f172a&color=fde047&rounded=true&bold=true" class="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-yellow-400 object-cover shadow-xs hover:scale-105 transition-transform cursor-pointer" onclick="document.getElementById('logoUpload').click()" title="Đổi Logo">
+            <img id="brandLogo" src="https://ui-avatars.com/api/?name=MH&background=0f172a&color=fde047&rounded=true&bold=true" class="w-6 h-6 rounded-full border border-yellow-400 object-cover shadow-xs hover:scale-105 transition-transform cursor-pointer" onclick="document.getElementById('logoUpload').click()" title="Đổi Logo">
             <span class="text-yellow-400 font-black text-[9px] sm:text-[10px] tracking-wide uppercase hidden xs:inline sm:inline">TOÁN PRO</span>
             
             <button id="fullscreenToggleBtn" type="button" onclick="toggleMobileFullscreen()" class="h-6 px-1.5 sm:px-2 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-white font-bold text-[9px] sm:text-[10px] flex items-center gap-1 border border-white/20 active:scale-95 cursor-pointer shadow-xs ml-0.5" title="[ ⛶ ] Toàn màn hình">
@@ -353,8 +353,8 @@
             </button>
         </div>
 
-        <!-- Giữa: Bảng điểm xám thu nhỏ 45% (Scoreboard: font-size 0.8rem, dạng mảnh gọn, một hàng ngang) -->
-        <div class="mario-compact-scoreboard bg-slate-900/90 border border-white/15 px-2.5 py-0.5 rounded-full text-white font-mono flex items-center gap-1.5 sm:gap-2 shadow-inner pointer-events-auto select-none" style="font-size: 0.8rem !important; line-height: 1.2;">
+        <!-- Giữa: Bảng điểm xám thu nhỏ 40% (Scoreboard: font-size 0.85rem, dạng mảnh gọn, một hàng ngang) -->
+        <div class="mario-compact-scoreboard bg-slate-900/90 border border-white/15 px-3 py-0.5 rounded-full text-white font-mono flex items-center gap-2 shadow-inner pointer-events-auto select-none" style="font-size: 0.85rem !important; line-height: 1.2;">
             <div>ĐIỂM: <span id="scoreDisplay" class="text-yellow-400 font-black">0</span></div>
             <span class="text-white/30">|</span>
             <div>CÂU: <span id="qCountDisplay" class="text-cyan-300 font-bold">0/8</span></div>
@@ -363,34 +363,34 @@
             <span id="active-mario-topic-badge" class="hidden lg:inline-block text-[9px] text-yellow-300 font-sans font-bold ml-0.5 px-1.5 py-0.5 bg-yellow-400/10 rounded border border-yellow-400/20 truncate max-w-[120px]">Chuyên đề 1</span>
         </div>
 
-        <!-- Phải: Nút Quản trị và Người chơi thu nhỏ, sắp 1 hàng ngang -->
-        <div id="admin-topbar" class="flex items-center gap-1 sm:gap-1.5 shrink-0 pointer-events-auto">
-            <button id="btn-chuyen-de" type="button" onclick="openMarioTopicMenu()" class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-black text-[9px] sm:text-[10px] uppercase tracking-wider shadow-xs border border-amber-300/40 active:scale-95 cursor-pointer" data-admin-control="true" title="Chọn chuyên đề bài giảng">
+        <!-- Phải: Nút Quản trị và Người chơi thu nhỏ, sắp 1 hàng ngang cách đều nhau -->
+        <div id="admin-topbar" class="flex items-center gap-2 shrink-0 pointer-events-auto">
+            <button id="btn-chuyen-de" type="button" onclick="openMarioTopicMenu()" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-black text-[10px] uppercase tracking-wider shadow-xs border border-amber-300/40 active:scale-95 cursor-pointer" data-admin-control="true" title="Chọn chuyên đề bài giảng">
                 <span>📚</span> <span class="hidden md:inline">CHUYÊN ĐỀ</span>
             </button>
-            <button id="btn-admin-gear" type="button" onclick="openAdminPinPrompt()" class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-[9px] sm:text-[10px] uppercase tracking-wider shadow-xs border border-cyan-300/40 active:scale-95 cursor-pointer" data-admin-control="true" title="Quyền Quản Trị">
+            <button id="btn-admin-gear" type="button" onclick="openAdminPinPrompt()" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-[10px] uppercase tracking-wider shadow-xs border border-cyan-300/40 active:scale-95 cursor-pointer" data-admin-control="true" title="Quyền Quản Trị">
                 <span>⚙️</span> <span class="hidden md:inline">SỬA ĐỀ</span>
             </button>
             <span id="admin-badge" class="hidden text-[9px] text-cyan-400 font-mono font-bold bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-500/30" data-admin-control="true">Admin</span>
             
-            <div class="flex items-center gap-1 bg-blue-600/70 hover:bg-blue-600 px-2 py-0.5 rounded-full border border-blue-400/40 cursor-pointer text-white text-[9px] sm:text-[10px] font-bold transition shadow-xs" onclick="openLeaderboard()" title="Xem Hồ Sơ">
+            <div class="flex items-center gap-1 bg-blue-600/70 hover:bg-blue-600 px-2.5 py-1 rounded-full border border-blue-400/40 cursor-pointer text-white text-[10px] font-bold transition shadow-xs" onclick="openLeaderboard()" title="Xem Hồ Sơ">
                 <span>👤</span> <span id="playerNameDisplay" class="truncate max-w-[50px] sm:max-w-[70px]">Người chơi</span>
             </div>
         </div>
     </div>
 
-    <!-- HÀNG NÚT CHỨC NĂNG HỆ THỐNG GỌN GÀNG SÁT VIỀN PHẢI (CANH THEO TOPBAR 30PX) -->
-    <div id="mario-side-tools" class="fixed top-9 right-2 sm:right-3 z-30 flex flex-col gap-1.5 pointer-events-auto">
-        <button onclick="openMarioTopicMenu()" class="w-7 h-7 sm:w-8 sm:h-8 bg-amber-500/85 hover:bg-amber-500 text-white rounded-xl flex items-center justify-center text-xs font-black shadow-md border border-amber-300/40 transition active:scale-95 cursor-pointer" title="Đổi Chuyên Đề Mới (Màn)">
+    <!-- HÀNG NÚT CHỨC NĂNG HỆ THỐNG GỌN GÀNG SÁT VIỀN PHẢI (CANH THEO TOPBAR, HÀNG NGANG) -->
+    <div id="mario-side-tools" class="fixed top-12 right-2 sm:right-3 z-30 flex flex-row items-center gap-1.5 pointer-events-auto">
+        <button onclick="openMarioTopicMenu()" class="w-8 h-8 bg-amber-500/85 hover:bg-amber-500 text-white rounded-xl flex items-center justify-center text-xs font-black shadow-md border border-amber-300/40 transition active:scale-95 cursor-pointer" title="Đổi Chuyên Đề Mới (Màn)">
             🍄
         </button>
-        <button id="soundToggleBtn" onclick="toggleSound()" class="w-8 h-8 sm:w-9 sm:h-9 bg-rose-500/85 hover:bg-rose-500 text-white rounded-xl flex items-center justify-center text-xs sm:text-sm font-black shadow-md border border-rose-300/40 transition active:scale-95 cursor-pointer" title="Bật/Tắt Âm Thanh (Thanh)">
+        <button id="soundToggleBtn" onclick="toggleSound()" class="w-8 h-8 bg-rose-500/85 hover:bg-rose-500 text-white rounded-xl flex items-center justify-center text-xs sm:text-sm font-black shadow-md border border-rose-300/40 transition active:scale-95 cursor-pointer" title="Bật/Tắt Âm Thanh (Thanh)">
             🔇
         </button>
-        <button id="toggleControlsBtn" onclick="toggleControls()" class="w-8 h-8 sm:w-9 sm:h-9 bg-slate-800/85 hover:bg-slate-700 text-white rounded-xl flex items-center justify-center text-xs sm:text-sm font-black shadow-md border border-white/20 transition active:scale-95 cursor-pointer" title="Bật/Tắt Nút Ảo">
+        <button id="toggleControlsBtn" onclick="toggleControls()" class="w-8 h-8 bg-slate-800/85 hover:bg-slate-700 text-white rounded-xl flex items-center justify-center text-xs sm:text-sm font-black shadow-md border border-white/20 transition active:scale-95 cursor-pointer" title="Bật/Tắt Nút Ảo (Phím)">
             <span id="toggleControlsText" class="text-xs">🎮</span>
         </button>
-        <button onclick="openLeaderboard()" class="w-8 h-8 sm:w-9 sm:h-9 bg-blue-600/85 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center text-xs sm:text-sm font-black shadow-md border border-blue-300/40 transition active:scale-95 cursor-pointer" title="Xem Bảng Xếp Hạng">
+        <button onclick="openLeaderboard()" class="w-8 h-8 bg-blue-600/85 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center text-xs sm:text-sm font-black shadow-md border border-blue-300/40 transition active:scale-95 cursor-pointer" title="Xem Bảng Xếp Hạng (BXH)">
             🏆
         </button>
     </div>
@@ -1227,7 +1227,11 @@
             }
             container.innerHTML = '';
 
-            const topics = Object.keys(window.gameDatabase);
+            let topics = Object.keys(window.gameDatabase || {});
+            if (topics.length === 0) {
+                window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_MARIO_FALLBACK_DB));
+                topics = Object.keys(window.gameDatabase);
+            }
 
             const WORLD_THEMES = [
                 {
@@ -1411,13 +1415,40 @@
         function formatMarioStringToTeX(str) {
             if (typeof str !== 'string') return str || '';
             let cleanStr = str;
-            cleanStr = cleanStr.replace(/\brac\b/g, '\\frac').replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
-            cleanStr = cleanStr.replace(/(\d*)cdot(\d*)/g, '$1 \\cdot $2').replace(/\s*cdot\s*/g, ' \\cdot ');
-            cleanStr = cleanStr.replace(/(?<!\\)cdot/g, '\\cdot').replace(/(?<!\\)frac/g, '\\frac')
-                               .replace(/(?<!\\)Omega/g, '\\Omega').replace(/(?<!\\)emptyset/g, '\\emptyset')
-                               .replace(/(?<!\\)cup/g, '\\cup').replace(/(?<!\\)cap/g, '\\cap');
-            cleanStr = cleanStr.replace(/\\\[/g, '').replace(/\\\]/g, '').replace(/\\\\\\\\/g, '\\');
+
+            // 1. Phục hồi hoàn toàn chữ rac thành \frac và khử \f thừa
+            cleanStr = cleanStr.replace(/\\f(?=\\frac)/g, '')
+                               .replace(/\\+rac\b/g, '\\frac')
+                               .replace(/\brac\b/g, '\\frac')
+                               .replace(/\\+rac(?=[^a-zA-Z]|$)/g, '\\frac')
+                               .replace(/(?<![a-zA-Z\\])rac(?=[^a-zA-Z]|$)/g, '\\frac')
+                               .replace(/\\{2,}frac/g, '\\frac');
+
+            // 2. Sửa lỗi dính chữ 'cdot' (Ví dụ: Chuyển '10cdot3^x' thành '10 \cdot 3^x')
+            cleanStr = cleanStr.replace(/(\d*)\s*\\?cdot\s*(\d*)/g, (match, p1, p2) => {
+                if (p1 || p2) return (p1 ? p1 + ' ' : '') + '\\cdot' + (p2 ? ' ' + p2 : '');
+                return ' \\cdot ';
+            });
+            cleanStr = cleanStr.replace(/(\d*)cdot(\d*)/g, '$1 \\cdot $2');
+            cleanStr = cleanStr.replace(/(?<!\\)cdot/g, '\\cdot');
+            cleanStr = cleanStr.replace(/([0-9a-zA-Z\)\}\]])\s*\\cdot/g, '$1 \\cdot');
+            cleanStr = cleanStr.replace(/\\cdot\s*([0-9a-zA-Z\(\{\\])/g, '\\cdot $1');
+            cleanStr = cleanStr.replace(/\s*\\cdot\s*/g, ' \\cdot ');
+
+            // 3. Phục hồi hoàn toàn dấu gạch chéo ngược \ bị thiếu cho các ký hiệu toán
+            cleanStr = cleanStr.replace(/(?<!\\)\b(sin|cos|tan|cot)\b/g, '\\$1');
+            cleanStr = cleanStr.replace(/(?<!\\)\b(Omega)\b/g, '\\Omega');
+            cleanStr = cleanStr.replace(/(?<!\\)\b(emptyset)\b/g, '\\emptyset');
+            cleanStr = cleanStr.replace(/(?<!\\)\b(cup)\b/g, '\\cup');
+            cleanStr = cleanStr.replace(/(?<!\\)\b(cap)\b/g, '\\cap');
+            cleanStr = cleanStr.replace(/(?<!\\)\b(frac)\b/g, '\\frac');
+
+            // 4. Khử hoàn toàn ngoặc vuông \[...\] đè dòng và double escape
+            cleanStr = cleanStr.replace(/\\\[/g, '').replace(/\\\]/g, '');
+            cleanStr = cleanStr.replace(/\\{2,}(frac|cdot|sin|cos|tan|cot|Omega|emptyset|cup|cap)/g, '\\$1');
+            cleanStr = cleanStr.replace(/\\\\\\\\/g, '\\');
             cleanStr = cleanStr.trim();
+
             if (!cleanStr.startsWith('\\(') && !cleanStr.endsWith('\\)')) {
                 if (/[à-ỹ]/i.test(cleanStr) && cleanStr.includes(' ')) {
                     if (typeof formatMathSpacers === 'function') {
@@ -1437,7 +1468,6 @@
             let cleanStr = inputString;
 
             // 1. Sửa lỗi dính chữ 'cdot' (Ví dụ: Chuyển '10cdot3^x' hoặc '10cdot 3^x' thành '10 \cdot 3^x')
-            // Thêm khoảng trắng an toàn trước và sau mã lệnh \cdot theo đúng quy chuẩn TeX Live
             cleanStr = cleanStr.replace(/(\d*)\s*\\?cdot\s*(\d*)/g, (match, p1, p2) => {
                 if (p1 || p2) return (p1 ? p1 + ' ' : '') + '\\cdot' + (p2 ? ' ' + p2 : '');
                 return ' \\cdot ';
@@ -1458,6 +1488,7 @@
 
             // 3. Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) hoặc bọc ngoặc vuông sai quy cách
             cleanStr = cleanStr.replace(/\\\[/g, '').replace(/\\\]/g, '');
+            cleanStr = cleanStr.replace(/\\{2,}(frac|cdot|sin|cos|tan|cot|Omega|emptyset|cup|cap)/g, '\\$1');
             cleanStr = cleanStr.replace(/\\\\\\\\/g, '\\');
 
             return cleanStr;
