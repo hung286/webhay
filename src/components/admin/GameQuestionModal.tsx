@@ -43,7 +43,10 @@ import {
   downloadHaiTaoWordTemplate,
   downloadHaiTaoExcelTemplate,
   downloadPikachuWordTemplate,
-  downloadPikachuExcelTemplate
+  downloadPikachuExcelTemplate,
+  parseTraiTimFromDocx,
+  parseTraiTimFromExcel,
+  downloadTraiTimWordTemplate
 } from '../../utils/documentParser';
 
 // Bộ xem trước công thức KaTeX thời gian thực
@@ -98,13 +101,14 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [isParsingDoc, setIsParsingDoc] = useState(false);
 
-  // Nhận diện chế độ Kéo Thả, Bảo Vệ Chiến Hào, Sút Penalty, Bắn Chim, Yoga Vận Động, Pikachu, Cờ Cá Ngựa & Tetris
+  // Nhận diện chế độ Kéo Thả, Bảo Vệ Chiến Hào, Sút Penalty, Bắn Chim, Yoga Vận Động, Ghép Cặp Trái Tim, Pikachu, Cờ Cá Ngựa & Tetris
   const isDragDropMode = selectedTemplateUrl.includes('keo-tha');
   const isChienHaoMode = selectedTemplateUrl.includes('chien-hao') || selectedTemplateUrl.includes('Bao-ve-chien-hao');
   const isSutPenMode = selectedTemplateUrl.includes('sut-pen') || selectedTemplateUrl.includes('penalty');
   const isBanChimMode = selectedTemplateUrl.includes('ban-chim') || selectedTemplateUrl.includes('bird');
   const isYogaMode = selectedTemplateUrl.includes('yoga');
-  const isPikachuMode = selectedTemplateUrl.includes('pikachu') || selectedTemplateUrl.includes('ghep-cap');
+  const isTraiTimMode = selectedTemplateUrl.includes('trai-tim') || selectedTemplateUrl.includes('trai_tim') || selectedTemplateUrl.includes('traitim') || selectedTemplateUrl.includes('heart');
+  const isPikachuMode = (selectedTemplateUrl.includes('pikachu') || selectedTemplateUrl.includes('ghep-cap')) && !isTraiTimMode;
   const isCaNguaMode = selectedTemplateUrl.includes('ca-ngua') || selectedTemplateUrl.includes('ca_ngua') || selectedTemplateUrl.includes('ngua');
   const isTetrisMode = selectedTemplateUrl.includes('tetris') || selectedTemplateUrl.includes('Gametetris');
   const isMarioMode = selectedTemplateUrl.includes('mario') || selectedTemplateUrl.includes('Gamemario');
@@ -113,11 +117,20 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
   const [sutPenLevelFilter, setSutPenLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [banChimLevelFilter, setBanChimLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [yogaFilter, setYogaFilter] = useState<'ALL' | 'MC' | 'TF' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
+  const [traiTimLevelFilter, setTraiTimLevelFilter] = useState<string>('ALL');
   const [pikachuLevelFilter, setPikachuLevelFilter] = useState<'ALL' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [caNguaFilter, setCaNguaFilter] = useState<'ALL' | 'MC' | 'TF' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [tetrisFilter, setTetrisFilter] = useState<'ALL' | 'MC' | 'TF' | 'SHORT' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [marioFilter, setMarioFilter] = useState<'ALL' | 'MC' | 'TF' | 'SHORT' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
   const [haiTaoFilter, setHaiTaoFilter] = useState<'ALL' | 'MC' | 'TF' | 'SHORT' | 'Dễ' | 'Trung bình' | 'Khó'>('ALL');
+
+  const traiTimLevels = useMemo(() => {
+    const set = new Set<string>();
+    questions.forEach(q => {
+      if (q.topic && q.topic.trim()) set.add(q.topic.trim());
+    });
+    return Array.from(set);
+  }, [questions]);
 
   const chienHaoCounts = useMemo(() => {
     return {
@@ -211,6 +224,9 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       if (yogaFilter === 'TF') return questions.filter(q => (q.options || []).length === 2);
       return questions.filter(q => q.difficulty === yogaFilter);
     }
+    if (isTraiTimMode && traiTimLevelFilter !== 'ALL') {
+      return questions.filter(q => (q.topic?.trim() || '') === traiTimLevelFilter);
+    }
     if (isPikachuMode && pikachuLevelFilter !== 'ALL') {
       return questions.filter(q => q.difficulty === pikachuLevelFilter);
     }
@@ -238,7 +254,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       return questions.filter(q => q.difficulty === haiTaoFilter);
     }
     return questions;
-  }, [questions, isChienHaoMode, chienHaoLevelFilter, isSutPenMode, sutPenLevelFilter, isBanChimMode, banChimLevelFilter, isYogaMode, yogaFilter, isPikachuMode, pikachuLevelFilter, isCaNguaMode, caNguaFilter, isTetrisMode, tetrisFilter, isMarioMode, marioFilter, isHaiTaoMode, haiTaoFilter]);
+  }, [questions, isChienHaoMode, chienHaoLevelFilter, isSutPenMode, sutPenLevelFilter, isBanChimMode, banChimLevelFilter, isYogaMode, yogaFilter, isTraiTimMode, traiTimLevelFilter, isPikachuMode, pikachuLevelFilter, isCaNguaMode, caNguaFilter, isTetrisMode, tetrisFilter, isMarioMode, marioFilter, isHaiTaoMode, haiTaoFilter]);
 
   // Quản lý Bảng Phân Cấp Đa Chuyên Đề & Đa Cấp Độ (Hierarchical Table View)
   const [tableRows, setTableRows] = useState<DragDropTableRow[]>(() => {
@@ -699,6 +715,23 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         setQuestions(prev => [...prev, ...parsedQuestions]);
         soundFx.playCorrect();
         alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CÂU HỎI GAME YOGA TỪ FILE:\n"${file.name}"!`);
+      } else if (isTraiTimMode) {
+        let parsedQuestions: Question[] = [];
+        if (ext === 'docx') {
+          parsedQuestions = await parseTraiTimFromDocx(file);
+        } else if (ext === 'xlsx' || ext === 'xls') {
+          parsedQuestions = await parseTraiTimFromExcel(file);
+        } else {
+          const rawText = await file.text();
+          parsedQuestions = parseDocumentQuestions(rawText, gameTitle);
+        }
+
+        if (parsedQuestions.length === 0) {
+          throw new Error('Không bóc tách được cặp nối từ bảng dài 2 cột của file Word. Vui lòng tải file mẫu để kiểm tra.');
+        }
+        setQuestions(prev => [...prev, ...parsedQuestions]);
+        soundFx.playCorrect();
+        alert(`🎉 ĐÃ NHẬP THÀNH CÔNG ${parsedQuestions.length} CẶP BÀI GHÉP CẶP TRÁI TIM TỪ FILE:\n"${file.name}"!`);
       } else if (isPikachuMode) {
         let parsedQuestions: Question[] = [];
         if (ext === 'docx') {
@@ -2217,6 +2250,50 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
                     >
                       <span>🔴 Khó ({haiTaoCounts.hard})</span>
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {isTraiTimMode && (
+                <div className="bg-white rounded-2xl border-2 border-rose-200 p-4 shadow-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-rose-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full bg-rose-500 animate-pulse" />
+                      <span className="font-black text-xs sm:text-sm text-rose-800 uppercase tracking-wide">
+                        BỘ LỌC LEVEL GAME GHÉP CẶP TRÁI TIM
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
+                      💖 Bảng dài 2 Cột • So khớp Multi-Match đa đáp án cùng giá trị
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                    <button
+                      onClick={() => { setTraiTimLevelFilter('ALL'); soundFx.playClick(); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition shrink-0 cursor-pointer ${
+                        traiTimLevelFilter === 'ALL'
+                          ? 'bg-rose-600 text-white shadow-sm'
+                          : 'bg-rose-50 hover:bg-rose-100 text-rose-700'
+                      }`}
+                    >
+                      Tất cả ({questions.length} cặp)
+                    </button>
+                    {traiTimLevels.map((lvl) => {
+                      const count = questions.filter(q => (q.topic?.trim() || '') === lvl).length;
+                      return (
+                        <button
+                          key={lvl}
+                          onClick={() => { setTraiTimLevelFilter(lvl); soundFx.playClick(); }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                            traiTimLevelFilter === lvl
+                              ? 'bg-rose-600 text-white shadow-sm font-black'
+                              : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+                          }`}
+                        >
+                          <span>{lvl} ({count})</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

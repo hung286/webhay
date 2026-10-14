@@ -479,6 +479,78 @@ window.useStaticTopic = true;
     htmlContent = injectScriptAtTop(htmlContent, dhScript);
   }
 
+  // NHÓM GHÉP CẶP TRÁI TIM (cấu trúc Dynamic Levels theo bộ đề hoặc Word)
+  else if (cleanUrl.includes('trai-tim') || cleanUrl.includes('traitim') || cleanUrl.includes('heart')) {
+    const cleanFormula = (text: string): string => {
+      if (!text) return '';
+      let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+      res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
+               .replace(/\bH\s+ai\b/g, 'Hai')
+               .replace(/\bC\s+ho\b/g, 'Cho')
+               .replace(/\bC\s+ả\b/g, 'Cả')
+               .replace(/\bK\s+hi\b/g, 'Khi')
+               .replace(/\bC\s+hỉ\b/g, 'Chỉ')
+               .replace(/\bT\s+ính\b/g, 'Tính')
+               .replace(/\bT\s+rong\b/g, 'Trong');
+      return normalizeMathFormulas(res);
+    };
+
+    let activeQuestions = [...questions];
+    if (activeQuestions.length === 0) {
+      try {
+        const ws = DEFAULT_WORKSHEETS.find(w => 
+          (w.title && (w.title.toLowerCase().includes('đạo hàm') || w.title.toLowerCase().includes('dao ham'))) ||
+          (w.id && (w.id.includes('dao_ham') || w.id.includes('11_')))
+        ) || DEFAULT_WORKSHEETS[0];
+        
+        if (ws && ws.questions && ws.questions.length > 0) {
+          activeQuestions = ws.questions.map((q, idx) => ({
+            id: q.id || `ws_tt_fb_${idx}`,
+            question: q.question,
+            options: q.options || ['A', 'B', 'C', 'D'],
+            correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+            explanation: q.solution || '',
+            topic: ws.title || 'Đạo Hàm Cơ Bản'
+          } as Question));
+        }
+      } catch (e) {
+        console.warn('Lỗi lấy worksheet dự phòng cho Ghép Cặp Trái Tim:', e);
+      }
+    }
+
+    const levelsMap: Record<number | string, { title: string, time: number, pairs: Array<{ id: number, left: string, right: string }> }> = {};
+    const uniqueTopics = Array.from(new Set(activeQuestions.map(q => q.topic?.trim() || 'Level 1')));
+    
+    uniqueTopics.forEach((topicName, idx) => {
+      const qs = activeQuestions.filter(q => (q.topic?.trim() || 'Level 1') === topicName);
+      levelsMap[idx] = {
+        title: topicName.replace(/^Level\s*\d+\s*:\s*/i, '').trim() || topicName,
+        time: Math.max(45, Math.min(180, qs.length * 12)),
+        pairs: qs.map((q, pIdx) => {
+          const correctText = (q.options && typeof q.correctIndex === 'number' && q.options[q.correctIndex]) 
+            ? q.options[q.correctIndex] 
+            : (q.options ? q.options[0] : '');
+          return {
+            id: pIdx + 1,
+            left: cleanFormula(q.question),
+            right: cleanFormula(correctText)
+          };
+        })
+      };
+    });
+
+    const traiTimScript = `
+<script>
+// [ADAPTER ENGINE: DYNAMIC LEVELS ARCHITECTURE - GHÉP CẶP TRÁI TIM]
+window.INJECTED_GAME_LEVELS = ${JSON.stringify(levelsMap, null, 2)};
+if (window.INJECTED_GAME_LEVELS && Object.keys(window.INJECTED_GAME_LEVELS).length > 0) {
+  window.GAME_LEVELS = window.INJECTED_GAME_LEVELS;
+}
+</script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, traiTimScript);
+  }
+
   // NHÓM GHÉP CẶP LƯỢNG GIÁC & CÔNG THỨC (cấu trúc Đa Chủ Đề & Đa Độ Khó)
   else if (cleanUrl.includes('ghep-cap')) {
     const cleanFormula = (text: string): string => {

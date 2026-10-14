@@ -2448,6 +2448,9 @@ export async function downloadCaNguaExcelTemplate(): Promise<void> {
  */
 export async function downloadGameWordTemplate(gameIdentifier: string): Promise<void> {
   const cleanId = (gameIdentifier || '').toLowerCase();
+  if (cleanId.includes('trai-tim') || cleanId.includes('trai_tim') || cleanId.includes('traitim') || cleanId.includes('heart')) {
+    return downloadTraiTimWordTemplate();
+  }
   if (cleanId.includes('hai-tao') || cleanId.includes('hai_tao') || cleanId.includes('haitao') || cleanId.includes('apple')) {
     return downloadHaiTaoWordTemplate();
   }
@@ -6581,6 +6584,314 @@ export async function parsePikachuFromExcel(file: File): Promise<Question[]> {
         type: 'MULTIPLE_CHOICE'
       });
     }
+  });
+
+  return questions;
+}
+
+/**
+ * TẠO BẢNG DÀI 2 CỘT CHO LEVEL GAME GHÉP CẶP TRÁI TIM
+ * Dòng 1: Cột 1: "LEVEL" | Cột 2: Tên LEVEL cụ thể
+ * Các dòng sau: Cột 1: Vế trái | Cột 2: Vế phải
+ */
+function createTraiTimLevelTable(levelTitle: string, pairs: [string, string][]): Table {
+  const tableBorder = {
+    style: BorderStyle.SINGLE,
+    size: 1,
+    color: "000000"
+  };
+
+  const rows: TableRow[] = [];
+
+  // Dòng 1: Cột 1 = "LEVEL" | Cột 2 = Tên LEVEL cụ thể
+  rows.push(
+    new TableRow({
+      children: [
+        new TableCell({
+          width: { size: 2500, type: WidthType.DXA },
+          borders: { top: tableBorder, bottom: tableBorder, left: tableBorder, right: tableBorder },
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "LEVEL",
+                  bold: true,
+                  size: 22,
+                  color: "000000"
+                })
+              ],
+              spacing: { before: 80, after: 80 }
+            })
+          ]
+        }),
+        new TableCell({
+          width: { size: 7500, type: WidthType.DXA },
+          borders: { top: tableBorder, bottom: tableBorder, left: tableBorder, right: tableBorder },
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: levelTitle,
+                  bold: true,
+                  size: 22,
+                  color: "000000"
+                })
+              ],
+              spacing: { before: 80, after: 80 }
+            })
+          ]
+        })
+      ]
+    })
+  );
+
+  // Các dòng sau: Vế trái | Vế phải
+  pairs.forEach(([left, right]) => {
+    rows.push(
+      new TableRow({
+        children: [
+          new TableCell({
+            width: { size: 2500, type: WidthType.DXA },
+            borders: { top: tableBorder, bottom: tableBorder, left: tableBorder, right: tableBorder },
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: left,
+                    size: 20,
+                    color: "000000"
+                  })
+                ],
+                spacing: { before: 60, after: 60 }
+              })
+            ]
+          }),
+          new TableCell({
+            width: { size: 7500, type: WidthType.DXA },
+            borders: { top: tableBorder, bottom: tableBorder, left: tableBorder, right: tableBorder },
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: right,
+                    size: 20,
+                    color: "000000"
+                  })
+                ],
+                spacing: { before: 60, after: 60 }
+              })
+            ]
+          })
+        ]
+      })
+    );
+  });
+
+  return new Table({
+    width: { size: 10000, type: WidthType.DXA },
+    rows: rows
+  });
+}
+
+/**
+ * SINH VÀ TẢI FILE WORD (.DOCX) MẪU CHO GAME GHÉP CẶP TRÁI TIM
+ * Định dạng bảng dài đen trắng tiêu chuẩn 2 Cột
+ */
+export async function downloadTraiTimWordTemplate(): Promise<void> {
+  const level1Pairs: [string, string][] = [
+    ["(C)'", "0"],
+    ["(5)'", "0"],
+    ["(x)'", "1"],
+    ["(x^2)'", "2x"],
+    ["(x^3)'", "3x^2"],
+    ["(\\sqrt{x})'", "\\frac{1}{2\\sqrt{x}}"],
+    ["(2\\sqrt{x})'", "\\frac{1}{\\sqrt{x}}"],
+    ["(\\frac{1}{x})'", "-\\frac{1}{x^2}"],
+    ["(e^x)'", "e^x"],
+    ["(\\ln x)'", "\\frac{1}{x}"]
+  ];
+
+  const level2Pairs: [string, string][] = [
+    ["(\\sin x)'", "\\cos x"],
+    ["(\\cos x)'", "-\\sin x"],
+    ["(\\tan x)'", "\\frac{1}{\\cos^2 x}"],
+    ["(\\cot x)'", "-\\frac{1}{\\sin^2 x}"],
+    ["(2\\sin x)'", "2\\cos x"],
+    ["(3\\cos x)'", "-3\\sin x"],
+    ["(x + \\sin x)'", "1 + \\cos x"],
+    ["(x - \\cos x)'", "1 + \\sin x"]
+  ];
+
+  const level3Pairs: [string, string][] = [
+    ["x - 1 = 0", "x = 1"],
+    ["2x - 2 = 0", "x = 1"],
+    ["x^2 - 4 = 0 (nghiệm dương)", "x = 2"],
+    ["2x - 4 = 0", "x = 2"],
+    ["x + 3 = 0", "x = -3"],
+    ["3x + 9 = 0", "x = -3"],
+    ["x^2 = 9 (nghiệm âm)", "x = -3"]
+  ];
+
+  const doc = new Document({
+    sections: [
+      {
+        properties: {},
+        children: [
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "MẪU SOẠN ĐỀ GAME GHÉP CẶP TRÁI TIM (CHUẨN BẢNG DÀI 2 CỘT)",
+                bold: true,
+                size: 26,
+                color: "000000"
+              })
+            ],
+            spacing: { after: 120 }
+          }),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: "HƯỚNG DẪN: Mỗi bảng đại diện cho 1 LEVEL. Dòng 1 ghi chữ 'LEVEL' ở Cột 1 | Tên LEVEL cụ thể ở Cột 2. Các dòng sau là các CẶP NỐI CHÍNH XÁC (Cột 1: Vế trái | Cột 2: Vế phải). Cho phép soạn nhiều level (nhiều bảng dài liên tiếp) và nhập nhiều dòng có vế phải cùng giá trị (Hệ thống hỗ trợ Multi-Match Value thông minh).",
+                size: 20,
+                color: "000000"
+              })
+            ],
+            spacing: { after: 200 }
+          }),
+
+          // BẢNG 1: LEVEL 1
+          createTraiTimLevelTable("Level 1: Đạo Hàm Hàm Số Cơ Bản", level1Pairs),
+          new Paragraph({ text: "", spacing: { after: 250 } }),
+
+          // BẢNG 2: LEVEL 2
+          createTraiTimLevelTable("Level 2: Đạo Hàm Hàm Số Lượng Giác", level2Pairs),
+          new Paragraph({ text: "", spacing: { after: 250 } }),
+
+          // BẢNG 3: LEVEL 3 (Minh họa nhiều vế trái cùng vế phải)
+          createTraiTimLevelTable("Level 3: Phương Trình & Đa Đáp Án Cùng Giá Trị", level3Pairs)
+        ]
+      }
+    ]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, "Mau_Soan_De_Ghep_Cap_Trai_Tim_ToanPro.docx");
+}
+
+/**
+ * BÓC TÁCH CÂU HỎI GAME GHÉP CẶP TRÁI TIM TỪ FILE WORD (.DOCX)
+ */
+export async function parseTraiTimFromDocx(file: File): Promise<Question[]> {
+  const { mammoth } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+  const html = htmlResult.value || '';
+  const questions: Question[] = [];
+
+  if (html.includes('<table')) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+
+    tables.forEach((table, tIdx) => {
+      let currentLevelName = `Level ${tIdx + 1}: Chuyên đề ${tIdx + 1}`;
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length === 0) return;
+
+      // Kiểm tra tiêu đề trước bảng
+      let prevEl = table.previousElementSibling;
+      while (prevEl) {
+        const text = (prevEl.textContent || '').trim();
+        if (/level|mức độ|cấp độ|chủ đề|ải/i.test(text)) {
+          currentLevelName = text;
+          break;
+        }
+        prevEl = prevEl.previousElementSibling;
+      }
+
+      rows.forEach((row) => {
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        if (cells.length < 2) return;
+
+        const col1 = (cells[0].textContent || '').trim();
+        const col2 = (cells[1].textContent || '').trim();
+        if (!col1 && !col2) return;
+
+        const col1Low = col1.toLowerCase();
+        // Dòng 1 hoặc dòng chỉ định LEVEL: Cột 1 = "LEVEL" | Cột 2 = Tên LEVEL cụ thể
+        if (col1Low === 'level' || col1Low.startsWith('level') || col1Low === 'mức độ' || col1Low === 'cấp độ' || col1Low === 'chủ đề') {
+          if (col2) currentLevelName = col2;
+          return;
+        }
+
+        // Bỏ qua dòng tiêu đề phụ nếu có (ví dụ: "Vế trái" | "Vế phải")
+        if (col1Low.includes('vế trái') || col1Low.includes('hàm số') || col1Low.includes('câu hỏi')) {
+          return;
+        }
+
+        if (col1 && col2) {
+          questions.push({
+            id: `heart_${Date.now()}_${tIdx}_${questions.length + 1}`,
+            question: normalizeMathFormulas(col1),
+            options: [normalizeMathFormulas(col2)],
+            correctIndex: 0,
+            explanation: `Cặp nối: ${col1} <-> ${col2}`,
+            source: 'TraiTim',
+            status: 'published',
+            topic: currentLevelName,
+            difficulty: 'Dễ',
+            type: 'MULTIPLE_CHOICE'
+          });
+        }
+      });
+    });
+  }
+
+  return questions;
+}
+
+/**
+ * BÓC TÁCH CÂU HỎI GAME GHÉP CẶP TRÁI TIM TỪ FILE EXCEL (.XLSX)
+ */
+export async function parseTraiTimFromExcel(file: File): Promise<Question[]> {
+  const { XLSX } = await loadDocumentLibraries();
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const questions: Question[] = [];
+
+  workbook.SheetNames.forEach((sheetName: string, sIdx: number) => {
+    const worksheet = workbook.Sheets[sheetName];
+    const data: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    let currentLevelName = `Level ${sIdx + 1}: ${sheetName}`;
+
+    data.forEach((row) => {
+      if (!row || row.length === 0) return;
+      const col0 = String(row[0] || '').trim();
+      const col1 = String(row[1] || '').trim();
+      if (!col0 && !col1) return;
+
+      const col0Low = col0.toLowerCase();
+      if (col0Low === 'level' || col0Low.startsWith('level') || col0Low === 'mức độ' || col0Low === 'chủ đề') {
+        if (col1) currentLevelName = col1;
+        return;
+      }
+      if (col0Low.includes('vế trái') || col0Low.includes('hàm số')) return;
+
+      if (col0 && col1) {
+        questions.push({
+          id: `heart_xl_${Date.now()}_${questions.length + 1}`,
+          question: normalizeMathFormulas(col0),
+          options: [normalizeMathFormulas(col1)],
+          correctIndex: 0,
+          explanation: `Cặp nối: ${col0} <-> ${col1}`,
+          source: 'TraiTim',
+          status: 'published',
+          topic: currentLevelName,
+          difficulty: 'Dễ',
+          type: 'MULTIPLE_CHOICE'
+        });
+      }
+    });
   });
 
   return questions;

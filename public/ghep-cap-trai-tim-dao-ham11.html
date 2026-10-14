@@ -13,14 +13,55 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
     
+    <!-- MathJax 3 for Formula Rendering -->
+    <script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' },
+        options: { enableMenu: false }
+    };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     <!-- KaTeX for Math Rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 
     <style>
-        /* Đã bỏ touch-action: none để cho phép gõ phím bình thường */
-        body { font-family: 'Nunito', sans-serif; overflow: hidden; margin: 0; padding: 0; }
+        /* Responsive 100dvh Layout & MathJax nowrap */
+        html, body {
+            font-family: 'Nunito', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100dvh !important;
+            min-height: 100dvh !important;
+            max-height: 100dvh !important;
+        }
         .katex-display { margin: 0 !important; }
+        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container { 
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+        .math-text *, .math-content *, .katex *, mjx-container *, .mjx-chtml * {
+            white-space: nowrap !important;
+        }
+
+        @media screen and (orientation: portrait) and (max-width: 768px) {
+            #rotateDeviceOverlay { display: flex !important; }
+        }
+
+        #overlay-content,
+        #admin-pair-modal > div,
+        #pin-modal > div {
+            max-height: 80dvh !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
 
         /* Animations */
         @keyframes sos-flash {
@@ -66,7 +107,26 @@
         .tab-btn.active { border-bottom: 3px solid #f43f5e; color: #e11d48; font-weight: 800; }
     </style>
 </head>
-<body class="h-screen w-screen bg-gradient-to-b from-pink-200 via-red-100 to-rose-300 flex flex-col items-center relative overflow-hidden text-gray-800">
+<body class="h-[100dvh] w-screen bg-gradient-to-b from-pink-200 via-red-100 to-rose-300 flex flex-col items-center relative overflow-hidden text-gray-800">
+
+    <!-- OVERLAY XOAY NGANG MÀN HÌNH DI ĐỘNG -->
+    <div id="rotateDeviceOverlay" class="fixed inset-0 z-[999999] bg-slate-950/95 backdrop-blur-xl hidden flex-col items-center justify-center p-6 text-center text-white select-none">
+        <div class="w-20 h-20 mb-4 rounded-3xl bg-pink-500/20 border-2 border-pink-400 flex items-center justify-center text-4xl animate-bounce shadow-[0_0_30px_rgba(244,63,94,0.4)]">
+            📱🔄
+        </div>
+        <h2 class="text-xl md:text-2xl font-black text-pink-400 mb-2 uppercase tracking-wider">
+            XOAY NGANG ĐIỆN THOẠI
+        </h2>
+        <p class="text-xs md:text-sm text-slate-200 max-w-md font-bold leading-relaxed mb-4">
+            Vui lòng xoay ngang điện thoại để trải nghiệm tốt nhất 🔄
+        </p>
+        <div class="px-4 py-2 rounded-full bg-slate-800 border border-slate-600 text-[11px] text-pink-300 font-mono font-bold flex items-center gap-2">
+            <span>⚡</span> Trò chơi sẽ tự động tiếp tục khi xoay ngang
+        </div>
+        <button type="button" onclick="window.toggleMobileFullscreen()" class="mt-4 px-5 py-2.5 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-400 hover:to-rose-300 text-white font-black rounded-2xl shadow-xl flex items-center gap-2 active:scale-95 cursor-pointer text-xs uppercase tracking-wider">
+            <span>⛶</span> Kích Hoạt Toàn Màn Hình
+        </button>
+    </div>
 
     <div class="floating-heart text-6xl" style="left: 10%; animation-duration: 18s;">❤️</div>
     <div class="floating-heart text-5xl" style="left: 30%; animation-duration: 22s; animation-delay: -5s;">💖</div>
@@ -90,7 +150,22 @@
             </button>
         </div>
 
-        <div class="pointer-events-auto flex items-center gap-2 flex-wrap">
+        <div class="pointer-events-auto flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <!-- Nút Chuyên Đề cam: Chuẩn Topbar, ẩn mặc định, chỉ hiện khi URL có ?role=admin -->
+            <button id="btn-chuyen-de" onclick="window.showOverlay('start')" class="hidden px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs sm:text-sm shadow-[0_4px_15px_rgba(245,158,11,0.4)] border-2 border-amber-300 hover:scale-105 transition cursor-pointer active:scale-95" title="Chọn chuyên đề bài giảng">
+                <span>📚</span> CHUYÊN ĐỀ
+            </button>
+
+            <!-- Nút Sửa Dữ Liệu xanh dương: Chuẩn Topbar, ẩn mặc định, chỉ hiện khi URL có ?role=admin -->
+            <button id="btn-admin-gear" onclick="window.promptAdminPin()" class="hidden px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-xs sm:text-sm shadow-[0_4px_15px_rgba(6,182,212,0.4)] border-2 border-cyan-300 hover:scale-105 transition cursor-pointer active:scale-95" title="Quyền Quản Trị - Chỉnh sửa cặp bài">
+                <span>⚙️</span> SỬA DỮ LIỆU
+            </button>
+
+            <!-- Nút Toàn màn hình -->
+            <button id="fullscreenToggleBtn" type="button" onclick="window.toggleMobileFullscreen()" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-slate-800/80 hover:bg-slate-700/80 text-white font-black text-xs sm:text-sm shadow-md flex items-center gap-1 transition active:scale-95 border-2 border-slate-600 cursor-pointer" title="Toàn màn hình">
+                <span id="fullscreenIcon">⛶</span> <span id="fullscreenText" class="hidden sm:inline">Toàn Màn Hình</span>
+            </button>
+
             <!-- Nút Chế độ Giáo viên: Ẩn mặc định khỏi học sinh, chỉ hiện khi ở Admin Studio -->
             <button id="btn-admin-mode" onclick="window.promptAdminPin()" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border-2 border-pink-300 text-xs font-black text-rose-700 shadow-[0_3px_10px_rgba(244,63,94,0.2)] hover:scale-105 transition cursor-pointer" title="Dành cho Giáo viên: Nhập mã PIN để chỉnh sửa công thức">
                 🔒 <span id="admin-status-text">Chế độ Giáo viên</span>
@@ -148,9 +223,9 @@
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
-        // DATA 6 LEVELS (0 TO 5)
+        // DATA 6 LEVELS (0 TO 5) - FALLBACK SGK
         // ==========================================
-        const GAME_LEVELS = {
+        const DEFAULT_GAME_LEVELS = {
             0: {
                 title: "Định Nghĩa Đạo Hàm", time: 90,
                 pairs: [
@@ -260,6 +335,68 @@
             }
         };
 
+        // DYNAMIC GAME_LEVELS RESOLVER & DATA FALLBACK
+        let GAME_LEVELS = (window.INJECTED_GAME_LEVELS && Object.keys(window.INJECTED_GAME_LEVELS).length > 0)
+            ? window.INJECTED_GAME_LEVELS
+            : (window.GAME_LEVELS || DEFAULT_GAME_LEVELS);
+        window.GAME_LEVELS = GAME_LEVELS;
+
+        // MULTI-MATCH NORMALIZER (Trích xuất chuỗi văn bản thô chuẩn hóa chống lệch TeX)
+        function normalizeMatchText(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/\\f\\f/g, '')
+                .replace(/\\f/g, '')
+                .replace(/[\u000c\x0c]/g, '')
+                .replace(/\\displaystyle/g, '')
+                .replace(/\\left\s*([(\[{|])/g, '$1')
+                .replace(/\\right\s*([)\]}|])/g, '$1')
+                .replace(/\\[()]/g, '')
+                .replace(/\$/g, '')
+                .replace(/\\text\{([^}]+)\}/g, '$1')
+                .replace(/\\mathrm\{([^}]+)\}/g, '$1')
+                .replace(/\\mathbf\{([^}]+)\}/g, '$1')
+                .replace(/\\cdot/g, '')
+                .replace(/\\,/g, '')
+                .replace(/\\;/g, '')
+                .replace(/\\!/g, '')
+                .replace(/\\ /g, '')
+                .replace(/\s+/g, '')
+                .trim();
+        }
+
+        // RENDER MATH INTO ELEMENT WITH MATHJAX & KATEX FALLBACK
+        function renderMathToElement(rawText, containerEl) {
+            if (!rawText || !containerEl) return;
+            let clean = String(rawText).replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+            clean = clean.replace(/\bN\s+ếu\b/g, 'Nếu')
+                         .replace(/\bH\s+ai\b/g, 'Hai')
+                         .replace(/\bC\s+ho\b/g, 'Cho')
+                         .replace(/\bC\s+ả\b/g, 'Cả')
+                         .replace(/\bK\s+hi\b/g, 'Khi')
+                         .replace(/\bC\s+hỉ\b/g, 'Chỉ')
+                         .replace(/\bT\s+ính\b/g, 'Tính')
+                         .replace(/\bT\s+rong\b/g, 'Trong');
+
+            let texContent = clean;
+            if (texContent.startsWith('\\(') && texContent.endsWith('\\)')) {
+                texContent = texContent.slice(2, -2).trim();
+            } else if (texContent.startsWith('$') && texContent.endsWith('$')) {
+                texContent = texContent.slice(1, -1).trim();
+            }
+
+            if (typeof katex !== 'undefined') {
+                try {
+                    katex.render(texContent, containerEl, { throwOnError: false, displayMode: false });
+                    return;
+                } catch (e) {}
+            }
+            containerEl.innerHTML = `\\(${texContent}\\)`;
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([containerEl]).catch(() => {});
+            }
+        }
+
         const sndMatch = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
         const sndError = new Audio('https://assets.mixkit.co/active_storage/sfx/2997/2997-preview.mp3');
 
@@ -368,12 +505,13 @@
             }
 
             currentMode = mode;
+            const levelKeys = Object.keys(GAME_LEVELS);
             if (mode === 'campaign') {
-                currentCampaignLevel = 0; // Bắt đầu từ ải 0
+                currentCampaignLevel = 0; // Bắt đầu từ ải đầu tiên
                 totalCampaignScore = 0;
                 totalCampaignTimeUsed = 0;
                 lives = 3;
-                loadLevelLogic(0);
+                loadLevelLogic(levelKeys[0] || 0);
             } else {
                 lives = 3;
                 loadLevelLogic(mode);
@@ -421,8 +559,8 @@
         // --- XÓA DỮ LIỆU XẾP HẠNG ---
         window.clearLeaderboard = async function() {
             const pwd = prompt("Nhập mật khẩu quản trị để xóa toàn bộ dữ liệu xếp hạng:");
-            if (pwd === "55668899") {
-                const modes = [0, 1, 2, 3, 4, 5, 'campaign'];
+            if (pwd === "55668899" || pwd === "2806") {
+                const modes = [...Object.keys(GAME_LEVELS), 'campaign'];
                 let firebaseCleared = false;
                 
                 modes.forEach(m => localStorage.removeItem(`thayHungLeaderboard_${m}`));
@@ -443,7 +581,8 @@
                 }
                 
                 alert("Đã xóa toàn bộ dữ liệu xếp hạng" + (firebaseCleared ? " (Cả Online và Offline)!" : " (Chỉ Offline)!"));
-                window.changeLeaderboardTab(currentMode || 0); 
+                const firstKey = Object.keys(GAME_LEVELS)[0] || 0;
+                window.changeLeaderboardTab(currentMode || firstKey); 
             } else if (pwd !== null) {
                 alert("Mật khẩu không chính xác!");
             }
@@ -461,18 +600,16 @@
             headerPanel.classList.add('hidden');
             gameBoard.classList.add('hidden');
 
+            const levelKeys = Object.keys(GAME_LEVELS);
+            const tabsHtml = levelKeys.map(k => `<button id="tab-${k}" onclick="window.changeLeaderboardTab('${k}')" class="tab-btn pb-1 cursor-pointer">Level ${k}</button>`).join('') +
+                `<button id="tab-campaign" onclick="window.changeLeaderboardTab('campaign')" class="tab-btn pb-1 cursor-pointer">Tổng Hợp</button>`;
+
             overlayContent.innerHTML = `
                 <div class="overflow-y-auto custom-scrollbar pr-2">
                     <h1 class="text-2xl sm:text-4xl font-black text-sky-600 mb-4">🏆 Bảng Xếp Hạng Top</h1>
 
                     <div class="flex gap-2 sm:gap-4 mb-3 border-b-2 border-gray-100 pb-1 text-xs sm:text-sm font-bold text-gray-400 overflow-x-auto whitespace-nowrap custom-scrollbar">
-                        <button id="tab-0" onclick="window.changeLeaderboardTab('0')" class="tab-btn pb-1 cursor-pointer">Level 0</button>
-                        <button id="tab-1" onclick="window.changeLeaderboardTab('1')" class="tab-btn pb-1 cursor-pointer">Level 1</button>
-                        <button id="tab-2" onclick="window.changeLeaderboardTab('2')" class="tab-btn pb-1 cursor-pointer">Level 2</button>
-                        <button id="tab-3" onclick="window.changeLeaderboardTab('3')" class="tab-btn pb-1 cursor-pointer">Level 3</button>
-                        <button id="tab-4" onclick="window.changeLeaderboardTab('4')" class="tab-btn pb-1 cursor-pointer">Level 4</button>
-                        <button id="tab-5" onclick="window.changeLeaderboardTab('5')" class="tab-btn pb-1 cursor-pointer">Level 5</button>
-                        <button id="tab-campaign" onclick="window.changeLeaderboardTab('campaign')" class="tab-btn pb-1 cursor-pointer">Tổng Hợp</button>
+                        ${tabsHtml}
                     </div>
 
                     <div id="leaderboard-container" class="bg-sky-50 rounded-xl p-3 shadow-inner min-h-[250px] border border-sky-100 relative">
@@ -484,7 +621,7 @@
                     <button onclick="window.showOverlay('start')" class="w-2/3 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 rounded-xl shadow-[0_4px_0_#4b5563] active:shadow-none active:translate-y-[4px]">Đóng</button>
                 </div>
             `;
-            window.changeLeaderboardTab(currentMode === 'campaign' ? 'campaign' : (currentMode || 0)); 
+            window.changeLeaderboardTab(currentMode === 'campaign' ? 'campaign' : (currentMode || levelKeys[0] || 0)); 
         };
 
         window.showOverlay = showOverlay;
@@ -539,12 +676,18 @@
             score = 0; 
             isAnimating = false;
             
-            const levelData = GAME_LEVELS[levelNum];
-            currentPairs = levelData.pairs;
-            timeLeft = levelData.time;
+            const levelData = GAME_LEVELS[levelNum] || Object.values(GAME_LEVELS)[0] || {
+                title: "Đạo Hàm", time: 90, pairs: []
+            };
+            currentPairs = levelData.pairs || [];
+            timeLeft = levelData.time || 90;
 
-            // UI Updates
-            levelBadge.innerText = currentMode === 'campaign' ? `Ải ${levelNum + 1}/6` : `Level ${levelNum}`;
+            const levelKeys = Object.keys(GAME_LEVELS);
+            const levelIndex = levelKeys.indexOf(String(levelNum));
+            const displayTitle = currentMode === 'campaign' 
+                ? `Ải ${(levelIndex >= 0 ? levelIndex : currentCampaignLevel) + 1}/${levelKeys.length}` 
+                : (levelData.title ? (levelData.title.toLowerCase().startsWith('level') ? levelData.title : `Level ${levelNum}`) : `Level ${levelNum}`);
+            levelBadge.innerText = displayTitle;
             levelBadge.classList.remove('hidden');
 
             livesContainer.innerHTML = '';
@@ -592,17 +735,19 @@
             clearInterval(timerInterval);
             cancelAnimationFrame(animationFrameId);
             
+            const levelKeys = Object.keys(GAME_LEVELS);
+            const currentKey = levelKeys[currentCampaignLevel];
             totalCampaignScore += score;
-            totalCampaignTimeUsed += (GAME_LEVELS[currentCampaignLevel].time - timeLeft);
+            totalCampaignTimeUsed += ((GAME_LEVELS[currentKey]?.time || 60) - timeLeft);
 
-            if (currentCampaignLevel < 5) {
+            if (currentCampaignLevel < levelKeys.length - 1) {
                 const transOverlay = document.getElementById('transition-overlay');
                 document.getElementById('transition-title').innerText = `Hoàn thành Ải ${currentCampaignLevel + 1}!`;
                 transOverlay.classList.remove('hidden');
                 
                 setTimeout(() => {
                     currentCampaignLevel++;
-                    loadLevelLogic(currentCampaignLevel);
+                    loadLevelLogic(levelKeys[currentCampaignLevel]);
                 }, 2000);
             } else {
                 endGame('victory');
@@ -644,17 +789,27 @@
                         <span class="text-blue-600 font-bold">Hàm số (Xanh)</span> ghép với <span class="text-pink-600 font-bold">Đạo hàm (Hồng)</span>. Bấm sai sẽ bị trừ mạng và bắn văng!
                     </p>
 
-                    <!-- LEVEL SELECTION -->
+                    <!-- LEVEL SELECTION DỘNG -->
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-4">
-                        <button onclick="window.startLevel(0)" class="${btnBase} bg-amber-500 hover:bg-amber-600 !shadow-[0_4px_0_#b45309]">Level 0 (Định nghĩa)</button>
-                        <button onclick="window.startLevel(1)" class="${btnBase} bg-sky-500 hover:bg-sky-600 !shadow-[0_4px_0_#0369a1]">Level 1 (Cơ bản)</button>
-                        <button onclick="window.startLevel(2)" class="${btnBase} bg-indigo-500 hover:bg-indigo-600 !shadow-[0_4px_0_#3730a3]">Level 2 (Cụ thể)</button>
-                        <button onclick="window.startLevel(3)" class="${btnBase} bg-fuchsia-500 hover:bg-fuchsia-600 !shadow-[0_4px_0_#86198f]">Level 3 (Hàm hợp)</button>
-                        <button onclick="window.startLevel(4)" class="${btnBase} bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#581c87]">Level 4 (Hợp cụ thể)</button>
-                        <button onclick="window.startLevel(5)" class="${btnBase} bg-teal-500 hover:bg-teal-600 !shadow-[0_4px_0_#0f766e]">Level 5 (Cấp 2)</button>
+                        ${Object.keys(GAME_LEVELS).map((key, idx) => {
+                            const lvl = GAME_LEVELS[key];
+                            const colors = [
+                                'bg-amber-500 hover:bg-amber-600 !shadow-[0_4px_0_#b45309]',
+                                'bg-sky-500 hover:bg-sky-600 !shadow-[0_4px_0_#0369a1]',
+                                'bg-indigo-500 hover:bg-indigo-600 !shadow-[0_4px_0_#3730a3]',
+                                'bg-fuchsia-500 hover:bg-fuchsia-600 !shadow-[0_4px_0_#86198f]',
+                                'bg-purple-500 hover:bg-purple-600 !shadow-[0_4px_0_#581c87]',
+                                'bg-teal-500 hover:bg-teal-600 !shadow-[0_4px_0_#0f766e]',
+                                'bg-rose-500 hover:bg-rose-600 !shadow-[0_4px_0_#be185d]',
+                                'bg-emerald-500 hover:bg-emerald-600 !shadow-[0_4px_0_#047857]'
+                            ];
+                            const colorClass = colors[idx % colors.length];
+                            const displayTitle = lvl.title ? (lvl.title.toLowerCase().startsWith('level') ? lvl.title : `Level ${key} (${lvl.title})`) : `Level ${key}`;
+                            return `<button onclick="window.startLevel('${key}')" class="${btnBase} ${colorClass}">${displayTitle}</button>`;
+                        }).join('')}
                     </div>
                     <button onclick="window.startLevel('campaign')" class="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-pink-500 hover:to-rose-500 text-white font-black py-3 sm:py-4 px-8 rounded-xl text-lg sm:text-xl shadow-[0_6px_0_#be185d] transition-all active:shadow-none active:translate-y-[6px]">
-                        🏆 Chơi Chế Độ Vượt 6 Ải
+                        🏆 Chơi Chế Độ Vượt ${Object.keys(GAME_LEVELS).length} Ải
                     </button>
                 </div>
             `;
@@ -664,11 +819,13 @@
             let finalScore = score;
             let finalTime = 0;
             
+            const levelKeys = Object.keys(GAME_LEVELS);
             if (currentMode === 'campaign') {
                 finalScore = totalCampaignScore + score;
-                finalTime = totalCampaignTimeUsed + (GAME_LEVELS[currentCampaignLevel].time - timeLeft);
+                const curLvlKey = levelKeys[currentCampaignLevel] || levelKeys[0];
+                finalTime = totalCampaignTimeUsed + ((GAME_LEVELS[curLvlKey]?.time || 60) - timeLeft);
             } else {
-                finalTime = GAME_LEVELS[currentMode].time - timeLeft;
+                finalTime = (GAME_LEVELS[currentMode]?.time || 60) - timeLeft;
             }
 
             let playerName = "Ông mai bà mối";
@@ -703,12 +860,7 @@
                         
                         <!-- TABS -->
                         <div class="flex gap-2 sm:gap-4 mb-3 border-b-2 border-gray-100 pb-1 text-xs sm:text-sm font-bold text-gray-400 overflow-x-auto whitespace-nowrap custom-scrollbar">
-                            <button id="tab-0" onclick="window.changeLeaderboardTab('0')" class="tab-btn pb-1 cursor-pointer">Level 0</button>
-                            <button id="tab-1" onclick="window.changeLeaderboardTab('1')" class="tab-btn pb-1 cursor-pointer">Level 1</button>
-                            <button id="tab-2" onclick="window.changeLeaderboardTab('2')" class="tab-btn pb-1 cursor-pointer">Level 2</button>
-                            <button id="tab-3" onclick="window.changeLeaderboardTab('3')" class="tab-btn pb-1 cursor-pointer">Level 3</button>
-                            <button id="tab-4" onclick="window.changeLeaderboardTab('4')" class="tab-btn pb-1 cursor-pointer">Level 4</button>
-                            <button id="tab-5" onclick="window.changeLeaderboardTab('5')" class="tab-btn pb-1 cursor-pointer">Level 5</button>
+                            ${levelKeys.map(k => `<button id="tab-${k}" onclick="window.changeLeaderboardTab('${k}')" class="tab-btn pb-1 cursor-pointer">Level ${k}</button>`).join('')}
                             <button id="tab-campaign" onclick="window.changeLeaderboardTab('campaign')" class="tab-btn pb-1 cursor-pointer">Tổng Hợp</button>
                         </div>
 
@@ -747,35 +899,80 @@
         }
 
         function renderAndSetupPhysics() {
-            gameBoard.innerHTML = ''; movingCards = []; let allItems = [];
-            currentPairs.forEach(pair => { allItems.push({ id: pair.id, isLeft: true, content: pair.left }); allItems.push({ id: pair.id, isLeft: false, content: pair.right }); });
+            gameBoard.innerHTML = '';
+            movingCards = [];
+            let allItems = [];
+            
+            currentPairs.forEach((pair, pIdx) => {
+                allItems.push({
+                    uid: `card_L_${pIdx}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+                    pairId: pair.id,
+                    isLeft: true,
+                    content: pair.left
+                });
+                allItems.push({
+                    uid: `card_R_${pIdx}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+                    pairId: pair.id,
+                    isLeft: false,
+                    content: pair.right
+                });
+            });
+
             allItems.sort(() => Math.random() - 0.5);
 
             allItems.forEach(item => {
                 const el = document.createElement('div');
                 const baseClasses = `game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]`;
-                el.dataset.baseClasses = baseClasses; el.dataset.id = item.id; el.dataset.side = item.isLeft ? 'left' : 'right';
+                el.dataset.baseClasses = baseClasses;
+                el.dataset.uid = item.uid;
+                el.dataset.pairId = item.pairId;
+                el.dataset.side = item.isLeft ? 'left' : 'right';
                 
                 const icon = item.isLeft ? '💙' : '💖'; 
                 el.innerHTML = `<div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">${icon}</span><span class="math-content"></span></div>`;
                 
                 applyCardState(el, 'idle', item.isLeft);
-                el.addEventListener('click', () => handleSelect(item.isLeft, item.id, el));
+                el.addEventListener('click', () => handleSelect(item.isLeft, item.uid, el));
                 el.style.opacity = "0"; 
                 gameBoard.appendChild(el);
 
-                katex.render(item.content, el.querySelector('.math-content'), { throwOnError: false, displayMode: true });
-                movingCards.push({ id: item.id, isLeft: item.isLeft, el: el, active: true, x: 0, y: 0, vx: 0, vy: 0, width: 0, height: 0, baseSpeed: 0 });
+                renderMathToElement(item.content, el.querySelector('.math-content'));
+                movingCards.push({
+                    uid: item.uid,
+                    id: item.pairId,
+                    isLeft: item.isLeft,
+                    content: item.content,
+                    el: el,
+                    active: true,
+                    x: 0,
+                    y: 0,
+                    vx: 0,
+                    vy: 0,
+                    width: 0,
+                    height: 0,
+                    baseSpeed: 0
+                });
             });
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([gameBoard]).catch(() => {});
+            }
 
             setTimeout(() => {
                 const boardRect = gameBoard.getBoundingClientRect();
                 movingCards.forEach(c => {
-                    c.width = c.el.offsetWidth; c.height = c.el.offsetHeight;
-                    c.x = Math.random() * (boardRect.width - c.width); c.y = Math.random() * (boardRect.height - c.height);
-                    const speed = 0.6 + Math.random() * 0.9; c.baseSpeed = speed; 
-                    const angle = Math.random() * 2 * Math.PI; c.vx = Math.cos(angle) * speed; c.vy = Math.sin(angle) * speed;
-                    c.el.style.left = `${c.x}px`; c.el.style.top = `${c.y}px`; c.el.style.opacity = "1"; 
+                    c.width = c.el.offsetWidth || 120;
+                    c.height = c.el.offsetHeight || 50;
+                    c.x = Math.max(0, Math.random() * (boardRect.width - c.width));
+                    c.y = Math.max(0, Math.random() * (boardRect.height - c.height));
+                    const speed = 0.6 + Math.random() * 0.9;
+                    c.baseSpeed = speed; 
+                    const angle = Math.random() * 2 * Math.PI;
+                    c.vx = Math.cos(angle) * speed;
+                    c.vy = Math.sin(angle) * speed;
+                    c.el.style.left = `${c.x}px`;
+                    c.el.style.top = `${c.y}px`;
+                    c.el.style.opacity = "1"; 
                 });
                 gameLoop(); 
             }, 300);
@@ -784,7 +981,8 @@
         function gameLoop() {
             if (gameState !== 'playing') return;
             const boardRect = gameBoard.getBoundingClientRect();
-            const boardW = boardRect.width; const boardH = boardRect.height;
+            const boardW = boardRect.width;
+            const boardH = boardRect.height;
 
             movingCards.forEach(c => {
                 if (!c.active) return; 
@@ -792,7 +990,11 @@
                 if (currentSpeed > c.baseSpeed) {
                     c.vx *= 0.95; c.vy *= 0.95; 
                     const newSpeed = Math.sqrt(c.vx * c.vx + c.vy * c.vy);
-                    if (newSpeed <= c.baseSpeed && newSpeed > 0) { const angle = Math.atan2(c.vy, c.vx); c.vx = Math.cos(angle) * c.baseSpeed; c.vy = Math.sin(angle) * c.baseSpeed; }
+                    if (newSpeed <= c.baseSpeed && newSpeed > 0) {
+                        const angle = Math.atan2(c.vy, c.vx);
+                        c.vx = Math.cos(angle) * c.baseSpeed;
+                        c.vy = Math.sin(angle) * c.baseSpeed;
+                    }
                 }
                 c.x += c.vx; c.y += c.vy;
                 if (c.x <= 0) { c.x = 0; c.vx = Math.abs(c.vx); }
@@ -804,89 +1006,156 @@
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
-        function handleSelect(isLeft, id, element) {
-            if (gameState !== 'playing' || isAnimating || matchedIds.includes(id)) return;
+        function handleSelect(isLeft, uid, element) {
+            if (gameState !== 'playing' || isAnimating) return;
+            const cardObj = movingCards.find(c => c.uid === uid);
+            if (!cardObj || !cardObj.active) return;
 
-            if (firstCard && firstCard.id === id && firstCard.isLeft === isLeft) { applyCardState(element, 'idle', isLeft); firstCard = null; return; }
-            if (!firstCard) { firstCard = { id, isLeft, el: element }; applyCardState(element, 'selected', isLeft); return; }
+            // Deselect if clicking the same card
+            if (firstCard && firstCard.uid === uid) {
+                applyCardState(element, 'idle', isLeft);
+                firstCard = null;
+                return;
+            }
+
+            // Switch selection if clicking another card of the same side
+            if (firstCard && firstCard.isLeft === isLeft) {
+                applyCardState(firstCard.el, 'idle', firstCard.isLeft);
+                firstCard = { uid, id: cardObj.id, isLeft, el: element, content: cardObj.content };
+                applyCardState(element, 'selected', isLeft);
+                return;
+            }
+
+            if (!firstCard) {
+                firstCard = { uid, id: cardObj.id, isLeft, el: element, content: cardObj.content };
+                applyCardState(element, 'selected', isLeft);
+                return;
+            }
             
-            const secondCard = { id, isLeft, el: element };
+            const secondCard = { uid, id: cardObj.id, isLeft, el: element, content: cardObj.content };
             applyCardState(element, 'selected', isLeft);
             checkMatch(firstCard, secondCard);
         }
 
         function createHaloEffect(x, y) {
-            const halo = document.createElement('div'); halo.className = 'halo-effect'; halo.style.left = `${x}px`; halo.style.top = `${y}px`;
-            const ring1 = document.createElement('div'); ring1.className = 'halo-ring';
-            const ring2 = document.createElement('div'); ring2.className = 'halo-ring'; ring2.style.animationDelay = '0.1s'; ring2.style.borderColor = '#fb7185';
-            const heart = document.createElement('div'); heart.className = 'halo-heart'; heart.innerText = '💖';
-            halo.appendChild(ring1); halo.appendChild(ring2); halo.appendChild(heart);
+            const halo = document.createElement('div');
+            halo.className = 'halo-effect';
+            halo.style.left = `${x}px`;
+            halo.style.top = `${y}px`;
+            const ring1 = document.createElement('div');
+            ring1.className = 'halo-ring';
+            const ring2 = document.createElement('div');
+            ring2.className = 'halo-ring';
+            ring2.style.animationDelay = '0.1s';
+            ring2.style.borderColor = '#fb7185';
+            const heart = document.createElement('div');
+            heart.className = 'halo-heart';
+            heart.innerText = '💖';
+            halo.appendChild(ring1);
+            halo.appendChild(ring2);
+            halo.appendChild(heart);
             document.getElementById('game-board').appendChild(halo);
             setTimeout(() => { if (halo.parentNode) halo.parentNode.removeChild(halo); }, 1000);
         }
 
         function checkMatch(c1, c2) {
-            isAnimating = true; 
-            const isMatch = (c1.id === c2.id) && (c1.isLeft !== c2.isLeft); 
+            isAnimating = true;
+            const leftCard = c1.isLeft ? c1 : c2;
+            const rightCard = c1.isLeft ? c2 : c1;
+
+            const normLeft = normalizeMatchText(leftCard.content);
+            const normRight = normalizeMatchText(rightCard.content);
+
+            // MULTI-MATCH VALUE: Kiểm tra nếu trùng pairId hoặc chuỗi vế phải khớp với đáp án của vế trái
+            const isMatch = (leftCard.id === rightCard.id) || currentPairs.some(p => 
+                normalizeMatchText(p.left) === normLeft && normalizeMatchText(p.right) === normRight
+            );
             
             if (isMatch) {
-                matchedIds.push(c1.id); score++; updateHeader();
-                sndMatch.currentTime = 0; sndMatch.play().catch(e => {});
+                score++;
+                updateHeader();
+                sndMatch.currentTime = 0;
+                sndMatch.play().catch(() => {});
 
-                const physC1 = movingCards.find(c => c.id === c1.id && c.isLeft === c1.isLeft);
-                const physC2 = movingCards.find(c => c.id === c2.id && c.isLeft === c2.isLeft);
+                const physC1 = movingCards.find(c => c.uid === c1.uid);
+                const physC2 = movingCards.find(c => c.uid === c2.uid);
                 
-                if(physC1 && physC2) {
-                    physC1.active = false; physC2.active = false;
-                    const midX = (physC1.x + physC1.width/2 + physC2.x + physC2.width/2) / 2; const midY = (physC1.y + physC1.height/2 + physC2.y + physC2.height/2) / 2;
+                if (physC1 && physC2) {
+                    physC1.active = false;
+                    physC2.active = false;
+                    const midX = (physC1.x + physC1.width / 2 + physC2.x + physC2.width / 2) / 2;
+                    const midY = (physC1.y + physC1.height / 2 + physC2.y + physC2.height / 2) / 2;
 
-                    c1.el.classList.add('merge-transition'); c2.el.classList.add('merge-transition');
-                    c1.el.style.left = `${midX - physC1.width/2}px`; c1.el.style.top = `${midY - physC1.height/2}px`;
-                    c2.el.style.left = `${midX - physC2.width/2}px`; c2.el.style.top = `${midY - physC2.height/2}px`;
+                    c1.el.classList.add('merge-transition');
+                    c2.el.classList.add('merge-transition');
+                    c1.el.style.left = `${midX - physC1.width / 2}px`;
+                    c1.el.style.top = `${midY - physC1.height / 2}px`;
+                    c2.el.style.left = `${midX - physC2.width / 2}px`;
+                    c2.el.style.top = `${midY - physC2.height / 2}px`;
 
                     setTimeout(() => {
                         createHaloEffect(midX, midY);
-                        c1.el.style.transform = 'scale(0)'; c2.el.style.transform = 'scale(0)';
-                        setTimeout(() => { applyCardState(c1.el, 'matched', c1.isLeft); applyCardState(c2.el, 'matched', c2.isLeft); }, 200);
+                        c1.el.style.transform = 'scale(0)';
+                        c2.el.style.transform = 'scale(0)';
+                        setTimeout(() => {
+                            applyCardState(c1.el, 'matched', c1.isLeft);
+                            applyCardState(c2.el, 'matched', c2.isLeft);
+                        }, 200);
                         
-                        if (matchedIds.length === currentPairs.length) {
+                        const remainingActive = movingCards.filter(c => c.active).length;
+                        if (score >= currentPairs.length || remainingActive === 0) {
                             if (currentMode === 'campaign') {
                                 setTimeout(processCampaignVictory, 800);
                             } else {
                                 setTimeout(() => endGame('victory'), 800);
                             }
-                        } else { firstCard = null; isAnimating = false;  }
+                        } else {
+                            firstCard = null;
+                            isAnimating = false;
+                        }
                     }, 250);
                 }
             } else {
-                lives--; updateHeader();
-                sndError.currentTime = 0; sndError.play().catch(e => {});
+                lives--;
+                updateHeader();
+                sndError.currentTime = 0;
+                sndError.play().catch(() => {});
 
-                applyCardState(c1.el, 'error', c1.isLeft); applyCardState(c2.el, 'error', c2.isLeft);
+                applyCardState(c1.el, 'error', c1.isLeft);
+                applyCardState(c2.el, 'error', c2.isLeft);
 
-                const physC1 = movingCards.find(c => c.id === c1.id && c.isLeft === c1.isLeft);
-                const physC2 = movingCards.find(c => c.id === c2.id && c.isLeft === c2.isLeft);
+                const physC1 = movingCards.find(c => c.uid === c1.uid);
+                const physC2 = movingCards.find(c => c.uid === c2.uid);
                 
                 if (physC1 && physC2) {
-                    const cx1 = physC1.x + physC1.width/2; const cy1 = physC1.y + physC1.height/2;
-                    const cx2 = physC2.x + physC2.width/2; const cy2 = physC2.y + physC2.height/2;
-                    let dx = cx1 - cx2; let dy = cy1 - cy2;
-                    let dist = Math.sqrt(dx*dx + dy*dy); if (dist === 0) { dx = 1; dy = 0; dist = 1; } 
+                    const cx1 = physC1.x + physC1.width / 2;
+                    const cy1 = physC1.y + physC1.height / 2;
+                    const cx2 = physC2.x + physC2.width / 2;
+                    const cy2 = physC2.y + physC2.height / 2;
+                    let dx = cx1 - cx2;
+                    let dy = cy1 - cy2;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist === 0) { dx = 1; dy = 0; dist = 1; } 
                     
                     const repelForce = 50; 
-                    physC1.vx = (dx / dist) * repelForce; physC1.vy = (dy / dist) * repelForce;
-                    physC2.vx = -(dx / dist) * repelForce; physC2.vy = -(dy / dist) * repelForce;
+                    physC1.vx = (dx / dist) * repelForce;
+                    physC1.vy = (dy / dist) * repelForce;
+                    physC2.vx = -(dx / dist) * repelForce;
+                    physC2.vy = -(dy / dist) * repelForce;
                 }
 
                 if (lives <= 0) {
                     setTimeout(() => {
-                        applyCardState(c1.el, 'idle', c1.isLeft); applyCardState(c2.el, 'idle', c2.isLeft);
+                        applyCardState(c1.el, 'idle', c1.isLeft);
+                        applyCardState(c2.el, 'idle', c2.isLeft);
                         endGame('gameover');
                     }, 600); 
                 } else {
                     setTimeout(() => {
-                        applyCardState(c1.el, 'idle', c1.isLeft); applyCardState(c2.el, 'idle', c2.isLeft);
-                        firstCard = null; isAnimating = false;
+                        applyCardState(c1.el, 'idle', c1.isLeft);
+                        applyCardState(c2.el, 'idle', c2.isLeft);
+                        firstCard = null;
+                        isAnimating = false;
                     }, 800);
                 }
             }
@@ -955,6 +1224,70 @@
         let isAdminActive = false;
         let editingList = [];
 
+        window.toggleMobileFullscreen = function(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            const doc = window.document;
+            const docEl = doc.documentElement;
+            const body = doc.body;
+            const isFs = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement || docEl.classList.contains('mobile-fullscreen-forced'));
+            const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+
+            if (!isFs) {
+                docEl.classList.add('mobile-fullscreen-forced');
+                body.classList.add('mobile-fullscreen-forced');
+                if (rfs) {
+                    rfs.call(docEl).catch(err => {
+                        console.warn('Native fullscreen fallback active', err);
+                    });
+                }
+                try {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'enter' }, '*');
+                    }
+                } catch(e) {}
+            } else {
+                docEl.classList.remove('mobile-fullscreen-forced');
+                body.classList.remove('mobile-fullscreen-forced');
+                const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+                if (efs) {
+                    efs.call(doc).catch(() => {});
+                }
+                try {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'exit' }, '*');
+                    }
+                } catch(e) {}
+            }
+            updateFsUI();
+        };
+
+        function updateFsUI() {
+            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.documentElement.classList.contains('mobile-fullscreen-forced'));
+            const fsIcon = document.getElementById('fullscreenIcon');
+            const fsText = document.getElementById('fullscreenText');
+            if (fsIcon) fsIcon.innerText = isFs ? '✕' : '⛶';
+            if (fsText) fsText.innerText = isFs ? 'Thu Nhỏ' : 'Toàn Màn Hình';
+        }
+        document.addEventListener('fullscreenchange', updateFsUI);
+        document.addEventListener('webkitfullscreenchange', updateFsUI);
+
+        function checkDeviceOrientation() {
+            const isPortrait = window.innerHeight > window.innerWidth && window.innerWidth < 768;
+            const overlay = document.getElementById('rotateDeviceOverlay');
+            if (overlay) {
+                if (isPortrait) {
+                    overlay.classList.remove('hidden');
+                    overlay.style.display = 'flex';
+                } else {
+                    overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
+                }
+            }
+        }
+        window.addEventListener('resize', checkDeviceOrientation);
+        window.addEventListener('orientationchange', checkDeviceOrientation);
+        document.addEventListener('DOMContentLoaded', checkDeviceOrientation);
+
         function getAdminPin() {
             try {
                 const raw = localStorage.getItem('edu_app_config_v32');
@@ -963,19 +1296,18 @@
                     if (parsed.adminPin) return String(parsed.adminPin).trim();
                 }
             } catch(e) {}
-            return '1234';
+            return '2806';
         }
 
         function checkAdmin() {
             try {
                 const p = new URLSearchParams(window.location.search);
                 const hash = window.location.hash || '';
-                const isParamAdmin = p.get('admin') === '1' || p.get('admin') === 'true' || p.get('mode') === 'admin' || hash.includes('admin=1');
+                const isParamAdmin = p.get('role') === 'admin' || p.get('admin') === '1' || p.get('admin') === 'true' || p.get('mode') === 'admin' || hash.includes('admin=1') || hash.includes('role=admin');
                 const isSessionAdmin = sessionStorage.getItem('edu_game_admin_auth') === '1';
 
                 if (isParamAdmin || isSessionAdmin) {
                     isAdminActive = true;
-                    sessionStorage.setItem('edu_game_admin_auth', '1');
                 } else {
                     isAdminActive = false;
                 }
@@ -984,19 +1316,31 @@
         }
 
         function updateUI() {
+            const btnChuyenDe = document.getElementById('btn-chuyen-de');
+            const btnAdminGear = document.getElementById('btn-admin-gear');
             const btnEditHeader = document.getElementById('btn-edit-pairs-admin');
             const btnLockHeader = document.getElementById('btn-lock-admin');
             const statusText = document.getElementById('admin-status-text');
             const btnMode = document.getElementById('btn-admin-mode');
 
             if (isAdminActive) {
-                if (btnEditHeader) {
-                    btnEditHeader.classList.remove('hidden');
-                    btnEditHeader.style.display = 'inline-flex';
+                if (btnChuyenDe) {
+                    btnChuyenDe.classList.remove('hidden');
+                    btnChuyenDe.style.display = 'inline-flex';
                 }
-                if (btnLockHeader) {
-                    btnLockHeader.classList.remove('hidden');
-                    btnLockHeader.style.display = 'inline-flex';
+                if (btnAdminGear) {
+                    btnAdminGear.classList.remove('hidden');
+                    btnAdminGear.style.display = 'inline-flex';
+                }
+                if (sessionStorage.getItem('edu_game_admin_auth') === '1') {
+                    if (btnEditHeader) {
+                        btnEditHeader.classList.remove('hidden');
+                        btnEditHeader.style.display = 'inline-flex';
+                    }
+                    if (btnLockHeader) {
+                        btnLockHeader.classList.remove('hidden');
+                        btnLockHeader.style.display = 'inline-flex';
+                    }
                 }
                 if (statusText) statusText.innerText = '👑 Admin: Đã Kích Hoạt';
                 if (btnMode) {
@@ -1006,6 +1350,14 @@
                     btnMode.title = 'Nhấn để mở bảng Thêm / Sửa Cặp Bài';
                 }
             } else {
+                if (btnChuyenDe) {
+                    btnChuyenDe.classList.add('hidden');
+                    btnChuyenDe.style.display = 'none';
+                }
+                if (btnAdminGear) {
+                    btnAdminGear.classList.add('hidden');
+                    btnAdminGear.style.display = 'none';
+                }
                 if (btnEditHeader) {
                     btnEditHeader.classList.add('hidden');
                     btnEditHeader.style.display = 'none';
@@ -1027,6 +1379,7 @@
             try {
                 const url = new URL(window.location.href);
                 url.searchParams.delete('admin');
+                url.searchParams.delete('role');
                 url.searchParams.delete('mode');
                 window.history.replaceState({}, document.title, url.toString());
             } catch(e) {}
@@ -1035,7 +1388,7 @@
         };
 
         window.promptAdminPin = function() {
-            if (isAdminActive) {
+            if (isAdminActive && sessionStorage.getItem('edu_game_admin_auth') === '1') {
                 window.openPairEditor();
                 return;
             }
@@ -1070,7 +1423,7 @@
             const err = document.getElementById('pin-modal-error');
             const val = (input ? input.value : '').trim();
             const expectedPin = getAdminPin();
-            if (val === expectedPin || val === '1234') {
+            if (val === '2806' || val === expectedPin || val === '1234') {
                 isAdminActive = true;
                 sessionStorage.setItem('edu_game_admin_auth', '1');
                 window.closePinModal();
@@ -1144,12 +1497,15 @@
                 } catch(e) {}
             }
             if (typeof GAME_LEVELS !== 'undefined') {
-                if (typeof currentMode !== 'undefined' && GAME_LEVELS[currentMode] && GAME_LEVELS[currentMode].pairs) {
-                    editingList = JSON.parse(JSON.stringify(GAME_LEVELS[currentMode].pairs));
+            const levels = window.GAME_LEVELS || (typeof GAME_LEVELS !== 'undefined' ? GAME_LEVELS : null);
+            if (levels) {
+                if (typeof currentMode !== 'undefined' && levels[currentMode] && levels[currentMode].pairs) {
+                    editingList = JSON.parse(JSON.stringify(levels[currentMode].pairs));
                     return;
                 }
-                if (GAME_LEVELS[0] && GAME_LEVELS[0].pairs) {
-                    editingList = JSON.parse(JSON.stringify(GAME_LEVELS[0].pairs));
+                const firstKey = Object.keys(levels)[0];
+                if (firstKey !== undefined && levels[firstKey] && levels[firstKey].pairs) {
+                    editingList = JSON.parse(JSON.stringify(levels[firstKey].pairs));
                     return;
                 }
             }
@@ -1240,10 +1596,11 @@
             alert(`Đã lưu thành công ${valid.length} cặp bài vào hệ thống!`);
             window.closePairEditor();
 
-            if (typeof GAME_LEVELS !== 'undefined') {
-                if (GAME_LEVELS[0]) GAME_LEVELS[0].pairs = valid;
-                if (typeof currentMode !== 'undefined' && GAME_LEVELS[currentMode]) {
-                    GAME_LEVELS[currentMode].pairs = valid;
+            const levels = window.GAME_LEVELS || (typeof GAME_LEVELS !== 'undefined' ? GAME_LEVELS : null);
+            if (levels) {
+                const targetKey = (typeof currentMode !== 'undefined' && currentMode !== null && levels[currentMode]) ? currentMode : Object.keys(levels)[0];
+                if (targetKey !== undefined && levels[targetKey]) {
+                    levels[targetKey].pairs = valid;
                 }
             }
             if (typeof window.startLevel === 'function') {
