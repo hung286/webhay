@@ -3143,7 +3143,15 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
             answerString = answerString.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
             answerString = answerString.replace(/^rac\s*\{/g, '\\frac{');
             answerString = answerString.replace(/\bAcapB\b/g, 'A \\cap B').replace(/\bAcupB\b/g, 'A \\cup B');
-            answerString = answerString.replace(/\bcdot\b/g, '\\cdot');
+            answerString = answerString.replace(/(\d*)\s*\\?cdot\s*(\d*)/g, (match, p1, p2) => {
+              if (p1 || p2) return (p1 ? p1 + ' ' : '') + '\\cdot' + (p2 ? ' ' + p2 : '');
+              return ' \\cdot ';
+            });
+            answerString = answerString.replace(/(\d*)cdot(\d*)/g, '$1 \\cdot $2');
+            answerString = answerString.replace(/(?<!\\)cdot/g, '\\cdot');
+            answerString = answerString.replace(/([0-9a-zA-Z\)\}\]])\s*\\cdot/g, '$1 \\cdot');
+            answerString = answerString.replace(/\\cdot\s*([0-9a-zA-Z\(\{\\])/g, '\\cdot $1');
+            answerString = answerString.replace(/\s*\\cdot\s*/g, ' \\cdot ');
           }
           return answerString;
         }) : ['A', 'B', 'C', 'D'],

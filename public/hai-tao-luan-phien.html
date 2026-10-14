@@ -1157,20 +1157,20 @@
             badge.innerText = data.badge || (data.w >= 7 ? 'Khó' : (data.w >= 4 ? 'Vừa' : 'Dễ')); 
             badge.style.backgroundColor = data.color || '#2ecc71';
             
-            // Render text câu hỏi
+            // Render text câu hỏi qua bộ lọc TeX Live
             let questionHtml = '';
             if (data.isSmartTF) {
                 questionHtml = `
                     <div style="font-size: 13px; font-weight: 800; color: #3498db; text-transform: uppercase; margin-bottom: 6px;">
                         🍎 THỬ THÁCH ĐÚNG / SAI
                     </div>
-                    <div style="margin-bottom: 8px;">${formatMathSpacers(data.smartStem || data.q)}</div>
+                    <div style="margin-bottom: 8px;">${formatMathStringToTeX(data.smartStem || data.q)}</div>
                     <div style="padding: 10px 14px; background: rgba(52, 152, 219, 0.1); border-left: 4px solid #3498db; border-radius: 8px; font-weight: bold; color: #2c3e50;">
-                        ${formatMathSpacers(data.smartStatement)}
+                        ${formatMathStringToTeX(data.smartStatement)}
                     </div>
                 `;
             } else {
-                questionHtml = formatMathSpacers(data.q);
+                questionHtml = formatMathStringToTeX(data.q);
             }
             document.getElementById(`q-text-${team}`).innerHTML = questionHtml;
             
@@ -1183,7 +1183,7 @@
                 let opts = data.opts || ['A', 'B', 'C', 'D'];
                 ['A', 'B', 'C', 'D'].forEach((l, i) => {
                     let optText = opts[i] || `Phương án ${l}`;
-                    html += `<button class="btn-abcd answer-option" id="abcd-${team}-${l}" onclick="selABCD(${team}, '${l}')">${formatMathSpacers(optText)}</button>`;
+                    html += `<button class="btn-abcd answer-option" id="abcd-${team}-${l}" onclick="selABCD(${team}, '${l}')">${formatMathStringToTeX(optText)}</button>`;
                 });
                 html += '</div>';
                 container.innerHTML = html;
@@ -1208,7 +1208,7 @@
                     opts.forEach((opt, i) => {
                         html += `
                         <div class="tf-row">
-                            <div class="tf-text answer-option">${formatMathSpacers(opt)}</div>
+                            <div class="tf-text answer-option">${formatMathStringToTeX(opt)}</div>
                             <div class="tf-controls">
                                 <button class="btn-tf" id="tf-${team}-${i}-D" onclick="selTF(${team}, ${i}, 'Đ')">Đ</button>
                                 <button class="btn-tf" id="tf-${team}-${i}-S" onclick="selTF(${team}, ${i}, 'S')">S</button>
@@ -1237,8 +1237,13 @@
 
             document.getElementById(`qc-${team}`).style.opacity = '1';
 
-            if(window.MathJax && window.MathJax.typesetPromise) {
-                window.MathJax.typesetPromise([document.getElementById(`qc-${team}`)]).catch(function() {});
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise();
+                setTimeout(() => {
+                    if (window.MathJax && window.MathJax.typesetPromise) {
+                        window.MathJax.typesetPromise();
+                    }
+                }, 50);
             }
         }
 
@@ -1658,117 +1663,114 @@
         }
 
         // ==========================================
-        // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN (MATHJAX SPACER FIX)
+        // 🔤 BỘ ĐỊNH DẠNG CHUỖI TOÁN HỌC CHUẨN MIKTEX / TEX LIVE (GLOBAL MATH FORMATTER)
         // ==========================================
-        function formatMathSpacers(str) {
-            if (!str || typeof str !== 'string') return '';
-            let questionString = str.trim();
+        function formatMathStringToTeX(inputString) {
+            if (!inputString || typeof inputString !== 'string') return '';
+            
+            let cleanStr = inputString.trim();
 
-            // Tách prefix phương án (nếu có): "A. ", "B. ", "C. ", "D. ", "a) ", "b) "
+            // Tách nhãn phương án tiền tố (A. , B. , a) , b) ...) nếu có
             let optPrefix = '';
-            const prefixMatch = questionString.match(/^([A-Da-d][\.\)]\s*)/);
+            const prefixMatch = cleanStr.match(/^([A-Da-d][\.\)]\s*)/);
             if (prefixMatch) {
                 optPrefix = prefixMatch[1];
-                questionString = questionString.substring(optPrefix.length).trim();
+                cleanStr = cleanStr.substring(optPrefix.length).trim();
             }
 
-            // 1. Khử toàn bộ các cặp dấu lặp gạch chéo kèm ngoặc vuông bị lỗi do escape sai
-            // Chuyển đổi \[ ... \] hoặc \\[ ... \\] thành \( ... \)
-            questionString = questionString.replace(/\\\[\s*([\s\S]*?)\s*\\\]/g, ' \\($1\\) ');
-            questionString = questionString.replace(/\\\[/g, '').replace(/\\\]/g, '');
-            questionString = questionString.replace(/\\\\/g, '\\');
+            // 1. Sửa lỗi dính chữ "cdot" (Ví dụ: Chuyển "10cdot3^x" hoặc "10cdot 3^x" thành "10 \cdot 3^x")
+            // Thêm khoảng trắng an toàn trước và sau mã lệnh \cdot theo đúng quy chuẩn TeX Live
+            cleanStr = cleanStr.replace(/(\d*)\s*\\?cdot\s*(\d*)/g, (match, p1, p2) => {
+                if (p1 || p2) return (p1 ? p1 + ' ' : '') + '\\cdot' + (p2 ? ' ' + p2 : '');
+                return ' \\cdot ';
+            });
+            cleanStr = cleanStr.replace(/(\d*)cdot(\d*)/g, '$1 \\cdot $2');
+            cleanStr = cleanStr.replace(/cdot/g, ' \\cdot ');
 
-            // 2. Tự động dọn dẹp các ký tự rác nếu có
-            questionString = questionString.replace(/[\u000c\x0c]+rac/g, '\\frac');
-            questionString = questionString.replace(/[\u000c\x0c]/g, '');
-            questionString = questionString.replace(/\\f\\f/g, '').replace(/\\f/g, '');
-            questionString = questionString.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+            // 2. Phục hồi hoàn toàn dấu gạch chéo ngược \ bị thiếu cho các ký hiệu toán thông dụng
+            cleanStr = cleanStr.replace(/(?<!\\)cdot/g, '\\cdot');
+            cleanStr = cleanStr.replace(/(?<!\\)Omega/g, '\\Omega');
+            cleanStr = cleanStr.replace(/(?<!\\)emptyset/g, '\\emptyset');
+            cleanStr = cleanStr.replace(/(?<!\\)cup/g, '\\cup');
+            cleanStr = cleanStr.replace(/(?<!\\)cap/g, '\\cap');
 
             // Phục hồi phân số \frac nếu bị biến thành rac
-            questionString = questionString.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
-            questionString = questionString.replace(/^rac\s*\{/g, '\\frac{');
-            questionString = questionString.replace(/\bracf\(/g, '\\frac{f(');
-            questionString = questionString.replace(/(?:^|[^\\])\brac(?=\\?[0-9a-zA-Z\{])/g, (m) => m.replace('rac', '\\frac'));
-            questionString = questionString.replace(/\{\s*\\?\(\\?frac\\?\)\s*\{/gi, '\\frac{');
-            questionString = questionString.replace(/\{\s*\\?\(\\?sqrt\\?\)\s*\{/gi, '\\sqrt{');
-            questionString = questionString.replace(/\{\s*\\?\((\\[a-zA-Z]+)\\?\)\s*/gi, '$1');
-            questionString = questionString.replace(/\{\s*\\frac\s*([^{}]+)\s*\}\s*\{\s*([^{}]+)\s*\}/gi, '\\frac{$1}{$2}');
+            cleanStr = cleanStr.replace(/[\u000c\x0c]+rac/g, '\\frac');
+            cleanStr = cleanStr.replace(/[\u000c\x0c]/g, '');
+            cleanStr = cleanStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '');
+            cleanStr = cleanStr.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
+            cleanStr = cleanStr.replace(/^rac\s*\{/g, '\\frac{');
+            cleanStr = cleanStr.replace(/\bracf\(/g, '\\frac{f(');
+            cleanStr = cleanStr.replace(/(?:^|[^\\])\brac(?=\\?[0-9a-zA-Z\{])/g, (m) => m.replace('rac', '\\frac'));
+            cleanStr = cleanStr.replace(/\{\s*\\?\(\\?frac\\?\)\s*\{/gi, '\\frac{');
+            cleanStr = cleanStr.replace(/\{\s*\\?\(\\?sqrt\\?\)\s*\{/gi, '\\sqrt{');
+            cleanStr = cleanStr.replace(/\{\s*\\?\((\\[a-zA-Z]+)\\?\)\s*/gi, '$1');
+            cleanStr = cleanStr.replace(/\{\s*\\frac\s*([^{}]+)\s*\}\s*\{\s*([^{}]+)\s*\}/gi, '\\frac{$1}{$2}');
 
-            // Sửa lỗi cách chữ đầu câu
-            questionString = questionString.replace(/\bT\s+ìm\b/gi, 'Tìm');
-            questionString = questionString.replace(/\bN\s+ếu\b/gi, 'Nếu');
-            questionString = questionString.replace(/\bC\s+ho\b/gi, 'Cho');
-            questionString = questionString.replace(/\bC\s+ả\b/gi, 'Cả');
-            questionString = questionString.replace(/\bK\s+hi\b/gi, 'Khi');
-            questionString = questionString.replace(/\bC\s+hỉ\b/gi, 'Chỉ');
-            questionString = questionString.replace(/\bB\s+iết\b/gi, 'Biết');
-            questionString = questionString.replace(/\bT\s+ính\b/gi, 'Tính');
-            questionString = questionString.replace(/\bN\s+ghiệm\b/gi, 'Nghiệm');
-            questionString = questionString.replace(/\bT\s+ập\b/gi, 'Tập');
-
-            // Sửa lỗi dấu gạch chéo đỏ
-            questionString = questionString.replace(/\\+\s*\(\s*/g, '\\(');
-            questionString = questionString.replace(/\s*\\+\s*\)/g, '\\)');
-            questionString = questionString.replace(/\\+\s+([a-zA-Z0-9])/g, '$1');
-            questionString = questionString.replace(/\\+P\s*\(/g, 'P(');
-
-            // Tự động chuyển đổi các ký hiệu toán
-            questionString = questionString.replace(/(^|[^\\a-zA-Z])Omega\b/g, '$1\\Omega');
-            questionString = questionString.replace(/(^|[^\\a-zA-Z])emptyset\b/g, '$1\\emptyset');
-            questionString = questionString.replace(/\b([A-Z])cap([A-Z])\b/gi, '$1 \\cap $2');
-            questionString = questionString.replace(/\b([A-Z])cup([A-Z])\b/gi, '$1 \\cup $2');
-
-            // Ký hiệu dấu nhân
-            questionString = questionString.replace(/([0-9a-zA-Z\)\}\]])\s*\\?cdot\s*([0-9a-zA-Z\(\{\\])/g, '$1 \\cdot $2');
-            questionString = questionString.replace(/\bcdot\b/g, '\\cdot');
-            questionString = questionString.replace(/\\cdot x\^\{n\}\^\{/g, '\\cdot x^{n-1}');
-
-            // Tách từ dính giữa chữ tiếng Việt và biến toán in hoa
-            questionString = questionString.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
-            questionString = questionString.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
-
-            // Chuẩn hóa số mũ cơ số e và lũy thừa Mũ & Logarit: 3^(x+1) -> 3^{x+1}, e^(2x) -> e^{2x}
-            questionString = questionString.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
-            questionString = questionString.replace(/\be\^\(([^)]+)\)/g, 'e^{$1}');
-            questionString = questionString.replace(/([0-9a-zA-Z\)])\^\(([^)]+)\)/g, '$1^{$2}');
-            questionString = questionString.replace(/([0-9a-zA-Z\)])\^([a-zA-Z0-9\+\-]+)(?=[^0-9a-zA-Z\^]|$)/g, '$1^{$2}');
+            // Sửa lỗi cách chữ đầu câu tiếng Việt
+            cleanStr = cleanStr.replace(/\bT\s+ìm\b/gi, 'Tìm');
+            cleanStr = cleanStr.replace(/\bN\s+ếu\b/gi, 'Nếu');
+            cleanStr = cleanStr.replace(/\bC\s+ho\b/gi, 'Cho');
+            cleanStr = cleanStr.replace(/\bC\s+ả\b/gi, 'Cả');
+            cleanStr = cleanStr.replace(/\bK\s+hi\b/gi, 'Khi');
+            cleanStr = cleanStr.replace(/\bC\s+hỉ\b/gi, 'Chỉ');
+            cleanStr = cleanStr.replace(/\bB\s+iết\b/gi, 'Biết');
+            cleanStr = cleanStr.replace(/\bT\s+ính\b/gi, 'Tính');
+            cleanStr = cleanStr.replace(/\bN\s+ghiệm\b/gi, 'Nghiệm');
+            cleanStr = cleanStr.replace(/\bT\s+ập\b/gi, 'Tập');
 
             // Chuẩn hóa hàm Logarit: log_a b -> \log_{a} b, ln(x) -> \ln(x)
-            questionString = questionString.replace(/(^|[^\\])\blog_([0-9a-zA-Z]+|\{[^}]+\})/g, '$1\\log_{$2}');
-            questionString = questionString.replace(/(^|[^\\])\blog\b(?![a-zA-Z])/g, '$1\\log');
-            questionString = questionString.replace(/(^|[^\\])\bln\b(?![a-zA-Z])/g, '$1\\ln');
-            questionString = questionString.replace(/\\log_\{(\{[^}]+\})\}/g, '\\log_$1');
+            cleanStr = cleanStr.replace(/(^|[^\\])\blog_([0-9a-zA-Z]+|\{[^}]+\})/g, '$1\\log_{$2}');
+            cleanStr = cleanStr.replace(/(^|[^\\])\blog\b(?![a-zA-Z])/g, '$1\\log');
+            cleanStr = cleanStr.replace(/(^|[^\\])\bln\b(?![a-zA-Z])/g, '$1\\ln');
+            cleanStr = cleanStr.replace(/\\log_\{(\{[^}]+\})\}/g, '\\log_$1');
+
+            // Chuẩn hóa số mũ cơ số e và lũy thừa Mũ & Logarit: 3^(x+1) -> 3^{x+1}, e^(2x) -> e^{2x}
+            cleanStr = cleanStr.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
+            cleanStr = cleanStr.replace(/\be\^\(([^)]+)\)/g, 'e^{$1}');
+            cleanStr = cleanStr.replace(/([0-9a-zA-Z\)])\^\(([^)]+)\)/g, '$1^{$2}');
+            cleanStr = cleanStr.replace(/([0-9a-zA-Z\)])\^([a-zA-Z0-9\+\-]+)(?=[^0-9a-zA-Z\^]|$)/g, '$1^{$2}');
+
+            // Đảm bảo \cdot luôn có khoảng trắng phân tách chuẩn TeX Live
+            cleanStr = cleanStr.replace(/([0-9a-zA-Z\)\}\]])\s*\\cdot/g, '$1 \\cdot');
+            cleanStr = cleanStr.replace(/\\cdot\s*([0-9a-zA-Z\(\{\\])/g, '\\cdot $1');
+            cleanStr = cleanStr.replace(/\s*\\+\s*cdot\s*/g, ' \\cdot ');
+
+            // 3. Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) hoặc bọc ngoặc vuông sai quy cách của bước trước
+            cleanStr = cleanStr.replace(/\\\[\s*([\s\S]*?)\s*\\\]/g, ' \\($1\\) ');
+            cleanStr = cleanStr.replace(/\\\[/g, '').replace(/\\\]/g, '');
+            cleanStr = cleanStr.replace(/\\\\/g, '\\');
 
             // Chuẩn hóa phân số nguyên: a/b -> \( \frac{a}{b} \)
-            if (/^[-+]?\d+\s*\/\s*\d+$/.test(questionString)) {
-                const parts = questionString.split('/');
+            if (/^[-+]?\d+\s*\/\s*\d+$/.test(cleanStr)) {
+                const parts = cleanStr.split('/');
                 return optPrefix + `\\( \\frac{${parts[0].trim()}}{${parts[1].trim()}} \\)`;
             }
 
             // Chuyển đổi $$...$$ và $...$ thành \(...\)
-            questionString = questionString.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
-            questionString = questionString.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
+            cleanStr = cleanStr.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
+            cleanStr = cleanStr.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
 
             // Thoát dấu % trong biểu thức math
-            questionString = questionString.replace(/\\\(([\s\S]*?)\\\)/g, (match, formula) => {
+            cleanStr = cleanStr.replace(/\\\(([\s\S]*?)\\\)/g, (match, formula) => {
                 return '\\(' + formula.replace(/(?<!\\)%/g, '\\%') + '\\)';
             });
 
-            // 3. Đảm bảo toàn bộ chuỗi sau khi làm sạch được bọc khít vào cặp dấu phân tách toán học chuẩn nếu là công thức thuần
-            const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẻẽẹêềếểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứửữựỳýỵỷỹđ]/i.test(questionString);
+            // 4. Ép buộc bọc khít biểu thức toán học vào cặp dấu phân tách inline chuẩn
+            const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẻẽẹêềếểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứửữựỳýỵỷỹđ]/i.test(cleanStr);
             if (!hasVietnamese) {
                 // Khử sạch bất kỳ ngoặc vuông [ hoặc ] còn sót lại trong công thức toán
-                questionString = questionString.replace(/\[/g, '').replace(/\]/g, '');
+                cleanStr = cleanStr.replace(/\[/g, '').replace(/\]/g, '');
                 // Nếu chưa bọc chuẩn \( ... \)
-                if (!questionString.startsWith('\\(') || !questionString.endsWith('\\)')) {
-                    const cleanMath = questionString.replace(/\\\(|\\\)/g, '').trim();
-                    questionString = '\\(' + cleanMath + '\\)';
+                if (!cleanStr.startsWith('\\(') || !cleanStr.endsWith('\\)')) {
+                    const cleanMath = cleanStr.replace(/\\\(|\\\)/g, '').trim();
+                    cleanStr = '\\(' + cleanMath + '\\)';
                 }
             } else {
                 // Nếu có câu hỏi tiếng Việt, bọc các cụm toán chưa được bọc
-                if (!questionString.includes('\\(')) {
-                    if (/\\(?:cap|cup|cdot|frac|sqrt|int|sum|lim|log|ln|ge|le|emptyset|Omega|overline)\b/.test(questionString) || /\^\{[^}]+\}/.test(questionString)) {
-                        questionString = questionString.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (match) => {
+                if (!cleanStr.includes('\\(')) {
+                    if (/\\(?:cap|cup|cdot|frac|sqrt|int|sum|lim|log|ln|ge|le|emptyset|Omega|overline)\b/.test(cleanStr) || /\^\{[^}]+\}/.test(cleanStr)) {
+                        cleanStr = cleanStr.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (match) => {
                             const trimmed = match.trim();
                             if (!trimmed || trimmed.startsWith('\\(')) return match;
                             return `\\(${trimmed}\\)`;
@@ -1778,11 +1780,16 @@
             }
 
             // Làm sạch các dấu ngoặc bọc lặp lại \(\( ... \)\)
-            questionString = questionString.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
-            questionString = questionString.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
-            questionString = questionString.replace(/\\\(\s*\$([\s\S]*?)\$\s*\\\)/g, '\\($1\\)');
+            cleanStr = cleanStr.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
+            cleanStr = cleanStr.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
+            cleanStr = cleanStr.replace(/\\\(\s*\$([\s\S]*?)\$\s*\\\)/g, '\\($1\\)');
 
-            return optPrefix + questionString;
+            return optPrefix + cleanStr;
+        }
+
+        // Tương thích ngược: Alias formatMathSpacers sang formatMathStringToTeX
+        function formatMathSpacers(str) {
+            return formatMathStringToTeX(str);
         }
 
         // ==========================================
