@@ -59,15 +59,15 @@
         }
         /* Dịch chuyển toàn bộ màn chơi Mario lùi xuống dưới, tách biệt hoàn toàn khỏi thanh bảng điểm màu đen */
         #game-canvas, #gameCanvas, .mario-canvas-container, .canvas-container {
-            margin-top: 45px !important; /* Tạo một khoảng khoảng trống vừa đủ dưới thanh bảng điểm đen để lộ toàn bộ khối gạch */
+            margin-top: 50px !important; /* Tạo một khoảng khoảng trống vừa đủ dưới thanh bảng điểm đen để lộ toàn bộ khối gạch */
             position: relative !important;
         }
         .canvas-container, .mario-canvas-container {
             width: 100%;
             flex: 1 1 auto;
-            height: calc(100dvh - 45px) !important;
-            min-height: calc(100dvh - 45px) !important;
-            max-height: calc(100dvh - 45px) !important;
+            height: calc(100dvh - 50px) !important;
+            min-height: calc(100dvh - 50px) !important;
+            max-height: calc(100dvh - 50px) !important;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -79,6 +79,8 @@
             width: 100%; 
             height: 100%; 
             background-color: #5C94FC;
+            transform: scale(0.85);
+            transform-origin: top center;
         }
 
         /* ÉP PHÂN SỐ TOÁN HỌC HIỂN THỊ THẲNG HÀNG CHỐNG NGẮT DÒNG VÔ LÝ */
@@ -857,7 +859,7 @@
         // ==========================================
         // 📚 HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ: TOÁN 11 XÁC SUẤT
         // ==========================================
-        window.gameDatabase = {
+        const DEFAULT_MARIO_FALLBACK_DB = {
           "Chuyên đề 1: Biến cố giao & Biến cố độc lập": {
             "easy": [
               {
@@ -1028,6 +1030,44 @@
           }
         };
 
+        window.DEFAULT_MARIO_FALLBACK_DB = DEFAULT_MARIO_FALLBACK_DB;
+        window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_MARIO_FALLBACK_DB));
+        window.__DEFAULT_MARIO_DB__ = JSON.parse(JSON.stringify(DEFAULT_MARIO_FALLBACK_DB));
+
+        function ensureMarioDatabase() {
+            let isValid = false;
+            if (window.gameDatabase && typeof window.gameDatabase === 'object') {
+                const keys = Object.keys(window.gameDatabase);
+                if (keys.length > 0) {
+                    for (let k of keys) {
+                        const topic = window.gameDatabase[k];
+                        if (topic && typeof topic === 'object') {
+                            if ((topic.easy && topic.easy.length > 0) || (topic.medium && topic.medium.length > 0) || (topic.hard && topic.hard.length > 0)) {
+                                isValid = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!isValid) {
+                console.warn("[Mario Math] gameDatabase is invalid or empty. Activating safe fallback database.");
+                if (window.__DEFAULT_MARIO_DB__ && typeof window.__DEFAULT_MARIO_DB__ === 'object' && Object.keys(window.__DEFAULT_MARIO_DB__).length > 0) {
+                    window.gameDatabase = JSON.parse(JSON.stringify(window.__DEFAULT_MARIO_DB__));
+                } else {
+                    window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_MARIO_FALLBACK_DB));
+                }
+            }
+
+            if (!window.selectedTopic || !window.gameDatabase[window.selectedTopic]) {
+                const keys = Object.keys(window.gameDatabase);
+                window.selectedTopic = keys.length > 0 ? keys[0] : "Chuyên đề 1: Biến cố giao & Biến cố độc lập";
+            }
+
+            return window.gameDatabase;
+        }
+
         window.selectedTopic = Object.keys(window.gameDatabase)[0];
         var questions = [];
 
@@ -1036,19 +1076,62 @@
                 previousGameState = gameState;
                 gameState = 'paused';
             }
+            ensureMarioDatabase();
             renderMarioTopicMenuCards();
             const overlay = document.getElementById('topic-selection-overlay');
             if (overlay) overlay.style.display = 'flex';
         }
 
         function renderMarioTopicMenuCards() {
+            ensureMarioDatabase();
             const container = document.getElementById('mario-topics-grid');
             if (!container) return;
             container.innerHTML = '';
 
             const topics = Object.keys(window.gameDatabase);
+
+            const WORLD_THEMES = [
+                {
+                    title: "WORLD 1",
+                    colorName: "Xanh dương",
+                    primary: "#2563eb",
+                    lightText: "#60a5fa",
+                    badgeBg: "rgba(37, 99, 235, 0.25)",
+                    badgeBorder: "#3b82f6",
+                    btnGradient: "linear-gradient(90deg, #2563eb, #1d4ed8)",
+                    borderNormal: "rgba(37, 99, 235, 0.4)",
+                    borderSelected: "#3b82f6",
+                    shadowSelected: "0 0 30px rgba(37, 99, 235, 0.5)"
+                },
+                {
+                    title: "WORLD 2",
+                    colorName: "Vàng",
+                    primary: "#eab308",
+                    lightText: "#facc15",
+                    badgeBg: "rgba(234, 179, 8, 0.25)",
+                    badgeBorder: "#eab308",
+                    btnGradient: "linear-gradient(90deg, #eab308, #ca8a04)",
+                    borderNormal: "rgba(234, 179, 8, 0.4)",
+                    borderSelected: "#facc15",
+                    shadowSelected: "0 0 30px rgba(234, 179, 8, 0.5)"
+                },
+                {
+                    title: "WORLD 3",
+                    colorName: "Đen",
+                    primary: "#1e293b",
+                    lightText: "#cbd5e1",
+                    badgeBg: "rgba(30, 41, 59, 0.8)",
+                    badgeBorder: "#475569",
+                    btnGradient: "linear-gradient(90deg, #334155, #1e293b)",
+                    borderNormal: "rgba(71, 85, 105, 0.5)",
+                    borderSelected: "#94a3b8",
+                    shadowSelected: "0 0 30px rgba(15, 23, 42, 0.7)"
+                }
+            ];
+
             topics.forEach((topicName, idx) => {
-                const data = window.gameDatabase[topicName];
+                const theme = WORLD_THEMES[idx % WORLD_THEMES.length];
+                const data = window.gameDatabase[topicName] || {};
                 const eCount = (data.easy || []).length;
                 const mCount = (data.medium || []).length;
                 const hCount = (data.hard || []).length;
@@ -1058,24 +1141,31 @@
                 const card = document.createElement('div');
                 card.style.cssText = `
                     background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
-                    border: 3px solid ${isSelected ? '#facc15' : 'rgba(255,255,255,0.15)'};
+                    border: 3px solid ${isSelected ? theme.borderSelected : theme.borderNormal};
                     border-radius: 20px; padding: 22px; text-align: left; cursor: pointer; transition: all 0.3s ease;
                     display: flex; flex-direction: column; justify-content: space-between;
-                    box-shadow: ${isSelected ? '0 0 30px rgba(250, 204, 21, 0.45)' : '0 10px 25px rgba(0,0,0,0.3)'};
+                    box-shadow: ${isSelected ? theme.shadowSelected : '0 10px 25px rgba(0,0,0,0.3)'};
                 `;
 
-                card.onmouseover = () => { card.style.borderColor = '#facc15'; card.style.transform = 'translateY(-4px)'; };
+                card.onmouseover = () => { card.style.borderColor = theme.borderSelected; card.style.transform = 'translateY(-4px)'; };
                 card.onmouseout = () => {
                     if (window.selectedTopic !== topicName) {
-                        card.style.borderColor = 'rgba(255,255,255,0.15)';
+                        card.style.borderColor = theme.borderNormal;
                         card.style.transform = 'translateY(0)';
                     }
                 };
 
+                const cleanTopicTitle = topicName.replace(/'/g, "\\'");
+
                 card.innerHTML = `
                     <div>
-                        <div style="font-size: 11px; font-weight: 800; color: #facc15; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;" class="pixel-font">
-                            WORLD ${idx + 1} (${total} CÂU)
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 11px; font-weight: 800; color: ${theme.lightText}; letter-spacing: 2px; text-transform: uppercase;" class="pixel-font">
+                                ${theme.title} (${total} CÂU)
+                            </span>
+                            <span style="font-size: 10px; font-weight: bold; background: ${theme.badgeBg}; border: 1px solid ${theme.badgeBorder}; color: ${theme.lightText}; padding: 2px 8px; border-radius: 999px;">
+                                ● ${theme.colorName}
+                            </span>
                         </div>
                         <h3 style="color: #ffffff; font-size: 17px; font-weight: 800; margin: 0 0 12px 0; line-height: 1.4;">
                             ${topicName}
@@ -1086,13 +1176,14 @@
                             <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; padding: 3px 10px; border-radius: 999px;">🔴 ${hCount} Khó</span>
                         </div>
                     </div>
-                    <button onclick="selectMarioTopic('${topicName}', true)" style="
+                    <button onclick="selectMarioTopic('${cleanTopicTitle}', true)" style="
                         width: 100%; padding: 12px 18px; border: none; border-radius: 12px;
-                        background: ${isSelected ? 'linear-gradient(90deg, #facc15, #eab308)' : 'linear-gradient(90deg, #ef4444, #dc2626)'};
-                        color: ${isSelected ? '#0f172a' : '#ffffff'}; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+                        background: ${theme.btnGradient};
+                        color: #ffffff; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
                         cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        display: flex; align-items: center; justify-content: center; gap: 6px;
                     ">
-                        ${isSelected ? '✓ ĐANG CHỌN' : '🍄 VÀO MÀN NÀY'}
+                        ${isSelected ? '✓ ĐANG CHỌN (SẴN SÀNG)' : '🍄 VÀO MÀN ' + theme.title}
                     </button>
                 `;
 
@@ -1105,9 +1196,39 @@
         // ==========================================
         // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN (MATHJAX SPACER FIX & RED SLASH FILTER)
         // ==========================================
+        function formatMathStringToTeX(inputString) {
+            if (typeof inputString !== 'string') return inputString || '';
+            let cleanStr = inputString;
+
+            // 1. Sửa lỗi dính chữ 'cdot' (Ví dụ: Chuyển '10cdot3^x' hoặc '10cdot 3^x' thành '10 \cdot 3^x')
+            // Thêm khoảng trắng an toàn trước và sau mã lệnh \cdot theo đúng quy chuẩn TeX Live
+            cleanStr = cleanStr.replace(/(\d*)\s*\\?cdot\s*(\d*)/g, (match, p1, p2) => {
+                if (p1 || p2) return (p1 ? p1 + ' ' : '') + '\\cdot' + (p2 ? ' ' + p2 : '');
+                return ' \\cdot ';
+            });
+            cleanStr = cleanStr.replace(/(\d*)cdot(\d*)/g, '$1 \\cdot $2');
+            cleanStr = cleanStr.replace(/(?<!\\)cdot/g, '\\cdot');
+            cleanStr = cleanStr.replace(/([0-9a-zA-Z\)\}\]])\s*\\cdot/g, '$1 \\cdot');
+            cleanStr = cleanStr.replace(/\\cdot\s*([0-9a-zA-Z\(\{\\])/g, '\\cdot $1');
+            cleanStr = cleanStr.replace(/\s*\\cdot\s*/g, ' \\cdot ');
+
+            // 2. Phục hồi hoàn toàn dấu gạch chéo ngược \ bị thiếu cho các ký hiệu toán thông dụng
+            cleanStr = cleanStr.replace(/(?<!\\)Omega/g, '\\Omega');
+            cleanStr = cleanStr.replace(/(?<!\\)emptyset/g, '\\emptyset');
+            cleanStr = cleanStr.replace(/(?<!\\)cup/g, '\\cup');
+            cleanStr = cleanStr.replace(/(?<!\\)cap/g, '\\cap');
+
+            // 3. Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) hoặc bọc ngoặc vuông sai quy cách
+            cleanStr = cleanStr.replace(/\\\[/g, '').replace(/\\\]/g, '');
+            cleanStr = cleanStr.replace(/\\\\\\\\/g, '\\');
+
+            return cleanStr;
+        }
+        window.formatMathStringToTeX = formatMathStringToTeX;
+
         function sanitizeMarioFormula(textString) {
             if (!textString || typeof textString !== 'string') return textString || '';
-            let res = textString;
+            let res = formatMathStringToTeX(textString);
 
             // 1. Phục hồi hoàn toàn lệnh phân số \frac từ chữ rac bị lỗi và khử \f thừa
             res = res.replace(/\\f(?=\\frac)/g, '')
@@ -1273,6 +1394,11 @@
         // 🍄 CHỌN MÀN CHƠI CHUYÊN ĐỀ & AUTO-SAMPLING (3 DỄ - 3 VỪA - 2 KHÓ = 8 CÂU)
         // ==========================================
         function selectMarioTopic(topicName, hideOverlay) {
+            ensureMarioDatabase();
+            if (!topicName || !window.gameDatabase[topicName]) {
+                const keys = Object.keys(window.gameDatabase);
+                topicName = keys.length > 0 ? keys[0] : "Chuyên đề 1: Biến cố giao & Biến cố độc lập";
+            }
             window.selectedTopic = topicName;
             const topicData = window.gameDatabase[topicName];
             if (!topicData) return;
@@ -1353,7 +1479,7 @@
             const container = document.getElementById('canvas-container') || document.body;
             width = container.clientWidth || window.innerWidth || document.documentElement.clientWidth;
             const topbar = document.getElementById('game-topbar');
-            const topOffset = topbar ? topbar.offsetHeight : 45;
+            const topOffset = topbar ? topbar.offsetHeight : 50;
             height = container.clientHeight || (window.innerHeight - topOffset) || (document.documentElement.clientHeight - topOffset);
             canvas.width = width;
             canvas.height = height;
@@ -2385,7 +2511,11 @@
             try {
                 let htmlContent = document.documentElement.outerHTML;
                 const dbJson = JSON.stringify(window.gameDatabase, null, 2);
-                htmlContent = htmlContent.replace(/window\.gameDatabase\s*=\s*\{[\s\S]*?\n\s*\};/, `window.gameDatabase = ${dbJson};`);
+                if (/const DEFAULT_MARIO_FALLBACK_DB\s*=\s*\{[\s\S]*?\n\s*\};/.test(htmlContent)) {
+                    htmlContent = htmlContent.replace(/const DEFAULT_MARIO_FALLBACK_DB\s*=\s*\{[\s\S]*?\n\s*\};/, `const DEFAULT_MARIO_FALLBACK_DB = ${dbJson};`);
+                } else if (/window\.gameDatabase\s*=\s*\{[\s\S]*?\n\s*\};/.test(htmlContent)) {
+                    htmlContent = htmlContent.replace(/window\.gameDatabase\s*=\s*\{[\s\S]*?\n\s*\};/, `window.gameDatabase = ${dbJson};`);
+                }
                 
                 const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
@@ -2403,28 +2533,26 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             // Backup ngân hàng câu hỏi gốc chống lỗi mất dữ liệu
-            window.__DEFAULT_MARIO_DB__ = JSON.parse(JSON.stringify(window.gameDatabase || {}));
+            window.__DEFAULT_MARIO_DB__ = JSON.parse(JSON.stringify(DEFAULT_MARIO_FALLBACK_DB));
 
             // 1. Kiểm tra nếu có dữ liệu lưu tạm trong LocalStorage
             try {
                 const saved = localStorage.getItem('mario_custom_quiz');
                 if (saved) {
                     const parsed = JSON.parse(saved);
-                    if (parsed && typeof parsed === 'object') {
+                    if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
                         window.gameDatabase = parsed;
                     }
                 }
             } catch(e) {}
 
             // 2. Kiểm tra nếu có window.__INJECTED_MARIO_DATA__ (từ Studio Game Exporter)
-            if (window.__INJECTED_MARIO_DATA__ && typeof window.__INJECTED_MARIO_DATA__ === 'object') {
+            if (window.__INJECTED_MARIO_DATA__ && typeof window.__INJECTED_MARIO_DATA__ === 'object' && Object.keys(window.__INJECTED_MARIO_DATA__).length > 0) {
                 window.gameDatabase = window.__INJECTED_MARIO_DATA__;
             }
 
             // Fallback an toàn nếu dữ liệu rỗng
-            if (!window.gameDatabase || Object.keys(window.gameDatabase).length === 0) {
-                window.gameDatabase = window.__DEFAULT_MARIO_DB__;
-            }
+            ensureMarioDatabase();
 
             // 3. Khởi tạo menu & level
             window.selectedTopic = Object.keys(window.gameDatabase)[0];
