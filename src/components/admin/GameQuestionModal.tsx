@@ -60,9 +60,11 @@ const MathLivePreview: React.FC<{ formula: string }> = ({ formula }) => {
       clean = clean.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
       clean = clean.replace(/^rac\s*\{/g, '\\frac{');
       clean = clean.replace(/\bN\s+ếu\b/g, 'Nếu').replace(/\bH\s+ai\b/g, 'Hai').replace(/\bC\s+ho\b/g, 'Cho').replace(/\bC\s+ả\b/g, 'Cả').replace(/\bK\s+hi\b/g, 'Khi').replace(/\bC\s+hỉ\b/g, 'Chỉ').replace(/\bT\s+ính\b/g, 'Tính').replace(/\bT\s+rong\b/g, 'Trong').replace(/\bK\s+hẳng\b/g, 'Khẳng').replace(/\bđ\s+ịnh\b/g, 'định').replace(/\bH\s+ình\b/g, 'Hình').replace(/\bM\s+ặt\b/g, 'Mặt').replace(/\bđ\s+ường\b/g, 'đường').replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
-      clean = clean.replace(/\bAcupB\b/g, 'A \\cup B').replace(/\bAcapB\b/g, 'A \\cap B').replace(/(?<!\\)\bcdot\b/g, '\\cdot').replace(/(?<!\\)\bOmega\b/g, '\\Omega').replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+      clean = clean.replace(/(\d+)cdot(\d+)/g, '$1 \\cdot $2').replace(/(\d+)cdot/g, '$1 \\cdot ').replace(/cdot(\d+)/g, ' \\cdot $1');
+      clean = clean.replace(/(?<!\\)sin/g, '\\sin').replace(/(?<!\\)cos/g, '\\cos').replace(/(?<!\\)tan/g, '\\tan').replace(/(?<!\\)cot/g, '\\cot').replace(/(?<!\\)sqrt/g, '\\sqrt').replace(/(?<!\\)frac/g, '\\frac');
       clean = clean.replace(/e\^\(([^)]+)\)/g, 'e^{$1}').replace(/e\^\{([^}]+)\}/g, 'e^{$1}').replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}');
       clean = clean.replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}').replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}').replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
+      clean = clean.replace(/\\\[/g, '').replace(/\\\]/g, '');
       clean = clean.replace(/^\\\(/, '').replace(/\\\)$/, '').replace(/^\$/, '').replace(/\$$/, '');
       html = (window as any).katex.renderToString(clean, { throwOnError: false });
     } catch (e) {}

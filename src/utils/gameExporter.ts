@@ -296,6 +296,24 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
       cleaned = cleaned.replace(/[\u000c\x0c]/g, '');
       cleaned = cleaned.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
       cleaned = cleaned.replace(/^rac\s*\{/g, '\\frac{');
+      cleaned = cleaned.replace(/\brac\b/g, '\\frac');
+
+      // Khắc phục lỗi dính chữ cdot
+      cleaned = cleaned.replace(/(\d+)cdot(\d+)/g, '$1 \\cdot $2');
+      cleaned = cleaned.replace(/(\d+)cdot/g, '$1 \\cdot ');
+      cleaned = cleaned.replace(/cdot(\d+)/g, ' \\cdot $1');
+
+      // Khắc phục thiếu dấu gạch chéo ngược cho các token lượng giác và toán học
+      cleaned = cleaned.replace(/(?<!\\)sin/g, '\\sin')
+                       .replace(/(?<!\\)cos/g, '\\cos')
+                       .replace(/(?<!\\)tan/g, '\\tan')
+                       .replace(/(?<!\\)cot/g, '\\cot')
+                       .replace(/(?<!\\)cdot/g, '\\cdot')
+                       .replace(/(?<!\\)sqrt/g, '\\sqrt')
+                       .replace(/(?<!\\)frac/g, '\\frac');
+
+      // Khử display math brackets xung đột
+      cleaned = cleaned.replace(/\\\[/g, '').replace(/\\\]/g, '');
 
       // Vá lỗi tự ý chèn khoảng trắng sau ký tự chữ cái đầu tiên
       cleaned = cleaned.replace(/\bN\s+ếu\b/g, 'Nếu');
@@ -316,7 +334,6 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
       // Tự động chuyển đổi các chữ mã TeX thô viết liền
       cleaned = cleaned.replace(/\bAcupB\b/g, 'A \\cup B');
       cleaned = cleaned.replace(/\bAcapB\b/g, 'A \\cap B');
-      cleaned = cleaned.replace(/(?<!\\)\bcdot\b/g, '\\cdot');
       cleaned = cleaned.replace(/(?<!\\)\bOmega\b/g, '\\Omega');
       cleaned = cleaned.replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
       cleaned = cleaned.replace(/(?<!\\)\bcup\b/g, '\\cup');
@@ -325,8 +342,16 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
       cleaned = normalizeMathFormulas(cleaned);
 
       if (!cleaned.includes('\\(') && !cleaned.includes('$')) {
-        if (/[\\^_{}]|sin|cos|tan|cot|sqrt|frac|alpha|beta|pi|pm|cdot|circ|degree|le|ge|ne|in|cup|cap|Omega|emptyset/.test(cleaned)) {
+        const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(cleaned);
+        const hasMathTokens = /[\\^_{}]|sin|cos|tan|cot|sqrt|frac|alpha|beta|pi|pm|cdot|circ|degree|le|ge|ne|in|cup|cap|Omega|emptyset/.test(cleaned);
+        if (!hasVietnamese && hasMathTokens) {
           cleaned = `\\(${cleaned}\\)`;
+        } else if (hasVietnamese && hasMathTokens) {
+          cleaned = cleaned.replace(/(\\[a-zA-Z]+(?:\{[^{}]*\}|\[[^\]]*\])*(?:\^[0-9a-zA-Z{}]+|_[0-9a-zA-Z{}]+)*(?:\s*[0-9a-zA-Z+\-*/=()^_{}]+)*)/g, (match) => {
+            const tr = match.trim();
+            if (!tr || tr.startsWith('\\(')) return match;
+            return `\\(${tr}\\)`;
+          });
         }
       }
       return cleaned;
