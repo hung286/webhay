@@ -3185,6 +3185,13 @@ if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__
       if (typeof selectMarioTopic === 'function') {
         selectMarioTopic(window.selectedTopic, false);
       }
+    } else {
+      if (typeof ensureMarioDatabase === 'function') {
+        ensureMarioDatabase();
+      }
+      if (typeof renderMarioTopicMenuCards === 'function') {
+        renderMarioTopicMenuCards();
+      }
     }
   }
 

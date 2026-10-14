@@ -1034,7 +1034,73 @@
         window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_MARIO_FALLBACK_DB));
         window.__DEFAULT_MARIO_DB__ = JSON.parse(JSON.stringify(DEFAULT_MARIO_FALLBACK_DB));
 
-        function ensureMarioDatabase() {
+        // Khởi tạo safeWorksheets mặc định từ cơ sở dữ liệu dự phòng cứng
+        var defaultWorksheets = Object.keys(DEFAULT_MARIO_FALLBACK_DB).map((title, idx) => ({
+            id: `world_${idx + 1}`,
+            title: title,
+            name: `Thế giới ${idx + 1}`,
+            questions: [
+                ...DEFAULT_MARIO_FALLBACK_DB[title].easy,
+                ...DEFAULT_MARIO_FALLBACK_DB[title].medium,
+                ...DEFAULT_MARIO_FALLBACK_DB[title].hard
+            ]
+        }));
+        window.defaultWorksheets = defaultWorksheets;
+        if (!window.gameData) {
+            window.gameData = { worksheets: defaultWorksheets };
+        }
+
+        // Hàm chuyển đổi an toàn mọi cấu trúc worksheets thành gameDatabase
+        function convertWorksheetsToMarioDB(worksheets) {
+            if (!worksheets || !Array.isArray(worksheets) || worksheets.length === 0) return;
+            if (!window.gameDatabase || typeof window.gameDatabase !== 'object') {
+                window.gameDatabase = {};
+            }
+            worksheets.forEach((ws, wsIdx) => {
+                const topicTitle = ws.title || ws.name || `Thế giới ${wsIdx + 1}: Chuyên đề ${wsIdx + 1}`;
+                if (!window.gameDatabase[topicTitle]) {
+                    window.gameDatabase[topicTitle] = { easy: [], medium: [], hard: [] };
+                }
+                const qs = ws.questions || ws.quizData || (Array.isArray(ws) ? ws : []);
+                if (Array.isArray(qs)) {
+                    qs.forEach((q, qIdx) => {
+                        let diff = 'medium';
+                        if (q.difficulty === 'Dễ' || q.difficulty === 1 || q.diff === 'easy') diff = 'easy';
+                        else if (q.difficulty === 'Khó' || q.difficulty === 3 || q.diff === 'hard') diff = 'hard';
+                        
+                        window.gameDatabase[topicTitle][diff].push({
+                            id: q.id || `mario_ws_${wsIdx}_${qIdx}`,
+                            q: q.question || q.q || '',
+                            options: q.options || q.o || ['A', 'B', 'C', 'D'],
+                            correct: typeof q.correctIndex === 'number' ? q.correctIndex : (typeof q.correct === 'number' ? q.correct : 0),
+                            explanation: q.solution || q.explanation || '',
+                            type: (q.options && q.options.length === 2) ? 'truefalse' : ((q.options && q.options.length === 1) ? 'short_answer' : 'abcd'),
+                            imageUrl: q.imageUrl || ''
+                        });
+                    });
+                }
+            });
+        }
+
+        // Safe Guard Check: Đảm bảo gameDatabase luôn có dữ liệu an toàn, không bao giờ bị rỗng hay undefined
+        function ensureMarioDatabase(inputWorksheets) {
+            // Đảm bảo biến danh sách chuyên đề (worksheets) luôn có mảng dữ liệu an toàn, không bao giờ bị rỗng hay undefined
+            const safeWorksheets = (inputWorksheets && Array.isArray(inputWorksheets) && inputWorksheets.length > 0)
+                ? inputWorksheets
+                : (window.gameData && window.gameData.worksheets && window.gameData.worksheets.length > 0) 
+                    ? window.gameData.worksheets 
+                    : (typeof defaultWorksheets !== 'undefined' && Array.isArray(defaultWorksheets) && defaultWorksheets.length > 0 ? defaultWorksheets : []);
+
+            if (safeWorksheets.length === 0) {
+                console.warn("Kho dữ liệu trống! Tự động nạp mảng dữ liệu lượng giác/xác suất mặc định để cứu nguy Menu.");
+                // Tự động gán một mảng cấu trúc mẫu gồm 3 World x 3 cấp độ (Dễ, Vừa, Khó) vào để sinh UI
+                if (!window.gameDatabase || typeof window.gameDatabase !== 'object' || Object.keys(window.gameDatabase).length === 0) {
+                    window.gameDatabase = JSON.parse(JSON.stringify(DEFAULT_MARIO_FALLBACK_DB));
+                }
+            } else {
+                convertWorksheetsToMarioDB(safeWorksheets);
+            }
+
             let isValid = false;
             if (window.gameDatabase && typeof window.gameDatabase === 'object') {
                 const keys = Object.keys(window.gameDatabase);
@@ -1052,7 +1118,7 @@
             }
 
             if (!isValid) {
-                console.warn("[Mario Math] gameDatabase is invalid or empty. Activating safe fallback database.");
+                console.warn("Kho dữ liệu trống! Tự động nạp mảng dữ liệu lượng giác/xác suất mặc định để cứu nguy Menu.");
                 if (window.__DEFAULT_MARIO_DB__ && typeof window.__DEFAULT_MARIO_DB__ === 'object' && Object.keys(window.__DEFAULT_MARIO_DB__).length > 0) {
                     window.gameDatabase = JSON.parse(JSON.stringify(window.__DEFAULT_MARIO_DB__));
                 } else {
@@ -1082,10 +1148,15 @@
             if (overlay) overlay.style.display = 'flex';
         }
 
-        function renderMarioTopicMenuCards() {
-            ensureMarioDatabase();
-            const container = document.getElementById('mario-topics-grid');
-            if (!container) return;
+        function renderMarioTopicMenuCards(worksheets) {
+            ensureMarioDatabase(worksheets);
+            const container = document.getElementById('mario-topics-grid') || document.getElementById('topics-grid') || document.getElementById('world-grid');
+            if (!container) {
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => renderMarioTopicMenuCards(worksheets));
+                }
+                return;
+            }
             container.innerHTML = '';
 
             const topics = Object.keys(window.gameDatabase);
@@ -1093,6 +1164,7 @@
             const WORLD_THEMES = [
                 {
                     title: "WORLD 1",
+                    worldLabel: "THẾ GIỚI 1",
                     colorName: "Xanh dương",
                     primary: "#2563eb",
                     lightText: "#60a5fa",
@@ -1105,6 +1177,7 @@
                 },
                 {
                     title: "WORLD 2",
+                    worldLabel: "THẾ GIỚI 2",
                     colorName: "Vàng",
                     primary: "#eab308",
                     lightText: "#facc15",
@@ -1117,6 +1190,7 @@
                 },
                 {
                     title: "WORLD 3",
+                    worldLabel: "THẾ GIỚI 3",
                     colorName: "Đen",
                     primary: "#1e293b",
                     lightText: "#cbd5e1",
@@ -1161,7 +1235,7 @@
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <span style="font-size: 11px; font-weight: 800; color: ${theme.lightText}; letter-spacing: 2px; text-transform: uppercase;" class="pixel-font">
-                                ${theme.title} (${total} CÂU)
+                                ${theme.title} (${theme.worldLabel} - ${total} CÂU)
                             </span>
                             <span style="font-size: 10px; font-weight: bold; background: ${theme.badgeBg}; border: 1px solid ${theme.badgeBorder}; color: ${theme.lightText}; padding: 2px 8px; border-radius: 999px;">
                                 ● ${theme.colorName}
@@ -1183,7 +1257,7 @@
                         cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
                         display: flex; align-items: center; justify-content: center; gap: 6px;
                     ">
-                        ${isSelected ? '✓ ĐANG CHỌN (SẴN SÀNG)' : '🍄 VÀO MÀN ' + theme.title}
+                        ${isSelected ? '✓ ĐANG CHỌN (SẴN SÀNG)' : '🍄 VÀO ' + theme.worldLabel}
                     </button>
                 `;
 
@@ -1191,6 +1265,27 @@
             });
 
             if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise().catch(e => {});
+        }
+
+        // Khởi tạo các hàm toàn cục chuẩn (aliases) để bảo vệ mọi luồng gọi
+        function initMenu(worksheets) {
+            return renderMarioTopicMenuCards(worksheets);
+        }
+        function renderMainMenu(worksheets) {
+            return renderMarioTopicMenuCards(worksheets);
+        }
+        window.initMenu = initMenu;
+        window.renderMainMenu = renderMainMenu;
+        window.renderMarioTopicMenuCards = renderMarioTopicMenuCards;
+        window.ensureMarioDatabase = ensureMarioDatabase;
+
+        // Kích hoạt render khởi tạo ngay lập tức (In-line synchronous execute)
+        try {
+            ensureMarioDatabase();
+            renderMarioTopicMenuCards();
+            selectMarioTopic(window.selectedTopic, false);
+        } catch(e) {
+            console.warn("[Mario Math] Khởi tạo Menu ban đầu:", e);
         }
 
         // ==========================================
@@ -2563,6 +2658,14 @@
             applyAdminSecurity();
             checkDeviceOrientation();
             isolateEditorInputs();
+        });
+
+        // 5. Khởi tạo thêm tại load event để bảo đảm 100% không bao giờ bị trống
+        window.addEventListener('load', () => {
+            const grid = document.getElementById('mario-topics-grid');
+            if (grid && grid.children.length === 0) {
+                renderMarioTopicMenuCards();
+            }
         });
 
         document.fonts.ready.then(() => { requestAnimationFrame(loop); });
