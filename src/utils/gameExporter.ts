@@ -3137,11 +3137,13 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
         q: normalizeMathFormulas(q.question),
         options: (q.options && q.options.length > 0) ? q.options.map(o => {
           let answerString = normalizeMathFormulas(o);
-          // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f nếu có xuất hiện trong chuỗi đáp án
+          // Lọc bỏ an toàn ký tự rác \f hoặc \f\f mà không làm gãy lệnh \frac
           if (typeof answerString === 'string') {
-            answerString = answerString.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+            answerString = answerString.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '');
             answerString = answerString.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
             answerString = answerString.replace(/^rac\s*\{/g, '\\frac{');
+            answerString = answerString.replace(/\bAcapB\b/g, 'A \\cap B').replace(/\bAcupB\b/g, 'A \\cup B');
+            answerString = answerString.replace(/\bcdot\b/g, '\\cdot');
           }
           return answerString;
         }) : ['A', 'B', 'C', 'D'],

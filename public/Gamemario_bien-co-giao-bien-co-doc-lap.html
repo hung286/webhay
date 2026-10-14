@@ -9,16 +9,24 @@
     
     <script>
         window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
-            options: { enableErrorNotifications: false },
-            svg: { fontCache: 'global' }
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                enableErrorNotifications: false
+            },
+            chtml: {
+                displayAlign: 'center'
+            }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
-        .mjx-error, [data-mjx-error] {
-            color: inherit !important;
+        .mjx-error, mjx-error, .mjx-merror, mjx-merror, [data-mjx-error] {
+            color: #ffffff !important;
             background: transparent !important;
             border: none !important;
             font-family: inherit !important;
@@ -37,34 +45,58 @@
         }
         body, .game-app-wrapper { 
             width: 100%; 
+            height: 100dvh;
             min-height: 100dvh; /* Dynamic Viewport Height co giãn chuẩn từ SE đến Ultra */
+            max-height: 100dvh;
             display: flex; 
             flex-direction: column; 
-            overflow-y: auto; /* Kích hoạt thanh cuộn vuốt trượt lướt lên xuống tự do để bắt đầu game */
-            -webkit-overflow-scrolling: touch; /* Bật tính năng vuốt mượt bằng ngón tay trên iOS/Android */
+            overflow: hidden;
             background-color: #5C94FC; 
             font-family: 'Nunito', sans-serif; 
             user-select: none;
             -webkit-user-select: none;
             position: relative;
         }
+        /* Nới rộng khung Canvas chiếm tối đa diện tích hiển thị (80-85%+), sát dưới Topbar */
         .canvas-container {
             width: 100%;
             flex: 1 1 auto;
+            height: calc(100dvh - 42px);
+            min-height: calc(100dvh - 42px);
+            max-height: calc(100dvh - 42px);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
             background-color: #5C94FC;
-            min-height: 100dvh;
+            margin-top: 42px;
         }
         #gameCanvas { 
             display: block; 
             width: 100%; 
             height: 100%; 
-            min-height: 100dvh;
             background-color: #5C94FC;
+        }
+
+        /* ÉP PHÂN SỐ TOÁN HỌC HIỂN THỊ THẲNG HÀNG CHỐNG NGẮT DÒNG VÔ LÝ */
+        .question-text, .answer-btn, .option-btn, .mjx-chtml, mjx-container, .MathJax {
+            white-space: nowrap !important; /* Ép buộc toàn bộ biểu thức toán học LaTeX phải nằm trên một dòng duy nhất, tuyệt đối không được tự ý xuống dòng */
+            display: inline-block !important;
+        }
+        .mjx-chtml *, mjx-container *, .MathJax * {
+            white-space: nowrap !important;
+        }
+        /* Đối với khung chứa văn bản tổng quát bên ngoài, cho phép tự động xuống dòng theo từ */
+        .question-box-content {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal !important;
+        }
+
+        /* Thu nhỏ bảng điểm xám 40%, font chữ mảnh gọn 0.85rem */
+        .mario-compact-scoreboard {
+            font-size: 0.85rem !important;
         }
 
         @media (max-width: 900px) and (orientation: portrait) {
@@ -210,17 +242,7 @@
         </button>
     </div>
 
-    <!-- ========================================== -->
-    <!-- TOPBAR CÔNG CỤ DÀNH CHO ADMIN (Mặc định ẩn với học sinh, chỉ hiện khi URL có ?role=admin hoặc preview=true hoặc admin=1) -->
-    <!-- ========================================== -->
-    <div id="admin-topbar" class="fixed top-3 right-4 z-[99999] hidden items-center gap-2 pointer-events-auto">
-        <button id="btn-chuyen-de" type="button" onclick="openMarioTopicMenu()" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-amber-300/40 cursor-pointer" title="Chọn chuyên đề bài giảng">
-            <span>📚</span> CHUYÊN ĐỀ
-        </button>
-        <button id="btn-admin-gear" type="button" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1.5 transition-all active:scale-95 border border-cyan-300/40 cursor-pointer" title="Quyền Quản Trị - Chỉnh sửa chuyên đề và xuất file HTML mới">
-            <span>⚙️</span> SỬA DỮ LIỆU
-        </button>
-    </div>
+
 
     <!-- ======================================================== -->
     <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
@@ -288,59 +310,62 @@
         </div>
     </div>
 
-    <!-- HUD TỐI ƯU -->
-    <div id="top-bar" class="absolute top-3 left-3 right-3 flex justify-between items-start z-20 pointer-events-none">
-        
-        <!-- Trái: Thương hiệu TOÁN PRO - THẦY HÙNG, Nút Bật Tắt Điều Khiển & Nút Toàn Màn Hình -->
-        <div class="flex items-center pointer-events-auto bg-black/40 p-1.5 md:p-2 rounded-full border border-white/20 backdrop-blur-sm shadow-lg transition gap-1 sm:gap-2">
+    <!-- ========================================== -->
+    <!-- THANH TOPBAR GAME & BẢNG ĐIỂM GỌN GÀNG      -->
+    <!-- ========================================== -->
+    <div id="game-topbar" class="fixed top-0 left-0 right-0 z-40 h-[42px] bg-slate-950/90 backdrop-blur-md border-b border-white/10 px-2 sm:px-4 flex items-center justify-between pointer-events-auto">
+        <!-- Trái: Logo & Nút Toàn màn hình -->
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <input type="file" id="logoUpload" accept="image/*" class="hidden">
-            <img id="brandLogo" src="https://ui-avatars.com/api/?name=MH&background=0f172a&color=fde047&rounded=true&bold=true" class="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full border-2 border-yellow-400 object-cover shadow-inner hover:scale-105 transition-transform cursor-pointer" onclick="document.getElementById('logoUpload').click()" title="Đổi Logo">
+            <img id="brandLogo" src="https://ui-avatars.com/api/?name=MH&background=0f172a&color=fde047&rounded=true&bold=true" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-yellow-400 object-cover shadow-sm hover:scale-105 transition-transform cursor-pointer" onclick="document.getElementById('logoUpload').click()" title="Đổi Logo">
+            <span class="text-yellow-400 font-black text-[10px] sm:text-xs tracking-wide uppercase hidden xs:inline sm:inline">TOÁN PRO - THẦY HÙNG</span>
             
-            <div class="flex flex-col px-1.5 sm:px-2 md:px-3 cursor-pointer hover:opacity-80 transition-opacity" onclick="openLeaderboard()" title="Xem Bảng Xếp Hạng">
-                <span class="text-yellow-400 font-black font-sans text-[11px] sm:text-xs md:text-sm leading-tight tracking-wide uppercase">TOÁN PRO - THẦY HÙNG</span>
-                <span class="text-white text-[8px] sm:text-[9px] md:text-[10px] font-bold mt-0.5">XẾP HẠNG 🏆</span>
-            </div>
-            
-            <button id="toggleControlsBtn" onclick="toggleControls()" class="flex flex-col items-center justify-center border-l border-white/20 pl-2 md:pl-3 pr-1 md:pr-2 h-full transition-colors opacity-70 hover:opacity-100 text-white cursor-pointer" title="Bật/Tắt Nút Điều Khiển">
-                <span class="text-base sm:text-lg md:text-xl leading-none">🎮</span>
-                <span id="toggleControlsText" class="text-[8px] font-bold mt-1 whitespace-nowrap">HIỆN NÚT</span>
-            </button>
-
-            <!-- Nút [ ⛶ ] Toàn màn hình (Hỗ trợ Vendor Prefixes Mobile) -->
-            <button id="fullscreenToggleBtn" type="button" onclick="toggleMobileFullscreen()" class="flex flex-col items-center justify-center border-l border-white/20 pl-2 md:pl-3 pr-1 md:pr-2 h-full transition-colors hover:text-amber-400 text-white cursor-pointer" title="[ ⛶ ] Toàn màn hình">
-                <span id="fullscreenIcon" class="text-base sm:text-lg md:text-xl leading-none">⛶</span>
-                <span id="fullscreenText" class="text-[8px] font-bold mt-1 whitespace-nowrap">[ ⛶ ] TOÀN MÀN HÌNH</span>
+            <button id="fullscreenToggleBtn" type="button" onclick="toggleMobileFullscreen()" class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-white font-bold text-[10px] sm:text-xs flex items-center gap-1 border border-white/20 active:scale-95 cursor-pointer shadow-xs ml-0.5 sm:ml-1" title="[ ⛶ ] Toàn màn hình">
+                <span id="fullscreenIcon">⛶</span>
+                <span id="fullscreenText" class="hidden md:inline">[  ] Toàn màn hình</span>
             </button>
         </div>
 
-        <!-- Giữa: Điểm số -->
-        <div class="flex flex-col items-center pointer-events-auto bg-black/40 px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-2xl border border-white/20 backdrop-blur-sm pixel-font text-white text-[10px] sm:text-xs md:text-lg text-shadow-md shadow-lg mt-0.5">
-            <div>ĐIỂM: <span id="scoreDisplay" class="text-yellow-400">0</span></div>
-            <div class="text-[7px] sm:text-[8px] md:text-[10px] mt-0.5 opacity-80">CÂU: <span id="qCountDisplay">0/10</span></div>
-            <div id="active-mario-topic-badge" class="text-[9px] sm:text-[10px] md:text-[13px] text-yellow-300 font-sans font-extrabold mt-1 max-w-[260px] sm:max-w-[340px] md:max-w-[480px] text-center whitespace-normal leading-snug px-2 py-0.5 sm:px-3 sm:py-1 bg-yellow-400/10 rounded-xl border border-yellow-400/20">Chuyên đề 1</div>
+        <!-- Giữa: Bảng điểm xám thu nhỏ 40% (Scoreboard: font-size 0.85rem, dạng mảnh gọn, không phình to) -->
+        <div class="mario-compact-scoreboard bg-slate-900/85 border border-white/15 px-3 py-0.5 rounded-full text-white text-[11px] sm:text-[13px] font-mono flex items-center gap-1.5 sm:gap-2 shadow-inner pointer-events-auto select-none" style="font-size: 0.85rem !important;">
+            <div>ĐIỂM: <span id="scoreDisplay" class="text-yellow-400 font-black">0</span></div>
+            <span class="text-white/30">|</span>
+            <div>CÂU: <span id="qCountDisplay" class="text-cyan-300 font-bold">0/8</span></div>
+            <span class="text-white/30">|</span>
+            <div class="text-amber-300 font-bold">⏱ <span id="timeDisplay">00:00</span></div>
+            <span id="active-mario-topic-badge" class="hidden lg:inline-block text-[10px] text-yellow-300 font-sans font-bold ml-1 px-2 py-0.5 bg-yellow-400/10 rounded-md border border-yellow-400/20 truncate max-w-[150px]">Chuyên đề 1</span>
         </div>
 
-        <!-- Phải: Tên người chơi & Thời gian & Âm thanh -->
-        <div class="flex flex-col items-end gap-1.5 pointer-events-auto mt-0.5">
-            <div class="flex gap-1.5 sm:gap-2 items-center">
-                <button onclick="openMarioTopicMenu()" class="bg-amber-500/90 hover:bg-amber-500 px-2.5 sm:px-3 py-1.5 sm:py-2 md:py-2.5 rounded-full border-2 border-amber-300 backdrop-blur-sm shadow-lg text-white font-bold text-[11px] sm:text-xs md:text-sm transition-all flex items-center gap-1 cursor-pointer" title="Đổi Chuyên Đề Mới">
-                    🍄 Đổi Màn
-                </button>
-                <button id="soundToggleBtn" onclick="toggleSound()" class="bg-rose-500/80 hover:bg-rose-500 px-2.5 sm:px-3 py-1.5 sm:py-2 md:py-2.5 rounded-full border-2 border-rose-300 backdrop-blur-sm shadow-lg text-white font-bold text-[11px] sm:text-xs md:text-sm transition-all flex items-center gap-1 cursor-pointer">
-                    🔇 Bật Âm Thanh
-                </button>
-
-                <div class="bg-blue-600/80 px-2.5 sm:px-3 py-1.5 sm:py-2 md:px-5 md:py-2.5 rounded-full border-2 border-blue-300 backdrop-blur-sm cursor-pointer hover:bg-blue-500 transition shadow-lg" onclick="openLeaderboard()">
-                    <span class="text-white font-black font-sans text-[11px] sm:text-xs md:text-base flex items-center gap-1.5">
-                        <span class="text-base sm:text-lg md:text-xl">👤</span> <span id="playerNameDisplay" class="truncate max-w-[65px] sm:max-w-[100px] md:max-w-[150px]">Người chơi</span>
-                    </span>
-                </div>
-            </div>
+        <!-- Phải: Cặp nút Quản trị Cam/Xanh (Ngay ngắn, cách đều nhau, ẩn mặc định, chỉ hiện khi có quyền admin) -->
+        <div id="admin-topbar" class="flex items-center gap-1.5 sm:gap-2 shrink-0 pointer-events-auto">
+            <button id="btn-chuyen-de" type="button" onclick="openMarioTopicMenu()" class="hidden inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-black text-[10px] sm:text-xs uppercase tracking-wider shadow-md border border-amber-300/40 active:scale-95 cursor-pointer" data-admin-control="true" title="Chọn chuyên đề bài giảng">
+                <span>📚</span> CHUYÊN ĐỀ
+            </button>
+            <button id="btn-admin-gear" type="button" onclick="openAdminPinPrompt()" class="hidden inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-[10px] sm:text-xs uppercase tracking-wider shadow-md border border-cyan-300/40 active:scale-95 cursor-pointer" data-admin-control="true" title="Quyền Quản Trị - Chỉnh sửa chuyên đề và xuất file HTML mới">
+                <span>⚙️</span> SỬA DỮ LIỆU
+            </button>
+            <span id="admin-badge" class="hidden text-[10px] text-cyan-400 font-mono font-bold bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30" data-admin-control="true">Admin</span>
             
-            <div class="bg-black/60 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-white/20 text-white font-bold pixel-font text-[9px] sm:text-[10px] md:text-sm shadow-md mt-0.5">
-                ⏱ <span id="timeDisplay">00:00</span>
+            <div class="flex items-center gap-1 bg-blue-600/60 hover:bg-blue-600 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border border-blue-400/40 cursor-pointer text-white text-[10px] sm:text-xs font-bold transition shadow-xs" onclick="openLeaderboard()" title="Xem Hồ Sơ">
+                <span>👤</span> <span id="playerNameDisplay" class="truncate max-w-[60px] sm:max-w-[85px]">Người chơi</span>
             </div>
         </div>
+    </div>
+
+    <!-- HÀNG NÚT CHỨC NĂNG HỆ THỐNG GỌN GÀNG SÁT VIỀN PHẢI (CHỐNG OVERLAP VỚI CẶP NÚT CAM/XANH) -->
+    <div id="mario-side-tools" class="fixed top-12 right-2 sm:right-3 z-30 flex flex-col gap-1.5 pointer-events-auto">
+        <button onclick="openMarioTopicMenu()" class="w-8 h-8 sm:w-9 sm:h-9 bg-amber-500/85 hover:bg-amber-500 text-white rounded-xl flex items-center justify-center text-xs sm:text-sm font-black shadow-md border border-amber-300/40 transition active:scale-95 cursor-pointer" title="Đổi Chuyên Đề Mới (Màn)">
+            🍄
+        </button>
+        <button id="soundToggleBtn" onclick="toggleSound()" class="w-8 h-8 sm:w-9 sm:h-9 bg-rose-500/85 hover:bg-rose-500 text-white rounded-xl flex items-center justify-center text-xs sm:text-sm font-black shadow-md border border-rose-300/40 transition active:scale-95 cursor-pointer" title="Bật/Tắt Âm Thanh (Thanh)">
+            🔇
+        </button>
+        <button id="toggleControlsBtn" onclick="toggleControls()" class="w-8 h-8 sm:w-9 sm:h-9 bg-slate-800/85 hover:bg-slate-700 text-white rounded-xl flex items-center justify-center text-xs sm:text-sm font-black shadow-md border border-white/20 transition active:scale-95 cursor-pointer" title="Bật/Tắt Nút Ảo">
+            <span id="toggleControlsText" class="text-xs">🎮</span>
+        </button>
+        <button onclick="openLeaderboard()" class="w-8 h-8 sm:w-9 sm:h-9 bg-blue-600/85 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center text-xs sm:text-sm font-black shadow-md border border-blue-300/40 transition active:scale-95 cursor-pointer" title="Xem Bảng Xếp Hạng">
+            🏆
+        </button>
     </div>
 
     <!-- Nền Game (Khung Canvas Tự Thích Ứng Flexbox) -->
@@ -1078,65 +1103,96 @@
         // ==========================================
         // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN (MATHJAX SPACER FIX & RED SLASH FILTER)
         // ==========================================
+        function sanitizeMarioFormula(textString) {
+            if (!textString || typeof textString !== 'string') return textString || '';
+            let res = textString;
+
+            // 1. Phục hồi hoàn toàn lệnh phân số \frac từ chữ rac bị lỗi và khử \f thừa
+            res = res.replace(/\\f(?=\\frac)/g, '')
+                     .replace(/\\+rac\b/g, '\\frac')
+                     .replace(/\brac\b/g, '\\frac')
+                     .replace(/\\+rac(?=[^a-zA-Z]|$)/g, '\\frac')
+                     .replace(/(?<![a-zA-Z\\])rac(?=[^a-zA-Z]|$)/g, '\\frac')
+                     .replace(/\\{2,}frac/g, '\\frac');
+
+            // Lọc sạch các ký tự rác màu đỏ như \f hoặc \f\f (không nằm trong từ hợp lệ)
+            res = res.replace(/\\f\\f/g, '')
+                     .replace(/\\f(?![a-zA-Z])/g, '')
+                     .replace(/[\u000c\x0c]/g, '');
+
+            // 2. Sửa lỗi tự ý chèn khoảng trắng sau ký tự đầu câu
+            res = res.replace(/\bN\s+ếu\b/gi, 'Nếu')
+                     .replace(/\bH\s+ai\b/gi, 'Hai')
+                     .replace(/\bC\s+ho\b/gi, 'Cho')
+                     .replace(/\bC\s+ả\b/gi, 'Cả')
+                     .replace(/\bK\s+hi\b/gi, 'Khi')
+                     .replace(/\bC\s+hỉ\b/gi, 'Chỉ')
+                     .replace(/\bT\s+ính\b/gi, 'Tính')
+                     .replace(/\bT\s+rong\b/gi, 'Trong')
+                     .replace(/\bK\s+hẳng\b/gi, 'Khẳng')
+                     .replace(/\bđ\s+ịnh\b/gi, 'định')
+                     .replace(/\bH\s+ình\b/gi, 'Hình')
+                     .replace(/\bM\s+ặt\b/gi, 'Mặt')
+                     .replace(/\bđ\s+ường\b/gi, 'đường')
+                     .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/gi, 'Hai mặt phẳng');
+
+            // 3. Chuẩn hóa mã lệnh LaTeX tự động bổ sung dấu \
+            res = res.replace(/(^|[^\\a-zA-Z])Omega\b/g, '$1\\Omega')
+                     .replace(/(^|[^\\a-zA-Z])emptyset\b/g, '$1\\emptyset');
+
+            // AcupB và AcapB
+            res = res.replace(/\bAcupB\b/g, 'A \\cup B')
+                     .replace(/\bAcapB\b/g, 'A \\cap B')
+                     .replace(/\b([A-Z])cap([A-Z])\b/g, '$1 \\cap $2')
+                     .replace(/\b([A-Z])cup([A-Z])\b/g, '$1 \\cup $2')
+                     .replace(/([A-Z])\s*\\?cap\s*([A-Z])/g, '$1 \\cap $2')
+                     .replace(/([A-Z])\s*\\?cup\s*([A-Z])/g, '$1 \\cup $2');
+
+            // overline biến thể
+            res = res.replace(/overlineAcapoverlineB/gi, '\\overline{A} \\cap \\overline{B}')
+                     .replace(/overlineAcupoverlineB/gi, '\\overline{A} \\cup \\overline{B}')
+                     .replace(/\\?overline\s*\{?A\}?\s*\\?cap\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cap \\overline{B}')
+                     .replace(/\\?overline\s*\{?A\}?\s*\\?cup\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cup \\overline{B}')
+                     .replace(/\\?overline\s*([A-Za-z])\b/g, '\\overline{$1}');
+
+            // Ký hiệu chữ thô cdot hoặc dấu chấm nhân sát chữ -> \cdot
+            res = res.replace(/(?<!\\)\bcdot\b/g, '\\cdot')
+                     .replace(/([0-9a-zA-Z\)\}\]])\s*\\?cdot\s*([0-9a-zA-Z\(\{\\])/g, '$1 \\cdot $2')
+                     .replace(/(P\([^\)]+\))\s*\.\s*(P\([^\)]+\))/g, '$1 \\cdot $2')
+                     .replace(/(P\([^\)]+\))\s*\*\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
+
+            // Khử hoàn toàn chuỗi mã đỏ thừa ngoặc
+            res = res.replace(/\\?cdot\s*x\^\{n\}\^\{/g, '\\cdot x^{n-1}')
+                     .replace(/x\^\{n\}\^\{/g, 'x^{n-1}')
+                     .replace(/x\^\{n\}\^\{-1\}/g, 'x^{n-1}')
+                     .replace(/u\^\{n\}\^\{/g, 'u^{n-1}')
+                     .replace(/u\^\{n\}\^\{-1\}/g, 'u^{n-1}');
+
+            // Unicode số mũ
+            res = res.replace(/ⁿ⁻¹/g, '^{n-1}')
+                     .replace(/²ˣ/g, '^{2x}')
+                     .replace(/⁻¹/g, '^{-1}')
+                     .replace(/²(?=[^0-9a-zA-Z]|$)/g, '^{2}')
+                     .replace(/³(?=[^0-9a-zA-Z]|$)/g, '^{3}');
+
+            return res;
+        }
+
         function formatMathSpacers(str) {
             if (!str || typeof str !== 'string') return '';
             let text = str.trim();
 
-            // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f nếu có xuất hiện trong chuỗi đáp án
-            if (typeof text === 'string') {
-                text = text.replace(/\\f\\f/g, '').replace(/\\f/g, '');
-                text = text.replace(/[\u000c\x0c]/g, '');
-                // Chuẩn hóa và phục hồi cú pháp phân số \frac{ nếu \f bị tách rời
-                text = text.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
-                text = text.replace(/^rac\s*\{/g, '\\frac{');
-            }
-            text = text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+            text = sanitizeMarioFormula(text);
 
-            // Sửa lỗi cách chữ đầu câu: Đảm bảo chữ đầu câu viết liền đúng chính tả tiếng Việt (Sửa "N ếu" -> "Nếu", "C ả" -> "Cả", v.v.)
-            text = text.replace(/\bN\s+ếu\b/gi, 'Nếu');
-            text = text.replace(/\bC\s+ả\b/gi, 'Cả');
-            text = text.replace(/\bK\s+hi\b/gi, 'Khi');
-            text = text.replace(/\bC\s+hỉ\b/gi, 'Chỉ');
-
-            // 1. Sửa lỗi dấu gạch chéo đỏ: Lọc và xóa sạch các ký tự gạch chéo \ lỗi dạng \ ( P(A) \ ) hoặc \ ( ... \ )
-            text = text.replace(/\\+\s*\(\s*/g, '\\(');
-            text = text.replace(/\s*\\+\s*\)/g, '\\)');
-            text = text.replace(/\\+\s+([a-zA-Z0-9])/g, '$1');
-            text = text.replace(/\\+P\s*\(/g, 'P(');
-
-            // 2. Tự động chuyển đổi các ký hiệu toán:
-            // Omega -> \Omega, emptyset -> \emptyset
-            text = text.replace(/(^|[^\\a-zA-Z])Omega\b/g, '$1\\Omega');
-            text = text.replace(/(^|[^\\a-zA-Z])emptyset\b/g, '$1\\emptyset');
-
-            // overlineAcapoverlineB và các biến thể -> \overline{A} \cap \overline{B}
-            text = text.replace(/overlineAcapoverlineB/gi, '\\overline{A} \\cap \\overline{B}');
-            text = text.replace(/overlineAcupoverlineB/gi, '\\overline{A} \\cup \\overline{B}');
-            text = text.replace(/\\?overline\s*\{?A\}?\s*\\?cap\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cap \\overline{B}');
-            text = text.replace(/\\?overline\s*\{?A\}?\s*\\?cup\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cup \\overline{B}');
-            text = text.replace(/\\?overline\s*([A-Za-z])\b/g, '\\overline{$1}');
-
-            // AcapB -> A \cap B, AcupB -> A \cup B
-            text = text.replace(/\b([A-Z])cap([A-Z])\b/gi, '$1 \\cap $2');
-            text = text.replace(/\b([A-Z])cup([A-Z])\b/gi, '$1 \\cup $2');
-            text = text.replace(/([A-Z])\s*\\?cap\s*([A-Z])/gi, '$1 \\cap $2');
-            text = text.replace(/([A-Z])\s*\\?cup\s*([A-Z])/gi, '$1 \\cup $2');
-
-            // 3. Tự động sửa mã ký hiệu dấu nhân: chuyển từ chữ thô cdot hoặc . thành \cdot
-            text = text.replace(/([0-9a-zA-Z\)\}\]])\s*\\?cdot\s*([0-9a-zA-Z\(\{\\])/g, '$1 \\cdot $2');
-            text = text.replace(/(P\([^\)]+\))\s*\.\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
-            text = text.replace(/(P\([^\)]+\))\s*\*\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
-            text = text.replace(/\bcdot\b/g, '\\cdot');
-
-            // 4. Tách từ dính giữa chữ tiếng Việt và biến toán in hoa (Ví dụ: CảA -> Cả A, vàB -> và B)
-            text = text.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
+            // Tách từ dính giữa chữ tiếng Việt và biến toán in hoa
+            text = text.replace(/([a-zà-ỹ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
             text = text.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
 
-            // 5. Chuẩn hóa cơ số e và số mũ e^{...}
+            // Chuẩn hóa cơ số e
             text = text.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
             text = text.replace(/\be\^\(([^)]+)\)/g, 'e^{$1}');
 
-            // 6. Chuẩn hóa phân số nguyên: a/b hoặc [A]. a/b -> \( \frac{a}{b} \)
+            // Chuẩn hóa phân số nguyên: a/b hoặc [A]. a/b -> \( \frac{a}{b} \)
             if (/^[-+]?\d+\s*\/\s*\d+$/.test(text)) {
                 const parts = text.split('/');
                 return `\\( \\frac{${parts[0].trim()}}{${parts[1].trim()}} \\)`;
@@ -1147,7 +1203,7 @@
                 });
             }
 
-            // 7. Chuẩn hóa số nguyên hoặc số thập phân đơn thuần (e.g. 0.75, 0.20, 25, 51.4%)
+            // Chuẩn hóa số nguyên hoặc số thập phân đơn thuần (e.g. 0.75, 51.4%)
             if (/^[-+]?\d+(?:\.\d+)?%?$/.test(text)) {
                 if (text.endsWith('%')) {
                     const numPart = text.slice(0, -1);
@@ -1161,14 +1217,14 @@
                 });
             }
 
-            // 8. Chuyển đổi $$...$$ và $...$ thành \(...\)
+            // Chuyển đổi $$...$$ và $...$ thành \(...\)
             text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
             text = text.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
 
-            // 9. Xử lý bọc ký hiệu TeX nếu chưa được bọc
+            // Nếu chuỗi chứa các biểu thức toán học xác suất / TeX nhưng chưa được bọc, bọc khít vào \(...\)
             if (!text.includes('\\(')) {
                 if (/\\(?:cap|cup|cdot|frac|sqrt|int|sum|lim|emptyset|Omega|overline)\b/.test(text)) {
-                    if (!/[àáạảãâầấậẩẫăằắặẳẵèéẻẽẹêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text)) {
+                    if (!/[à-ỹ]/i.test(text)) {
                         text = `\\(${text}\\)`;
                     } else {
                         text = text.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (match) => {
@@ -1180,7 +1236,20 @@
                 }
             }
 
-            // Làm sạch các dấu ngoặc bọc lặp lại \( \( ... \) \)
+            // Tự động bọc các biểu thức xác suất P(...) đứng riêng
+            if (!text.includes('\\(')) {
+                if (/^P\([^\)]+\)(\s*[=+\-\*\/]\s*.*)?$/.test(text)) {
+                    text = `\\(${text}\\)`;
+                }
+            }
+
+            // Escape ký tự % đứng trong \(...\) để không bị MathJax hiểu nhầm là comment TeX
+            text = text.replace(/\\\(([\s\S]*?)\\\)/g, (match, inner) => {
+                const escaped = inner.replace(/(?<!\\)%/g, '\\%');
+                return `\\(${escaped}\\)`;
+            });
+
+            // Làm sạch các dấu ngoặc lặp lại
             text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
             text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
             text = text.replace(/\\\(\s*\$([\s\S]*?)\$\s*\\\)/g, '\\($1\\)');
@@ -1229,16 +1298,7 @@
                 const copyQ = {
                     id: q.id,
                     q: formatMathSpacers(q.q),
-                    options: (q.options || []).map(opt => {
-                        let answerString = opt;
-                        // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f nếu có xuất hiện trong chuỗi đáp án
-                        if (typeof answerString === 'string') {
-                            answerString = answerString.replace(/\\f\\f/g, '').replace(/\\f/g, '');
-                            answerString = answerString.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
-                            answerString = answerString.replace(/^rac\s*\{/g, '\\frac{');
-                        }
-                        return formatMathSpacers(answerString);
-                    }),
+                    options: (q.options || []).map(opt => formatMathSpacers(opt)),
                     correct: typeof q.correct === 'number' ? q.correct : 0,
                     explanation: formatMathSpacers(q.explanation || ''),
                     type: q.type || ((q.options && q.options.length === 2) ? 'truefalse' : ((q.options && q.options.length === 1) ? 'short_answer' : 'abcd')),
@@ -1289,8 +1349,10 @@
         let width, height;
         function resize() {
             const container = document.getElementById('canvas-container') || document.body;
-            width = window.innerWidth || container.clientWidth || document.documentElement.clientWidth;
-            height = window.innerHeight || container.clientHeight || document.documentElement.clientHeight;
+            width = container.clientWidth || window.innerWidth || document.documentElement.clientWidth;
+            const topbar = document.getElementById('game-topbar');
+            const topOffset = topbar ? topbar.offsetHeight : 42;
+            height = container.clientHeight || (window.innerHeight - topOffset) || (document.documentElement.clientHeight - topOffset);
             canvas.width = width;
             canvas.height = height;
             if (typeof checkDeviceOrientation === 'function') checkDeviceOrientation();
@@ -1755,13 +1817,13 @@
                 const falseIdx = isFirstTrue ? 1 : 0;
 
                 const trueBtn = document.createElement('button');
-                trueBtn.className = "option-btn w-full bg-emerald-600 hover:bg-emerald-500 border-2 border-emerald-400 text-white font-black py-6 px-6 rounded-2xl text-center text-2xl shadow-[0_4px_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer";
+                trueBtn.className = "option-btn answer-btn w-full bg-emerald-600 hover:bg-emerald-500 border-2 border-emerald-400 text-white font-black py-6 px-6 rounded-2xl text-center text-2xl shadow-[0_4px_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer";
                 trueBtn.innerHTML = `<span>✓</span> ĐÚNG`;
                 trueBtn.onclick = () => checkAnswer(trueIdx);
                 optContainer.appendChild(trueBtn);
 
                 const falseBtn = document.createElement('button');
-                falseBtn.className = "option-btn w-full bg-rose-600 hover:bg-rose-500 border-2 border-rose-400 text-white font-black py-6 px-6 rounded-2xl text-center text-2xl shadow-[0_4px_15px_rgba(244,63,94,0.3)] hover:shadow-[0_0_20px_rgba(244,63,94,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer";
+                falseBtn.className = "option-btn answer-btn w-full bg-rose-600 hover:bg-rose-500 border-2 border-rose-400 text-white font-black py-6 px-6 rounded-2xl text-center text-2xl shadow-[0_4px_15px_rgba(244,63,94,0.3)] hover:shadow-[0_0_20px_rgba(244,63,94,0.5)] transition-all flex items-center justify-center gap-2 cursor-pointer";
                 falseBtn.innerHTML = `<span>✕</span> SAI`;
                 falseBtn.onclick = () => checkAnswer(falseIdx);
                 optContainer.appendChild(falseBtn);
@@ -1769,16 +1831,9 @@
                 // Dạng 1: Trắc nghiệm ABCD
                 optContainer.className = "grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full max-w-3xl";
                 (block.questionData.options || []).forEach((optHTML, idx) => {
-                    let answerString = optHTML;
-                    // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f nếu có xuất hiện trong chuỗi đáp án
-                    if (typeof answerString === 'string') {
-                        answerString = answerString.replace(/\\f\\f/g, '').replace(/\\f/g, '');
-                        answerString = answerString.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
-                        answerString = answerString.replace(/^rac\s*\{/g, '\\frac{');
-                    }
                     const btn = document.createElement('button');
-                    btn.className = "option-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-5 px-6 rounded-2xl text-center text-lg md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[80px] cursor-pointer";
-                    btn.innerHTML = formatMathSpacers(answerString);
+                    btn.className = "option-btn answer-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-5 px-6 rounded-2xl text-center text-lg md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[80px] cursor-pointer";
+                    btn.innerHTML = formatMathSpacers(optHTML);
                     btn.onclick = () => checkAnswer(idx);
                     optContainer.appendChild(btn);
                 });
@@ -2240,14 +2295,7 @@
             const topic = window.gameDatabase[editorActiveTopic];
             if (topic && topic[diff] && topic[diff][qIdx]) {
                 if (!topic[diff][qIdx].options) topic[diff][qIdx].options = [];
-                let answerString = val;
-                // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f nếu có xuất hiện trong chuỗi đáp án
-                if (typeof answerString === 'string') {
-                    answerString = answerString.replace(/\\f\\f/g, '').replace(/\\f/g, '');
-                    answerString = answerString.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
-                    answerString = answerString.replace(/^rac\s*\{/g, '\\frac{');
-                }
-                topic[diff][qIdx].options[optIdx] = formatMathSpacers(answerString);
+                topic[diff][qIdx].options[optIdx] = formatMathSpacers(val);
             }
         }
 
