@@ -1886,7 +1886,11 @@ if (typeof window.gameDatabase !== 'undefined') {
   else if (cleanUrl.includes('pikachu')) {
     const cleanFormula = (text: string): string => {
       if (!text) return '';
-      let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+      let res = text.replace(/[\u000c\x0c]/g, '').trim();
+      res = res.replace(/\\f(?=\\frac)/g, '')
+               .replace(/\\+rac/g, '\\frac')
+               .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
+               .replace(/\\{2,}frac/g, '\\frac');
       res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
                .replace(/\bH\s+ai\b/g, 'Hai')
                .replace(/\bC\s+ho\b/g, 'Cho')
@@ -1906,6 +1910,9 @@ if (typeof window.gameDatabase !== 'undefined') {
                .replace(/(?<!\\)\bcdot\b/g, '\\cdot')
                .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
                .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+      res = res.replace(/\\?cdot\s*x\^\{n\}\^\{/g, '\\cdot x^{n-1}')
+               .replace(/x\^\{n\}\^\{/g, 'x^{n-1}')
+               .replace(/x\^\{n\}\^\{-1\}/g, 'x^{n-1}');
       res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}')
                .replace(/e\^\{([^}]+)\}/g, 'e^{$1}')
                .replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}')

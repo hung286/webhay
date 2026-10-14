@@ -74,7 +74,7 @@
             transform: scale(1.1);
         }
 
-        /* --- CÔNG THỨC TOÁN (VIỀN ĐEN TUYỆT ĐỐI KHÔNG TRÀN) --- */
+        /* --- CÔNG THỨC TOÁN (VIỀN ĐEN TUYỆT ĐỐI KHÔNG TRÀN, CHỐNG NGẮT DÒNG) --- */
         .math-content {
             font-family: 'Cambria Math', 'Times New Roman', serif;
             color: #ffffff;
@@ -84,29 +84,29 @@
                 drop-shadow(1.5px 1.5px 0px #000) 
                 drop-shadow(-1.5px -1.5px 0px #000) 
                 drop-shadow(1.5px -1.5px 0px #000) 
-                drop-shadow(-1.5px 1.5px 0px #000)
+                drop-shadow(-1.5px 1.5px 0px #000) 
                 drop-shadow(0 4px 8px rgba(0,0,0,0.9));
             white-space: nowrap !important;
             display: inline-block !important;
         }
 
-        .math-content .katex,
-        .math-content .katex-html,
-        .math-content .mjx-chtml,
-        .math-content mjx-container,
+        .math-content,
+        .math-content *,
+        .katex, .katex *,
+        .katex-html, .katex-html *,
+        .mjx-chtml, .mjx-chtml *,
+        mjx-container, mjx-container *,
+        .MathJax, .MathJax * {
+            white-space: nowrap !important;
+        }
+
+        .math-content,
         .katex,
         .katex-html,
         .mjx-chtml,
-        mjx-container {
-            white-space: nowrap !important;
+        mjx-container,
+        .MathJax {
             display: inline-block !important;
-        }
-
-        .math-content .katex *,
-        .math-content mjx-container *,
-        .katex *,
-        mjx-container * {
-            white-space: nowrap !important;
         }
 
         /* --- PATH NEON GLOW --- */
@@ -132,69 +132,107 @@
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
 
         html, body {
-            min-height: 100dvh;
-            height: 100dvh;
-            max-height: 100dvh;
+            min-height: 100dvh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
             margin: 0;
             padding: 0;
             overflow: hidden;
         }
 
+        /* Responsive Mobile Scaling & Touch Scroll */
         @media (max-width: 768px) {
             body {
+                min-height: 100dvh !important;
                 height: 100dvh !important;
                 max-height: 100dvh !important;
                 padding: 0 !important;
             }
             #app {
+                min-height: 100dvh !important;
                 height: 100dvh !important;
                 max-height: 100dvh !important;
-                padding: 4px !important;
-                padding-top: 4px !important;
+                padding: 2px !important;
+                padding-top: 2px !important;
+                justify-content: flex-start !important;
             }
             #game-header {
-                padding: 4px 8px !important;
-                margin-bottom: 4px !important;
+                padding: 2px 8px !important;
+                margin-bottom: 2px !important;
+                border-radius: 10px !important;
+                min-height: 36px !important;
+                max-height: 40px !important;
+            }
+            .pikachu-board-box {
+                max-height: calc(100dvh - 46px) !important;
+                max-width: min(100vw - 4px, calc((100dvh - 46px) * 1.25)) !important;
+                width: 100% !important;
+                border-width: 1.5px !important;
                 border-radius: 12px !important;
+                padding: 2px !important;
             }
             .game-tile {
                 border-radius: 6px !important;
                 border-bottom-width: 2px !important;
             }
             .animal-glass {
-                font-size: 70cqmin !important;
+                font-size: 65cqmin !important;
             }
             #topic-selection-overlay > div,
             #admin-editor-modal > div,
-            #modal-container > div {
+            #modal-container > div,
+            #pin-prompt-modal > div,
+            .custom-modal-scroll {
                 max-height: 80dvh !important;
                 overflow-y: auto !important;
                 -webkit-overflow-scrolling: touch !important;
             }
+        }
+
+        .mobile-fullscreen-forced {
+            width: 100vw !important;
+            height: 100dvh !important;
+            max-width: 100vw !important;
+            max-height: 100dvh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
         }
     </style>
 </head>
 <body class="min-h-[100dvh] h-[100dvh] bg-[radial-gradient(ellipse_at_center,_#1e1e2f,_#000000)] overflow-hidden flex flex-col relative text-white">
 
     <!-- ======================================================== -->
-    <!-- THANH CÔNG CỤ ADMIN (ẨN MẶC ĐỊNH - CHỈ HIỆN KHI ?admin=1) -->
+    <!-- THANH TOPBAR: TOÀN MÀN HÌNH + ADMIN GATEWAY             -->
     <!-- ======================================================== -->
-    <div id="admin-topbar" style="display: none !important;" class="hidden fixed top-0 left-0 right-0 z-[200] flex items-center gap-2 px-4 py-2 bg-slate-950/90 backdrop-blur-xl border-b border-white/10">
-        <button id="btn-chuyen-de"
-            onclick="window.openTopicSelectMenu()"
-            style="display: none !important;"
-            class="hidden inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-black text-xs uppercase tracking-wider shadow-lg border border-orange-300/40 transition-all active:scale-95 cursor-pointer"
-            data-admin-control="true">
-            📚 CHUYÊN ĐỀ
-        </button>
-        <button id="btn-admin-gear"
-            onclick="window.openAdminEditorPrompt()"
-            style="display: none !important;"
-            class="hidden inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider shadow-lg border border-blue-400/30 transition-all active:scale-95 cursor-pointer"
-            data-admin-control="true">
-            ⚙️ SỬA DỮ LIỆU
-        </button>
-        <span class="text-xs text-slate-500 ml-auto font-mono">Admin Mode</span>
+    <div id="pikachu-topbar" class="w-full z-[150] flex items-center justify-between px-2 sm:px-4 py-1 sm:py-1.5 bg-slate-950/80 backdrop-blur-md border-b border-white/10 shrink-0">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+            <button id="fullscreenToggleBtn"
+                type="button"
+                onclick="window.toggleMobileFullscreen(event)"
+                class="px-2.5 py-1 sm:px-3 sm:py-1 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-white font-bold text-[11px] sm:text-xs flex items-center gap-1.5 border border-white/20 active:scale-95 cursor-pointer shadow-sm transition"
+                title="Toàn màn hình">
+                <span>⛶</span> <span>[  ] Toàn màn hình</span>
+            </button>
+            <button id="btn-chuyen-de"
+                onclick="window.openTopicSelectMenu()"
+                style="display: none !important;"
+                class="hidden inline-flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-black text-[11px] sm:text-xs uppercase tracking-wider shadow-md border border-orange-300/40 transition-all active:scale-95 cursor-pointer"
+                data-admin-control="true">
+                📚 CHUYÊN ĐỀ
+            </button>
+            <button id="btn-admin-gear"
+                onclick="window.openAdminEditorPrompt()"
+                style="display: none !important;"
+                class="hidden inline-flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-[11px] sm:text-xs uppercase tracking-wider shadow-md border border-blue-400/30 transition-all active:scale-95 cursor-pointer"
+                data-admin-control="true">
+                ⚙️ SỬA DỮ LIỆU
+            </button>
+        </div>
+        <div class="flex items-center gap-2">
+            <span id="admin-badge" class="hidden text-[10px] text-cyan-400 font-mono font-bold bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30" data-admin-control="true">Admin Mode</span>
+            <span class="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Pikachu v3.8</span>
+        </div>
     </div>
 
     <!-- ======================================================== -->
@@ -710,9 +748,40 @@
         // ========================================================
         // [1] CHUẨN HÓA & RENDER CÔNG THỨC TOÁN (KATEX + MATHJAX)
         // ========================================================
+        function sanitizePikachuFormula(textString) {
+            if (!textString || typeof textString !== 'string') return textString || '';
+            let res = textString;
+
+            // 1. Phục hồi hoàn toàn lệnh phân số \frac từ chữ rac bị lỗi
+            res = res.replace(/\\f(?=\\frac)/g, '')
+                     .replace(/\\+rac/g, '\\frac')
+                     .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
+                     .replace(/\\{2,}frac/g, '\\frac');
+
+            // 2. Tự động bổ sung dấu gạch chéo ngược \ cho các ký hiệu toán viết tay
+            res = res.replace(/(?<!\\)\bcdot\b/g, '\\cdot')
+                     .replace(/\bAcupB\b/g, 'A \\cup B')
+                     .replace(/\bAcapB\b/g, 'A \\cap B')
+                     .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
+                     .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+
+            // 3. Khử hoàn toàn chuỗi mã đỏ thừa ngoặc đưa về đúng cấu trúc đạo hàm chuẩn
+            res = res.replace(/\\?cdot\s*x\^\{n\}\^\{/g, '\\cdot x^{n-1}')
+                     .replace(/x\^\{n\}\^\{/g, 'x^{n-1}')
+                     .replace(/x\^\{n\}\^\{-1\}/g, 'x^{n-1}')
+                     .replace(/u\^\{n\}\^\{/g, 'u^{n-1}')
+                     .replace(/u\^\{n\}\^\{-1\}/g, 'u^{n-1}');
+
+            return res;
+        }
+
         function convertExponentAndFormulas(str) {
             if (!str || typeof str !== 'string') return '';
-            let res = str.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+            // Gỡ bỏ hoàn toàn replace(/\\f/g, '') cũ làm gãy phân số \frac
+            let res = str.replace(/[\u000c\x0c]/g, '').trim();
+
+            // Khôi phục phân số và ký hiệu toán
+            res = sanitizePikachuFormula(res);
 
             // Sửa lỗi tự ý chèn khoảng trắng sau ký tự đầu tiên
             res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
@@ -730,13 +799,6 @@
                      .replace(/\bđ\s+ường\b/g, 'đường')
                      .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
 
-            // Chuyển đổi các chữ mã thô viết liền
-            res = res.replace(/\bAcupB\b/g, 'A \\cup B')
-                     .replace(/\bAcapB\b/g, 'A \\cap B')
-                     .replace(/(?<!\\)\bcdot\b/g, '\\cdot')
-                     .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
-                     .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
-
             // 1. Chuẩn hóa số mũ cơ số e: e^(3x) -> e^{3x}, e^(-x) -> e^{-x}, e^(2x) -> e^{2x}, 2e^(2x) -> 2e^{2x}
             res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}');
             res = res.replace(/e\^\{([^}]+)\}/g, 'e^{$1}');
@@ -747,7 +809,10 @@
             res = res.replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}');
             res = res.replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
 
-            // 2. Chuyển các ký tự Unicode số mũ sang TeX mũ
+            // 2. Chuyển các ký tự Unicode số mũ sang TeX mũ (xử lý lũy thừa n-1 trước khi tách lẻ)
+            res = res.replace(/ⁿ⁻¹/g, '^{n-1}');
+            res = res.replace(/uⁿ⁻¹/g, 'u^{n-1}');
+            res = res.replace(/xⁿ⁻¹/g, 'x^{n-1}');
             res = res.replace(/²ˣ/g, '^{2x}');
             res = res.replace(/⁻¹/g, '^{-1}');
             res = res.replace(/ˣ/g, '^{x}');
@@ -773,12 +838,15 @@
             // 4. Chuẩn hóa phép nhân dấu chấm: n.x -> n \\cdot x, u.v -> u \\cdot v
             res = res.replace(/([0-9a-zA-Z])\s*\.\s*([0-9a-zA-Z\\])/g, '$1 \\cdot $2');
 
+            // Quét lại lần cuối để khử hoàn toàn mã đỏ
+            res = sanitizePikachuFormula(res);
+
             return res;
         }
 
         function formatMathText(text) {
             if (!text || typeof text !== 'string') return text || '';
-            let str = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+            let str = sanitizePikachuFormula(text.replace(/[\u000c\x0c]/g, '').trim());
 
             // Nếu đã bọc \(...\) thì bóc ra chuẩn hóa số mũ bên trong
             if (str.startsWith('\\(') && str.endsWith('\\)')) {
@@ -815,6 +883,64 @@
                 window.MathJax.typesetPromise().catch(() => {});
             }
         }
+
+        // ========================================================
+        // [1.1] KÍCH HOẠT API TOÀN MÀN HÌNH ĐA NỀN TẢNG (MOBILE / PC)
+        // ========================================================
+        window.toggleMobileFullscreen = function(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            const doc = window.document;
+            const docEl = doc.documentElement;
+            const body = doc.body;
+            const isFs = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement || docEl.classList.contains('mobile-fullscreen-forced'));
+            const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+
+            if (!isFs) {
+                docEl.classList.add('mobile-fullscreen-forced');
+                body.classList.add('mobile-fullscreen-forced');
+                if (rfs) {
+                    try {
+                        const promise = rfs.call(docEl);
+                        if (promise && promise.catch) {
+                            promise.catch(() => {});
+                        }
+                    } catch(err) {}
+                }
+                try {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'enter' }, '*');
+                    }
+                } catch(err) {}
+            } else {
+                docEl.classList.remove('mobile-fullscreen-forced');
+                body.classList.remove('mobile-fullscreen-forced');
+                const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+                if (efs) {
+                    try {
+                        const promise = efs.call(doc);
+                        if (promise && promise.catch) {
+                            promise.catch(() => {});
+                        }
+                    } catch(err) {}
+                }
+                try {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'exit' }, '*');
+                    }
+                } catch(err) {}
+            }
+        };
+
+        ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(ev => {
+            document.addEventListener(ev, () => {
+                const doc = window.document;
+                const isFs = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+                if (!isFs) {
+                    doc.documentElement.classList.remove('mobile-fullscreen-forced');
+                    doc.body.classList.remove('mobile-fullscreen-forced');
+                }
+            });
+        });
 
 
         // ========================================================
@@ -879,16 +1005,13 @@
             try {
                 const params = new URLSearchParams(window.location.search);
                 const isAdmin = params.get('role') === 'admin' || params.get('admin') === '1' || params.get('preview') === 'true';
-                const topbar = document.getElementById('admin-topbar');
                 const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
                 if (isAdmin) {
-                    if (topbar) topbar.style.setProperty('display', 'flex', 'important');
                     adminBtns.forEach(btn => {
                         btn.classList.remove('hidden');
                         btn.style.setProperty('display', 'inline-flex', 'important');
                     });
                 } else {
-                    if (topbar) topbar.style.setProperty('display', 'none', 'important');
                     adminBtns.forEach(btn => {
                         btn.classList.add('hidden');
                         btn.style.setProperty('display', 'none', 'important');
@@ -1462,7 +1585,10 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-4 sm:gap-6">
+                <div class="flex items-center gap-2 sm:gap-6">
+                    <button onclick="window.toggleMobileFullscreen(event)" class="px-2 py-1 sm:px-3 sm:py-1.5 bg-slate-800/80 hover:bg-slate-700 text-white rounded-xl text-xs font-bold border border-white/15 flex items-center gap-1 transition active:scale-95 shadow-sm" title="Toàn màn hình">
+                        <span>⛶</span> <span class="hidden sm:inline">[  ] Toàn màn hình</span>
+                    </button>
                     <div class="text-right">
                         <div class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Thời Gian</div>
                         <div class="text-xl sm:text-2xl font-black leading-none ${timeColor}">
@@ -1524,8 +1650,11 @@
                     }
                 }
             }
-            // [VÁ LỖI CÔNG THỨC TOÁN] Gọi typesetMath ngay sau khi vẽ xong bàn chơi
+            // [VÁ LỖI CÔNG THỨC TOÁN] Ép MathJax và KaTeX khởi chạy ngay khi rải 48 ô thẻ
             typesetMath([board]);
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise().catch(() => {});
+            }
         }
 
         function drawPath(path) {
