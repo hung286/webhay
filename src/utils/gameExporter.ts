@@ -483,7 +483,10 @@ window.useStaticTopic = true;
   else if (cleanUrl.includes('trai-tim') || cleanUrl.includes('traitim') || cleanUrl.includes('heart')) {
     const cleanFormula = (text: string): string => {
       if (!text) return '';
-      let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+      let res = text.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\u000c\x0c]/g, '').trim();
+      res = res.replace(/\bracf\(/g, '\\frac{f(')
+               .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
+               .replace(/^rac\s*\{/g, '\\frac{');
       res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
                .replace(/\bH\s+ai\b/g, 'Hai')
                .replace(/\bC\s+ho\b/g, 'Cho')
@@ -491,7 +494,10 @@ window.useStaticTopic = true;
                .replace(/\bK\s+hi\b/g, 'Khi')
                .replace(/\bC\s+hỉ\b/g, 'Chỉ')
                .replace(/\bT\s+ính\b/g, 'Tính')
-               .replace(/\bT\s+rong\b/g, 'Trong');
+               .replace(/\bT\s+rong\b/g, 'Trong')
+               .replace(/\bV\s+ới\b/g, 'Với')
+               .replace(/\bĐ\s+ạo\b/g, 'Đạo')
+               .replace(/\bH\s+àm\b/g, 'Hàm');
       return normalizeMathFormulas(res);
     };
 

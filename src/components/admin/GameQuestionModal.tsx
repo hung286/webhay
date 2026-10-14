@@ -1228,17 +1228,21 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
             onClick={async () => {
               try {
                 soundFx.playClick();
-                await downloadGameWordTemplate(selectedTemplateUrl);
+                if (isTraiTimMode) {
+                  await downloadTraiTimWordTemplate();
+                } else {
+                  await downloadGameWordTemplate(selectedTemplateUrl);
+                }
               } catch (err: any) {
                 console.error(err);
                 alert(`Lỗi tạo file Word mẫu: ${err?.message || 'Không thể tạo file docx'}`);
               }
             }}
             className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer border border-blue-200 shadow-2xs active:scale-95"
-            title="Tải file Word (.docx) mẫu chuẩn theo trò chơi đang chọn"
+            title={isTraiTimMode ? "Tải file Word (.docx) bảng dài 2 cột chuẩn cho game Ghép Cặp Trái Tim" : "Tải file Word (.docx) mẫu chuẩn theo trò chơi đang chọn"}
           >
             <FileDown className="w-4 h-4 text-blue-600" />
-            <span>📥 Tải File Word (.docx) Mẫu</span>
+            <span>{isTraiTimMode ? '📥 Tải Mẫu Word Bảng Dài Trái Tim (.docx)' : '📥 Tải File Word (.docx) Mẫu'}</span>
           </button>
 
           {/* NÚT TẢI FILE MẪU EXCEL (.XLSX) CHUẨN RIÊNG TỪNG GAME */}

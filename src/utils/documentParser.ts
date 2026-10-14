@@ -107,8 +107,9 @@ export function normalizeMathFormulas(text: string): string {
   // 0. Làm sạch triệt để control characters và Form Feed \x0c / \f bị lỗi khi parser JS/Word/Excel
   str = str.replace(/[\u000c\x0c]+rac/g, '\\frac');
   str = str.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
-  // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f nếu có xuất hiện trong chuỗi đáp án
-  str = str.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+  // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f (không xóa \f nếu là lệnh TeX như \frac)
+  str = str.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '');
+  str = str.replace(/\bracf\(/g, '\\frac{f(');
   str = str.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
   str = str.replace(/^rac\s*\{/g, '\\frac{');
 
@@ -126,9 +127,16 @@ export function normalizeMathFormulas(text: string): string {
 
   // Sửa lỗi cách chữ đầu câu & dính chữ tiếng Việt với biến toán
   str = str.replace(/\bN\s+ếu\b/gi, 'Nếu');
+  str = str.replace(/\bH\s+ai\b/gi, 'Hai');
+  str = str.replace(/\bC\s+ho\b/gi, 'Cho');
   str = str.replace(/\bC\s+ả\b/gi, 'Cả');
   str = str.replace(/\bK\s+hi\b/gi, 'Khi');
   str = str.replace(/\bC\s+hỉ\b/gi, 'Chỉ');
+  str = str.replace(/\bT\s+ính\b/gi, 'Tính');
+  str = str.replace(/\bT\s+rong\b/gi, 'Trong');
+  str = str.replace(/\bV\s+ới\b/gi, 'Với');
+  str = str.replace(/\bĐ\s+ạo\b/gi, 'Đạo');
+  str = str.replace(/\bH\s+àm\b/gi, 'Hàm');
   str = str.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
   str = str.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
 
