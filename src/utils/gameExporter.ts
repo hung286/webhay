@@ -298,7 +298,8 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
       cleaned = cleaned.replace(/^rac\s*\{/g, '\\frac{');
       cleaned = cleaned.replace(/\brac\b/g, '\\frac');
 
-      // Khắc phục lỗi dính chữ cdot
+      // Khắc phục lỗi dính chữ cdot (ví dụ: 10cdot3^x, 10\cdot3^x thành 10 \cdot 3^x)
+      cleaned = cleaned.replace(/(\d+)\s*(?:\\cdot|cdot)\s*(\d+(\^[0-9a-zA-Z{}]+)?)/g, '$1 \\cdot $2');
       cleaned = cleaned.replace(/(\d+)cdot(\d+)/g, '$1 \\cdot $2');
       cleaned = cleaned.replace(/(\d+)cdot/g, '$1 \\cdot ');
       cleaned = cleaned.replace(/cdot(\d+)/g, ' \\cdot $1');
@@ -405,6 +406,13 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
 
     const trenchScript = `
 <script>
+// TỰ ĐỘNG CHÈN VIEWPORT CHỐNG ZOOM
+if (!document.querySelector('meta[name="viewport"]')) {
+    const meta = document.createElement('meta');
+    meta.name = "viewport";
+    meta.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+    document.getElementsByTagName('head')[0].appendChild(meta);
+}
 // [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE & DATA FALLBACK - BẢO VỆ CHIẾN HÀO]
 window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
 window.__ADMIN_PIN__ = "2806";
@@ -475,7 +483,45 @@ window.useStaticTopic = true;
 </script>
 `;
     const landscapeStyleFix = `
+<!-- BẢN VÁ MOBILE XOAY NGANG & TOÁN MIKTEX V3.8 -->
 <style>
+/* TIÊM CSS TỐI ƯU CẢM ỨNG CHỐNG TRỄ 300MS */
+button, input[type="button"], select, a, .clickable-game-item, .answer-btn, .shoot-btn {
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+/* CSS Lớp phủ cảnh báo xoay máy */
+#edu-rotate-warning {
+    display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #1e1b4b; color: #ffffff; z-index: 999999;
+    flex-direction: column; justify-content: center; align-items: center; text-align: center;
+    font-family: 'Segoe UI', Roboto, sans-serif; padding: 20px; box-sizing: border-box;
+}
+#edu-rotate-warning h2 { font-size: 1.6rem; margin: 0 0 10px 0; font-weight: 600; }
+#edu-rotate-warning p { font-size: 1rem; color: #94a3b8; margin: 0; }
+#edu-rotate-warning .edu-rotate-icon { font-size: 60px; margin-bottom: 20px; animation: eduRotateDevice 2s infinite ease-in-out; }
+@keyframes eduRotateDevice { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
+
+/* BẬT CẢNH BÁO KHI CẦM DỌC ĐIỆN THOẠI (PORTRAIT MEDIA QUERY) */
+@media screen and (orientation: portrait) and (max-width: 1024px) {
+    #edu-rotate-warning { display: flex !important; }
+    /* Ẩn toàn bộ đấu trường game chiến hào, topbar, khung câu hỏi và đáp án khi cầm dọc máy */
+    #game-container, #game-canvas, main, .game-warzone-wrapper, .answers-controls-container, #game-wrapper, #hud-top, #question-panel, #battle-arena, #mobile-combat-dock, #topic-selection-overlay { 
+        display: none !important; 
+    }
+}
+
+/* CHỐNG BẺ ĐÔI BIỂU THỨC VÀ HIỂN THỊ CHUẨN TRÊN ZOMBIE */
+.zombie-text, .question-text, mjx-container {
+    white-space: nowrap !important;
+    display: inline-block !important;
+}
+.zombie-text, .zombie-text *, .zombie-text mjx-container, .zombie-text mjx-container * {
+    white-space: nowrap !important;
+    display: inline-block !important;
+    color: #ffffff !important;
+}
+
 @media (orientation: landscape) and (max-height: 500px) {
   html, body {
     overflow-y: auto !important;
@@ -613,7 +659,7 @@ window.useStaticTopic = true;
     width: 70px !important;
     height: 70px !important;
   }
-  .answers-controls-container, #mobile-combat-dock {
+  .answers-controls-container, #mobile-combat-dock, #combat-modal-options {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 6px !important;
@@ -627,6 +673,8 @@ window.useStaticTopic = true;
     border-radius: 12px !important;
     z-index: 100 !important;
     flex-shrink: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   .answers-controls-container button,
   #mobile-combat-dock button {
@@ -646,6 +694,16 @@ window.useStaticTopic = true;
 }
 </style>
 `;
+    if (!htmlContent.includes('id="edu-rotate-warning"')) {
+      const rotateWarningHtml = `
+<div id="edu-rotate-warning">
+    <div class="edu-rotate-icon">🔄</div>
+    <h2>Vui lòng xoay ngang màn hình</h2>
+    <p>Để có trải nghiệm học tập và chơi game tốt nhất!</p>
+</div>
+`;
+      htmlContent = htmlContent.replace(/<body[^>]*>/i, (m) => `${m}\n${rotateWarningHtml}`);
+    }
     if (!htmlContent.includes('BẢN VÁ MOBILE XOAY NGANG')) {
       htmlContent = htmlContent.replace('</head>', `${landscapeStyleFix}\n</head>`);
     }

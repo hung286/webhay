@@ -2,7 +2,15 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script>
+    if (!document.querySelector('meta[name="viewport"]')) {
+        const meta = document.createElement('meta');
+        meta.name = "viewport";
+        meta.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+        document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+    </script>
     <title>BẢO VỆ CHIẾN HÀO: GIÁ TRỊ LƯỢNG GIÁC - TOÁN PRO</title>
     
     <!-- Tailwind CSS -->
@@ -837,9 +845,63 @@
         
         .controls-hint { display: flex; justify-content: center; gap: 20px; margin-top: 20px; color: #94a3b8; font-weight: bold; }
         .key-btn { background: #334155; padding: 5px 12px; border-radius: 6px; border-bottom: 3px solid #1e293b; color: white; }
+
+        /* TIÊM CSS TỐI ƯU CẢM ỨNG CHỐNG TRỄ 300MS */
+        button, input[type="button"], select, a, .clickable-game-item, .answer-btn, .shoot-btn {
+            touch-action: manipulation !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        /* CSS Lớp phủ cảnh báo xoay máy */
+        #edu-rotate-warning {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #1e1b4b; color: #ffffff; z-index: 999999;
+            flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            font-family: 'Segoe UI', Roboto, sans-serif; padding: 20px; box-sizing: border-box;
+        }
+        #edu-rotate-warning h2 { font-size: 1.6rem; margin: 0 0 10px 0; font-weight: 600; }
+        #edu-rotate-warning p { font-size: 1rem; color: #94a3b8; margin: 0; }
+        #edu-rotate-warning .edu-rotate-icon { font-size: 60px; margin-bottom: 20px; animation: eduRotateDevice 2s infinite ease-in-out; }
+        @keyframes eduRotateDevice { 0% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
+
+        /* BẬT CẢNH BÁO KHI CẦM DỌC ĐIỆN THOẠI (PORTRAIT MEDIA QUERY) */
+        @media screen and (orientation: portrait) and (max-width: 1024px) {
+            #edu-rotate-warning { display: flex !important; }
+            /* Ẩn toàn bộ đấu trường game chiến hào, topbar, khung câu hỏi và đáp án khi cầm dọc máy */
+            #game-container, #game-canvas, main, .game-warzone-wrapper, .answers-controls-container, #game-wrapper, #hud-top, #question-panel, #battle-arena, #mobile-combat-dock, #topic-selection-overlay { 
+                display: none !important; 
+            }
+        }
+
+        /* CHỐNG BẺ ĐÔI BIỂU THỨC VÀ HIỂN THỊ CHUẨN TRÊN ZOMBIE */
+        .zombie-text, .question-text, mjx-container {
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+        .zombie-text, .zombie-text *, .zombie-text mjx-container, .zombie-text mjx-container * {
+            white-space: nowrap !important;
+            display: inline-block !important;
+            color: #ffffff !important;
+        }
+
+        /* ĐA CỘT LAYOUT XOAY NGANG & CUỘN DỌC TRƯỢT MƯỢT */
+        @media screen and (orientation: landscape) and (max-height: 600px) {
+            .answers-controls-container, #mobile-combat-dock, #combat-modal-options {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 6px !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+        }
     </style>
 </head>
 <body>
+
+<div id="edu-rotate-warning">
+    <div class="edu-rotate-icon">🔄</div>
+    <h2>Vui lòng xoay ngang màn hình</h2>
+    <p>Để có trải nghiệm học tập và chơi game tốt nhất!</p>
+</div>
 
 <!-- ======================================================== -->
 <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
@@ -1813,7 +1875,8 @@
             cleanStr = cleanStr.replace(/^rac\s*\{/g, '\\frac{');
             cleanStr = cleanStr.replace(/\brac\b/g, '\\frac');
 
-            // 3. Khắc phục lỗi dính chữ cdot
+            // 3. Khắc phục lỗi dính chữ cdot (ví dụ: 10cdot3^x, 10\cdot3^x thành 10 \cdot 3^x)
+            cleanStr = cleanStr.replace(/(\d+)\s*(?:\\cdot|cdot)\s*(\d+(\^[0-9a-zA-Z{}]+)?)/g, '$1 \\cdot $2');
             cleanStr = cleanStr.replace(/(\d+)cdot(\d+)/g, '$1 \\cdot $2');
             cleanStr = cleanStr.replace(/(\d+)cdot/g, '$1 \\cdot ');
             cleanStr = cleanStr.replace(/cdot(\d+)/g, ' \\cdot $1');
@@ -1924,6 +1987,9 @@
             }
 
             modal.classList.remove('hidden');
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise().catch(function() {});
+            }
             typesetMath(modal);
         }
 
@@ -2098,6 +2164,9 @@
             }
             document.getElementById('question-text').innerHTML = qHtml;
             spawnTargets();
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise().catch(function() {});
+            }
             typesetMath();
         }
 
