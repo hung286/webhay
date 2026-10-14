@@ -57,22 +57,24 @@
             -webkit-user-select: none;
             position: relative;
         }
-        /* Nới rộng khung Canvas chiếm tối đa diện tích hiển thị (80-85%+), sát dưới Topbar */
-        .canvas-container {
+        /* Dịch chuyển toàn bộ màn chơi Mario lùi xuống dưới, tách biệt hoàn toàn khỏi thanh bảng điểm màu đen */
+        #game-canvas, #gameCanvas, .mario-canvas-container, .canvas-container {
+            margin-top: 45px !important; /* Tạo một khoảng khoảng trống vừa đủ dưới thanh bảng điểm đen để lộ toàn bộ khối gạch */
+            position: relative !important;
+        }
+        .canvas-container, .mario-canvas-container {
             width: 100%;
             flex: 1 1 auto;
-            height: calc(100dvh - 42px);
-            min-height: calc(100dvh - 42px);
-            max-height: calc(100dvh - 42px);
+            height: calc(100dvh - 45px) !important;
+            min-height: calc(100dvh - 45px) !important;
+            max-height: calc(100dvh - 45px) !important;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
             overflow: hidden;
             background-color: #5C94FC;
-            margin-top: 42px;
         }
-        #gameCanvas { 
+        #gameCanvas, #game-canvas { 
             display: block; 
             width: 100%; 
             height: 100%; 
@@ -369,7 +371,7 @@
     </div>
 
     <!-- Nền Game (Khung Canvas Tự Thích Ứng Flexbox) -->
-    <div id="canvas-container" class="canvas-container">
+    <div id="canvas-container" class="canvas-container mario-canvas-container">
         <canvas id="gameCanvas"></canvas>
     </div>
 
@@ -1351,11 +1353,17 @@
             const container = document.getElementById('canvas-container') || document.body;
             width = container.clientWidth || window.innerWidth || document.documentElement.clientWidth;
             const topbar = document.getElementById('game-topbar');
-            const topOffset = topbar ? topbar.offsetHeight : 42;
+            const topOffset = topbar ? topbar.offsetHeight : 45;
             height = container.clientHeight || (window.innerHeight - topOffset) || (document.documentElement.clientHeight - topOffset);
             canvas.width = width;
             canvas.height = height;
             if (typeof checkDeviceOrientation === 'function') checkDeviceOrientation();
+            if (typeof blocks !== 'undefined' && blocks && blocks.length > 0) {
+                const curGroundY = height - 100;
+                for (let b of blocks) {
+                    b.y = Math.max(35, curGroundY - 180);
+                }
+            }
         }
         window.addEventListener('resize', resize);
         window.addEventListener('orientationchange', () => {
@@ -1435,9 +1443,12 @@
             blocks.length = 0;
             const curGroundY = (typeof height !== 'undefined' && height) ? (height - 100) : (window.innerHeight - 100);
             for (let i = 0; i < questions.length; i++) {
+                // Tọa độ Y: dịch chuyển lùi xuống dưới (+40px offset so với curGroundY - 220 ban đầu: curGroundY - 180)
+                // Đảm bảo khối gạch cách mép dưới thanh bảng điểm tối thiểu từ 25px đến 45px, hiển thị vuông vắn 100%
+                const blockY = Math.max(35, curGroundY - 180);
                 blocks.push({
                     x: 400 + i * 400,
-                    y: curGroundY - 220,
+                    y: blockY,
                     w: BLOCK_SIZE,
                     h: BLOCK_SIZE,
                     hit: false,
