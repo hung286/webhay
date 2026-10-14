@@ -2225,23 +2225,37 @@ window.yogaQuizData = JSON.parse(JSON.stringify(window.__INJECTED_YOGA_DATA__));
         .math-text .katex *, .math-text mjx-container *, .math-content .katex *, .math-content mjx-container *, .katex *, mjx-container * {
             white-space: nowrap !important;
         }
+        /* Khung đen chứa đề bài: Neo lên đỉnh, z-index 50 */
+        .question-box, .question-container, #question-text-box {
+            position: relative !important;
+            z-index: 50 !important;
+        }
+
+        /* Khung tròn Camera: Layer dưới khung đề bài (z-index 10) */
+        #webcam-container, .camera-circle-wrapper, #camera-wrapper, .camera-container {
+            z-index: 10 !important;
+        }
+
         @media (max-width: 768px) {
             body {
                 height: 100dvh !important;
                 max-height: 100dvh !important;
                 overflow: hidden !important;
             }
+            #game-ui {
+                padding-top: 52px !important;
+                justify-content: flex-start !important;
+            }
             .brand-title {
                 font-size: 13px !important;
                 letter-spacing: 0.5px !important;
             }
-            .camera-container {
-                width: 175px !important;
-                height: 175px !important;
-                border-width: 4px !important;
-            }
-            #question-text-box {
-                top: 55px !important;
+            /* Neo khung đề bài lên đỉnh, z-index 50 */
+            .question-box, .question-container, #question-text-box {
+                position: relative !important;
+                z-index: 50 !important;
+                top: 0 !important;
+                margin-top: 4px !important;
                 width: 95% !important;
                 max-width: 95% !important;
                 padding: 8px 12px !important;
@@ -2255,9 +2269,21 @@ window.yogaQuizData = JSON.parse(JSON.stringify(window.__INJECTED_YOGA_DATA__));
                 overflow-y: auto !important;
                 -webkit-overflow-scrolling: touch !important;
             }
+            /* Khung tròn Camera: hạ layer xuống z-index 10 và thêm khoảng đệm margin-top/top đẩy xuống dưới */
+            #camera-wrapper, .camera-circle-wrapper {
+                top: 57% !important;
+                margin-top: 15px !important;
+                z-index: 10 !important;
+            }
+            .camera-container, #webcam-container {
+                width: 170px !important;
+                height: 170px !important;
+                border-width: 4px !important;
+                z-index: 10 !important;
+            }
             #layout-tf {
                 padding: 0 8px !important;
-                top: 50% !important;
+                top: 57% !important;
             }
             #layout-tf .option-card {
                 width: 33% !important;
@@ -2273,12 +2299,14 @@ window.yogaQuizData = JSON.parse(JSON.stringify(window.__INJECTED_YOGA_DATA__));
                 padding: 5px 6px !important;
                 border-radius: 14px !important;
             }
-            #mc-A { top: 29% !important; left: 2% !important; }
-            #mc-B { top: 29% !important; right: 2% !important; }
-            #mc-C { bottom: 8% !important; left: 2% !important; }
-            #mc-D { bottom: 8% !important; right: 2% !important; }
-            #camera-wrapper {
-                top: 50% !important;
+            #mc-A { top: 32% !important; left: 2% !important; }
+            #mc-B { top: 32% !important; right: 2% !important; }
+            #mc-C { bottom: 6% !important; left: 2% !important; }
+            #mc-D { bottom: 6% !important; right: 2% !important; }
+            #layout-mc .stickman {
+                width: 34px !important;
+                height: 34px !important;
+                margin-bottom: 2px !important;
             }
             #instruction-hint {
                 font-size: 10px !important;
@@ -2297,6 +2325,219 @@ window.yogaQuizData = JSON.parse(JSON.stringify(window.__INJECTED_YOGA_DATA__));
                 max-height: 60dvh !important;
                 overflow-y: auto !important;
                 -webkit-overflow-scrolling: touch !important;
+            }
+        }
+
+        /* TỐI ƯU TOÀN DIỆN KHI XOAY NGANG ĐIỆN THOẠI (LANDSCAPE) */
+        @media (orientation: landscape) and (max-height: 500px) {
+            body {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                overflow: hidden !important;
+            }
+            #game-ui {
+                padding-top: 2px !important;
+                justify-content: flex-start !important;
+            }
+            /* 1. KHUNG ĐỀ BÀI: Neo lên đỉnh, thu hẹp max-height 60px, font-size 0.85rem, z-index 50 */
+            .question-box, .question-container, #question-text-box {
+                position: relative !important;
+                z-index: 50 !important;
+                top: 0 !important;
+                max-height: 60px !important;
+                min-height: unset !important;
+                height: auto !important;
+                padding: 4px 10px !important;
+                margin-top: 2px !important;
+                border-radius: 12px !important;
+                width: 96% !important;
+                max-width: 96% !important;
+            }
+            #question-text {
+                font-size: 0.85rem !important;
+                line-height: 1.25 !important;
+                max-height: 52px !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            /* 2. KHUNG TRÒN CAMERA: Thu nhỏ đường kính 120px (25vh), dịch chuyển sang góc trái màn hình */
+            #camera-wrapper, .camera-circle-wrapper {
+                position: absolute !important;
+                left: 20px !important;
+                top: calc(50% + 24px) !important;
+                transform: translateY(-50%) !important;
+                right: auto !important;
+                bottom: auto !important;
+                margin: 0 !important;
+                z-index: 10 !important;
+            }
+            .camera-container, #webcam-container {
+                width: 120px !important;
+                height: 120px !important;
+                border-width: 3px !important;
+                z-index: 10 !important;
+            }
+            .camera-container svg {
+                width: 100% !important;
+                height: 100% !important;
+            }
+            #instruction-hint {
+                font-size: 9px !important;
+                padding: 2px 6px !important;
+                margin-top: 3px !important;
+                max-width: 125px !important;
+                text-align: center !important;
+                white-space: normal !important;
+                line-height: 1.2 !important;
+            }
+            /* 3. CÁC Ô ĐÁP ÁN TẠO DÁNG (A, B, C, D): Chuyển sang Grid 2x2 thích ứng, đẩy lên hiển thị rõ ràng */
+            #layout-mc {
+                position: absolute !important;
+                left: 155px !important;
+                right: 15px !important;
+                top: 66px !important;
+                bottom: 6px !important;
+                width: calc(100% - 170px) !important;
+                max-width: none !important;
+                height: auto !important;
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                grid-template-rows: repeat(2, 1fr) !important;
+                gap: 6px 10px !important;
+                align-items: stretch !important;
+                justify-items: stretch !important;
+                padding: 0 !important;
+                transform: none !important;
+                z-index: 25 !important;
+            }
+            #layout-mc.hidden {
+                display: none !important;
+            }
+            #layout-mc .option-card {
+                position: relative !important;
+                top: auto !important;
+                bottom: auto !important;
+                left: auto !important;
+                right: auto !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-width: none !important;
+                max-height: none !important;
+                padding: 4px 8px !important;
+                border-radius: 12px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                gap: 8px !important;
+                box-sizing: border-box !important;
+            }
+            #layout-mc .stickman {
+                width: 36px !important;
+                height: 36px !important;
+                min-width: 36px !important;
+                margin-bottom: 0 !important;
+                flex-shrink: 0 !important;
+            }
+            #layout-mc .option-card > div {
+                font-size: 11px !important;
+                line-height: 1.2 !important;
+                margin-bottom: 0 !important;
+                text-align: left !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+            }
+            #layout-mc .option-card .bg-yellow-400,
+            #layout-mc .option-card .bg-blue-400,
+            #layout-mc .option-card .bg-purple-400,
+            #layout-mc .option-card .bg-green-400 {
+                padding: 1px 4px !important;
+                font-size: 10px !important;
+                border-radius: 4px !important;
+            }
+            /* Dạng Đúng / Sai (TF) khi xoay ngang */
+            #layout-tf {
+                position: absolute !important;
+                left: 155px !important;
+                right: 15px !important;
+                top: 66px !important;
+                bottom: 6px !important;
+                width: calc(100% - 170px) !important;
+                max-width: none !important;
+                height: auto !important;
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 12px !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 0 !important;
+                transform: none !important;
+                z-index: 25 !important;
+            }
+            #layout-tf.hidden {
+                display: none !important;
+            }
+            #layout-tf .option-card {
+                position: relative !important;
+                width: 48% !important;
+                height: 85% !important;
+                max-height: 140px !important;
+                padding: 6px 12px !important;
+                border-radius: 16px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            #tf-text-left, #tf-text-right {
+                font-size: 18px !important;
+                margin-bottom: 2px !important;
+            }
+            #layout-tf .option-card .text-sm {
+                font-size: 9px !important;
+                padding: 2px 6px !important;
+            }
+            /* HUD thu nhỏ khi xoay ngang */
+            #top-left-hud {
+                top: 3px !important;
+                left: 6px !important;
+                gap: 4px !important;
+            }
+            #top-left-hud .logo-avatar, #top-left-hud .w-14 {
+                width: 24px !important;
+                height: 24px !important;
+            }
+            #top-left-hud h1 {
+                font-size: 11px !important;
+            }
+            #top-left-hud button, #top-left-hud #fullscreenToggleBtn {
+                padding: 1px 5px !important;
+                font-size: 9px !important;
+            }
+            #hud-topic-label {
+                display: none !important;
+            }
+            #top-right-hud {
+                top: 3px !important;
+                right: 6px !important;
+            }
+            #top-right-hud .text-3xl {
+                font-size: 12px !important;
+            }
+            #top-right-hud .text-lg {
+                font-size: 10px !important;
+            }
+            #topic-selection-overlay > div,
+            #admin-editor-modal > div,
+            #pin-prompt-modal > div {
+                max-height: 90dvh !important;
+            }
+            #yoga-topics-grid,
+            #editor-questions-list {
+                max-height: 55dvh !important;
             }
         }
       \`;
@@ -2387,6 +2628,9 @@ window.toggleMobileFullscreen = function() {
 })();
 </script>
 `;
+    htmlContent = htmlContent.replace('id="question-text-box" class="', 'id="question-text-box" class="question-box question-container ');
+    htmlContent = htmlContent.replace('id="camera-wrapper" class="', 'id="camera-wrapper" class="camera-circle-wrapper ');
+    htmlContent = htmlContent.replace('<div class="camera-container relative">', '<div id="webcam-container" class="camera-container relative">');
     htmlContent = injectScriptAtTop(htmlContent, yogaScript);
   }
 
