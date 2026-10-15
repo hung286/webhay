@@ -1953,23 +1953,33 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
       if (!text) return '';
       let res = text.replace(/[\u000c\x0c]/g, '').trim();
 
-      // 1. Quét sạch và tiêu diệt triệt để ký tự rác kép \f\f hoặc \f đứng trước lệnh toán/phân số/dấu ngoặc
+      // 1. Quét sạch và tiêu diệt triệt để ký tự rác \f, \f\f bám trên chuỗi
       res = res.replace(/\\f\\f/g, '').replace(/f\\f/g, '');
       res = res.replace(/(\\+f|f)+(?=\\?frac)/g, '');
       res = res.replace(/(\\+f|f)+(?=\\?\()/g, '');
-      res = res.replace(/(\\+f|f)+(?=\\\$|\$)/g, '');
+      res = res.replace(/\\f(?![a-zA-Z])/g, '');
+      res = res.replace(/\\f\b/g, '');
 
-      // 2. Bảo vệ và trả lại đúng cấu trúc lệnh phân số \frac tiêu chuẩn của MiKTeX/TeX Live
+      // 2. Sửa lỗi dính chữ và khôi phục dấu gạch chéo ngược \ bị thiếu cho mã lệnh LaTeX chuẩn sư phạm
       res = res.replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
-               .replace(/\\+rac/g, '\\frac');
+               .replace(/\\+rac/g, '\\frac')
+               .replace(/\brac\b/g, '\\frac');
+      res = res.replace(/(?<!\\)frac/g, '\\frac');
+      res = res.replace(/(?<!\\)cdot/g, '\\cdot');
+      res = res.replace(/(?<!\\)forall/g, '\\forall');
+      res = res.replace(/(?<!\\)ne/g, '\\ne');
+      res = res.replace(/(?<!\\)pm/g, '\\pm');
+      res = res.replace(/(?<!\\)infty/g, '\\infty');
 
-      // 3. Tự động sửa lỗi thiếu dấu gạch chéo ngược cho các ký hiệu toán thông dụng
-      res = res.replace(/(?<!\\)frac/g, '\\frac')
-               .replace(/(?<!\\)cdot/g, '\\cdot');
+      // Khử lỗi dính ký tự trước ngoặc phân tách: y\( -> \(y
+      res = res.replace(/([a-zA-Z0-9])\\+\(/g, '\\($1');
 
-      // Quét sạch triệt để mọi tàn dư \f\f hoặc \f trước phân số và dấu phân tách
-      res = res.replace(/(\\+f|f)+(?=\\frac)/g, '')
-               .replace(/(\\+f|f)+(?=\\?\()/g, '');
+      // Tiêu diệt triệt để ký tự rác \f bám trước \frac
+      res = res.replace(/(\\+f|f)+(?=\\frac)/g, '');
+
+      // 3. Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) hoặc bọc ngoặc vuông sai quy cách dạng \[...\]
+      res = res.replace(/\\\[/g, '').replace(/\\\]/g, '');
+      res = res.replace(/\\\\([a-zA-Z])/g, '\\$1');
 
       res = res.replace(/\bN\s+?u\b/g, 'Nếu')
                .replace(/\bH\s+ai\b/g, 'Hai')
@@ -1997,19 +2007,29 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
                .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
                .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
 
+      // Chuyển đổi $...$ thành \(...\) chuẩn của MathJax / KaTeX
+      res = res.replace(/\$([^\$]+?)\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+
       res = res.trim();
       const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(res);
       if (!hasVietnamese) {
-        let raw = res;
-        if (raw.startsWith('\\(') && raw.endsWith('\\)')) {
-          raw = raw.slice(2, -2).trim();
-        } else if (raw.startsWith('$') && raw.endsWith('$')) {
-          raw = raw.slice(1, -1).trim();
+        if (!res.startsWith('\\(') && !res.endsWith('\\)')) {
+          res = '\\(' + res + '\\)';
         }
-        raw = raw.replace(/\\\(|\\\)/g, '').trim();
-        res = '\\(' + raw + '\\)';
       } else {
-        res = res.replace(/(?<![\$\\\(])(-\\frac\{[^}]+\}\{[^}]+\}|\\frac\{[^}]+\}\{[^}]+\})(?![\$\\\)])/g, (m) => '$' + m + '$');
+        if (!res.includes('\\(')) {
+          if (/[=<>]|\\frac|\\forall|\\ne|\\pm|\\infty|\^|_/.test(res)) {
+            const matchEq = res.match(/^([^=<>]*?)\s*([a-zA-Z0-9'_\^]+\s*=[^=].*)$/);
+            if (matchEq) {
+              res = matchEq[1] + ' \\(' + matchEq[2].trim() + '\\)';
+            } else {
+              res = res.replace(/(-\\frac\{[^}]+\}\{[^}]+\}|\\frac\{[^}]+\}\{[^}]+\})/g, '\\($1\\)');
+              if (!res.includes('\\(')) {
+                res = '\\(' + res + '\\)';
+              }
+            }
+          }
+        }
       }
 
       return normalizeMathFormulas(res);
@@ -2219,12 +2239,14 @@ window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
             color: #ffffff;
             font-weight: 500;
         }
-        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container, .MathJax { 
+        .drag-item mjx-container, .card mjx-container, mjx-container, .mjx-chtml,
+        .math-text, .math-content, .katex, .katex-html, mjx-math, .MathJax, .card-func .math-content, .card-prop .math-text { 
             white-space: nowrap !important;
             display: inline-block !important;
             color: #ffffff !important;
         }
-        .math-text *, .math-content *, .katex *, mjx-container *, .mjx-chtml *, .MathJax * {
+        .drag-item mjx-container *, .card mjx-container *, mjx-container *, .mjx-chtml *,
+        .math-text *, .math-content *, .katex *, mjx-math *, .MathJax *, .card-func .math-content *, .card-prop .math-text * {
             white-space: nowrap !important;
             color: #ffffff !important;
         }
