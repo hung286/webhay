@@ -241,6 +241,12 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
       if (!text || typeof text !== 'string') return text || '';
       let res = text.replace(/\x0C/g, '');
       res = res.replace(/[\u000c\x0c\f]/g, '').trim();
+
+      // Chuyển đổi trực tiếp mã lệnh dấu khác (\ne, \neq) thành ký tự Unicode thuần túy ≠
+      res = res.replace(/\\+(?:neq|ne)\b/g, ' ≠ ')
+               .replace(/\\+(?:neq|ne)(?=[^a-zA-Z]|$)/g, ' ≠ ');
+      res = res.replace(/\s*≠\s*/g, ' ≠ ');
+
       res = res.replace(/\\+f\\+f/g, '');
       res = res.replace(/\\+f(?=\s*\\+frac)/g, '');
       res = res.replace(/\\+f(?=\s*\\+\()/g, '');
@@ -288,7 +294,6 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/(?<!\\)sqrt/g, '\\sqrt')
                .replace(/(?<!\\)le\b/g, '\\le')
                .replace(/(?<!\\)ge\b/g, '\\ge')
-               .replace(/(?<!\\)ne\b/g, '\\ne')
                .replace(/(?<!\\)pm\b/g, '\\pm')
                .replace(/(?<!\\)infty/g, '\\infty')
                .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
@@ -2004,6 +2009,11 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
       if (!text) return '';
       let res = text.replace(/[\u000c\x0c]/g, '').trim();
 
+      // Chuyển đổi trực tiếp mã lệnh dấu khác (\ne, \neq) thành ký tự Unicode thuần túy ≠
+      res = res.replace(/\\+(?:neq|ne)\b/g, ' ≠ ')
+               .replace(/\\+(?:neq|ne)(?=[^a-zA-Z]|$)/g, ' ≠ ');
+      res = res.replace(/\s*≠\s*/g, ' ≠ ');
+
       // 1. Quét sạch và tiêu diệt triệt để ký tự rác \f, \f\f bám trên chuỗi
       res = res.replace(/\\f\\f/g, '').replace(/f\\f/g, '');
       res = res.replace(/(\\+f|f)+(?=\\?frac)/g, '');
@@ -2018,7 +2028,6 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
       res = res.replace(/(?<!\\)frac/g, '\\frac');
       res = res.replace(/(?<!\\)cdot/g, '\\cdot');
       res = res.replace(/(?<!\\)forall/g, '\\forall');
-      res = res.replace(/(?<!\\)ne/g, '\\ne');
       res = res.replace(/(?<!\\)pm/g, '\\pm');
       res = res.replace(/(?<!\\)infty/g, '\\infty');
 
@@ -2069,8 +2078,8 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
         }
       } else {
         if (!res.includes('\\(')) {
-          if (/[=<>]|\\frac|\\forall|\\ne|\\pm|\\infty|\^|_/.test(res)) {
-            const matchEq = res.match(/^([^=<>]*?)\s*([a-zA-Z0-9'_\^]+\s*=[^=].*)$/);
+          if (/[=<>≠]|\\frac|\\forall|\\pm|\\infty|\^|_/.test(res)) {
+            const matchEq = res.match(/^([^=<>≠]*?)\s*([a-zA-Z0-9'_\^]+\s*=[^=].*)$/);
             if (matchEq) {
               res = matchEq[1] + ' \\(' + matchEq[2].trim() + '\\)';
             } else {
@@ -2318,10 +2327,17 @@ window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
         mjx-math,
         mjx-mo,
         mjx-container *,
-        mjx-mo * {
+        mjx-mo *,
+        .drag-item, 
+        .card-element, 
+        .card-prop, 
+        .card-func, 
+        .answer-btn, 
+        .option-card {
             outline: none !important; /* Xóa bỏ khung viền gỡ lỗi mặc định */
             border: none !important; /* Triệt tiêu mọi vạch khung bao quanh */
             box-shadow: none !important; /* Xóa bóng mờ tạo viền hộp */
+            -webkit-tap-highlight-color: transparent !important;
             white-space: nowrap !important; /* Ép biểu thức luôn nằm trên một dòng */
             display: inline-block !important;
             overflow: visible !important; /* Giữ hiển thị trọn vẹn ký tự đuôi không bị cắt chữ */

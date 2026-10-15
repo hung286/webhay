@@ -51,7 +51,8 @@
         .math-font { font-family: 'JetBrains Mono', monospace; }
 
         /* 3. ĐỊNH DẠNG CÔNG THỨC TOÁN MATHJAX CHỐNG BẺ ĐÔI & MÀU TRẮNG SẮC NÉT */
-        .question-text mjx-container, mjx-container, .mjx-chtml, .answer-btn mjx-container, .option-card mjx-container, .math-content, .math-text, .MathJax, mjx-math, mjx-mo {
+        .question-text mjx-container, mjx-container, .mjx-chtml, .answer-btn mjx-container, .option-card mjx-container, .math-content, .math-text, .MathJax, mjx-math, mjx-mo,
+        .drag-item, .card-element, .card-prop, .card-func, .answer-btn, .option-card {
             white-space: nowrap !important; /* Tuyệt đối không cho phép tự ý xuống dòng bẻ đôi biểu thức */
             display: inline-block !important;
             overflow: visible !important; /* Giữ hiển thị trọn vẹn ký tự đuôi không bị cắt chữ */
@@ -59,13 +60,16 @@
             border: none !important;
             box-shadow: none !important;
             color: #ffffff !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
-        .question-text mjx-container *, mjx-container *, .mjx-chtml *, .answer-btn mjx-container *, .option-card mjx-container *, .MathJax *, mjx-mo * {
+        .question-text mjx-container *, mjx-container *, .mjx-chtml *, .answer-btn mjx-container *, .option-card mjx-container *, .MathJax *, mjx-mo *,
+        .drag-item *, .card-element *, .card-prop *, .card-func *, .answer-btn *, .option-card * {
             white-space: nowrap !important;
             color: #ffffff !important;
             outline: none !important;
             border: none !important;
             box-shadow: none !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
         /* Đối với văn bản chữ tiếng Việt lời dẫn bên ngoài, cho phép tự động xuống dòng bình thường */
         .question-text, .question-box-content, #q-text {
@@ -622,6 +626,11 @@
             
             let cleanStr = rawStr;
             
+            // Chuyển đổi mã lệnh dấu khác (\ne, \neq) trực tiếp sang ký tự Unicode thuần túy ≠
+            cleanStr = cleanStr.replace(/\\+(?:neq|ne)\b/g, ' ≠ ')
+                               .replace(/\\+(?:neq|ne)(?=[^a-zA-Z]|$)/g, ' ≠ ');
+            cleanStr = cleanStr.replace(/\s*≠\s*/g, ' ≠ ');
+
             // 1. TIÊU DIỆT KÝ TỰ FORM-FEED ẨN (\x0C) VÀ BIẾN THỂ TEXT CỦA NÓ (\f, \\f) ĐỨNG TRƯỚC PHÂN SỐ
             // Quét sạch tất cả các dạng rác đứng cô độc lạc lõng trước lệnh \frac
             cleanStr = cleanStr.replace(/\x0C/g, ''); // Khử mã điều khiển ẩn thô
@@ -649,7 +658,7 @@
                                .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
                                .replace(/^rac\s*\{/g, '\\frac{');
             
-            // 3. BẢO VỆ TUYỆT ĐỐI KHÔNG CHẠM VÀO: \ne, \leq, \geq, \cdot, đoạn [0;5]
+            // 3. BẢO VỆ TUYỆT ĐỐI KHÔNG CHẠM VÀO: \leq, \geq, \cdot, đoạn [0;5]
             // Giữ nguyên vẹn 100% định dạng chuẩn mà giáo viên đã chỉnh sửa trước đó
             cleanStr = cleanStr.replace(/\bTìmm\b/g, 'Tìm m');
             cleanStr = cleanStr.replace(/Tìmm/g, 'Tìm m');
@@ -675,7 +684,6 @@
                                .replace(/(?<!\\)le\b/g, '\\le')
                                .replace(/(?<!\\)ge\b/g, '\\ge')
                                .replace(/(?<!\\)sqrt/g, '\\sqrt')
-                               .replace(/(?<!\\)ne\b/g, '\\ne')
                                .replace(/(?<!\\)pm\b/g, '\\pm')
                                .replace(/(?<!\\)infty/g, '\\infty')
                                .replace(/(?<!\\)\bOmega\b/g, '\\Omega')

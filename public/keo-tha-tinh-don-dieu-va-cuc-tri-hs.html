@@ -107,10 +107,17 @@
         mjx-math,
         mjx-mo,
         mjx-container *,
-        mjx-mo * {
+        mjx-mo *,
+        .drag-item, 
+        .card-element, 
+        .card-prop, 
+        .card-func, 
+        .answer-btn, 
+        .option-card {
             outline: none !important; /* Xóa bỏ khung viền gỡ lỗi mặc định */
             border: none !important; /* Triệt tiêu mọi vạch khung bao quanh */
             box-shadow: none !important; /* Xóa bóng mờ tạo viền hộp */
+            -webkit-tap-highlight-color: transparent !important;
             white-space: nowrap !important; /* Ép biểu thức luôn nằm trên một dòng */
             display: inline-block !important;
             overflow: visible !important; /* Giữ hiển thị trọn vẹn ký tự đuôi không bị cắt chữ */
@@ -651,6 +658,11 @@
             if (!inputString || typeof inputString !== 'string') return inputString || '';
             
             let cleanStr = inputString.replace(/[\u000c\x0c]/g, '').trim();
+
+            // Chuyển đổi mã lệnh dấu khác sang ký tự Unicode thuần túy ≠ triệt tiêu hoàn toàn viền hộp gỡ lỗi
+            cleanStr = cleanStr.replace(/\\+(?:neq|ne)\b/g, ' ≠ ')
+                               .replace(/\\+(?:neq|ne)(?=[^a-zA-Z]|$)/g, ' ≠ ');
+            cleanStr = cleanStr.replace(/\s*≠\s*/g, ' ≠ ');
             
             // 1. Quét sạch và tiêu diệt triệt để ký tự rác \f, \f\f bám trên chuỗi
             cleanStr = cleanStr.replace(/\\f\\f/g, '').replace(/f\\f/g, '');
@@ -666,7 +678,6 @@
             cleanStr = cleanStr.replace(/(?<!\\)frac/g, '\\frac');
             cleanStr = cleanStr.replace(/(?<!\\)cdot/g, '\\cdot');
             cleanStr = cleanStr.replace(/(?<!\\)forall/g, '\\forall');
-            cleanStr = cleanStr.replace(/(?<!\\)ne/g, '\\ne');
             cleanStr = cleanStr.replace(/(?<!\\)pm/g, '\\pm');
             cleanStr = cleanStr.replace(/(?<!\\)infty/g, '\\infty');
 
@@ -722,8 +733,8 @@
             } else {
                 // Nếu là văn bản tiếng Việt chứa công thức toán mà chưa có \(...\)
                 if (!cleanStr.includes('\\(')) {
-                    if (/[=<>]|\\frac|\\forall|\\ne|\\pm|\\infty|\^|_/.test(cleanStr)) {
-                        const matchEq = cleanStr.match(/^([^=<>]*?)\s*([a-zA-Z0-9'_\^]+\s*=[^=].*)$/);
+                    if (/[=<>≠]|\\frac|\\forall|\\pm|\\infty|\^|_/.test(cleanStr)) {
+                        const matchEq = cleanStr.match(/^([^=<>≠]*?)\s*([a-zA-Z0-9'_\^]+\s*=[^=].*)$/);
                         if (matchEq) {
                             cleanStr = matchEq[1] + ' \\(' + matchEq[2].trim() + '\\)';
                         } else {

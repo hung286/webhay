@@ -107,6 +107,12 @@ export function normalizeMathFormulas(text: string): string {
   // 0. Làm sạch triệt để control characters và Form Feed \x0c / \f bị lỗi khi parser JS/Word/Excel
   str = str.replace(/[\u000c\x0c]+rac/g, '\\frac');
   str = str.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
+
+  // Chuyển đổi mã lệnh dấu khác (\ne, \neq) trực tiếp sang ký tự Unicode thuần túy ≠
+  str = str.replace(/\\+(?:neq|ne)\b/g, ' ≠ ')
+           .replace(/\\+(?:neq|ne)(?=[^a-zA-Z]|$)/g, ' ≠ ');
+  str = str.replace(/\s*≠\s*/g, ' ≠ ');
+
   // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f (không xóa \f nếu là lệnh TeX như \frac)
   str = str.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '');
   str = str.replace(/f\\f/g, '');
