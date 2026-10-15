@@ -120,6 +120,13 @@ export interface GameTemplateOption {
 
 export const GAME_TEMPLATES: GameTemplateOption[] = [
   {
+    id: 'ice_breaker',
+    name: '🧊 Vua Phá Băng (Ice Breaker)',
+    file: '/vua-pha-bang-ice-breaker.html',
+    category: 'Vượt ải & Sinh tồn',
+    description: 'Giải mã mật mã toán học làm tan chảy các khối băng nứt, cứu chú Gấu Bắc Cực sang đảo an toàn'
+  },
+  {
     id: 'f1',
     name: '🏎️ Đua Xe F1 Tốc Độ',
     file: '/game-dua-xe-F1-on-tap-HK2-toan10.html',
@@ -454,6 +461,40 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
 </script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, injectF1);
+  }
+  // NHÓM: Game Vua Phá Băng (Ice Breaker)
+  else if (cleanUrl.includes('vua-pha-bang') || cleanUrl.includes('ice-breaker') || cleanUrl.includes('ice_breaker')) {
+    const cleanIceFormula = (text: string, isOption = false): string => {
+      let res = formatMathStringToTeX(escapeRawLaTeXSlash(text || ''));
+      if (isOption && res) {
+        res = res.trim();
+        const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(res);
+        if (!hasVietnamese && !res.startsWith('\\(') && !res.endsWith('\\)')) {
+          res = '\\(' + res + '\\)';
+        }
+      }
+      return res;
+    };
+
+    const iceTopicName = gameTitle || 'Chuyên đề: Vua Phá Băng';
+    const iceQuestions = questions.map(q => ({
+      q: cleanIceFormula(q.question, false),
+      options: (q.options || ['A', 'B', 'C', 'D']).map(o => cleanIceFormula(o, true)),
+      correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+      explanation: cleanIceFormula(q.explanation || '', false)
+    }));
+
+    const iceDatabase = {
+      [iceTopicName]: iceQuestions
+    };
+
+    const injectIce = `
+<script>
+// [ADAPTER ENGINE: ICE BREAKER - VUA PHÁ BĂNG]
+window.gameDatabase = ${JSON.stringify(iceDatabase, null, 2)};
+<\/script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, injectIce);
   }
 
   // NHÓM 2: Game Bảo Vệ Chiến Hào (sinh đề tự động - cấu trúc Đa Chủ Đề, Dữ liệu Tĩnh & Random Bốc 5 câu)
