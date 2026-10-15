@@ -7,8 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     
-    <!-- Cấu hình MathJax 3 Chống Bẻ Đôi Công Thức -->
-        <script>
+    <!-- KaTeX CSS & JS chuẩn thư viện cho công thức Toán học -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- Cấu hình MathJax 3 Chống Bẻ Đôi Công Thức & Chuẩn Font CHTML -->
+    <script>
         window.MathJax = {
             tex: {
                 inlineMath: [['\\(', '\\)'], ['$', '$']],
@@ -18,11 +23,13 @@
             options: {
                 ignoreHtmlClass: 'tex2jax_ignore',
                 processHtmlClass: 'tex2jax_process'
+            },
+            chtml: {
+                scale: 1.1
             }
         };
     </script>
-    <script id="MathJax-script" async src="https://jsdelivr.net"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
 
     <style>
@@ -49,34 +56,100 @@
         .digital-font { font-family: 'Orbitron', sans-serif; }
         .math-font { font-family: 'JetBrains Mono', monospace; }
 
-        /* 3. ĐỊNH DẠNG CÔNG THỨC TOÁN MATHJAX CHỐNG BẺ ĐÔI & MÀU TRẮNG SẮC NÉT */
-        .question-text mjx-container, mjx-container, .mjx-chtml, .answer-btn mjx-container, .option-card mjx-container, .math-content, .math-text, .MathJax, mjx-math, mjx-mo, .zombie-math-text,
-        .drag-item, .card-element, .card-prop, .card-func {
-            white-space: nowrap !important; /* Tuyệt đối không cho phép tự ý xuống dòng bẻ đôi biểu thức */
+        
+        /* ======================================================== */
+        /* TẦNG 2: CƯỠNG CHẾ KIỂU HIỂN THỊ PHÂN SỐ DISPLAYSTYLE & CHỐNG GÃY DÒNG */
+        /* ======================================================== */
+        .mjx-chtml, mjx-container, .MathJax, .katex, .katex-html {
+            white-space: nowrap !important;
             display: inline-block !important;
-            overflow: visible !important; /* Giữ hiển thị trọn vẹn ký tự đuôi không bị cắt chữ */
-            outline: none !important;
-            border: none !important;
-            box-shadow: none !important;
+            max-width: 100% !important;
+            vertical-align: middle !important;
+            font-size: 1.05em !important;
             color: #ffffff !important;
             -webkit-tap-highlight-color: transparent !important;
         }
-        .question-text mjx-container *, mjx-container *, .mjx-chtml *, .answer-btn mjx-container *, .option-card mjx-container *, .MathJax *, mjx-mo *, .zombie-math-text *,
-        .drag-item *, .card-element *, .card-prop *, .card-func * {
+
+        /* Đảm bảo phân số và căn thức có kích thước đầy đủ không bị co rúm */
+        .katex .mord, .katex .mfrac, mjx-container mjx-frac {
+            font-size: 100% !important;
+        }
+
+        /* Triệt tiêu lỗi viền rác hoặc khung bounding box bên ngoài */
+        mjx-container, .mjx-chtml, mjx-math, mjx-mo, .MathJax {
+            outline: none !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Bảo đảm tuyệt đối đường gạch phân số và gạch trên căn thức trong MathJax & KaTeX */
+        mjx-line, mjx-frac mjx-line, mjx-dtable mjx-line {
+            display: block !important;
+            box-sizing: border-box !important;
+            min-height: 1px !important;
+            height: 0.08em !important;
+            border-top: 0.08em solid currentColor !important;
+            border-top-style: solid !important;
+            border-top-color: currentColor !important;
+            border-top-width: 0.08em !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            margin: 0.06em 0 !important;
+        }
+        mjx-sqrt > mjx-box, mjx-box {
+            border-top: 0.08em solid currentColor !important;
+            border-top-style: solid !important;
+            border-top-color: currentColor !important;
+            border-top-width: 0.08em !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        .katex .frac-line {
+            display: block !important;
+            border-bottom: 0.08em solid currentColor !important;
+            border-bottom-style: solid !important;
+            border-bottom-color: currentColor !important;
+            border-bottom-width: 0.08em !important;
+            min-height: 1px !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        .katex .sqrt-line {
+            display: block !important;
+            border-top: 0.08em solid currentColor !important;
+            border-top-style: solid !important;
+            border-top-color: currentColor !important;
+            border-top-width: 0.08em !important;
+            min-height: 1px !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+
+        /* Phân số trong câu hỏi rõ ràng, không bị co nhỏ */
+        .question-text mjx-container,
+        .question-text .katex {
+            font-size: 1.15em !important;
+        }
+        .answer-btn mjx-container,
+        .answer-btn .katex {
+            font-size: 1.05em !important;
+        }
+
+        .question-text mjx-container *, mjx-container *, .mjx-chtml *, .answer-btn mjx-container *, .option-card mjx-container *, .MathJax *, .katex *,
+        .zombie-math-text * {
             white-space: nowrap !important;
             color: #ffffff !important;
-            outline: none !important;
-            border: none !important;
-            box-shadow: none !important;
-            -webkit-tap-highlight-color: transparent !important;
         }
-        /* Đối với văn bản chữ tiếng Việt lời dẫn bên ngoài, cho phép tự động xuống dòng bình thường */
+
+        /* Đối với văn bản chữ tiếng Việt lời dẫn bên ngoài, khoảng cách dòng thoáng (line-height: 2) */
         .question-text, .question-box-content, #q-text {
             white-space: normal !important;
             word-wrap: break-word !important;
             word-break: normal !important;
             display: block !important;
             text-align: left !important;
+            line-height: 2 !important;
         }
 
         /* Ép nhãn chữ cái màu vàng và con số đáp án bắt buộc phải nằm trên một hàng ngang ngay ngắn */
@@ -101,8 +174,9 @@
         }
 
         /* Khóa chết công thức toán học và số đáp án không bị ngắt dòng */
-        .answer-btn mjx-container, .question-text mjx-container, mjx-container, .mjx-chtml {
+        .answer-btn mjx-container, .question-text mjx-container, mjx-container, .mjx-chtml, .katex {
             display: inline-block !important;
+            vertical-align: middle !important;
             white-space: nowrap !important;
             margin: 0 !important;
             padding: 0 2px !important;
@@ -417,14 +491,12 @@
     </style>
 
 <style id="mathjax-no-bounding-box-style">
-/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax và ép thẳng 1 dòng */
-mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process, .math-content, .math-text, .MathJax, [class*="math-"] {
+/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax/KaTeX và căn giữa trục dòng */
+mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-content, .math-text, .MathJax, .katex, [class*="math-"] {
     outline: none !important;
-    border: none !important;
     box-shadow: none !important;
-    white-space: nowrap !important; /* Ép phân số và dấu căn \(\sqrt\) nằm thẳng một dòng */
-    display: inline-block !important;
-    overflow: visible !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
 }
 </style></head>
 <body class="h-screen flex flex-col text-slate-200">
@@ -663,100 +735,146 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     <!-- LOGIC GAME ENGINE & BỘ XỬ LÝ TOÁN HỌC CHUẨN TEK LIVE/MIKTEX -->
     <!-- ======================================================== -->
     <script>
-        // 1. BỘ PARSER UNICODE VÀ TEXT CLEANER KHỬ SẠCH MÃ RÁC "\f" CHUẨN MIKTEX / TEX LIVE
-        function formatF1QuestionStrictTeX(rawContent) {
-            if (typeof rawContent !== 'string') return rawContent;
+        // 1. BỘ PARSER UNICODE VÀ CHUẨN HÓA CÔNG THỨC TOÁN HỌC CHUẨN TEK LIVE/MIKTEX (TẦNG 1: DATA LEVEL)
 
-            let cleanContent = rawContent;
+        function cleanF1MathString(rawStr, isOption = false) {
+            if (typeof rawStr !== 'string') return rawStr || '';
+            let str = rawStr;
 
-            // Khử mã điều khiển form-feed ẩn
-            cleanContent = cleanContent.replace(/[\u000c\x0c\f]/g, '');
+            // 1. Khử mã điều khiển và khoảng trắng ẩn
+            str = str.replace(/[\u000c\x0c\f]/g, '');
 
-            // KÍCH HOẠT 1: Sử dụng chính xác bộ lọc xử lý từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
-            cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
-                                       .replace(/\\f\s*\\frac/g, '\\frac')
-                                       .replace(/\\ffrac/g, '\\frac')
-                                       .replace(/\\f(?![a-zA-Z])/g, '') // Khử sạch các ký tự \f cô độc không đi liền từ tố
-                                       .replace(/\\f(?=\s*\\frac)/g, '');
+            // 2. Khử double escape: \\\\ -> \\
+            str = str.replace(/\\\\([a-zA-Z0-9^_{}\[\]()\\\/+-])/g, '\\$1');
+            str = str.replace(/\\\\/g, '\\');
 
-            // KÍCH HOẠT 2: Tự động phát hiện và bọc khối nhọn cho biểu thức dưới dấu căn (Sửa lỗi đứt vạch ngang trên đỉnh)
-            // Biến đổi cấu trúc thô \sqrt x - 1 hoặc √x - 1 thành \sqrt{x-1} chuẩn mực TeX Live
-            cleanContent = cleanContent.replace(/\\sqrt\s*x\s*-\s*1/g, '\\sqrt{x-1}')
-                                       .replace(/√x\s*-\s*1/g, '\\sqrt{x-1}')
-                                       .replace(/√\s*x\s*-\s*1/g, '\\sqrt{x-1}')
-                                       .replace(/\\sqrt\s*x\s*\+\s*1/g, '\\sqrt{x+1}')
-                                       .replace(/√\s*x\s*\+\s*1/g, '\\sqrt{x+1}')
-                                       .replace(/\\sqrt\s*x\s*-\s*2/g, '\\sqrt{x-2}')
-                                       .replace(/√\s*x\s*-\s*2/g, '\\sqrt{x-2}')
-                                       .replace(/\\sqrt\s*([a-zA-Z0-9]+)/g, '\\sqrt{$1}'); // Tổng quát hóa cho biến đơn
+            // 3. SỬA DỨT ĐIỂM LỖI DẤU CĂN (TẦNG 1):
+            // 3.1 Khử ký tự gạch chéo rác sau dấu căn: √/ hoặc \sqrt/ hoặc \surd/
+            str = str.replace(/(?:\\sqrt|√|\\surd)\s*\/\s*/g, '\\sqrt ');
+            str = str.replace(/(?:√|\\surd)/g, '\\sqrt ');
 
-            // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac" (bảo vệ không làm nhân đôi chữ \f trong \frac)
-            cleanContent = cleanContent.replace(/(?<!f)\brac\b/g, '\\frac')
-                                       .replace(/(?<!f)rac(?=[0-9\\{])/g, '\\frac')
-                                       .replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
+            // 3.2 Chuẩn hóa căn thức có phép toán đi liền: \sqrt x - 1, \sqrt x + 1, \sqrt x - 2, \sqrt 2x - 1,...
+            // và sửa dạng \sqrt{x}-1 hoặc \sqrt{x} - 1 thành \sqrt{x - 1} khi trong bất phương trình/phương trình
+            str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*-\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)|$))/gi, '\\sqrt{x - 1}');
+            str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*\+\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)|$))/gi, '\\sqrt{x + 1}');
+            str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*-\s*2(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)|$))/gi, '\\sqrt{x - 2}');
+            str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*\+\s*2(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)|$))/gi, '\\sqrt{x + 2}');
+            
+            // Bắt buộc các biểu thức sau \sqrt nếu có phép toán đi liền phải được bọc trọn vẹn trong cặp ngoặc nhọn {...}
+            str = str.replace(/\\sqrt\s*x\s*-\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/gi, '\\sqrt{x - 1}');
+            str = str.replace(/\\sqrt\s*x\s*\+\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/gi, '\\sqrt{x + 1}');
+            str = str.replace(/\\sqrt\s*x\s*-\s*2(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/gi, '\\sqrt{x - 2}');
+            str = str.replace(/\\sqrt\s*x\s*\+\s*2(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/gi, '\\sqrt{x + 2}');
+            str = str.replace(/\\sqrt\s*2x\s*-\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/gi, '\\sqrt{2x - 1}');
+            str = str.replace(/\\sqrt\s*2x\s*-\s*4(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/gi, '\\sqrt{2x - 4}');
+            str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*-\s*(\d+)/g, '\\sqrt{x - $1}');
+            str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*\+\s*(\d+)/g, '\\sqrt{x + $1}');
+            str = str.replace(/\\sqrt\s*x\s*-\s*(\d+)/g, '\\sqrt{x - $1}');
+            str = str.replace(/\\sqrt\s*x\s*\+\s*(\d+)/g, '\\sqrt{x + $1}');
+            str = str.replace(/\\sqrt\s+([a-zA-Z0-9^]+(?:\s*[\+\-]\s*[a-zA-Z0-9^]+)+)(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/g, '\\sqrt{$1}');
+            str = str.replace(/\\sqrt\s+([a-zA-Z0-9]+)(?![a-zA-Z0-9{])/g, '\\sqrt{$1}');
 
-            // Quét dọn lần cuối bảo hiểm không sót \f\frac
-            cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
-                                       .replace(/\\f\s*\\frac/g, '\\frac')
-                                       .replace(/\\ffrac/g, '\\frac');
+            // 4. SỬA DỨT ĐIỂM LỖI PHÂN SỐ CO RÚM / SỐ MŨ (TẦNG 1):
+            // 4.1 Khử lỗi biến dạng thành số mũ: ^{Tử}_{Mẫu} hoặc _{Mẫu}^{Tử} hoặc ^{Tử}/{Mẫu}
+            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*_\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/_\{\s*([^{}]+?)\s*\}\s*\^\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$2}{$1}');
+            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*(?:\/|_|\/_)\s*\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*\/\s*\(\s*([^()]+?)\s*\)/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*\/\s*([a-zA-Z0-9_\-\+]+)/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/(?<![\\a-zA-Z])\{\s*([^{}]+?)\s*\}\s*\/\s*\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$1}{$2}');
 
-            // TỰ ĐỘNG CHÈN KHOẢNG TRẮNG CHUẨN GIỮA BIỂU THỨC TOÁN VÀ TỪ TIẾNG VIỆT DÍNH LIỀN (SỬA LỖI DÍNH CHỮ)
-            cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');
-            cleanContent = cleanContent.replace(/(\))(trong|đoạn|là)/g, '$1 $2');
-            cleanContent = cleanContent.replace(/([≤|≥|<=|>=|<=|=>])\s*0/g, '$1 0 ');
-            cleanContent = cleanContent.replace(/0(trong|đoạn|là)/g, '0 $1');
-            cleanContent = cleanContent.replace(/trongđoạn/g, 'trong đoạn');
-            cleanContent = cleanContent.replace(/trong\s*đoạn\s*\[/g, 'trong đoạn [');
-            cleanContent = cleanContent.replace(/\]là\:/g, '\] là:');
-            cleanContent = cleanContent.replace(/\]\s*là\s*:/g, '\] là:');
+            // 4.2 Chuyển biểu thức đa thức dạng (A)/(B) thành \dfrac{A}{B}
+            str = str.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*\(\s*([xX0-9\s\^+\-*]+?)\s*\)/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*([xX0-9a-zA-Z_\-]+)/g, '\\dfrac{$1}{$2}');
 
-            // Khử hoàn toàn lỗi lặp dấu gạch chéo bảo vệ các ký hiệu \frac, \sqrt, \le, \ge, \ne
-            cleanContent = cleanContent.replace(/\\\\/g, '\\');
+            // 4.3 Khử lỗi mất chữ \f (rac{ phục hồi thành \dfrac{)
+            str = str.replace(/\\f\\frac/g, '\\dfrac')
+                     .replace(/\\f\s*\\frac/g, '\\dfrac')
+                     .replace(/\\ffrac/g, '\\dfrac')
+                     .replace(/\\f(?![a-zA-Z])/g, '')
+                     .replace(/(?<![a-zA-Z\\])rac\s*\{/g, '\\dfrac{')
+                     .replace(/(?<![a-zA-Z\\])frac\s*\{/g, '\\dfrac{')
+                     .replace(/\\frac(?=[{\s])/g, '\\dfrac');
 
-            // Bảo toàn và chuẩn hóa các ký hiệu toán chuẩn
-            cleanContent = cleanContent.replace(/(?<!\\)frac/g, '\\frac')
-                                       .replace(/(?<!\\)cdot/g, '\\cdot')
-                                       .replace(/(?<!\\)leq/g, '\\leq')
-                                       .replace(/(?<!\\)geq/g, '\\geq')
-                                       .replace(/(?<!\\)le\b/g, '\\le')
-                                       .replace(/(?<!\\)ge\b/g, '\\ge')
-                                       .replace(/(?<!\\)sqrt/g, '\\sqrt');
+            // 5. CHUẨN HÓA DẤU TOÁN HỌC: \le, \ge, \ne
+            str = str.replace(/<=/g, '\\le ')
+                     .replace(/>=/g, '\\ge ')
+                     .replace(/≤/g, '\\le ')
+                     .replace(/≥/g, '\\ge ')
+                     .replace(/≠/g, ' ≠ ');
 
-            // Khóa chặt: Đảm bảo toàn bộ biểu thức sạch được bọc khít trong cặp dấu phân tách inline chuẩn
-            cleanContent = cleanContent.trim();
-            if (cleanContent.startsWith('$') && cleanContent.endsWith('$') && cleanContent.length > 2) {
-                cleanContent = '\\(' + cleanContent.slice(1, -1).trim() + '\\)';
-            }
-            cleanContent = cleanContent.replace(/\$([^\$]+?)\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+            // 6. TÁCH DÍNH CHỮ TIẾNG VIỆT VÀ CÔNG THỨC:
+            str = str.replace(/(\d+)(trong|đoạn|là|có|với)/g, '$1 $2');
+            str = str.replace(/(\))(trong|đoạn|là|có|với)/g, '$1 $2');
+            str = str.replace(/(\\\))(trong|đoạn|là|có|với)/g, '$1 $2');
+            str = str.replace(/(\]|\))(là|trong|có|với)/g, '$1 $2');
+            str = str.replace(/\]là\:/g, '\] là:');
+            str = str.replace(/\]\s*là\s*:/g, '\] là:');
+            str = str.replace(/\]là/g, '\] là');
+            str = str.replace(/0trong/g, '0 trong');
+            str = str.replace(/trongđoạn/g, 'trong đoạn');
+            str = str.replace(/trong\s*đoạn\s*\[/g, 'trong đoạn [');
+            str = str.replace(/\\le\s*0(trong|đoạn|là)/g, '\\le 0 $1');
 
-            const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(cleanContent);
-            if (!hasVietnamese && !cleanContent.includes('\\(')) {
-                if (!cleanContent.startsWith('\\(') && !cleanContent.endsWith('\\)')) {
-                    cleanContent = '\\(' + cleanContent + '\\)';
+            // 7. BỌC DELIMITER CHUẨN \( ... \):
+            str = str.trim();
+
+            // 7.1 Chuyển đổi $...$ hoặc $$...$$ thành \(...\)
+            str = str.replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+            str = str.replace(/\$([^\$]+?)\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+
+            // 7.2 Ghép nối các phần tử toán bị văng ra ngoài dấu đóng ngoặc \)
+            str = str.replace(/\\\)\s*(\\le|\\ge|<=|>=|<|>|=)\s*([0-9a-zA-Z_\-+]+)/g, ' $1 $2\\)');
+
+            // 7.3 Bọc các tập nghiệm dạng đoạn [a; b] còn nằm ngoài TeX
+            str = str.replace(/(?<!\\\()(\[\s*-?[0-9a-zA-Z\s;+\-]+\s*\])(?!\\\))/g, '\\($1\\)');
+
+            // 7.4 Nếu là option toán học thuần (không có tiếng Việt có dấu)
+            const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(str);
+
+            if (isOption) {
+                if (!hasVietnamese && !str.startsWith('\\(') && !str.endsWith('\\)')) {
+                    return '\\(' + str + '\\)';
                 }
-            } else if (hasVietnamese && !cleanContent.includes('\\(')) {
-                cleanContent = cleanContent.replace(/(\\[a-zA-Z]+(?:\{[^}]*\})*|[a-zA-Z0-9_]+\s*=\s*[^,\s]+)/g, (m) => {
-                    if (m.startsWith('\\(') || m.endsWith('\\)')) return m;
+                return str;
+            }
+
+            // 7.5 Nếu là câu hỏi có tiếng Việt chứa TeX chưa được bọc \( ... \)
+            if (hasVietnamese) {
+                str = str.replace(/(\\dfrac\{[^{}]*\}\{[^{}]*\}|\\sqrt\{[^{}]*\}|[a-zA-Z0-9_\^+\-*\/()=\s\\]+?(?:\\le|\\ge|<|>|=)\s*[0-9a-zA-Z_\-+]+)/g, (match) => {
+                    const m = match.trim();
+                    if (m.startsWith('\\(') || m.endsWith('\\)')) return match;
+                    if (/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return match;
                     return '\\(' + m + '\\)';
                 });
             }
 
-            return cleanContent;
+            // Ghép các cặp \( ... \) \( ... \) liền kề thành 1 môi trường math duy nhất
+            str = str.replace(/\\\)\s*\\\(/g, ' ');
+            // Đảm bảo không bị lặp lồng \( \( ... \) \)
+            str = str.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
+
+            return str;
         }
 
         function formatF1MathString(textStr, isOption = false) {
-            return formatF1QuestionStrictTeX(textStr);
+            return cleanF1MathString(textStr, isOption);
         }
         function formatMathStringToTeX(textStr) {
-            return formatF1QuestionStrictTeX(textStr);
+            return cleanF1MathString(textStr, false);
         }
         function formatGlobalMathStringToTeX(textStr) {
-            return formatF1QuestionStrictTeX(textStr);
+            return cleanF1MathString(textStr, false);
         }
-        window.formatF1QuestionStrictTeX = formatF1QuestionStrictTeX;
-        window.formatGlobalMathStringToTeX = formatF1QuestionStrictTeX;
-        window.formatF1MathString = formatF1QuestionStrictTeX;
-        window.formatMathStringToTeX = formatF1QuestionStrictTeX;
+        function formatF1QuestionStrictTeX(textStr) {
+            return cleanF1MathString(textStr, false);
+        }
+        window.cleanF1MathString = cleanF1MathString;
+        window.formatF1MathString = cleanF1MathString;
+        window.formatF1QuestionStrictTeX = cleanF1MathString;
+        window.formatGlobalMathStringToTeX = cleanF1MathString;
+        window.formatMathStringToTeX = cleanF1MathString;
+
 
         // 2. KHO DỮ LIỆU GỐC & CỨU HỘ ĐA CHỦ ĐỀ CHO GAME ĐUA XE F1
         const DEFAULT_F1_DATABASE = {
@@ -775,7 +893,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             "hard": [
               { "q": "Tìm \\(m\\) để bất phương trình \\((m-1)x^2 - 2(m-1)x + 1 \\ge 0\\) nghiệm đúng với mọi \\(x\\):", "options": ["\\(1 \\le m \\le 2\\)", "\\(1 < m < 2\\)", "\\(m \\ge 2\\)", "\\(m \\le 1\\)"], "correct": 0 },
               { "q": "Tập nghiệm của bất phương trình \\(\\sqrt{x - 1} \\le 2\\) là:", "options": ["\\([1; 5]\\)", "\\((-\\infty; 5]\\)", "\\([0; 5]\\)", "\\([1; 3]\\)"], "correct": 0 },
-              { "q": "Số nghiệm nguyên của bất phương trình \\(\\frac{x^2 - 4x + 3}{x - 2} \\le 0\\) trong đoạn \\([0; 5]\\) là:", "options": ["3", "2", "4", "1"], "correct": 0 }
+              { "q": "Số nghiệm nguyên của bất phương trình \\(\\dfrac{x^2 - 4x + 3}{x - 2} \\le 0\\) trong đoạn \\([0; 5]\\) là:", "options": ["3", "2", "4", "1"], "correct": 0 }
             ]
           },
           "Chặng 2: Phương Trình Quy Về Bậc Hai & Chứa Căn": {
@@ -802,24 +920,42 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
               { "q": "Tọa độ vectơ chỉ phương của đường thẳng \\(x - 2y + 5 = 0\\) là:", "options": ["\\(\\vec{u} = (2; 1)\\)", "\\(\\vec{u} = (1; -2)\\)", "\\(\\vec{u} = (-2; 1)\\)", "\\(\\vec{u} = (1; 2)\\)"], "correct": 0 }
             ],
             "medium": [
-              { "q": "Khoảng cách từ điểm \\(M(1; 2)\\) đến đường thẳng \\(3x + 4y - 1 = 0\\) bằng:", "options": ["2", "1", "\\(\\frac{10}{5}\\)", "3"], "correct": 0 },
+              { "q": "Khoảng cách từ điểm \\(M(1; 2)\\) đến đường thẳng \\(3x + 4y - 1 = 0\\) bằng:", "options": ["2", "1", "\\(\\dfrac{10}{5}\\)", "3"], "correct": 0 },
               { "q": "Tọa độ tâm \\(I\\) và bán kính \\(R\\) của đường tròn \\((x-1)^2 + (y+2)^2 = 9\\) là:", "options": ["\\(I(1; -2), R = 3\\)", "\\(I(-1; 2), R = 3\\)", "\\(I(1; -2), R = 9\\)", "\\(I(-1; 2), R = 9\\)"], "correct": 0 },
               { "q": "Phương trình đường tròn có tâm \\(O(0; 0)\\) và đi qua điểm \\(A(3; 4)\\) là:", "options": ["\\(x^2 + y^2 = 25\\)", "\\(x^2 + y^2 = 5\\)", "\\((x-3)^2 + (y-4)^2 = 25\\)", "\\(x^2 + y^2 = 7\\)"], "correct": 0 }
             ],
             "hard": [
               { "q": "Góc giữa hai đường thẳng \\(d_1: x + 2y - 1 = 0\\) và \\(d_2: 2x - y + 3 = 0\\) bằng:", "options": ["\\(90^\\circ\\)", "\\(45^\\circ\\)", "\\(60^\\circ\\)", "\\(30^\\circ\\)"], "correct": 0 },
               { "q": "Phương trình tiếp tuyến của đường tròn \\(x^2 + y^2 = 25\\) tại điểm \\(M(3; 4)\\) là:", "options": ["\\(3x + 4y - 25 = 0\\)", "\\(3x + 4y + 25 = 0\\)", "\\(4x + 3y - 25 = 0\\)", "\\(3x - 4y - 25 = 0\\)"], "correct": 0 },
-              { "q": "Bán kính của đường tròn đi qua 3 điểm \\(A(0; 4), B(3; 0), O(0; 0)\\) là:", "options": ["\\(\\frac{5}{2}\\)", "5", "\\(\\sqrt{5}\\)", "\\(2.5\\)"], "correct": 0 }
+              { "q": "Bán kính của đường tròn đi qua 3 điểm \\(A(0; 4), B(3; 0), O(0; 0)\\) là:", "options": ["\\(\\dfrac{5}{2}\\)", "5", "\\(\\sqrt{5}\\)", "\\(2.5\\)"], "correct": 0 }
             ]
           }
         };
 
-        // Khởi tạo Database an toàn
+        // Khởi tạo Database an toàn & Diệt sạch cache cũ
         try {
+            const dbVersion = localStorage.getItem('f1_db_version');
+            if (dbVersion !== 'v4.0') {
+                localStorage.removeItem('f1_custom_database');
+                localStorage.setItem('f1_db_version', 'v4.0');
+            }
             const savedCustom = localStorage.getItem('f1_custom_database');
             if (savedCustom) {
                 const parsed = JSON.parse(savedCustom);
                 if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+                    Object.keys(parsed).forEach(topic => {
+                        const topObj = parsed[topic];
+                        ['easy', 'medium', 'hard'].forEach(diff => {
+                            if (Array.isArray(topObj[diff])) {
+                                topObj[diff].forEach(item => {
+                                    if (item.q) item.q = cleanF1MathString(item.q, false);
+                                    if (Array.isArray(item.options)) {
+                                        item.options = item.options.map(opt => cleanF1MathString(opt, true));
+                                    }
+                                });
+                            }
+                        });
+                    });
                     window.gameDatabase = parsed;
                 }
             }
@@ -861,8 +997,8 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
             return combined.map(q => ({
                 type: 'ABCD',
-                q: formatF1MathString(q.q, false),
-                o: (q.options || ['A','B','C','D']).map(opt => formatF1MathString(opt, true)),
+                q: cleanF1MathString(q.q, false),
+                o: (q.options || ['A','B','C','D']).map(opt => cleanF1MathString(opt, true)),
                 c: typeof q.correct === 'number' ? q.correct : 0,
                 explanation: q.explanation || ''
             }));
@@ -960,7 +1096,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             const q = state.questions[state.qIdx];
             
             document.getElementById('q-counter').innerText = `Câu hỏi ${state.qIdx + 1}/${state.questions.length}`;
-            const cleanQ = formatF1MathString(q.q, false);
+            const cleanQ = cleanF1MathString(q.q || q.question || '', false);
             document.getElementById('q-text').innerHTML = cleanQ;
             
             const optDiv = document.getElementById('q-options');
@@ -968,7 +1104,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
             const labels = ["A", "B", "C", "D"];
             q.o.forEach((txt, i) => {
-                const cleanOpt = formatF1MathString(txt, true);
+                const cleanOpt = cleanF1MathString(txt, true);
                 const btn = document.createElement('button');
                 btn.className = "answer-btn tex2jax_process option-card p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-950/60 flex flex-row items-center gap-3 sm:gap-4 text-left w-full hover:bg-slate-800/80";
                 btn.innerHTML = `
@@ -979,10 +1115,25 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                 optDiv.appendChild(btn);
             });
 
-            // Gọi MathJax render lại sau khi đổi nội dung câu hỏi
+            // Gọi MathJax (chuẩn chuyên nghiệp) hoặc KaTeX (dự phòng) render lại sau khi đổi nội dung câu hỏi
+            const qEl = document.getElementById('q-text');
+            const optCards = Array.from(document.querySelectorAll('#q-options .math-content'));
+            const targets = [qEl, optDiv, ...optCards].filter(Boolean);
+
             if (window.MathJax && window.MathJax.typesetPromise) {
-                window.MathJax.typesetPromise().catch(() => {});
-            }
+                try {
+                    if (window.MathJax.typesetClear) {
+                        try { window.MathJax.typesetClear(targets); } catch(e) {}
+                    }
+                    window.MathJax.typesetPromise(targets).catch(() => {});
+                } catch(e) {}
+            } else if (window.renderMathInElement) {
+                try {
+                    if (qEl) {
+                        window.renderMathInElement(qEl, {
+                            delimiters: [
+                                { left: '$', right: '$', display: true },
+                                { left: '
         }
 
         function handleAbcd(idx) {
@@ -1454,130 +1605,3 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                         ${tableRows.join('')}
                     </table>
                 </body></html>
-            `;
-
-            const blob = new Blob(['\ufeff' + wordContent], { type: 'application/msword;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'Mau_De_Dua_Xe_F1_ToanPro.doc';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // ========================================================
-        // 7. KHỞI CHẠY HỆ THỐNG AN TOÀN
-        // ========================================================
-        function initF1App() {
-            checkAdminSecurity();
-            renderF1TopicMenuCards();
-            
-            // Auto sample 10 câu đầu tiên
-            const curTopicData = window.gameDatabase[window.selectedTopic] || window.gameDatabase[Object.keys(window.gameDatabase)[0]];
-            state.questions = autoSampleF1Questions(curTopicData, 10);
-            
-            const badge = document.getElementById('active-f1-topic-badge');
-            if (badge) badge.innerText = window.selectedTopic;
-            
-            try {
-                if (window.MathJax && window.MathJax.typesetPromise) {
-                    window.MathJax.typesetPromise().catch(() => {});
-                }
-            } catch(e) {}
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initF1App);
-        } else {
-            initF1App();
-        }
-        window.addEventListener('load', initF1App);
-    </script>
-    <script src="/game-engine.js"></script>
-
-<script id="__TEACHER_MATHJAX_CLEANER_AND_SCANNER__">
-function formatMathStringToTeX(rawContent) {
-    if (typeof rawContent !== 'string') return rawContent;
-
-    let cleanContent = rawContent;
-
-    // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
-    cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
-                               .replace(/\\f\s*\\frac/g, '\\frac')
-                               .replace(/\\ffrac/g, '\\frac')
-                               .replace(/\\f/g, ''); // Khử sạch các ký tự \f cô độc
-
-    // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
-    cleanContent = cleanContent.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
-
-    // Tự động chèn khoảng trắng mảnh ngăn dính chữ tiếng Việt (Ví dụ: "0trong", "]là:")
-    cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');
-    var cleanStr = cleanContent;
-    cleanStr = cleanStr.replace(/(\))(trong|đoạn|là)/g, '$1 $2');
-    cleanContent = cleanStr;
-    cleanContent = cleanContent.replace(/\]là\:/g, '\] là:');
-
-    // Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) bảo vệ các ký hiệu \sqrt, \le, \ge, \ne
-    cleanContent = cleanContent.replace(/\\\\/g, '\\');
-
-    return cleanContent;
-}
-window.formatMathStringToTeX = formatMathStringToTeX;
-
-(function() {
-    function applyTex2jaxProcess() {
-        var selectors = [
-            '.question', '.q-text', '.stem', '#question', '#questionText', '#stem', '#q-text',
-            '.option', '.answer-btn', '.btn-abcd', '.opt-btn', '.option-btn', '.answer-option',
-            '.card', '.card-func', '.card-prop', '.pair-card', '.tile', '.flip-card',
-            '.math-content', '.math-text', '[class*="question"]', '[class*="answer"]', '[class*="option"]', '[class*="card"]'
-        ];
-        selectors.forEach(function(sel) {
-            document.querySelectorAll(sel).forEach(function(el) {
-                if (!el.classList.contains('tex2jax_process')) {
-                    el.classList.add('tex2jax_process');
-                }
-            });
-        });
-        if (document.body && !document.body.classList.contains('tex2jax_process')) {
-            document.body.classList.add('tex2jax_process');
-        }
-    }
-    window.applyTex2jaxProcess = applyTex2jaxProcess;
-
-    function triggerMathTypeset() {
-        try {
-            applyTex2jaxProcess();
-            if (window.MathJax && window.MathJax.typesetPromise) {
-                window.MathJax.typesetPromise().catch(function() {});
-            }
-        } catch(e) {}
-    }
-    window.triggerMathTypeset = triggerMathTypeset;
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            applyTex2jaxProcess();
-            triggerMathTypeset();
-        });
-    } else {
-        applyTex2jaxProcess();
-        triggerMathTypeset();
-    }
-    window.addEventListener('load', function() {
-        applyTex2jaxProcess();
-        triggerMathTypeset();
-    });
-
-    try {
-        var obs = new MutationObserver(function() {
-            applyTex2jaxProcess();
-        });
-        obs.observe(document.documentElement, { childList: true, subtree: true });
-    } catch(e) {}
-})();
-</script>
-</body>
-</html>
