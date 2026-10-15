@@ -146,66 +146,228 @@
         /* BÓP GỌN TOPBAR VÀ ĐIỀU CHỈNH TRÊN MOBILE */
         @media (max-width: 768px) {
             #admin-topbar {
-                height: 35px !important;
-                max-height: 35px !important;
-                top: 4px !important;
-                right: 6px !important;
-                gap: 6px !important;
+                height: 32px !important;
+                max-height: 32px !important;
+                top: 2px !important;
+                right: 4px !important;
+                gap: 4px !important;
             }
             #admin-topbar button, #btn-chuyen-de, #btn-admin-gear {
                 font-size: 0.75rem !important;
-                padding: 4px 8px !important;
-                height: 28px !important;
-                border-radius: 8px !important;
+                padding: 3px 6px !important;
+                height: 26px !important;
+                border-radius: 6px !important;
             }
             #admin-topbar button svg, #btn-admin-gear svg {
                 width: 12px !important;
                 height: 12px !important;
             }
             #game-header-bar {
-                height: 35px !important;
-                max-height: 35px !important;
+                height: 32px !important;
+                max-height: 32px !important;
+                min-height: 32px !important;
                 margin-bottom: 2px !important;
-                padding-top: 2px !important;
-                padding-bottom: 2px !important;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
             }
             #game-title-header {
-                font-size: 0.85rem !important;
+                font-size: 0.75rem !important;
                 line-height: 1.1 !important;
-                max-width: 44vw !important;
+                max-width: 30vw !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
             }
             #panel-left, #panel-right {
                 display: none !important;
             }
             #leaderboard {
-                gap: 4px !important;
-                max-width: 48vw !important;
+                gap: 3px !important;
+                max-width: 58vw !important;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                overflow-x: auto !important;
             }
             #leaderboard > div {
                 min-width: 0 !important;
-                padding: 2px 6px !important;
-                border-radius: 8px !important;
+                padding: 1px 4px !important;
+                border-radius: 6px !important;
+                gap: 2px !important;
             }
             #leaderboard > div span {
-                font-size: 0.65rem !important;
+                font-size: 0.7rem !important;
+                line-height: 1.1 !important;
             }
             #dice-control {
-                padding: 6px 10px !important;
+                padding: 6px 8px !important;
                 border-radius: 14px !important;
                 margin-top: 2px !important;
                 background: rgba(15, 23, 42, 0.9) !important;
             }
-            #dice-control h2 {
-                font-size: 0.85rem !important;
+            #dice-control h3 {
+                font-size: 0.65rem !important;
                 margin-bottom: 2px !important;
             }
+            #dice-control h2 {
+                font-size: 0.85rem !important;
+                margin-bottom: 3px !important;
+                line-height: 1.1 !important;
+            }
             #dice-control svg {
-                width: 32px !important;
-                height: 32px !important;
+                width: 28px !important;
+                height: 28px !important;
+            }
+            #dice-control .flex.gap-4 {
+                gap: 4px !important;
+                margin-bottom: 3px !important;
             }
             #dice-control button {
                 padding: 6px 10px !important;
                 font-size: 0.75rem !important;
+                border-radius: 10px !important;
+                line-height: 1.2 !important;
+            }
+        }
+
+        /* THÍCH ỨNG MOBILE CẦM DỌC: KHÔNG ĐỂ BÀN CỜ ĐÈ MẤT NÚT TUNG XÚC XẮC */
+        @media (max-width: 768px) and (orientation: portrait) {
+            #ludo-board, .ludo-board {
+                width: min(88vw, 48dvh) !important;
+                height: min(88vw, 48dvh) !important;
+                max-width: min(88vw, 48dvh) !important;
+                max-height: min(88vw, 48dvh) !important;
+                margin: 0 auto !important;
+                padding: 4px !important;
+            }
+            .ludo-controls-sidebar, .right-panel-controls {
+                width: 100% !important;
+            }
+            #dice-control {
+                width: 100% !important;
+                max-width: 92vw !important;
+                margin: 2px auto 0 !important;
+            }
+        }
+
+        /* 1. ÉP BỐ CỤC CHIA 2 CỘT CHUẨN HÌNH 3 KHI XOAY NGANG ĐIỆN THOẠI (LANDSCAPE TWO-COLUMN FIX) */
+        @media (orientation: landscape) and (max-height: 500px) {
+            /* Khung bao tổng thể đấu trường in-game */
+            .game-play-screen, .ludo-main-layout {
+                display: flex !important;
+                flex-direction: row !important; /* Dàn hàng ngang chia làm 2 cột chính như Hình 3 */
+                justify-content: space-between !important;
+                align-items: center !important;
+                width: 100% !important;
+                height: calc(100dvh - 35px) !important; /* Bù trừ khoảng trống cho Topbar */
+                overflow: hidden !important;
+                padding: 4px 10px !important;
+                box-sizing: border-box !important;
+            }
+
+            /* CỘT BÊN TRÁI: KHU VỰC BÀN CỜ HÌNH VUÔNG */
+            .ludo-board-container, .board-wrapper {
+                width: auto !important;
+                height: 88vh !important; /* Khống chế bàn cờ phình to, giữ vuông vắn ôm khít theo chiều cao màn hình */
+                aspect-ratio: 1 / 1 !important;
+                max-height: 100% !important;
+                flex: 0 0 auto !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+
+            #ludo-board, .ludo-board {
+                height: 86vh !important;
+                width: 86vh !important;
+                max-height: 86vh !important;
+                max-width: 86vh !important;
+                aspect-ratio: 1 / 1 !important;
+                padding: 4px !important;
+                margin: 0 !important;
+            }
+
+            /* CỘT BÊN PHẢI: KHAY CHỨA BẢNG ĐIỂM, ĐIỀU KHIỂN VÀ XÚC XẮC */
+            .ludo-controls-sidebar, .right-panel-controls {
+                display: flex !important;
+                flex-direction: column !important; /* Xếp chồng các khối nhỏ theo hàng dọc như Hình 3 */
+                justify-content: center !important;
+                align-items: center !important;
+                width: 40% !important; /* Chiếm 40% chiều rộng không gian bên phải bàn cờ */
+                height: 100% !important;
+                gap: 6px !important;
+                overflow-y: auto !important; /* Tự động bật thanh cuộn nếu danh sách ngựa quá dài */
+                -webkit-overflow-scrolling: touch !important;
+            }
+
+            /* 2. TINH CHỈNH KHỐI ĐỔ XÚC XẮC (CỘT PHẢI MOBILE) */
+            #dice-control {
+                width: 100% !important;
+                max-width: 300px !important;
+                padding: 6px 8px !important;
+                border-radius: 14px !important;
+                margin: 0 auto !important;
+            }
+
+            #dice-control h3 {
+                font-size: 0.6rem !important;
+                margin-bottom: 1px !important;
+            }
+
+            #dice-control h2 {
+                font-size: 0.85rem !important;
+                margin-bottom: 2px !important;
+                line-height: 1.1 !important;
+            }
+
+            #dice-control svg {
+                width: 26px !important;
+                height: 26px !important;
+            }
+
+            #dice-control .flex.gap-4 {
+                gap: 4px !important;
+                margin-bottom: 2px !important;
+            }
+
+            #dice-control button {
+                padding: 6px 10px !important;
+                font-size: 0.75rem !important;
+                border-radius: 10px !important;
+                line-height: 1.2 !important;
+            }
+
+            #panel-left, #panel-right {
+                display: none !important;
+            }
+
+            #game-header-bar {
+                height: 32px !important;
+                max-height: 32px !important;
+                margin-bottom: 1px !important;
+            }
+
+            #game-title-header {
+                font-size: 0.75rem !important;
+                max-width: 30vw !important;
+            }
+
+            #admin-topbar {
+                height: 28px !important;
+                max-height: 28px !important;
+                top: 2px !important;
+                right: 4px !important;
+                gap: 4px !important;
+            }
+
+            #admin-topbar button, #btn-chuyen-de, #btn-admin-gear {
+                font-size: 0.7rem !important;
+                padding: 2px 6px !important;
+                height: 24px !important;
+                border-radius: 6px !important;
             }
         }
 
@@ -419,11 +581,11 @@ window.quizData = ([
 
                 appEl.innerHTML = `
                     <div id="game-header-bar" class="w-full flex justify-between items-center mb-1 sm:mb-4 z-10 gap-2 sm:gap-4 animate-fade-in shrink-0 px-2 sm:px-0">
-                        <h1 id="game-title-header" class="text-sm sm:text-2xl md:text-4xl font-black bg-gradient-to-r from-cyan-400 to-pink-500 text-transparent bg-clip-text drop-shadow-lg uppercase leading-tight py-1 truncate max-w-[46vw] sm:max-w-none">
+                        <h1 id="game-title-header" class="text-xs sm:text-2xl md:text-4xl font-black bg-gradient-to-r from-cyan-400 to-pink-500 text-transparent bg-clip-text drop-shadow-lg uppercase leading-tight py-1 truncate max-w-[32vw] sm:max-w-none">
                             Cờ Cá Ngựa Đạo Hàm
                         </h1>
-                        <div class="flex items-center gap-2 sm:gap-4 pr-[180px] sm:pr-0">
-                            <div id="leaderboard" class="flex gap-1.5 sm:gap-2 overflow-x-auto hide-scrollbar"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-4 shrink-0">
+                            <div id="leaderboard" class="flex gap-1 sm:gap-2 overflow-x-auto hide-scrollbar max-w-[55vw] sm:max-w-none"></div>
                             <button onclick="endGame()" class="flex items-center gap-1 sm:gap-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/50 px-2 sm:px-4 py-1 sm:py-2.5 rounded-xl font-bold transition-all whitespace-nowrap text-xs sm:text-base cursor-pointer">
                                 <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><rect width="6" height="6" x="9" y="9"></rect></svg>
                                 <span class="hidden sm:inline">DỪNG</span>
@@ -431,7 +593,7 @@ window.quizData = ([
                         </div>
                     </div>
 
-                    <div class="w-full flex flex-col lg:flex-row gap-2 sm:gap-6 relative z-10 flex-1 min-h-0 items-center justify-center">
+                    <div class="game-play-screen ludo-main-layout w-full flex flex-col lg:flex-row gap-2 sm:gap-6 relative z-10 flex-1 min-h-0 items-center justify-center">
                         <div class="hidden lg:flex flex-col justify-center gap-4 w-64 shrink-0" id="panel-left"></div>
 
                         <!-- CENTER BOARD -->
@@ -445,7 +607,7 @@ window.quizData = ([
                             </div>
                         </div>
 
-                        <div class="flex flex-row lg:flex-col justify-between items-center lg:items-stretch gap-2 sm:gap-4 w-full lg:w-64 shrink-0">
+                        <div class="ludo-controls-sidebar right-panel-controls flex flex-row lg:flex-col justify-between items-center lg:items-stretch gap-2 sm:gap-4 w-full lg:w-64 shrink-0">
                             <div id="panel-right" class="hidden lg:flex flex-col gap-4"></div>
                             <div id="dice-control" class="w-full lg:mt-auto bg-slate-900/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-2.5 sm:p-6 border transition-all duration-300 shadow-2xl relative overflow-hidden group"></div>
                         </div>
@@ -605,11 +767,11 @@ window.quizData = ([
             const sorted = [...state.players].sort((a,b) => b.score - a.score);
 
             document.getElementById('leaderboard').innerHTML = sorted.map((p, i) => `
-                <div class="flex items-center gap-2 bg-slate-900/80 border ${i===0?'border-yellow-400':'border-white/10'} px-4 py-2 rounded-xl min-w-[120px]">
-                    <span class="font-black text-lg ${i===0?'text-yellow-400':'text-slate-500'}">#${i+1}</span>
-                    <div class="flex flex-col ml-1">
-                        <span class="text-xs font-bold truncate w-16 ${p.text}">${p.name}</span>
-                        <span class="text-sm font-black text-white">${p.score}</span>
+                <div class="flex items-center gap-1 sm:gap-2 bg-slate-900/80 border ${i===0?'border-yellow-400':'border-white/10'} px-1.5 sm:px-4 py-0.5 sm:py-2 rounded-lg sm:rounded-xl min-w-0 sm:min-w-[120px] shrink-0">
+                    <span class="font-black text-xs sm:text-lg ${i===0?'text-yellow-400':'text-slate-500'}">#${i+1}</span>
+                    <div class="flex flex-col ml-0.5 sm:ml-1">
+                        <span class="text-[0.65rem] sm:text-xs font-bold truncate max-w-[48px] sm:w-16 ${p.text}">${p.name}</span>
+                        <span class="text-xs sm:text-sm font-black text-white">${p.score}</span>
                     </div>
                 </div>
             `).join('');
