@@ -11,21 +11,48 @@ export function formatMathStringToTeX(rawContent: string): string {
 
   let cleanContent = rawContent;
 
+  // Khử mã điều khiển form-feed ẩn
+  cleanContent = cleanContent.replace(/[\u000c\x0c\f]/g, '');
+
   // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
   cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
                              .replace(/\\f\s*\\frac/g, '\\frac')
                              .replace(/\\ffrac/g, '\\frac')
-                             .replace(/\\f/g, ''); // Khử sạch các ký tự \f cô độc
+                             .replace(/\\f(?![a-zA-Z])/g, '') // Khử sạch các ký tự \f cô độc không đi liền từ tố
+                             .replace(/\\f(?=\s*\\frac)/g, '');
 
-  // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
-  cleanContent = cleanContent.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
+  // KÍCH HOẠT 2: Tự động phát hiện và bọc khối nhọn cho biểu thức dưới dấu căn (Sửa lỗi đứt vạch ngang trên đỉnh)
+  // Biến đổi cấu trúc thô \sqrt x - 1 hoặc √x - 1 thành \sqrt{x-1} chuẩn mực TeX Live
+  cleanContent = cleanContent.replace(/\\sqrt\s*x\s*-\s*1/g, '\\sqrt{x-1}')
+                             .replace(/√x\s*-\s*1/g, '\\sqrt{x-1}')
+                             .replace(/√\s*x\s*-\s*1/g, '\\sqrt{x-1}')
+                             .replace(/\\sqrt\s*x\s*\+\s*1/g, '\\sqrt{x+1}')
+                             .replace(/√\s*x\s*\+\s*1/g, '\\sqrt{x+1}')
+                             .replace(/\\sqrt\s*x\s*-\s*2/g, '\\sqrt{x-2}')
+                             .replace(/√\s*x\s*-\s*2/g, '\\sqrt{x-2}')
+                             .replace(/\\sqrt\s*([a-zA-Z0-9]+)/g, '\\sqrt{$1}'); // Tổng quát hóa cho biến đơn
+
+  // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac" (bảo vệ không làm nhân đôi chữ \f trong \frac)
+  cleanContent = cleanContent.replace(/(?<!f)\brac\b/g, '\\frac')
+                             .replace(/(?<!f)rac(?=[0-9\\{])/g, '\\frac')
+                             .replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
+
+  // Quét dọn lần cuối bảo hiểm không sót \f\frac
+  cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
+                             .replace(/\\f\s*\\frac/g, '\\frac')
+                             .replace(/\\ffrac/g, '\\frac');
 
   // Tự động chèn khoảng trắng mảnh ngăn dính chữ tiếng Việt (Ví dụ: "0trong", "]là:")
   cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');
   let cleanStr = cleanContent;
   cleanStr = cleanStr.replace(/(\))(trong|đoạn|là)/g, '$1 $2');
   cleanContent = cleanStr;
+  cleanContent = cleanContent.replace(/([≤|≥|<=|>=|<=|=>])\s*0/g, '$1 0 ');
+  cleanContent = cleanContent.replace(/0(trong|đoạn|là)/g, '0 $1');
+  cleanContent = cleanContent.replace(/trongđoạn/g, 'trong đoạn');
+  cleanContent = cleanContent.replace(/trong\s*đoạn\s*\[/g, 'trong đoạn [');
   cleanContent = cleanContent.replace(/\]là\:/g, '\] là:');
+  cleanContent = cleanContent.replace(/\]\s*là\s*:/g, '\] là:');
 
   // Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) bảo vệ các ký hiệu \sqrt, \le, \ge, \ne
   cleanContent = cleanContent.replace(/\\\\/g, '\\');
@@ -331,26 +358,32 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/\\+(?:neq|ne)(?=[^a-zA-Z]|$)/g, ' ≠ ');
       res = res.replace(/\s*≠\s*/g, ' ≠ ');
 
-      res = res.replace(/\\+f\\+f/g, '');
-      res = res.replace(/\\+f(?=\s*\\+frac)/g, '');
-      res = res.replace(/\\+f(?=\s*\\+\()/g, '');
-      res = res.replace(/{f}/g, '').replace(/\bf\b(?=\s*\\+frac)/g, '');
-      res = res.replace(/\\+f\s*\\+frac/g, '\\frac');
-      res = res.replace(/f\s*\\+frac/g, '\\frac');
-      res = res.replace(/\\+f\s*\\+\(/g, '\\(');
-      res = res.replace(/f\s*\\+\(/g, '\\(');
-      res = res.replace(/(\\+f|f)+(?=\s*\\+frac)/g, '');
-      res = res.replace(/(\\+f|f)+(?=\s*\\+\()/g, '');
-      res = res.replace(/(?<![a-zA-Z])\\+f(?![a-zA-Z])/g, '');
+      // KÍCH HOẠT 1: Quét sạch lỗi sinh chữ \f thừa đứng trước \frac
+      res = res.replace(/\\f\\frac/g, '\\frac')
+               .replace(/\\f\s*\\frac/g, '\\frac')
+               .replace(/\\ffrac/g, '\\frac')
+               .replace(/\\f(?![a-zA-Z])/g, '')
+               .replace(/\\f(?=\s*\\frac)/g, '');
 
-      res = res.replace(/\\+rac/g, '\\frac')
-               .replace(/\bracf\(/g, '\\frac{f(')
-               .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
-               .replace(/^rac\s*\{/g, '\\frac{')
-               .replace(/\brac\b/g, '\\frac')
-               .replace(/rac(?=[0-9\\{])/g, '\\frac')
-               .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
-               .replace(/rac/g, '\\frac');
+      // KÍCH HOẠT 2: Tự động phát hiện và bọc khối nhọn cho biểu thức dưới dấu căn (Sửa lỗi đứt vạch ngang trên đỉnh)
+      res = res.replace(/\\sqrt\s*x\s*-\s*1/g, '\\sqrt{x-1}')
+               .replace(/√x\s*-\s*1/g, '\\sqrt{x-1}')
+               .replace(/√\s*x\s*-\s*1/g, '\\sqrt{x-1}')
+               .replace(/\\sqrt\s*x\s*\+\s*1/g, '\\sqrt{x+1}')
+               .replace(/√\s*x\s*\+\s*1/g, '\\sqrt{x+1}')
+               .replace(/\\sqrt\s*x\s*-\s*2/g, '\\sqrt{x-2}')
+               .replace(/√\s*x\s*-\s*2/g, '\\sqrt{x-2}')
+               .replace(/\\sqrt\s*([a-zA-Z0-9]+)/g, '\\sqrt{$1}');
+
+      // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
+      res = res.replace(/(?<!f)\brac\b/g, '\\frac')
+               .replace(/(?<!f)rac(?=[0-9\\{])/g, '\\frac')
+               .replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
+
+      // Quét dọn lần cuối bảo hiểm không sót \f\frac
+      res = res.replace(/\\f\\frac/g, '\\frac')
+               .replace(/\\f\s*\\frac/g, '\\frac')
+               .replace(/\\ffrac/g, '\\frac');
 
       // Tự động chèn khoảng trắng chuẩn giữa biểu thức toán học và chữ tiếng Việt
       res = res.replace(/\bTìmm\b/g, 'Tìm m')
@@ -361,7 +394,7 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/Tìm\s+m\s+để/g, 'Tìm \\(m\\) để');
 
       // Sửa lỗi dính chữ Hình 1: "0trong đoạn[0; 5]là:"
-      res = res.replace(/(\d+)(trong|đoạn|là)/g, '$1 $2')
+      res = res.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2')
                .replace(/0trong/g, '0 trong')
                .replace(/trongđoạn/g, 'trong đoạn')
                .replace(/trong\s*đoạn\s*\[/g, 'trong đoạn [')
@@ -369,6 +402,7 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/\]\s*là\s*:/g, '\] là:')
                .replace(/\]là/g, '\] là')
                .replace(/(\\\))\s*(trong|đoạn|là)/g, '$1 $2')
+               .replace(/([≤|≥|<=|>=|<=|=>])\s*0/g, '$1 0 ')
                .replace(/(?<=\\\)|0)(trong|đoạn|là)/g, ' $1');
 
       res = res.replace(/(?<!\\)frac/g, '\\frac')
@@ -383,25 +417,13 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
                .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
 
-      res = res.replace(/\bN\s+?u\b/g, 'Nếu')
-               .replace(/\bH\s+ai\b/g, 'Hai')
-               .replace(/\bC\s+ho\b/g, 'Cho')
-               .replace(/\bC\s+?\b/g, 'Có')
-               .replace(/\bK\s+hi\b/g, 'Khi')
-               .replace(/\bC\s+h?\b/g, 'Chỉ')
-               .replace(/\bT\s+ính\b/g, 'Tính')
-               .replace(/\bT\s+rong\b/g, 'Trong')
-               .replace(/\bK\s+h?ng\b/g, 'Không')
-               .replace(/\bd\s+?nh\b/g, 'định')
-               .replace(/\bH\s+ình\b/g, 'Hình')
-               .replace(/\bM\s+?t\b/g, 'Một')
-               .replace(/\bd\s+u?ng\b/g, 'đường')
-               .replace(/Hai\s+m\s+?t\s+ph\s+?ng/g, 'Hai mặt phẳng');
+      res = res.replace(/\\\\/g, '\\');
 
       res = normalizeMathFormulas(res);
       if (isOption) {
         res = res.trim();
-        if (!res.startsWith('\\(') && !res.endsWith('\\)')) {
+        const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(res);
+        if (!hasVietnamese && !res.startsWith('\\(') && !res.endsWith('\\)')) {
           res = '\\(' + res + '\\)';
         }
       }
@@ -4639,6 +4661,35 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     white-space: nowrap !important; /* Ép phân số và dấu căn \\(\\sqrt\\) nằm thẳng một dòng */
     display: inline-block !important;
     overflow: visible !important;
+}
+
+/* Ép nhãn chữ cái màu vàng và con số đáp án bắt buộc phải nằm trên một hàng ngang ngay ngắn */
+.answer-btn, [class*="ans-button"], #answers-container button, .option-card, #q-options button {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    flex-wrap: nowrap !important;
+}
+
+.answer-btn > span:first-child, .option-card > span:first-child {
+    flex-shrink: 0 !important;
+}
+
+.answer-btn > span:last-child, .option-card > span:last-child, .math-content {
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+/* Khóa chết công thức toán học và số đáp án không bị ngắt dòng */
+.answer-btn mjx-container, .question-text mjx-container, mjx-container, .mjx-chtml {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    padding: 0 2px !important;
 }
 </style>
 `;
