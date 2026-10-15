@@ -8,17 +8,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Thêm thư viện MathJax để render công thức Toán học -->
-    <script>
+        <script>
         window.MathJax = {
             tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true
             },
-            svg: {
-                fontCache: 'global'
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
             }
         };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://jsdelivr.net"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
 
     <!-- MediaPipe Face Mesh Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -113,7 +118,18 @@
             box-sizing: border-box;
         }
     </style>
-</head>
+
+<style id="mathjax-no-bounding-box-style">
+/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax và ép thẳng 1 dòng */
+mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process, .math-content, .math-text, .MathJax, [class*="math-"] {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    white-space: nowrap !important; /* Ép phân số và dấu căn \(\sqrt\) nằm thẳng một dòng */
+    display: inline-block !important;
+    overflow: visible !important;
+}
+</style></head>
 <body class="h-screen w-screen flex flex-col items-center justify-center relative">
 
     <!-- ======================================================== -->
@@ -765,5 +781,88 @@
         });
     </script>
 <script src="/game-engine.js"></script>
+
+<script id="__TEACHER_MATHJAX_CLEANER_AND_SCANNER__">
+function formatMathStringToTeX(rawContent) {
+    if (typeof rawContent !== 'string') return rawContent;
+
+    let cleanContent = rawContent;
+
+    // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
+    cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
+                               .replace(/\\f\s*\\frac/g, '\\frac')
+                               .replace(/\\ffrac/g, '\\frac')
+                               .replace(/\\f/g, ''); // Khử sạch các ký tự \f cô độc
+
+    // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
+    cleanContent = cleanContent.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
+
+    // Tự động chèn khoảng trắng mảnh ngăn dính chữ tiếng Việt (Ví dụ: "0trong", "]là:")
+    cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');
+    var cleanStr = cleanContent;
+    cleanStr = cleanStr.replace(/(\))(trong|đoạn|là)/g, '$1 $2');
+    cleanContent = cleanStr;
+    cleanContent = cleanContent.replace(/\]là\:/g, '\] là:');
+
+    // Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) bảo vệ các ký hiệu \sqrt, \le, \ge, \ne
+    cleanContent = cleanContent.replace(/\\\\/g, '\\');
+
+    return cleanContent;
+}
+window.formatMathStringToTeX = formatMathStringToTeX;
+
+(function() {
+    function applyTex2jaxProcess() {
+        var selectors = [
+            '.question', '.q-text', '.stem', '#question', '#questionText', '#stem', '#q-text',
+            '.option', '.answer-btn', '.btn-abcd', '.opt-btn', '.option-btn', '.answer-option',
+            '.card', '.card-func', '.card-prop', '.pair-card', '.tile', '.flip-card',
+            '.math-content', '.math-text', '[class*="question"]', '[class*="answer"]', '[class*="option"]', '[class*="card"]'
+        ];
+        selectors.forEach(function(sel) {
+            document.querySelectorAll(sel).forEach(function(el) {
+                if (!el.classList.contains('tex2jax_process')) {
+                    el.classList.add('tex2jax_process');
+                }
+            });
+        });
+        if (document.body && !document.body.classList.contains('tex2jax_process')) {
+            document.body.classList.add('tex2jax_process');
+        }
+    }
+    window.applyTex2jaxProcess = applyTex2jaxProcess;
+
+    function triggerMathTypeset() {
+        try {
+            applyTex2jaxProcess();
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise().catch(function() {});
+            }
+        } catch(e) {}
+    }
+    window.triggerMathTypeset = triggerMathTypeset;
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            applyTex2jaxProcess();
+            triggerMathTypeset();
+        });
+    } else {
+        applyTex2jaxProcess();
+        triggerMathTypeset();
+    }
+    window.addEventListener('load', function() {
+        applyTex2jaxProcess();
+        triggerMathTypeset();
+    });
+
+    try {
+        var obs = new MutationObserver(function() {
+            applyTex2jaxProcess();
+        });
+        obs.observe(document.documentElement, { childList: true, subtree: true });
+    } catch(e) {}
+})();
+</script>
 </body>
 </html>

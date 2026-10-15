@@ -316,9 +316,37 @@ app.post('/api/games/delete', async (req, res) => {
   }
 });
 
+function formatMathStringToTeX(rawContent: any): any {
+  if (typeof rawContent !== 'string') return rawContent;
+
+  let cleanContent = rawContent;
+
+  // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
+  cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
+                             .replace(/\\f\s*\\frac/g, '\\frac')
+                             .replace(/\\ffrac/g, '\\frac')
+                             .replace(/\\f/g, ''); // Khử sạch các ký tự \f cô độc
+
+  // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
+  cleanContent = cleanContent.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
+
+  // Tự động chèn khoảng trắng mảnh ngăn dính chữ tiếng Việt (Ví dụ: "0trong", "]là:")
+  cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');
+  let cleanStr = cleanContent;
+  cleanStr = cleanStr.replace(/(\))(trong|đoạn|là)/g, '$1 $2');
+  cleanContent = cleanStr;
+  cleanContent = cleanContent.replace(/\]là\:/g, '\] là:');
+
+  // Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) bảo vệ các ký hiệu \sqrt, \le, \ge, \ne
+  cleanContent = cleanContent.replace(/\\\\/g, '\\');
+
+  return cleanContent;
+}
+
 function escapeRawLaTeXSlash(rawStr: any): any {
   if (typeof rawStr !== 'string') return rawStr || '';
-  let safeStr = rawStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\u000c\x0c]/g, '');
+  let safeStr = formatMathStringToTeX(rawStr);
+  safeStr = safeStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\u000c\x0c]/g, '');
   const strictKeywords = [
     'frac', 'sqrt', 'cdot', 'ne', 'neq', 'le', 'leq', 'ge', 'geq',
     'perp', 'parallel', 'alpha', 'beta', 'cup', 'cap', 'in'
@@ -333,7 +361,7 @@ function escapeRawLaTeXSlash(rawStr: any): any {
 }
 
 function sanitizeObjectLaTeXSlashes<T>(obj: T): T {
-  if (typeof obj === 'string') return escapeRawLaTeXSlash(obj);
+  if (typeof obj === 'string') return formatMathStringToTeX(escapeRawLaTeXSlash(obj));
   if (Array.isArray(obj)) return obj.map(item => sanitizeObjectLaTeXSlashes(item)) as unknown as T;
   if (obj !== null && typeof obj === 'object') {
     const res: any = {};
@@ -420,11 +448,44 @@ app.post('/api/games/sync-html', async (req, res) => {
       finalHtml = existingHtml;
     }
 
-    if (finalHtml && !finalHtml.includes('id="mathjax-no-bounding-box-style"')) {
-      const mathjaxNoBoxStyle = `
+    if (finalHtml) {
+      const teacherMathJaxCore = `
+<script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['\\\\(', '\\\\)'], ['$', '$']],
+            displayMath: [['\\\\[', '\\\\]'], ['$$', '$$']],
+            processEscapes: true
+        },
+        options: {
+            ignoreHtmlClass: 'tex2jax_ignore',
+            processHtmlClass: 'tex2jax_process'
+        }
+    };
+</script>
+<script id="MathJax-script" async src="https://jsdelivr.net"></script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+`;
+      const existingMjRegex = /<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?window\.MathJax\s*=(?:(?!<\/script>)[\s\S])*?<\/script>/i;
+      if (existingMjRegex.test(finalHtml)) {
+        finalHtml = finalHtml.replace(existingMjRegex, () => teacherMathJaxCore.trim());
+      }
+      if (finalHtml.includes('id="MathJax-script"')) {
+        finalHtml = finalHtml.replace(/<script\b[^>]*id=["']MathJax-script["'][^>]*>[\s\S]*?<\/script>/gi, '');
+      }
+      if (!finalHtml.includes("processHtmlClass: 'tex2jax_process'")) {
+        if (finalHtml.includes('</head>')) {
+          finalHtml = finalHtml.replace('</head>', () => `${teacherMathJaxCore}\n</head>`);
+        } else {
+          finalHtml = `${teacherMathJaxCore}\n${finalHtml}`;
+        }
+      }
+
+      if (!finalHtml.includes('id="mathjax-no-bounding-box-style"')) {
+        const mathjaxNoBoxStyle = `
 <style id="mathjax-no-bounding-box-style">
-/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax */
-mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text {
+/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax và ép thẳng 1 dòng */
+mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process, .math-content, .math-text, .MathJax, [class*="math-"] {
     outline: none !important;
     border: none !important;
     box-shadow: none !important;
@@ -434,10 +495,11 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text {
 }
 </style>
 `;
-      if (finalHtml.includes('</head>')) {
-        finalHtml = finalHtml.replace('</head>', `${mathjaxNoBoxStyle}\n</head>`);
-      } else {
-        finalHtml = `${mathjaxNoBoxStyle}\n${finalHtml}`;
+        if (finalHtml.includes('</head>')) {
+          finalHtml = finalHtml.replace('</head>', () => `${mathjaxNoBoxStyle}\n</head>`);
+        } else {
+          finalHtml = `${mathjaxNoBoxStyle}\n${finalHtml}`;
+        }
       }
     }
 

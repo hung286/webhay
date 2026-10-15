@@ -3,14 +3,48 @@ import { normalizeMathFormulas } from './documentParser';
 import { DEFAULT_WORKSHEETS } from '../data/defaultWorksheets';
 
 /**
+ * BỘ LỌC XỬ LÝ DỌN CHUỖI TOÁN HỌC CHUẨN THEO ĐÚNG NGUYÊN MẪU CỦA GIÁO VIÊN (ANTI-BUG STRINGS)
+ * Quét sạch lỗi sinh chữ \f thừa đứng trước \frac, phục hồi rac -> \frac, chèn khoảng trắng, khử double escape
+ */
+export function formatMathStringToTeX(rawContent: string): string {
+  if (typeof rawContent !== 'string') return rawContent;
+
+  let cleanContent = rawContent;
+
+  // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
+  cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
+                             .replace(/\\f\s*\\frac/g, '\\frac')
+                             .replace(/\\ffrac/g, '\\frac')
+                             .replace(/\\f/g, ''); // Khử sạch các ký tự \f cô độc
+
+  // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
+  cleanContent = cleanContent.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
+
+  // Tự động chèn khoảng trắng mảnh ngăn dính chữ tiếng Việt (Ví dụ: "0trong", "]là:")
+  cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');
+  let cleanStr = cleanContent;
+  cleanStr = cleanStr.replace(/(\))(trong|đoạn|là)/g, '$1 $2');
+  cleanContent = cleanStr;
+  cleanContent = cleanContent.replace(/\]là\:/g, '\] là:');
+
+  // Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) bảo vệ các ký hiệu \sqrt, \le, \ge, \ne
+  cleanContent = cleanContent.replace(/\\\\/g, '\\');
+
+  return cleanContent;
+}
+
+/**
  * BỘ LỌC XỬ LÝ KÝ TỰ ESCAPE THÔ (RAW STRING ESCAPE FIX)
  * Bảo toàn dấu gạch chéo ngược '\' cho các từ khóa LaTeX để trình duyệt không nuốt mất
  */
 export function escapeRawLaTeXSlash(rawStr: string): string {
   if (typeof rawStr !== 'string') return rawStr || '';
 
+  // Áp dụng bộ dọn chuỗi toán học chuẩn của giáo viên trước
+  let safeStr = formatMathStringToTeX(rawStr);
+
   // Khử sạch mã rác điều khiển \f cũ
-  let safeStr = rawStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\u000c\x0c]/g, '');
+  safeStr = safeStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\u000c\x0c]/g, '');
 
   // LẬP TRÌNH BỘ TỪ ĐIỂN ÁNH XẠ VẠN NĂNG (Bảo vệ các từ khóa toán học chuẩn của thầy)
   // Nhân đôi dấu gạch chéo ngược đứng trước các từ khóa LaTeX để trình duyệt không thể bỏ qua
@@ -34,7 +68,7 @@ export function escapeRawLaTeXSlash(rawStr: string): string {
 
 export function sanitizeObjectLaTeXSlashes<T>(obj: T): T {
   if (typeof obj === 'string') {
-    return escapeRawLaTeXSlash(obj) as unknown as T;
+    return formatMathStringToTeX(escapeRawLaTeXSlash(obj)) as unknown as T;
   }
   if (Array.isArray(obj)) {
     return obj.map(item => sanitizeObjectLaTeXSlashes(item)) as unknown as T;
@@ -269,10 +303,10 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
   // 3. Chuẩn hóa mảng quizData chuẩn
   const standardizedData = questions.map((q, idx) => ({
     id: q.id || `q_${idx + 1}`,
-    q: escapeRawLaTeXSlash(q.question),
-    options: (q.options || ['A', 'B', 'C', 'D']).map(o => escapeRawLaTeXSlash(o)),
+    q: formatMathStringToTeX(escapeRawLaTeXSlash(q.question)),
+    options: (q.options || ['A', 'B', 'C', 'D']).map(o => formatMathStringToTeX(escapeRawLaTeXSlash(o))),
     correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-    explanation: escapeRawLaTeXSlash(q.explanation || ''),
+    explanation: formatMathStringToTeX(escapeRawLaTeXSlash(q.explanation || '')),
     difficulty: q.difficulty === 'Dễ' ? 1 : (q.difficulty === 'Khó' ? 3 : 2),
     imageUrl: q.imageUrl || ''
   }));
@@ -4390,9 +4424,37 @@ var questions = window.quizData;
   const globalSyncHook = `
 <script id="__AUTO_PHYSICAL_SYNC_HOOK__">
 (function() {
+  function formatMathStringToTeX(rawContent) {
+    if (typeof rawContent !== 'string') return rawContent;
+    var cleanContent = rawContent;
+
+    // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
+    cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
+                               .replace(/\\f\s*\\frac/g, '\\frac')
+                               .replace(/\\ffrac/g, '\\frac')
+                               .replace(/\\f/g, ''); // Khử sạch các ký tự \f cô độc
+
+    // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
+    cleanContent = cleanContent.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
+
+    // Tự động chèn khoảng trắng mảnh ngăn dính chữ tiếng Việt (Ví dụ: "0trong", "]là:")
+    cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');
+    var cleanStr = cleanContent;
+    cleanStr = cleanStr.replace(/(\))(trong|đoạn|là)/g, '$1 $2');
+    cleanContent = cleanStr;
+    cleanContent = cleanContent.replace(/\]là\:/g, '\] là:');
+
+    // Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) bảo vệ các ký hiệu \sqrt, \le, \ge, \ne
+    cleanContent = cleanContent.replace(/\\\\\\\\/g, '\\\\');
+
+    return cleanContent;
+  }
+  window.formatMathStringToTeX = formatMathStringToTeX;
+
   function escapeRawLaTeXSlash(rawStr) {
     if (typeof rawStr !== 'string') return rawStr || '';
-    var safeStr = rawStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\\u000c\\x0c]/g, '');
+    var safeStr = formatMathStringToTeX(rawStr);
+    safeStr = safeStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\u000c\x0c]/g, '');
     var strictKeywords = ['frac', 'sqrt', 'cdot', 'ne', 'neq', 'le', 'leq', 'ge', 'geq', 'perp', 'parallel', 'alpha', 'beta', 'cup', 'cap', 'in'];
     strictKeywords.forEach(function(keyword) {
       var regexNoSlash = new RegExp('(?<!\\\\)\\\\b' + keyword + '\\\\b', 'g');
@@ -4403,7 +4465,7 @@ var questions = window.quizData;
     return safeStr;
   }
   function sanitizeObjectLaTeXSlashes(obj) {
-    if (typeof obj === 'string') return escapeRawLaTeXSlash(obj);
+    if (typeof obj === 'string') return formatMathStringToTeX(escapeRawLaTeXSlash(obj));
     if (Array.isArray(obj)) return obj.map(function(item) { return sanitizeObjectLaTeXSlashes(item); });
     if (obj !== null && typeof obj === 'object') {
       var res = {};
@@ -4418,6 +4480,57 @@ var questions = window.quizData;
   }
   window.escapeRawLaTeXSlash = escapeRawLaTeXSlash;
   window.sanitizeObjectLaTeXSlashes = sanitizeObjectLaTeXSlashes;
+
+  function applyTex2jaxProcess() {
+    var selectors = [
+      '.question', '.q-text', '.stem', '#question', '#questionText', '#stem', '#q-text',
+      '.option', '.answer-btn', '.btn-abcd', '.opt-btn', '.option-btn', '.answer-option',
+      '.card', '.card-func', '.card-prop', '.pair-card', '.tile', '.flip-card',
+      '.math-content', '.math-text', '[class*="question"]', '[class*="answer"]', '[class*="option"]', '[class*="card"]'
+    ];
+    selectors.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el) {
+        if (!el.classList.contains('tex2jax_process')) {
+          el.classList.add('tex2jax_process');
+        }
+      });
+    });
+    if (document.body && !document.body.classList.contains('tex2jax_process')) {
+      document.body.classList.add('tex2jax_process');
+    }
+  }
+
+  function triggerMathTypeset() {
+    try {
+      applyTex2jaxProcess();
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch(function() {});
+      }
+    } catch(e) {}
+  }
+  window.triggerMathTypeset = triggerMathTypeset;
+  window.applyTex2jaxProcess = applyTex2jaxProcess;
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      applyTex2jaxProcess();
+      triggerMathTypeset();
+    });
+  } else {
+    applyTex2jaxProcess();
+    triggerMathTypeset();
+  }
+  window.addEventListener('load', function() {
+    applyTex2jaxProcess();
+    triggerMathTypeset();
+  });
+
+  try {
+    var obs = new MutationObserver(function() {
+      applyTex2jaxProcess();
+    });
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+  } catch(e) {}
 
   function triggerServerPhysicalSync() {
     try {
@@ -4478,11 +4591,48 @@ var questions = window.quizData;
 `;
   htmlContent = injectScriptAtTop(htmlContent, globalSyncHook);
 
-  // 5. TIÊM CSS TỐI CAO TRIỆT TIÊU KHUNG VIỀN HỘP MATHJAX VÀ ÉP NẰM THẲNG MỘT DÒNG
+  // 5. TIÊM ĐÚNG CẤU HÌNH MATHJAX CORE THEO FILE MẪU CHUẨN CỦA GIÁO VIÊN
+  const teacherMathJaxCore = `
+<script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['\\\\(', '\\\\)'], ['$', '$']],
+            displayMath: [['\\\\[', '\\\\]'], ['$$', '$$']],
+            processEscapes: true
+        },
+        options: {
+            ignoreHtmlClass: 'tex2jax_ignore',
+            processHtmlClass: 'tex2jax_process'
+        }
+    };
+</script>
+<script id="MathJax-script" async src="https://jsdelivr.net"></script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+`;
+
+  // Thay thế cấu hình cũ nếu có (chỉ khớp chính xác thẻ script chứa window.MathJax, không nuốt các thẻ script trước đó)
+  const existingMjConfigRegex = /<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?window\.MathJax\s*=(?:(?!<\/script>)[\s\S])*?<\/script>/i;
+  if (existingMjConfigRegex.test(htmlContent)) {
+    htmlContent = htmlContent.replace(existingMjConfigRegex, () => teacherMathJaxCore.trim());
+  }
+  // Gỡ bỏ MathJax-script cũ nếu có
+  if (htmlContent.includes('id="MathJax-script"')) {
+    htmlContent = htmlContent.replace(/<script\b[^>]*id=["']MathJax-script["'][^>]*>[\s\S]*?<\/script>/gi, '');
+  }
+  // Nếu chưa có processHtmlClass, tiêm vào
+  if (!htmlContent.includes("processHtmlClass: 'tex2jax_process'")) {
+    if (htmlContent.includes('</head>')) {
+      htmlContent = htmlContent.replace('</head>', () => `${teacherMathJaxCore}\n</head>`);
+    } else {
+      htmlContent = injectScriptAtTop(htmlContent, teacherMathJaxCore);
+    }
+  }
+
+  // 6. TIÊM CSS TỐI CAO TRIỆT TIÊU KHUNG VIỀN HỘP MATHJAX VÀ ÉP NẰM THẲNG MỘT DÒNG
   const mathjaxNoBoxStyle = `
 <style id="mathjax-no-bounding-box-style">
-/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax */
-mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text {
+/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax và ép thẳng 1 dòng */
+mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process, .math-content, .math-text, .MathJax, [class*="math-"] {
     outline: none !important;
     border: none !important;
     box-shadow: none !important;
@@ -4494,7 +4644,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text {
 `;
   if (!htmlContent.includes('id="mathjax-no-bounding-box-style"')) {
     if (htmlContent.includes('</head>')) {
-      htmlContent = htmlContent.replace('</head>', `${mathjaxNoBoxStyle}\n</head>`);
+      htmlContent = htmlContent.replace('</head>', () => `${mathjaxNoBoxStyle}\n</head>`);
     } else {
       htmlContent = `${mathjaxNoBoxStyle}\n${htmlContent}`;
     }
@@ -4505,12 +4655,12 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text {
 
 function injectScriptAtTop(html: string, scriptBlock: string): string {
   if (html.includes('<script>')) {
-    return html.replace('<script>', `${scriptBlock}\n<script>`);
+    return html.replace('<script>', () => `${scriptBlock}\n<script>`);
   } else if (html.includes('<script')) {
     const firstScriptIdx = html.indexOf('<script');
     return html.slice(0, firstScriptIdx) + scriptBlock + '\n' + html.slice(firstScriptIdx);
   } else if (html.includes('</head>')) {
-    return html.replace('</head>', `${scriptBlock}\n</head>`);
+    return html.replace('</head>', () => `${scriptBlock}\n</head>`);
   } else {
     return scriptBlock + '\n' + html;
   }

@@ -1,8 +1,8 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { TeachingTool, Question, Difficulty, DragDropCategory, DragDropTableRow } from '../../types';
 import { X, FileUp, Plus, Trash2, Save, FileDown, Sparkles, Download, Shuffle, FileText, CheckCircle2, Calculator, Loader2, Edit3, FolderPlus, FolderMinus } from 'lucide-react';
 import { soundFx } from '../../utils/sound';
-import { GAME_TEMPLATES, exportStandaloneGameHTML, downloadFile, escapeRawLaTeXSlash } from '../../utils/gameExporter';
+import { GAME_TEMPLATES, exportStandaloneGameHTML, downloadFile, escapeRawLaTeXSlash, formatMathStringToTeX } from '../../utils/gameExporter';
 import { VirtualMathKeyboard } from '../common/VirtualMathKeyboard';
 import { 
   extractTextFromDocx, 
@@ -49,13 +49,14 @@ import {
   downloadTraiTimWordTemplate
 } from '../../utils/documentParser';
 
-// Bộ xem trước công thức KaTeX thời gian thực
+// Bộ xem trước công thức KaTeX & MathJax thời gian thực (Realtime Content Cleaner)
 const MathLivePreview: React.FC<{ formula: string }> = ({ formula }) => {
   if (!formula || !formula.trim()) return null;
+  const cleanFormula = formatMathStringToTeX(formula);
   let html = '';
   if (typeof window !== 'undefined' && (window as any).katex) {
     try {
-      let clean = formula.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+      let clean = cleanFormula.replace(/\\f\\f/g, '').replace(/\\f/g, '');
       clean = clean.replace(/[\u000c\x0c]/g, '');
       clean = clean.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
       clean = clean.replace(/^rac\s*\{/g, '\\frac{');
@@ -69,13 +70,19 @@ const MathLivePreview: React.FC<{ formula: string }> = ({ formula }) => {
       html = (window as any).katex.renderToString(clean, { throwOnError: false });
     } catch (e) {}
   }
+
+  // Ép MathJax typeset ngay khi nạp công thức mới
+  if (typeof window !== 'undefined' && (window as any).MathJax && (window as any).MathJax.typesetPromise) {
+    try { (window as any).MathJax.typesetPromise(); } catch(e) {}
+  }
+
   return (
-    <div className="mt-1 px-2.5 py-1 bg-cyan-950/40 border border-cyan-500/30 rounded-lg flex items-center gap-2">
+    <div className="mt-1 px-2.5 py-1 bg-cyan-950/40 border border-cyan-500/30 rounded-lg flex items-center gap-2 tex2jax_process">
       <span className="text-[10px] uppercase font-bold text-cyan-400 shrink-0">Hiển thị KaTeX:</span>
       {html ? (
-        <span className="text-xs text-cyan-200 whitespace-nowrap inline-block" dangerouslySetInnerHTML={{ __html: html }} />
+        <span className="text-xs text-cyan-200 whitespace-nowrap inline-block tex2jax_process font-medium" dangerouslySetInnerHTML={{ __html: html }} />
       ) : (
-        <span className="text-xs font-mono text-cyan-200 font-bold whitespace-nowrap inline-block">{formula}</span>
+        <span className="text-xs font-mono text-cyan-200 font-bold whitespace-nowrap inline-block tex2jax_process">{cleanFormula}</span>
       )}
     </div>
   );
@@ -1004,15 +1011,23 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
     soundFx.playClick();
   };
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).MathJax && (window as any).MathJax.typesetPromise) {
+      (window as any).MathJax.typesetPromise().catch(() => {});
+    }
+  }, [questions]);
+
   const handleUpdate = (id: string, field: string, value: any) => {
-    setQuestions(questions.map(q => q.id === id ? { ...q, [field]: value } : q));
+    const cleanValue = typeof value === 'string' ? formatMathStringToTeX(value) : value;
+    setQuestions(questions.map(q => q.id === id ? { ...q, [field]: cleanValue } : q));
   };
 
   const handleUpdateOption = (id: string, optIndex: number, value: string) => {
+    const cleanValue = formatMathStringToTeX(value);
     setQuestions(questions.map(q => {
       if (q.id === id) {
         const newOpts = [...q.options];
-        newOpts[optIndex] = value;
+        newOpts[optIndex] = cleanValue;
         return { ...q, options: newOpts };
       }
       return q;
@@ -1069,12 +1084,12 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       onSave(tool.id, questions, gameTitle);
     }
 
-    // Bảo toàn dấu gạch chéo ngược LaTeX cho toàn bộ câu hỏi trước khi lưu
+    // Bảo toàn dấu gạch chéo ngược LaTeX và dọn rác công thức chuẩn cho toàn bộ câu hỏi trước khi lưu
     questionsToSave = questionsToSave.map(q => ({
       ...q,
-      question: escapeRawLaTeXSlash(q.question),
-      options: (q.options || ['A', 'B', 'C', 'D']).map(o => escapeRawLaTeXSlash(o)) as any,
-      explanation: q.explanation ? escapeRawLaTeXSlash(q.explanation) : ''
+      question: formatMathStringToTeX(escapeRawLaTeXSlash(q.question)),
+      options: (q.options || ['A', 'B', 'C', 'D']).map(o => formatMathStringToTeX(escapeRawLaTeXSlash(o))) as any,
+      explanation: q.explanation ? formatMathStringToTeX(escapeRawLaTeXSlash(q.explanation)) : ''
     }));
 
     // 1. Lưu LocalStorage

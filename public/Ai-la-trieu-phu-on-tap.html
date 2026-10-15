@@ -7,75 +7,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700;900&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
-    <script>
-// [GIAI ĐOẠN 2: CHUẨN HÓA DỮ LIỆU]
-window.quizData = [
-  ...([
-            { q: "Hệ phương trình bậc nhất ba ẩn có dạng tổng quát là gì?", options: ["$\\begin{cases} a_1x+b_1y+c_1z=d_1 \\\\ a_2x+b_2y+c_2z=d_2 \\\\ a_3x+b_3y+c_3z=d_3 \\end{cases}$", "$\\begin{cases} ax^2+by+cz=d \\\\ ... \\end{cases}$", "$\\begin{cases} ax+b=0 \\\\ cx+d=0 \\end{cases}$", "Phương trình $ax+by+cz=d$"], correct: 0 },
-            { q: "Bộ số $(1; -1; 2)$ là nghiệm của phương trình nào dưới đây?", options: ["$x+y+z=2$", "$2x-y+z=1$", "$x-y-z=0$", "$3x+2y+z=5$"], correct: 0 },
-            { q: "Để hệ phương trình bậc nhất ba ẩn có thể có nghiệm duy nhất, ta cần ít nhất bao nhiêu phương trình độc lập?", options: ["3", "2", "1", "4"], correct: 0 },
-            { q: "Hệ phương trình $\\begin{cases} x=1 \\\\ y=2 \\\\ x+y+z=6 \\end{cases}$ có nghiệm $z$ bằng bao nhiêu?", options: ["3", "1", "2", "6"], correct: 0 },
-            { q: "Phương trình $2x - 3y + 4z = 5$ được gọi là gì?", options: ["Phương trình bậc nhất ba ẩn", "Phương trình bậc hai ba ẩn", "Hệ phương trình", "Bất phương trình"], correct: 0 },
-            { q: "Một hệ phương trình bậc nhất ba ẩn KHÔNG thể có trường hợp số nghiệm nào sau đây?", options: ["Đúng 2 nghiệm phân biệt", "Vô nghiệm", "Nghiệm duy nhất", "Vô số nghiệm"], correct: 0 },
-            { q: "Giải hệ phương trình: $x+y=3$, $y+z=5$, $x+z=4$. Bộ nghiệm $(x,y,z)$ là?", options: ["$(1, 2, 3)$", "$(2, 1, 4)$", "$(1, 3, 2)$", "$(3, 0, 5)$"], correct: 0 },
-            { q: "Khẳng định nào sau đây SAI khi nói về hệ phương trình bậc nhất ba ẩn?", options: ["Luôn luôn có nghiệm duy nhất", "Có thể giải bằng phương pháp thế", "Có thể giải bằng phương pháp cộng đại số", "Biểu diễn sự tương giao của 3 mặt phẳng"], correct: 0 },
-            
-            { q: "Bước đầu tiên trong phương pháp quy nạp toán học là gì?", options: ["Kiểm tra mệnh đề đúng với giá trị đầu tiên ($n=1$)", "Giả sử mệnh đề đúng với mọi $n$", "Chứng minh mệnh đề đúng với $n=k+1$", "Kết luận mệnh đề đúng"], correct: 0 },
-            { q: "Trong phương pháp quy nạp, 'Giả thiết quy nạp' là bước giả sử mệnh đề đúng với giá trị nào?", options: ["$n=k \\ (k \\ge 1)$", "$n=1$", "$n=k+1$", "Mọi số thực"], correct: 0 },
-            { q: "Phương pháp quy nạp toán học thường dùng để chứng minh các mệnh đề liên quan đến tập hợp số nào?", options: ["Tập số tự nhiên $\\mathbb{N}^*$", "Tập số thực $\\mathbb{R}$", "Tập số hữu tỉ $\\mathbb{Q}$", "Tập số phức $\\mathbb{C}$"], correct: 0 },
-            { q: "Tổng $S_n = 1 + 2 + 3 + ... + n$ bằng biểu thức nào sau đây?", options: ["$\\frac{n(n+1)}{2}$", "$n^2$", "$\\frac{n(n-1)}{2}$", "$n(n+1)$"], correct: 0 },
-            { q: "Tổng $1 + 3 + 5 + ... + (2n-1)$ bằng biểu thức nào?", options: ["$n^2$", "$\\frac{n(n+1)}{2}$", "$n(n+1)$", "$2n^2$"], correct: 0 },
-            { q: "Cho mệnh đề '$n^3 - n$ chia hết cho 3'. Với $n=2$, giá trị của biểu thức $n^3 - n$ là bao nhiêu?", options: ["6", "3", "9", "4"], correct: 0 },
-            { q: "Bước thứ hai của phương pháp quy nạp là chứng minh mệnh đề đúng với giá trị nào?", options: ["$n=k+1$", "$n=k$", "$n=1$", "$n=k-1$"], correct: 0 },
-            { q: "Cho mệnh đề $P(n): 2^n > n$. $P(1)$ là mệnh đề nào sau đây?", options: ["$2^1 > 1$", "$2^n > 1$", "$2^2 > 2$", "$1^2 > 1$"], correct: 0 },
-            
-            { q: "Phương trình nào sau đây là phương trình chính tắc của đường Elip?", options: ["$\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1$", "$\\frac{x^2}{a^2} - \\frac{y^2}{b^2} = 1$", "$y^2 = 2px$", "$x^2 + y^2 = R^2$"], correct: 0 },
-            { q: "Phương trình chính tắc của đường Hypebol có dạng nào?", options: ["$\\frac{x^2}{a^2} - \\frac{y^2}{b^2} = 1$", "$\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1$", "$y^2 = 2px$", "$y = ax^2 + bx + c$"], correct: 0 },
-            { q: "Phương trình $y^2 = 2px$ ($p>0$) là phương trình chính tắc của đường conic nào?", options: ["Parabol", "Elip", "Hypebol", "Đường tròn"], correct: 0 },
-            { q: "Trong phương trình Elip $\\frac{x^2}{a^2} + \\frac{y^2}{b^2} = 1$ ($a>b>0$), hệ thức nào sau đây đúng?", options: ["$a^2 = b^2 + c^2$", "$c^2 = a^2 + b^2$", "$b^2 = a^2 + c^2$", "$a^2 = b^2 - c^2$"], correct: 0 },
-            { q: "Trong Hypebol $\\frac{x^2}{a^2} - \\frac{y^2}{b^2} = 1$, khoảng cách giữa hai tiêu điểm (tiêu cự) bằng bao nhiêu?", options: ["$2c$", "$2a$", "$2b$", "$c$"], correct: 0 },
-            { q: "Tâm sai của đường Elip được ký hiệu là $e$, khẳng định nào sau đây đúng?", options: ["$0 < e < 1$", "$e > 1$", "$e = 1$", "$e = 0$"], correct: 0 },
-            { q: "Tâm sai của mọi đường Parabol luôn bằng bao nhiêu?", options: ["1", "0", "0.5", "2"], correct: 0 },
-            { q: "Tiêu điểm của Parabol có phương trình chính tắc $y^2 = 2px$ là?", options: ["$(\\frac{p}{2}; 0)$", "$(p; 0)$", "$(-\\frac{p}{2}; 0)$", "$(0; \\frac{p}{2})$"], correct: 0 }
-        ]).map(q => ({...q, difficulty: 1})),
-  ...([
-            { q: "Tìm $m$ để hệ $\\begin{cases} x+y+z=1 \\\\ 2x-y+z=2 \\\\ x+2y+mz=3 \\end{cases}$ có nghiệm duy nhất.", options: ["$m \\neq 1$", "$m \\neq 2$", "$m \\neq 0$", "$m \\neq -1$"], correct: 0 },
-            { q: "Mua 1kg Cam, 2kg Táo, 1kg Nho giá 150k. Mua 2kg Cam, 1kg Táo, 2kg Nho giá 200k. Mua 1kg Cam, 1kg Táo, 1kg Nho giá 110k. Giá 1kg Táo là?", options: ["40.000đ", "30.000đ", "50.000đ", "60.000đ"], correct: 0 },
-            { q: "Nghiệm của hệ $\\begin{cases} x+y+z=6 \\\\ 2x-y+z=3 \\\\ x+2y-z=2 \\end{cases}$ là?", options: ["$(1, 2, 3)$", "$(2, 1, 3)$", "$(3, 2, 1)$", "$(1, 3, 2)$"], correct: 0 },
-            { q: "Lớp 10A và 10B trồng được 75 cây. 10B và 10C trồng được 85 cây. Cả 3 lớp trồng 120 cây. 10B trồng được bao nhiêu cây?", options: ["40 cây", "35 cây", "45 cây", "50 cây"], correct: 0 },
-            
-            { q: "Dùng quy nạp chứng minh $1^2 + 2^2 + ... + n^2 = \\frac{n(n+1)(2n+1)}{6}$. Nếu $n=3$ thì tổng bằng bao nhiêu?", options: ["14", "10", "16", "20"], correct: 0 },
-            { q: "Mệnh đề '$4^n - 1$ luôn chia hết cho số nguyên tố $p$' đúng với mọi $n \\in \\mathbb{N}^*$. Giá trị của $p$ là?", options: ["3", "5", "7", "2"], correct: 0 },
-            { q: "Tổng của cấp số nhân $S_n = 1 + q + q^2 + ... + q^{n-1}$ ($q \\neq 1$) bằng?", options: ["$\\frac{1-q^n}{1-q}$", "$\\frac{q^n-1}{1+q}$", "$\\frac{1-q^{n-1}}{1-q}$", "$\\frac{q(1-q^n)}{1-q}$"], correct: 0 },
-            { q: "Bất đẳng thức $2^n > 2n + 1$ đúng với mọi số tự nhiên $n$ thỏa mãn điều kiện nào sau đây?", options: ["$n \\ge 3$", "$n \\ge 1$", "$n \\ge 2$", "$n \\ge 4$"], correct: 0 },
-            
-            { q: "Tìm tọa độ các tiêu điểm của Elip có phương trình $\\frac{x^2}{25} + \\frac{y^2}{16} = 1$.", options: ["$F_1(-3;0), F_2(3;0)$", "$F_1(-4;0), F_2(4;0)$", "$F_1(-5;0), F_2(5;0)$", "$F_1(-9;0), F_2(9;0)$"], correct: 0 },
-            { q: "Phương trình đường chuẩn của Parabol $y^2 = 8x$ là gì?", options: ["$x = -2$", "$x = 2$", "$y = -2$", "$x = -4$"], correct: 0 },
-            { q: "Hypebol có độ dài nửa trục thực $a=3$, nửa trục ảo $b=4$. Tiêu cự của Hypebol này là bao nhiêu?", options: ["10", "5", "8", "6"], correct: 0 },
-            { q: "Viết phương trình chính tắc của Elip đi qua điểm $M(0; 3)$ và có một tiêu điểm $F(4; 0)$.", options: ["$\\frac{x^2}{25} + \\frac{y^2}{9} = 1$", "$\\frac{x^2}{16} + \\frac{y^2}{9} = 1$", "$\\frac{x^2}{9} + \\frac{y^2}{25} = 1$", "$\\frac{x^2}{25} + \\frac{y^2}{16} = 1$"], correct: 0 }
-        ]).map(q => ({...q, difficulty: 2})),
-  ...([
-            { q: "Máy I làm 2A, 1B, 3C/h; máy II làm 1A, 2B, 1C/h; máy III làm 3A, 1B, 2C/h. Cần 17A, 14B, 17C. Máy I cần hoạt động mấy giờ?", options: ["3 giờ", "2 giờ", "4 giờ", "5 giờ"], correct: 0 },
-            { q: "Cho hệ $\\begin{cases} x+ay+a^2z = a^3 \\\\ x+by+b^2z = b^3 \\\\ x+cy+c^2z = c^3 \\end{cases}$ (a,b,c phân biệt). Nghiệm x là?", options: ["$abc$", "$a+b+c$", "$ab+bc+ca$", "$1$"], correct: 0 },
-            { q: "Tìm tổng $x+y+z$ thỏa mãn: $\\frac{xy}{x+y} = \\frac{1}{3}, \\frac{yz}{y+z} = \\frac{1}{4}, \\frac{zx}{z+x} = \\frac{1}{5}$.", options: ["$\\frac{11}{6}$", "$\\frac{13}{6}$", "$\\frac{5}{6}$", "$\\frac{17}{6}$"], correct: 0 },
-            
-            { q: "Chứng minh bằng quy nạp: Tổng $S_n = \\frac{1}{1.2} + \\frac{1}{2.3} + ... + \\frac{1}{n(n+1)}$ bằng biểu thức nào?", options: ["$\\frac{n}{n+1}$", "$\\frac{n+1}{n}$", "$\\frac{n}{n+2}$", "$\\frac{1}{n+1}$"], correct: 0 },
-            { q: "Số miền mặt phẳng lớn nhất được chia bởi $n$ đường thẳng là bao nhiêu?", options: ["$\\frac{n^2+n+2}{2}$", "$\\frac{n^2+n}{2}$", "$n^2-n+2$", "$\\frac{n(n+1)}{2}$"], correct: 0 },
-            { q: "Với mọi số tự nhiên $n \\ge 1$, biểu thức $11^{n+1} + 12^{2n-1}$ luôn chia hết cho số nào dưới đây?", options: ["133", "121", "144", "169"], correct: 0 },
-            
-            { q: "Vòm cầu mặt cắt nửa Elip, rộng 10m, cao 4m. Tại vị trí cách tim vòm 3m, chiều cao của vòm là?", options: ["3.2m", "3.5m", "2.8m", "3.8m"], correct: 0 },
-            { q: "Chảo parabol rộng 4m, sâu 1m. Khoảng cách từ đỉnh chảo đến tiêu điểm (nơi thu sóng) là?", options: ["1m", "0.5m", "2m", "1.5m"], correct: 0 },
-            { q: "Trạm A, B cách 100km. Tàu nhận tín hiệu A sớm hơn B 200 $\\mu s$. Vận tốc sóng $3 \\times 10^5$ km/s. PT Hypebol quỹ đạo tàu (gốc là trung điểm AB)?", options: ["$\\frac{x^2}{900} - \\frac{y^2}{1600} = 1$", "$\\frac{x^2}{1600} - \\frac{y^2}{900} = 1$", "$\\frac{x^2}{2500} - \\frac{y^2}{900} = 1$", "$\\frac{x^2}{900} - \\frac{y^2}{2500} = 1$"], correct: 0 }
-        ]).map(q => ({...q, difficulty: 3}))
-];
-
-
+        <script>
         window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
-            svg: { fontCache: 'global' }
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
         };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://jsdelivr.net"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
 
     <style>
         body {
@@ -158,7 +105,18 @@ window.quizData = [
         .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
-</head>
+
+<style id="mathjax-no-bounding-box-style">
+/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax và ép thẳng 1 dòng */
+mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process, .math-content, .math-text, .MathJax, [class*="math-"] {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    white-space: nowrap !important; /* Ép phân số và dấu căn \(\sqrt\) nằm thẳng một dòng */
+    display: inline-block !important;
+    overflow: visible !important;
+}
+</style></head>
 <body class="h-screen w-screen flex flex-col items-center justify-between py-4 relative">
 
     <div class="studio-bg"></div>
@@ -1065,5 +1023,88 @@ window.quizData = [
 </script>
 <!-- KẾT THÚC BỘ SỬA -->
 
+
+<script id="__TEACHER_MATHJAX_CLEANER_AND_SCANNER__">
+function formatMathStringToTeX(rawContent) {
+    if (typeof rawContent !== 'string') return rawContent;
+
+    let cleanContent = rawContent;
+
+    // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
+    cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
+                               .replace(/\\f\s*\\frac/g, '\\frac')
+                               .replace(/\\ffrac/g, '\\frac')
+                               .replace(/\\f/g, ''); // Khử sạch các ký tự \f cô độc
+
+    // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
+    cleanContent = cleanContent.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
+
+    // Tự động chèn khoảng trắng mảnh ngăn dính chữ tiếng Việt (Ví dụ: "0trong", "]là:")
+    cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');
+    var cleanStr = cleanContent;
+    cleanStr = cleanStr.replace(/(\))(trong|đoạn|là)/g, '$1 $2');
+    cleanContent = cleanStr;
+    cleanContent = cleanContent.replace(/\]là\:/g, '\] là:');
+
+    // Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) bảo vệ các ký hiệu \sqrt, \le, \ge, \ne
+    cleanContent = cleanContent.replace(/\\\\/g, '\\');
+
+    return cleanContent;
+}
+window.formatMathStringToTeX = formatMathStringToTeX;
+
+(function() {
+    function applyTex2jaxProcess() {
+        var selectors = [
+            '.question', '.q-text', '.stem', '#question', '#questionText', '#stem', '#q-text',
+            '.option', '.answer-btn', '.btn-abcd', '.opt-btn', '.option-btn', '.answer-option',
+            '.card', '.card-func', '.card-prop', '.pair-card', '.tile', '.flip-card',
+            '.math-content', '.math-text', '[class*="question"]', '[class*="answer"]', '[class*="option"]', '[class*="card"]'
+        ];
+        selectors.forEach(function(sel) {
+            document.querySelectorAll(sel).forEach(function(el) {
+                if (!el.classList.contains('tex2jax_process')) {
+                    el.classList.add('tex2jax_process');
+                }
+            });
+        });
+        if (document.body && !document.body.classList.contains('tex2jax_process')) {
+            document.body.classList.add('tex2jax_process');
+        }
+    }
+    window.applyTex2jaxProcess = applyTex2jaxProcess;
+
+    function triggerMathTypeset() {
+        try {
+            applyTex2jaxProcess();
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise().catch(function() {});
+            }
+        } catch(e) {}
+    }
+    window.triggerMathTypeset = triggerMathTypeset;
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            applyTex2jaxProcess();
+            triggerMathTypeset();
+        });
+    } else {
+        applyTex2jaxProcess();
+        triggerMathTypeset();
+    }
+    window.addEventListener('load', function() {
+        applyTex2jaxProcess();
+        triggerMathTypeset();
+    });
+
+    try {
+        var obs = new MutationObserver(function() {
+            applyTex2jaxProcess();
+        });
+        obs.observe(document.documentElement, { childList: true, subtree: true });
+    } catch(e) {}
+})();
+</script>
 </body>
 </html>
