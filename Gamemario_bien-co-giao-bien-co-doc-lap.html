@@ -231,6 +231,16 @@
             white-space: nowrap !important;
             display: inline-block !important;
         }
+
+        /* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax */
+        mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text {
+            outline: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            white-space: nowrap !important; /* Ép phân số và dấu căn \(\sqrt\) nằm thẳng một dòng */
+            display: inline-block !important;
+            overflow: visible !important;
+        }
         /* Giữ nguyên quyền tự động xuống dòng theo từ cho văn bản chữ tiếng Việt bình thường */
         .question-box-content, .question-container, .question-text {
             word-wrap: break-word !important;

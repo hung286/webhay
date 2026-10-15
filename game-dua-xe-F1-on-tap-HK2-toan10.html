@@ -51,7 +51,7 @@
         .math-font { font-family: 'JetBrains Mono', monospace; }
 
         /* 3. ĐỊNH DẠNG CÔNG THỨC TOÁN MATHJAX CHỐNG BẺ ĐÔI & MÀU TRẮNG SẮC NÉT */
-        .question-text mjx-container, mjx-container, .mjx-chtml, .answer-btn mjx-container, .option-card mjx-container, .math-content, .math-text, .MathJax, mjx-math, mjx-mo,
+        .question-text mjx-container, mjx-container, .mjx-chtml, .answer-btn mjx-container, .option-card mjx-container, .math-content, .math-text, .MathJax, mjx-math, mjx-mo, .zombie-math-text,
         .drag-item, .card-element, .card-prop, .card-func, .answer-btn, .option-card {
             white-space: nowrap !important; /* Tuyệt đối không cho phép tự ý xuống dòng bẻ đôi biểu thức */
             display: inline-block !important;
@@ -62,7 +62,7 @@
             color: #ffffff !important;
             -webkit-tap-highlight-color: transparent !important;
         }
-        .question-text mjx-container *, mjx-container *, .mjx-chtml *, .answer-btn mjx-container *, .option-card mjx-container *, .MathJax *, mjx-mo *,
+        .question-text mjx-container *, mjx-container *, .mjx-chtml *, .answer-btn mjx-container *, .option-card mjx-container *, .MathJax *, mjx-mo *, .zombie-math-text *,
         .drag-item *, .card-element *, .card-prop *, .card-func *, .answer-btn *, .option-card * {
             white-space: nowrap !important;
             color: #ffffff !important;
@@ -1306,7 +1306,36 @@
             }
         }
 
+        function escapeRawLaTeXSlash(rawStr) {
+            if (typeof rawStr !== 'string') return rawStr || '';
+            var safeStr = rawStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\u000c\x0c]/g, '');
+            var strictKeywords = ['frac', 'sqrt', 'cdot', 'ne', 'neq', 'le', 'leq', 'ge', 'geq', 'perp', 'parallel', 'alpha', 'beta', 'cup', 'cap', 'in'];
+            strictKeywords.forEach(function(keyword) {
+                var regexNoSlash = new RegExp('(?<!\\\\)\\b' + keyword + '\\b', 'g');
+                safeStr = safeStr.replace(regexNoSlash, '\\\\' + keyword);
+                var regexSingleSlash = new RegExp('(?<!\\\\)\\\\(?!\\\\)' + keyword + '\\b', 'g');
+                safeStr = safeStr.replace(regexSingleSlash, '\\\\' + keyword);
+            });
+            return safeStr;
+        }
+
+        function sanitizeObjectLaTeXSlashes(obj) {
+            if (typeof obj === 'string') return escapeRawLaTeXSlash(obj);
+            if (Array.isArray(obj)) return obj.map(function(item) { return sanitizeObjectLaTeXSlashes(item); });
+            if (obj !== null && typeof obj === 'object') {
+                var res = {};
+                for (var key in obj) {
+                    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                        res[key] = sanitizeObjectLaTeXSlashes(obj[key]);
+                    }
+                }
+                return res;
+            }
+            return obj;
+        }
+
         function adminSaveQuestions() {
+            window.gameDatabase = sanitizeObjectLaTeXSlashes(window.gameDatabase);
             try {
                 localStorage.setItem('f1_custom_database', JSON.stringify(window.gameDatabase));
             } catch(e) {}

@@ -143,6 +143,16 @@
             color: #ffffff !important;
         }
 
+        /* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax */
+        mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text {
+            outline: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            white-space: nowrap !important; /* Ép phân số và dấu căn \(\sqrt\) nằm thẳng một dòng */
+            display: inline-block !important;
+            overflow: visible !important;
+        }
+
         /* BÓP GỌN TOPBAR VÀ ĐIỀU CHỈNH TRÊN MOBILE */
         @media (max-width: 768px) {
             #admin-topbar {
