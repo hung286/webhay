@@ -1920,7 +1920,18 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
   else if (cleanUrl.includes('keo-tha')) {
     const cleanFormula = (text: string): string => {
       if (!text) return '';
-      let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+      let res = text.replace(/[\u000c\x0c]/g, '').trim();
+      res = res.replace(/\\+rac/g, '\\frac')
+               .replace(/\bracf\(/g, '\\frac{f(')
+               .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
+               .replace(/^rac\s*\{/g, '\\frac{')
+               .replace(/\brac\b/g, '\\frac')
+               .replace(/rac(?=[0-9\\{])/g, '\\frac')
+               .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
+               .replace(/rac/g, '\\frac');
+      res = res.replace(/cdot/g, '\\cdot')
+               .replace(/(?<!\\)frac/g, '\\frac')
+               .replace(/(?<!\\)cdot/g, '\\cdot');
       res = res.replace(/\bN\s+?u\b/g, 'Nếu')
                .replace(/\bH\s+ai\b/g, 'Hai')
                .replace(/\bC\s+ho\b/g, 'Cho')
@@ -2147,37 +2158,177 @@ window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
             margin: 0 !important;
             padding: 0 !important;
         }
+        .math-text { 
+            font-size: 1rem; 
+            line-height: 1.5; 
+            color: #ffffff;
+            font-weight: 500;
+        }
+        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container, .MathJax { 
+            white-space: nowrap !important;
+            display: inline-block !important;
+            color: #ffffff !important;
+        }
+        .math-text *, .math-content *, .katex *, mjx-container *, .mjx-chtml *, .MathJax * {
+            white-space: nowrap !important;
+            color: #ffffff !important;
+        }
+        .math-text .katex, .math-content .katex, mjx-container { 
+            color: #ffffff !important;
+            font-family: 'JetBrains Mono', monospace;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+            font-size: 1.05em;
+        }
         @media (max-width: 768px) {
             body {
                 height: 100dvh !important;
                 max-height: 100dvh !important;
                 overflow: hidden !important;
             }
+            .topbar-wrapper {
+                height: 40px !important;
+                max-height: 40px !important;
+                padding: 2px 6px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                overflow: hidden !important;
+                background: rgba(5, 5, 5, 0.9) !important;
+                backdrop-filter: blur(10px) !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                z-index: 45 !important;
+            }
+            .brand-badge {
+                padding: 2px 5px !important;
+                height: 30px !important;
+                border-radius: 8px !important;
+                gap: 4px !important;
+            }
+            .brand-icon {
+                width: 20px !important;
+                height: 20px !important;
+                min-width: 20px !important;
+                border-radius: 5px !important;
+            }
+            .brand-text {
+                font-size: 0.75rem !important;
+                line-height: 1 !important;
+            }
+            .brand-text-sub {
+                display: none !important;
+            }
+            .system-buttons {
+                display: flex !important;
+                align-items: center !important;
+                gap: 3px !important;
+                flex-wrap: nowrap !important;
+            }
+            .btn-system-topic, .btn-system-fs, #btn-admin-gear {
+                padding: 2px 6px !important;
+                height: 28px !important;
+                font-size: 0.75rem !important;
+                border-radius: 6px !important;
+                white-space: nowrap !important;
+                line-height: 1 !important;
+            }
+            #header-panel {
+                height: 34px !important;
+                max-height: 40px !important;
+                padding: 2px 4px !important;
+                margin: 0 !important;
+                border-radius: 8px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                align-items: center !important;
+                gap: 3px !important;
+                background: rgba(10, 15, 28, 0.95) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+            #header-panel > div {
+                padding: 2px 5px !important;
+                height: 26px !important;
+                border-radius: 6px !important;
+                font-size: 0.8rem !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 2px !important;
+                white-space: nowrap !important;
+            }
+            #game-board {
+                padding-top: 44px !important;
+                padding-bottom: 2px !important;
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                display: flex !important;
+                flex-direction: column !important;
+                box-sizing: border-box !important;
+            }
+            #function-nodes {
+                width: 100% !important;
+                padding: 2px 2px !important;
+                gap: 6px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: stretch !important;
+                shrink: 0 !important;
+                max-height: 110px !important;
+                z-index: 30 !important;
+            }
             .card-func {
-                padding: 8px 10px !important;
-                min-width: 130px !important;
-                max-width: 160px !important;
+                min-width: 0 !important;
+                flex: 1 1 0 !important;
+                max-width: 33% !important;
+                padding: 4px 6px !important;
+                border-radius: 10px !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+            }
+            .card-func .math-content {
+                font-size: 0.95rem !important;
+                margin-bottom: 2px !important;
+                white-space: nowrap !important;
+                line-height: 1.2 !important;
+            }
+            .card-func .math-content * {
+                white-space: nowrap !important;
+            }
+            #property-arena {
+                flex: 1 1 auto !important;
+                width: 100% !important;
+                height: calc(100% - 120px) !important;
+                margin-top: 4px !important;
+                overflow: hidden !important;
+                position: relative !important;
+                touch-action: none !important;
             }
             .card-prop {
-                padding: 6px 10px !important;
-                font-size: 11px !important;
-                min-width: 100px !important;
+                padding: 4px 8px !important;
                 max-width: 180px !important;
-                line-height: 1.3 !important;
+                min-width: 80px !important;
+                font-size: 0.75rem !important;
+                border-radius: 8px !important;
+                touch-action: none !important;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.6) !important;
+            }
+            .card-prop .math-text {
+                font-size: 0.75rem !important;
+                line-height: 1.2 !important;
+                white-space: nowrap !important;
+            }
+            .card-prop .math-text * {
+                white-space: nowrap !important;
             }
             #overlay-content,
             #ingame-editor-modal > div {
-                max-height: 80dvh !important;
+                max-height: 85dvh !important;
                 overflow-y: auto !important;
                 -webkit-overflow-scrolling: touch !important;
             }
-        }
-        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container {
-            white-space: nowrap !important;
-            display: inline-block !important;
-        }
-        .math-text .katex *, .math-text mjx-container *, .math-content .katex *, .math-content mjx-container *, .katex *, mjx-container * {
-            white-space: nowrap !important;
         }
       \`;
       document.head.appendChild(style);
