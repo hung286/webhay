@@ -144,26 +144,29 @@
             padding-bottom: 20px !important;
         }
 
-        .tetris-answer-btn {
-            padding: 8px 14px !important;
-            margin-top: 6px !important;
-            font-size: 0.9rem !important;
-            border-radius: 8px !important;
+        .tetris-answer-btn, .answer-text-container, .option-btn {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: left !important;
+            padding: 12px 16px !important;
+            display: block !important;
             width: 100% !important;
         }
 
         /* CỤM PHÍM ĐIỀU KHIỂN ĐÁY CHUẨN SAFE AREA */
-        .tetris-mobile-controls {
+        .tetris-mobile-controls, .control-buttons-wrapper, #mobileControls {
             position: fixed !important;
             bottom: 0 !important;
             left: 0 !important;
             right: 0 !important;
             width: 100% !important;
-            padding-bottom: calc(20px + env(safe-area-inset-bottom, 25px)) !important;
+            padding-bottom: calc(45px + env(safe-area-inset-bottom, 20px)) !important;
             z-index: 99999 !important;
-            background: rgba(15, 23, 42, 0.7) !important;
+            background: rgba(15, 23, 42, 0.85) !important;
             backdrop-filter: blur(10px) !important;
             margin: 0 auto !important;
+            box-sizing: border-box !important;
         }
 
         .control-btn, .tetris-btn {
@@ -172,18 +175,17 @@
             user-select: none !important;
         }
 
-        .question-text, .answer-btn, .option-btn, .tetris-answer-btn, mjx-container {
+        .tetris-answer-btn mjx-container, mjx-container, .option-btn mjx-container {
             white-space: nowrap !important;
             display: inline-block !important;
         }
 
-        #questionText {
+        .question-text, #questionText {
             white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
             display: block !important;
-        }
-        #questionText mjx-container, .tetris-answer-btn mjx-container, .option-btn mjx-container {
-            white-space: nowrap !important;
-            display: inline-block !important;
+            width: 100% !important;
         }
 
         /* Hybrid Native + CSS Viewport Fullscreen Fallback */
@@ -223,7 +225,7 @@
             #mainGameArea {
                 height: 100dvh !important;
                 max-height: 100dvh !important;
-                padding: 4px 4px 96px 4px !important;
+                padding: 4px 4px calc(115px + env(safe-area-inset-bottom, 20px)) 4px !important;
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: flex-start !important;
@@ -231,14 +233,14 @@
                 overflow: hidden !important;
             }
             #game-board {
-                height: calc(100dvh - 165px) !important;
-                max-height: calc(100dvh - 165px) !important;
+                height: calc(100dvh - 185px) !important;
+                max-height: calc(100dvh - 185px) !important;
                 aspect-ratio: 10 / 20 !important;
                 margin: 44px auto 0 auto !important;
                 padding: 2px !important;
                 border-width: 2px !important;
             }
-            #mobileControls, .tetris-mobile-controls {
+            #mobileControls, .tetris-mobile-controls, .control-buttons-wrapper {
                 position: fixed !important;
                 bottom: 0 !important;
                 left: 0 !important;
@@ -251,10 +253,11 @@
                 display: flex !important;
                 justify-content: center !important;
                 align-items: center !important;
-                padding: 10px 8px calc(20px + env(safe-area-inset-bottom, 25px)) 8px !important;
-                background: rgba(15, 23, 42, 0.7) !important;
+                padding: 10px 8px calc(45px + env(safe-area-inset-bottom, 20px)) 8px !important;
+                background: rgba(15, 23, 42, 0.85) !important;
                 backdrop-filter: blur(10px) !important;
                 pointer-events: auto !important;
+                box-sizing: border-box !important;
             }
             .control-btn {
                 width: 64px !important;
@@ -415,6 +418,11 @@
     <div id="quizModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3 sm:p-4">
         <div class="tetris-question-modal quiz-overlay-box bg-[#0f172a] rounded-[2rem] p-5 sm:p-8 md:p-10 w-full max-w-4xl max-h-[72dvh] overflow-y-auto custom-scroll transform scale-95 transition-transform duration-300 neon-box relative flex flex-col items-center" id="modalContent" style="max-height: 72dvh !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; padding-bottom: 20px !important;">
             
+            <div id="tetris-next-preview-overlay" style="position: absolute; top: 12px; right: 15px; background: rgba(0,0,0,0.5); border: 1px solid #38bdf8; padding: 6px; border-radius: 8px; text-align: center; z-index: 100000;">
+                <div style="font-size: 0.65rem; color: #38bdf8; margin-bottom: 2px; font-weight: bold;">TIẾP THEO</div>
+                <canvas id="mini-next-canvas" width="50" height="50" style="display: block;"></canvas>
+            </div>
+
             <div class="absolute -top-8 bg-[#09090b] px-6 py-2 rounded-full border-2 border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.6)]">
                 <span class="text-lg font-black text-sky-400 uppercase tracking-widest neon-text-blue">Thử Thách Hình Học</span>
             </div>
@@ -426,6 +434,7 @@
             <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 <!-- JS chèn nút đáp án -->
             </div>
+        </div>
     </div>
 
     <!-- MODAL GAME OVER -->
@@ -995,7 +1004,28 @@
             { name: 'Z', mat: [[1,1,0],[0,1,1],[0,0,0]], color: 'color-Z' }
         ];
 
+        const colorHexMap = {
+            'color-I': '#06b6d4',
+            'color-J': '#3b82f6',
+            'color-L': '#f97316',
+            'color-O': '#facc15',
+            'color-S': '#22c55e',
+            'color-T': '#a855f7',
+            'color-Z': '#f43f5e'
+        };
+
         let currentPiece = null;
+        let nextPiece = null;
+
+        function getRandomTetromino() {
+            const r = Math.floor(Math.random() * TETROMINOES.length);
+            const tetro = TETROMINOES[r];
+            return {
+                mat: tetro.mat.map(row => [...row]),
+                color: tetro.color,
+                name: tetro.name
+            };
+        }
 
         // Khởi tạo Bàn cờ HTML 200 ô
         const boardEl = document.getElementById('game-board');
@@ -1011,12 +1041,16 @@
 
         // Sinh khối mới ở trên cùng
         function spawnPiece() {
-            const r = Math.floor(Math.random() * TETROMINOES.length);
-            const tetro = TETROMINOES[r];
+            if (!nextPiece) {
+                nextPiece = getRandomTetromino();
+            }
+            const picked = nextPiece;
+            nextPiece = getRandomTetromino();
+
             currentPiece = {
-                mat: tetro.mat.map(row => [...row]),
-                color: tetro.color,
-                x: Math.floor(COLS / 2) - Math.floor(tetro.mat[0].length / 2),
+                mat: picked.mat.map(row => [...row]),
+                color: picked.color,
+                x: Math.floor(COLS / 2) - Math.floor(picked.mat[0].length / 2),
                 y: 0
             };
             
@@ -1030,6 +1064,68 @@
                 saveToLeaderboard();
             }
             updateBoardView();
+        }
+
+        function drawNextPiecePreview(canvasId = 'mini-next-canvas') {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || !nextPiece) return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.clearRect(0, 0, width, height);
+
+            const mat = nextPiece.mat;
+            const rows = mat.length;
+            const cols = mat[0].length;
+
+            let minR = rows, maxR = -1, minC = cols, maxC = -1;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (mat[r][c]) {
+                        if (r < minR) minR = r;
+                        if (r > maxR) maxR = r;
+                        if (c < minC) minC = c;
+                        if (c > maxC) maxC = c;
+                    }
+                }
+            }
+
+            if (maxR === -1) return;
+
+            const shapeRows = maxR - minR + 1;
+            const shapeCols = maxC - minC + 1;
+            const cellSize = Math.min(Math.floor((width - 8) / Math.max(shapeCols, shapeRows)), 12);
+            
+            const shapeWidth = shapeCols * cellSize;
+            const shapeHeight = shapeRows * cellSize;
+            const offsetX = Math.floor((width - shapeWidth) / 2);
+            const offsetY = Math.floor((height - shapeHeight) / 2);
+
+            const fillColor = colorHexMap[nextPiece.color] || '#38bdf8';
+
+            for (let r = minR; r <= maxR; r++) {
+                for (let c = minC; c <= maxC; c++) {
+                    if (mat[r][c]) {
+                        const px = offsetX + (c - minC) * cellSize;
+                        const py = offsetY + (r - minR) * cellSize;
+
+                        ctx.fillStyle = fillColor;
+                        ctx.beginPath();
+                        if (ctx.roundRect) {
+                            ctx.roundRect(px, py, cellSize - 1, cellSize - 1, 2);
+                        } else {
+                            ctx.rect(px, py, cellSize - 1, cellSize - 1);
+                        }
+                        ctx.fill();
+
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+            }
         }
 
         // Thuật toán phát hiện va chạm
@@ -1645,6 +1741,8 @@
             const qText = document.getElementById('questionText');
             const optContainer = document.getElementById('optionsContainer');
             
+            drawNextPiecePreview('mini-next-canvas');
+
             const qData = getNextQuestion();
 
             optContainer.innerHTML = '';
@@ -1795,8 +1893,8 @@
 
                 options.forEach((optHTML, idx) => {
                     const btn = document.createElement('button');
-                    btn.className = "option-btn tetris-answer-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-3 sm:py-5 px-4 sm:px-6 rounded-2xl text-center text-base md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[56px] sm:min-h-[72px] active:scale-95 cursor-pointer";
-                    btn.innerHTML = `<span class="w-full leading-relaxed">${formatMathSpacers(optHTML)}</span>`;
+                    btn.className = "option-btn tetris-answer-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-3 sm:py-5 px-4 sm:px-6 rounded-2xl text-left text-base md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-start min-h-[56px] sm:min-h-[72px] active:scale-95 cursor-pointer";
+                    btn.innerHTML = `<span class="answer-text-container w-full leading-relaxed">${formatMathSpacers(optHTML)}</span>`;
                     btn.onclick = () => answerQuiz(idx, qData.explanation);
                     optContainer.appendChild(btn);
                 });
@@ -1889,6 +1987,7 @@
             score = 0;
             isQuizActive = false;
             gameState = 'playing';
+            nextPiece = null;
             document.getElementById('gameOverModal').classList.add('hidden');
             document.getElementById('gameOverModal').classList.remove('flex');
             spawnPiece();
