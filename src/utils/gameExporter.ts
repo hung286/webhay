@@ -386,6 +386,7 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
 
       // KÍCH HOẠT 2: SỬA DỨT ĐIỂM LỖI DẤU CĂN & KÝ TỰ RÁC √/
       res = res.replace(/(?:\\sqrt|√)\s*\/\s*/g, '\\sqrt ');
+      res = res.replace(/(?:\\sqrt|√)\s*\(\s*([^()]+?)\s*\)/g, '\\sqrt{$1}');
       res = res.replace(/√/g, '\\sqrt ');
       res = res.replace(/\\sqrt\s*\{\s*x\s*\}\s*-\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)))/gi, '\\sqrt{x - 1}');
       res = res.replace(/\\sqrt\s*\{\s*x\s*\}\s*\+\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)))/gi, '\\sqrt{x + 1}');
@@ -4723,13 +4724,12 @@ var questions = window.quizData;
             processEscapes: true
         },
         options: {
-            ignoreHtmlClass: 'tex2jax_ignore',
+            ignoreHtmlClass: 'tex2jax_ignore|katex|katex-mathml|katex-html',
             processHtmlClass: 'tex2jax_process'
         }
     };
 </script>
-<script id="MathJax-script" async src="https://jsdelivr.net"></script>
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 `;
 
   // Thay thế cấu hình cũ nếu có (chỉ khớp chính xác thẻ script chứa window.MathJax, không nuốt các thẻ script trước đó)
