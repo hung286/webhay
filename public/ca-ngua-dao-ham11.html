@@ -209,6 +209,24 @@
             }
         }
 
+        /* KÍCH HOẠT THANH CUỘN LƯỚT CHO MÀN HÌNH ĐĂNG KÝ NGỰA (SCROLL VIEWPORT FIX) */
+        .setup-screen, .lobby-wrapper, #game-setup-container {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 100dvh !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding-bottom: 80px !important;
+            box-sizing: border-box !important;
+        }
+
+        body.in-setup, #app.in-setup {
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            height: auto !important;
+            min-height: 100dvh !important;
+        }
+
         .katex { font-size: 1.1em; color: #67e8f9; }
     </style>
 </head>
@@ -395,6 +413,8 @@ window.quizData = ([
         function initDOM() {
             try {
                 if (state.phase === 'setup') { renderSetup(); return; }
+                document.body.classList.remove('in-setup');
+                if (appEl) appEl.classList.remove('in-setup');
                 if (state.phase === 'finished') { renderFinished(); return; }
 
                 appEl.innerHTML = `
@@ -1119,6 +1139,9 @@ window.quizData = ([
         // 6. SETUP & ENDGAME
         // ==========================================
         function renderSetup() {
+            document.body.classList.add('in-setup');
+            if (appEl) appEl.classList.add('in-setup');
+
             let inputsHTML = state.players.map((p, idx) => `
                 <div class="flex items-center gap-4 p-3 rounded-2xl bg-black/40 border-l-4 ${p.border}">
                     ${getHorseSVG(p.hex, `setup-${p.id}`, 40)}
@@ -1129,15 +1152,15 @@ window.quizData = ([
             `).join('');
 
             appEl.innerHTML = `
-                <div class="flex flex-col items-center justify-center flex-1 w-full animate-fade-in relative z-20">
-                    <div class="w-full max-w-lg bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-                        <div class="text-center mb-8">
-                            <h1 class="text-4xl font-black bg-gradient-to-r from-cyan-400 to-pink-500 text-transparent bg-clip-text mb-2 leading-relaxed py-2">ĐĂNG KÝ THẦN MÃ</h1>
-                            <p class="text-slate-400 font-medium">Toán 11: Đạo Hàm - Cập Nhật Lỗi Màn Hình Đen</p>
+                <div id="game-setup-container" class="setup-screen lobby-wrapper flex flex-col items-center justify-start sm:justify-center flex-1 w-full animate-fade-in relative z-20 py-6 px-3 sm:px-4">
+                    <div class="w-full max-w-lg bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl">
+                        <div class="text-center mb-6 sm:mb-8">
+                            <h1 class="text-3xl sm:text-4xl font-black bg-gradient-to-r from-cyan-400 to-pink-500 text-transparent bg-clip-text mb-2 leading-relaxed py-2">ĐĂNG KÝ THẦN MÃ</h1>
+                            <p class="text-slate-400 font-medium text-sm sm:text-base">Toán 11: Đạo Hàm - Cập Nhật Lỗi Màn Hình Đen</p>
                         </div>
                         <div class="space-y-4">${inputsHTML}</div>
-                        <button onclick="startGame()" class="w-full mt-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 rounded-2xl font-black text-xl flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg> KHỞI TRANH
+                        <button onclick="startGame()" class="w-full mt-6 sm:mt-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 rounded-2xl font-black text-xl flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95 shadow-xl cursor-pointer">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg> BẮT ĐẦU CHƠI
                         </button>
                     </div>
                 </div>
@@ -1145,6 +1168,9 @@ window.quizData = ([
         }
 
         function renderFinished() {
+            document.body.classList.remove('in-setup');
+            if (appEl) appEl.classList.remove('in-setup');
+
             const sorted = [...state.players].sort((a,b) => b.score - a.score);
             const winner = sorted[0];
 
@@ -1184,9 +1210,22 @@ window.quizData = ([
             SFX.win();
         }
 
-        window.startGame = () => { state.phase = 'playing'; initDOM(); };
-        window.endGame = () => { state.phase = 'finished'; initDOM(); };
-        window.openTopicMenu = () => { state.phase = 'setup'; initDOM(); };
+        window.startGame = () => { 
+            document.body.classList.remove('in-setup'); 
+            if (appEl) appEl.classList.remove('in-setup'); 
+            state.phase = 'playing'; 
+            initDOM(); 
+        };
+        window.endGame = () => { 
+            document.body.classList.remove('in-setup'); 
+            if (appEl) appEl.classList.remove('in-setup'); 
+            state.phase = 'finished'; 
+            initDOM(); 
+        };
+        window.openTopicMenu = () => { 
+            state.phase = 'setup'; 
+            initDOM(); 
+        };
 
         // Mồi sẵn SafeMode Init
         try { initDOM(); } catch(err) { console.error(err); }
@@ -1198,11 +1237,11 @@ window.quizData = ([
 <!-- ========================================== -->
 
 <!-- TOPBAR ADMIN CONTROLS: Cặp nút "CHUYÊN ĐỀ" màu cam và "⚙️ SỬA DỮ LIỆU" màu xanh dương -->
-<div id="admin-topbar" class="fixed top-2 right-2 sm:top-3 sm:right-4 z-[9990] flex items-center gap-1.5 sm:gap-2 pointer-events-auto">
+<div id="admin-topbar" style="display: none !important;" class="hidden fixed top-2 right-2 sm:top-3 sm:right-4 z-[9990] flex items-center gap-1.5 sm:gap-2 pointer-events-auto">
     <button id="btn-chuyen-de" type="button" onclick="if(typeof openTopicMenu==='function'){openTopicMenu();}else if(typeof renderSetup==='function'){state.phase='setup';initDOM();}" data-admin-control="true" class="flex items-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-black text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl shadow-lg border border-amber-300/40 transition-all hover:scale-105 active:scale-95 cursor-pointer" title="Chuyên đề">
         <span>📚 CHUYÊN ĐỀ</span>
     </button>
-    <button id="btn-admin-gear" type="button" class="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl shadow-lg shadow-blue-600/40 border border-blue-400/40 transition-all hover:scale-105 active:scale-95 cursor-pointer">
+    <button id="btn-admin-gear" type="button" onclick="openAdminPinPrompt()" class="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl shadow-lg shadow-blue-600/40 border border-blue-400/40 transition-all hover:scale-105 active:scale-95 cursor-pointer">
         <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         <span>⚙️ SỬA DỮ LIỆU</span>
     </button>
@@ -1678,16 +1717,54 @@ window.quizData = ([
         }
     }
 
-    // 8. GẮN SỰ KIỆN CLICK CHÍNH XÁC VÀO NÚT MÀU XANH "⚙️ SỬA DỮ LIỆU"
+    // 8. ĐỒNG BỘ BẢO MẬT ADMIN & CẶP NÚT TOPBAR (?role=admin)
+    function applyAdminSecurity() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const isAdmin = params.get('role') === 'admin' || 
+                            params.get('preview') === 'true' || 
+                            params.get('admin') === '1' ||
+                            window.location.hash.includes('admin');
+            const adminTopbar = document.getElementById('admin-topbar');
+            const adminControls = document.getElementById('admin-controls');
+            const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+            if (isAdmin) {
+                if (adminTopbar) {
+                    adminTopbar.style.setProperty('display', 'flex', 'important');
+                    adminTopbar.classList.remove('hidden');
+                }
+                if (adminControls) adminControls.style.setProperty('display', 'flex', 'important');
+                adminBtns.forEach(btn => {
+                    btn.classList.remove('hidden');
+                    btn.style.setProperty('display', 'inline-flex', 'important');
+                });
+            } else {
+                if (adminTopbar) {
+                    adminTopbar.style.setProperty('display', 'none', 'important');
+                    adminTopbar.classList.add('hidden');
+                }
+                if (adminControls) adminControls.style.setProperty('display', 'none', 'important');
+                adminBtns.forEach(btn => {
+                    btn.classList.add('hidden');
+                    btn.style.setProperty('display', 'none', 'important');
+                });
+            }
+        } catch(e) {}
+    }
+    window.applyAdminSecurity = applyAdminSecurity;
+
+    // 9. GẮN SỰ KIỆN CLICK & TOUCH VÀO NÚT MÀU XANH "⚙️ SỬA DỮ LIỆU"
     function setupAdminGearListeners() {
         const btnGear = document.getElementById('btn-admin-gear');
         if (btnGear && !btnGear.dataset.listenerAttached) {
             btnGear.dataset.listenerAttached = 'true';
-            btnGear.addEventListener('click', function(e) {
+            const handleGear = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 openAdminPinPrompt();
-            });
+            };
+            btnGear.addEventListener('click', handleGear);
+            btnGear.addEventListener('touchend', handleGear);
         }
 
         // Bắt mọi sự kiện nhấn phím trên PIN prompt modal để giải phóng và hỗ trợ Enter
@@ -1710,7 +1787,16 @@ window.quizData = ([
         }
     }
 
-    // 9. EVENT DELEGATION DỰ PHÒNG & KHỞI TẠO TỰ ĐỘNG
+    // Giải phóng hoàn toàn cho input/textarea khi gõ tiếng Việt Telex
+    ['keydown', 'keyup', 'keypress'].forEach(evtType => {
+        window.addEventListener(evtType, function(e) {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) {
+                e.stopPropagation();
+            }
+        }, true);
+    });
+
+    // 10. EVENT DELEGATION DỰ PHÒNG & KHỞI TẠO TỰ ĐỘNG
     document.addEventListener('click', function(e) {
         const target = e.target.closest('#btn-admin-gear') || (e.target.textContent && e.target.textContent.includes('SỬA DỮ LIỆU') ? e.target : null);
         if (target && !target.dataset.delegationHandled) {
@@ -1721,6 +1807,7 @@ window.quizData = ([
     });
 
     window.addEventListener('DOMContentLoaded', function() {
+        applyAdminSecurity();
         setupAdminGearListeners();
 
         // Nạp dữ liệu đã lưu từ LocalStorage nếu có
@@ -1736,6 +1823,7 @@ window.quizData = ([
     });
 
     // Chạy ngay lập tức khi script thực thi
+    applyAdminSecurity();
     setupAdminGearListeners();
 </script>
 
