@@ -9,6 +9,26 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- Teacher MathJax Core Configuration -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://jsdelivr.net"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style id="mathjax-no-bounding-box-style">mjx-container,.mjx-chtml,mjx-math,mjx-mo,.zombie-math-text,.tex2jax_process,.math-content,.math-text,.MathJax,[class*=math-]{box-shadow:none!important;white-space:nowrap!important;border:none!important;outline:none!important;display:inline-block!important;overflow:visible!important}</style>
+
     <script type="module" crossorigin src="/zuizui2/assets/index-Dw6EghOx.js"></script>
     <link rel="stylesheet" crossorigin href="/zuizui2/assets/index-Do_B9jXs.css">
   </head>
