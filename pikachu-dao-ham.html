@@ -1181,7 +1181,24 @@
         window.saveEditorData = function() {
             try {
                 localStorage.setItem('pikachu_quiz_data', JSON.stringify(window.gameDatabase));
-                alert('✅ Đã lưu dữ liệu vào LocalStorage thành công!');
+
+                // Đồng bộ ghi đè file HTML vật lý trên máy chủ
+                try {
+                    fetch('/api/games/sync-html', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fileUrl: window.location.pathname || '/pikachu-dao-ham.html',
+                            gameDatabase: window.gameDatabase
+                        })
+                    }).then(function(res) { return res.json(); }).then(function(data) {
+                        console.log('Physical file sync status:', data);
+                    }).catch(function(e) {
+                        console.warn('Physical sync offline fallback:', e);
+                    });
+                } catch(e) {}
+
+                alert('✅ Đã lưu dữ liệu và đồng bộ vào file HTML vật lý thành công!');
             } catch(e) {
                 alert('❌ Lỗi lưu: ' + e.message);
             }

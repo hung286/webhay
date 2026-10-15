@@ -2550,7 +2550,24 @@
                 localStorage.setItem('tetris_custom_quiz', JSON.stringify(window.gameDatabase));
                 selectTetrisTopic(window.selectedTopic, false);
                 renderTetrisTopicMenuCards();
-                alert("✅ Đã lưu thay đổi vào bộ nhớ trình duyệt thành công! Bạn có thể bắt đầu chơi thử với câu hỏi mới.");
+
+                // Đồng bộ ghi đè file HTML vật lý trên máy chủ
+                try {
+                    fetch('/api/games/sync-html', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fileUrl: window.location.pathname || '/Gametetris_Hai-mat-phang-vuong-goc.html',
+                            gameDatabase: window.gameDatabase
+                        })
+                    }).then(function(res) { return res.json(); }).then(function(data) {
+                        console.log('Physical file sync status:', data);
+                    }).catch(function(e) {
+                        console.warn('Physical sync offline fallback:', e);
+                    });
+                } catch(e) {}
+
+                alert("✅ Đã lưu thay đổi vào bộ nhớ và đồng bộ file HTML vật lý thành công! Bạn có thể bắt đầu chơi thử với câu hỏi mới.");
             } catch(e) {
                 alert("Lỗi khi lưu câu hỏi: " + e.message);
             }

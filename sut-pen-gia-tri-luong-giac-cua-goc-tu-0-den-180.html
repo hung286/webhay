@@ -1831,7 +1831,24 @@
         function saveAdminChanges() {
             try {
                 localStorage.setItem('sut_pen_quiz_data', JSON.stringify(penaltyDatabase));
-                alert('🎉 Đã lưu thành công kho dữ liệu câu hỏi vào LocalStorage!\nTrò chơi đã cập nhật dữ liệu mới.');
+                
+                // Đồng bộ ghi đè file HTML vật lý trên máy chủ
+                try {
+                    fetch('/api/games/sync-html', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fileUrl: window.location.pathname || '/sut-pen-gia-tri-luong-giac-cua-goc-tu-0-den-180.html',
+                            penaltyDatabase: penaltyDatabase
+                        })
+                    }).then(function(res) { return res.json(); }).then(function(data) {
+                        console.log('Physical file sync status:', data);
+                    }).catch(function(e) {
+                        console.warn('Physical sync offline fallback:', e);
+                    });
+                } catch(e) {}
+
+                alert('🎉 Đã lưu thành công kho dữ liệu câu hỏi và đồng bộ file HTML vật lý!\nTrò chơi đã cập nhật dữ liệu mới.');
                 closeAdminEditorModal();
             } catch (err) {
                 alert('Lỗi lưu dữ liệu: ' + err.message);

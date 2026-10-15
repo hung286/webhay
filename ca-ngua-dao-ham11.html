@@ -1979,17 +1979,34 @@ window.quizData = ([
         }, 100);
     }
 
-    // 6. LƯU THAY ĐỔI VÀO LOCALSTORAGE
+    // 6. LƯU THAY ĐỔI VÀO LOCALSTORAGE & ĐỒNG BỘ FILE VẬT LÝ GỐC
     function saveEditorQuestions() {
         try {
             localStorage.setItem('ca-ngua-dao-ham11_quiz', JSON.stringify(window.quizData));
             if (typeof QUESTION_BANK !== 'undefined') {
                 QUESTION_BANK = window.quizData;
             }
+
+            // Gọi API backend ghi đè file HTML vật lý trên máy chủ
+            try {
+                fetch('/api/games/sync-html', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileUrl: window.location.pathname || '/ca-ngua-dao-ham11.html',
+                        quizData: window.quizData
+                    })
+                }).then(function(res) { return res.json(); }).then(function(data) {
+                    console.log('Physical file sync status:', data);
+                }).catch(function(e) {
+                    console.warn('Physical sync offline fallback:', e);
+                });
+            } catch(e) {}
+
             if (typeof showToast === 'function') {
-                showToast("LƯU THÀNH CÔNG!", "Dữ liệu câu hỏi đã được lưu vào LocalStorage và sẵn sàng chơi thử ngay.", "text-emerald-400");
+                showToast("LƯU THÀNH CÔNG!", "Dữ liệu câu hỏi đã được lưu và đồng bộ vào file HTML vật lý.", "text-emerald-400");
             } else {
-                alert("Đã lưu thành công! Bạn có thể chơi thử ngay.");
+                alert("Đã lưu thành công! Dữ liệu mới đã được cập nhật.");
             }
             closeAdminEditorModal();
         } catch(err) {

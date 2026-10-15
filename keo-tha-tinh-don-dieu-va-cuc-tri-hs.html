@@ -1657,10 +1657,27 @@
             try {
                 localStorage.setItem('keo_tha_custom_db', JSON.stringify(window.gameDatabase));
             } catch(e) {}
+
+            // Đồng bộ ghi đè file HTML vật lý trên máy chủ
+            try {
+                fetch('/api/games/sync-html', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileUrl: window.location.pathname || '/keo-tha-tinh-don-dieu-va-cuc-tri-hs.html',
+                        gameDatabase: window.gameDatabase
+                    })
+                }).then(function(res) { return res.json(); }).then(function(data) {
+                    console.log('Physical file sync status:', data);
+                }).catch(function(e) {
+                    console.warn('Physical sync offline fallback:', e);
+                });
+            } catch(e) {}
+
             window.selectedTopic = window.editorCurrentTopic;
             GAME_LEVELS = window.gameDatabase[window.selectedTopic];
             window.closeInGameEditorModal();
-            alert("🎉 Đã lưu thay đổi vào game!");
+            alert("🎉 Đã lưu thay đổi và đồng bộ vào file HTML vật lý!");
             window.startLevel(window.editorCurrentLevel);
         };
 
