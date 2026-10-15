@@ -39,7 +39,7 @@
             }
         };
     </script>
-    <script id="MathJax-script" async src="https://jsdelivr.net"></script>
+    <!-- MathJax 3 tex-mml-chtml chuẩn -->
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
 
@@ -1022,7 +1022,208 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     display: inline-block !important;
     overflow: visible !important;
 }
-</style></head>
+</style>
+    <style id="trench-mobile-and-math-patch">
+        /* --- TỐI ƯU TOÀN DIỆN MOBILE & KHÓA TRÀN TRANG --- */
+        html, body {
+            overflow: hidden !important;
+            touch-action: none !important;
+            overscroll-behavior: none !important;
+            -webkit-overflow-scrolling: auto !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        #game-wrapper {
+            position: relative !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            touch-action: none !important;
+            overscroll-behavior: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        /* KHẮC PHỤC TRIỆT ĐỂ LỖI CÂU HỎI BỊ TRÀN CHỮ / MẤT CHỮ */
+        #question-panel, #question-text, .question-text, 
+        #combat-modal-q-text, #modal-q-text, #modal-solution-text {
+            white-space: normal !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            word-wrap: break-word !important;
+            line-height: 1.4 !important;
+        }
+
+        /* CHUẨN HÓA CÔNG THỨC TOÁN HỌC (CHỐNG BẺ ĐÔI PHÂN SỐ, CANH TRỤC GIỮA, KHÔNG CO RÚM) */
+        .MathJax, mjx-container, .katex, .katex-display, 
+        .zombie-math-text, .answer-text mjx-container, .answer-text .MathJax {
+            white-space: nowrap !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+            max-width: 100% !important;
+            font-size: 100% !important;
+        }
+        mjx-container[display="true"], .katex-display {
+            display: inline-block !important;
+            margin: 2px 0 !important;
+        }
+        mjx-frac, .katex .mfrac {
+            vertical-align: middle !important;
+        }
+        .mjx-sqrt, .katex .sqrt {
+            overflow: visible !important;
+        }
+
+        /* MODAL OVERLAYS CHỐNG LỖI CẮT MẤT NỘI DUNG VÀ NÚT START/END */
+        .modal-screen {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            background: rgba(5, 11, 20, 0.95) !important;
+            backdrop-filter: blur(15px) !important;
+            z-index: 99999 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding: 16px 12px 32px 12px !important;
+            box-sizing: border-box !important;
+        }
+        .modal-screen.hidden {
+            display: none !important;
+        }
+        .esport-box, .military-dossier, #end-box {
+            margin: auto 0 !important;
+            max-height: none !important;
+            width: 100% !important;
+            max-width: 650px !important;
+        }
+
+        /* BẢO TOÀN 100% DESKTOP */
+        @media (min-width: 1025px) {
+            #mobile-combat-dock, #toggleControlsBtn, #floating-show-dock-btn {
+                display: none !important;
+            }
+            #question-panel {
+                top: 80px !important;
+                font-size: 1.3rem !important;
+                padding: 20px 32px !important;
+                min-width: min(550px, 92vw) !important;
+                max-width: 85% !important;
+            }
+        }
+
+        /* DI ĐỘNG MÀN HÌNH DỌC (PORTRAIT) */
+        @media (max-width: 1024px) and (orientation: portrait), (max-width: 768px) {
+            #question-panel {
+                top: 36px !important;
+                width: calc(100% - 16px) !important;
+                max-width: 96vw !important;
+                padding: 8px 12px !important;
+                font-size: 0.92rem !important;
+                max-height: 28dvh !important;
+                border-radius: 12px !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            #game-canvas {
+                flex: 1 1 auto !important;
+                height: auto !important;
+                max-height: calc(100dvh - 180px) !important;
+                min-height: 160px !important;
+                object-fit: contain !important;
+                margin-top: 36px !important;
+            }
+            #mobile-combat-dock {
+                bottom: 8px !important;
+            }
+        }
+
+        /* DI ĐỘNG MÀN HÌNH NGANG (LANDSCAPE < 500PX) */
+        @media (orientation: landscape) and (max-height: 500px) {
+            #game-topbar {
+                height: 28px !important;
+                padding: 2px 8px !important;
+            }
+            #hud-top {
+                max-height: 32px !important;
+                height: 32px !important;
+                padding: 1px 6px !important;
+                gap: 4px !important;
+            }
+            #question-panel {
+                top: 30px !important;
+                width: calc(100% - 16px) !important;
+                max-width: 96vw !important;
+                padding: 2px 10px !important;
+                max-height: 42px !important;
+                font-size: 0.8rem !important;
+                border-radius: 8px !important;
+                border-width: 1px !important;
+                flex-shrink: 0 !important;
+                overflow-y: auto !important;
+                background: rgba(15, 23, 42, 0.75) !important;
+            }
+            #game-canvas {
+                height: 60vh !important;
+                max-height: 70vh !important;
+                min-height: 140px !important;
+                object-fit: contain !important;
+                margin-top: 32px !important;
+            }
+            #mobile-combat-dock {
+                bottom: 4px !important;
+                padding: 3px 10px !important;
+                gap: 6px !important;
+            }
+            .mobile-ans-btn, #mobile-combat-dock .mobile-touch-btn:not(.mobile-shoot-btn):not(#m-btn-fire):not(#m-btn-modal):not(#m-btn-minimize) {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 0.82rem !important;
+            }
+            .mobile-shoot-btn, #m-btn-fire {
+                height: 32px !important;
+                padding: 0 12px !important;
+                font-size: 0.78rem !important;
+            }
+            #m-btn-modal, #m-btn-minimize {
+                height: 32px !important;
+                padding: 0 10px !important;
+                font-size: 0.75rem !important;
+            }
+        }
+
+        /* NÚT ẨN DOCK TRÊN MOBILE */
+        .mobile-dock-toggle-btn {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            background: #0f766e !important;
+            color: #ffffff !important;
+            font-weight: bold !important;
+            font-size: 0.85rem !important;
+            border: 1px solid #14b8a6 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            touch-action: manipulation !important;
+        }
+    </style>
+
+</head>
 <body>
 
 <!-- ======================================================== -->
@@ -1074,6 +1275,9 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                 </div>
             </div>
             <div class="flex items-center gap-2">
+                <button id="toggleControlsBtn" type="button" onclick="toggleTrenchControls()" class="h-6 px-2 sm:px-2.5 rounded-lg bg-cyan-900/80 hover:bg-cyan-800 text-cyan-200 border border-cyan-500/50 font-semibold text-[0.72rem] sm:text-[0.78rem] flex items-center gap-1 cursor-pointer transition active:scale-95" title="Ẩn/Hiện Phím Điều Khiển">
+                    <span id="toggleControlsIcon">👁</span> <span id="toggleControlsText" class="hidden xs:inline">Ẩn Phím</span>
+                </button>
                 <button id="fullscreenToggleBtn" type="button" onclick="executeMobileFullscreen()" class="h-6 px-2 sm:px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-[0.75rem] sm:text-[0.8rem] flex items-center gap-1 cursor-pointer transition active:scale-95" title="Toàn màn hình">
                     <span id="fullscreenIcon">⛶</span> <span id="fullscreenText" class="hidden sm:inline">Toàn màn hình</span>
                 </button>
@@ -1308,6 +1512,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             <button type="button" class="mobile-touch-btn mobile-ans-btn" id="m-btn-lane-3" title="Chọn Làn D">D</button>
             <button type="button" class="mobile-touch-btn mobile-shoot-btn" id="m-btn-fire" title="Bắn hạ mục tiêu">💥 BẮN</button>
             <button type="button" class="mobile-touch-btn mobile-touch-btn-challenge" id="m-btn-modal" title="Phóng to Thử Thách Trắc Nghiệm">📋 ĐỀ</button>
+            <button type="button" class="mobile-touch-btn mobile-dock-toggle-btn" id="m-btn-minimize" title="Ẩn bàn phím để nhìn chiến trường">👁</button>
         </div>
     </div>
 
@@ -2002,77 +2207,67 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                 });
         }
 
-        function formatWarzoneMathStringToTeX(inputString) {
-            if (!inputString || typeof inputString !== 'string') return inputString || '';
-            let cleanStr = inputString;
+        
+        // === BỘ CHUẨN HÓA CÔNG THỨC TOÁN HỌC & TELL PARSER CHIẾN HÀO CHUẨN SƯ PHẠM ===
+        function cleanTrenchMathString(rawStr) {
+            if (!rawStr || typeof rawStr !== 'string') return rawStr || '';
+            let text = rawStr;
 
-            // 1. Khử triệt để ký tự rác \f, \f\f và form-feed bám trên phân số
-            cleanStr = cleanStr.replace(/\\f\\f/g, '').replace(/\\f/g, '');
-            cleanStr = cleanStr.replace(/[\u000c\x0c]/g, '');
+            // 0. Khử triệt để ký tự rác form-feed (\f, \f\f, \x0c)
+            text = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '');
 
-            // 2. Khắc phục rác / thiếu f của phân số
-            cleanStr = cleanStr.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
-            cleanStr = cleanStr.replace(/^rac\s*\{/g, '\\frac{');
-            cleanStr = cleanStr.replace(/\brac\b/g, '\\frac');
+            // 1. Tự động tách khoảng trắng giữa chữ tiếng Việt và dấu mở ngoặc toán \( hoặc $
+            text = text.replace(/([a-zA-Z0-9\u00C0-\u024F\u1EA0-\u1EF9])\\\(\s*/g, '$1 \\(');
+            text = text.replace(/([a-zA-Z0-9\u00C0-\u024F\u1EA0-\u1EF9])\$([^\$]+)\$/g, '$1 \\($2\\)');
 
-            // 3. Khắc phục lỗi dính chữ cdot (ví dụ: 10cdot3^x, 10\cdot3^x thành 10 \cdot 3^x)
-            cleanStr = cleanStr.replace(/(\d+)\s*(?:\\cdot|cdot)\s*(\d+(\^[0-9a-zA-Z{}]+)?)/g, '$1 \\cdot $2');
-            cleanStr = cleanStr.replace(/(\d+)cdot(\d+)/g, '$1 \\cdot $2');
-            cleanStr = cleanStr.replace(/(\d+)cdot/g, '$1 \\cdot ');
-            cleanStr = cleanStr.replace(/cdot(\d+)/g, ' \\cdot $1');
+            // 2. Chuẩn hóa lỗi rác phân số \frac: rac{a}{b} -> \frac{a}{b}
+            text = text.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
+            text = text.replace(/^rac\s*\{/g, '\\frac{');
+            text = text.replace(/\brac\b/g, '\\frac');
 
-            // 4. Khắc phục thiếu dấu gạch chéo ngược cho các token toán học
-            cleanStr = cleanStr.replace(/(?<!\\)sin/g, '\\sin')
-                               .replace(/(?<!\\)cos/g, '\\cos')
-                               .replace(/(?<!\\)tan/g, '\\tan')
-                               .replace(/(?<!\\)cot/g, '\\cot')
-                               .replace(/(?<!\\)cdot/g, '\\cdot')
-                               .replace(/(?<!\\)sqrt/g, '\\sqrt')
-                               .replace(/(?<!\\)frac/g, '\\frac');
+            // 3. Sửa dứt điểm căn thức
+            text = text.replace(/√\s*\/\s*([a-zA-Z0-9]+(?:\s*[-+]\s*[a-zA-Z0-9]+)+)/g, '\\sqrt{$1}');
+            text = text.replace(/√\s*\/\s*([a-zA-Z0-9]+)/g, '\\sqrt{$1}');
+            text = text.replace(/\\sqrt\s+([a-zA-Z0-9]+(?:\s*[-+]\s*[a-zA-Z0-9]+)+)/g, '\\sqrt{$1}');
+            text = text.replace(/\\sqrt\s*([a-zA-Z0-9]+)(?![\{a-zA-Z0-9])/g, '\\sqrt{$1}');
 
-            // 5. Khử dấu ngoặc vuông display math xung đột nếu có
-            cleanStr = cleanStr.replace(/\\\[/g, '').replace(/\\\]/g, '');
+            // 4. Chuẩn hóa cdot: 10\cdot3^x, 10cdot3^x -> 10 \cdot 3^{x}
+            text = text.replace(/(\d+)\s*(?:\\cdot|cdot)\s*(\d+)/g, '$1 \\cdot $2');
+            text = text.replace(/(?<!\\)cdot/g, '\\cdot');
 
-            // 6. Vá lỗi regex tự ý chèn khoảng trắng sau chữ hoa tiếng Việt
-            cleanStr = cleanStr.replace(/\bN\s+ếu\b/g, 'Nếu')
-                               .replace(/\bH\s+ai\b/g, 'Hai')
-                               .replace(/\bC\s+ho\b/g, 'Cho')
-                               .replace(/\bC\s+ả\b/g, 'Cả')
-                               .replace(/\bK\s+hi\b/g, 'Khi')
-                               .replace(/\bC\s+hỉ\b/g, 'Chỉ')
-                               .replace(/\bT\s+ính\b/g, 'Tính')
-                               .replace(/\bT\s+rong\b/g, 'Trong')
-                               .replace(/\bK\s+hẳng\b/g, 'Khẳng')
-                               .replace(/\bđ\s+ịnh\b/g, 'định')
-                               .replace(/\bH\s+ình\b/g, 'Hình')
-                               .replace(/\bM\s+ặt\b/g, 'Mặt')
-                               .replace(/\bđ\s+ường\b/g, 'đường')
-                               .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
+            // 5. Chuẩn hóa số mũ x^2 -> x^{2}, 3^x -> 3^{x}
+            text = text.replace(/\^([0-9a-zA-Z+\-]+)(?![\{a-zA-Z0-9])/g, '^{$1}');
 
-            // 7. Token xác suất và hình học
-            cleanStr = cleanStr.replace(/\bAcupB\b/g, 'A \\cup B');
-            cleanStr = cleanStr.replace(/\bAcapB\b/g, 'A \\cap B');
-            cleanStr = cleanStr.replace(/(?<!\\)\bOmega\b/g, '\\Omega');
-            cleanStr = cleanStr.replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
-            cleanStr = cleanStr.replace(/(?<!\\)\bcup\b/g, '\\cup');
-            cleanStr = cleanStr.replace(/(?<!\\)\bcap\b/g, '\\cap');
+            // 6. Chuẩn hóa các hàm lượng giác và ký hiệu toán học an toàn (không phá hỏng từ tiếng Việt)
+            text = text.replace(/(?<![\\a-zA-Z])(?:sin|cos|tan|cot)(?=\s*(?:\^|\(|\{|\d|\\[a-zA-Z]|[xyzabcuvXYZABCUV]\b))/g, (m) => '\\' + m);
+            text = text.replace(/(?<!\\)\b(alpha|beta|gamma|theta|pi)\b/g, '\\$1');
 
-            // 8. Chuyển đổi cú pháp ${...}
-            cleanStr = cleanStr.replace(/\$\{([^}]+)\}/g, '\\($1\\)');
-            cleanStr = cleanStr.replace(/\{\s*\\\(\s*([^}]+)\s*\\\)\s*\}/g, '\\($1\\)');
-            cleanStr = cleanStr.replace(/\{\s*(\\frac\{[^}]+\}\{[^}]+\})\s*\}/g, '\\($1\\)');
+            text = text.replace(/\bAcupB\b/g, 'A \\cup B');
+            text = text.replace(/\bAcapB\b/g, 'A \\cap B');
+            text = text.replace(/(?<!\\)\bOmega\b/g, '\\Omega');
+            text = text.replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
 
-            cleanStr = cleanStr.trim();
+            // 7. Chuyển đổi cú pháp ${...} sang \(...\)
+            text = text.replace(/\$\{([^}]+)\}/g, '\\($1\\)');
+            text = text.replace(/\{\s*\\\(\s*([^}]+)\s*\\\)\s*\}/g, '\\($1\\)');
+            text = text.replace(/\{\s*(\\frac\{[^}]+\}\{[^}]+\})\s*\}/g, '\\($1\\)');
 
-            // 9. Chuẩn hóa delimiters inline TeX
-            if (!cleanStr.includes('\\(') && !cleanStr.includes('$')) {
-                const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(cleanStr);
-                const hasMathTokens = /[\\^_{}]|sin|cos|tan|cot|sqrt|frac|alpha|beta|pi|pm|cdot|circ|degree|le|ge|ne|in|cup|cap|Omega|emptyset/.test(cleanStr);
+            // 8. Tự động bọc biểu thức toán vào \(...\) nếu chưa có \( hoặc $
+            if (!text.includes('\\(') && !text.includes('$')) {
+                const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text);
+                const hasMathTokens = /[\\^_{}]|\\sin|\\cos|\\tan|\\cot|\\sqrt|\\frac|\\alpha|\\beta|\\pi|\\pm|\\cdot|\\circ|\\le|\\ge|\\ne|\\in|\\cup|\\cap|\\Omega|\\emptyset/.test(text);
 
                 if (!hasVietnamese && hasMathTokens) {
-                    cleanStr = `\\(${cleanStr}\\)`;
+                    text = `\\(${text.trim()}\\)`;
                 } else if (hasVietnamese && hasMathTokens) {
-                    cleanStr = cleanStr.replace(/(\\[a-zA-Z]+(?:\{[^{}]*\}|\[[^\]]*\])*(?:\^[0-9a-zA-Z{}]+|_[0-9a-zA-Z{}]+)*(?:\s*[0-9a-zA-Z+\-*/=()^_{}]+)*)/g, (match) => {
+                    // Biểu thức có lượng giác: gom hàm lượng giác và biến góc
+                    text = text.replace(/(\\(?:sin|cos|tan|cot)\s*(?:\^[0-9a-zA-Z{}]+)?\s*(?:[0-9a-zA-Z\\^_{}()]+)?)/g, (match) => {
+                        const tr = match.trim();
+                        if (!tr || tr.startsWith('\\(')) return match;
+                        return `\\(${tr}\\)`;
+                    });
+                    // Bọc các biểu thức TeX khác (\frac, \sqrt...)
+                    text = text.replace(/(\\(?:frac|sqrt|alpha|beta|gamma|pi|Omega|emptyset)(?:\{[^{}]*\}|\[[^\]]*\])*(?:\^[0-9a-zA-Z{}]+|_[0-9a-zA-Z{}]+)*(?:\s*[-+*/=]\s*(?:\\[a-zA-Z]+(?:\{[^{}]*\}|\[[^\]]*\])*|[0-9a-zA-Z]+))?)/g, (match) => {
                         const tr = match.trim();
                         if (!tr || tr.startsWith('\\(')) return match;
                         return `\\(${tr}\\)`;
@@ -2080,13 +2275,53 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                 }
             }
 
-            return cleanStr;
+            text = text.replace(/\\\(\s+/g, '\\(').replace(/\s+\\\)/g, '\\)');
+            text = text.replace(/\\\(\s*\\\((.*?)\\\)\s*\\\)/g, '\\($1\\)');
+
+            return text;
+        }
+
+        function formatWarzoneMathStringToTeX(inputString) {
+            return cleanTrenchMathString(inputString);
         }
         window.formatWarzoneMathStringToTeX = formatWarzoneMathStringToTeX;
 
         function cleanMathString(text) {
-            return formatWarzoneMathStringToTeX(text);
+            return cleanTrenchMathString(text);
         }
+
+        // === TÍNH NĂNG ẨN/HIỆN PHÍM ĐIỀU KHIỂN (TOGGLE CONTROLS) ===
+        let isTrenchControlsHidden = false;
+        function toggleTrenchControls() {
+            const dock = document.getElementById('mobile-combat-dock');
+            const floatBtn = document.getElementById('floating-show-dock-btn');
+            const toggleText = document.getElementById('toggleControlsText');
+            const toggleIcon = document.getElementById('toggleControlsIcon');
+            if (!dock) return;
+
+            isTrenchControlsHidden = !isTrenchControlsHidden;
+            if (isTrenchControlsHidden) {
+                dock.style.setProperty('display', 'none', 'important');
+                if (floatBtn) floatBtn.classList.remove('hidden');
+                if (toggleText) toggleText.innerText = 'Hiện Phím';
+                if (toggleIcon) toggleIcon.innerText = '🎮';
+            } else {
+                dock.style.removeProperty('display');
+                if (floatBtn) floatBtn.classList.add('hidden');
+                if (toggleText) toggleText.innerText = 'Ẩn Phím';
+                if (toggleIcon) toggleIcon.innerText = '👁';
+            }
+        }
+        window.toggleTrenchControls = toggleTrenchControls;
+
+        // === CHỐNG CUỘN TRÀN TRANG NGOÀI Ý MUỐN (PULL-TO-REFRESH TRÊN MOBILE) ===
+        document.addEventListener('touchmove', function(e) {
+            const scrollable = e.target.closest('.modal-screen, #explanation-modal, #combat-question-modal, #admin-editor-modal, #topic-selection-overlay, #question-panel, #end-screen');
+            if (!scrollable) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
 
         // VÁ LỖI LIỆT NÚT "TOÀN MÀN HÌNH" TRÊN WEB ĐIỆN THOẠI (WEBKIT API MOBILE)
         function executeMobileFullscreen() {
@@ -2215,6 +2450,9 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             bindTouch('m-btn-lane-3', () => setPlayerLane(3));
             bindTouch('m-btn-fire', () => shootCurrentLane());
             bindTouch('m-btn-modal', () => openCombatQuestionModal());
+            bindTouch('m-btn-minimize', () => toggleTrenchControls());
+            bindTouch('toggleControlsBtn', () => toggleTrenchControls());
+            bindTouch('floating-show-dock-btn', () => toggleTrenchControls());
         }
 
         // Bàn phím điều khiển (Bảo vệ: không chặn phím khi người dùng đang nhập liệu văn bản hoặc mở bảng quản trị)
@@ -3640,5 +3878,8 @@ window.formatMathStringToTeX = formatMathStringToTeX;
     } catch(e) {}
 })();
 </script>
+
+    <!-- NÚT NỔI HIỆN LẠI BÀN PHÍM KHI NGƯỜI CHƠI ĐÃ ẨN DOCK TRÊN MOBILE -->
+    <button id="floating-show-dock-btn" type="button" onclick="toggleTrenchControls()" class="hidden fixed bottom-2 right-2 sm:bottom-3 sm:right-3 z-[99999] px-2.5 py-1.5 rounded-full bg-cyan-600/90 text-white font-bold text-xs shadow-lg border border-cyan-300 flex items-center gap-1 active:scale-90 transition"><span>🎮 Hiện Phím</span></button>
 </body>
 </html>
