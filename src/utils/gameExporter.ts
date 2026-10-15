@@ -3508,40 +3508,55 @@ window.toggleMobileFullscreen = function() {
   }
 }
 
-/* 3. ÉP BỐ CỤC CHIA 2 CỘT CHUẨN HÌNH 3 KHI XOAY NGANG ĐIỆN THOẠI (LANDSCAPE DUAL-COLUMN) */
-@media (orientation: landscape) and (max-height: 500px) {
-  html, body {
-    height: 100% !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-  }
-  #app {
-    height: 100% !important;
-    min-height: 100dvh !important;
-    padding-bottom: 0 !important;
-  }
-  .game-play-screen, .ludo-main-layout {
+/* [CHỈ THỊ TỐI CAO: BẺ LAYOUT MOBILE XOAY NGANG THÀNH ĐỒNG BỘ 2 CỘT CHUẨN HÌNH LAPTOP] */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  /* 1. ÉP BUỘC KHUNG CHỨA CHÍNH DÀN HÀNG NGANG CHIA 2 CỘT */
+  #game-container, 
+  .game-play-screen, 
+  .ludo-main-layout,
+  body {
     display: flex !important;
-    flex-direction: row !important;
+    flex-direction: row !important; /* Phá vỡ hàng dọc, chuyển sang 2 cột song song như laptop */
     justify-content: space-between !important;
     align-items: center !important;
-    width: 100% !important;
-    height: calc(100dvh - 35px) !important;
+    width: 100vw !important;
+    height: calc(100dvh - 35px) !important; /* Trừ khoảng trống Topbar */
     overflow-x: hidden !important;
-    overflow-y: auto !important;
-    padding: 4px 12px !important;
+    overflow-y: auto !important; /* Bật thanh cuộn vuốt lướt mượt mà chống nuốt nút */
+    padding: 2px 10px !important;
     box-sizing: border-box !important;
   }
-  .ludo-board-container, .board-wrapper {
+
+  #app {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100% !important;
+    padding-bottom: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  #game-container {
+    flex: 1 1 auto !important;
+    height: calc(100dvh - 35px) !important;
+  }
+
+  /* 2. CỘT TRÁI: ĐỊNH VỊ BÀN CỜ VUÔNG VẮN KHÍT MÀN HÌNH */
+  .ludo-board-container, 
+  .board-wrapper,
+  canvas#board-canvas,
+  #board-container {
     width: auto !important;
-    height: 85vh !important;
-    aspect-ratio: 1 / 1 !important;
+    height: 86vh !important; /* Khống chế chiều cao khít viền điện thoại xoay ngang */
+    aspect-ratio: 1 / 1 !important; /* Giữ chuẩn tỷ lệ bàn cờ vuông 10 ngang 10 dọc */
     max-height: 100% !important;
-    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
   }
+
   #ludo-board, .ludo-board {
     height: 84vh !important;
     width: 84vh !important;
@@ -3551,31 +3566,35 @@ window.toggleMobileFullscreen = function() {
     padding: 4px !important;
     margin: 0 !important;
   }
-  .ludo-controls-sidebar, .right-panel-controls, .dice-control-zone {
+
+  /* 3. CỘT PHẢI: HIỂN THỊ TRỌN VẸN BẢNG ĐIỂM, LƯỢT ĐI VÀ KHỐI XÚC XẮC ĐỂ GIEO */
+  .ludo-controls-sidebar, 
+  .right-panel-controls, 
+  .sidebar-panel,
+  #controls-container,
+  .dice-control-zone {
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: column !important; /* Xếp dọc các bảng xếp hạng và xúc xắc theo cột phải */
     justify-content: center !important;
     align-items: center !important;
-    width: 38% !important;
+    width: 42% !important; /* Chiếm 42% không gian bên phải bàn cờ */
     height: 100% !important;
     gap: 6px !important;
-    overflow-y: auto !important;
+    overflow-y: auto !important; /* Cho phép học sinh vuốt lướt cuộn dọc ở cột phải nếu màn hình ngắn */
     -webkit-overflow-scrolling: touch !important;
+    flex-grow: 1 !important;
   }
-  .current-turn-box, .dice-wrapper, #dice-control {
-    background: rgba(15, 23, 42, 0.6) !important;
+
+  /* Khối hiển thị Xúc xắc ở cột bên phải */
+  .current-turn-box, .dice-wrapper, #dice-container, #dice-control {
+    background: rgba(15, 23, 42, 0.7) !important;
     border: 1px solid #38bdf8 !important;
     border-radius: 12px !important;
-    padding: 8px !important;
+    padding: 6px !important;
     width: 95% !important;
-    max-width: 320px !important;
-    text-align: center !important;
+    box-sizing: border-box !important;
   }
-  #dice-control h3 { font-size: 0.65rem !important; margin-bottom: 2px !important; }
-  #dice-control h2 { font-size: 0.9rem !important; margin-bottom: 3px !important; line-height: 1.1 !important; }
-  #dice-control svg { width: 32px !important; height: 32px !important; }
-  #dice-control .flex.gap-4 { gap: 4px !important; margin-bottom: 4px !important; }
-  #dice-control button { padding: 6px 10px !important; font-size: 0.75rem !important; border-radius: 10px !important; line-height: 1.2 !important; }
+
   #panel-left, #panel-right { display: none !important; }
   #game-header-bar { height: 32px !important; max-height: 32px !important; margin-bottom: 1px !important; }
   #game-title-header { font-size: 0.75rem !important; max-width: 30vw !important; }
@@ -3656,7 +3675,7 @@ var questions = window.quizData;
 
   function setupDiceClickListeners() {
     try {
-      const diceElements = document.querySelectorAll('#dice-container, .dice-view, #mini-dice, .current-turn-box, .dice-wrapper, .dice-cube-wrapper');
+      const diceElements = document.querySelectorAll('#dice-container, .dice-view, .dice-wrapper, #dice-element, #mini-dice, .current-turn-box, .dice-cube-wrapper');
       diceElements.forEach(element => {
         if (element && !element.dataset.diceListener) {
           element.dataset.diceListener = 'true';
@@ -3671,12 +3690,14 @@ var questions = window.quizData;
           element.addEventListener('touchstart', function(e) {
             if (e.target.tagName !== 'BUTTON') {
               if (typeof window.rollDice === 'function') { window.rollDice(); }
+              else if (typeof (window as any).handleRollDice === 'function') { (window as any).handleRollDice(); }
             }
           }, { passive: true });
         }
       });
     } catch(e) {}
   }
+
 
   function triggerMathTypeset() {
     try {
