@@ -1952,17 +1952,25 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
     const cleanFormula = (text: string): string => {
       if (!text) return '';
       let res = text.replace(/[\u000c\x0c]/g, '').trim();
-      res = res.replace(/\\+rac/g, '\\frac')
-               .replace(/\bracf\(/g, '\\frac{f(')
-               .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
-               .replace(/^rac\s*\{/g, '\\frac{')
-               .replace(/\brac\b/g, '\\frac')
-               .replace(/rac(?=[0-9\\{])/g, '\\frac')
-               .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
-               .replace(/rac/g, '\\frac');
-      res = res.replace(/cdot/g, '\\cdot')
-               .replace(/(?<!\\)frac/g, '\\frac')
+
+      // 1. Quét sạch và tiêu diệt triệt để ký tự rác kép \f\f hoặc \f đứng trước lệnh toán/phân số/dấu ngoặc
+      res = res.replace(/\\f\\f/g, '').replace(/f\\f/g, '');
+      res = res.replace(/(\\+f|f)+(?=\\?frac)/g, '');
+      res = res.replace(/(\\+f|f)+(?=\\?\()/g, '');
+      res = res.replace(/(\\+f|f)+(?=\\\$|\$)/g, '');
+
+      // 2. Bảo vệ và trả lại đúng cấu trúc lệnh phân số \frac tiêu chuẩn của MiKTeX/TeX Live
+      res = res.replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
+               .replace(/\\+rac/g, '\\frac');
+
+      // 3. Tự động sửa lỗi thiếu dấu gạch chéo ngược cho các ký hiệu toán thông dụng
+      res = res.replace(/(?<!\\)frac/g, '\\frac')
                .replace(/(?<!\\)cdot/g, '\\cdot');
+
+      // Quét sạch triệt để mọi tàn dư \f\f hoặc \f trước phân số và dấu phân tách
+      res = res.replace(/(\\+f|f)+(?=\\frac)/g, '')
+               .replace(/(\\+f|f)+(?=\\?\()/g, '');
+
       res = res.replace(/\bN\s+?u\b/g, 'Nếu')
                .replace(/\bH\s+ai\b/g, 'Hai')
                .replace(/\bC\s+ho\b/g, 'Cho')
@@ -1988,6 +1996,22 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
                .replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}')
                .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
                .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
+
+      res = res.trim();
+      const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(res);
+      if (!hasVietnamese) {
+        let raw = res;
+        if (raw.startsWith('\\(') && raw.endsWith('\\)')) {
+          raw = raw.slice(2, -2).trim();
+        } else if (raw.startsWith('$') && raw.endsWith('$')) {
+          raw = raw.slice(1, -1).trim();
+        }
+        raw = raw.replace(/\\\(|\\\)/g, '').trim();
+        res = '\\(' + raw + '\\)';
+      } else {
+        res = res.replace(/(?<![\$\\\(])(-\\frac\{[^}]+\}\{[^}]+\}|\\frac\{[^}]+\}\{[^}]+\})(?![\$\\\)])/g, (m) => '$' + m + '$');
+      }
+
       return normalizeMathFormulas(res);
     };
 

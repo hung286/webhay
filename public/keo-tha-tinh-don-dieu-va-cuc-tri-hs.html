@@ -78,16 +78,16 @@
             color: #ffffff;
             font-weight: 500;
         }
-        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container, .MathJax { 
+        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container, mjx-math, .MathJax, .MathJax_Display, .card-func .math-content, .card-prop .math-text { 
             white-space: nowrap !important;
             display: inline-block !important;
             color: #ffffff !important;
         }
-        .math-text *, .math-content *, .katex *, mjx-container *, .mjx-chtml *, .MathJax * {
+        .math-text *, .math-content *, .katex *, mjx-container *, mjx-math *, .mjx-chtml *, .MathJax *, .card-func .math-content *, .card-prop .math-text * {
             white-space: nowrap !important;
             color: #ffffff !important;
         }
-        .math-text .katex, .math-content .katex, mjx-container { 
+        .math-text .katex, .math-content .katex, mjx-container, mjx-math { 
             color: #ffffff !important;
             font-family: 'JetBrains Mono', monospace;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
@@ -617,23 +617,28 @@
         function formatMathStringToTeX(textString) {
             if (!textString || typeof textString !== 'string') return textString || '';
 
-            // Gỡ bỏ hoàn toàn lệnh replace xóa \f mù quáng cũ, chỉ loại bỏ ký tự điều khiển formfeed rác
+            // Loại bỏ ký tự điều khiển formfeed rác
             let res = textString.replace(/[\u000c\x0c]/g, '').trim();
 
-            // 1. Phục hồi vĩnh viễn lệnh phân số \frac từ chữ rac bị lỗi gãy font
-            res = res.replace(/\\+rac/g, '\\frac')
-                     .replace(/\bracf\(/g, '\\frac{f(')
-                     .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
-                     .replace(/^rac\s*\{/g, '\\frac{')
-                     .replace(/\brac\b/g, '\\frac')
-                     .replace(/rac(?=[0-9\\{])/g, '\\frac')
-                     .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
-                     .replace(/rac/g, '\\frac');
+            // 1. Quét sạch và tiêu diệt triệt để ký tự rác kép \f\f hoặc \f đứng trước lệnh toán/phân số/dấu ngoặc
+            res = res.replace(/\\f\\f/g, '').replace(/f\\f/g, '');
+            res = res.replace(/(\\+f|f)+(?=\\?frac)/g, '');
+            res = res.replace(/(\\+f|f)+(?=\\?\()/g, '');
+            res = res.replace(/(\\+f|f)+(?=\\\$|\$)/g, '');
 
-            // 2. Tự động vá các lỗi thiếu dấu gạch chéo ngược cho mã lệnh LaTeX thông dụng
+            // 2. Bảo vệ và trả lại đúng cấu trúc lệnh phân số \frac tiêu chuẩn của MiKTeX/TeX Live
+            // Nếu chuỗi bị bẻ gãy thành "rac", phục hồi ngay về "\frac" (không match rac trong frac có sẵn)
+            res = res.replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
+                     .replace(/\\+rac/g, '\\frac');
+
+            // 3. Tự động vá các lỗi thiếu dấu gạch chéo ngược cho mã lệnh LaTeX thông dụng
             res = res.replace(/cdot/g, '\\cdot')
                      .replace(/(?<!\\)frac/g, '\\frac')
                      .replace(/(?<!\\)cdot/g, '\\cdot');
+
+            // Tiêu diệt triệt để ký tự \f rác bám vào \frac hoặc \(\)
+            res = res.replace(/(\\+f|f)+(?=\\frac)/g, '')
+                     .replace(/(\\+f|f)+(?=\\?\()/g, '');
 
             // Phục hồi từ ngữ tiếng Việt bị dính hoặc lỗi khoảng trắng
             res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
@@ -663,12 +668,21 @@
                      .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
                      .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
 
-            // 3. Ép buộc bọc khít biểu thức vào cặp dấu phân tách inline chuẩn
+            // 4. Ép buộc bọc khít biểu thức toán học sạch vào cặp dấu phân tách inline chuẩn
             res = res.trim();
             const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(res);
-            const hasInline = (res.startsWith('\\(') && res.endsWith('\\)')) || (res.startsWith('$') && res.endsWith('$'));
-            if (!hasInline && !hasVietnamese) {
-                res = '\\(' + res + '\\)';
+            if (!hasVietnamese) {
+                let raw = res;
+                if (raw.startsWith('\\(') && raw.endsWith('\\)')) {
+                    raw = raw.slice(2, -2).trim();
+                } else if (raw.startsWith('$') && raw.endsWith('$')) {
+                    raw = raw.slice(1, -1).trim();
+                }
+                raw = raw.replace(/\\\(|\\\)/g, '').trim();
+                res = '\\(' + raw + '\\)';
+            } else {
+                // Trong văn bản tiếng Việt, tự động bọc chuẩn inline cho các công thức phân số chưa được bọc
+                res = res.replace(/(?<![\$\\\(])(-\\frac\{[^}]+\}\{[^}]+\}|\\frac\{[^}]+\}\{[^}]+\})(?![\$\\\)])/g, (m) => '$' + m + '$');
             }
 
             return res;
@@ -1125,7 +1139,7 @@
                 
                 // Render KaTeX trên hộp
                 try {
-                    const cleanTex = cleanDragDropMath(func.tex).replace(/^\\\(/, '').replace(/\\\)$/, '');
+                    const cleanTex = cleanDragDropMath(func.tex).replace(/\\\(|\\\)/g, '').trim();
                     katex.render(cleanTex, el.querySelector('.math-content'), { throwOnError: false, displayMode: true });
                 } catch(e) {
                     el.querySelector('.math-content').innerText = func.tex;
@@ -1178,6 +1192,12 @@
                     w: 0, h: 0
                 });
             });
+
+            try {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([DOM.funcNodes, DOM.propArena]).catch(() => {});
+                }
+            } catch(e) {}
 
             setTimeout(() => {
                 movingCards.forEach(c => { c.w = c.el.offsetWidth; c.h = c.el.offsetHeight; });
