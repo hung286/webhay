@@ -3420,6 +3420,66 @@ window.toggleMobileFullscreen = function() {
     });
 
     const caNguaScript = `
+<style>
+@media (orientation: landscape) and (max-height: 500px) {
+  .game-play-screen, .ludo-main-layout {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: calc(100dvh - 35px) !important;
+    overflow: hidden !important;
+    padding: 4px 10px !important;
+    box-sizing: border-box !important;
+  }
+  .ludo-board-container, .board-wrapper {
+    width: auto !important;
+    height: 88vh !important;
+    aspect-ratio: 1 / 1 !important;
+    max-height: 100% !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  #ludo-board, .ludo-board {
+    height: 86vh !important;
+    width: 86vh !important;
+    max-height: 86vh !important;
+    max-width: 86vh !important;
+    aspect-ratio: 1 / 1 !important;
+    padding: 4px !important;
+    margin: 0 !important;
+  }
+  .ludo-controls-sidebar, .right-panel-controls {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 40% !important;
+    height: 100% !important;
+    gap: 6px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #dice-control {
+    width: 100% !important;
+    max-width: 300px !important;
+    padding: 6px 8px !important;
+    border-radius: 14px !important;
+    margin: 0 auto !important;
+  }
+  #dice-control h3 { font-size: 0.6rem !important; margin-bottom: 1px !important; }
+  #dice-control h2 { font-size: 0.85rem !important; margin-bottom: 2px !important; line-height: 1.1 !important; }
+  #dice-control svg { width: 26px !important; height: 26px !important; }
+  #dice-control .flex.gap-4 { gap: 4px !important; margin-bottom: 2px !important; }
+  #dice-control button { padding: 6px 10px !important; font-size: 0.75rem !important; border-radius: 10px !important; line-height: 1.2 !important; }
+  #panel-left, #panel-right { display: none !important; }
+  #game-header-bar { height: 32px !important; max-height: 32px !important; margin-bottom: 1px !important; }
+  #game-title-header { font-size: 0.75rem !important; max-width: 30vw !important; }
+}
+</style>
 <script>
 // [ADAPTER ENGINE: CỜ CÁ NGỰA - DỮ LIỆU ĐÓNG GÓI & SECURITY GATE]
 window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
