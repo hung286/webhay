@@ -77,18 +77,21 @@
             background-color: #5c94fc;
         }
 
-        /* ÉP BIỂU THỨC TOÁN INLINE MATHJAX THẲNG HÀNG CHỐNG BẺ ĐÔI PHÂN SỐ, CHỮ TRẮNG RÕ NÉT */
-        .question-text, .answer-btn, .option-btn, mjx-container, .mjx-chtml, .MathJax {
+        /* Bảo vệ biểu thức toán học inline luôn thẳng hàng, không bị bẻ đôi làm đẩy mẫu số xuống dưới */
+        .question-text mjx-container, 
+        .answer-btn mjx-container, 
+        mjx-container, 
+        .mjx-chtml {
             white-space: nowrap !important;
             display: inline-block !important;
-            vertical-align: middle !important;
-            color: #ffffff !important;
         }
         .mjx-chtml *, mjx-container *, .MathJax * {
             white-space: nowrap !important;
             color: #ffffff !important;
         }
-        .question-box-content {
+        
+        /* Giữ nguyên quyền xuống dòng tự động cho văn bản chữ tiếng Việt thông thường */
+        .question-box-content, .question-container, .question-text {
             word-wrap: break-word !important;
             overflow-wrap: break-word !important;
             white-space: normal !important;
