@@ -3546,7 +3546,8 @@ var questions = window.quizData;
         correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
         explanation: normalizeMathFormulas(q.explanation || ''),
         type: isShort ? 'short_answer' : (isTF ? 'truefalse' : 'abcd'),
-        imageUrl: q.imageUrl || ''
+        imageUrl: q.imageUrl || '',
+        statements: (q as any).statements || undefined
       });
     });
 
@@ -3581,7 +3582,7 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
       const params = new URLSearchParams(window.location.search);
       const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
       const adminTopbar = document.getElementById('admin-topbar');
-      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, #btn-word-template, [data-admin-control="true"]');
       if (isAdmin) {
         if (adminTopbar) adminTopbar.style.setProperty('display', 'flex', 'important');
         adminBtns.forEach(btn => {
@@ -3615,6 +3616,15 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
           if (e) { e.preventDefault(); e.stopPropagation(); }
           if (typeof window.openTetrisTopicMenu === 'function') {
             window.openTetrisTopicMenu();
+          }
+        };
+      }
+      const wordBtn = document.getElementById('btn-word-template');
+      if (wordBtn) {
+        wordBtn.onclick = function(e) {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          if (typeof (window as any).downloadTetrisWordTemplate === 'function') {
+            (window as any).downloadTetrisWordTemplate();
           }
         };
       }
