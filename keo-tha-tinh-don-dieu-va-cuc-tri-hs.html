@@ -97,16 +97,23 @@
             font-size: 1.05em;
         }
 
-        /* Ép toàn bộ container chứa công thức MathJax inline luôn nằm trên một dòng */
+        /* Khử triệt để lỗi đóng khung viền xung quanh dấu khác \(\ne\) và container toán học */
         mjx-container, 
         .mjx-chtml, 
         .drag-item mjx-container, 
         .card-element mjx-container,
         .card-prop mjx-container,
-        .card-func mjx-container {
-            white-space: nowrap !important; /* Tuyệt đối không cho phép tự ý xuống dòng bẻ đôi biểu thức */
+        .card-func mjx-container,
+        mjx-math,
+        mjx-mo,
+        mjx-container *,
+        mjx-mo * {
+            outline: none !important; /* Xóa bỏ khung viền gỡ lỗi mặc định */
+            border: none !important; /* Triệt tiêu mọi vạch khung bao quanh */
+            box-shadow: none !important; /* Xóa bóng mờ tạo viền hộp */
+            white-space: nowrap !important; /* Ép biểu thức luôn nằm trên một dòng */
             display: inline-block !important;
-            overflow: visible !important; /* Lộ rõ 100% toàn bộ ký tự đuôi \(\forall hoặc \ne\), chống đè chữ */
+            overflow: visible !important; /* Giữ hiển thị trọn vẹn ký tự đuôi không bị cắt chữ */
             box-sizing: border-box !important;
         }
 
