@@ -1024,7 +1024,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 }
 </style>
     <style id="trench-mobile-and-math-patch">
-        /* --- TỐI ƯU TOÀN DIỆN MOBILE & KHÓA TRÀN TRANG --- */
+        /* --- 1. KHÓA TRÀN TRANG & VIEWPORT CHUẨN TRÊN TOÀN HỆ THỐNG --- */
         html, body {
             overflow: hidden !important;
             touch-action: none !important;
@@ -1051,7 +1051,105 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             flex-direction: column !important;
         }
 
-        /* KHẮC PHỤC TRIỆT ĐỂ LỖI CÂU HỎI BỊ TRÀN CHỮ / MẤT CHỮ */
+        /* --- 2. SỬA DỨT ĐIỂM MÀN HÌNH BẮT ĐẦU (#start-screen & #player-name) --- */
+        #start-screen .military-dossier, .military-dossier {
+            max-height: 90dvh !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            box-sizing: border-box !important;
+            position: relative !important;
+            padding: 24px 20px !important;
+            width: 100% !important;
+            max-width: 620px !important;
+            margin: auto 0 !important;
+        }
+
+        #player-name, .tactical-input {
+            width: 100% !important;
+            box-sizing: border-box !important;
+            font-size: clamp(14px, 3.5vw, 18px) !important;
+            padding: 12px 16px !important;
+            margin-bottom: 20px !important;
+            outline: none !important;
+            border: 2px solid #475569 !important;
+            box-shadow: none !important;
+            border-radius: 8px !important;
+            background: rgba(0, 0, 0, 0.6) !important;
+            color: #00f0ff !important;
+            text-align: center !important;
+        }
+
+        #player-name:focus, .tactical-input:focus {
+            border-color: #00f0ff !important;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4) !important;
+        }
+
+        /* --- 3. SỬA LỖI TẤM BIỂN ZOMBIE CẦM BỊ RỖNG & TỰ CÂN ĐỐI KÍCH THƯỚC --- */
+        .answer-banner, .zombie-badge-board {
+            background: #fef08a !important; /* Nền vàng rực */
+            border: 1.5px solid #854d0e !important; /* Viền nâu đậm */
+            border-radius: 10px !important;
+            padding: 3px 10px !important;
+            display: inline-flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            gap: 6px !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+            width: max-content !important;
+            min-width: 85px !important;
+            max-width: 180px !important;
+            min-height: 32px !important;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4)) !important;
+            margin-left: -15px !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Màu chữ đáp án nâu đậm/đen rõ nét ở tâm biển, không bao giờ bị màu trắng hoặc trùng vàng */
+        .answer-banner, .zombie-badge-board,
+        .answer-banner *, .zombie-badge-board *,
+        .answer-text, .zombie-text, .zombie-math-text,
+        .zombie-badge-board mjx-container, .zombie-badge-board mjx-container *,
+        .zombie-badge-board .MathJax, .zombie-badge-board .MathJax * {
+            color: #451a03 !important;
+            fill: #451a03 !important;
+            stroke: transparent !important;
+        }
+
+        .zombie-math-text, .zombie-text {
+            font-weight: 700 !important;
+            font-size: 0.88rem !important;
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+
+        /* --- 4. CƠ CHẾ ẨN / HIỆN CỤM PHÍM BẤM ẢO (MOBILE DOCK SLIDE) --- */
+        #mobile-combat-dock {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important;
+        }
+
+        #mobile-combat-dock.dock-hidden {
+            transform: translate(-50%, 150%) !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* --- 5. CHUẨN HÓA CÔNG THỨC TOÁN (CHUẨN MIKTEX / LATEX NO-WRAP) --- */
+        .mjx-chtml, mjx-container, .MathJax, .katex, .katex-html {
+            white-space: nowrap !important;
+            display: inline-block !important;
+            max-width: 100% !important;
+            vertical-align: middle !important;
+            font-size: 1.02em !important;
+            outline: none !important;
+            border: none !important;
+        }
+
+        mjx-container *, .mjx-chtml *, .katex * {
+            white-space: nowrap !important;
+        }
+
+        /* Câu hỏi tự xuống dòng linh hoạt chống mất chữ */
         #question-panel, #question-text, .question-text, 
         #combat-modal-q-text, #modal-q-text, #modal-solution-text {
             white-space: normal !important;
@@ -1061,27 +1159,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             line-height: 1.4 !important;
         }
 
-        /* CHUẨN HÓA CÔNG THỨC TOÁN HỌC (CHỐNG BẺ ĐÔI PHÂN SỐ, CANH TRỤC GIỮA, KHÔNG CO RÚM) */
-        .MathJax, mjx-container, .katex, .katex-display, 
-        .zombie-math-text, .answer-text mjx-container, .answer-text .MathJax {
-            white-space: nowrap !important;
-            display: inline-block !important;
-            vertical-align: middle !important;
-            max-width: 100% !important;
-            font-size: 100% !important;
-        }
-        mjx-container[display="true"], .katex-display {
-            display: inline-block !important;
-            margin: 2px 0 !important;
-        }
-        mjx-frac, .katex .mfrac {
-            vertical-align: middle !important;
-        }
-        .mjx-sqrt, .katex .sqrt {
-            overflow: visible !important;
-        }
-
-        /* MODAL OVERLAYS CHỐNG LỖI CẮT MẤT NỘI DUNG VÀ NÚT START/END */
+        /* --- 6. MODAL OVERLAYS CHỐNG LỖI CẮT MẤT NỘI DUNG VÀ NÚT START/END --- */
         .modal-screen {
             position: fixed !important;
             inset: 0 !important;
@@ -1101,10 +1179,12 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             padding: 16px 12px 32px 12px !important;
             box-sizing: border-box !important;
         }
+
         .modal-screen.hidden {
             display: none !important;
         }
-        .esport-box, .military-dossier, #end-box {
+
+        .esport-box, #end-box {
             margin: auto 0 !important;
             max-height: none !important;
             width: 100% !important;
@@ -1253,6 +1333,12 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
       <!-- JavaScript sẽ tự động render các thẻ chủ đề vào đây -->
     </div>
 
+    
+    <div style="margin-bottom: 18px; text-align: center;">
+      <button id="btn-confirm-campaign" onclick="confirmCampaignAndStart()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-slate-950 font-black text-base uppercase tracking-wider shadow-lg shadow-amber-500/30 transition active:scale-95 cursor-pointer">
+        ⚔️ BẮT ĐẦU CHIẾN DỊCH ĐÃ CHỌN ➔
+      </button>
+    </div>
     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; font-size: 12px; color: #64748b;">
       <span>💡 Mỗi chiến dịch gồm 3 cấp độ: <b>Cơ bản (Pistol)</b> ➡️ <b>Trung cấp (Rifle)</b> ➡️ <b>Cao cấp (Lựu đạn)</b></span>
       <span style="color: #00f0ff; font-weight: bold;">Hệ thống Đa Chủ Đề v3.8</span>
@@ -1532,7 +1618,10 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             </div>
             
             <div class="text-left text-sm text-gray-400 font-bold uppercase mb-1">Định danh tân binh:</div>
-            <input id="player-name" type="text" class="tactical-input" placeholder="NHẬP TÊN ĐỂ KÝ NHẬN..." autocomplete="off">
+            <button id="btn-start-game" onclick="proceedToCampaignOrStart()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-slate-950 font-black text-base uppercase tracking-wider shadow-lg shadow-amber-500/30 transition active:scale-95 cursor-pointer mb-6">
+                🚀 TIẾP TỤC / CHỌN CHIẾN DỊCH ➔
+            </button>
+            <input id="player-name" type="text" class="tactical-input w-full box-border" placeholder="NHẬP TÊN ĐỂ KÝ NHẬN..." autocomplete="off">
             
             <button onclick="startGame()" class="btn-glitch mb-6">
                 <i class="fa-solid fa-file-signature mr-2"></i> KÝ NHẬN NHIỆM VỤ
@@ -2208,10 +2297,21 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         }
 
         
-        // === BỘ CHUẨN HÓA CÔNG THỨC TOÁN HỌC & TELL PARSER CHIẾN HÀO CHUẨN SƯ PHẠM ===
+        // === BỘ LÀM SẠCH CHUỖI TOÁN & CHỐNG DÍNH CHỮ TIẾNG VIỆT CHUẨN MIKTEX / LATEX ===
+        function sanitizeMathText(str) {
+            if (!str || typeof str !== 'string') return str || '';
+            let s = str.trim();
+            s = s.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\\(\(|\[)/g, '$1 \\$2');
+            s = s.replace(/\\(\)|\])([a-zA-Zà-ỹÀ-Ỹ0-9])/g, '\\$1 $2');
+            s = s.replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '');
+            s = s.replace(/x\^2/g, 'x^{2}');
+            return s;
+        }
+        window.sanitizeMathText = sanitizeMathText;
+
         function cleanTrenchMathString(rawStr) {
             if (!rawStr || typeof rawStr !== 'string') return rawStr || '';
-            let text = rawStr;
+            let text = sanitizeMathText(rawStr);
 
             // 0. Khử triệt để ký tự rác form-feed (\f, \f\f, \x0c)
             text = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '');
@@ -2260,13 +2360,11 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                 if (!hasVietnamese && hasMathTokens) {
                     text = `\\(${text.trim()}\\)`;
                 } else if (hasVietnamese && hasMathTokens) {
-                    // Biểu thức có lượng giác: gom hàm lượng giác và biến góc
                     text = text.replace(/(\\(?:sin|cos|tan|cot)\s*(?:\^[0-9a-zA-Z{}]+)?\s*(?:[0-9a-zA-Z\\^_{}()]+)?)/g, (match) => {
                         const tr = match.trim();
                         if (!tr || tr.startsWith('\\(')) return match;
                         return `\\(${tr}\\)`;
                     });
-                    // Bọc các biểu thức TeX khác (\frac, \sqrt...)
                     text = text.replace(/(\\(?:frac|sqrt|alpha|beta|gamma|pi|Omega|emptyset)(?:\{[^{}]*\}|\[[^\]]*\])*(?:\^[0-9a-zA-Z{}]+|_[0-9a-zA-Z{}]+)*(?:\s*[-+*/=]\s*(?:\\[a-zA-Z]+(?:\{[^{}]*\}|\[[^\]]*\])*|[0-9a-zA-Z]+))?)/g, (match) => {
                         const tr = match.trim();
                         if (!tr || tr.startsWith('\\(')) return match;
@@ -2290,7 +2388,45 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             return cleanTrenchMathString(text);
         }
 
-        // === TÍNH NĂNG ẨN/HIỆN PHÍM ĐIỀU KHIỂN (TOGGLE CONTROLS) ===
+        // === 1. LUỒNG BẮT ĐẦU VÀ CHỌN CHIẾN DỊCH CHUẨN XÁC ===
+        function proceedToCampaignOrStart() {
+            const nameInput = document.getElementById('player-name');
+            if (nameInput && nameInput.value.trim()) {
+                gameState.playerName = nameInput.value.trim();
+                const dName = document.getElementById('display-name');
+                if (dName) dName.textContent = gameState.playerName;
+            }
+            const startScreen = document.getElementById('start-screen');
+            if (startScreen) startScreen.classList.add('hidden');
+            openTopicMenu();
+        }
+        window.proceedToCampaignOrStart = proceedToCampaignOrStart;
+
+        function selectTopicAndStart(topicName) {
+            selectTopic(topicName);
+            // Ẩn Menu Chọn Chiến Dịch và vào trận ngay
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.style.display = 'none';
+            const startScreen = document.getElementById('start-screen');
+            if (startScreen) startScreen.classList.add('hidden');
+            startGame();
+        }
+        window.selectTopicAndStart = selectTopicAndStart;
+
+        function confirmCampaignAndStart() {
+            if (!window.selectedTopic) {
+                const topics = Object.keys(window.gameDatabase || {});
+                if (topics.length > 0) window.selectedTopic = topics[0];
+            }
+            if (window.selectedTopic) {
+                selectTopicAndStart(window.selectedTopic);
+            } else {
+                startGame();
+            }
+        }
+        window.confirmCampaignAndStart = confirmCampaignAndStart;
+
+        // === 2. CƠ CHẾ ẨN / HIỆN CỤM PHÍM BẤM ẢO (TOGGLE CONTROLS DOCK) ===
         let isTrenchControlsHidden = false;
         function toggleTrenchControls() {
             const dock = document.getElementById('mobile-combat-dock');
@@ -2301,12 +2437,12 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
             isTrenchControlsHidden = !isTrenchControlsHidden;
             if (isTrenchControlsHidden) {
-                dock.style.setProperty('display', 'none', 'important');
+                dock.classList.add('dock-hidden');
                 if (floatBtn) floatBtn.classList.remove('hidden');
                 if (toggleText) toggleText.innerText = 'Hiện Phím';
                 if (toggleIcon) toggleIcon.innerText = '🎮';
             } else {
-                dock.style.removeProperty('display');
+                dock.classList.remove('dock-hidden');
                 if (floatBtn) floatBtn.classList.add('hidden');
                 if (toggleText) toggleText.innerText = 'Ẩn Phím';
                 if (toggleIcon) toggleIcon.innerText = '👁';
@@ -2316,12 +2452,11 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
         // === CHỐNG CUỘN TRÀN TRANG NGOÀI Ý MUỐN (PULL-TO-REFRESH TRÊN MOBILE) ===
         document.addEventListener('touchmove', function(e) {
-            const scrollable = e.target.closest('.modal-screen, #explanation-modal, #combat-question-modal, #admin-editor-modal, #topic-selection-overlay, #question-panel, #end-screen');
+            const scrollable = e.target.closest('.modal-screen, #explanation-modal, #combat-question-modal, #admin-editor-modal, #topic-selection-overlay, #question-panel, #end-screen, .military-dossier, #topics-grid');
             if (!scrollable) {
                 e.preventDefault();
             }
         }, { passive: false });
-
 
         // VÁ LỖI LIỆT NÚT "TOÀN MÀN HÌNH" TRÊN WEB ĐIỆN THOẠI (WEBKIT API MOBILE)
         function executeMobileFullscreen() {
@@ -2634,7 +2769,10 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             options.forEach((optText, originalIdx) => {
                 const isCorrect = (originalIdx === correctIndex);
                 const laneIdx = lanes[originalIdx];
-                const cleanOpt = cleanMathString(optText);
+                let cleanOpt = cleanMathString(optText);
+                if (!cleanOpt || String(cleanOpt).trim() === '') {
+                    cleanOpt = (optText !== undefined && optText !== null && String(optText).trim() !== '') ? String(optText) : labels[laneIdx];
+                }
                 
                 const targetDiv = document.createElement('div');
                 targetDiv.className = 'target-entity'; targetDiv.style.top = topPositions[laneIdx];
@@ -2648,7 +2786,16 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                     <div class="answer-banner zombie-badge-board"><div class="label-circle zombie-letter-circle">${labels[laneIdx]}</div><div class="answer-text zombie-text zombie-math-text">${cleanOpt}</div></div>
                 `;
                 
-                targetDiv.onclick = () => { setPlayerLane(laneIdx); shootCurrentLane(); };
+                // Hỗ trợ chạm trực tiếp vào Zombie trên mobile để ngắm bắn (triệt tiêu độ trễ 300ms)
+                const handleTargetTouchOrClick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setPlayerLane(laneIdx);
+                    shootCurrentLane();
+                };
+                targetDiv.addEventListener('touchstart', handleTargetTouchOrClick, { passive: false });
+                targetDiv.addEventListener('click', handleTargetTouchOrClick);
+
                 container.appendChild(targetDiv);
                 
                 setTimeout(() => {
@@ -3280,7 +3427,11 @@ function renderTopicMenuCards() {
       color: #ffffff; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
       cursor: pointer; transition: all 0.2s;
     `;
-    btn.innerText = isSelected ? '✓ ĐANG CHỌN' : '🚀 CHỌN CHIẾN DỊCH';
+    btn.innerText = isSelected ? '⚔️ BẮT ĐẦU CHIẾN DỊCH NÀY ➔' : '🚀 CHỌN & VÀO TRẬN ➔';
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      selectTopicAndStart(topicName);
+    };
 
     card.appendChild(topInfo);
     card.appendChild(btn);
