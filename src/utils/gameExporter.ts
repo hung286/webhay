@@ -237,6 +237,37 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
 
   // NHÓM 1: Game Đua xe F1 (cấu trúc Đa Chủ Đề & Đa Cấp Độ Tốc Độ)
   if (cleanUrl.includes('game-dua-xe-F1') || cleanUrl.includes('F1')) {
+    const cleanF1Formula = (text: string): string => {
+      if (!text || typeof text !== 'string') return text || '';
+      let res = text.replace(/[\u000c\x0c]/g, '').trim();
+      res = res.replace(/\\+rac/g, '\\frac')
+               .replace(/\bracf\(/g, '\\frac{f(')
+               .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
+               .replace(/^rac\s*\{/g, '\\frac{')
+               .replace(/\brac\b/g, '\\frac')
+               .replace(/rac(?=[0-9\\{])/g, '\\frac')
+               .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
+               .replace(/rac/g, '\\frac');
+      res = res.replace(/cdot/g, '\\cdot')
+               .replace(/(?<!\\)frac/g, '\\frac')
+               .replace(/(?<!\\)cdot/g, '\\cdot');
+      res = res.replace(/\bN\s+?u\b/g, 'Nếu')
+               .replace(/\bH\s+ai\b/g, 'Hai')
+               .replace(/\bC\s+ho\b/g, 'Cho')
+               .replace(/\bC\s+?\b/g, 'Có')
+               .replace(/\bK\s+hi\b/g, 'Khi')
+               .replace(/\bC\s+h?\b/g, 'Chỉ')
+               .replace(/\bT\s+ính\b/g, 'Tính')
+               .replace(/\bT\s+rong\b/g, 'Trong')
+               .replace(/\bK\s+h?ng\b/g, 'Không')
+               .replace(/\bd\s+?nh\b/g, 'định')
+               .replace(/\bH\s+ình\b/g, 'Hình')
+               .replace(/\bM\s+?t\b/g, 'Một')
+               .replace(/\bd\s+u?ng\b/g, 'đường')
+               .replace(/Hai\s+m\s+?t\s+ph\s+?ng/g, 'Hai mặt phẳng');
+      return normalizeMathFormulas(res);
+    };
+
     const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
     questions.forEach(q => {
       const topicName = q.topic?.trim() || gameTitle;
@@ -245,8 +276,8 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
       }
       const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
       topicsMap[topicName][diffKey].push({
-        q: q.question,
-        options: q.options || ['A', 'B', 'C', 'D'],
+        q: cleanF1Formula(q.question),
+        options: (q.options || ['A', 'B', 'C', 'D']).map(o => cleanF1Formula(o)),
         correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
         explanation: q.explanation || '',
         imageUrl: q.imageUrl || ''
