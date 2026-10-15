@@ -233,6 +233,31 @@
             }
         }
 
+        /* 1. KÍCH HOẠT THANH CUỘN LƯỚT CHẠM TỰ DO TRÊN MOBILE (SCROLL VIEWPORT FIX) */
+        .game-play-screen, .ludo-main-layout, #game-container {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 100dvh !important; /* Thích ứng khít theo thanh trình duyệt di động Safari/Chrome */
+            overflow-y: auto !important; /* KÍCH HOẠT thanh cuộn dọc tự động */
+            -webkit-overflow-scrolling: touch !important; /* Ép ngón tay lướt vuốt trượt cuộn siêu mượt mà trên điện thoại */
+        }
+
+        @media (max-width: 768px) {
+            html, body {
+                height: auto !important;
+                min-height: 100dvh !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            #app {
+                height: auto !important;
+                min-height: 100dvh !important;
+                overflow-y: visible !important;
+                padding-bottom: 70px !important;
+            }
+        }
+
         /* THÍCH ỨNG MOBILE CẦM DỌC: KHÔNG ĐỂ BÀN CỜ ĐÈ MẤT NÚT TUNG XÚC XẮC */
         @media (max-width: 768px) and (orientation: portrait) {
             #ludo-board, .ludo-board {
@@ -243,98 +268,110 @@
                 margin: 0 auto !important;
                 padding: 4px !important;
             }
-            .ludo-controls-sidebar, .right-panel-controls {
+            .ludo-controls-sidebar, .right-panel-controls, .dice-control-zone {
                 width: 100% !important;
             }
-            #dice-control {
+            #dice-control, .current-turn-box, .dice-wrapper {
                 width: 100% !important;
                 max-width: 92vw !important;
                 margin: 2px auto 0 !important;
             }
         }
 
-        /* 1. ÉP BỐ CỤC CHIA 2 CỘT CHUẨN HÌNH 3 KHI XOAY NGANG ĐIỆN THOẠI (LANDSCAPE TWO-COLUMN FIX) */
+        /* 3. ÉP BỐ CỤC CHIA 2 CỘT CHUẨN HÌNH 3 KHI XOAY NGANG ĐIỆN THOẠI (LANDSCAPE DUAL-COLUMN) */
         @media (orientation: landscape) and (max-height: 500px) {
-            /* Khung bao tổng thể đấu trường in-game */
+            html, body {
+                height: 100% !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+            }
+            #app {
+                height: 100% !important;
+                min-height: 100dvh !important;
+                padding-bottom: 0 !important;
+            }
             .game-play-screen, .ludo-main-layout {
                 display: flex !important;
-                flex-direction: row !important; /* Dàn hàng ngang chia làm 2 cột chính như Hình 3 */
+                flex-direction: row !important; /* Dàn hàng ngang chia 2 cột Trái/Phải chuẩn Hình 3 */
                 justify-content: space-between !important;
                 align-items: center !important;
                 width: 100% !important;
-                height: calc(100dvh - 35px) !important; /* Bù trừ khoảng trống cho Topbar */
-                overflow: hidden !important;
-                padding: 4px 10px !important;
+                height: calc(100dvh - 35px) !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important; /* Cho phép cuộn lướt mượt mà nếu màn hình quá ngắn */
+                padding: 4px 12px !important;
                 box-sizing: border-box !important;
             }
 
-            /* CỘT BÊN TRÁI: KHU VỰC BÀN CỜ HÌNH VUÔNG */
+            /* CỘT BÊN TRÁI: GIỮ BÀN CỜ VUÔNG VẮN ÔM KHÍT CHIỀU CAO */
             .ludo-board-container, .board-wrapper {
                 width: auto !important;
-                height: 88vh !important; /* Khống chế bàn cờ phình to, giữ vuông vắn ôm khít theo chiều cao màn hình */
+                height: 85vh !important;
                 aspect-ratio: 1 / 1 !important;
                 max-height: 100% !important;
-                flex: 0 0 auto !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
+                flex: 0 0 auto !important;
             }
 
             #ludo-board, .ludo-board {
-                height: 86vh !important;
-                width: 86vh !important;
-                max-height: 86vh !important;
-                max-width: 86vh !important;
+                height: 84vh !important;
+                width: 84vh !important;
+                max-height: 84vh !important;
+                max-width: 84vh !important;
                 aspect-ratio: 1 / 1 !important;
                 padding: 4px !important;
                 margin: 0 !important;
             }
 
-            /* CỘT BÊN PHẢI: KHAY CHỨA BẢNG ĐIỂM, ĐIỀU KHIỂN VÀ XÚC XẮC */
-            .ludo-controls-sidebar, .right-panel-controls {
+            /* CỘT BÊN PHẢI: HIỂN THỊ BẢNG ĐIỂM VÀ KHỐI XÚC XẮC CHUẨN HÌNH 3 */
+            .ludo-controls-sidebar, .right-panel-controls, .dice-control-zone {
                 display: flex !important;
-                flex-direction: column !important; /* Xếp chồng các khối nhỏ theo hàng dọc như Hình 3 */
+                flex-direction: column !important; /* Xếp dọc các khối thông tin như Hình 3 */
                 justify-content: center !important;
                 align-items: center !important;
-                width: 40% !important; /* Chiếm 40% chiều rộng không gian bên phải bàn cờ */
+                width: 38% !important; /* Chiếm 38% chiều rộng bên phải bàn cờ */
                 height: 100% !important;
                 gap: 6px !important;
-                overflow-y: auto !important; /* Tự động bật thanh cuộn nếu danh sách ngựa quá dài */
+                overflow-y: auto !important; /* Tự động bật thanh cuộn riêng cho sidebar bên phải */
                 -webkit-overflow-scrolling: touch !important;
             }
-
-            /* 2. TINH CHỈNH KHỐI ĐỔ XÚC XẮC (CỘT PHẢI MOBILE) */
-            #dice-control {
-                width: 100% !important;
-                max-width: 300px !important;
-                padding: 6px 8px !important;
-                border-radius: 14px !important;
-                margin: 0 auto !important;
+            
+            /* Khối hiển thị Lượt Hiện Tại + Xúc Xắc ở cột phải */
+            .current-turn-box, .dice-wrapper, #dice-control {
+                background: rgba(15, 23, 42, 0.6) !important;
+                border: 1px solid #38bdf8 !important;
+                border-radius: 12px !important;
+                padding: 8px !important;
+                width: 95% !important;
+                max-width: 320px !important;
+                text-align: center !important;
             }
 
             #dice-control h3 {
-                font-size: 0.6rem !important;
-                margin-bottom: 1px !important;
+                font-size: 0.65rem !important;
+                margin-bottom: 2px !important;
             }
 
             #dice-control h2 {
-                font-size: 0.85rem !important;
-                margin-bottom: 2px !important;
+                font-size: 0.9rem !important;
+                margin-bottom: 3px !important;
                 line-height: 1.1 !important;
             }
 
             #dice-control svg {
-                width: 26px !important;
-                height: 26px !important;
+                width: 32px !important;
+                height: 32px !important;
             }
 
             #dice-control .flex.gap-4 {
                 gap: 4px !important;
-                margin-bottom: 2px !important;
+                margin-bottom: 4px !important;
             }
 
             #dice-control button {
-                padding: 6px 10px !important;
+                padding: 6px 12px !important;
                 font-size: 0.75rem !important;
                 border-radius: 10px !important;
                 line-height: 1.2 !important;
@@ -392,7 +429,7 @@
         .katex { font-size: 1.1em; color: #67e8f9; }
     </style>
 </head>
-<body class="min-h-screen relative flex flex-col items-center p-2 sm:p-6 w-full h-screen">
+<body class="min-h-screen relative flex flex-col items-center p-2 sm:p-6 w-full">
 
     <!-- Background Ambient Glows -->
     <div class="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
@@ -593,7 +630,7 @@ window.quizData = ([
                         </div>
                     </div>
 
-                    <div class="game-play-screen ludo-main-layout w-full flex flex-col lg:flex-row gap-2 sm:gap-6 relative z-10 flex-1 min-h-0 items-center justify-center">
+                    <div id="game-container" class="game-play-screen ludo-main-layout w-full flex flex-col lg:flex-row gap-2 sm:gap-6 relative z-10 flex-1 min-h-0 items-center justify-center">
                         <div class="hidden lg:flex flex-col justify-center gap-4 w-64 shrink-0" id="panel-left"></div>
 
                         <!-- CENTER BOARD -->
@@ -607,7 +644,7 @@ window.quizData = ([
                             </div>
                         </div>
 
-                        <div class="ludo-controls-sidebar right-panel-controls flex flex-row lg:flex-col justify-between items-center lg:items-stretch gap-2 sm:gap-4 w-full lg:w-64 shrink-0">
+                        <div class="ludo-controls-sidebar right-panel-controls dice-control-zone flex flex-row lg:flex-col justify-between items-center lg:items-stretch gap-2 sm:gap-4 w-full lg:w-64 shrink-0">
                             <div id="panel-right" class="hidden lg:flex flex-col gap-4"></div>
                             <div id="dice-control" class="w-full lg:mt-auto bg-slate-900/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-2.5 sm:p-6 border transition-all duration-300 shadow-2xl relative overflow-hidden group"></div>
                         </div>
@@ -805,10 +842,10 @@ window.quizData = ([
 
             document.getElementById('dice-control').innerHTML = `
                 <div class="absolute inset-0 opacity-10 ${cp.bg} transition-opacity duration-500"></div>
-                <div class="relative z-10 flex flex-col items-center text-center">
+                <div class="current-turn-box dice-wrapper relative z-10 flex flex-col items-center text-center">
                     <h3 class="text-slate-400 text-xs font-bold tracking-widest mb-1 uppercase">Lượt hiện tại</h3>
                     <h2 class="text-2xl font-black mb-4 drop-shadow-md tracking-wider ${cp.text}">${cp.name}</h2>
-                    <div class="flex gap-4 mb-4 justify-center">
+                    <div id="dice-container" class="dice-view dice-cube-wrapper flex gap-4 mb-4 justify-center cursor-pointer hover:scale-110 active:scale-95 transition-transform" onclick="rollDice()" title="Chạm vào đây để gieo xúc xắc">
                         ${getDiceSVG(state.dice[0], cp.hex)}
                     </div>
                     ${state.phase !== 'playing' ? `
@@ -823,6 +860,7 @@ window.quizData = ([
                 </div>
             `;
 
+            setupDiceClickListeners();
             updateTokensDOM();
             renderModal();
         }
@@ -837,8 +875,32 @@ window.quizData = ([
             if(val===5) dots = d(6,6)+d(18,6)+d(12,12)+d(6,18)+d(18,18);
             if(val===6) dots = d(6,5)+d(18,5)+d(6,12)+d(18,12)+d(6,19)+d(18,19);
             
-            return `<svg width="60" height="60" viewBox="0 0 24 24" class="bg-slate-800 rounded-xl border border-white/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.8)] ${state.phase === 'rolling' ? 'animate-[spin_0.2s_linear_infinite] scale-110' : ''}" style="border-color: ${color}60">${dots}</svg>`;
+            return `<svg id="mini-dice" onclick="rollDice()" width="60" height="60" viewBox="0 0 24 24" class="bg-slate-800 rounded-xl border border-white/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.8)] cursor-pointer hover:scale-105 active:scale-95 transition-transform ${state.phase === 'rolling' ? 'animate-[spin_0.2s_linear_infinite] scale-110' : ''}" style="border-color: ${color}60">${dots}</svg>`;
         }
+
+        // 2. CẤU HÌNH SỰ KIỆN CLICK VÀO KHỐI XÚC XẮC ĐỂ GIEO ĐIỂM (TOUCH FOR VIEWPORTS)
+        function setupDiceClickListeners() {
+            const diceElements = document.querySelectorAll('#dice-container, .dice-view, #mini-dice, .current-turn-box, .dice-wrapper, .dice-cube-wrapper');
+            diceElements.forEach(element => {
+                if (element && !element.dataset.diceListener) {
+                    element.dataset.diceListener = 'true';
+                    element.style.cursor = 'pointer';
+                    element.addEventListener('click', function(e) {
+                        if (e.target.tagName !== 'BUTTON') {
+                            e.preventDefault();
+                            if (typeof window.rollDice === 'function') { window.rollDice(); }
+                            else if (typeof handleRollDice === 'function') { handleRollDice(); }
+                        }
+                    });
+                    element.addEventListener('touchstart', function(e) {
+                        if (e.target.tagName !== 'BUTTON') {
+                            if (typeof window.rollDice === 'function') { window.rollDice(); }
+                        }
+                    }, { passive: true });
+                }
+            });
+        }
+        window.setupDiceClickListeners = setupDiceClickListeners;
 
         // Phát hiện câu hỏi Đúng/Sai
         // Phát hiện câu hỏi Đúng/Sai
