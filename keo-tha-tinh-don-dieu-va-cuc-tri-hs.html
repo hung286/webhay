@@ -97,6 +97,27 @@
             font-size: 1.05em;
         }
 
+        /* Ép toàn bộ container chứa công thức MathJax inline luôn nằm trên một dòng */
+        mjx-container, 
+        .mjx-chtml, 
+        .drag-item mjx-container, 
+        .card-element mjx-container,
+        .card-prop mjx-container,
+        .card-func mjx-container {
+            white-space: nowrap !important; /* Tuyệt đối không cho phép tự ý xuống dòng bẻ đôi biểu thức */
+            display: inline-block !important;
+            overflow: visible !important; /* Lộ rõ 100% toàn bộ ký tự đuôi \(\forall hoặc \ne\), chống đè chữ */
+            box-sizing: border-box !important;
+        }
+
+        /* Đảm bảo thẻ kéo thả bọc ngoài tự co giãn theo độ dài thực tế của chữ và công thức */
+        .drag-item, [id^="card-"], .card-element, .card-prop {
+            width: max-content !important; /* Tự động nở rộng chiều ngang vừa khít theo công thức */
+            max-width: 95% !important; /* Chống tràn quá biên màn hình di động */
+            padding-left: 12px !important; /* Tạo khoảng trống đệm an toàn sang hai bên */
+            padding-right: 12px !important;
+        }
+
         /* 2. THU NHỎ TIÊU ĐỀ WEB VÀ CỤM HUD CHỈ SỐ TRÊN MOBILE (FIX OVERLAP LAYOUT) */
         @media (max-width: 768px) {
             body {
@@ -290,14 +311,16 @@
                 position: relative !important;
                 touch-action: none !important;
             }
-            .card-prop {
-                padding: 4px 8px !important;
-                max-width: 180px !important;
+            .card-prop, .drag-item, [id^="card-"], .card-element {
+                padding: 4px 12px !important;
+                width: max-content !important;
+                max-width: 95% !important;
                 min-width: 80px !important;
                 font-size: 0.75rem !important;
                 border-radius: 8px !important;
                 touch-action: none !important;
                 box-shadow: 0 4px 14px rgba(0,0,0,0.6) !important;
+                box-sizing: border-box !important;
             }
             .card-prop .math-text {
                 font-size: 0.75rem !important;
