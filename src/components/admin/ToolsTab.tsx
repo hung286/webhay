@@ -102,15 +102,56 @@ export const ToolsTab: React.FC = () => {
     soundFx.playClick();
   };
 
-  const handleDuplicate = (tool: TeachingTool) => {
-    const newTool = {
-      ...tool,
-      id: 'tool_copy_' + Date.now(),
-      name: tool.name + ' (Copy)'
-    };
-    setCurrentTool(newTool);
-    setIsEditing(true);
+  const handleEditTool = (tool: TeachingTool) => {
     soundFx.playClick();
+    if (tool.category === 'tro-choi' || tool.url?.includes('.html')) {
+      setEditingGameQuestions(tool);
+    } else {
+      setCurrentTool(tool);
+      setIsEditing(true);
+    }
+  };
+
+  const handleDuplicate = async (tool: TeachingTool) => {
+    soundFx.playClick();
+    try {
+      let newUrl = tool.url;
+      let targetFileName = '';
+      if (tool.url && (tool.url.endsWith('.html') || tool.url.includes('.html'))) {
+        try {
+          const res = await fetch('/api/games/duplicate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sourceUrl: tool.url })
+          });
+          const data = await res.json();
+          if (data.success && data.newUrl) {
+            newUrl = data.newUrl;
+            targetFileName = data.newFileName || '';
+          }
+        } catch (apiErr) {
+          console.warn('API duplicate file note:', apiErr);
+        }
+      }
+
+      const newTool: TeachingTool = {
+        ...tool,
+        id: 'tool_copy_' + Date.now(),
+        name: tool.name + ' (Bản sao)',
+        url: newUrl,
+        createdAt: new Date().toISOString(),
+        customQuestions: tool.customQuestions ? JSON.parse(JSON.stringify(tool.customQuestions)) : []
+      };
+
+      const updatedTools = [newTool, ...tools];
+      setTools(updatedTools);
+      saveTeachingTools(updatedTools);
+      soundFx.playCorrect();
+      alert(`🎉 Đã nhân bản thành công "${newTool.name}"!\n${targetFileName ? `Tệp HTML vật lý mới: ${targetFileName}` : `Đường dẫn: ${newUrl}`}`);
+    } catch (err: any) {
+      console.error(err);
+      alert(`Lỗi khi nhân bản game: ${err?.message || 'Không thể nhân bản.'}`);
+    }
   };
 
   const handleOpenAddTool = () => {
@@ -175,12 +216,33 @@ export const ToolsTab: React.FC = () => {
     soundFx.playCorrect();
   };
 
-  const handleDelete = (tool: TeachingTool) => {
-    if (confirm(`Bạn có chắc muốn xóa "${tool.name}"?\nHành động này sẽ gỡ bỏ khỏi giao diện người dùng.`)) {
+  const handleDelete = async (tool: TeachingTool) => {
+    soundFx.playClick();
+    if (!confirm('Thầy có chắc chắn muốn xóa vĩnh viễn dữ liệu và file HTML của game này không?')) {
+      return;
+    }
+
+    try {
+      if (tool.url && (tool.url.endsWith('.html') || tool.url.includes('.html'))) {
+        try {
+          await fetch('/api/games/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fileUrl: tool.url })
+          });
+        } catch (apiErr) {
+          console.warn('API delete physical file note:', apiErr);
+        }
+      }
+
       const updatedTools = tools.filter(t => t.id !== tool.id);
       setTools(updatedTools);
       saveTeachingTools(updatedTools);
-      soundFx.playClick();
+      soundFx.playCorrect();
+      alert(`Đã xóa vĩnh viễn dữ liệu và trò chơi "${tool.name}".`);
+    } catch (err: any) {
+      console.error('Delete tool error:', err);
+      alert(`Lỗi khi xóa trò chơi: ${err?.message || 'Không thể xóa.'}`);
     }
   };
 
@@ -618,13 +680,9 @@ export const ToolsTab: React.FC = () => {
 
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => {
-                    setCurrentTool(tool);
-                    setIsEditing(true);
-                    soundFx.playClick();
-                  }}
+                  onClick={() => handleEditTool(tool)}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition cursor-pointer"
-                  title="Chỉnh sửa cấu hình"
+                  title="Chỉnh sửa câu hỏi & đề thi"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -632,14 +690,14 @@ export const ToolsTab: React.FC = () => {
                 <button
                   onClick={() => handleDuplicate(tool)}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition cursor-pointer"
-                  title="Nhân bản công cụ này"
+                  title="Nhân bản game & tệp HTML vật lý"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleDelete(tool)}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-                  title="Xóa vĩnh viễn"
+                  title="Xóa vĩnh viễn dữ liệu & file HTML"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

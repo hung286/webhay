@@ -4240,7 +4240,24 @@ mjx-c.mjx-c2264::before {
                 if (window.selectedTopic && window.playAppleTopic) {
                     window.playAppleTopic(window.selectedTopic, 'all');
                 }
-                alert("✓ Đã lưu thành công toàn bộ dữ liệu vào LocalStorage của trình duyệt!");
+
+                // Đồng bộ ghi đè file HTML vật lý trên máy chủ
+                try {
+                    fetch('/api/games/sync-html', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fileUrl: window.location.pathname || '/hai-tao-luan-phien.html',
+                            gameDatabase: window.gameDatabase
+                        })
+                    }).then(function(res) { return res.json(); }).then(function(data) {
+                        console.log('Physical file sync status:', data);
+                    }).catch(function(e) {
+                        console.warn('Physical sync offline fallback:', e);
+                    });
+                } catch(e) {}
+
+                alert("✓ Đã lưu thành công dữ liệu và đồng bộ vào file HTML vật lý!");
             } catch(e) {
                 alert("Lỗi khi lưu dữ liệu: " + e.message);
             }

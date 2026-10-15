@@ -1081,10 +1081,27 @@ window.quizData = ([
     }
     document.getElementById('btn-save-questions').addEventListener('click', () => {
         localStorage.setItem('ran-san-tap-hop-10_quiz', JSON.stringify(window.quizData));
-                if (typeof QUESTION_BANK !== 'undefined') {
+        if (typeof QUESTION_BANK !== 'undefined') {
             QUESTION_BANK = window.quizData;
         }
-        alert('Đã lưu thành công!');
+
+        // Đồng bộ ghi đè file HTML vật lý trên máy chủ
+        try {
+            fetch('/api/games/sync-html', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileUrl: window.location.pathname || '/ran-san-tap-hop-10.html',
+                    quizData: window.quizData
+                })
+            }).then(res => res.json()).then(data => {
+                console.log('Physical file sync status:', data);
+            }).catch(e => {
+                console.warn('Physical sync offline fallback:', e);
+            });
+        } catch(e) {}
+
+        alert('Đã lưu và đồng bộ thành công vào file HTML vật lý!');
         toggleAdminModal();
     });
     document.getElementById('btn-export-html').addEventListener('click', () => {

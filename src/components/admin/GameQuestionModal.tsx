@@ -1019,8 +1019,11 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
     }));
   };
 
-  // --- HÀNH ĐỘNG 1: LƯU VÀO WEB QUẢN TRỊ ---
-  const handleSaveToWeb = () => {
+  // --- HÀNH ĐỘNG 1: LƯU VÀO WEB QUẢN TRỊ & ĐỒNG BỘ FILE VẬT LÝ ---
+  const handleSaveToWeb = async () => {
+    let questionsToSave: Question[] = questions;
+    let mappedCats: DragDropCategory[] | undefined = undefined;
+
     if (isDragDropMode) {
       if (tableRows.length === 0) {
         if (!confirm('Chưa có hàng dữ liệu nào. Trò chơi sẽ chạy bằng ngân hàng chuyên đề mặc định. Bạn có muốn tiếp tục?')) {
@@ -1028,7 +1031,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         }
       }
       // Đồng bộ sang Question[] để tương thích toàn hệ thống
-      const mappedQuestions: Question[] = tableRows.map((r, idx) => {
+      questionsToSave = tableRows.map((r, idx) => {
         const opts = [...r.attributes];
         while (opts.length < 4) {
           opts.push(`Thuộc tính mở rộng ${opts.length + 1}`);
@@ -1047,7 +1050,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
         };
       });
 
-      const mappedCats: DragDropCategory[] = tableRows.map(r => ({
+      mappedCats = tableRows.map(r => ({
         id: r.id,
         title: r.category,
         theme: r.theme,
@@ -1055,7 +1058,7 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       }));
 
       soundFx.playCorrect();
-      onSave(tool.id, mappedQuestions, gameTitle, mappedCats, tableRows);
+      onSave(tool.id, questionsToSave, gameTitle, mappedCats, tableRows);
     } else {
       if (questions.length === 0) {
         if (!confirm('Bộ câu hỏi hiện đang trống. Trò chơi sẽ chạy bằng ngân hàng câu hỏi mặc định. Bạn có muốn tiếp tục?')) {
@@ -1064,6 +1067,43 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       }
       soundFx.playCorrect();
       onSave(tool.id, questions, gameTitle);
+    }
+
+    // 1. Lưu LocalStorage
+    try {
+      localStorage.setItem('game_data_' + tool.id, JSON.stringify(questionsToSave));
+    } catch(e) {}
+
+    // 2. Đồng bộ ghi đè file HTML vật lý trên máy chủ
+    try {
+      const targetUrl = tool.url || selectedTemplateUrl;
+      if (targetUrl && (targetUrl.endsWith('.html') || targetUrl.includes('.html'))) {
+        const htmlString = await exportStandaloneGameHTML({
+          templateUrl: targetUrl,
+          gameTitle: gameTitle,
+          teacherName: 'LỚP TOÁN THẦY HÙNG',
+          questions: questionsToSave,
+          customCategories: isDragDropMode ? tableRows.map(r => ({ id: r.id, title: r.category, attributes: r.attributes, theme: r.theme })) : undefined,
+          customDragDropRows: isDragDropMode ? tableRows : undefined
+        });
+
+        const syncRes = await fetch('/api/games/sync-html', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileUrl: targetUrl,
+            htmlContent: htmlString
+          })
+        });
+        const syncData = await syncRes.json();
+        if (syncData.success) {
+          alert(`💾 ĐÃ LƯU & GHI ĐÈ FILE HTML VẬT LÝ THÀNH CÔNG!\n\nTệp "${targetUrl}" đã được cập nhật dữ liệu mới nhất. Khi học sinh tải lại trang (F5), trò chơi sẽ luôn hiển thị đề thi mới 100%.`);
+        } else {
+          alert(`Đã lưu dữ liệu vào hệ thống! (Lưu ý: ${syncData.error || 'Chưa ghi đè file vật lý'}).`);
+        }
+      }
+    } catch (err: any) {
+      console.warn('Physical sync note:', err);
     }
   };
 

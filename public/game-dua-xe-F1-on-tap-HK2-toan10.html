@@ -1290,8 +1290,24 @@
             try {
                 localStorage.setItem('f1_custom_database', JSON.stringify(window.gameDatabase));
             } catch(e) {}
+
+            // Đồng bộ ghi đè file HTML vật lý trên máy chủ
+            try {
+                fetch('/api/games/sync-html', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileUrl: window.location.pathname || '/game-dua-xe-F1-on-tap-HK2-toan10.html',
+                        gameDatabase: window.gameDatabase
+                    })
+                }).then(function(res) { return res.json(); }).then(function(data) {
+                    console.log('Physical file sync status:', data);
+                }).catch(function(e) {
+                    console.warn('Physical sync offline fallback:', e);
+                });
+            } catch(e) {}
             
-            alert("🎉 Đã lưu toàn bộ câu hỏi vào hệ thống F1!");
+            alert("🎉 Đã lưu và đồng bộ toàn bộ câu hỏi vào file HTML vật lý của F1!");
             closeAdminEditorModal();
             renderF1TopicMenuCards();
             

@@ -2,6 +2,8 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import path from 'path';
+import fs from 'fs';
+import fsPromises from 'fs/promises';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 
@@ -224,6 +226,185 @@ Trả về một danh sách các câu hỏi theo đúng định dạng JSON Arra
   } catch (error: any) {
     console.error('Gemini generate questions error:', error);
     res.status(500).json({ success: false, error: error?.message || 'Lỗi sinh câu hỏi từ Gemini AI' });
+  }
+});
+
+// 5. API: Duplicate Game Physical HTML File
+app.post('/api/games/duplicate', async (req, res) => {
+  try {
+    const { sourceUrl, newFileName } = req.body;
+    if (!sourceUrl || typeof sourceUrl !== 'string') {
+      return res.status(400).json({ success: false, error: 'Thiếu đường dẫn file nguồn (sourceUrl)' });
+    }
+
+    const cleanSource = path.basename(sourceUrl.split('?')[0]);
+    if (!cleanSource.endsWith('.html')) {
+      return res.status(400).json({ success: false, error: 'File nguồn phải là định dạng HTML' });
+    }
+
+    const publicDir = path.resolve(__dirname, 'public');
+    const distDir = path.resolve(__dirname, 'dist');
+    const sourcePath = path.join(publicDir, cleanSource);
+
+    if (!fs.existsSync(sourcePath)) {
+      return res.status(404).json({ success: false, error: `Không tìm thấy file nguồn: ${cleanSource}` });
+    }
+
+    let targetFileName = newFileName ? path.basename(newFileName) : '';
+    if (!targetFileName || !targetFileName.endsWith('.html')) {
+      const baseName = path.basename(cleanSource, '.html');
+      targetFileName = `${baseName}_copy_${Date.now()}.html`;
+    }
+
+    const targetPublicPath = path.join(publicDir, targetFileName);
+    await fsPromises.copyFile(sourcePath, targetPublicPath);
+
+    // Đồng thời copy sang dist/ nếu dist/ tồn tại
+    if (fs.existsSync(distDir)) {
+      const targetDistPath = path.join(distDir, targetFileName);
+      await fsPromises.copyFile(sourcePath, targetDistPath);
+    }
+
+    res.json({
+      success: true,
+      message: `Đã nhân bản file thành công sang ${targetFileName}`,
+      newUrl: `/${targetFileName}`,
+      newFileName: targetFileName
+    });
+  } catch (error: any) {
+    console.error('Game duplicate error:', error);
+    res.status(500).json({ success: false, error: error?.message || 'Lỗi nhân bản file game' });
+  }
+});
+
+// 6. API: Delete Game Physical HTML File
+app.post('/api/games/delete', async (req, res) => {
+  try {
+    const { fileUrl } = req.body;
+    if (!fileUrl || typeof fileUrl !== 'string') {
+      return res.status(400).json({ success: false, error: 'Thiếu đường dẫn file cần xóa (fileUrl)' });
+    }
+
+    const cleanFile = path.basename(fileUrl.split('?')[0]);
+    if (!cleanFile.endsWith('.html')) {
+      return res.status(400).json({ success: false, error: 'Chỉ được phép xóa file HTML' });
+    }
+
+    const publicDir = path.resolve(__dirname, 'public');
+    const distDir = path.resolve(__dirname, 'dist');
+    const publicPath = path.join(publicDir, cleanFile);
+    const distPath = path.join(distDir, cleanFile);
+
+    let deletedCount = 0;
+    if (fs.existsSync(publicPath)) {
+      await fsPromises.unlink(publicPath);
+      deletedCount++;
+    }
+    if (fs.existsSync(distPath)) {
+      await fsPromises.unlink(distPath);
+      deletedCount++;
+    }
+
+    res.json({
+      success: true,
+      message: `Đã xóa vĩnh viễn file ${cleanFile} khỏi hệ thống (${deletedCount} vị trí lưu trữ)`,
+      fileName: cleanFile
+    });
+  } catch (error: any) {
+    console.error('Game delete error:', error);
+    res.status(500).json({ success: false, error: error?.message || 'Lỗi xóa file game vật lý' });
+  }
+});
+
+// 7. API: Sync Physical Game HTML File (Data Override)
+app.post('/api/games/sync-html', async (req, res) => {
+  try {
+    const { fileUrl, htmlContent, quizData, gameDatabase, penaltyDatabase, questions } = req.body;
+    if (!fileUrl || typeof fileUrl !== 'string') {
+      return res.status(400).json({ success: false, error: 'Thiếu đường dẫn file (fileUrl)' });
+    }
+
+    const cleanFile = path.basename(fileUrl.split('?')[0]);
+    if (!cleanFile.endsWith('.html')) {
+      return res.status(400).json({ success: false, error: 'Chỉ hỗ trợ đồng bộ file định dạng HTML' });
+    }
+
+    const publicDir = path.resolve(__dirname, 'public');
+    const distDir = path.resolve(__dirname, 'dist');
+    const publicPath = path.join(publicDir, cleanFile);
+
+    let finalHtml = htmlContent;
+
+    // Nếu không truyền trực tiếp htmlContent mà truyền dữ liệu JSON
+    if (!finalHtml) {
+      if (!fs.existsSync(publicPath)) {
+        return res.status(404).json({ success: false, error: `Không tìm thấy file nguồn: ${cleanFile}` });
+      }
+
+      let existingHtml = await fsPromises.readFile(publicPath, 'utf-8');
+
+      // 1. Đồng bộ quizData
+      const effectiveQuizData = quizData || questions;
+      if (effectiveQuizData && Array.isArray(effectiveQuizData)) {
+        const jsonStr = JSON.stringify(effectiveQuizData, null, 2);
+        const scriptInject = `<script id="__PHYSICAL_SYNC_QUIZDATA__">\nwindow.quizData = ${jsonStr};\nwindow.__INJECTED_CANGUA_DATA__ = ${jsonStr};\nvar QUESTION_BANK = window.quizData;\nvar questions = window.quizData;\n</script>`;
+        
+        if (existingHtml.includes('id="__PHYSICAL_SYNC_QUIZDATA__"')) {
+          existingHtml = existingHtml.replace(/<script id="__PHYSICAL_SYNC_QUIZDATA__">[\s\S]*?<\/script>/i, scriptInject);
+        } else if (existingHtml.includes('</head>')) {
+          existingHtml = existingHtml.replace('</head>', `${scriptInject}\n</head>`);
+        } else {
+          existingHtml = `${scriptInject}\n${existingHtml}`;
+        }
+      }
+
+      // 2. Đồng bộ gameDatabase
+      if (gameDatabase && typeof gameDatabase === 'object') {
+        const jsonDbStr = JSON.stringify(gameDatabase, null, 2);
+        const scriptDbInject = `<script id="__PHYSICAL_SYNC_GAMEDATABASE__">\nwindow.gameDatabase = ${jsonDbStr};\nwindow.__INJECTED_TETRIS_DATA__ = ${jsonDbStr};\nwindow.__INJECTED_MARIO_DATA__ = ${jsonDbStr};\nwindow.__INJECTED_GAME_DATABASE__ = ${jsonDbStr};\n</script>`;
+        
+        if (existingHtml.includes('id="__PHYSICAL_SYNC_GAMEDATABASE__"')) {
+          existingHtml = existingHtml.replace(/<script id="__PHYSICAL_SYNC_GAMEDATABASE__">[\s\S]*?<\/script>/i, scriptDbInject);
+        } else if (existingHtml.includes('</head>')) {
+          existingHtml = existingHtml.replace('</head>', `${scriptDbInject}\n</head>`);
+        } else {
+          existingHtml = `${scriptDbInject}\n${existingHtml}`;
+        }
+      }
+
+      // 3. Đồng bộ penaltyDatabase
+      if (penaltyDatabase && typeof penaltyDatabase === 'object') {
+        const jsonPenStr = JSON.stringify(penaltyDatabase, null, 2);
+        const scriptPenInject = `<script id="__PHYSICAL_SYNC_PENALTY__">\nwindow.penaltyDatabase = ${jsonPenStr};\nvar penaltyDatabase = ${jsonPenStr};\n</script>`;
+        if (existingHtml.includes('id="__PHYSICAL_SYNC_PENALTY__"')) {
+          existingHtml = existingHtml.replace(/<script id="__PHYSICAL_SYNC_PENALTY__">[\s\S]*?<\/script>/i, scriptPenInject);
+        } else if (existingHtml.includes('</head>')) {
+          existingHtml = existingHtml.replace('</head>', `${scriptPenInject}\n</head>`);
+        } else {
+          existingHtml = `${scriptPenInject}\n${existingHtml}`;
+        }
+      }
+
+      finalHtml = existingHtml;
+    }
+
+    // Ghi đè vào public/
+    await fsPromises.writeFile(publicPath, finalHtml, 'utf-8');
+
+    // Đồng thời ghi đè vào dist/ nếu có
+    if (fs.existsSync(distDir)) {
+      const distPath = path.join(distDir, cleanFile);
+      await fsPromises.writeFile(distPath, finalHtml, 'utf-8');
+    }
+
+    res.json({
+      success: true,
+      message: `Đã ghi đè đồng bộ dữ liệu vào file vật lý ${cleanFile} thành công!`,
+      fileName: cleanFile
+    });
+  } catch (error: any) {
+    console.error('Game sync HTML error:', error);
+    res.status(500).json({ success: false, error: error?.message || 'Lỗi ghi đè file HTML vật lý' });
   }
 });
 

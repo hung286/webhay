@@ -4302,6 +4302,69 @@ var questions = window.quizData;
     htmlContent = injectScriptAtTop(htmlContent, stdScript);
   }
 
+  // BỔ SUNG HOOK ĐỒNG BỘ FILE VẬT LÝ VÀO SERVER KHI LƯU ĐỀ BÀI TRONG GAME
+  const globalSyncHook = `
+<script id="__AUTO_PHYSICAL_SYNC_HOOK__">
+(function() {
+  function triggerServerPhysicalSync() {
+    try {
+      var targetPath = window.location.pathname;
+      if (!targetPath || targetPath === '/' || !targetPath.includes('.html')) {
+        return;
+      }
+      var payload = {
+        fileUrl: targetPath,
+        quizData: window.quizData || (typeof QUESTION_BANK !== 'undefined' ? QUESTION_BANK : null),
+        gameDatabase: window.gameDatabase,
+        penaltyDatabase: (window).penaltyDatabase
+      };
+      fetch('/api/games/sync-html', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function(res) {
+        return res.json();
+      }).then(function(data) {
+        if (data && data.success) {
+          console.log('[PHYSICAL SYNC SUCCESS]', data.message);
+        }
+      }).catch(function(err) {
+        console.warn('[PHYSICAL SYNC OFFLINE]', err);
+      });
+    } catch(e) {}
+  }
+
+  document.addEventListener('click', function(e) {
+    var target = e.target;
+    if (!target) return;
+    var btn = target.closest ? target.closest('button, [role="button"]') : target;
+    if (!btn) return;
+
+    var btnId = btn.id || '';
+    var btnText = (btn.textContent || '').toUpperCase();
+    var btnOnClick = String(btn.getAttribute('onclick') || '');
+
+    if (
+      btnId === 'btn-save-questions' ||
+      btnId === 'btn-save-data' ||
+      btnId === 'btn-save-changes' ||
+      btnText.includes('LƯU THAY ĐỔI') ||
+      btnText.includes('LƯU CÂU HỎI') ||
+      btnText.includes('LƯU DỮ LIỆU') ||
+      btnOnClick.includes('saveEditor') ||
+      btnOnClick.includes('saveAdmin')
+    ) {
+      setTimeout(triggerServerPhysicalSync, 300);
+      setTimeout(triggerServerPhysicalSync, 1200);
+    }
+  }, true);
+
+  window.triggerServerPhysicalSync = triggerServerPhysicalSync;
+})();
+</script>
+`;
+  htmlContent = injectScriptAtTop(htmlContent, globalSyncHook);
+
   return htmlContent;
 }
 

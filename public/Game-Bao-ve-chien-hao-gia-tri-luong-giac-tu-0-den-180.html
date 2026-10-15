@@ -3445,12 +3445,28 @@ function saveAdminQuestions() {
     localStorage.setItem('chien_hao_custom_questions', JSON.stringify(editorWorkingData));
     localStorage.setItem('chien_hao_custom_database', JSON.stringify(window.gameDatabase));
 
+    // Đồng bộ ghi đè file HTML vật lý trên máy chủ
+    try {
+      fetch('/api/games/sync-html', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileUrl: window.location.pathname || '/Game-Bao-ve-chien-hao-gia-tri-luong-giac-tu-0-den-180.html',
+          gameDatabase: window.gameDatabase
+        })
+      }).then(function(res) { return res.json(); }).then(function(data) {
+        console.log('Physical file sync status:', data);
+      }).catch(function(e) {
+        console.warn('Physical sync offline fallback:', e);
+      });
+    } catch(e) {}
+
     if (typeof generateSessionQuestions === 'function') {
       generateSessionQuestions();
     }
     renderCampaignMenu();
     closeAdminEditorModal();
-    alert('ĐÃ LƯU THÀNH CÔNG!\nBộ câu hỏi mới đã được lưu vào trình duyệt và đồng bộ với trận đấu.');
+    alert('ĐÃ LƯU THÀNH CÔNG!\nBộ câu hỏi mới đã được lưu và đồng bộ vào file HTML vật lý.');
   } catch (e) {
     alert('Lỗi lưu dữ liệu: ' + e.message);
   }

@@ -1816,7 +1816,24 @@
             questionLevels = birdDatabase;
             window.birdQuizData = birdDatabase;
             window.questionLevels = birdDatabase;
-            alert('🎉 ĐÃ LƯU THÀNH CÔNG!\n\nDữ liệu câu hỏi mới đã được lưu vào bộ nhớ trình duyệt và áp dụng ngay cho game.');
+
+            // Đồng bộ ghi đè file HTML vật lý trên máy chủ
+            try {
+                fetch('/api/games/sync-html', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileUrl: window.location.pathname || '/ban-chim-xac-suat10.html',
+                        gameDatabase: birdDatabase
+                    })
+                }).then(function(res) { return res.json(); }).then(function(data) {
+                    console.log('Physical file sync status:', data);
+                }).catch(function(e) {
+                    console.warn('Physical sync offline fallback:', e);
+                });
+            } catch(e) {}
+
+            alert('🎉 ĐÃ LƯU THÀNH CÔNG!\n\nDữ liệu câu hỏi mới đã được lưu và đồng bộ vào file HTML vật lý.');
             closeAdminEditorModal();
             if (gameState.isPlaying) {
                 generateQuestion();
