@@ -302,9 +302,33 @@
         .tf-btn.active-true { background-color: #22c55e; color: white; transform: scale(1.05); }
         .tf-btn.active-false { background-color: #ef4444; color: white; transform: scale(1.05); }
         
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+                /* THANH CUỘN CẢM ỨNG TRỰC QUAN MÀU VÀNG (CUSTOM MOBILE SCROLLBAR) */
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #eab308 rgba(15, 23, 42, 0.6);
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+        }
+                /* THANH CUỘN CẢM ỨNG TRỰC QUAN MÀU VÀNG (CUSTOM MOBILE SCROLLBAR) */
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #eab308 rgba(15, 23, 42, 0.6);
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #facc15, #ca8a04);
+            border-radius: 9999px;
+            border: 1px solid rgba(0,0,0,0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 9999px;
+        }
 
         /* 1. TỐI ƯU TOÀN DIỆN LAYOUT MOBILE THÍCH ỨNG (@media max-width: 768px) */
         @media (max-width: 768px) {
@@ -314,12 +338,12 @@
                 overflow: hidden !important;
             }
 
-            /* TOPBAR & CỤM HUD SCORE / SPEED THU GỌN 50% */
+            /* TOPBAR & CỤM HUD SCORE / SPEED THU GỌN */
             header {
                 padding: 4px 8px !important;
-                height: 42px !important;
-                min-height: 42px !important;
-                max-height: 42px !important;
+                height: 40px !important;
+                min-height: 40px !important;
+                max-height: 40px !important;
                 display: flex !important;
                 flex-direction: row !important;
                 flex-wrap: nowrap !important;
@@ -360,12 +384,12 @@
                 white-space: nowrap !important;
             }
 
-            /* CỤM HUD SCORE & SPEED: Bóp 50% chiều cao, font 0.75rem, dàn hàng ngang mỏng */
+            /* CỤM HUD SCORE & SPEED */
             .f1-hud-stats {
                 padding: 2px 6px !important;
                 gap: 6px !important;
                 border-radius: 8px !important;
-                height: 32px !important;
+                height: 30px !important;
                 border: 1px solid rgba(255,255,255,0.1) !important;
                 display: flex !important;
                 align-items: center !important;
@@ -387,18 +411,18 @@
                 font-size: 8px !important;
             }
 
-            /* CƠ CHẾ CHUYỂN HÀNG DỌC (PORTRAIT RESPONSIVE FIX): Bẻ flex-col xếp chồng */
+            /* CƠ CHẾ CHUYỂN HÀNG DỌC TRÊN MOBILE */
             .f1-main-container {
                 flex-direction: column !important;
                 padding: 4px !important;
                 gap: 6px !important;
-                height: calc(100dvh - 42px) !important;
-                max-height: calc(100dvh - 42px) !important;
+                height: calc(100dvh - 40px) !important;
+                max-height: calc(100dvh - 40px) !important;
                 overflow: hidden !important;
                 box-sizing: border-box !important;
             }
 
-            /* KHUNG CÂU HỎI ĐEN: ĐẨY LÊN NẰM NGANG PHÍA TRÊN, 100% CHIỀU RỘNG */
+            /* KHUNG CÂU HỎI: 100% CHIỀU RỘNG, CUỘN MƯỢT MÀ */
             .f1-question-panel {
                 width: 100% !important;
                 max-width: 100% !important;
@@ -410,21 +434,26 @@
                 display: flex !important;
                 flex-direction: column !important;
                 background: rgba(15, 23, 42, 0.75) !important;
+                position: relative !important;
             }
 
+            /* VÙNG CUỘN CÂU HỎI & ĐÁP ÁN: CUỘN MƯỢT MÀ KHÔNG BỊ TRỄ */
             #question-container {
                 overflow-y: auto !important;
                 -webkit-overflow-scrolling: touch !important;
-                padding-right: 2px !important;
+                touch-action: pan-y !important;
+                overscroll-behavior-y: contain !important;
+                scroll-behavior: smooth !important;
+                padding-right: 4px !important;
                 display: flex !important;
                 flex-direction: column !important;
                 flex: 1 !important;
             }
 
-            /* Kích thước chiều cao tối đa 120px, padding 8px 12px, font 0.95rem */
+            /* ĐỀ BÀI: BỎ OVERFLOW RIÊNG ĐỂ KHÔNG BẪY CỬ CHỈ VUỐT */
             #q-text {
                 width: 100% !important;
-                max-height: 120px !important;
+                max-height: none !important;
                 min-height: auto !important;
                 padding: 8px 12px !important;
                 font-size: 0.95rem !important;
@@ -433,7 +462,7 @@
                 margin-bottom: 6px !important;
                 text-align: left !important;
                 display: block !important;
-                overflow-y: auto !important;
+                overflow: visible !important;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
                 border: 1px solid rgba(255,255,255,0.08) !important;
             }
@@ -446,7 +475,8 @@
                 padding: 6px 10px !important;
                 border-radius: 10px !important;
                 gap: 8px !important;
-                min-height: 38px !important;
+                min-height: 40px !important;
+                touch-action: manipulation !important;
             }
             .option-card > span:first-child {
                 width: 26px !important;
@@ -464,13 +494,13 @@
                 flex-shrink: 0 !important;
             }
 
-            /* ĐƯỜNG ĐUA F1 CANVAS: ĐẨY XUỐNG DƯỚI, SCALE KHÍT KHÔNG CHE CHỮ */
+            /* ĐƯỜNG ĐUA F1 CANVAS PHÍA DƯỚI */
             .f1-track-panel {
                 width: 100% !important;
                 max-width: 100% !important;
-                height: 130px !important;
-                min-height: 110px !important;
-                max-height: 140px !important;
+                height: 110px !important;
+                min-height: 95px !important;
+                max-height: 120px !important;
                 border-radius: 14px !important;
                 flex-shrink: 0 !important;
                 order: 2 !important;
@@ -481,11 +511,189 @@
                 width: 3px !important;
             }
             #player-car svg {
-                width: 45px !important;
-                height: 75px !important;
+                width: 42px !important;
+                height: 70px !important;
+            }
+
+            /* TỐI ƯU MÀN HÌNH FINISH TRÊN MOBILE XOAY DỌC */
+            #victory-screen {
+                padding: 10px 8px !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                touch-action: pan-y !important;
+                justify-content: flex-start !important;
+            }
+            #victory-screen > div {
+                padding: 14px 12px !important;
+                margin: auto !important;
+                max-width: 100% !important;
+                border-radius: 18px !important;
+                border-width: 2px !important;
             }
         }
-    </style>
+
+        /* ======================================================== */
+        /* 2. CHẾ ĐỘ MOBILE XOAY NGANG (LANDSCAPE RESPONSIVE FIX) */
+        /* ======================================================== */
+        @media (orientation: landscape) and (max-height: 550px) {
+            body {
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                overflow: hidden !important;
+            }
+
+            /* TOPBAR & HUD SIÊU MỎNG GỌN */
+            header {
+                padding: 2px 8px !important;
+                height: 34px !important;
+                min-height: 34px !important;
+                max-height: 34px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                background: #090d16 !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                z-index: 40 !important;
+            }
+            .f1-header-brand {
+                gap: 4px !important;
+            }
+            .f1-brand-badge {
+                padding: 1px 4px !important;
+                font-size: 8px !important;
+                line-height: 1 !important;
+            }
+            #display-player {
+                font-size: 0.7rem !important;
+                line-height: 1 !important;
+            }
+            #q-counter {
+                font-size: 8px !important;
+                line-height: 1 !important;
+            }
+            .f1-top-btn {
+                padding: 1px 6px !important;
+                height: 24px !important;
+                font-size: 0.7rem !important;
+                border-radius: 6px !important;
+            }
+            .f1-hud-stats {
+                padding: 1px 6px !important;
+                height: 26px !important;
+                border-radius: 6px !important;
+            }
+            .f1-hud-stats .hud-label {
+                font-size: 7px !important;
+            }
+            #current-score, #current-speed {
+                font-size: 0.7rem !important;
+                line-height: 1 !important;
+            }
+
+            /* BÀN CHƠI: XẾP 2 CỘT NGANG HOÀN HẢO */
+            .f1-main-container {
+                flex-direction: row !important;
+                padding: 3px 6px !important;
+                gap: 6px !important;
+                height: calc(100dvh - 34px) !important;
+                max-height: calc(100dvh - 34px) !important;
+                overflow: hidden !important;
+                box-sizing: border-box !important;
+            }
+
+            /* BẢNG CÂU HỎI BÊN TRÁI: CUỘN MƯỢT MÀ */
+            .f1-question-panel {
+                flex: 1 1 auto !important;
+                height: 100% !important;
+                max-height: 100% !important;
+                padding: 4px 8px !important;
+                border-radius: 12px !important;
+                gap: 2px !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                background: rgba(15, 23, 42, 0.8) !important;
+                position: relative !important;
+            }
+            #question-container {
+                flex: 1 !important;
+                height: 100% !important;
+                max-height: 100% !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                touch-action: pan-y !important;
+                overscroll-behavior-y: contain !important;
+                scroll-behavior: smooth !important;
+                padding-right: 4px !important;
+            }
+            #q-text {
+                width: 100% !important;
+                padding: 6px 8px !important;
+                font-size: 0.82rem !important;
+                line-height: 1.35 !important;
+                border-radius: 8px !important;
+                margin-bottom: 4px !important;
+                overflow: visible !important;
+                max-height: none !important;
+            }
+            #q-options {
+                gap: 4px !important;
+            }
+            .option-card {
+                padding: 4px 8px !important;
+                border-radius: 8px !important;
+                min-height: 34px !important;
+                gap: 6px !important;
+            }
+            .option-card > span:first-child {
+                width: 22px !important;
+                height: 22px !important;
+                min-width: 22px !important;
+                font-size: 0.7rem !important;
+                border-radius: 4px !important;
+            }
+            .option-card > span:last-child {
+                font-size: 0.8rem !important;
+                line-height: 1.2 !important;
+            }
+
+            /* ĐƯỜNG ĐUA F1 BÊN PHẢI: CHIỀU CAO ĐẦY ĐỦ */
+            .f1-track-panel {
+                width: 130px !important;
+                min-width: 120px !important;
+                max-width: 150px !important;
+                height: 100% !important;
+                max-height: 100% !important;
+                border-radius: 12px !important;
+                flex-shrink: 0 !important;
+                order: 2 !important;
+                padding: 2px !important;
+                margin: 0 !important;
+            }
+            .f1-track-panel .lane-divider {
+                width: 2px !important;
+            }
+            #player-car svg {
+                width: 38px !important;
+                height: 65px !important;
+            }
+
+            /* TOÀN BỘ MÀN HÌNH POPUP / MODAL TRONG CHẾ ĐỘ XOAY NGANG */
+            .screen, #start-screen, #victory-screen, #topic-selection-overlay {
+                padding: 4px !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                touch-action: pan-y !important;
+                justify-content: flex-start !important;
+            }
+            .screen > div, #start-screen > div, #victory-screen > div, #topic-selection-overlay > div {
+                margin: auto !important;
+                max-height: none !important;
+                padding: 8px 12px !important;
+                border-radius: 14px !important;
+            }
+        }</style>
 
 <style id="mathjax-no-bounding-box-style">
 /* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax/KaTeX và căn giữa trục dòng */
@@ -619,6 +827,16 @@ mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-
                 </div>
                 <div id="q-options" class="flex flex-col gap-2.5 sm:gap-4 tex2jax_process"></div>
             </div>
+            
+            <!-- NÚT CUỘN LƯỚT CÂU HỎI TRỰC QUAN (MOBILE & DESKTOP) -->
+            <div id="f1-scroll-controls" class="absolute bottom-2 right-2 flex flex-col gap-1 z-20 pointer-events-auto">
+                <button type="button" onclick="scrollF1Question(-120)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-800/90 hover:bg-yellow-500 hover:text-slate-950 text-yellow-400 border border-yellow-500/40 flex items-center justify-center text-xs font-bold shadow-lg transition-all active:scale-90 cursor-pointer backdrop-blur-md" title="Cuộn lên">
+                    ▲
+                </button>
+                <button type="button" onclick="scrollF1Question(120)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-800/90 hover:bg-yellow-500 hover:text-slate-950 text-yellow-400 border border-yellow-500/40 flex items-center justify-center text-xs font-bold shadow-lg transition-all active:scale-90 cursor-pointer backdrop-blur-md" title="Cuộn xuống">
+                    ▼
+                </button>
+            </div>
             <div id="pit-stop" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-md z-10 flex items-center justify-center rounded-[2rem] sm:rounded-[3rem]">
                 <div class="text-center"><p class="digital-font text-yellow-500 text-2xl sm:text-4xl tracking-widest italic animate-pulse">PIT STOP...</p></div>
             </div>
@@ -637,28 +855,52 @@ mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-
         </div>
     </main>
 
-    <!-- 3. MÀN HÌNH KẾT THÚC -->
-    <div id="victory-screen" class="screen hidden">
-        <div class="bg-slate-900 border-4 border-yellow-500 p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[4rem] text-center max-w-xl w-full shadow-2xl relative overflow-hidden">
-            <div class="text-6xl sm:text-8xl mb-4 sm:mb-6">🏁</div>
-            <h2 class="text-4xl sm:text-5xl font-black mb-3 digital-font text-yellow-500 uppercase italic">FINISH!</h2>
+    <!-- 3. MÀN HÌNH KẾT THÚC (TỐI ƯU MOBILE & ĐẦY ĐỦ NÚT ĐIỀU HƯỚNG) -->
+    <div id="victory-screen" class="screen hidden overflow-y-auto p-3 sm:p-6 custom-scrollbar">
+        <div class="bg-slate-900/95 border-2 sm:border-4 border-yellow-500 p-4 sm:p-6 rounded-2xl sm:rounded-[2.5rem] text-center max-w-lg w-full shadow-2xl relative my-auto backdrop-blur-md">
+            <!-- Header cờ đua + Tiêu đề FINISH -->
+            <div class="flex items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                <span class="text-3xl sm:text-4xl">🏁</span>
+                <h2 class="text-2xl sm:text-3xl font-black digital-font text-yellow-500 uppercase italic tracking-wider">FINISH!</h2>
+            </div>
+            <p id="finish-topic-title" class="text-xs sm:text-sm text-yellow-400 font-bold mb-2 sm:mb-3 truncate px-2"></p>
             
-            <div class="py-4 sm:py-6 px-6 sm:px-10 bg-slate-950 rounded-[2rem] border-2 border-slate-800 mb-6 shadow-inner">
+            <!-- Cụm Total Score & Max Speed -->
+            <div class="py-2 sm:py-3 px-3 sm:px-6 bg-slate-950/90 rounded-xl sm:rounded-2xl border border-slate-800 mb-2.5 sm:mb-3 shadow-inner">
                 <div class="flex justify-around items-center">
-                    <div><p class="text-[10px] sm:text-xs text-slate-400 uppercase font-bold mb-1">Total Score</p><p class="text-2xl sm:text-4xl digital-font text-yellow-500" id="final-score">0</p></div>
-                    <div class="w-px h-10 sm:h-12 bg-slate-800"></div>
-                    <div><p class="text-[10px] sm:text-xs text-slate-400 uppercase font-bold mb-1">Max Speed</p><p class="text-2xl sm:text-4xl digital-font text-white" id="final-speed">0</p></div>
+                    <div>
+                        <p class="text-[9px] sm:text-xs text-slate-400 uppercase font-bold tracking-wider mb-0.5">Điểm Số</p>
+                        <p class="text-xl sm:text-2xl digital-font font-black text-yellow-500" id="final-score">0</p>
+                    </div>
+                    <div class="w-px h-7 sm:h-9 bg-slate-800"></div>
+                    <div>
+                        <p class="text-[9px] sm:text-xs text-slate-400 uppercase font-bold tracking-wider mb-0.5">Tốc Độ Đạt</p>
+                        <p class="text-xl sm:text-2xl digital-font font-black text-emerald-400" id="final-speed">0 km/h</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="w-full mb-6 text-left">
-                <p class="text-[10px] uppercase font-bold text-slate-500 mb-3 tracking-widest text-center">Bảng xếp hạng Hall of Fame (Top 5)</p>
-                <div id="leaderboard-full" class="space-y-2"></div>
+            <!-- Bảng xếp hạng Top 5 gọn gàng có cuộn tự động -->
+            <div class="w-full mb-2.5 sm:mb-3 text-left">
+                <div class="flex items-center justify-between text-[10px] sm:text-xs uppercase font-bold text-slate-400 mb-1 px-1">
+                    <span>🏆 Bảng Xếp Hạng</span>
+                    <span class="text-yellow-500 font-mono">Top 5</span>
+                </div>
+                <div id="leaderboard-full" class="space-y-1 max-h-[105px] sm:max-h-[140px] overflow-y-auto pr-1 custom-scrollbar"></div>
             </div>
 
-            <button onclick="resetToStart()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-3.5 px-12 rounded-xl text-lg shadow-xl transition-all hover:scale-105 active:scale-95 w-full sm:w-auto digital-font">
-                QUAY LẠI TRANG CHỦ
-            </button>
+            <!-- CỤM NÚT ĐIỀU HƯỚNG ĐẦY ĐỦ: CHƠI LẠI / CHỌN CHỦ ĐỀ / TRANG CHỦ -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full pt-1">
+                <button onclick="restartF1Game()" class="col-span-1 sm:col-span-2 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 hover:from-yellow-400 hover:to-amber-300 text-slate-950 font-black py-2.5 sm:py-3 px-4 rounded-xl text-xs sm:text-sm shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 digital-font cursor-pointer">
+                    <span>🔄</span> CHƠI LẠI (BỐC ĐỀ MỚI)
+                </button>
+                <button onclick="openTopicFromFinish()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 sm:py-2.5 px-3 rounded-xl text-xs sm:text-sm shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span>🏁</span> CHỌN CHỦ ĐỀ KHÁC
+                </button>
+                <button onclick="resetToStart()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2 sm:py-2.5 px-3 rounded-xl text-xs sm:text-sm border border-slate-700 shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span>🏠</span> VỀ TRANG CHỦ
+                </button>
+            </div>
         </div>
     </div>
 
@@ -734,7 +976,37 @@ mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-
     <script>
         // 1. BỘ PARSER UNICODE VÀ CHUẨN HÓA CÔNG THỨC TOÁN HỌC CHUẨN TEK LIVE/MIKTEX (TẦNG 1: DATA LEVEL)
 
+                // HÀM CHUẨN HÓA VÀ KHỬ LỖI DÍNH CHỮ TIẾNG VIỆT VÀ CÔNG THỨC TOÁN
+        function fixF1QuestionString(raw) {
+            if (!raw || typeof raw !== 'string') return raw || '';
+            let text = raw;
+
+            // 1. Tự động tách khoảng trắng giữa chữ tiếng Việt và dấu mở ngoặc toán \( hoặc $
+            text = text.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\\([\(\[])/g, '$1 \\$2');
+            text = text.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\$/g, '$1 $');
+            
+            // Tách dấu đóng ngoặc \) hoặc $ với chữ tiếng Việt đi liền sau
+            text = text.replace(/\\([\)\]])([a-zA-Zà-ỹÀ-Ỹ0-9])/g, '\\$1 $2');
+            text = text.replace(/\$([a-zA-Zà-ỹÀ-Ỹ0-9])/g, '$ $1');
+
+            // Chữa lỗi dính từ cụ thể đã xuất hiện trong đề:
+            text = text.replace(/bất phương trình\\/g, 'bất phương trình \\');
+            text = text.replace(/bậc hai\\/g, 'bậc hai \\');
+            text = text.replace(/trình\\/g, 'trình \\');
+
+            // 2. Chuẩn hóa số mũ x^2 thô thành cú pháp LaTeX chuẩn
+            text = text.replace(/x\^2/g, 'x^{2}');
+            text = text.replace(/([xXyYzZmt])\^([0-9]+)/g, '$1^{$2}');
+
+            // 3. Khử ký tự escape dư thừa
+            text = text.replace(/\\\\/g, '\\');
+
+            return text;
+        }
+        window.fixF1QuestionString = fixF1QuestionString;
+
         function cleanF1MathString(rawStr, isOption = false) {
+            rawStr = fixF1QuestionString(rawStr);
             if (typeof rawStr !== 'string') return rawStr || '';
             let str = rawStr;
 
@@ -839,12 +1111,37 @@ mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-
 
             // 7.5 Nếu là câu hỏi có tiếng Việt chứa TeX chưa được bọc \( ... \)
             if (hasVietnamese) {
+                const mathTokens = [];
+                let sIdx = 0;
+                let cleanMath = '';
+                while (true) {
+                    const start = str.indexOf('\\(', sIdx);
+                    if (start === -1) {
+                        cleanMath += str.slice(sIdx);
+                        break;
+                    }
+                    const end = str.indexOf('\\)', start + 2);
+                    if (end === -1) {
+                        cleanMath += str.slice(sIdx);
+                        break;
+                    }
+                    cleanMath += str.slice(sIdx, start);
+                    mathTokens.push(str.slice(start, end + 2));
+                    cleanMath += '___F1_MATH_BLOCK_' + (mathTokens.length - 1) + '___';
+                    sIdx = end + 2;
+                }
+                str = cleanMath;
+
                 str = str.replace(/(\\dfrac\{[^{}]*\}\{[^{}]*\}|\\sqrt\{[^{}]*\}|[a-zA-Z0-9_\^+\-*\/()=\s\\]+?(?:\\le|\\ge|<|>|=)\s*[0-9a-zA-Z_\-+]+)/g, (match) => {
                     const m = match.trim();
-                    if (m.startsWith('\\(') || m.endsWith('\\)')) return match;
+                    if (m.includes('___F1_MATH_BLOCK_')) return match;
                     if (/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return match;
                     return '\\(' + m + '\\)';
                 });
+
+                for (let i = 0; i < mathTokens.length; i++) {
+                    str = str.replace('___F1_MATH_BLOCK_' + i + '___', mathTokens[i]);
+                }
             }
 
             // Ghép các cặp \( ... \) \( ... \) liền kề thành 1 môi trường math duy nhất
@@ -1096,6 +1393,8 @@ mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-
             document.getElementById('q-counter').innerText = `Câu hỏi ${state.qIdx + 1}/${state.questions.length}`;
             const cleanQ = cleanF1MathString(q.q || q.question || '', false);
             document.getElementById('q-text').innerHTML = cleanQ;
+            const qScrollBox = document.getElementById('question-container');
+            if (qScrollBox) qScrollBox.scrollTop = 0;
             
             const optDiv = document.getElementById('q-options');
             optDiv.innerHTML = '';
@@ -1185,24 +1484,59 @@ mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-
             playWin();
             leaderboard.push({ name: state.playerName, score: state.score, speed: state.speed });
             leaderboard.sort((a,b) => b.score - a.score);
-            localStorage.setItem('f1_leaderboard_toan10', JSON.stringify(leaderboard.slice(0, 5)));
+            try {
+                localStorage.setItem('f1_leaderboard_toan10', JSON.stringify(leaderboard.slice(0, 5)));
+            } catch(e) {}
             
             document.getElementById('victory-screen').classList.remove('hidden');
             document.getElementById('final-score').innerText = state.score;
             document.getElementById('final-speed').innerText = state.speed + " km/h";
+            
+            const topicTitleEl = document.getElementById('finish-topic-title');
+            if (topicTitleEl) {
+                topicTitleEl.innerText = window.selectedTopic || 'Chuyên đề Ôn tập HK2';
+            }
+
             document.getElementById('leaderboard-full').innerHTML = leaderboard.slice(0, 5).map((it, i) => `
-                <div class="flex items-center justify-between bg-slate-800/80 p-3 sm:p-4 rounded-xl sm:rounded-2xl border ${it.name === state.playerName ? 'border-yellow-500' : 'border-slate-700'}">
-                    <div class="flex items-center gap-3 sm:gap-4">
-                        <span class="digital-font text-xl sm:text-2xl ${i < 3 ? 'text-yellow-500' : 'text-slate-500'}">#${i+1}</span>
-                        <span class="font-black uppercase text-xs sm:text-base">${it.name}</span>
+                <div class="flex items-center justify-between bg-slate-950/70 py-1.5 px-3 rounded-lg border ${it.name === state.playerName ? 'border-yellow-500/80 bg-yellow-500/10' : 'border-slate-800'}">
+                    <div class="flex items-center gap-2">
+                        <span class="digital-font text-xs sm:text-sm font-bold ${i < 3 ? 'text-yellow-400' : 'text-slate-500'}">#${i+1}</span>
+                        <span class="font-bold uppercase text-xs text-slate-200 truncate max-w-[120px] sm:max-w-[200px]">${it.name}</span>
                     </div>
-                    <div class="text-right"><p class="digital-font text-yellow-500 text-xs sm:text-base">${it.score} pts</p></div>
+                    <div class="text-right">
+                        <span class="digital-font text-yellow-500 text-xs sm:text-sm font-bold">${it.score} pts</span>
+                    </div>
                 </div>`).join('');
         }
 
-        function resetToStart() { 
-            location.reload(); 
+        function restartF1Game() {
+            document.getElementById('victory-screen').classList.add('hidden');
+            startGame();
         }
+
+        function openTopicFromFinish() {
+            document.getElementById('victory-screen').classList.add('hidden');
+            openF1TopicMenu();
+        }
+
+        function resetToStart() { 
+            document.getElementById('victory-screen').classList.add('hidden');
+            document.getElementById('start-screen').style.display = 'flex';
+            state.gameOver = true;
+            try {
+                bgMusicRace.pause();
+                bgMusicRace.currentTime = 0;
+                bgMusicWaiting.play().catch(()=>{});
+            } catch(e) {}
+        }
+
+        function scrollF1Question(delta) {
+            const container = document.getElementById('question-container');
+            if (container) {
+                container.scrollBy({ top: delta, behavior: 'smooth' });
+            }
+        }
+        window.scrollF1Question = scrollF1Question;
 
         // Smoke animation
         setInterval(() => { 
