@@ -3445,7 +3445,62 @@ window.toggleMobileFullscreen = function() {
 
     const caNguaScript = `
 <style>
+/* 1. KÍCH HOẠT THANH CUỘN LƯỚT CHẠM TỰ DO TRÊN MOBILE (SCROLL VIEWPORT FIX) */
+.game-play-screen, .ludo-main-layout, #game-container {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100dvh !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+@media (max-width: 768px) {
+  html, body {
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #app {
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow-y: visible !important;
+    padding-bottom: 70px !important;
+  }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  #ludo-board, .ludo-board {
+    width: min(88vw, 48dvh) !important;
+    height: min(88vw, 48dvh) !important;
+    max-width: min(88vw, 48dvh) !important;
+    max-height: min(88vw, 48dvh) !important;
+    margin: 0 auto !important;
+    padding: 4px !important;
+  }
+  .ludo-controls-sidebar, .right-panel-controls, .dice-control-zone {
+    width: 100% !important;
+  }
+  #dice-control, .current-turn-box, .dice-wrapper {
+    width: 100% !important;
+    max-width: 92vw !important;
+    margin: 2px auto 0 !important;
+  }
+}
+
+/* 3. ÉP BỐ CỤC CHIA 2 CỘT CHUẨN HÌNH 3 KHI XOAY NGANG ĐIỆN THOẠI (LANDSCAPE DUAL-COLUMN) */
 @media (orientation: landscape) and (max-height: 500px) {
+  html, body {
+    height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  #app {
+    height: 100% !important;
+    min-height: 100dvh !important;
+    padding-bottom: 0 !important;
+  }
   .game-play-screen, .ludo-main-layout {
     display: flex !important;
     flex-direction: row !important;
@@ -3453,13 +3508,14 @@ window.toggleMobileFullscreen = function() {
     align-items: center !important;
     width: 100% !important;
     height: calc(100dvh - 35px) !important;
-    overflow: hidden !important;
-    padding: 4px 10px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 4px 12px !important;
     box-sizing: border-box !important;
   }
   .ludo-board-container, .board-wrapper {
     width: auto !important;
-    height: 88vh !important;
+    height: 85vh !important;
     aspect-ratio: 1 / 1 !important;
     max-height: 100% !important;
     flex: 0 0 auto !important;
@@ -3468,36 +3524,38 @@ window.toggleMobileFullscreen = function() {
     justify-content: center !important;
   }
   #ludo-board, .ludo-board {
-    height: 86vh !important;
-    width: 86vh !important;
-    max-height: 86vh !important;
-    max-width: 86vh !important;
+    height: 84vh !important;
+    width: 84vh !important;
+    max-height: 84vh !important;
+    max-width: 84vh !important;
     aspect-ratio: 1 / 1 !important;
     padding: 4px !important;
     margin: 0 !important;
   }
-  .ludo-controls-sidebar, .right-panel-controls {
+  .ludo-controls-sidebar, .right-panel-controls, .dice-control-zone {
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
     align-items: center !important;
-    width: 40% !important;
+    width: 38% !important;
     height: 100% !important;
     gap: 6px !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
   }
-  #dice-control {
-    width: 100% !important;
-    max-width: 300px !important;
-    padding: 6px 8px !important;
-    border-radius: 14px !important;
-    margin: 0 auto !important;
+  .current-turn-box, .dice-wrapper, #dice-control {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid #38bdf8 !important;
+    border-radius: 12px !important;
+    padding: 8px !important;
+    width: 95% !important;
+    max-width: 320px !important;
+    text-align: center !important;
   }
-  #dice-control h3 { font-size: 0.6rem !important; margin-bottom: 1px !important; }
-  #dice-control h2 { font-size: 0.85rem !important; margin-bottom: 2px !important; line-height: 1.1 !important; }
-  #dice-control svg { width: 26px !important; height: 26px !important; }
-  #dice-control .flex.gap-4 { gap: 4px !important; margin-bottom: 2px !important; }
+  #dice-control h3 { font-size: 0.65rem !important; margin-bottom: 2px !important; }
+  #dice-control h2 { font-size: 0.9rem !important; margin-bottom: 3px !important; line-height: 1.1 !important; }
+  #dice-control svg { width: 32px !important; height: 32px !important; }
+  #dice-control .flex.gap-4 { gap: 4px !important; margin-bottom: 4px !important; }
   #dice-control button { padding: 6px 10px !important; font-size: 0.75rem !important; border-radius: 10px !important; line-height: 1.2 !important; }
   #panel-left, #panel-right { display: none !important; }
   #game-header-bar { height: 32px !important; max-height: 32px !important; margin-bottom: 1px !important; }
@@ -3577,6 +3635,30 @@ var questions = window.quizData;
     } catch(e) {}
   }
 
+  function setupDiceClickListeners() {
+    try {
+      const diceElements = document.querySelectorAll('#dice-container, .dice-view, #mini-dice, .current-turn-box, .dice-wrapper, .dice-cube-wrapper');
+      diceElements.forEach(element => {
+        if (element && !element.dataset.diceListener) {
+          element.dataset.diceListener = 'true';
+          element.style.cursor = 'pointer';
+          element.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'BUTTON') {
+              e.preventDefault();
+              if (typeof window.rollDice === 'function') { window.rollDice(); }
+              else if (typeof (window as any).handleRollDice === 'function') { (window as any).handleRollDice(); }
+            }
+          });
+          element.addEventListener('touchstart', function(e) {
+            if (e.target.tagName !== 'BUTTON') {
+              if (typeof window.rollDice === 'function') { window.rollDice(); }
+            }
+          }, { passive: true });
+        }
+      });
+    } catch(e) {}
+  }
+
   function triggerMathTypeset() {
     try {
       if (window.MathJax && window.MathJax.typesetPromise) {
@@ -3599,20 +3681,24 @@ var questions = window.quizData;
       syncCaNguaData();
       applyAdminSecurity();
       setupAdminButtons();
+      setupDiceClickListeners();
       triggerMathTypeset();
     });
   } else {
     syncCaNguaData();
     applyAdminSecurity();
     setupAdminButtons();
+    setupDiceClickListeners();
     triggerMathTypeset();
   }
   window.addEventListener('load', function() {
     syncCaNguaData();
     applyAdminSecurity();
     setupAdminButtons();
+    setupDiceClickListeners();
     triggerMathTypeset();
   });
+  setInterval(setupDiceClickListeners, 1000);
 })();
 </script>
 `;
