@@ -127,6 +127,13 @@ export const GAME_TEMPLATES: GameTemplateOption[] = [
     description: 'Giải mã mật mã toán học làm tan chảy các khối băng nứt, cứu chú Gấu Bắc Cực sang đảo an toàn'
   },
   {
+    id: 'dao_vang',
+    name: '⛏️ Đào Vàng Tri Thức (Gold Miner)',
+    file: '/dao-vang-tri-thuc.html',
+    category: 'Khai khoáng & Phản xạ',
+    description: 'Bắn mỏ neo kéo vàng, kim cương và giải toán nhân đôi điểm số'
+  },
+  {
     id: 'f1',
     name: '🏎️ Đua Xe F1 Tốc Độ',
     file: '/game-dua-xe-F1-on-tap-HK2-toan10.html',
@@ -328,6 +335,11 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
   htmlContent = htmlContent.replace(/\bTC\b/g, 'MH');
   htmlContent = htmlContent.replace(/\btc\b/g, 'mh');
   htmlContent = htmlContent.replace(/TC MATHEDU/gi, 'MH MATHEDU');
+  htmlContent = htmlContent.replace(/Nguyễn văn Hà Pro/gi, brandOrg);
+  htmlContent = htmlContent.replace(/Nguyễn Văn Hà/gi, brandOrg);
+  htmlContent = htmlContent.replace(/THPT Yên Dũng/gi, 'TOÁN PRO');
+  htmlContent = htmlContent.replace(/Yên Dũng/gi, 'TOÁN PRO');
+  htmlContent = htmlContent.replace(/Hệ Thống Trò Chơi Tri Thức Giảng Dạy/gi, 'HỆ THỐNG TRÒ CHƠI TOÁN HỌC');
   
   // Thay đổi thẻ <title>
   if (htmlContent.includes('<title>')) {
@@ -495,6 +507,40 @@ window.gameDatabase = ${JSON.stringify(iceDatabase, null, 2)};
 <\/script>
 `;
     htmlContent = injectScriptAtTop(htmlContent, injectIce);
+  }
+  // NHÓM: Game Đào Vàng Tri Thức (Gold Miner)
+  else if (cleanUrl.includes('dao-vang') || cleanUrl.includes('daovang') || cleanUrl.includes('dao_vang')) {
+    const cleanDaoVangFormula = (text: string, isOption = false): string => {
+      let res = formatMathStringToTeX(escapeRawLaTeXSlash(text || ''));
+      if (isOption && res) {
+        res = res.trim();
+        const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(res);
+        if (!hasVietnamese && !res.startsWith('\\(') && !res.endsWith('\\)')) {
+          res = '\\(' + res + '\\)';
+        }
+      }
+      return res;
+    };
+
+    const daoVangTopicName = gameTitle || 'Chuyên đề: Đào Vàng Tri Thức';
+    const daoVangQuestions = questions.map(q => ({
+      q: cleanDaoVangFormula(q.question, false),
+      options: (q.options || ['A', 'B', 'C', 'D']).map(o => cleanDaoVangFormula(o, true)),
+      correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+      explanation: cleanDaoVangFormula(q.explanation || '', false)
+    }));
+
+    const daoVangDatabase = {
+      [daoVangTopicName]: daoVangQuestions
+    };
+
+    const injectDaoVang = `
+<script>
+// [ADAPTER ENGINE: ĐÀO VÀNG TRI THỨC - GOLD MINER]
+window.gameDatabase = ${JSON.stringify(daoVangDatabase, null, 2)};
+<\/script>
+`;
+    htmlContent = injectScriptAtTop(htmlContent, injectDaoVang);
   }
 
   // NHÓM 2: Game Bảo Vệ Chiến Hào (sinh đề tự động - cấu trúc Đa Chủ Đề, Dữ liệu Tĩnh & Random Bốc 5 câu)

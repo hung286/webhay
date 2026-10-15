@@ -368,6 +368,26 @@ export const DEFAULT_TOOLS: TeachingTool[] = [
     createdAt: new Date().toISOString()
   },
   {
+    id: 'tool_vua_pha_bang',
+    name: 'Vua Phá Băng: Ice Breaker',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/vua-pha-bang-ice-breaker.html',
+    description: 'Game giải mã toán học phá băng cứu gấu Bắc Cực vượt biển',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'tool_dao_vang_tri_thuc',
+    name: 'Đào Vàng Tri Thức: Gold Miner',
+    type: 'iframe',
+    category: 'tro-choi',
+    url: '/dao-vang-tri-thuc.html',
+    description: 'Game bắn móc kéo vàng, kim cương và giải toán nhân đôi điểm số',
+    isActive: true,
+    createdAt: new Date().toISOString()
+  },
+  {
     id: 'tool_sut_pen_luong_giac_10',
     name: 'Sút Pen: Giá Trị Lượng Giác 0°-180°',
     type: 'iframe',
