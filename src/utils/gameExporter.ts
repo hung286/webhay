@@ -239,11 +239,19 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
   if (cleanUrl.includes('game-dua-xe-F1') || cleanUrl.includes('F1')) {
     const cleanF1Formula = (text: string, isOption = false): string => {
       if (!text || typeof text !== 'string') return text || '';
-      let res = text.replace(/[\u000c\x0c]/g, '').trim();
-      res = res.replace(/\\f\\f/g, '').replace(/\\f/g, '');
-      res = res.replace(/f\\f/g, '');
-      res = res.replace(/(\\+f|f)+(?=\\?frac)/g, '');
-      res = res.replace(/(?<![a-zA-Z])\\f(?![a-zA-Z])/g, '');
+      let res = text.replace(/\x0C/g, '');
+      res = res.replace(/[\u000c\x0c\f]/g, '').trim();
+      res = res.replace(/\\+f\\+f/g, '');
+      res = res.replace(/\\+f(?=\s*\\+frac)/g, '');
+      res = res.replace(/\\+f(?=\s*\\+\()/g, '');
+      res = res.replace(/{f}/g, '').replace(/\bf\b(?=\s*\\+frac)/g, '');
+      res = res.replace(/\\+f\s*\\+frac/g, '\\frac');
+      res = res.replace(/f\s*\\+frac/g, '\\frac');
+      res = res.replace(/\\+f\s*\\+\(/g, '\\(');
+      res = res.replace(/f\s*\\+\(/g, '\\(');
+      res = res.replace(/(\\+f|f)+(?=\s*\\+frac)/g, '');
+      res = res.replace(/(\\+f|f)+(?=\s*\\+\()/g, '');
+      res = res.replace(/(?<![a-zA-Z])\\+f(?![a-zA-Z])/g, '');
 
       res = res.replace(/\\+rac/g, '\\frac')
                .replace(/\bracf\(/g, '\\frac{f(')

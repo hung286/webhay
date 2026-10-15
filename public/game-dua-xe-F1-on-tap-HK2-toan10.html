@@ -51,14 +51,21 @@
         .math-font { font-family: 'JetBrains Mono', monospace; }
 
         /* 3. ĐỊNH DẠNG CÔNG THỨC TOÁN MATHJAX CHỐNG BẺ ĐÔI & MÀU TRẮNG SẮC NÉT */
-        mjx-container, .mjx-chtml, .question-text mjx-container, .answer-btn mjx-container, .option-card mjx-container, .math-content, .math-text, .MathJax {
+        .question-text mjx-container, mjx-container, .mjx-chtml, .answer-btn mjx-container, .option-card mjx-container, .math-content, .math-text, .MathJax, mjx-math, mjx-mo {
             white-space: nowrap !important; /* Tuyệt đối không cho phép tự ý xuống dòng bẻ đôi biểu thức */
             display: inline-block !important;
+            overflow: visible !important; /* Giữ hiển thị trọn vẹn ký tự đuôi không bị cắt chữ */
+            outline: none !important;
+            border: none !important;
+            box-shadow: none !important;
             color: #ffffff !important;
         }
-        mjx-container *, .mjx-chtml *, .question-text mjx-container *, .answer-btn mjx-container *, .option-card mjx-container *, .MathJax * {
+        .question-text mjx-container *, mjx-container *, .mjx-chtml *, .answer-btn mjx-container *, .option-card mjx-container *, .MathJax *, mjx-mo * {
             white-space: nowrap !important;
             color: #ffffff !important;
+            outline: none !important;
+            border: none !important;
+            box-shadow: none !important;
         }
         /* Đối với văn bản chữ tiếng Việt lời dẫn bên ngoài, cho phép tự động xuống dòng bình thường */
         .question-text, .question-box-content, #q-text {
@@ -609,53 +616,58 @@
     <!-- LOGIC GAME ENGINE & BỘ XỬ LÝ TOÁN HỌC CHUẨN TEK LIVE/MIKTEX -->
     <!-- ======================================================== -->
     <script>
-        // 1. BỘ ĐỊNH DẠNG CHUỖI TOÁN HỌC VẠN NĂNG (GLOBAL MATH FORMATTER) CHUẨN MIKTEX / TEX LIVE
-        function formatGlobalMathStringToTeX(inputStr) {
-            if (!inputStr || typeof inputStr !== 'string') return inputStr || '';
-
-            let cleanStr = inputStr;
-
-            // 1. Tiêu diệt triệt để ký tự rác kép \f\f hoặc \f bám trước phân số \frac
-            cleanStr = cleanStr.replace(/[\u000c\x0c]/g, '').trim();
-            cleanStr = cleanStr.replace(/\\f\\f/g, '').replace(/\\f/g, '');
-            cleanStr = cleanStr.replace(/f\\f/g, '');
-            cleanStr = cleanStr.replace(/(\\+f|f)+(?=\\?frac)/g, '');
-            cleanStr = cleanStr.replace(/(?<![a-zA-Z])\\f(?![a-zA-Z])/g, '');
-
-            // 2. Phục hồi lệnh phân số chuẩn nếu bị gãy mất chữ f biến thành "rac"
+        // 1. BỘ PARSER UNICODE VÀ TEXT CLEANER KHỬ SẠCH MÃ RÁC "\f" CHUẨN MIKTEX / TEX LIVE
+        function formatF1QuestionStrictTeX(rawStr) {
+            if (typeof rawStr !== 'string') return rawStr;
+            
+            let cleanStr = rawStr;
+            
+            // 1. TIÊU DIỆT KÝ TỰ FORM-FEED ẨN (\x0C) VÀ BIẾN THỂ TEXT CỦA NÓ (\f, \\f) ĐỨNG TRƯỚC PHÂN SỐ
+            // Quét sạch tất cả các dạng rác đứng cô độc lạc lõng trước lệnh \frac
+            cleanStr = cleanStr.replace(/\x0C/g, ''); // Khử mã điều khiển ẩn thô
+            cleanStr = cleanStr.replace(/[\u000c\x0c\f]/g, '');
+            cleanStr = cleanStr.replace(/\\+f\\+f/g, '');
+            cleanStr = cleanStr.replace(/\\+f(?=\s*\\+frac)/g, '');
+            cleanStr = cleanStr.replace(/\\+f(?=\s*\\+\()/g, '');
+            cleanStr = cleanStr.replace(/{f}/g, '').replace(/\bf\b(?=\s*\\+frac)/g, '');
+            
+            // Khử trường hợp chuỗi rác chèn đè chữ biến thành "f\frac" hoặc "\f \frac"
+            cleanStr = cleanStr.replace(/\\+f\s*\\+frac/g, '\\frac');
+            cleanStr = cleanStr.replace(/f\s*\\+frac/g, '\\frac');
+            cleanStr = cleanStr.replace(/\\+f\s*\\+\(/g, '\\(');
+            cleanStr = cleanStr.replace(/f\s*\\+\(/g, '\\(');
+            cleanStr = cleanStr.replace(/(\\+f|f)+(?=\s*\\+frac)/g, '');
+            cleanStr = cleanStr.replace(/(\\+f|f)+(?=\s*\\+\()/g, '');
+            cleanStr = cleanStr.replace(/(?<![a-zA-Z])\\+f(?![a-zA-Z])/g, '');
+            
+            // 2. PHỤC HỒI LỆNH PHÂN SỐ CHUẨN NẾU HỆ THỐNG CŨ LÀM GÃY CHỮ THÀNH "RAC"
+            if (cleanStr.includes('rac') && !cleanStr.includes('\\frac')) {
+                cleanStr = cleanStr.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
+            }
             cleanStr = cleanStr.replace(/\\+rac/g, '\\frac')
                                .replace(/\bracf\(/g, '\\frac{f(')
                                .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
-                               .replace(/^rac\s*\{/g, '\\frac{')
-                               .replace(/\brac\b/g, '\\frac')
-                               .replace(/rac(?=[0-9\\{])/g, '\\frac')
-                               .replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
-
-            // 3. Tự động chèn khoảng trắng chuẩn giữa biểu thức toán học và chữ tiếng Việt thô (Sửa lỗi dính chữ ở Hình 1 & Hình 2)
-            // Khắc phục triệt để lỗi "Tìmm" hoặc "Tìm(m)" biến thành "Tìm m" / "Tìm \(m\)"
+                               .replace(/^rac\s*\{/g, '\\frac{');
+            
+            // 3. BẢO VỆ TUYỆT ĐỐI KHÔNG CHẠM VÀO: \ne, \leq, \geq, \cdot, đoạn [0;5]
+            // Giữ nguyên vẹn 100% định dạng chuẩn mà giáo viên đã chỉnh sửa trước đó
             cleanStr = cleanStr.replace(/\bTìmm\b/g, 'Tìm m');
             cleanStr = cleanStr.replace(/Tìmm/g, 'Tìm m');
             cleanStr = cleanStr.replace(/Tìm\s*\\\(m\\\)/g, 'Tìm \\(m\\)');
             cleanStr = cleanStr.replace(/Tìm\(m\)/g, 'Tìm \\(m\\)');
             cleanStr = cleanStr.replace(/\bT\s+ìm\s+m\b/g, 'Tìm m');
             cleanStr = cleanStr.replace(/Tìm\s+m\s+để/g, 'Tìm \\(m\\) để');
-
-            // Sửa lỗi dính chữ ở Hình 1: "0trong đoạn[0; 5]là:"
+            
+            // Tự động chèn khoảng trắng chuẩn giữa biểu thức toán học và từ tiếng Việt dính liền (Sửa lỗi "0trong")
             cleanStr = cleanStr.replace(/(\d+)(trong|đoạn|là)/g, '$1 $2');
+            cleanStr = cleanStr.replace(/(\))(trong|đoạn|là)/g, '$1 $2');
+            cleanStr = cleanStr.replace(/\]là\:/g, '\] là:');
             cleanStr = cleanStr.replace(/0trong/g, '0 trong');
             cleanStr = cleanStr.replace(/trongđoạn/g, 'trong đoạn');
             cleanStr = cleanStr.replace(/trong\s*đoạn\s*\[/g, 'trong đoạn [');
-            cleanStr = cleanStr.replace(/\]là\:/g, '\] là:');
-            cleanStr = cleanStr.replace(/\]\s*là\s*:/g, '\] là:');
             cleanStr = cleanStr.replace(/\]là/g, '\] là');
-            cleanStr = cleanStr.replace(/(\\\))\s*(trong|đoạn|là)/g, '$1 $2');
-            cleanStr = cleanStr.replace(/(?<=\\\)|0)(trong|đoạn|là)/g, ' $1');
 
-            // Khắc phục dính ngoặc với từ tiếng Việt
-            cleanStr = cleanStr.replace(/([a-zA-Z0-9à-ỹ])\\+\(/g, '$1 \\(');
-            cleanStr = cleanStr.replace(/\\+\)([a-zA-Z0-9à-ỹ])/g, '\\) $1');
-
-            // 4. Sửa lỗi thiếu dấu gạch chéo ngược \ cho các mã lệnh LaTeX thông dụng
+            // Bảo toàn và chuẩn hóa các ký hiệu toán chuẩn
             cleanStr = cleanStr.replace(/(?<!\\)frac/g, '\\frac')
                                .replace(/(?<!\\)cdot/g, '\\cdot')
                                .replace(/(?<!\\)leq/g, '\\leq')
@@ -668,6 +680,10 @@
                                .replace(/(?<!\\)infty/g, '\\infty')
                                .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
                                .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+
+            // Khắc phục dính ngoặc với từ tiếng Việt
+            cleanStr = cleanStr.replace(/([a-zA-Z0-9à-ỹ])\\+\(/g, '$1 \\(');
+            cleanStr = cleanStr.replace(/\\+\)([a-zA-Z0-9à-ỹ])/g, '\\) $1');
 
             // Khắc phục lỗi dính chữ và cách chữ đầu câu tiếng Việt
             cleanStr = cleanStr.replace(/\bN\s+ếu\b/g, 'Nếu')
@@ -686,16 +702,8 @@
                                .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng')
                                .replace(/\bAcupB\b/g, 'A \\cup B')
                                .replace(/\bAcapB\b/g, 'A \\cap B');
-
-            // Chuyển đổi lũy thừa e^... và (...)^...
-            cleanStr = cleanStr.replace(/e\^\(([^)]+)\)/g, 'e^{$1}')
-                               .replace(/e\^\{([^}]+)\}/g, 'e^{$1}')
-                               .replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}')
-                               .replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}')
-                               .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
-                               .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
-
-            // 5. Ép buộc bọc khít biểu thức toán học sạch vào cặp dấu phân tách inline chuẩn \(...\)
+            
+            // Khóa chặt: Bọc khít toàn bộ biểu thức sạch vào cặp dấu phân tách inline chuẩn
             cleanStr = cleanStr.trim();
             if (cleanStr.startsWith('$') && cleanStr.endsWith('$') && cleanStr.length > 2) {
                 cleanStr = '\\(' + cleanStr.slice(1, -1).trim() + '\\)';
@@ -713,19 +721,23 @@
                     return '\\(' + m + '\\)';
                 });
             }
-
+            
             return cleanStr;
         }
 
         function formatF1MathString(textStr, isOption = false) {
-            return formatGlobalMathStringToTeX(textStr);
+            return formatF1QuestionStrictTeX(textStr);
         }
         function formatMathStringToTeX(textStr) {
-            return formatGlobalMathStringToTeX(textStr);
+            return formatF1QuestionStrictTeX(textStr);
         }
-        window.formatGlobalMathStringToTeX = formatGlobalMathStringToTeX;
-        window.formatF1MathString = formatGlobalMathStringToTeX;
-        window.formatMathStringToTeX = formatGlobalMathStringToTeX;
+        function formatGlobalMathStringToTeX(textStr) {
+            return formatF1QuestionStrictTeX(textStr);
+        }
+        window.formatF1QuestionStrictTeX = formatF1QuestionStrictTeX;
+        window.formatGlobalMathStringToTeX = formatF1QuestionStrictTeX;
+        window.formatF1MathString = formatF1QuestionStrictTeX;
+        window.formatMathStringToTeX = formatF1QuestionStrictTeX;
 
         // 2. KHO DỮ LIỆU GỐC & CỨU HỘ ĐA CHỦ ĐỀ CHO GAME ĐUA XE F1
         const DEFAULT_F1_DATABASE = {
