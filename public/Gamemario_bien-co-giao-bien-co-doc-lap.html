@@ -147,7 +147,179 @@
         .option-btn:hover { transform: scale(1.02); }
         .option-btn:active { transform: scale(0.95); }
 
-        /* Mobile Controls Toolbar (.bottom-nav mẫu - Gom cụm phím ảo ở đáy màn hình) */
+        
+        /* ======================================================== */
+        /* TỐI ƯU TOÀN DIỆN MOBILE & CHỐNG TRÀN CHỮ CHO MARIO MATH   */
+        /* ======================================================== */
+        html, body {
+            width: 100% !important;
+            height: 100% !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            overflow: hidden !important;
+            overscroll-behavior: none !important;
+            touch-action: none !important;
+        }
+
+        #game-container, #canvas-container, canvas, #gameCanvas {
+            touch-action: none !important;
+            overscroll-behavior: none !important;
+        }
+
+        /* KHUNG CÂU HỎI TỰ ĐỘNG XUỐNG DÒNG & CHỐNG MẤT CHỮ TRÊN MOBILE */
+        .mario-question-box, #questionText, .question-text {
+            width: 95% !important;
+            max-width: 680px !important;
+            margin: 0 auto 12px auto !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            white-space: normal !important; /* Cho phép văn bản câu hỏi tự xuống dòng linh hoạt */
+            line-height: 1.4 !important;
+            box-sizing: border-box !important;
+            padding: 8px 14px !important;
+        }
+
+        /* Cho phép cuộn mượt nội bộ bên trong các hộp thoại modal */
+        #modalContent, #leaderboardModal, #startModal, .custom-scroll {
+            overscroll-behavior-y: contain !important;
+            touch-action: pan-y !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+
+        /* ÉP PHÂN SỐ TOÁN HỌC HIỂN THỊ THẲNG HÀNG CHỐNG NGẮT DÒNG */
+        .mjx-chtml, mjx-container, .MathJax, .katex, mjx-frac, .mfrac {
+            white-space: nowrap !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+        .mjx-chtml *, mjx-container *, .MathJax * {
+            white-space: nowrap !important;
+        }
+
+        /* THANH ĐIỀU KHIỂN CẢM ỨNG DI ĐỘNG CÔNG THÁI HỌC (2 CỤM 2 BÊN, GIỮA TRONG SUỐT) */
+        .bottom-nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            padding: 8px 16px !important;
+            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px) !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: flex-end !important;
+            z-index: 40 !important;
+            pointer-events: none !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+        }
+        @media (min-width: 1024px) {
+            .bottom-nav {
+                display: none !important;
+            }
+        }
+        .mario-touch-left {
+            display: flex !important;
+            gap: 10px !important;
+            pointer-events: auto !important;
+        }
+        .mario-touch-right {
+            display: flex !important;
+            pointer-events: auto !important;
+        }
+        .bottom-nav .control-btn {
+            width: 58px !important;
+            height: 58px !important;
+            min-width: 58px !important;
+            max-width: 58px !important;
+            background: rgba(15, 23, 42, 0.7) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            border: 2px solid rgba(250, 204, 21, 0.75) !important;
+            border-radius: 18px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 26px !important;
+            color: #fef08a !important;
+            font-weight: 900 !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4), inset 0 0 10px rgba(250, 204, 21, 0.2) !important;
+            touch-action: manipulation !important;
+            transition: transform 0.05s, background 0.05s !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        .bottom-nav .control-btn:active, .bottom-nav .control-btn.pressed {
+            transform: scale(0.92) !important;
+            background: rgba(234, 179, 8, 0.9) !important;
+            color: #ffffff !important;
+        }
+        .bottom-nav .jump-btn {
+            width: 66px !important;
+            height: 66px !important;
+            min-width: 66px !important;
+            max-width: 66px !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, rgba(225, 29, 72, 0.85) 0%, rgba(190, 18, 60, 0.95) 100%) !important;
+            border: 2px solid rgba(251, 113, 133, 0.95) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 16px rgba(225, 29, 72, 0.6), inset 0 0 12px rgba(251, 113, 133, 0.3) !important;
+        }
+        .bottom-nav .jump-btn:active, .bottom-nav .jump-btn.pressed {
+            transform: scale(0.92) !important;
+            background: linear-gradient(135deg, rgba(244, 63, 94, 1) 0%, rgba(225, 29, 72, 1) 100%) !important;
+        }
+
+        /* RESPONSIVE CHO KHUNG CÂU HỎI TRÊN MÀN HÌNH DI ĐỘNG */
+        @media (max-width: 768px) {
+            #modalContent {
+                padding: 12px 14px !important;
+                border-radius: 18px !important;
+                max-height: 90dvh !important;
+                width: 95% !important;
+            }
+            #quizModal h2 {
+                font-size: 1.15rem !important;
+                margin-top: 10px !important;
+                margin-bottom: 4px !important;
+            }
+            #quizModal .w-24.h-1\.5 {
+                margin-bottom: 8px !important;
+                height: 3px !important;
+            }
+            .mario-question-box, #questionText, .question-text {
+                font-size: 1rem !important;
+                line-height: 1.35 !important;
+                padding: 6px 10px !important;
+                margin-bottom: 10px !important;
+            }
+            #optionsContainer {
+                gap: 8px !important;
+            }
+            .option-btn, .answer-btn {
+                min-height: 44px !important;
+                padding: 8px 12px !important;
+                font-size: 0.9rem !important;
+                border-radius: 12px !important;
+            }
+            .bottom-nav .control-btn {
+                width: 52px !important;
+                height: 52px !important;
+                min-width: 52px !important;
+                font-size: 22px !important;
+            }
+            .bottom-nav .jump-btn {
+                width: 60px !important;
+                height: 60px !important;
+                min-width: 60px !important;
+            }
+        }
+        /* Mobile Controls Toolbar (Legacy overridden) */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -414,9 +586,13 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
     <!-- THANH ĐIỀU KHIỂN ĐÁY MÀN HÌNH (STYLE .BOTTOM-NAV MẪU - CHIA ĐỀU KHÔNG GIAN NÚT BẤM) -->
     <div id="mobileControls" class="bottom-nav">
-        <button type="button" class="control-btn" id="btnLeft" title="Sang trái">◀</button>
-        <button type="button" class="control-btn" id="btnRight" title="Sang phải">▶</button>
-        <button type="button" class="control-btn jump-btn" id="btnJump" title="Nhảy">▲</button>
+        <div class="mario-touch-left">
+            <button type="button" class="control-btn" id="btnLeft" title="Sang trái">◀</button>
+            <button type="button" class="control-btn" id="btnRight" title="Sang phải">▶</button>
+        </div>
+        <div class="mario-touch-right">
+            <button type="button" class="control-btn jump-btn" id="btnJump" title="Nhảy">▲</button>
+        </div>
     </div>
 
     <!-- BẢNG XẾP HẠNG MODAL -->
@@ -468,8 +644,8 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     <div id="quizModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3 sm:p-4">
         <div class="bg-slate-900 rounded-[2rem] p-5 sm:p-8 md:p-10 neon-box w-full max-w-4xl max-h-[85dvh] overflow-y-auto custom-scroll transform scale-95 transition-transform duration-300 border border-cyan-500/50 relative flex flex-col items-center" id="modalContent" style="-webkit-overflow-scrolling: touch;">
             <!-- Icon Dấu Hỏi / Nấm -->
-            <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-slate-800 w-24 h-24 rounded-full border-4 border-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.8)]">
-                <span class="text-5xl font-black text-yellow-400 pixel-font mt-2">?</span>
+            <div class="absolute -top-7 sm:-top-10 left-1/2 transform -translate-x-1/2 bg-slate-800 w-14 h-14 sm:w-20 sm:h-20 rounded-full border-2 sm:border-4 border-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.8)]">
+                <span class="text-2xl sm:text-4xl font-black text-yellow-400 pixel-font mt-1">?</span>
             </div>
             
             <h2 class="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 mb-3 mt-6 text-center uppercase tracking-widest neon-text">
@@ -477,7 +653,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             </h2>
             <div class="w-24 h-1.5 bg-cyan-500 mx-auto mb-8 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
             
-            <div id="questionText" class="question-text text-xl md:text-3xl font-bold text-white mb-10 text-center leading-relaxed w-full max-w-3xl drop-shadow-md">
+            <div id="questionText" class="question-text mario-question-box text-xl md:text-3xl font-bold text-white mb-10 text-center leading-relaxed w-full max-w-3xl drop-shadow-md">
                 Nội dung câu hỏi sẽ hiện ở đây...
             </div>
             
@@ -1420,27 +1596,117 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         // ==========================================
         // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN (MATHJAX SPACER FIX & RED SLASH FILTER)
         // ==========================================
+        
+        // HÀM CHUẨN HÓA VÀ LÀM SẠCH CÔNG THỨC TOÁN CHO MARIO MATH THEO CHUẨN MIKTEX/LATEX
+        function cleanMarioMathString(rawStr) {
+            if (!rawStr || typeof rawStr !== 'string') return rawStr || '';
+            let text = rawStr.trim();
+
+            // 1. Khử mã điều khiển và khoảng trắng ẩn
+            text = text.replace(/[\u000c\x0c\f]/g, '');
+
+            // 2. Tách khoảng trắng an toàn giữa chữ tiếng Việt và dấu mở/đóng ngoặc toán \( hoặc $
+            text = text.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\\([\(\[])/g, '$1 \\$2');
+            text = text.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\$/g, '$1 $');
+            text = text.replace(/\\([\)\]])([a-zA-Zà-ỹÀ-Ỹ0-9])/g, '\\$1 $2');
+            text = text.replace(/\$([a-zA-Zà-ỹÀ-Ỹ0-9])/g, '$ $1');
+
+            // Tách từ dính phổ biến trong chương trình Toán 11
+            text = text.replace(/biến cố\\/g, 'biến cố \\');
+            text = text.replace(/xác suất\\/g, 'xác suất \\');
+            text = text.replace(/không gian mẫu\\/g, 'không gian mẫu \\');
+            text = text.replace(/phương trình\\/g, 'phương trình \\');
+            text = text.replace(/bất phương trình\\/g, 'bất phương trình \\');
+            text = text.replace(/hàm số\\/g, 'hàm số \\');
+
+            // 3. Khử double escape: \\\\ -> \\
+            text = text.replace(/\\\\([a-zA-Z0-9^_{}\[\]()\\\/+-])/g, '\\$1');
+            text = text.replace(/\\\\/g, '\\');
+
+            // 4. Phục hồi phân số \frac và khử lỗi mất chữ \f
+            text = text.replace(/\brac\b/g, '\\frac')
+                       .replace(/(?<![a-zA-Z\\])rac\s*\{/g, '\\frac{')
+                       .replace(/(?<![a-zA-Z\\])frac\s*\{/g, '\\frac{');
+
+            // 5. Chuẩn hóa số mũ x^2, x^3, a^n,...
+            text = text.replace(/x\^2/g, 'x^{2}');
+            text = text.replace(/([xXyYzZmt0-9])\^([0-9]+)/g, '$1^{$2}');
+
+            // 6. Chuẩn hóa cdot, Omega, emptyset, cup, cap
+            text = text.replace(/(?<!\\)cdot/g, '\\cdot');
+            text = text.replace(/(?<!\\)Omega/g, '\\Omega');
+            text = text.replace(/(?<!\\)emptyset/g, '\\emptyset');
+            text = text.replace(/(?<!\\)cup/g, '\\cup');
+            text = text.replace(/(?<!\\)cap/g, '\\cap');
+            text = text.replace(/\bAcupB\b/g, 'A \\cup B');
+            text = text.replace(/\bAcapB\b/g, 'A \\cap B');
+
+            // 7. Xử lý phân số dạng số nguyên đứng độc lập: 1/4 hoặc [A]. 1/4
+            if (/^[-+]?\d+\s*\/\s*\d+$/.test(text)) {
+                const parts = text.split('/');
+                return '\\( \\frac{' + parts[0].trim() + '}{' + parts[1].trim() + '} \\)';
+            }
+            if (/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/.test(text)) {
+                return text.replace(/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/, (_, prefix, num, den) => {
+                    return prefix + '\\( \\frac{' + num.trim() + '}{' + den.trim() + '} \\)';
+                });
+            }
+
+            // 8. Chuyển đổi $$...$$ và $...$ thành \(...\)
+            text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => '\\(' + math.trim() + '\\)');
+            text = text.replace(/\$([^$]+?)\$/g, (_, math) => '\\(' + math.trim() + '\\)');
+
+            // 9. Tokenize các khối \( ... \) đã có để bảo vệ an toàn tuyệt đối
+            const mathTokens = [];
+            let sIdx = 0;
+            let cleanMath = '';
+            while (true) {
+                const start = text.indexOf('\\(', sIdx);
+                if (start === -1) {
+                    cleanMath += text.slice(sIdx);
+                    break;
+                }
+                const end = text.indexOf('\\)', start + 2);
+                if (end === -1) {
+                    cleanMath += text.slice(sIdx);
+                    break;
+                }
+                cleanMath += text.slice(sIdx, start);
+                mathTokens.push(text.slice(start, end + 2));
+                cleanMath += '___MARIO_MATH_' + (mathTokens.length - 1) + '___';
+                sIdx = end + 2;
+            }
+            text = cleanMath;
+
+            // 10. Tự động bọc các biểu thức TeX/xác suất thực sự còn sót ngoài token
+            text = text.replace(/(\\frac\{[^{}]*\}\{[^{}]*\}|\\sqrt\{[^{}]*\}|\\overline\{[^{}]*\}|P\([A-Za-z0-9\s\\cup\\cap\-_+\/=\.]*\)(?:\s*=\s*[0-9\.\/]+)?|\\(?:Omega|emptyset)\b)/g, (match) => {
+                const m = match.trim();
+                if (m.includes('___MARIO_MATH_')) return match;
+                if (/[à-ỹ]/i.test(m)) return match;
+                return '\\(' + m + '\\)';
+            });
+
+            // 11. Khôi phục các math tokens
+            for (let i = 0; i < mathTokens.length; i++) {
+                text = text.replace('___MARIO_MATH_' + i + '___', mathTokens[i]);
+            }
+
+            // 12. Nếu là đáp án hoặc chuỗi toán học thuần (không có tiếng Việt có dấu, chưa có \()
+            if (!/[à-ỹ]/i.test(text) && !text.includes('\\(') && /[0-9a-zA-Z]/.test(text) && !text.startsWith('<')) {
+                text = '\\(' + text + '\\)';
+            }
+
+            // 13. Khử lặp ngoặc lồng
+            text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
+            text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
+
+            return text;
+        }
+        window.cleanMarioMathString = cleanMarioMathString;
+
         function formatMarioStringToTeX(str) {
             if (typeof str !== 'string') return str || '';
-            let cleanStr = str;
-            cleanStr = cleanStr.replace(/\brac\b/g, '\\frac').replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
-            cleanStr = cleanStr.replace(/(\d*)cdot(\d*)/g, '$1 \\cdot $2').replace(/\s*cdot\s*/g, ' \\cdot ');
-            cleanStr = cleanStr.replace(/(?<!\\)cdot/g, '\\cdot').replace(/(?<!\\)frac/g, '\\frac')
-                               .replace(/(?<!\\)Omega/g, '\\Omega').replace(/(?<!\\)emptyset/g, '\\emptyset')
-                               .replace(/(?<!\\)cup/g, '\\cup').replace(/(?<!\\)cap/g, '\\cap');
-            cleanStr = cleanStr.replace(/\\\[/g, '').replace(/\\\]/g, '').replace(/\\\\\\\\/g, '\\');
-            cleanStr = cleanStr.trim();
-            if (!cleanStr.startsWith('\\(') && !cleanStr.endsWith('\\)')) {
-                if (/[à-ỹ]/i.test(cleanStr) && cleanStr.includes(' ')) {
-                    if (typeof formatMathSpacers === 'function') {
-                        cleanStr = formatMathSpacers(cleanStr);
-                    }
-                } else {
-                    cleanStr = cleanStr.replace(/^\$+|\$+$/g, '').replace(/^\\\(|\\\)$/g, '').trim();
-                    cleanStr = '\\(' + cleanStr + '\\)';
-                }
-            }
-            return cleanStr;
+            return cleanMarioMathString(str);
         }
         window.formatMarioStringToTeX = formatMarioStringToTeX;
 
@@ -1556,82 +1822,8 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         }
 
         function formatMathSpacers(str) {
-            if (!str || typeof str !== 'string') return '';
-            let text = str.trim();
-
-            text = sanitizeMarioFormula(text);
-
-            // Tách từ dính giữa chữ tiếng Việt và biến toán in hoa
-            text = text.replace(/([a-zà-ỹ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
-            text = text.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
-
-            // Chuẩn hóa cơ số e
-            text = text.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
-            text = text.replace(/\be\^\(([^)]+)\)/g, 'e^{$1}');
-
-            // Chuẩn hóa phân số nguyên: a/b hoặc [A]. a/b -> \( \frac{a}{b} \)
-            if (/^[-+]?\d+\s*\/\s*\d+$/.test(text)) {
-                const parts = text.split('/');
-                return `\\( \\frac{${parts[0].trim()}}{${parts[1].trim()}} \\)`;
-            }
-            if (/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/.test(text)) {
-                return text.replace(/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/, (_, prefix, num, den) => {
-                    return `${prefix}\\( \\frac{${num.trim()}}{${den.trim()}} \\)`;
-                });
-            }
-
-            // Chuẩn hóa số nguyên hoặc số thập phân đơn thuần (e.g. 0.75, 51.4%)
-            if (/^[-+]?\d+(?:\.\d+)?%?$/.test(text)) {
-                if (text.endsWith('%')) {
-                    const numPart = text.slice(0, -1);
-                    return `\\( ${numPart}\\% \\)`;
-                }
-                return `\\( ${text} \\)`;
-            }
-            if (/^([A-D]\.\s*)([-+]?\d+(?:\.\d+)?%?)$/.test(text)) {
-                return text.replace(/^([A-D]\.\s*)([-+]?\d+(?:\.\d+)?)(%?)$/, (_, prefix, num, pct) => {
-                    return pct ? `${prefix}\\( ${num}\\% \\)` : `${prefix}\\( ${num} \\)`;
-                });
-            }
-
-            // Chuyển đổi $$...$$ và $...$ thành \(...\)
-            text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
-            text = text.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
-
-            // Nếu chuỗi chứa các biểu thức toán học xác suất / TeX nhưng chưa được bọc, bọc khít vào \(...\)
-            if (!text.includes('\\(')) {
-                if (/\\(?:cap|cup|cdot|frac|sqrt|int|sum|lim|emptyset|Omega|overline)\b/.test(text)) {
-                    if (!/[à-ỹ]/i.test(text)) {
-                        text = `\\(${text}\\)`;
-                    } else {
-                        text = text.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (match) => {
-                            const trimmed = match.trim();
-                            if (!trimmed || trimmed.startsWith('\\(')) return match;
-                            return `\\(${trimmed}\\)`;
-                        });
-                    }
-                }
-            }
-
-            // Tự động bọc các biểu thức xác suất P(...) đứng riêng
-            if (!text.includes('\\(')) {
-                if (/^P\([^\)]+\)(\s*[=+\-\*\/]\s*.*)?$/.test(text)) {
-                    text = `\\(${text}\\)`;
-                }
-            }
-
-            // Escape ký tự % đứng trong \(...\) để không bị MathJax hiểu nhầm là comment TeX
-            text = text.replace(/\\\(([\s\S]*?)\\\)/g, (match, inner) => {
-                const escaped = inner.replace(/(?<!\\)%/g, '\\%');
-                return `\\(${escaped}\\)`;
-            });
-
-            // Làm sạch các dấu ngoặc lặp lại
-            text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
-            text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
-            text = text.replace(/\\\(\s*\$([\s\S]*?)\$\s*\\\)/g, '\\($1\\)');
-
-            return text;
+            if (typeof str !== 'string') return str || '';
+            return cleanMarioMathString(str);
         }
 
         function sampleFromPool(pool, count) {
@@ -2016,6 +2208,20 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         document.addEventListener('mozfullscreenchange', handleFullscreenChange);
         document.addEventListener('MSFullscreenChange', handleFullscreenChange);
 
+        
+        // Ngăn chặn thanh cuộn trang và pull-to-refresh ngoài ý muốn trên mobile canvas
+        const gameCanvasEl = document.getElementById('gameCanvas');
+        if (gameCanvasEl) {
+            gameCanvasEl.addEventListener('touchstart', (e) => {
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
+            gameCanvasEl.addEventListener('touchmove', (e) => {
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
+            gameCanvasEl.addEventListener('touchend', (e) => {
+                if (e.cancelable) e.preventDefault();
+            }, { passive: false });
+        }
         const btnL = document.getElementById('btnLeft'); 
         const btnR = document.getElementById('btnRight'); 
         const btnJ = document.getElementById('btnJump');
