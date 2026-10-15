@@ -71,60 +71,243 @@
             100% { background-position: 0 40px; }
         }
 
-        /* Typography & Math Fixes */
+        /* Typography & Math Fixes: CHỐNG BẺ ĐÔI CÔNG THỨC & RENDER CHỮ TRẮNG RÕ NÉT */
         .math-text { 
             font-size: 1rem; 
-            line-height: 1.6; 
-            color: #e2e8f0;
+            line-height: 1.5; 
+            color: #ffffff;
             font-weight: 500;
         }
-        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container { 
+        .math-text, .math-content, .katex, .katex-html, .mjx-chtml, mjx-container, .MathJax { 
             white-space: nowrap !important;
             display: inline-block !important;
+            color: #ffffff !important;
         }
-        .math-text *, .math-content *, .katex *, mjx-container *, .mjx-chtml * {
+        .math-text *, .math-content *, .katex *, mjx-container *, .mjx-chtml *, .MathJax * {
             white-space: nowrap !important;
+            color: #ffffff !important;
         }
-        .math-text .katex, .math-content .katex { 
-            color: var(--accent-cyan);
+        .math-text .katex, .math-content .katex, mjx-container { 
+            color: #ffffff !important;
             font-family: 'JetBrains Mono', monospace;
-            text-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
-            font-size: 1.1em;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+            font-size: 1.05em;
         }
 
+        /* 2. THU NHỎ TIÊU ĐỀ WEB VÀ CỤM HUD CHỈ SỐ TRÊN MOBILE (FIX OVERLAP LAYOUT) */
         @media (max-width: 768px) {
             body {
                 height: 100dvh !important;
                 max-height: 100dvh !important;
+                overflow: hidden !important;
             }
+
+            /* CỤM ĐỈNH / TOPBAR & BLACK HUD CHỈ SỐ */
+            .topbar-wrapper {
+                height: 40px !important;
+                max-height: 40px !important;
+                padding: 2px 6px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                overflow: hidden !important;
+                background: rgba(5, 5, 5, 0.9) !important;
+                backdrop-filter: blur(10px) !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                z-index: 45 !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+            }
+
+            /* Thu nhỏ các ô thông tin (Logo, Level, Máu, Thời gian) co lại còn 50% */
+            .brand-badge {
+                padding: 2px 5px !important;
+                height: 30px !important;
+                border-radius: 8px !important;
+                gap: 4px !important;
+            }
+            .brand-icon {
+                width: 20px !important;
+                height: 20px !important;
+                min-width: 20px !important;
+                border-radius: 5px !important;
+            }
+            .brand-icon span {
+                font-size: 11px !important;
+            }
+            .brand-text {
+                font-size: 0.75rem !important;
+                line-height: 1 !important;
+            }
+            .brand-text-sub {
+                display: none !important;
+            }
+
+            /* CẶP NÚT HỆ THỐNG: "CHUYÊN ĐỀ" VÀ "TOÀN MÀN HÌNH" */
+            .system-buttons {
+                display: flex !important;
+                align-items: center !important;
+                gap: 3px !important;
+                flex-wrap: nowrap !important;
+            }
+            .btn-system-topic, .btn-system-fs, #btn-admin-gear {
+                padding: 2px 6px !important;
+                height: 28px !important;
+                font-size: 0.75rem !important;
+                border-radius: 6px !important;
+                white-space: nowrap !important;
+                line-height: 1 !important;
+            }
+            .btn-system-topic span, .btn-system-fs span {
+                font-size: 0.75rem !important;
+            }
+
+            /* CỤM BLACK HUD CHỈ SỐ: Thu hẹp chiều cao tối đa xuống còn 40px !important */
+            #header-panel {
+                height: 34px !important;
+                max-height: 40px !important;
+                padding: 2px 4px !important;
+                margin: 0 !important;
+                border-radius: 8px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                align-items: center !important;
+                gap: 3px !important;
+                background: rgba(10, 15, 28, 0.95) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+            #header-panel > div {
+                padding: 2px 5px !important;
+                height: 26px !important;
+                border-radius: 6px !important;
+                font-size: 0.8rem !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 2px !important;
+                white-space: nowrap !important;
+            }
+            #level-badge {
+                font-size: 0.8rem !important;
+                padding: 2px 5px !important;
+            }
+            #level-badge span {
+                font-size: 0.8rem !important;
+            }
+            #lives-container {
+                font-size: 0.8rem !important;
+                gap: 1px !important;
+            }
+            #lives-container span {
+                font-size: 0.8rem !important;
+            }
+            #score-display {
+                font-size: 0.8rem !important;
+            }
+            #timer-container {
+                min-width: unset !important;
+                padding: 2px 5px !important;
+                font-size: 0.8rem !important;
+            }
+            #timer-display {
+                font-size: 0.8rem !important;
+            }
+            .hud-icon {
+                font-size: 0.8rem !important;
+            }
+
+            /* KHÔNG GIAN BÀN CHƠI CHIẾM 85% DIỆN TÍCH MÀN HÌNH */
             #game-board {
-                padding-top: 4.5rem !important;
-                padding-bottom: 0.5rem !important;
+                padding-top: 44px !important;
+                padding-bottom: 2px !important;
+                padding-left: 4px !important;
+                padding-right: 4px !important;
                 height: 100dvh !important;
+                max-height: 100dvh !important;
+                display: flex !important;
+                flex-direction: column !important;
+                box-sizing: border-box !important;
+            }
+
+            /* VÙNG CHỨA 3 CỘT CÂU HỎI */
+            #function-nodes {
+                width: 100% !important;
+                padding: 2px 2px !important;
+                gap: 6px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: stretch !important;
+                shrink: 0 !important;
+                max-height: 110px !important;
+                z-index: 30 !important;
             }
             .card-func {
-                min-width: 140px !important;
-                max-width: 160px !important;
-                padding: 0.75rem !important;
-                border-radius: 1rem !important;
+                min-width: 0 !important;
+                flex: 1 1 0 !important;
+                max-width: 33% !important;
+                padding: 4px 6px !important;
+                border-radius: 10px !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+            }
+            .card-func > div:first-child {
+                margin-bottom: 2px !important;
+            }
+            .card-func > div:first-child span {
+                font-size: 8px !important;
+                letter-spacing: 0.05em !important;
             }
             .card-func .math-content {
-                font-size: 1rem !important;
-                margin-bottom: 0.5rem !important;
+                font-size: 0.95rem !important;
+                margin-bottom: 2px !important;
+                white-space: nowrap !important;
+                line-height: 1.2 !important;
+            }
+            .card-func .math-content * {
+                white-space: nowrap !important;
+            }
+            .card-func > div:last-child {
+                margin-top: auto !important;
+                gap: 1.5px !important;
+            }
+            .card-func .progress-slot {
+                height: 3.5px !important;
+            }
+
+            /* KHU VỰC KHAY CHỨA CÁC MẢNH ĐÁP ÁN DƯỚI ĐÁY CHIẾM KHÔNG GIAN THOÁNG ĐÃNG */
+            #property-arena {
+                flex: 1 1 auto !important;
+                width: 100% !important;
+                height: calc(100% - 120px) !important;
+                margin-top: 4px !important;
+                overflow: hidden !important;
+                position: relative !important;
+                touch-action: none !important;
             }
             .card-prop {
-                padding: 0.5rem 0.75rem !important;
-                max-width: 220px !important;
-                font-size: 0.85rem !important;
-                border-radius: 0.75rem !important;
+                padding: 4px 8px !important;
+                max-width: 180px !important;
+                min-width: 80px !important;
+                font-size: 0.75rem !important;
+                border-radius: 8px !important;
+                touch-action: none !important;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.6) !important;
             }
-            .math-text {
-                font-size: 0.85rem !important;
-                line-height: 1.3 !important;
+            .card-prop .math-text {
+                font-size: 0.75rem !important;
+                line-height: 1.2 !important;
+                white-space: nowrap !important;
             }
+            .card-prop .math-text * {
+                white-space: nowrap !important;
+            }
+
             #overlay-content,
             #ingame-editor-modal > div {
-                max-height: 80dvh !important;
+                max-height: 85dvh !important;
                 overflow-y: auto !important;
                 -webkit-overflow-scrolling: touch !important;
             }
@@ -235,32 +418,34 @@
     <div class="bg-cyber"></div>
 
     <!-- Topbar: Logo, Thương Hiệu, Đổi Chuyên Đề, Nút Admin ⚙️ (Ẩn mặc định) -->
-    <div class="absolute top-0 left-0 w-full z-40 p-3 sm:p-6 flex justify-between items-start pointer-events-none">
+    <div class="topbar-wrapper absolute top-0 left-0 w-full z-40 p-2 sm:p-6 flex justify-between items-center pointer-events-none">
         
         <div class="pointer-events-auto flex items-center gap-1.5 sm:gap-3 flex-wrap">
-            <div class="glass-panel px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-2 sm:gap-3 border border-white/10" onclick="window.showOverlay('start')">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-600 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+            <div class="brand-badge glass-panel px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all duration-300 flex items-center gap-2 sm:gap-3 border border-white/10" onclick="window.showOverlay('start')">
+                <div class="brand-icon w-8 h-8 sm:w-10 sm:h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-600 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                     <span class="text-cyan-400 text-lg sm:text-xl font-bold font-mono">∑</span>
                 </div>
                 <div class="flex flex-col">
-                    <span class="font-bold text-white text-xs sm:text-base tracking-wide uppercase">TOÁN PRO<span class="text-cyan-400"> - THẦY HÙNG</span></span>
+                    <span class="brand-text font-bold text-white text-xs sm:text-base tracking-wide uppercase">TOÁN PRO<span class="brand-text-sub text-cyan-400"> - THẦY HÙNG</span></span>
                 </div>
             </div>
 
-            <button onclick="window.showOverlay('start')" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1 sm:gap-1.5 transition-all active:scale-95 border border-amber-300/40" title="Chọn chuyên đề bài giảng">
-                <span>📚</span> Chuyên Đề
-            </button>
+            <div class="system-buttons flex items-center gap-1.5">
+                <button onclick="window.showOverlay('start')" class="btn-system-topic px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1 sm:gap-1.5 transition-all active:scale-95 border border-amber-300/40" title="Chọn chuyên đề bài giảng">
+                    <span>📚</span> Chuyên Đề
+                </button>
 
-            <!-- Nút Quản Trị Admin: MẶC ĐỊNH ẨN HOÀN TOÀN, CHỈ HIỆN KHI URL CÓ ?role=admin -->
-            <button id="btn-admin-gear" data-admin-control="true" class="hidden px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1 sm:gap-1.5 transition-all active:scale-95 border border-cyan-300/40" title="Quyền Quản Trị - Chỉnh sửa chuyên đề và xuất file HTML mới">
-                <span>⚙️</span> Sửa Dữ Liệu
-            </button>
+                <!-- Nút Quản Trị Admin: MẶC ĐỊNH ẨN HOÀN TOÀN, CHỈ HIỆN KHI URL CÓ ?role=admin -->
+                <button id="btn-admin-gear" data-admin-control="true" class="hidden px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-1 sm:gap-1.5 transition-all active:scale-95 border border-cyan-300/40" title="Quyền Quản Trị - Chỉnh sửa chuyên đề và xuất file HTML mới">
+                    <span>⚙️</span> Sửa Dữ Liệu
+                </button>
 
-            <!-- Nút Toàn Màn Hình Mobile Multi-Vendor API -->
-            <button id="fullscreenToggleBtn" type="button" onclick="toggleMobileFullscreen()" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-lg flex items-center gap-1 sm:gap-1.5 transition-all active:scale-95 border border-white/10" title="[ ⛶ ] Toàn màn hình">
-                <span id="fullscreenIcon" class="text-sm">⛶</span>
-                <span id="fullscreenText" class="hidden sm:inline">TOÀN MÀN HÌNH</span>
-            </button>
+                <!-- Nút Toàn Màn Hình Mobile Multi-Vendor API -->
+                <button id="fullscreenToggleBtn" type="button" onclick="toggleMobileFullscreen()" class="btn-system-fs px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-lg flex items-center gap-1 sm:gap-1.5 transition-all active:scale-95 border border-white/10" title="[ ⛶ ] Toàn màn hình">
+                    <span id="fullscreenIcon" class="text-sm">⛶</span>
+                    <span id="fullscreenText" class="hidden sm:inline">TOÀN MÀN HÌNH</span>
+                </button>
+            </div>
         </div>
 
         <!-- Stats Panel -->
@@ -428,10 +613,29 @@
         document.addEventListener('fullscreenchange', updateFsUI);
         document.addEventListener('webkitfullscreenchange', updateFsUI);
 
-        // String cleaner and math format parser
-        function cleanDragDropMath(text) {
-            if (!text || typeof text !== 'string') return text || '';
-            let res = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '').trim();
+        // BỘ PHỤC HỒI CHUỖI TOÁN HỌC THÔNG MINH CHUẨN TeX Live/MiKTeX
+        function formatMathStringToTeX(textString) {
+            if (!textString || typeof textString !== 'string') return textString || '';
+
+            // Gỡ bỏ hoàn toàn lệnh replace xóa \f mù quáng cũ, chỉ loại bỏ ký tự điều khiển formfeed rác
+            let res = textString.replace(/[\u000c\x0c]/g, '').trim();
+
+            // 1. Phục hồi vĩnh viễn lệnh phân số \frac từ chữ rac bị lỗi gãy font
+            res = res.replace(/\\+rac/g, '\\frac')
+                     .replace(/\bracf\(/g, '\\frac{f(')
+                     .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
+                     .replace(/^rac\s*\{/g, '\\frac{')
+                     .replace(/\brac\b/g, '\\frac')
+                     .replace(/rac(?=[0-9\\{])/g, '\\frac')
+                     .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
+                     .replace(/rac/g, '\\frac');
+
+            // 2. Tự động vá các lỗi thiếu dấu gạch chéo ngược cho mã lệnh LaTeX thông dụng
+            res = res.replace(/cdot/g, '\\cdot')
+                     .replace(/(?<!\\)frac/g, '\\frac')
+                     .replace(/(?<!\\)cdot/g, '\\cdot');
+
+            // Phục hồi từ ngữ tiếng Việt bị dính hoặc lỗi khoảng trắng
             res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
                      .replace(/\bH\s+ai\b/g, 'Hai')
                      .replace(/\bC\s+ho\b/g, 'Cho')
@@ -449,7 +653,6 @@
 
             res = res.replace(/\bAcupB\b/g, 'A \\cup B')
                      .replace(/\bAcapB\b/g, 'A \\cap B')
-                     .replace(/(?<!\\)\bcdot\b/g, '\\cdot')
                      .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
                      .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
 
@@ -460,8 +663,22 @@
                      .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
                      .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
 
+            // 3. Ép buộc bọc khít biểu thức vào cặp dấu phân tách inline chuẩn
+            res = res.trim();
+            const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(res);
+            const hasInline = (res.startsWith('\\(') && res.endsWith('\\)')) || (res.startsWith('$') && res.endsWith('$'));
+            if (!hasInline && !hasVietnamese) {
+                res = '\\(' + res + '\\)';
+            }
+
             return res;
         }
+
+        function cleanDragDropMath(text) {
+            return formatMathStringToTeX(text);
+        }
+        window.cleanDragDropMath = cleanDragDropMath;
+        window.formatMathStringToTeX = formatMathStringToTeX;
 
         const COLOR_THEMES = {
             blue: { hex: '#3b82f6', rgb: '59, 130, 246' },
@@ -836,6 +1053,11 @@
             DOM.board.classList.remove('hidden');
             
             renderNodesAndArena();
+            try {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([DOM.board]).catch(function() {});
+                }
+            } catch(e) {}
 
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
@@ -1404,6 +1626,11 @@
             window.showOverlay('start');
             checkAdminSecurity();
             setupAdminGearListener();
+            try {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise().catch(function() {});
+                }
+            } catch(e) {}
         }
 
         if (document.readyState === 'loading') {
