@@ -108,6 +108,20 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/[\u000c\x0c]+rac/g, '\\frac');
   str = str.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
 
+  // Sửa lỗi dấu căn rác: √/ hoặc \sqrt/ và chuẩn hóa biểu thức căn
+  str = str.replace(/(?:\\sqrt|√)\s*\/\s*/g, '\\sqrt ');
+  str = str.replace(/√/g, '\\sqrt ');
+  str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*-\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)))/gi, '\\sqrt{x - 1}');
+  str = str.replace(/\\sqrt\s+([a-zA-Z0-9^]+(?:\s*[\+\-]\s*[a-zA-Z0-9^]+)+)(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/g, '\\sqrt{$1}');
+  str = str.replace(/\\sqrt\s*x\s*-\s*1/g, '\\sqrt{x - 1}');
+
+  // Sửa lỗi phân số bị biến dạng thành số mũ ^{Tử}/{Mẫu} hoặc (Tử)/(Mẫu)
+  str = str.replace(/\^\{([^{}]+)\}\s*(?:\/|_|\/_)\s*\{([^{}]+)\}/g, '\\frac{$1}{$2}');
+  str = str.replace(/\^\{([^{}]+)\}\s*\/\s*([a-zA-Z0-9_\-]+)/g, '\\frac{$1}{$2}');
+  str = str.replace(/\^\{([^{}]+)\}\s*\/\s*\(([^()]+)\)/g, '\\frac{$1}{$2}');
+  str = str.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*\(\s*([xX0-9\s\^+\-*]+?)\s*\)/g, '\\frac{$1}{$2}');
+  str = str.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*([xX0-9a-zA-Z_\-]+)/g, '\\frac{$1}{$2}');
+
   // Chuyển đổi mã lệnh dấu khác (\ne, \neq) trực tiếp sang ký tự Unicode thuần túy ≠
   str = str.replace(/\\+(?:neq|ne)\b/g, ' ≠ ')
            .replace(/\\+(?:neq|ne)(?=[^a-zA-Z]|$)/g, ' ≠ ');

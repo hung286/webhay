@@ -48,3 +48,56 @@
     box-shadow: none !important;
   }
 }
+
+/* ======================================================== */
+/* ĐỊNH DẠNG CHUẨN CÔNG THỨC TOÁN HỌC (KATEX & MATHJAX)     */
+/* ======================================================== */
+.katex, .katex-display, mjx-container, .mjx-chtml, .MathJax {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Căn giữa trục dòng (vertical-align) chống lệch dòng phân số */
+.katex:not(.katex-display),
+mjx-container:not([display="true"]),
+.MathJax:not(.MathJax_Display),
+.math-rendered .katex,
+.math-content .katex,
+.math-text .katex {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  margin: 0 2px !important;
+  line-height: normal !important;
+}
+
+/* Bảo vệ đường gạch ngang phân số và gạch trên căn thức */
+.katex .frac-line {
+  border-bottom-style: solid !important;
+  border-bottom-color: currentColor !important;
+  border-bottom-width: 0.06em !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.katex .sqrt-line {
+  border-top-style: solid !important;
+  border-top-color: currentColor !important;
+  border-top-width: 0.06em !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  height: 1px !important;
+}
+mjx-frac > mjx-line {
+  border-top-style: solid !important;
+  border-top-color: currentColor !important;
+  border-top-width: 0.08em !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  height: 0 !important;
+}
+mjx-sqrt > mjx-box {
+  border-top-style: solid !important;
+  border-top-color: currentColor !important;
+  border-top-width: 0.08em !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}

@@ -463,7 +463,7 @@ app.post('/api/games/sync-html', async (req, res) => {
         }
     };
 </script>
-<script id="MathJax-script" async src="https://jsdelivr.net"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 `;
       const existingMjRegex = /<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?window\.MathJax\s*=(?:(?!<\/script>)[\s\S])*?<\/script>/i;
@@ -489,9 +489,24 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     outline: none !important;
     border: none !important;
     box-shadow: none !important;
-    white-space: nowrap !important; /* Ép phân số và dấu căn \\(\\sqrt\\) nằm thẳng một dòng */
+    white-space: nowrap !important;
     display: inline-block !important;
     overflow: visible !important;
+}
+mjx-line, mjx-frac mjx-line, mjx-dtable mjx-line {
+    display: block !important;
+    box-sizing: border-box !important;
+    min-height: 1px !important;
+    height: 0.08em !important;
+    border-top: 0.08em solid currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    margin: 0.06em 0 !important;
+}
+mjx-sqrt > mjx-box, mjx-box {
+    border-top: 0.08em solid currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 </style>
 `;

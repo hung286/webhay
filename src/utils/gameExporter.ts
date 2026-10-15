@@ -384,6 +384,20 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/\\f(?![a-zA-Z])/g, '')
                .replace(/\\f(?=\s*\\frac)/g, '');
 
+      // KÍCH HOẠT 2: SỬA DỨT ĐIỂM LỖI DẤU CĂN & KÝ TỰ RÁC √/
+      res = res.replace(/(?:\\sqrt|√)\s*\/\s*/g, '\\sqrt ');
+      res = res.replace(/√/g, '\\sqrt ');
+      res = res.replace(/\\sqrt\s*\{\s*x\s*\}\s*-\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)))/gi, '\\sqrt{x - 1}');
+      res = res.replace(/\\sqrt\s*\{\s*x\s*\}\s*\+\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)))/gi, '\\sqrt{x + 1}');
+      res = res.replace(/\\sqrt\s+([a-zA-Z0-9^]+(?:\s*[\+\-]\s*[a-zA-Z0-9^]+)+)(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/g, '\\sqrt{$1}');
+
+      // KÍCH HOẠT 2b: SỬA DỨT ĐIỂM LỖI PHÂN SỐ BIẾN DẠNG THÀNH SỐ MŨ ^{...}/{...}
+      res = res.replace(/\^\{([^{}]+)\}\s*(?:\/|_|\/_)\s*\{([^{}]+)\}/g, '\\dfrac{$1}{$2}');
+      res = res.replace(/\^\{([^{}]+)\}\s*\/\s*([a-zA-Z0-9_\-]+)/g, '\\dfrac{$1}{$2}');
+      res = res.replace(/\^\{([^{}]+)\}\s*\/\s*\(([^()]+)\)/g, '\\dfrac{$1}{$2}');
+      res = res.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*\(\s*([xX0-9\s\^+\-*]+?)\s*\)/g, '\\dfrac{$1}{$2}');
+      res = res.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*([xX0-9a-zA-Z_\-]+)/g, '\\dfrac{$1}{$2}');
+
       // KÍCH HOẠT 2: Tự động phát hiện và bọc khối nhọn cho biểu thức dưới dấu căn (Sửa lỗi đứt vạch ngang trên đỉnh)
       res = res.replace(/\\sqrt\s*x\s*-\s*1/g, '\\sqrt{x-1}')
                .replace(/√x\s*-\s*1/g, '\\sqrt{x-1}')
@@ -437,6 +451,7 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
 
       res = res.replace(/\\\\/g, '\\');
+      res = res.replace(/\\frac(?=[{\s])/g, '\\dfrac');
 
       res = normalizeMathFormulas(res);
       if (isOption) {
@@ -2522,8 +2537,6 @@ window.__INJECTED_GAME_DATABASE__ = ${JSON.stringify(topicsMap, null, 2)};
         .card-func mjx-container,
         mjx-math,
         mjx-mo,
-        mjx-container *,
-        mjx-mo *,
         .drag-item, 
         .card-element, 
         .card-prop, 
@@ -4745,38 +4758,24 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     outline: none !important;
     border: none !important;
     box-shadow: none !important;
-    white-space: nowrap !important; /* Ép phân số và dấu căn \\(\\sqrt\\) nằm thẳng một dòng */
+    white-space: nowrap !important;
     display: inline-block !important;
     overflow: visible !important;
 }
-
-/* Ép nhãn chữ cái màu vàng và con số đáp án bắt buộc phải nằm trên một hàng ngang ngay ngắn */
-.answer-btn, [class*="ans-button"], #answers-container button, .option-card, #q-options button {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 12px !important;
-    flex-wrap: nowrap !important;
+mjx-line, mjx-frac mjx-line, mjx-dtable mjx-line {
+    display: block !important;
+    box-sizing: border-box !important;
+    min-height: 1px !important;
+    height: 0.08em !important;
+    border-top: 0.08em solid currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    margin: 0.06em 0 !important;
 }
-
-.answer-btn > span:first-child, .option-card > span:first-child {
-    flex-shrink: 0 !important;
-}
-
-.answer-btn > span:last-child, .option-card > span:last-child, .math-content {
-    display: inline-flex !important;
-    align-items: center !important;
-    white-space: nowrap !important;
-    flex-shrink: 0 !important;
-}
-
-/* Khóa chết công thức toán học và số đáp án không bị ngắt dòng */
-.answer-btn mjx-container, .question-text mjx-container, mjx-container, .mjx-chtml {
-    display: inline-block !important;
-    white-space: nowrap !important;
-    margin: 0 !important;
-    padding: 0 2px !important;
+mjx-sqrt > mjx-box, mjx-box {
+    border-top: 0.08em solid currentColor !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 </style>
 `;

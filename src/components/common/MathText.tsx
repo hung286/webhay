@@ -43,19 +43,19 @@ export const MathText: React.FC<MathTextProps> = ({ text, className = '', as = '
     // Thủ công nếu có katex.renderToString
     if (window.katex && typeof window.katex.renderToString === 'function') {
       try {
-        const rendered = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, math) => {
-          try {
-            return window.katex!.renderToString(math.trim(), { displayMode: true, throwOnError: false });
-          } catch {
-            return math;
-          }
-        }).replace(/\$([^\$\n]+?)\$/g, (_, math) => {
-          try {
-            return window.katex!.renderToString(math.trim(), { displayMode: false, throwOnError: false });
-          } catch {
-            return math;
-          }
-        });
+        const rendered = text
+          .replace(/\$\$([\s\S]+?)\$\$/g, (_, math) => {
+            try { return window.katex!.renderToString(math.trim(), { displayMode: true, throwOnError: false }); } catch { return math; }
+          })
+          .replace(/\\\[([\s\S]+?)\\\]/g, (_, math) => {
+            try { return window.katex!.renderToString(math.trim(), { displayMode: true, throwOnError: false }); } catch { return math; }
+          })
+          .replace(/\$([^\$\n]+?)\$/g, (_, math) => {
+            try { return window.katex!.renderToString(math.trim(), { displayMode: false, throwOnError: false }); } catch { return math; }
+          })
+          .replace(/\\\(([\s\S]+?)\\\)/g, (_, math) => {
+            try { return window.katex!.renderToString(math.trim(), { displayMode: false, throwOnError: false }); } catch { return math; }
+          });
 
         containerRef.current.innerHTML = rendered.replace(/\n/g, '<br />');
       } catch (e) {
