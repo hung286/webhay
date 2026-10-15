@@ -2,6 +2,53 @@ import { Question, DragDropCategory, DragDropTableRow } from '../types';
 import { normalizeMathFormulas } from './documentParser';
 import { DEFAULT_WORKSHEETS } from '../data/defaultWorksheets';
 
+/**
+ * BỘ LỌC XỬ LÝ KÝ TỰ ESCAPE THÔ (RAW STRING ESCAPE FIX)
+ * Bảo toàn dấu gạch chéo ngược '\' cho các từ khóa LaTeX để trình duyệt không nuốt mất
+ */
+export function escapeRawLaTeXSlash(rawStr: string): string {
+  if (typeof rawStr !== 'string') return rawStr || '';
+
+  // Khử sạch mã rác điều khiển \f cũ
+  let safeStr = rawStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\u000c\x0c]/g, '');
+
+  // LẬP TRÌNH BỘ TỪ ĐIỂN ÁNH XẠ VẠN NĂNG (Bảo vệ các từ khóa toán học chuẩn của thầy)
+  // Nhân đôi dấu gạch chéo ngược đứng trước các từ khóa LaTeX để trình duyệt không thể bỏ qua
+  const strictKeywords = [
+    'frac', 'sqrt', 'cdot', 'ne', 'neq', 'le', 'leq', 'ge', 'geq',
+    'perp', 'parallel', 'alpha', 'beta', 'cup', 'cap', 'in'
+  ];
+
+  strictKeywords.forEach(keyword => {
+    // Trường hợp 1: Giáo viên gõ thiếu dấu \ (Ví dụ: frac, sqrt) -> Ép bù thêm thành \\keyword
+    const regexNoSlash = new RegExp(`(?<!\\\\)\\b${keyword}\\b`, 'g');
+    safeStr = safeStr.replace(regexNoSlash, `\\\\${keyword}`);
+
+    // Trường hợp 2: Có dấu \ đơn nhưng bị trình duyệt dính escape -> Ép nhân đôi thành \\
+    const regexSingleSlash = new RegExp(`(?<!\\\\)\\\\(?!\\\\)${keyword}\\b`, 'g');
+    safeStr = safeStr.replace(regexSingleSlash, `\\\\${keyword}`);
+  });
+
+  return safeStr;
+}
+
+export function sanitizeObjectLaTeXSlashes<T>(obj: T): T {
+  if (typeof obj === 'string') {
+    return escapeRawLaTeXSlash(obj) as unknown as T;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeObjectLaTeXSlashes(item)) as unknown as T;
+  }
+  if (obj !== null && typeof obj === 'object') {
+    const res: any = {};
+    for (const key of Object.keys(obj)) {
+      res[key] = sanitizeObjectLaTeXSlashes((obj as any)[key]);
+    }
+    return res;
+  }
+  return obj;
+}
+
 export interface GameTemplateOption {
   id: string;
   name: string;
@@ -222,10 +269,10 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
   // 3. Chuẩn hóa mảng quizData chuẩn
   const standardizedData = questions.map((q, idx) => ({
     id: q.id || `q_${idx + 1}`,
-    q: q.question,
-    options: q.options || ['A', 'B', 'C', 'D'],
+    q: escapeRawLaTeXSlash(q.question),
+    options: (q.options || ['A', 'B', 'C', 'D']).map(o => escapeRawLaTeXSlash(o)),
     correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-    explanation: q.explanation || '',
+    explanation: escapeRawLaTeXSlash(q.explanation || ''),
     difficulty: q.difficulty === 'Dễ' ? 1 : (q.difficulty === 'Khó' ? 3 : 2),
     imageUrl: q.imageUrl || ''
   }));
@@ -241,6 +288,9 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
       if (!text || typeof text !== 'string') return text || '';
       let res = text.replace(/\x0C/g, '');
       res = res.replace(/[\u000c\x0c\f]/g, '').trim();
+
+      // Bảo toàn dấu gạch chéo ngược LaTeX (\frac, \sqrt, \ne, ...)
+      res = escapeRawLaTeXSlash(res);
 
       // Chuyển đổi trực tiếp mã lệnh dấu khác (\ne, \neq) thành ký tự Unicode thuần túy ≠
       res = res.replace(/\\+(?:neq|ne)\b/g, ' ≠ ')
@@ -2008,6 +2058,9 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
     const cleanFormula = (text: string): string => {
       if (!text) return '';
       let res = text.replace(/[\u000c\x0c]/g, '').trim();
+
+      // Bảo toàn dấu gạch chéo ngược LaTeX (\frac, \sqrt, \ne, ...)
+      res = escapeRawLaTeXSlash(res);
 
       // Chuyển đổi trực tiếp mã lệnh dấu khác (\ne, \neq) thành ký tự Unicode thuần túy ≠
       res = res.replace(/\\+(?:neq|ne)\b/g, ' ≠ ')
@@ -4337,6 +4390,35 @@ var questions = window.quizData;
   const globalSyncHook = `
 <script id="__AUTO_PHYSICAL_SYNC_HOOK__">
 (function() {
+  function escapeRawLaTeXSlash(rawStr) {
+    if (typeof rawStr !== 'string') return rawStr || '';
+    var safeStr = rawStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\\u000c\\x0c]/g, '');
+    var strictKeywords = ['frac', 'sqrt', 'cdot', 'ne', 'neq', 'le', 'leq', 'ge', 'geq', 'perp', 'parallel', 'alpha', 'beta', 'cup', 'cap', 'in'];
+    strictKeywords.forEach(function(keyword) {
+      var regexNoSlash = new RegExp('(?<!\\\\)\\\\b' + keyword + '\\\\b', 'g');
+      safeStr = safeStr.replace(regexNoSlash, '\\\\\\\\' + keyword);
+      var regexSingleSlash = new RegExp('(?<!\\\\)\\\\(?!\\\\)' + keyword + '\\\\b', 'g');
+      safeStr = safeStr.replace(regexSingleSlash, '\\\\\\\\' + keyword);
+    });
+    return safeStr;
+  }
+  function sanitizeObjectLaTeXSlashes(obj) {
+    if (typeof obj === 'string') return escapeRawLaTeXSlash(obj);
+    if (Array.isArray(obj)) return obj.map(function(item) { return sanitizeObjectLaTeXSlashes(item); });
+    if (obj !== null && typeof obj === 'object') {
+      var res = {};
+      for (var key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          res[key] = sanitizeObjectLaTeXSlashes(obj[key]);
+        }
+      }
+      return res;
+    }
+    return obj;
+  }
+  window.escapeRawLaTeXSlash = escapeRawLaTeXSlash;
+  window.sanitizeObjectLaTeXSlashes = sanitizeObjectLaTeXSlashes;
+
   function triggerServerPhysicalSync() {
     try {
       var targetPath = window.location.pathname;
@@ -4345,9 +4427,9 @@ var questions = window.quizData;
       }
       var payload = {
         fileUrl: targetPath,
-        quizData: window.quizData || (typeof QUESTION_BANK !== 'undefined' ? QUESTION_BANK : null),
-        gameDatabase: window.gameDatabase,
-        penaltyDatabase: (window).penaltyDatabase
+        quizData: sanitizeObjectLaTeXSlashes(window.quizData || (typeof QUESTION_BANK !== 'undefined' ? QUESTION_BANK : null)),
+        gameDatabase: sanitizeObjectLaTeXSlashes(window.gameDatabase),
+        penaltyDatabase: sanitizeObjectLaTeXSlashes((window).penaltyDatabase)
       };
       fetch('/api/games/sync-html', {
         method: 'POST',
@@ -4395,6 +4477,28 @@ var questions = window.quizData;
 </script>
 `;
   htmlContent = injectScriptAtTop(htmlContent, globalSyncHook);
+
+  // 5. TIÊM CSS TỐI CAO TRIỆT TIÊU KHUNG VIỀN HỘP MATHJAX VÀ ÉP NẰM THẲNG MỘT DÒNG
+  const mathjaxNoBoxStyle = `
+<style id="mathjax-no-bounding-box-style">
+/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax */
+mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    white-space: nowrap !important; /* Ép phân số và dấu căn \\(\\sqrt\\) nằm thẳng một dòng */
+    display: inline-block !important;
+    overflow: visible !important;
+}
+</style>
+`;
+  if (!htmlContent.includes('id="mathjax-no-bounding-box-style"')) {
+    if (htmlContent.includes('</head>')) {
+      htmlContent = htmlContent.replace('</head>', `${mathjaxNoBoxStyle}\n</head>`);
+    } else {
+      htmlContent = `${mathjaxNoBoxStyle}\n${htmlContent}`;
+    }
+  }
 
   return htmlContent;
 }

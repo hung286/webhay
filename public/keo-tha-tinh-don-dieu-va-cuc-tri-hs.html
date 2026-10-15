@@ -106,6 +106,7 @@
         .card-func mjx-container,
         mjx-math,
         mjx-mo,
+        .zombie-math-text,
         mjx-container *,
         mjx-mo *,
         .drag-item, 
@@ -1671,7 +1672,36 @@
             window.renderEditorData();
         };
 
+        function escapeRawLaTeXSlash(rawStr) {
+            if (typeof rawStr !== 'string') return rawStr || '';
+            var safeStr = rawStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\u000c\x0c]/g, '');
+            var strictKeywords = ['frac', 'sqrt', 'cdot', 'ne', 'neq', 'le', 'leq', 'ge', 'geq', 'perp', 'parallel', 'alpha', 'beta', 'cup', 'cap', 'in'];
+            strictKeywords.forEach(function(keyword) {
+                var regexNoSlash = new RegExp('(?<!\\\\)\\b' + keyword + '\\b', 'g');
+                safeStr = safeStr.replace(regexNoSlash, '\\\\' + keyword);
+                var regexSingleSlash = new RegExp('(?<!\\\\)\\\\(?!\\\\)' + keyword + '\\b', 'g');
+                safeStr = safeStr.replace(regexSingleSlash, '\\\\' + keyword);
+            });
+            return safeStr;
+        }
+
+        function sanitizeObjectLaTeXSlashes(obj) {
+            if (typeof obj === 'string') return escapeRawLaTeXSlash(obj);
+            if (Array.isArray(obj)) return obj.map(function(item) { return sanitizeObjectLaTeXSlashes(item); });
+            if (obj !== null && typeof obj === 'object') {
+                var res = {};
+                for (var key in obj) {
+                    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                        res[key] = sanitizeObjectLaTeXSlashes(obj[key]);
+                    }
+                }
+                return res;
+            }
+            return obj;
+        }
+
         window.editorSaveAndPlay = function() {
+            window.gameDatabase = sanitizeObjectLaTeXSlashes(window.gameDatabase);
             try {
                 localStorage.setItem('keo_tha_custom_db', JSON.stringify(window.gameDatabase));
             } catch(e) {}

@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { TeachingTool, Question, Difficulty, DragDropCategory, DragDropTableRow } from '../../types';
 import { X, FileUp, Plus, Trash2, Save, FileDown, Sparkles, Download, Shuffle, FileText, CheckCircle2, Calculator, Loader2, Edit3, FolderPlus, FolderMinus } from 'lucide-react';
 import { soundFx } from '../../utils/sound';
-import { GAME_TEMPLATES, exportStandaloneGameHTML, downloadFile } from '../../utils/gameExporter';
+import { GAME_TEMPLATES, exportStandaloneGameHTML, downloadFile, escapeRawLaTeXSlash } from '../../utils/gameExporter';
 import { VirtualMathKeyboard } from '../common/VirtualMathKeyboard';
 import { 
   extractTextFromDocx, 
@@ -1068,6 +1068,14 @@ export const GameQuestionModal: React.FC<GameQuestionModalProps> = ({
       soundFx.playCorrect();
       onSave(tool.id, questions, gameTitle);
     }
+
+    // Bảo toàn dấu gạch chéo ngược LaTeX cho toàn bộ câu hỏi trước khi lưu
+    questionsToSave = questionsToSave.map(q => ({
+      ...q,
+      question: escapeRawLaTeXSlash(q.question),
+      options: (q.options || ['A', 'B', 'C', 'D']).map(o => escapeRawLaTeXSlash(o)) as any,
+      explanation: q.explanation ? escapeRawLaTeXSlash(q.explanation) : ''
+    }));
 
     // 1. Lưu LocalStorage
     try {

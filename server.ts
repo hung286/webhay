@@ -316,6 +316,35 @@ app.post('/api/games/delete', async (req, res) => {
   }
 });
 
+function escapeRawLaTeXSlash(rawStr: any): any {
+  if (typeof rawStr !== 'string') return rawStr || '';
+  let safeStr = rawStr.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '').replace(/[\u000c\x0c]/g, '');
+  const strictKeywords = [
+    'frac', 'sqrt', 'cdot', 'ne', 'neq', 'le', 'leq', 'ge', 'geq',
+    'perp', 'parallel', 'alpha', 'beta', 'cup', 'cap', 'in'
+  ];
+  strictKeywords.forEach(keyword => {
+    const regexNoSlash = new RegExp(`(?<!\\\\)\\b${keyword}\\b`, 'g');
+    safeStr = safeStr.replace(regexNoSlash, `\\\\${keyword}`);
+    const regexSingleSlash = new RegExp(`(?<!\\\\)\\\\(?!\\\\)${keyword}\\b`, 'g');
+    safeStr = safeStr.replace(regexSingleSlash, `\\\\${keyword}`);
+  });
+  return safeStr;
+}
+
+function sanitizeObjectLaTeXSlashes<T>(obj: T): T {
+  if (typeof obj === 'string') return escapeRawLaTeXSlash(obj);
+  if (Array.isArray(obj)) return obj.map(item => sanitizeObjectLaTeXSlashes(item)) as unknown as T;
+  if (obj !== null && typeof obj === 'object') {
+    const res: any = {};
+    for (const key of Object.keys(obj)) {
+      res[key] = sanitizeObjectLaTeXSlashes((obj as any)[key]);
+    }
+    return res;
+  }
+  return obj;
+}
+
 // 7. API: Sync Physical Game HTML File (Data Override)
 app.post('/api/games/sync-html', async (req, res) => {
   try {
@@ -346,7 +375,8 @@ app.post('/api/games/sync-html', async (req, res) => {
       // 1. Đồng bộ quizData
       const effectiveQuizData = quizData || questions;
       if (effectiveQuizData && Array.isArray(effectiveQuizData)) {
-        const jsonStr = JSON.stringify(effectiveQuizData, null, 2);
+        const sanitizedQuiz = sanitizeObjectLaTeXSlashes(effectiveQuizData);
+        const jsonStr = JSON.stringify(sanitizedQuiz, null, 2);
         const scriptInject = `<script id="__PHYSICAL_SYNC_QUIZDATA__">\nwindow.quizData = ${jsonStr};\nwindow.__INJECTED_CANGUA_DATA__ = ${jsonStr};\nvar QUESTION_BANK = window.quizData;\nvar questions = window.quizData;\n</script>`;
         
         if (existingHtml.includes('id="__PHYSICAL_SYNC_QUIZDATA__"')) {
@@ -360,7 +390,8 @@ app.post('/api/games/sync-html', async (req, res) => {
 
       // 2. Đồng bộ gameDatabase
       if (gameDatabase && typeof gameDatabase === 'object') {
-        const jsonDbStr = JSON.stringify(gameDatabase, null, 2);
+        const sanitizedDb = sanitizeObjectLaTeXSlashes(gameDatabase);
+        const jsonDbStr = JSON.stringify(sanitizedDb, null, 2);
         const scriptDbInject = `<script id="__PHYSICAL_SYNC_GAMEDATABASE__">\nwindow.gameDatabase = ${jsonDbStr};\nwindow.__INJECTED_TETRIS_DATA__ = ${jsonDbStr};\nwindow.__INJECTED_MARIO_DATA__ = ${jsonDbStr};\nwindow.__INJECTED_GAME_DATABASE__ = ${jsonDbStr};\n</script>`;
         
         if (existingHtml.includes('id="__PHYSICAL_SYNC_GAMEDATABASE__"')) {
@@ -374,7 +405,8 @@ app.post('/api/games/sync-html', async (req, res) => {
 
       // 3. Đồng bộ penaltyDatabase
       if (penaltyDatabase && typeof penaltyDatabase === 'object') {
-        const jsonPenStr = JSON.stringify(penaltyDatabase, null, 2);
+        const sanitizedPen = sanitizeObjectLaTeXSlashes(penaltyDatabase);
+        const jsonPenStr = JSON.stringify(sanitizedPen, null, 2);
         const scriptPenInject = `<script id="__PHYSICAL_SYNC_PENALTY__">\nwindow.penaltyDatabase = ${jsonPenStr};\nvar penaltyDatabase = ${jsonPenStr};\n</script>`;
         if (existingHtml.includes('id="__PHYSICAL_SYNC_PENALTY__"')) {
           existingHtml = existingHtml.replace(/<script id="__PHYSICAL_SYNC_PENALTY__">[\s\S]*?<\/script>/i, scriptPenInject);
@@ -386,6 +418,27 @@ app.post('/api/games/sync-html', async (req, res) => {
       }
 
       finalHtml = existingHtml;
+    }
+
+    if (finalHtml && !finalHtml.includes('id="mathjax-no-bounding-box-style"')) {
+      const mathjaxNoBoxStyle = `
+<style id="mathjax-no-bounding-box-style">
+/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax */
+mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    white-space: nowrap !important; /* Ép phân số và dấu căn \\(\\sqrt\\) nằm thẳng một dòng */
+    display: inline-block !important;
+    overflow: visible !important;
+}
+</style>
+`;
+      if (finalHtml.includes('</head>')) {
+        finalHtml = finalHtml.replace('</head>', `${mathjaxNoBoxStyle}\n</head>`);
+      } else {
+        finalHtml = `${mathjaxNoBoxStyle}\n${finalHtml}`;
+      }
     }
 
     // Ghi đè vào public/
