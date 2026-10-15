@@ -29,12 +29,28 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
         
-        body {
+        html, body {
+            min-height: 100dvh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            width: 100vw !important;
+            margin: 0 !important;
+            padding: 0 !important;
             font-family: 'Inter', sans-serif;
             background-color: #020617;
             color: white;
-            overflow: hidden; /* Chống rung giật màn hình tuyệt đối */
+            overflow: hidden !important; /* Chống rung giật màn hình tuyệt đối */
             touch-action: manipulation;
+        }
+
+        #app {
+            min-height: 100dvh !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
         }
 
         .grid-cols-15 { grid-template-columns: repeat(15, minmax(0, 1fr)); }
@@ -51,13 +67,146 @@
         .animate-slide-up { animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-pulse-glow { animation: pulse-glow 1.5s infinite; cursor: pointer; z-index: 40 !important; }
         
+        /* TỰ ĐỘNG SCALE BÀN CỜ VÀ KHUNG CHUỒNG NGỰA */
+        .ludo-board-container, .board-wrapper, #board-container {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 85dvh !important;
+            margin: 0 auto !important;
+        }
+
+        #ludo-board, .ludo-board {
+            aspect-ratio: 1 / 1 !important;
+            width: min(92vw, 82dvh) !important;
+            height: min(92vw, 82dvh) !important;
+            max-width: min(92vw, 82dvh) !important;
+            max-height: min(92vw, 82dvh) !important;
+            margin: 0 auto !important;
+            box-sizing: border-box !important;
+        }
+
+        /* QUÂN NGỰA CO CO GIÃN THEO Ô LƯỚI - CHỐNG PHÌNH TO ĐÈ CHUỒNG NGỰA */
         .token {
             position: absolute;
-            width: 6.66%; height: 6.66%;
+            width: 6.66% !important;
+            height: 6.66% !important;
             transform: translate(-50%, -50%);
             transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 20;
             pointer-events: none;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .token svg {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            display: block !important;
+        }
+
+        /* MODAL THỬ THÁCH TOÁN CHỐNG TRÀN ĐÁY VÀ KÍCH HOẠT THANH SCROLL */
+        #q-box, #a-box, .math-modal-box, .quiz-modal-card {
+            max-height: 75dvh !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+
+        /* CHỐNG NGẮT DÒNG BIỂU THỨC TOÁN HỌC MIKTEX */
+        .question-text, .answer-option, mjx-container, .mjx-chtml {
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+
+        .question-text {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            display: block !important;
+        }
+
+        .answer-option {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+
+        .answer-option mjx-container, .question-text mjx-container, mjx-container, .mjx-chtml {
+            white-space: nowrap !important;
+            display: inline-block !important;
+            color: #ffffff !important;
+        }
+
+        /* BÓP GỌN TOPBAR VÀ ĐIỀU CHỈNH TRÊN MOBILE */
+        @media (max-width: 768px) {
+            #admin-topbar {
+                height: 35px !important;
+                max-height: 35px !important;
+                top: 4px !important;
+                right: 6px !important;
+                gap: 6px !important;
+            }
+            #admin-topbar button, #btn-chuyen-de, #btn-admin-gear {
+                font-size: 0.75rem !important;
+                padding: 4px 8px !important;
+                height: 28px !important;
+                border-radius: 8px !important;
+            }
+            #admin-topbar button svg, #btn-admin-gear svg {
+                width: 12px !important;
+                height: 12px !important;
+            }
+            #game-header-bar {
+                height: 35px !important;
+                max-height: 35px !important;
+                margin-bottom: 2px !important;
+                padding-top: 2px !important;
+                padding-bottom: 2px !important;
+            }
+            #game-title-header {
+                font-size: 0.85rem !important;
+                line-height: 1.1 !important;
+                max-width: 44vw !important;
+            }
+            #panel-left, #panel-right {
+                display: none !important;
+            }
+            #leaderboard {
+                gap: 4px !important;
+                max-width: 48vw !important;
+            }
+            #leaderboard > div {
+                min-width: 0 !important;
+                padding: 2px 6px !important;
+                border-radius: 8px !important;
+            }
+            #leaderboard > div span {
+                font-size: 0.65rem !important;
+            }
+            #dice-control {
+                padding: 6px 10px !important;
+                border-radius: 14px !important;
+                margin-top: 2px !important;
+                background: rgba(15, 23, 42, 0.9) !important;
+            }
+            #dice-control h2 {
+                font-size: 0.85rem !important;
+                margin-bottom: 2px !important;
+            }
+            #dice-control svg {
+                width: 32px !important;
+                height: 32px !important;
+            }
+            #dice-control button {
+                padding: 6px 10px !important;
+                font-size: 0.75rem !important;
+            }
         }
 
         .katex { font-size: 1.1em; color: #67e8f9; }
@@ -159,8 +308,10 @@ window.quizData = ([
             green: [[10,2], [10,4], [12,2], [12,4]]
         };
 
-        const getHorseSVG = (hex, id, size = 40, isHovering = false) => `
-            <svg width="${size}" height="${size}" viewBox="0 0 100 100" class="overflow-visible transition-transform duration-500 ${isHovering ? 'scale-110' : ''}" style="filter: drop-shadow(0px 10px 15px ${hex}80)">
+        const getHorseSVG = (hex, id, size = '100%', isHovering = false) => {
+            const s = typeof size === 'number' ? `${size}px` : size;
+            return `
+            <svg width="${s}" height="${s}" viewBox="0 0 100 100" class="w-full h-full max-w-full max-h-full overflow-visible transition-transform duration-500 ${isHovering ? 'scale-110' : ''}" style="filter: drop-shadow(0px 4px 8px ${hex}80)">
                 <defs>
                     <linearGradient id="c-${id}" x1="10%" y1="0%" x2="90%" y2="100%">
                         <stop offset="0%" stop-color="#fff" stop-opacity="0.95" />
@@ -190,7 +341,8 @@ window.quizData = ([
                 <path d="M 52 20 L 55 22 L 52 25 L 49 22 Z" fill="#ffffff" filter="drop-shadow(0 0 4px #ffffff)" />
                 <circle cx="52" cy="22.5" r="1" fill="${hex}" />
             </svg>
-        `;
+            `;
+        };
 
         // ==========================================
         // 2. AUDIO SYNTHESIZER (SAFE MODE)
@@ -246,36 +398,36 @@ window.quizData = ([
                 if (state.phase === 'finished') { renderFinished(); return; }
 
                 appEl.innerHTML = `
-                    <div class="w-full flex flex-col lg:flex-row justify-between items-center mb-4 z-10 gap-4 animate-fade-in shrink-0">
-                        <h1 class="text-3xl sm:text-4xl font-black bg-gradient-to-r from-cyan-400 to-pink-500 text-transparent bg-clip-text drop-shadow-lg uppercase leading-relaxed py-2">
-                            Đấu Trường Đạo Hàm
+                    <div id="game-header-bar" class="w-full flex justify-between items-center mb-1 sm:mb-4 z-10 gap-2 sm:gap-4 animate-fade-in shrink-0 px-2 sm:px-0">
+                        <h1 id="game-title-header" class="text-sm sm:text-2xl md:text-4xl font-black bg-gradient-to-r from-cyan-400 to-pink-500 text-transparent bg-clip-text drop-shadow-lg uppercase leading-tight py-1 truncate max-w-[46vw] sm:max-w-none">
+                            Cờ Cá Ngựa Đạo Hàm
                         </h1>
-                        <div class="flex items-center gap-4">
-                            <div id="leaderboard" class="flex gap-2 overflow-x-auto hide-scrollbar"></div>
-                            <button onclick="endGame()" class="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/50 px-4 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><rect width="6" height="6" x="9" y="9"></rect></svg>
+                        <div class="flex items-center gap-2 sm:gap-4 pr-[180px] sm:pr-0">
+                            <div id="leaderboard" class="flex gap-1.5 sm:gap-2 overflow-x-auto hide-scrollbar"></div>
+                            <button onclick="endGame()" class="flex items-center gap-1 sm:gap-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/50 px-2 sm:px-4 py-1 sm:py-2.5 rounded-xl font-bold transition-all whitespace-nowrap text-xs sm:text-base cursor-pointer">
+                                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><rect width="6" height="6" x="9" y="9"></rect></svg>
                                 <span class="hidden sm:inline">DỪNG</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="w-full flex flex-col lg:flex-row gap-6 relative z-10 flex-1 min-h-0">
-                        <div class="flex lg:flex-col justify-center gap-4 w-full lg:w-64 shrink-0" id="panel-left"></div>
+                    <div class="w-full flex flex-col lg:flex-row gap-2 sm:gap-6 relative z-10 flex-1 min-h-0 items-center justify-center">
+                        <div class="hidden lg:flex flex-col justify-center gap-4 w-64 shrink-0" id="panel-left"></div>
 
                         <!-- CENTER BOARD -->
-                        <div class="flex-1 flex items-center justify-center relative min-h-0" id="board-container">
+                        <div class="flex-1 flex items-center justify-center relative min-h-0 ludo-board-container board-wrapper w-full h-full" id="board-container">
                             <div id="modal-container"></div>
-                            <div class="w-full max-w-[340px] sm:max-w-[500px] md:max-w-[650px] aspect-square bg-slate-900/40 backdrop-blur-2xl border border-white/20 rounded-[2.5rem] p-3 sm:p-6 shadow-2xl relative" id="ludo-board">
+                            <div class="aspect-square bg-slate-900/40 backdrop-blur-2xl border border-white/20 rounded-[1.5rem] sm:rounded-[2.5rem] p-2 sm:p-6 shadow-2xl relative ludo-board" id="ludo-board">
                                 <div class="w-full h-full relative">
-                                    <div class="absolute inset-0 grid grid-cols-15 grid-rows-15 gap-1 sm:gap-[3px] z-0" id="grid-bg"></div>
+                                    <div class="absolute inset-0 grid grid-cols-15 grid-rows-15 gap-0.5 sm:gap-[3px] z-0" id="grid-bg"></div>
                                     <div id="tokens-layer" class="absolute inset-0 z-20 pointer-events-none"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex lg:flex-col justify-between gap-4 w-full lg:w-64 shrink-0">
-                            <div id="panel-right" class="flex lg:flex-col gap-4"></div>
-                            <div id="dice-control" class="mt-auto bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border transition-all duration-300 shadow-2xl relative overflow-hidden group"></div>
+                        <div class="flex flex-row lg:flex-col justify-between items-center lg:items-stretch gap-2 sm:gap-4 w-full lg:w-64 shrink-0">
+                            <div id="panel-right" class="hidden lg:flex flex-col gap-4"></div>
+                            <div id="dice-control" class="w-full lg:mt-auto bg-slate-900/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-2.5 sm:p-6 border transition-all duration-300 shadow-2xl relative overflow-hidden group"></div>
                         </div>
                     </div>
                 `;
@@ -296,7 +448,7 @@ window.quizData = ([
                     if (isBase) {
                         if ((r===0&&c===0) || (r===0&&c===9) || (r===9&&c===9) || (r===9&&c===0)) {
                             let colorObj = (r===0&&c===0)?COLORS[0] : (r===0&&c===9)?COLORS[1] : (r===9&&c===9)?COLORS[2] : COLORS[3];
-                            html += `<div style="grid-row: ${r+1} / span 6; grid-column: ${c+1} / span 6;" class="rounded-[2rem] border-2 ${colorObj.border} bg-black/40 backdrop-blur-xl transition-all" id="base-${colorObj.id}"></div>`;
+                            html += `<div style="grid-row: ${r+1} / span 6; grid-column: ${c+1} / span 6;" class="rounded-2xl sm:rounded-[2rem] border-2 ${colorObj.border} bg-black/40 backdrop-blur-xl transition-all" id="base-${colorObj.id}"></div>`;
                         }
                         continue;
                     }
@@ -365,7 +517,7 @@ window.quizData = ([
             let html = '';
             COLORS.forEach(c => {
                 for (let i = 0; i < 4; i++) {
-                    html += `<div id="token-${c.id}-${i}" class="token" onclick="handleTokenClick('${c.id}', ${i})">${getHorseSVG(c.hex, `render-${c.id}-${i}`, 40)}</div>`;
+                    html += `<div id="token-${c.id}-${i}" class="token" onclick="handleTokenClick('${c.id}', ${i})">${getHorseSVG(c.hex, `render-${c.id}-${i}`, '100%')}</div>`;
                 }
             });
             document.getElementById('tokens-layer').innerHTML = html;
@@ -522,15 +674,96 @@ window.quizData = ([
             return false;
         }
 
+        // ==========================================
+        // 3. BỘ ĐỊNH DẠNG VÀ PHỤC HỒI CHUỖI TOÁN HỌC CHUẨN MIKTEX / TEX LIVE
+        // ==========================================
+        function formatLudoMathStringToTeX(inputString) {
+            if (!inputString || typeof inputString !== 'string') return inputString || '';
+            let str = inputString.replace(/[\u000c\x0c]/g, '').trim();
+
+            // 1. Quét sạch và tiêu diệt triệt để ký tự rác \f, \f\f bám trên chuỗi
+            str = str.replace(/\\f\\f/g, '').replace(/f\\f/g, '');
+            str = str.replace(/(\\+f|f)+(?=\\?frac)/g, '');
+            str = str.replace(/(\\+f|f)+(?=\\?\()/g, '');
+            str = str.replace(/\\f(?![a-zA-Z])/g, '');
+            str = str.replace(/\\f\b/g, '');
+            str = str.replace(/[\u0000-\u0008\u000b\u000e-\u001f]/g, '');
+
+            // 2. Phục hồi vĩnh viễn \frac từ rac
+            str = str.replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
+                     .replace(/\\+rac/g, '\\frac')
+                     .replace(/\brac\b/g, '\\frac');
+            str = str.replace(/(?<!\\)frac/g, '\\frac');
+
+            // 3. Tự động sửa lỗi thiếu dấu gạch chéo ngược \ cho các mã lệnh LaTeX chuẩn sư phạm
+            str = str.replace(/(?<!\\)cdot/g, '\\cdot');
+            str = str.replace(/(?<!\\)sin\b/g, '\\sin');
+            str = str.replace(/(?<!\\)cos\b/g, '\\cos');
+            str = str.replace(/(?<!\\)tan\b/g, '\\tan');
+            str = str.replace(/(?<!\\)cot\b/g, '\\cot');
+            str = str.replace(/(?<!\\)sqrt/g, '\\sqrt');
+            str = str.replace(/(?<!\\)log\b/g, '\\log');
+            str = str.replace(/(?<!\\)ln\b/g, '\\ln');
+            str = str.replace(/(?<!\\)lim\b/g, '\\lim');
+            str = str.replace(/(?<!\\)to\b/g, '\\to');
+            str = str.replace(/(?<!\\)infty/g, '\\infty');
+            str = str.replace(/(?<!\\)alpha/g, '\\alpha');
+            str = str.replace(/(?<!\\)beta/g, '\\beta');
+            str = str.replace(/(?<!\\)gamma/g, '\\gamma');
+            str = str.replace(/(?<!\\)Delta/g, '\\Delta');
+            str = str.replace(/(?<!\\)circ\b/g, '\\circ');
+            str = str.replace(/(?<!\\)pm\b/g, '\\pm');
+            str = str.replace(/(?<!\\)ne\b/g, '\\ne');
+            str = str.replace(/(?<!\\)forall/g, '\\forall');
+            str = str.replace(/(?<!\\)exists/g, '\\exists');
+
+            // 4. Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) hoặc bọc ngoặc vuông sai quy cách \[...\]
+            str = str.replace(/\\\[/g, '').replace(/\\\]/g, '');
+            str = str.replace(/\\\\([a-zA-Z])/g, '\\$1');
+
+            // Chuyển đổi $$...$$ và $...$ thành \(...\) chuẩn MathJax
+            str = str.replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+            str = str.replace(/\$([^\$]+?)\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+
+            // 5. Xử lý các lệnh TeX độc lập nằm ngoài \(...\)
+            const segments = str.split(/(\\\([\s\S]*?\\\))/g);
+            for (let i = 0; i < segments.length; i += 2) {
+                let seg = segments[i];
+                if (!seg) continue;
+                
+                // Bọc các lệnh phân số \frac{...}{...}
+                seg = seg.replace(/\\frac\{[^{}]*\}\{[^{}]*\}/g, (m) => '\\(' + m + '\\)');
+                // Bọc các lệnh căn bậc hai
+                seg = seg.replace(/\\sqrt(?:\{[^{}]*\}|[0-9a-zA-Z]+)/g, (m) => '\\(' + m + '\\)');
+                // Bọc các hàm lượng giác / logarit
+                seg = seg.replace(/\\(sin|cos|tan|cot|ln|log|lim|cdot|infty|alpha|beta|gamma|Delta|circ|pm|ne|forall|exists)\b[^{}\(\)\s]*/g, (m) => '\\(' + m + '\\)');
+
+                segments[i] = seg;
+            }
+            str = segments.join('');
+
+            // Khử lồng ngoặc \( \( ... \) \)
+            str = str.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
+            str = str.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
+
+            // 6. Nếu toàn bộ là biểu thức thuần toán học (không chứa tiếng Việt) mà chưa có \(...\)
+            const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(str);
+            if (!hasVietnamese && !str.includes('\\(') && /[=+\-*/^_{}]/.test(str)) {
+                str = '\\(' + str + '\\)';
+            }
+
+            return str;
+        }
+
         // Hàm Typeset MathJax & KaTeX đồng bộ toàn diện
         function typesetMath(elements) {
             try {
                 if (window.MathJax && window.MathJax.typesetPromise) {
-                    if (elements && elements.length > 0) {
-                        window.MathJax.typesetPromise(elements).catch(() => {});
-                    } else {
-                        window.MathJax.typesetPromise().catch(() => {});
+                    const targets = (elements && elements.length > 0) ? elements : [document.body];
+                    if (window.MathJax.typesetClear) {
+                        try { window.MathJax.typesetClear(targets); } catch(e) {}
                     }
+                    window.MathJax.typesetPromise(targets).catch(() => {});
                 }
             } catch(e) {}
             try {
@@ -565,7 +798,7 @@ window.quizData = ([
                     mc.innerHTML = `
                         <div class="absolute inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
                             <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-[2.5rem] animate-fade-in"></div>
-                            <div id="q-box" class="relative z-10 w-full max-w-2xl bg-slate-900 border-2 ${cp.border} rounded-3xl p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] animate-slide-up">
+                            <div id="q-box" class="math-modal-box quiz-modal-card relative z-10 w-full max-w-2xl bg-slate-900 border-2 ${cp.border} rounded-3xl p-4 sm:p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] animate-slide-up" style="max-height: 75dvh !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important;">
                                 <div class="flex justify-between items-center mb-4">
                                     <span class="text-xs font-black px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 uppercase tracking-widest">Đúng hay Sai?</span>
                                     <div class="shrink-0 ml-4 text-right">
@@ -574,7 +807,7 @@ window.quizData = ([
                                     </div>
                                 </div>
                                 ${imgHtml}
-                                <h2 class="text-base sm:text-lg font-medium leading-relaxed mb-6">${q.q}</h2>
+                                <h2 class="question-text text-base sm:text-lg font-medium leading-relaxed mb-6">${formatLudoMathStringToTeX(q.q)}</h2>
                                 <div class="grid grid-cols-2 gap-4">
                                     <button onclick="answerTrueFalse(0)"
                                         class="w-full py-5 rounded-xl font-black text-xl tracking-widest uppercase transition-all duration-200
@@ -597,19 +830,19 @@ window.quizData = ([
                 // ── NHÁNH TRẮC NGHIỆM THƯỜNG ──
                 const gridClass = q.options.length === 2 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2';
                 let opts = q.options.map((opt, i) => `
-                    <button onclick="answerQuestion(${i})" class="w-full text-left p-4 rounded-xl border-2 font-medium transition-all bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 active:scale-95 cursor-pointer">
-                        <span class="mr-2 font-bold">${String.fromCharCode(65+i)}.</span> ${opt}
+                    <button onclick="answerQuestion(${i})" class="answer-option w-full text-left p-3 sm:p-4 rounded-xl border-2 font-medium transition-all bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 active:scale-95 cursor-pointer">
+                        <span class="mr-2 font-bold">${String.fromCharCode(65+i)}.</span> <span class="answer-text">${formatLudoMathStringToTeX(opt)}</span>
                     </button>
                 `).join('');
 
                 mc.innerHTML = `
                     <div class="absolute inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
                         <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-[2.5rem] animate-fade-in"></div>
-                        <div id="q-box" class="relative z-10 w-full max-w-2xl bg-slate-900 border-2 ${cp.border} rounded-3xl p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] animate-slide-up">
+                        <div id="q-box" class="math-modal-box quiz-modal-card relative z-10 w-full max-w-2xl bg-slate-900 border-2 ${cp.border} rounded-3xl p-4 sm:p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] animate-slide-up" style="max-height: 75dvh !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important;">
                             <div class="flex justify-between items-center mb-6">
                                 <div class="flex-1">
                                     ${imgHtml}
-                                    <h2 class="text-lg font-medium leading-relaxed">${q.q}</h2>
+                                    <h2 class="question-text text-lg font-medium leading-relaxed">${formatLudoMathStringToTeX(q.q)}</h2>
                                 </div>
                                 <div class="shrink-0 ml-4 text-right">
                                     <p class="text-xs text-slate-400 uppercase tracking-widest">Thưởng</p>
@@ -634,9 +867,9 @@ window.quizData = ([
                     mc.innerHTML = `
                         <div class="absolute inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pointer-events-none">
                             <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-[2.5rem]"></div>
-                            <div id="a-box" class="relative z-10 w-full max-w-2xl bg-slate-900 border-2 ${cp.border} rounded-3xl p-6 pointer-events-auto">
+                            <div id="a-box" class="math-modal-box quiz-modal-card relative z-10 w-full max-w-2xl bg-slate-900 border-2 ${cp.border} rounded-3xl p-4 sm:p-6 pointer-events-auto" style="max-height: 75dvh !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important;">
                                 ${imgHtml}
-                                <h2 class="text-base sm:text-lg font-medium leading-relaxed mb-4">${q.q}</h2>
+                                <h2 class="question-text text-base sm:text-lg font-medium leading-relaxed mb-4">${formatLudoMathStringToTeX(q.q)}</h2>
                                 <div class="grid grid-cols-2 gap-4 mb-6">
                                     <div class="w-full py-4 rounded-xl font-black text-xl text-center border-2
                                         ${q.correct===0 ? 'bg-green-500/20 border-green-500 text-green-400' : (state.selectedOpt===0 ? 'bg-red-500/20 border-red-500 text-red-400 opacity-60' : 'bg-slate-800/50 border-slate-700 text-slate-500 opacity-40')}">
@@ -649,7 +882,7 @@ window.quizData = ([
                                 </div>
                                 <div class="p-4 rounded-xl border ${isCorrect?'bg-green-500/10 border-green-500/30':'bg-red-500/10 border-red-500/30'}">
                                     <p class="font-bold mb-1 ${isCorrect?'text-green-400':'text-red-400'}">${isCorrect?'🎉 CHÍNH XÁC! Bạn được quyền đi ngựa.':'💥 SAI RỒI! Mất lượt.'} <span class="text-white/60 font-normal text-sm">Đáp án: ${ansLabel}</span></p>
-                                    <p class="text-sm text-slate-300"><span class="text-yellow-400 font-bold">Giải thích:</span> ${q.explanation}</p>
+                                    <p class="text-sm text-slate-300"><span class="text-yellow-400 font-bold">Giải thích:</span> ${formatLudoMathStringToTeX(q.explanation)}</p>
                                 </div>
                             </div>
                         </div>
@@ -664,20 +897,20 @@ window.quizData = ([
                     let cls = "bg-slate-800/50 border-slate-800 text-slate-600 opacity-50";
                     if (i === q.correct) cls = "bg-green-500/20 border-green-500 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.3)]";
                     else if (i === state.selectedOpt) cls = "bg-red-500/20 border-red-500 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.3)]";
-                    return `<div class="w-full text-left p-4 rounded-xl border-2 font-medium ${cls}"><span class="mr-2 font-bold">${String.fromCharCode(65+i)}.</span> ${opt}</div>`;
+                    return `<div class="answer-option w-full text-left p-3 sm:p-4 rounded-xl border-2 font-medium ${cls}"><span class="mr-2 font-bold">${String.fromCharCode(65+i)}.</span> <span class="answer-text">${formatLudoMathStringToTeX(opt)}</span></div>`;
                 }).join('');
 
                 let isCorrect = state.selectedOpt === q.correct;
                 mc.innerHTML = `
                     <div class="absolute inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pointer-events-none">
                         <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-[2.5rem]"></div>
-                        <div id="a-box" class="relative z-10 w-full max-w-2xl bg-slate-900 border-2 ${cp.border} rounded-3xl p-6 pointer-events-auto">
+                        <div id="a-box" class="math-modal-box quiz-modal-card relative z-10 w-full max-w-2xl bg-slate-900 border-2 ${cp.border} rounded-3xl p-4 sm:p-6 pointer-events-auto" style="max-height: 75dvh !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important;">
                             ${imgHtml}
-                            <h2 class="text-lg font-medium leading-relaxed mb-4">${q.q}</h2>
+                            <h2 class="question-text text-lg font-medium leading-relaxed mb-4">${formatLudoMathStringToTeX(q.q)}</h2>
                             <div class="grid ${gridClass} gap-3 mb-6">${opts}</div>
                             <div class="p-4 rounded-xl border ${isCorrect?'bg-green-500/10 border-green-500/30':'bg-red-500/10 border-red-500/30'}">
                                 <p class="font-bold mb-1 ${isCorrect?'text-green-400':'text-red-400'}">${isCorrect?'🎉 CHÍNH XÁC! Bạn được quyền đi ngựa.':'💥 SAI RỒI! Mất lượt.'}</p>
-                                <p class="text-sm text-slate-300"><span class="text-yellow-400 font-bold">Giải thích:</span> ${q.explanation}</p>
+                                <p class="text-sm text-slate-300"><span class="text-yellow-400 font-bold">Giải thích:</span> ${formatLudoMathStringToTeX(q.explanation)}</p>
                             </div>
                         </div>
                     </div>
@@ -953,6 +1186,7 @@ window.quizData = ([
 
         window.startGame = () => { state.phase = 'playing'; initDOM(); };
         window.endGame = () => { state.phase = 'finished'; initDOM(); };
+        window.openTopicMenu = () => { state.phase = 'setup'; initDOM(); };
 
         // Mồi sẵn SafeMode Init
         try { initDOM(); } catch(err) { console.error(err); }
@@ -963,10 +1197,13 @@ window.quizData = ([
 <!-- BỘ SỬA CÂU HỎI TRỰC TIẾP (IN-GAME EDITOR UI) -->
 <!-- ========================================== -->
 
-<!-- TOPBAR ADMIN CONTROLS: Nút "⚙️ SỬA DỮ LIỆU" màu xanh dương -->
-<div id="admin-topbar" class="fixed top-3 right-4 z-[9990] flex items-center gap-2 pointer-events-auto">
-    <button id="btn-admin-gear" type="button" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-lg shadow-blue-600/40 border border-blue-400/40 transition-all hover:scale-105 active:scale-95 cursor-pointer">
-        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+<!-- TOPBAR ADMIN CONTROLS: Cặp nút "CHUYÊN ĐỀ" màu cam và "⚙️ SỬA DỮ LIỆU" màu xanh dương -->
+<div id="admin-topbar" class="fixed top-2 right-2 sm:top-3 sm:right-4 z-[9990] flex items-center gap-1.5 sm:gap-2 pointer-events-auto">
+    <button id="btn-chuyen-de" type="button" onclick="if(typeof openTopicMenu==='function'){openTopicMenu();}else if(typeof renderSetup==='function'){state.phase='setup';initDOM();}" data-admin-control="true" class="flex items-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-black text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl shadow-lg border border-amber-300/40 transition-all hover:scale-105 active:scale-95 cursor-pointer" title="Chuyên đề">
+        <span>📚 CHUYÊN ĐỀ</span>
+    </button>
+    <button id="btn-admin-gear" type="button" class="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl shadow-lg shadow-blue-600/40 border border-blue-400/40 transition-all hover:scale-105 active:scale-95 cursor-pointer">
+        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         <span>⚙️ SỬA DỮ LIỆU</span>
     </button>
 </div>

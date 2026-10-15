@@ -3478,6 +3478,18 @@ var questions = window.quizData;
           }
         });
       }
+      const topicBtn = document.getElementById('btn-chuyen-de');
+      if (topicBtn && !topicBtn.dataset.listenerAttached) {
+        topicBtn.dataset.listenerAttached = 'true';
+        topicBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (typeof (window as any).openTopicMenu === 'function') {
+            (window as any).openTopicMenu();
+          } else if (typeof (window as any).renderSetup === 'function') {
+            (window as any).renderSetup();
+          }
+        });
+      }
     } catch(e) {}
   }
 
