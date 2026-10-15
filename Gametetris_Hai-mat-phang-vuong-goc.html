@@ -136,6 +136,56 @@
             vertical-align: middle !important;
         }
 
+        /* TỐI ƯU CÂU HỎI VÀ NÚT ĐÁP ÁN CHỐNG TRÀN ĐÁY MOBILE */
+        .tetris-question-modal, .quiz-overlay-box {
+            max-height: 72dvh !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding-bottom: 20px !important;
+        }
+
+        .tetris-answer-btn {
+            padding: 8px 14px !important;
+            margin-top: 6px !important;
+            font-size: 0.9rem !important;
+            border-radius: 8px !important;
+            width: 100% !important;
+        }
+
+        /* CỤM PHÍM ĐIỀU KHIỂN ĐÁY CHUẨN SAFE AREA */
+        .tetris-mobile-controls {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom, 25px)) !important;
+            z-index: 99999 !important;
+            background: rgba(15, 23, 42, 0.7) !important;
+            backdrop-filter: blur(10px) !important;
+            margin: 0 auto !important;
+        }
+
+        .control-btn, .tetris-btn {
+            touch-action: manipulation !important;
+            -webkit-tap-highlight-color: transparent !important;
+            user-select: none !important;
+        }
+
+        .question-text, .answer-btn, .option-btn, .tetris-answer-btn, mjx-container {
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+
+        #questionText {
+            white-space: normal !important;
+            display: block !important;
+        }
+        #questionText mjx-container, .tetris-answer-btn mjx-container, .option-btn mjx-container {
+            white-space: nowrap !important;
+            display: inline-block !important;
+        }
+
         /* Hybrid Native + CSS Viewport Fullscreen Fallback */
         html.mobile-fullscreen-forced {
             width: 100% !important;
@@ -188,20 +238,22 @@
                 padding: 2px !important;
                 border-width: 2px !important;
             }
-            #mobileControls {
+            #mobileControls, .tetris-mobile-controls {
                 position: fixed !important;
-                bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) !important;
+                bottom: 0 !important;
                 left: 0 !important;
                 right: 0 !important;
                 margin: 0 auto !important;
                 width: 100% !important;
-                max-width: 360px !important;
-                gap: 12px !important;
-                z-index: 40 !important;
+                max-width: 100% !important;
+                gap: 16px !important;
+                z-index: 99999 !important;
                 display: flex !important;
                 justify-content: center !important;
                 align-items: center !important;
-                padding: 0 8px !important;
+                padding: 10px 8px calc(20px + env(safe-area-inset-bottom, 25px)) 8px !important;
+                background: rgba(15, 23, 42, 0.7) !important;
+                backdrop-filter: blur(10px) !important;
                 pointer-events: auto !important;
             }
             .control-btn {
@@ -226,6 +278,9 @@
 
     <!-- TOPBAR CÔNG CỤ DÀNH CHO ADMIN (Mặc định ẩn với học sinh, chỉ hiện khi URL có ?role=admin hoặc preview=true hoặc admin=1) -->
     <div id="admin-topbar" class="fixed top-3 right-4 z-[99999] hidden items-center gap-2 pointer-events-auto">
+        <button id="btn-word-template" type="button" onclick="downloadTetrisWordTemplate()" class="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs md:text-sm rounded-xl shadow-lg border border-emerald-400/40 flex items-center gap-1.5 transition active:scale-95 cursor-pointer" title="Tải file mẫu Word 2 cột chuẩn sư phạm">
+            📄 <span>MẪU WORD</span>
+        </button>
         <button id="btn-chuyen-de" type="button" onclick="openTetrisTopicMenu()" class="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-xs md:text-sm rounded-xl shadow-lg border border-amber-300/40 flex items-center gap-1.5 transition active:scale-95 cursor-pointer">
             📋 <span>CHUYÊN ĐỀ</span>
         </button>
@@ -321,12 +376,12 @@
             <!-- JS sẽ sinh 200 ô div vào đây -->
         </div>
 
-        <!-- CỤM 4 NÚT ĐIỀU KHIỂN Y HỆT MÁY GAME -->
-        <div id="mobileControls" class="w-full flex justify-center items-center gap-3 md:gap-5 mt-6 z-30">
-            <div class="control-btn" id="btnLeft" title="Sang trái">◀</div>
-            <div class="control-btn" id="btnRotate" title="Xoay 90 độ" style="background: rgba(168, 85, 247, 0.25); border-color: rgba(168, 85, 247, 0.6); color: #e9d5ff;">↻</div>
-            <div class="control-btn" id="btnDown" title="Rơi nhanh (Nhấp đúp rơi kịch sàn)">▼</div>
-            <div class="control-btn" id="btnRight" title="Sang phải">▶</div>
+        <!-- CỤM 4 NÚT ĐIỀU KHIỂN Y HỆT MÁY GAME (SAFE AREA ĐÁY TRÊN MOBILE) -->
+        <div id="mobileControls" class="tetris-mobile-controls w-full flex justify-center items-center gap-3 md:gap-5 mt-6 z-30">
+            <div class="control-btn tetris-btn" id="btnLeft" title="Sang trái">◀</div>
+            <div class="control-btn tetris-btn" id="btnRotate" title="Xoay 90 độ" style="background: rgba(168, 85, 247, 0.25); border-color: rgba(168, 85, 247, 0.6); color: #e9d5ff;">↻</div>
+            <div class="control-btn tetris-btn" id="btnDown" title="Rơi nhanh (Nhấp đúp rơi kịch sàn)">▼</div>
+            <div class="control-btn tetris-btn" id="btnRight" title="Sang phải">▶</div>
         </div>
     </div>
 
@@ -356,9 +411,9 @@
         </div>
     </div>
 
-    <!-- MODAL CÂU HỎI (NEON) - KHÔNG BỊ CẮT CHỮ VỚI MAX-HEIGHT 75dvh VÀ TOUCH SCROLL -->
+    <!-- MODAL CÂU HỎI (NEON) - KHÔNG BỊ CẮT CHỮ VỚI MAX-HEIGHT 72dvh VÀ TOUCH SCROLL -->
     <div id="quizModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3 sm:p-4">
-        <div class="bg-[#0f172a] rounded-[2rem] p-5 sm:p-8 md:p-10 w-full max-w-4xl max-h-[75dvh] overflow-y-auto custom-scroll transform scale-95 transition-transform duration-300 neon-box relative flex flex-col items-center" id="modalContent" style="-webkit-overflow-scrolling: touch;">
+        <div class="tetris-question-modal quiz-overlay-box bg-[#0f172a] rounded-[2rem] p-5 sm:p-8 md:p-10 w-full max-w-4xl max-h-[72dvh] overflow-y-auto custom-scroll transform scale-95 transition-transform duration-300 neon-box relative flex flex-col items-center" id="modalContent" style="max-height: 72dvh !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; padding-bottom: 20px !important;">
             
             <div class="absolute -top-8 bg-[#09090b] px-6 py-2 rounded-full border-2 border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.6)]">
                 <span class="text-lg font-black text-sky-400 uppercase tracking-widest neon-text-blue">Thử Thách Hình Học</span>
@@ -371,7 +426,6 @@
             <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 <!-- JS chèn nút đáp án -->
             </div>
-        </div>
     </div>
 
     <!-- MODAL GAME OVER -->
@@ -517,13 +571,19 @@
                 <!-- Render danh sách câu hỏi qua renderAdminEditor() -->
             </div>
 
-            <!-- FOOTER BAR: LƯU LOCALSTORAGE VÀ XUẤT HTML -->
+            <!-- FOOTER BAR: LƯU LOCALSTORAGE, XUẤT WORD VÀ XUẤT HTML -->
             <div class="p-4 bg-slate-900/95 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
                 <div class="text-xs text-slate-400 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Hỗ trợ gõ tiếng Việt Telex tự nhiên, công thức TeX <code class="text-cyan-400">\(...\)</code> và thẻ <code class="text-cyan-400">&lt;img&gt;</code></span>
+                    <span>Hỗ trợ gõ tiếng Việt Telex tự nhiên, công thức TeX <code class="text-cyan-400">\(...\)</code> và bảng Word 2 cột</span>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <button type="button" id="btn-import-word" onclick="openWordImportModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs sm:text-sm shadow-lg shadow-indigo-600/30 transition-all cursor-pointer flex items-center gap-2">
+                        <span>📥</span> NHẬP TỪ BẢNG WORD
+                    </button>
+                    <button type="button" id="btn-download-word" onclick="downloadTetrisWordTemplate()" class="px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-black text-xs sm:text-sm shadow-lg shadow-sky-600/30 transition-all cursor-pointer flex items-center gap-2">
+                        <span>📄</span> TẢI FILE MẪU WORD (.DOC)
+                    </button>
                     <button type="button" id="btn-save-questions" onclick="saveEditorQuestions()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-xs sm:text-sm shadow-lg shadow-blue-600/30 transition-all cursor-pointer flex items-center gap-2">
                         <span>💾</span> LƯU THAY ĐỔI
                     </button>
@@ -531,6 +591,29 @@
                         <span>📦</span> XUẤT FILE HTML MỚI VĨNH VIỄN
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL NHẬP BẢNG WORD 2 CỘT -->
+    <!-- ========================================== -->
+    <div id="word-import-modal" class="fixed inset-0 z-[100003] bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">📥</span>
+                    <h3 class="text-lg font-black text-white uppercase">Nhập Bảng Dữ Liệu Word (2 Cột)</h3>
+                </div>
+                <button type="button" onclick="closeWordImportModal()" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
+            </div>
+            <p class="text-xs text-slate-300">
+                Sao chép bảng 2 cột từ Microsoft Word / Google Docs và dán vào ô bên dưới. Hệ thống sẽ tự động bóc tách từng LEVEL và 3 dạng câu hỏi (ABCD, Đúng/Sai, Trả lời ngắn):
+            </p>
+            <textarea id="word-paste-area" rows="8" placeholder="Dán nội dung bảng Word vào đây (hỗ trợ cả dán trực tiếp Ctrl+V từ Word hoặc văn bản cách nhau bởi tab / dấu |)..." class="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-mono outline-none focus:border-sky-400 custom-scroll"></textarea>
+            <div class="flex justify-end gap-3 pt-2 border-t border-slate-800">
+                <button type="button" onclick="closeWordImportModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs">HỦY</button>
+                <button type="button" onclick="handleImportWordSubmit()" class="px-5 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black rounded-xl text-xs shadow-md">⚡ BÓC TÁCH & NẠP VÀO GAME</button>
             </div>
         </div>
     </div>
@@ -785,23 +868,45 @@
             if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise().catch(e => {});
         }
 
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function sampleTetrisQuestions(topicData) {
+            if (!topicData) return [];
+            const easyPool = shuffleArray(topicData.easy || []);
+            const medPool = shuffleArray(topicData.medium || []);
+            const hardPool = shuffleArray(topicData.hard || []);
+
+            // Trích mẫu ngẫu nhiên (Auto-Sampling: Shuffle & Slice)
+            const sampledEasy = easyPool.slice(0, Math.max(3, Math.min(6, easyPool.length)));
+            const sampledMed = medPool.slice(0, Math.max(3, Math.min(6, medPool.length)));
+            const sampledHard = hardPool.slice(0, Math.max(2, Math.min(5, hardPool.length)));
+
+            let combined = [...sampledEasy, ...sampledMed, ...sampledHard];
+            if (combined.length < 5) {
+                const remaining = [...easyPool.slice(sampledEasy.length), ...medPool.slice(sampledMed.length), ...hardPool.slice(sampledHard.length)];
+                combined.push(...shuffleArray(remaining).slice(0, 10 - combined.length));
+            }
+            return combined.map(q => ({
+                ...q,
+                options: q.options ? [...q.options] : []
+            }));
+        }
+
         function selectTetrisTopic(topicName, hideOverlay) {
             window.selectedTopic = topicName;
             const topicData = window.gameDatabase[topicName];
             if (!topicData) return;
 
-            // Sắp xếp câu hỏi từ Dễ -> Vừa -> Khó
-            const topicQuestions = [];
-            ['easy', 'medium', 'hard'].forEach(diff => {
-                (topicData[diff] || []).forEach(q => {
-                    topicQuestions.push({
-                        ...q,
-                        options: q.options ? [...q.options] : []
-                    });
-                });
-            });
-
-            currentQuestions = [...topicQuestions].reverse(); // reverse để pop() ra Dễ trước
+            // Bốc ngẫu nhiên bộ câu hỏi Auto-Sampling chống trùng lặp theo tiến trình Dễ -> Vừa -> Khó
+            const sampled = sampleTetrisQuestions(topicData);
+            currentQuestions = sampled.reverse(); // reverse để pop() ra Dễ trước
 
             const badge = document.getElementById('active-tetris-topic-badge');
             if (badge) badge.innerText = topicName.length > 25 ? topicName.substring(0, 25) + '...' : topicName;
@@ -823,11 +928,8 @@
             if (currentQuestions.length === 0) {
                 const topicData = window.gameDatabase[window.selectedTopic];
                 if (topicData) {
-                    const list = [];
-                    ['easy', 'medium', 'hard'].forEach(diff => {
-                        (topicData[diff] || []).forEach(q => list.push({ ...q, options: q.options ? [...q.options] : [] }));
-                    });
-                    currentQuestions = list.reverse();
+                    const sampled = sampleTetrisQuestions(topicData);
+                    currentQuestions = sampled.reverse();
                 }
             }
             return currentQuestions.pop() || { q: "Câu hỏi đang cập nhật", options: ["A", "B", "C", "D"], correct: 0 };
@@ -1268,115 +1370,113 @@
 
 
         // ==========================================
-        // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN (MATHJAX SPACER FIX)
+        // 🔤 BỘ ĐỊNH DẠNG VÀ VÁ FONT TOÁN VẠN NĂNG (MIKTEX / TEX LIVE & HÌNH HỌC KHÔNG GIAN)
         // ==========================================
+        function formatTetrisMathStringToTeX(inputString) {
+            if (!inputString || typeof inputString !== 'string') return inputString || '';
+            let str = inputString.replace(/[\u000c\x0c]/g, '').trim();
+
+            // 1. Quét sạch và tiêu diệt triệt để ký tự rác \f, \f\f bám trên chuỗi
+            str = str.replace(/\\f\\f/g, '').replace(/f\\f/g, '');
+            str = str.replace(/(\\+f|f)+(?=\\?frac)/g, '');
+            str = str.replace(/(\\+f|f)+(?=\\?\()/g, '');
+            str = str.replace(/\\f(?![a-zA-Z])/g, '');
+            str = str.replace(/\\f\b/g, '');
+            str = str.replace(/[\u0000-\u0008\u000b\u000e-\u001f]/g, '');
+
+            // 2. Phục hồi vĩnh viễn \frac từ rac mà không làm gãy lệnh có sẵn
+            str = str.replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
+                     .replace(/\\+rac/g, '\\frac')
+                     .replace(/\brac\b/g, '\\frac');
+            str = str.replace(/(?<!\\)frac/g, '\\frac');
+
+            // 3. Tự động sửa lỗi thiếu dấu gạch chéo ngược \ cho các ký hiệu toán & hình học không gian chuẩn MiKTeX/TeX Live
+            str = str.replace(/(?<!\\)cdot/g, '\\cdot');
+            str = str.replace(/(?<!\\)perp/g, '\\perp');
+            str = str.replace(/(?<!\\)parallel/g, '\\parallel');
+            str = str.replace(/(?<!\\)alpha/g, '\\alpha');
+            str = str.replace(/(?<!\\)beta/g, '\\beta');
+            str = str.replace(/(?<!\\)gamma/g, '\\gamma');
+            str = str.replace(/(?<!\\)Delta/g, '\\Delta');
+            str = str.replace(/(?<!\\)subset/g, '\\subset');
+            str = str.replace(/(?<!\\)supset/g, '\\supset');
+            str = str.replace(/(?<![a-zA-Zà-ỹ\\])in(?![a-zA-Zà-ỹ])/g, '\\in');
+            str = str.replace(/(?<!\\)notin/g, '\\notin');
+            str = str.replace(/(?<!\\)ne\b/g, '\\ne');
+            str = str.replace(/(?<!\\)forall/g, '\\forall');
+            str = str.replace(/(?<!\\)exists/g, '\\exists');
+            str = str.replace(/(?<!\\)pm\b/g, '\\pm');
+            str = str.replace(/(?<!\\)infty/g, '\\infty');
+            str = str.replace(/(?<!\\)sqrt/g, '\\sqrt');
+            str = str.replace(/(?<!\\)circ\b/g, '\\circ');
+            str = str.replace(/(?<!\\)Omega\b/g, '\\Omega');
+            str = str.replace(/(?<!\\)emptyset\b/g, '\\emptyset');
+
+            // Tiêu diệt triệt để ký tự rác \f bám trước \frac
+            str = str.replace(/(\\+f|f)+(?=\\frac)/g, '');
+
+            // 4. Khử lỗi lặp dấu gạch chéo (double escape) hoặc bọc ngoặc vuông sai quy cách
+            str = str.replace(/\\\[/g, '').replace(/\\\]/g, '');
+            str = str.replace(/\\\\([a-zA-Z])/g, '\\$1');
+
+            // Sửa lỗi cách chữ đầu câu tiếng Việt
+            str = str.replace(/\bN\s+ếu\b/gi, 'Nếu');
+            str = str.replace(/\bC\s+ả\b/gi, 'Cả');
+            str = str.replace(/\bK\s+hi\b/gi, 'Khi');
+            str = str.replace(/\bC\s+hỉ\b/gi, 'Chỉ');
+            str = str.replace(/\bT\s+ính\b/gi, 'Tính');
+            str = str.replace(/\bH\s+ình\b/gi, 'Hình');
+            str = str.replace(/\bM\s+ặt\b/gi, 'Mặt');
+            str = str.replace(/\bđ\s+ường\b/gi, 'đường');
+            str = str.replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/gi, 'Hai mặt phẳng');
+
+            // Chuyển đổi $$...$$ và $...$ thành \(...\) chuẩn MathJax
+            str = str.replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+            str = str.replace(/\$([^\$]+?)\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+
+            // 5. Chuẩn hóa hình học không gian: tên đỉnh hình chóp S.ABC hoặc mặt phẳng (ABC), (SAB), (SCD)
+            str = str.replace(/(?<![a-zA-Z\\\(])(S\.[A-Z]{3,4})(?![a-zA-Z\\\)])/g, '\\($1\\)');
+            str = str.replace(/(?<![a-zA-Z\\\(])(\([A-Z]{3,4}\))(?![a-zA-Z\\\)])/g, '\\($1\\)');
+            str = str.replace(/(?<![a-zA-Z\\\(])([A-Z]\.[A-Z]{3,4})(?![a-zA-Z\\\)])/g, '\\($1\\)');
+
+            // Chuẩn hóa góc 90^\circ, 60^\circ, v.v.
+            str = str.replace(/([0-9]+)\s*\^\\circ/g, '\\($1^\\circ\\)');
+
+            // 6. Xử lý các lệnh TeX độc lập nằm ngoài \(...\)
+            const segments = str.split(/(\\\([\s\S]*?\\\))/g);
+            for (let i = 0; i < segments.length; i += 2) {
+                let seg = segments[i];
+                if (!seg) continue;
+                
+                // Bọc các lệnh phân số \frac{...}{...}
+                seg = seg.replace(/\\frac\{[^{}]*\}\{[^{}]*\}/g, (m) => '\\(' + m + '\\)');
+                // Bọc các lệnh căn bậc hai \sqrt{...} hoặc \sqrt...
+                seg = seg.replace(/\\sqrt(?:\{[^{}]*\}|[0-9a-zA-Z]+)/g, (m) => '\\(' + m + '\\)');
+                // Bọc các lệnh ký hiệu độc lập
+                seg = seg.replace(/\\(perp|parallel|alpha|beta|gamma|Delta|subset|supset|in|notin|ne|forall|exists|pm|infty|circ|cdot|Omega|emptyset)\b/g, (m) => '\\(\\' + m.substring(1) + '\\)');
+
+                segments[i] = seg;
+            }
+            str = segments.join('');
+
+            // Khử lồng ngoặc \( \( ... \) \)
+            str = str.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
+            str = str.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
+
+            // 7. Nếu toàn bộ là biểu thức thuần toán học (không chứa tiếng Việt) mà chưa có \(...\)
+            const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(str);
+            if (!hasVietnamese && !str.includes('\\(')) {
+                str = '\\(' + str + '\\)';
+            }
+
+            // Làm sạch khoảng trắng thừa
+            str = str.replace(/\s+/g, ' ').trim();
+
+            return str;
+        }
+
         function formatMathSpacers(str) {
-            if (!str || typeof str !== 'string') return '';
-            let text = str.trim();
-
-            // 0. Làm sạch triệt để control characters và Form Feed \x0c / \f
-            // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f nếu có xuất hiện trong chuỗi đáp án
-            if (typeof text === 'string') {
-                text = text.replace(/\\f\\f/g, '').replace(/\\f/g, '');
-                text = text.replace(/[\u000c\x0c]/g, '');
-                // Chuẩn hóa và phục hồi cú pháp phân số \frac{ nếu \f bị tách rời
-                text = text.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
-                text = text.replace(/^rac\s*\{/g, '\\frac{');
-            }
-            text = text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
-
-            // Sửa lỗi cách chữ đầu câu
-            text = text.replace(/\bN\s+ếu\b/gi, 'Nếu');
-            text = text.replace(/\bC\s+ả\b/gi, 'Cả');
-            text = text.replace(/\bK\s+hi\b/gi, 'Khi');
-            text = text.replace(/\bC\s+hỉ\b/gi, 'Chỉ');
-
-            // 1. Sửa lỗi dấu gạch chéo đỏ: Lọc và xóa sạch các ký tự gạch chéo \ lỗi dạng \ ( P(A) \ ) hoặc \ ( ... \ )
-            text = text.replace(/\\+\s*\(\s*/g, '\\(');
-            text = text.replace(/\s*\\+\s*\)/g, '\\)');
-            text = text.replace(/\\+\s+([a-zA-Z0-9])/g, '$1');
-            text = text.replace(/\\+P\s*\(/g, 'P(');
-
-            // 2. Tự động chuyển đổi các ký hiệu toán:
-            text = text.replace(/(^|[^\\a-zA-Z])Omega\b/g, '$1\\Omega');
-            text = text.replace(/(^|[^\\a-zA-Z])emptyset\b/g, '$1\\emptyset');
-
-            text = text.replace(/overlineAcapoverlineB/gi, '\\overline{A} \\cap \\overline{B}');
-            text = text.replace(/overlineAcupoverlineB/gi, '\\overline{A} \\cup \\overline{B}');
-            text = text.replace(/\\?overline\s*\{?A\}?\s*\\?cap\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cap \\overline{B}');
-            text = text.replace(/\\?overline\s*\{?A\}?\s*\\?cup\s*\\?overline\s*\{?B\}?/gi, '\\overline{A} \\cup \\overline{B}');
-            text = text.replace(/\\?overline\s*([A-Za-z])\b/g, '\\overline{$1}');
-
-            // AcapB -> A \cap B, AcupB -> A \cup B
-            text = text.replace(/\b([A-Z])cap([A-Z])\b/gi, '$1 \\cap $2');
-            text = text.replace(/\b([A-Z])cup([A-Z])\b/gi, '$1 \\cup $2');
-            text = text.replace(/([A-Z])\s*\\?cap\s*([A-Z])/gi, '$1 \\cap $2');
-            text = text.replace(/([A-Z])\s*\\?cup\s*([A-Z])/gi, '$1 \\cup $2');
-
-            // 3. Tự động sửa mã ký hiệu dấu nhân: chuyển từ chữ thô cdot hoặc . thành \cdot
-            text = text.replace(/([0-9a-zA-Z\)\}\]])\s*\\?cdot\s*([0-9a-zA-Z\(\{\\])/g, '$1 \\cdot $2');
-            text = text.replace(/(P\([^\)]+\))\s*\.\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
-            text = text.replace(/(P\([^\)]+\))\s*\*\s*(P\([^\)]+\))/g, '$1 \\cdot $2');
-            text = text.replace(/\bcdot\b/g, '\\cdot');
-
-            // 4. Tách từ dính giữa chữ tiếng Việt và biến toán in hoa
-            text = text.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
-            text = text.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
-
-            // 5. Chuẩn hóa cơ số e và số mũ e^{...}
-            text = text.replace(/\be\^([0-9a-zA-Z\+\-]+)\b/g, 'e^{$1}');
-            text = text.replace(/\be\^\(([^)]+)\)/g, 'e^{$1}');
-
-            // 6. Chuẩn hóa phân số nguyên: a/b hoặc [A]. a/b -> \( \frac{a}{b} \)
-            if (/^[-+]?\d+\s*\/\s*\d+$/.test(text)) {
-                const parts = text.split('/');
-                return `\\( \\frac{${parts[0].trim()}}{${parts[1].trim()}} \\)`;
-            }
-            if (/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/.test(text)) {
-                return text.replace(/^([A-D]\.\s*)([-+]?\d+)\s*\/\s*(\d+)$/, (_, prefix, num, den) => {
-                    return `${prefix}\\( \\frac{${num.trim()}}{${den.trim()}} \\)`;
-                });
-            }
-
-            // 7. Chuẩn hóa số nguyên hoặc số thập phân đơn thuần (e.g. 0.75, 0.20, 25, 51.4%)
-            if (/^[-+]?\d+(?:\.\d+)?%?$/.test(text)) {
-                if (text.endsWith('%')) {
-                    const numPart = text.slice(0, -1);
-                    return `\\( ${numPart}\\% \\)`;
-                }
-                return `\\( ${text} \\)`;
-            }
-            if (/^([A-D]\.\s*)([-+]?\d+(?:\.\d+)?%?)$/.test(text)) {
-                return text.replace(/^([A-D]\.\s*)([-+]?\d+(?:\.\d+)?)(%?)$/, (_, prefix, num, pct) => {
-                    return pct ? `${prefix}\\( ${num}\\% \\)` : `${prefix}\\( ${num} \\)`;
-                });
-            }
-
-            // 8. Chuyển đổi $$...$$ và $...$ thành \(...\)
-            text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => `\\(${math.trim()}\\)`);
-            text = text.replace(/\$([^\$]+?)\$/g, (_, math) => `\\(${math.trim()}\\)`);
-
-            // 9. Xử lý bọc ký hiệu TeX nếu chưa được bọc
-            if (!text.includes('\\(')) {
-                if (/\\(?:cap|cup|cdot|frac|sqrt|int|sum|lim|emptyset|Omega|overline)\b/.test(text)) {
-                    if (!/[àáạảãâầấậẩẫăằắặẳẵèéẻẽẹêềếểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text)) {
-                        text = `\\(${text}\\)`;
-                    } else {
-                        text = text.replace(/(\\[a-zA-Z]+(?:\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})*(?:\^\{?[^{}]*\}?|_\{?[^{}]*\}?)*(?:\s*[0-9a-zA-Z^\-_+\/=()]+)*)/g, (match) => {
-                            const trimmed = match.trim();
-                            if (!trimmed || trimmed.startsWith('\\(')) return match;
-                            return `\\(${trimmed}\\)`;
-                        });
-                    }
-                }
-            }
-
-            // Làm sạch các dấu ngoặc bọc lặp lại \( \( ... \) \)
-            text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
-            text = text.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\)/g, '\\($1\\)');
-            text = text.replace(/\\\(\s*\$([\s\S]*?)\$\s*\\\)/g, '\\($1\\)');
-
-            return text;
+            return formatTetrisMathStringToTeX(str);
         }
 
         // ==========================================
@@ -1591,7 +1691,7 @@
                         </div>
                         <p class="text-[11px] text-slate-400 font-semibold text-center">Hệ thống chấp nhận số nguyên, số âm và số thập phân (dấu '.' hoặc ',')</p>
                         <button type="button" id="btnSubmitShort" onclick="submitShortAnswer()" 
-                            class="w-full py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-base rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.5)] active:scale-95 transition-all cursor-pointer uppercase tracking-wider">
+                            class="tetris-answer-btn w-full py-3 sm:py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-sm sm:text-base rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.5)] active:scale-95 transition-all cursor-pointer uppercase tracking-wider">
                             XÁC NHẬN
                         </button>
                     </div>
@@ -1655,12 +1755,12 @@
                 currentQuizCorrectIdx = isCorrectAnswer ? 0 : 1; // 0: Đúng, 1: Sai
 
                 const btnDung = document.createElement('button');
-                btnDung.className = "w-full bg-emerald-600/30 hover:bg-emerald-600 border-2 border-emerald-400 text-emerald-200 hover:text-white font-black py-6 px-6 rounded-2xl text-center text-xl md:text-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-95";
+                btnDung.className = "tetris-answer-btn w-full bg-emerald-600/30 hover:bg-emerald-600 border-2 border-emerald-400 text-emerald-200 hover:text-white font-black py-4 sm:py-6 px-4 sm:px-6 rounded-2xl text-center text-lg md:text-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-95";
                 btnDung.innerHTML = `<span>✅</span> <span>ĐÚNG</span>`;
                 btnDung.onclick = () => answerQuiz(0, explanationText);
 
                 const btnSai = document.createElement('button');
-                btnSai.className = "w-full bg-rose-600/30 hover:bg-rose-600 border-2 border-rose-400 text-rose-200 hover:text-white font-black py-6 px-6 rounded-2xl text-center text-xl md:text-2xl shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.6)] transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-95";
+                btnSai.className = "tetris-answer-btn w-full bg-rose-600/30 hover:bg-rose-600 border-2 border-rose-400 text-rose-200 hover:text-white font-black py-4 sm:py-6 px-4 sm:px-6 rounded-2xl text-center text-lg md:text-2xl shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.6)] transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-95";
                 btnSai.innerHTML = `<span>❌</span> <span>SAI</span>`;
                 btnSai.onclick = () => answerQuiz(1, explanationText);
 
@@ -1695,7 +1795,7 @@
 
                 options.forEach((optHTML, idx) => {
                     const btn = document.createElement('button');
-                    btn.className = "option-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-5 px-6 rounded-2xl text-center text-lg md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[72px] active:scale-95 cursor-pointer";
+                    btn.className = "option-btn tetris-answer-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-3 sm:py-5 px-4 sm:px-6 rounded-2xl text-center text-base md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center min-h-[56px] sm:min-h-[72px] active:scale-95 cursor-pointer";
                     btn.innerHTML = `<span class="w-full leading-relaxed">${formatMathSpacers(optHTML)}</span>`;
                     btn.onclick = () => answerQuiz(idx, qData.explanation);
                     optContainer.appendChild(btn);
@@ -1703,16 +1803,18 @@
             }
 
             modal.classList.remove('hidden');
-            if (window.MathJax) {
-                if (window.MathJax.typesetClear) window.MathJax.typesetClear();
-                window.MathJax.typesetPromise([qText, optContainer]).then(() => {
-                    setTimeout(() => { content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
-                }).catch(() => {
+            setTimeout(() => {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    if (window.MathJax.typesetClear) window.MathJax.typesetClear();
+                    window.MathJax.typesetPromise([qText, optContainer]).then(() => {
+                        content.classList.remove('scale-95'); content.classList.add('scale-100');
+                    }).catch(() => {
+                        content.classList.remove('scale-95'); content.classList.add('scale-100');
+                    });
+                } else {
                     content.classList.remove('scale-95'); content.classList.add('scale-100');
-                });
-            } else {
-                content.classList.remove('scale-95'); content.classList.add('scale-100');
-            }
+                }
+            }, 50);
         }
 
         function submitShortAnswer() {
@@ -2353,6 +2455,328 @@
             } catch(e) {
                 alert("Lỗi khi lưu câu hỏi: " + e.message);
             }
+        }
+
+        // ========================================================
+        // 6. XUẤT FILE MẪU WORD (.DOC/.DOCX) BẢNG DÀI 2 CỘT CHUẨN SƯ PHẠM THEO LEVEL
+        // ========================================================
+        function downloadTetrisWordTemplate() {
+            const tableRows = [];
+            const db = window.gameDatabase || {};
+            const topics = Object.keys(db);
+
+            if (topics.length > 0) {
+                topics.forEach((topicName, tIdx) => {
+                    const topicData = db[topicName];
+                    tableRows.push(`
+                        <tr style="background-color: #0284c7; color: #ffffff;">
+                            <th style="padding: 10px; border: 1px solid #64748b; font-size: 13pt; text-align: left; width: 28%;">LEVEL</th>
+                            <th style="padding: 10px; border: 1px solid #64748b; font-size: 13pt; text-align: left; width: 72%;">Level ${tIdx + 1}: ${topicName}</th>
+                        </tr>
+                    `);
+
+                    const allQs = [];
+                    ['easy', 'medium', 'hard'].forEach(diff => {
+                        if (Array.isArray(topicData[diff])) {
+                            allQs.push(...topicData[diff]);
+                        }
+                    });
+
+                    if (allQs.length === 0) {
+                        tableRows.push(
+                            `<tr>
+                                <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold;">Cho hình chóp S.ABC có SA ⊥ (ABC). Mặt phẳng (SAB) vuông góc với mặt phẳng nào sau đây?</td>
+                                <td style="padding: 8px 12px; border: 1px solid #cbd5e1;">A. (ABC)* | B. (SBC) | C. (SAC) | D. Chưa đủ dữ kiện để kết luận</td>
+                            </tr>`
+                        );
+                    } else {
+                        allQs.forEach(q => {
+                            const isTF = q.type === 'truefalse' || (Array.isArray(q.options) && q.options.length === 2);
+                            const isShort = q.type === 'short_answer' || q.type === 'short' || (Array.isArray(q.options) && q.options.length === 1);
+                            
+                            if (isShort) {
+                                const ans = q.options?.[0] || q.answer || '';
+                                tableRows.push(`
+                                    <tr>
+                                        <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold;">[TRẢ LỜI NGẮN] ${q.q || ''}</td>
+                                        <td style="padding: 8px 12px; border: 1px solid #cbd5e1;">${ans}</td>
+                                    </tr>
+                                `);
+                            } else if (isTF) {
+                                if (Array.isArray(q.statements) && q.statements.length > 0) {
+                                    const stemText = `[ĐÚNG/SAI] ${q.stem || q.q || ''}<br/>` + q.statements.map((s, i) => `${String.fromCharCode(97 + i)}) ${s.statement || s.text || ''}`).join('<br/>');
+                                    const ansText = q.statements.map((s, i) => `${String.fromCharCode(97 + i)}) ${(s.isCorrect || s.answer === 'Đúng') ? 'Đúng' : 'Sai'}`).join(' | ');
+                                    tableRows.push(`
+                                        <tr>
+                                            <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold;">${stemText}</td>
+                                            <td style="padding: 8px 12px; border: 1px solid #cbd5e1;">${ansText}</td>
+                                        </tr>
+                                    `);
+                                } else {
+                                    const isCorrect = q.correct === 0;
+                                    tableRows.push(`
+                                        <tr>
+                                            <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold;">[ĐÚNG/SAI] ${q.q || ''}</td>
+                                            <td style="padding: 8px 12px; border: 1px solid #cbd5e1;">${isCorrect ? 'Đúng' : 'Sai'}</td>
+                                        </tr>
+                                    `);
+                                }
+                            } else {
+                                // ABCD
+                                const opts = Array.isArray(q.options) ? q.options : ['A', 'B', 'C', 'D'];
+                                const correctIdx = typeof q.correct === 'number' ? q.correct : 0;
+                                const optsText = opts.map((opt, oIdx) => {
+                                    const letter = String.fromCharCode(65 + oIdx);
+                                    const isStar = oIdx === correctIdx ? '*' : '';
+                                    return `${letter}. ${opt}${isStar}`;
+                                }).join(' | ');
+                                tableRows.push(`
+                                    <tr>
+                                        <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold;">${q.q || ''}</td>
+                                        <td style="padding: 8px 12px; border: 1px solid #cbd5e1;">${optsText}</td>
+                                    </tr>
+                                `);
+                            }
+                        });
+                    }
+                });
+            } else {
+                tableRows.push(`
+                    <tr style="background-color: #0284c7; color: #ffffff;">
+                        <th style="padding: 10px; border: 1px solid #64748b; font-size: 13pt; text-align: left; width: 28%;">LEVEL</th>
+                        <th style="padding: 10px; border: 1px solid #64748b; font-size: 13pt; text-align: left; width: 72%;">Level 1: Quan hệ vuông góc trong không gian</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold;">Cho hình chóp S.ABC có SA ⊥ (ABC). Mặt phẳng (SAB) vuông góc với mặt phẳng nào sau đây?</td>
+                        <td style="padding: 8px 12px; border: 1px solid #cbd5e1;">A. (ABC)* | B. (SBC) | C. (SAC) | D. Chưa đủ dữ kiện để kết luận</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold;">[ĐÚNG/SAI] Cho tứ diện ABCD có AB, AC, AD đôi một vuông góc:<br/>a) AB ⊥ (ACD)<br/>b) CD ⊥ (ABC)<br/>c) Tam giác BCD là tam giác vuông<br/>d) Mặt phẳng (BCD) vuông góc với (ABC)</td>
+                        <td style="padding: 8px 12px; border: 1px solid #cbd5e1;">a) Đúng | b) Sai | c) Sai | d) Sai</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold;">[TRẢ LỜI NGẮN] Cho hình lập phương ABCD.A'B'C'D'. Có bao nhiêu mặt bên vuông góc với mặt đáy (ABCD)?</td>
+                        <td style="padding: 8px 12px; border: 1px solid #cbd5e1;">4</td>
+                    </tr>
+                `);
+            }
+
+            const wordContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Mau_De_Tetris_Xep_Gach</title>
+                <style>
+                    body { font-family: 'Times New Roman', serif; font-size: 12pt; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                    th, td { border: 1px solid #64748b; padding: 8px 12px; vertical-align: top; }
+                </style>
+                </head>
+                <body>
+                    <h2 style="text-align: center; color: #0369a1;">BẢNG SOẠN ĐỀ THI TOÁN TRÒ CHƠI TETRIS XẾP GẠCH</h2>
+                    <p style="text-align: center; font-style: italic; color: #475569;">
+                        Quy ước sư phạm: Cột 1 ghi Đề bài (hoặc LEVEL). Cột 2 ghi Đáp án (Dấu sao * đánh dấu đáp án đúng cho ABCD; Đúng/Sai cho từng ý nhỏ; Số chính xác cho Trả lời ngắn).
+                    </p>
+                    <table>
+                        ${tableRows.join('')}
+                    </table>
+                </body></html>
+            `;
+
+            const blob = new Blob(['\ufeff' + wordContent], { type: 'application/msword;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Mau_De_Tetris_Hai_Mat_Phang_Vuong_Goc.doc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ========================================================
+        // 7. BỘ PARSER VẠN NĂNG 3 DẠNG ĐỀ TỪ BẢNG WORD 2 CỘT
+        // ========================================================
+        function parseTetrisWordTable(rawContent) {
+            if (!rawContent || typeof rawContent !== 'string') return null;
+            let text = rawContent.trim();
+            const rows = [];
+
+            if (text.includes('<tr') || text.includes('<table')) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = text;
+                const trs = tempDiv.querySelectorAll('tr');
+                trs.forEach(tr => {
+                    const cells = tr.querySelectorAll('th, td');
+                    if (cells.length >= 2) {
+                        rows.push([cells[0].innerText.trim(), cells[1].innerText.trim()]);
+                    }
+                });
+            }
+
+            if (rows.length === 0) {
+                const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                lines.forEach(line => {
+                    let parts = line.split('\t');
+                    if (parts.length < 2) parts = line.split('|');
+                    if (parts.length >= 2) {
+                        rows.push([parts[0].trim(), parts.slice(1).join('|').trim()]);
+                    }
+                });
+            }
+
+            if (rows.length === 0) return null;
+
+            let currentLevel = 'Level 1: Quan hệ vuông góc';
+            const parsedDatabase = {};
+
+            rows.forEach(r => {
+                const col1 = r[0];
+                const col2 = r[1];
+                if (!col1 || !col2) return;
+
+                if (/^(?:LEVEL|Level|CẤP ĐỘ|CHUYÊN ĐỀ)/i.test(col1)) {
+                    currentLevel = col2.trim();
+                    if (!parsedDatabase[currentLevel]) {
+                        parsedDatabase[currentLevel] = { easy: [], medium: [], hard: [] };
+                    }
+                    return;
+                }
+
+                if (!parsedDatabase[currentLevel]) {
+                    parsedDatabase[currentLevel] = { easy: [], medium: [], hard: [] };
+                }
+
+                // Dạng 1: ABCD
+                if (/[A-D]\.\s*|\|/.test(col2) && !/^(?:Đúng|Sai|True|False)$/i.test(col2.trim())) {
+                    let options = [];
+                    let correctIdx = 0;
+
+                    if (col2.includes('|')) {
+                        options = col2.split('|').map(o => o.trim()).filter(Boolean);
+                    } else {
+                        const matchOpts = col2.split(/(?=[A-D]\.\s*)/g).map(o => o.trim()).filter(Boolean);
+                        if (matchOpts.length >= 2) options = matchOpts;
+                    }
+
+                    options = options.map((opt, idx) => {
+                        let cleanOpt = opt.replace(/^[A-D]\.\s*/, '').trim();
+                        if (cleanOpt.includes('*') || opt.includes('*')) {
+                            correctIdx = idx;
+                            cleanOpt = cleanOpt.replace(/\*/g, '').trim();
+                        }
+                        return cleanOpt;
+                    });
+
+                    while (options.length < 4) {
+                        options.push(`Phương án ${String.fromCharCode(65 + options.length)}`);
+                    }
+
+                    const diffTier = parsedDatabase[currentLevel].easy.length < 5 ? 'easy' : (parsedDatabase[currentLevel].medium.length < 5 ? 'medium' : 'hard');
+                    parsedDatabase[currentLevel][diffTier].push({
+                        q: col1,
+                        options: options.slice(0, 4),
+                        correct: correctIdx,
+                        type: 'abcd',
+                        explanation: ''
+                    });
+                }
+                // Dạng 2: Đúng / Sai
+                else if (/ĐÚNG[\s\/]*SAI|TRUE[\s\/]*FALSE/i.test(col1) || /^(?:Đúng|Sai|True|False)$/i.test(col2.trim()) || /(?:[a-d]\)\s*(?:Đúng|Sai))/i.test(col2)) {
+                    const isMultiStmt = /(?:[a-d]\)\s*)/i.test(col2) || col1.includes('a)');
+                    const diffTier = parsedDatabase[currentLevel].medium.length < 5 ? 'medium' : 'hard';
+
+                    if (isMultiStmt) {
+                        const subStatements = [];
+                        const stmtParts = col1.replace(/^\[?ĐÚNG[\s\/]*SAI\]?:?\s*/i, '').split(/(?=[a-d]\)\s*)/i).map(s => s.trim()).filter(Boolean);
+                        const stem = stmtParts[0] && !/^[a-d]\)/i.test(stmtParts[0]) ? stmtParts.shift() : 'Xét tính đúng/sai của các mệnh đề sau:';
+                        
+                        const ansParts = col2.split('|').map(a => a.trim()).filter(Boolean);
+                        
+                        ['a', 'b', 'c', 'd'].forEach((letter, lIdx) => {
+                            const text = stmtParts[lIdx] ? stmtParts[lIdx].replace(/^[a-d]\)\s*/i, '').trim() : `Mệnh đề ${letter}`;
+                            let isTrue = false;
+                            const ansItem = ansParts[lIdx] || ansParts.find(p => p.toLowerCase().startsWith(letter + ')')) || '';
+                            if (/đúng|true/i.test(ansItem)) isTrue = true;
+                            subStatements.push({
+                                letter: letter.toUpperCase(),
+                                statement: text,
+                                text: text,
+                                isCorrect: isTrue,
+                                answer: isTrue ? 'Đúng' : 'Sai'
+                            });
+                        });
+
+                        parsedDatabase[currentLevel][diffTier].push({
+                            q: col1,
+                            stem: stem,
+                            statements: subStatements,
+                            type: 'truefalse',
+                            explanation: ''
+                        });
+                    } else {
+                        const isTrue = /đúng|true/i.test(col2.trim());
+                        parsedDatabase[currentLevel][diffTier].push({
+                            q: col1.replace(/^\[?ĐÚNG[\s\/]*SAI\]?:?\s*/i, '').trim(),
+                            options: ['Đúng', 'Sai'],
+                            correct: isTrue ? 0 : 1,
+                            type: 'truefalse',
+                            explanation: ''
+                        });
+                    }
+                }
+                // Dạng 3: Trả lời ngắn
+                else {
+                    const diffTier = parsedDatabase[currentLevel].hard.length < 5 ? 'hard' : 'medium';
+                    const cleanQ = col1.replace(/^\[?TRẢ\s*LỜI\s*NGẮN\]?:?\s*/i, '').trim();
+                    const cleanAns = col2.trim();
+                    parsedDatabase[currentLevel][diffTier].push({
+                        q: cleanQ,
+                        options: [cleanAns],
+                        answer: cleanAns,
+                        correct: 0,
+                        type: 'short_answer',
+                        explanation: ''
+                    });
+                }
+            });
+
+            return parsedDatabase;
+        }
+
+        function openWordImportModal() {
+            const modal = document.getElementById('word-import-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeWordImportModal() {
+            const modal = document.getElementById('word-import-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function handleImportWordSubmit() {
+            const textarea = document.getElementById('word-paste-area');
+            if (!textarea || !textarea.value.trim()) {
+                alert("Vui lòng dán nội dung bảng Word vào khung trước!");
+                return;
+            }
+            const parsed = parseTetrisWordTable(textarea.value);
+            if (!parsed || Object.keys(parsed).length === 0) {
+                alert("Không thể bóc tách dữ liệu từ văn bản đã dán. Vui lòng kiểm tra định dạng bảng 2 cột!");
+                return;
+            }
+            window.gameDatabase = { ...window.gameDatabase, ...parsed };
+            localStorage.setItem('tetris_custom_quiz', JSON.stringify(window.gameDatabase));
+            
+            renderTetrisTopicMenuCards();
+            initEditorTopics();
+            renderAdminEditor();
+            closeWordImportModal();
+            alert("🎉 Đã nhập thành công các chuyên đề và câu hỏi từ bảng Word!");
         }
 
         function exportNewHtmlFile() {
