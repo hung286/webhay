@@ -51,12 +51,12 @@
         .math-font { font-family: 'JetBrains Mono', monospace; }
 
         /* ĐỊNH DẠNG CÔNG THỨC TOÁN MATHJAX CHỐNG BẺ ĐÔI & MÀU TRẮNG SẮC NÉT */
-        .math-content, .math-text, mjx-container, .mjx-chtml, .MathJax {
-            white-space: nowrap !important;
+        .question-text mjx-container, .answer-btn mjx-container, .option-card mjx-container, .math-content, .math-text, mjx-container, .mjx-chtml, .MathJax {
+            white-space: nowrap !important; /* Ép buộc phân số và bất phương trình lượng giác luôn nằm trên một dòng, không tự ý xuống dòng bẻ đôi */
             display: inline-block !important;
             color: #ffffff !important;
         }
-        mjx-container *, .mjx-chtml *, .MathJax * {
+        .question-text mjx-container *, .answer-btn mjx-container *, .option-card mjx-container *, mjx-container *, .mjx-chtml *, .MathJax * {
             white-space: nowrap !important;
             color: #ffffff !important;
         }
@@ -483,7 +483,7 @@
         <div class="f1-question-panel flex-1 flex flex-col gap-4 bg-slate-900/60 rounded-[2rem] sm:rounded-[3rem] p-4 sm:p-8 border border-slate-800 shadow-2xl relative overflow-hidden">
             <div id="question-container" class="flex-1 flex flex-col overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
                 <!-- Khung câu hỏi đen: chữ chạy ngang thẳng hàng, không bị ngắt vụn từ -->
-                <div class="bg-slate-950/90 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800 text-base sm:text-xl font-bold leading-relaxed shadow-xl text-left sm:text-center min-h-[90px] sm:min-h-[120px] flex items-center justify-start sm:justify-center text-slate-100 mb-3 sm:mb-6" id="q-text">
+                <div class="question-text bg-slate-950/90 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-800 text-base sm:text-xl font-bold leading-relaxed shadow-xl text-left sm:text-center min-h-[90px] sm:min-h-[120px] flex items-center justify-start sm:justify-center text-slate-100 mb-3 sm:mb-6" id="q-text">
                     ...
                 </div>
                 <div id="q-options" class="flex flex-col gap-2.5 sm:gap-4"></div>
@@ -601,64 +601,87 @@
     <!-- LOGIC GAME ENGINE & BỘ XỬ LÝ TOÁN HỌC CHUẨN TEK LIVE/MIKTEX -->
     <!-- ======================================================== -->
     <script>
-        // 1. BỘ THANH LỌC CHUỖI TOÁN HỌC ANTI-BUG LATEX/MATHJAX CHUẨN
-        function formatF1MathString(text) {
-            if (!text || typeof text !== 'string') return text || '';
+        // 1. BỘ THANH LỌC CHUỖI TOÁN HỌC VÀ TIÊU DIỆT TẬN GỐC KÝ TỰ RÁC KÉP "\f\f" (ANTI-BUG STRINGS)
+        function formatF1MathString(textStr, isOption = false) {
+            if (!textStr || typeof textStr !== 'string') return textStr || '';
 
-            // Gỡ bỏ ký tự rác form feed (0x0C)
-            let res = text.replace(/[\u000c\x0c]/g, '').trim();
+            // 1. Quét sạch và tiêu diệt triệt để ký tự rác kép \f\f hoặc \f bám trước các lệnh toán học
+            textStr = textStr.replace(/[\u000c\x0c]/g, '').trim();
+            textStr = textStr.replace(/\\f\\f/g, '').replace(/f\\f/g, '');
+            textStr = textStr.replace(/\\+f\\+f/g, '').replace(/f\\+f/g, '');
+            textStr = textStr.replace(/\\+f(?=\\+frac|rac|[0-9a-zA-Z\\{])/g, '');
+            textStr = textStr.replace(/(?<![a-zA-Z])\\f(?![a-zA-Z])/g, '');
 
-            // Phục hồi vĩnh viễn \frac từ chữ rac bị lỗi font
-            res = res.replace(/\\+rac/g, '\\frac')
-                     .replace(/\bracf\(/g, '\\frac{f(')
-                     .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
-                     .replace(/^rac\s*\{/g, '\\frac{')
-                     .replace(/\brac\b/g, '\\frac')
-                     .replace(/rac(?=[0-9\\{])/g, '\\frac')
-                     .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
-                     .replace(/rac/g, '\\frac');
+            // 2. Phục hồi và bảo vệ đúng cấu trúc lệnh phân số \frac tiêu chuẩn của MiKTeX/TeX Live
+            // Nếu chuỗi bị biến đổi lặp gãy chữ "f" thành "rac", phục hồi ngay về "\frac"
+            textStr = textStr.replace(/\\+rac/g, '\\frac')
+                             .replace(/\bracf\(/g, '\\frac{f(')
+                             .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
+                             .replace(/^rac\s*\{/g, '\\frac{')
+                             .replace(/\brac\b/g, '\\frac')
+                             .replace(/rac(?=[0-9\\{])/g, '\\frac')
+                             .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
+                             .replace(/rac/g, '\\frac');
 
-            // Tự động vá các lỗi thiếu dấu gạch chéo ngược cho mã lệnh LaTeX thông dụng
-            res = res.replace(/cdot/g, '\\cdot')
-                     .replace(/(?<!\\)frac/g, '\\frac')
-                     .replace(/(?<!\\)cdot/g, '\\cdot')
-                     .replace(/(?<!\\)sqrt/g, '\\sqrt')
-                     .replace(/(?<!\\)le\b/g, '\\le')
-                     .replace(/(?<!\\)ge\b/g, '\\ge')
-                     .replace(/(?<!\\)ne\b/g, '\\ne')
-                     .replace(/(?<!\\)pm\b/g, '\\pm')
-                     .replace(/(?<!\\)infty/g, '\\infty');
+            // 3. Tự động sửa lỗi thiếu dấu gạch chéo ngược \ cho các mã lệnh LaTeX thông dụng
+            textStr = textStr.replace(/(?<!\\)frac/g, '\\frac')
+                             .replace(/(?<!\\)cdot/g, '\\cdot')
+                             .replace(/(?<!\\)leq/g, '\\leq')
+                             .replace(/(?<!\\)geq/g, '\\geq')
+                             .replace(/(?<!\\)sqrt/g, '\\sqrt')
+                             .replace(/(?<!\\)le\b/g, '\\le')
+                             .replace(/(?<!\\)ge\b/g, '\\ge')
+                             .replace(/(?<!\\)ne\b/g, '\\ne')
+                             .replace(/(?<!\\)pm\b/g, '\\pm')
+                             .replace(/(?<!\\)infty/g, '\\infty')
+                             .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
+                             .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
 
-            // Khắc phục lỗi dính chữ và cách chữ đầu câu
-            res = res.replace(/\bN\s+ếu\b/g, 'Nếu')
-                     .replace(/\bH\s+ai\b/g, 'Hai')
-                     .replace(/\bC\s+ho\b/g, 'Cho')
-                     .replace(/\bC\s+ả\b/g, 'Cả')
-                     .replace(/\bK\s+hi\b/g, 'Khi')
-                     .replace(/\bC\s+hỉ\b/g, 'Chỉ')
-                     .replace(/\bT\s+ính\b/g, 'Tính')
-                     .replace(/\bT\s+rong\b/g, 'Trong')
-                     .replace(/\bK\s+hẳng\b/g, 'Khẳng')
-                     .replace(/\bđ\s+ịnh\b/g, 'định')
-                     .replace(/\bH\s+ình\b/g, 'Hình')
-                     .replace(/\bM\s+ặt\b/g, 'Mặt')
-                     .replace(/\bđ\s+ường\b/g, 'đường')
-                     .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng');
-
-            res = res.replace(/\bAcupB\b/g, 'A \\cup B')
-                     .replace(/\bAcapB\b/g, 'A \\cap B')
-                     .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
-                     .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+            // Khắc phục lỗi dính chữ và cách chữ đầu câu tiếng Việt
+            textStr = textStr.replace(/\bN\s+ếu\b/g, 'Nếu')
+                             .replace(/\bH\s+ai\b/g, 'Hai')
+                             .replace(/\bC\s+ho\b/g, 'Cho')
+                             .replace(/\bC\s+ả\b/g, 'Cả')
+                             .replace(/\bK\s+hi\b/g, 'Khi')
+                             .replace(/\bC\s+hỉ\b/g, 'Chỉ')
+                             .replace(/\bT\s+ính\b/g, 'Tính')
+                             .replace(/\bT\s+rong\b/g, 'Trong')
+                             .replace(/\bK\s+hẳng\b/g, 'Khẳng')
+                             .replace(/\bđ\s+ịnh\b/g, 'định')
+                             .replace(/\bH\s+ình\b/g, 'Hình')
+                             .replace(/\bM\s+ặt\b/g, 'Mặt')
+                             .replace(/\bđ\s+ường\b/g, 'đường')
+                             .replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/g, 'Hai mặt phẳng')
+                             .replace(/\bAcupB\b/g, 'A \\cup B')
+                             .replace(/\bAcapB\b/g, 'A \\cap B');
 
             // Chuyển đổi lũy thừa e^... và (...)^...
-            res = res.replace(/e\^\(([^)]+)\)/g, 'e^{$1}')
-                     .replace(/e\^\{([^}]+)\}/g, 'e^{$1}')
-                     .replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}')
-                     .replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}')
-                     .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
-                     .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
+            textStr = textStr.replace(/e\^\(([^)]+)\)/g, 'e^{$1}')
+                             .replace(/e\^\{([^}]+)\}/g, 'e^{$1}')
+                             .replace(/e\^([a-zA-Z0-9]+)/g, 'e^{$1}')
+                             .replace(/([a-zA-Z0-9\)])\^\(([^)]+)\)/g, '$1^{$2}')
+                             .replace(/([a-zA-Z0-9\)])\^\{([^}]+)\}/g, '$1^{$2}')
+                             .replace(/([a-zA-Z0-9\)])\^([a-zA-Z0-9]+)/g, '$1^{$2}');
 
-            return res;
+            // 4. Ép buộc bọc khít biểu thức toán học sạch vào cặp dấu phân tách inline chuẩn \(...\)
+            textStr = textStr.trim();
+            if (textStr.startsWith('$') && textStr.endsWith('$') && textStr.length > 2) {
+                textStr = '\\(' + textStr.slice(1, -1).trim() + '\\)';
+            }
+            const hasMath = /[\\[\]{}^_=<>+\-*/]/.test(textStr);
+            const isPureMath = isOption || (!textStr.includes(' ') && hasMath);
+            if (isPureMath) {
+                if (!textStr.startsWith('\\(') && !textStr.endsWith('\\)')) {
+                    textStr = '\\(' + textStr + '\\)';
+                }
+            } else if (hasMath && !textStr.includes('\\(')) {
+                textStr = textStr.replace(/(\\[a-zA-Z]+(?:\{[^}]*\})*|[a-zA-Z0-9_]+\s*=\s*[^,\s]+)/g, (m) => {
+                    if (m.startsWith('\\(') || m.endsWith('\\)')) return m;
+                    return '\\(' + m + '\\)';
+                });
+            }
+
+            return textStr;
         }
 
         // 2. KHO DỮ LIỆU GỐC & CỨU HỘ ĐA CHỦ ĐỀ CHO GAME ĐUA XE F1
@@ -764,8 +787,8 @@
 
             return combined.map(q => ({
                 type: 'ABCD',
-                q: formatF1MathString(q.q),
-                o: (q.options || ['A','B','C','D']).map(opt => formatF1MathString(opt)),
+                q: formatF1MathString(q.q, false),
+                o: (q.options || ['A','B','C','D']).map(opt => formatF1MathString(opt, true)),
                 c: typeof q.correct === 'number' ? q.correct : 0,
                 explanation: q.explanation || ''
             }));
@@ -863,18 +886,20 @@
             const q = state.questions[state.qIdx];
             
             document.getElementById('q-counter').innerText = `Câu hỏi ${state.qIdx + 1}/${state.questions.length}`;
-            document.getElementById('q-text').innerHTML = q.q;
+            const cleanQ = formatF1MathString(q.q, false);
+            document.getElementById('q-text').innerHTML = cleanQ;
             
             const optDiv = document.getElementById('q-options');
             optDiv.innerHTML = '';
 
             const labels = ["A", "B", "C", "D"];
             q.o.forEach((txt, i) => {
+                const cleanOpt = formatF1MathString(txt, true);
                 const btn = document.createElement('button');
-                btn.className = "option-card p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-950/60 flex items-center gap-3 sm:gap-4 text-left w-full hover:bg-slate-800/80";
+                btn.className = "answer-btn option-card p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-950/60 flex items-center gap-3 sm:gap-4 text-left w-full hover:bg-slate-800/80";
                 btn.innerHTML = `
                     <span class="w-8 h-8 min-w-[32px] sm:w-10 sm:h-10 sm:min-w-[40px] rounded-lg sm:rounded-xl bg-yellow-500 text-slate-950 flex items-center justify-center font-black digital-font text-xs sm:text-base">${labels[i]}</span>
-                    <span class="text-xs sm:text-base font-bold text-slate-200 math-content">${txt}</span>
+                    <span class="text-xs sm:text-base font-bold text-slate-200 math-content">${cleanOpt}</span>
                 `;
                 btn.onclick = () => handleAbcd(i);
                 optDiv.appendChild(btn);

@@ -237,9 +237,14 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
 
   // NHÓM 1: Game Đua xe F1 (cấu trúc Đa Chủ Đề & Đa Cấp Độ Tốc Độ)
   if (cleanUrl.includes('game-dua-xe-F1') || cleanUrl.includes('F1')) {
-    const cleanF1Formula = (text: string): string => {
+    const cleanF1Formula = (text: string, isOption = false): string => {
       if (!text || typeof text !== 'string') return text || '';
       let res = text.replace(/[\u000c\x0c]/g, '').trim();
+      res = res.replace(/\\f\\f/g, '').replace(/f\\f/g, '');
+      res = res.replace(/\\+f\\+f/g, '').replace(/f\\+f/g, '');
+      res = res.replace(/\\+f(?=\\+frac|rac|[0-9a-zA-Z\\{])/g, '');
+      res = res.replace(/(?<![a-zA-Z])\\f(?![a-zA-Z])/g, '');
+
       res = res.replace(/\\+rac/g, '\\frac')
                .replace(/\bracf\(/g, '\\frac{f(')
                .replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'))
@@ -248,9 +253,20 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/rac(?=[0-9\\{])/g, '\\frac')
                .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
                .replace(/rac/g, '\\frac');
-      res = res.replace(/cdot/g, '\\cdot')
-               .replace(/(?<!\\)frac/g, '\\frac')
-               .replace(/(?<!\\)cdot/g, '\\cdot');
+
+      res = res.replace(/(?<!\\)frac/g, '\\frac')
+               .replace(/(?<!\\)cdot/g, '\\cdot')
+               .replace(/(?<!\\)leq/g, '\\leq')
+               .replace(/(?<!\\)geq/g, '\\geq')
+               .replace(/(?<!\\)sqrt/g, '\\sqrt')
+               .replace(/(?<!\\)le\b/g, '\\le')
+               .replace(/(?<!\\)ge\b/g, '\\ge')
+               .replace(/(?<!\\)ne\b/g, '\\ne')
+               .replace(/(?<!\\)pm\b/g, '\\pm')
+               .replace(/(?<!\\)infty/g, '\\infty')
+               .replace(/(?<!\\)\bOmega\b/g, '\\Omega')
+               .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
+
       res = res.replace(/\bN\s+?u\b/g, 'Nếu')
                .replace(/\bH\s+ai\b/g, 'Hai')
                .replace(/\bC\s+ho\b/g, 'Cho')
@@ -265,7 +281,15 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/\bM\s+?t\b/g, 'Một')
                .replace(/\bd\s+u?ng\b/g, 'đường')
                .replace(/Hai\s+m\s+?t\s+ph\s+?ng/g, 'Hai mặt phẳng');
-      return normalizeMathFormulas(res);
+
+      res = normalizeMathFormulas(res);
+      if (isOption) {
+        res = res.trim();
+        if (!res.startsWith('\\(') && !res.endsWith('\\)')) {
+          res = '\\(' + res + '\\)';
+        }
+      }
+      return res;
     };
 
     const topicsMap: Record<string, { easy: any[], medium: any[], hard: any[] }> = {};
@@ -276,8 +300,8 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
       }
       const diffKey = q.difficulty === 'Dễ' ? 'easy' : (q.difficulty === 'Khó' ? 'hard' : 'medium');
       topicsMap[topicName][diffKey].push({
-        q: cleanF1Formula(q.question),
-        options: (q.options || ['A', 'B', 'C', 'D']).map(o => cleanF1Formula(o)),
+        q: cleanF1Formula(q.question, false),
+        options: (q.options || ['A', 'B', 'C', 'D']).map(o => cleanF1Formula(o, true)),
         correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
         explanation: q.explanation || '',
         imageUrl: q.imageUrl || ''
