@@ -240,9 +240,9 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
     const cleanF1Formula = (text: string, isOption = false): string => {
       if (!text || typeof text !== 'string') return text || '';
       let res = text.replace(/[\u000c\x0c]/g, '').trim();
-      res = res.replace(/\\f\\f/g, '').replace(/f\\f/g, '');
-      res = res.replace(/\\+f\\+f/g, '').replace(/f\\+f/g, '');
-      res = res.replace(/\\+f(?=\\+frac|rac|[0-9a-zA-Z\\{])/g, '');
+      res = res.replace(/\\f\\f/g, '').replace(/\\f/g, '');
+      res = res.replace(/f\\f/g, '');
+      res = res.replace(/(\\+f|f)+(?=\\?frac)/g, '');
       res = res.replace(/(?<![a-zA-Z])\\f(?![a-zA-Z])/g, '');
 
       res = res.replace(/\\+rac/g, '\\frac')
@@ -253,6 +253,25 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/rac(?=[0-9\\{])/g, '\\frac')
                .replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
                .replace(/rac/g, '\\frac');
+
+      // Tự động chèn khoảng trắng chuẩn giữa biểu thức toán học và chữ tiếng Việt
+      res = res.replace(/\bTìmm\b/g, 'Tìm m')
+               .replace(/Tìmm/g, 'Tìm m')
+               .replace(/Tìm\s*\\\(m\\\)/g, 'Tìm \\(m\\)')
+               .replace(/Tìm\(m\)/g, 'Tìm \\(m\\)')
+               .replace(/\bT\s+ìm\s+m\b/g, 'Tìm m')
+               .replace(/Tìm\s+m\s+để/g, 'Tìm \\(m\\) để');
+
+      // Sửa lỗi dính chữ Hình 1: "0trong đoạn[0; 5]là:"
+      res = res.replace(/(\d+)(trong|đoạn|là)/g, '$1 $2')
+               .replace(/0trong/g, '0 trong')
+               .replace(/trongđoạn/g, 'trong đoạn')
+               .replace(/trong\s*đoạn\s*\[/g, 'trong đoạn [')
+               .replace(/\]là\:/g, '\] là:')
+               .replace(/\]\s*là\s*:/g, '\] là:')
+               .replace(/\]là/g, '\] là')
+               .replace(/(\\\))\s*(trong|đoạn|là)/g, '$1 $2')
+               .replace(/(?<=\\\)|0)(trong|đoạn|là)/g, ' $1');
 
       res = res.replace(/(?<!\\)frac/g, '\\frac')
                .replace(/(?<!\\)cdot/g, '\\cdot')

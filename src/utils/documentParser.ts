@@ -109,6 +109,8 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
   // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f (không xóa \f nếu là lệnh TeX như \frac)
   str = str.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '');
+  str = str.replace(/f\\f/g, '');
+  str = str.replace(/(\\+f|f)+(?=\\?frac)/g, '');
   str = str.replace(/\bracf\(/g, '\\frac{f(');
   str = str.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
   str = str.replace(/^rac\s*\{/g, '\\frac{');
@@ -126,6 +128,12 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/\\+P\s*\(/g, 'P(');
 
   // Sửa lỗi cách chữ đầu câu & dính chữ tiếng Việt với biến toán
+  str = str.replace(/\bTìmm\b/g, 'Tìm m');
+  str = str.replace(/Tìmm/g, 'Tìm m');
+  str = str.replace(/Tìm\s*\\\(m\\\)/g, 'Tìm \\(m\\)');
+  str = str.replace(/Tìm\(m\)/g, 'Tìm \\(m\\)');
+  str = str.replace(/\bT\s+ìm\s+m\b/g, 'Tìm m');
+  str = str.replace(/Tìm\s+m\s+để/g, 'Tìm \\(m\\) để');
   str = str.replace(/\bT\s+ìm\b/gi, 'Tìm');
   str = str.replace(/\bN\s+ếu\b/gi, 'Nếu');
   str = str.replace(/\bH\s+ai\b/gi, 'Hai');
@@ -141,6 +149,22 @@ export function normalizeMathFormulas(text: string): string {
   str = str.replace(/\bV\s+ới\b/gi, 'Với');
   str = str.replace(/\bĐ\s+ạo\b/gi, 'Đạo');
   str = str.replace(/\bH\s+àm\b/gi, 'Hàm');
+
+  // Sửa lỗi dính chữ Hình 1: "0trong đoạn[0; 5]là:"
+  str = str.replace(/(\d+)(trong|đoạn|là)/g, '$1 $2');
+  str = str.replace(/0trong/g, '0 trong');
+  str = str.replace(/trongđoạn/g, 'trong đoạn');
+  str = str.replace(/trong\s*đoạn\s*\[/g, 'trong đoạn [');
+  str = str.replace(/\]là\:/g, '\] là:');
+  str = str.replace(/\]\s*là\s*:/g, '\] là:');
+  str = str.replace(/\]là/g, '\] là');
+  str = str.replace(/(\\\))\s*(trong|đoạn|là)/g, '$1 $2');
+  str = str.replace(/(?<=\\\)|0)(trong|đoạn|là)/g, ' $1');
+
+  // Ngăn cách ngoặc với chữ tiếng Việt
+  str = str.replace(/([a-zA-Z0-9à-ỹ])\\+\(/g, '$1 \\(');
+  str = str.replace(/\\+\)([a-zA-Z0-9à-ỹ])/g, '\\) $1');
+
   str = str.replace(/([a-zàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ])([A-Z])(?=[^a-zà-ỹ]|\s|$)/g, '$1 $2');
   str = str.replace(/(^|\s|\()([A-Z])(và|hoặc|độc|không|xảy|khi|thì|cùng|với|giao|hợp|đồng)\b/g, '$1$2 $3');
 
