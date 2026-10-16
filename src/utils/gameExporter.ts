@@ -138,112 +138,112 @@ export const GAME_TEMPLATES: GameTemplateOption[] = [
   {
     id: 'f1',
     name: '🏎️ Đua Xe F1 Tốc Độ',
-    file: '/game-dua-xe-F1-on-tap-HK2-toan10.html',
+    file: '/templates/game-dua-xe-f1.html',
     category: 'Vận tốc & Phản xạ',
     description: 'Đua xe giải toán tốc độ cao, hỗ trợ cả câu 4 lựa chọn và Đúng/Sai'
   },
   {
     id: 'sut_pen',
     name: '⚽ Sút Penalty Kịch Tính',
-    file: '/sut-pen-gia-tri-luong-giac-cua-goc-tu-0-den-180.html',
+    file: '/templates/game-sut-penalty.html',
     category: 'Đấu trường Thể thao',
     description: '3 vòng đấu Vòng Bảng, Bán Kết, Chung Kết với thủ môn AI phản xạ'
   },
   {
     id: 'chien_hao',
     name: '🛡️ Bảo Vệ Chiến Hào',
-    file: '/Game-Bao-ve-chien-hao-gia-tri-luong-giac-tu-0-den-180.html',
+    file: '/templates/game-bao-ve-chien-hao.html',
     category: 'Bắn súng Chiến thuật',
     description: 'Phòng thủ chiến hào ngăn chặn đợt tấn công của quân địch'
   },
   {
     id: 'trieu_phu_ontap',
     name: '💰 Ai Là Triệu Phú (Ôn Tập)',
-    file: '/Ai-la-trieu-phu-on-tap.html',
+    file: '/templates/Ai-la-trieu-phu-on-tap.html',
     category: 'Gameshow Trí tuệ',
     description: 'Leo thang tiền thưởng 15 câu hỏi với 3 quyền trợ giúp kinh điển'
   },
   {
     id: 'trieu_phu_menhde',
     name: '💰 Ai Là Triệu Phú (Mệnh Đề)',
-    file: '/ai_la_trieu_phu_menh_de.html',
+    file: '/templates/ai_la_trieu_phu_menh_de.html',
     category: 'Gameshow Trí tuệ',
     description: 'Chinh phục 15 câu hỏi toán học kịch tính'
   },
   {
     id: 'ban_chim',
     name: '🎯 Bắn Chim Mục Tiêu',
-    file: '/ban-chim-xac-suat10.html',
+    file: '/templates/ban-chim-xac-suat10.html',
     category: 'Bắn mục tiêu',
     description: 'Ngắm bắn chính xác các mục tiêu chứa đáp án đúng trên bầu trời'
   },
   {
     id: 'ca_ngua',
     name: '🎲 Cờ Cá Ngựa Toán Học',
-    file: '/ca-ngua-dao-ham11.html',
+    file: '/templates/game-co-ca-ngua.html',
     category: 'Board Game',
     description: 'Gieo xúc xắc, trả lời câu hỏi để đưa các chú ngựa về đích'
   },
   {
     id: 'cau_ca',
     name: '🎣 Câu Cá Mũ & Logarit',
-    file: '/cau-ca-mu-loga11.html',
+    file: '/templates/cau-ca-mu-loga11.html',
     category: 'Thư giãn & Phản xạ',
     description: 'Thả câu bắt những chú cá mang đáp án chính xác dưới đại dương'
   },
   {
     id: 'dao_ham_cap2',
     name: '⚡ Đạo Hàm Cấp 2 Đại Chiến',
-    file: '/dao-ham-cap2-toan11.html',
+    file: '/templates/dao-ham-cap2-toan11.html',
     category: 'Đối kháng',
     description: 'Vượt qua các câu hỏi đạo hàm cấp 2 chinh phục đỉnh cao'
   },
   {
     id: 'mario',
     name: '🍄 Mario Phiêu Lưu Ký',
-    file: '/Gamemario_bien-co-giao-bien-co-doc-lap.html',
+    file: '/templates/Gamemario_bien-co-giao-bien-co-doc-lap.html',
     category: 'Phiêu lưu vượt ải',
     description: 'Vượt chướng ngại vật giải bài toán để giải cứu công chúa'
   },
   {
     id: 'tetris',
     name: '🧱 Tetris Xếp Gạch Không Gian',
-    file: '/Gametetris_Hai-mat-phang-vuong-goc.html',
+    file: '/templates/game-xep-gach.html',
     category: 'Xếp hình Kinh điển',
     description: 'Xếp các khối hình Tetris kết hợp thử thách hình học không gian'
   },
   {
     id: 'ghep_cap_ctlg',
     name: '🧩 Ghép Cặp Công Thức Lượng Giác',
-    file: '/ghep-cap-luong-giac.html',
+    file: '/templates/ghep-cap-luong-giac.html',
     category: 'Trí nhớ Thẻ bài',
     description: 'Lật thẻ và tìm các cặp công thức toán học tương đương'
   },
   {
     id: 'ghep_cap_ptlg',
     name: '🧩 Ghép Cặp Phương Trình Lượng Giác',
-    file: '/ghep-cap-phuong-trinh-luong-giac.html',
+    file: '/templates/ghep-cap-phuong-trinh-luong-giac.html',
     category: 'Trí nhớ Thẻ bài',
     description: 'Ghép cặp phương trình lượng giác và nghiệm tương ứng'
   },
   {
     id: 'ghep_cap_trai_tim',
     name: '💖 Ghép Cặp Trái Tim Đạo Hàm',
-    file: '/ghep-cap-trai-tim-dao-ham11.html',
+    file: '/templates/ghep-cap-trai-tim-dao-ham11.html',
     category: 'Trí nhớ Thẻ bài',
     description: 'Ghép nối các nửa trái tim công thức đạo hàm chuẩn xác'
   },
   {
     id: 'hai_tao',
     name: '🍎 Hái Táo Luân Phiên',
-    file: '/hai-tao-luan-phien.html',
+    file: '/templates/game-hai-tao.html',
     category: 'Thu hoạch Phản xạ',
     description: 'Hái những quả táo vàng mang câu trả lời đúng vào giỏ'
   },
   {
     id: 'keo_co',
     name: '🤼 Kéo Co Đối Kháng',
-    file: '/keo-co-hai.html',
+    file: '/templates/keo-co-hai.html',
     category: 'Đấu trường 2 Người',
     description: 'Thi đấu đối kháng 2 đội kéo co sôi động trong lớp học'
   },
@@ -313,15 +313,59 @@ export interface ExportGameOptions {
 export async function exportStandaloneGameHTML(options: ExportGameOptions): Promise<string> {
   const { templateUrl, gameTitle, teacherName = 'LỚP TOÁN THẦY HÙNG', questions, customCategories, customDragDropRows } = options;
 
-  // 1. Fetch file HTML gốc
+  // 1. Fetch file HTML gốc từ public/templates/ hoặc public/
   let cleanUrl = templateUrl;
   if (cleanUrl.includes('?')) cleanUrl = cleanUrl.split('?')[0];
 
-  const response = await fetch(cleanUrl);
-  if (!response.ok) {
-    throw new Error(`Không thể tải template game gốc từ: ${cleanUrl} (Mã lỗi HTTP ${response.status})`);
+  const possibleUrls = [
+    cleanUrl.startsWith('/templates/') ? cleanUrl : `/templates/${cleanUrl.replace(/^\//, '')}`,
+    cleanUrl,
+    cleanUrl.replace(/^\/templates\//, '/'),
+    cleanUrl.startsWith('/') ? cleanUrl : `/${cleanUrl}`
+  ];
+
+  // Ánh xạ template paths chuẩn
+  const templateMap: Record<string, string[]> = {
+    'f1': ['/templates/game-dua-xe-f1.html', '/game-dua-xe-f1.html', '/templates/game-dua-xe-F1-on-tap-HK2-toan10.html', '/game-dua-xe-F1-on-tap-HK2-toan10.html'],
+    'chien-hao': ['/templates/game-bao-ve-chien-hao.html', '/game-bao-ve-chien-hao.html', '/templates/Game-Bao-ve-chien-hao-gia-tri-luong-giac-tu-0-den-180.html', '/Game-Bao-ve-chien-hao-gia-tri-luong-giac-tu-0-den-180.html'],
+    'sut-pen': ['/templates/game-sut-penalty.html', '/game-sut-penalty.html', '/templates/sut-pen-gia-tri-luong-giac-cua-goc-tu-0-den-180.html', '/sut-pen-gia-tri-luong-giac-cua-goc-tu-0-den-180.html'],
+    'ca-ngua': ['/templates/game-co-ca-ngua.html', '/game-co-ca-ngua.html', '/templates/ca-ngua-dao-ham11.html', '/ca-ngua-dao-ham11.html'],
+    'tetris': ['/templates/game-xep-gach.html', '/game-xep-gach.html', '/templates/Gametetris_Hai-mat-phang-vuong-goc.html', '/Gametetris_Hai-mat-phang-vuong-goc.html'],
+    'hai-tao': ['/templates/game-hai-tao.html', '/game-hai-tao.html', '/templates/hai-tao-luan-phien.html', '/hai-tao-luan-phien.html']
+  };
+
+  const lowerUrl = cleanUrl.toLowerCase();
+  for (const [key, paths] of Object.entries(templateMap)) {
+    if (lowerUrl.includes(key)) {
+      possibleUrls.unshift(...paths);
+      break;
+    }
   }
-  let htmlContent = await response.text();
+
+  let htmlContent = '';
+  const triedUrls = Array.from(new Set(possibleUrls));
+
+  for (const url of triedUrls) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        const text = await response.text();
+        // Kiểm tra xem phản hồi có phải là file game HTML thực sự hay bị SPA trả về index.html
+        if (text && !text.includes('<div id="root"></div>') && (text.includes('<!DOCTYPE html>') || text.includes('<html'))) {
+          htmlContent = text;
+          break;
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (!htmlContent) {
+    const response = await fetch(cleanUrl);
+    if (!response.ok) {
+      throw new Error(`Không thể tải template game gốc từ: ${cleanUrl} (Mã lỗi HTTP ${response.status})`);
+    }
+    htmlContent = await response.text();
+  }
 
   // 2. WHITE-LABEL TOÀN DIỆN (Thương hiệu chuẩn: TOÁN PRO | LỚP TOÁN THẦY HÙNG | Ký hiệu MH, xóa bỏ triệt để Hưng Yên / HY / Cương Chính trên mọi game)
   const brandOrg = teacherName || 'LỚP TOÁN THẦY HÙNG';
@@ -363,9 +407,12 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
   standardizedData.sort((a, b) => a.difficulty - b.difficulty);
 
   // 4. DATA ADAPTER ENGINE: ÁP DỤNG ADAPTER TƯƠNG ỨNG THEO TỪNG GAME
+  const isChienHao = cleanUrl.includes('chien-hao') || cleanUrl.includes('Bao-ve-chien-hao') || cleanUrl.includes('chien_hao');
+  const isSutPen = cleanUrl.includes('sut-pen') || cleanUrl.includes('penalty') || cleanUrl.includes('sut_pen');
+  const isF1 = (cleanUrl.includes('game-dua-xe-F1') || cleanUrl.includes('game-dua-xe-f1') || cleanUrl.includes('/f1') || cleanUrl.includes('_f1') || cleanUrl.endsWith('f1.html')) && !isChienHao && !isSutPen;
 
-  // NHÓM 1: Game Đua xe F1 (cấu trúc Đa Chủ Đề & Đa Cấp Độ Tốc Độ)
-  if (cleanUrl.includes('game-dua-xe-F1') || cleanUrl.includes('F1')) {
+  // NHÓM 1: Game Đua xe F1 (cấu trúc Đa Chủ Đề & Đa Cấp Độ Tốc Độ - Chỉ chạy khi đúng là F1)
+  if (isF1) {
     const cleanF1Formula = (text: string, isOption = false): string => {
       if (!text || typeof text !== 'string') return text || '';
       let res = text.replace(/\x0C/g, '');
@@ -562,7 +609,17 @@ window.gameDatabase = ${JSON.stringify(daoVangDatabase, null, 2)};
   }
 
   // NHÓM 2: Game Bảo Vệ Chiến Hào (sinh đề tự động - cấu trúc Đa Chủ Đề, Dữ liệu Tĩnh & Random Bốc 5 câu)
-  else if (cleanUrl.includes('chien-hao') || cleanUrl.includes('Bao-ve-chien-hao')) {
+  else if (isChienHao || cleanUrl.includes('chien-hao') || cleanUrl.includes('Bao-ve-chien-hao')) {
+    // GỠ BỎ HOÀN TOÀN MỌI DÒNG CODE CHÈN NHẦM CỤM GIAO DIỆN .f1-championship-ui, START RACE HOẶC XE ĐUA F1
+    htmlContent = htmlContent
+      .replace(/<div[^>]*class=["'][^"']*f1-championship-ui[^"']*["'][\s\S]*?<\/div>/gi, '')
+      .replace(/<div[^>]*id=["']f1-[^"']*["'][\s\S]*?<\/div>/gi, '')
+      .replace(/\.f1-championship-ui[^{]*\{[^}]*\}/gi, '')
+      .replace(/<button[^>]*class=["'][^"']*f1-[^"']*["'][\s\S]*?<\/button>/gi, '')
+      .replace(/<button[^>]*>[^<]*START RACE[^<]*<\/button>/gi, '')
+      .replace(/START RACE/g, 'VÀO TRẬN ĐỊA')
+      .replace(/xe đua F1/gi, 'Bảo Vệ Chiến Hào');
+
     let activeQuestions = [...questions];
     if (activeQuestions.length === 0) {
       try {
@@ -1346,7 +1403,17 @@ window.useStaticTopic = true;
   }
 
   // NHÓM 3: Game Sút Penalty (phân chia 3 vòng đấu: Vòng Bảng, Bán Kết, Chung Kết & Data Fallback)
-  else if (cleanUrl.includes('sut-pen') || cleanUrl.includes('penalty')) {
+  else if (isSutPen || cleanUrl.includes('sut-pen') || cleanUrl.includes('penalty')) {
+    // GỠ BỎ HOÀN TOÀN MỌI DÒNG CODE CHÈN NHẦM CỤM GIAO DIỆN .f1-championship-ui, START RACE HOẶC XE ĐUA F1
+    htmlContent = htmlContent
+      .replace(/<div[^>]*class=["'][^"']*f1-championship-ui[^"']*["'][\s\S]*?<\/div>/gi, '')
+      .replace(/<div[^>]*id=["']f1-[^"']*["'][\s\S]*?<\/div>/gi, '')
+      .replace(/\.f1-championship-ui[^{]*\{[^}]*\}/gi, '')
+      .replace(/<button[^>]*class=["'][^"']*f1-[^"']*["'][\s\S]*?<\/button>/gi, '')
+      .replace(/<button[^>]*>[^<]*START RACE[^<]*<\/button>/gi, '')
+      .replace(/START RACE/g, 'BẮT ĐẦU SÚT PEN')
+      .replace(/xe đua F1/gi, 'Sút Penalty');
+
     let activeQuestions = [...questions];
     if (activeQuestions.length === 0) {
       try {

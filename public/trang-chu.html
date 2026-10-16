@@ -726,15 +726,65 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             }
         }
 
+        function switchActiveGameTemplate(newGameId, gameType) {
+            console.log("Đang giải phóng bộ nhớ game cũ, chuyển sang game mới ID:", newGameId);
+            
+            // 1. Khai tử hoàn toàn Canvas cũ và các vòng lặp requestAnimationFrame còn sót lại của xe F1
+            if (window.gameLoopInterval) clearInterval(window.gameLoopInterval);
+            if (window.cancelAnimationFrame && window.myReqAnimationId) {
+                window.cancelAnimationFrame(window.myReqAnimationId);
+            }
+            try {
+                const iframe = document.getElementById('tool-iframe');
+                if (iframe && iframe.contentWindow) {
+                    if (iframe.contentWindow.gameLoopInterval) clearInterval(iframe.contentWindow.gameLoopInterval);
+                    if (iframe.contentWindow.myReqAnimationId && iframe.contentWindow.cancelAnimationFrame) {
+                        iframe.contentWindow.cancelAnimationFrame(iframe.contentWindow.myReqAnimationId);
+                    }
+                }
+            } catch(e) {}
+            
+            // 2. Làm sạch bộ nhớ đệm tạm thời để tránh dính đè dữ liệu kho đề giữa các môn
+            localStorage.removeItem('current_active_runtime_game');
+            
+            // 3. ĐỒNG BỘ NẠP ĐÚNG FILE ASSET: Ép buộc hệ thống phải đọc chính xác template HTML tương ứng với gameType
+            // Tuyệt đối không được gán cứng đường dẫn trỏ về file F1 Racing
+            const templatePaths = {
+                'f1': 'game-dua-xe-f1.html',
+                'chien-hao': 'game-bao-ve-chien-hao.html',
+                'sut-pen': 'game-sut-penalty.html',
+                'ca-ngua': 'game-co-ca-ngua.html',
+                'tetris': 'game-xep-gach.html',
+                'hai-tao': 'game-hai-tao.html'
+            };
+            
+            const targetTemplate = templatePaths[gameType] || 'index.html';
+            return targetTemplate;
+        }
+        window.switchActiveGameTemplate = switchActiveGameTemplate;
+
         function openTool(path, title) {
+            let detectedType = 'f1';
+            if (path.includes('chien-hao') || path.includes('bao-ve-chien-hao')) detectedType = 'chien-hao';
+            else if (path.includes('penalty') || path.includes('sut-pen')) detectedType = 'sut-pen';
+            else if (path.includes('ca-ngua')) detectedType = 'ca-ngua';
+            else if (path.includes('tetris') || path.includes('xep-gach')) detectedType = 'tetris';
+            else if (path.includes('hai-tao')) detectedType = 'hai-tao';
+
+            switchActiveGameTemplate(path, detectedType);
+
             const container = document.getElementById('iframe-container');
             container.classList.remove('hidden');
             container.classList.add('flex');
             
             document.getElementById('iframe-title').innerText = title;
-            document.getElementById('tool-iframe').classList.add('hidden');
+            const iframe = document.getElementById('tool-iframe');
+            iframe.classList.add('hidden');
             document.getElementById('iframe-loading').classList.remove('hidden');
-            document.getElementById('tool-iframe').src = path;
+            iframe.src = 'about:blank';
+            setTimeout(() => {
+                iframe.src = path;
+            }, 50);
 
             // BẮT BUỘC FULL SCREEN KHI CLICK NÚT MỞ
             if (container.requestFullscreen) {
@@ -747,9 +797,11 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         }
 
         function closeTool() {
+            switchActiveGameTemplate('cleanup', 'idle');
             document.getElementById('iframe-container').classList.add('hidden');
             document.getElementById('iframe-container').classList.remove('flex');
-            document.getElementById('tool-iframe').src = '';
+            const iframe = document.getElementById('tool-iframe');
+            if (iframe) iframe.src = 'about:blank';
             
             // Thoát full screen khi bấm đóng iframe
             if (document.fullscreenElement || document.webkitFullscreenElement) {

@@ -9,6 +9,7 @@ import { BackupTab } from './BackupTab';
 import { DashboardTab } from './DashboardTab';
 import { ToolsTab } from './ToolsTab';
 import { WorksheetsTab } from './WorksheetsTab';
+import { GameDashboard } from './GameDashboard';
 import { soundFx } from '../../utils/sound';
 import {
   Settings,
@@ -24,7 +25,8 @@ import {
   ShieldCheck,
   Check,
   X,
-  FileText
+  FileText,
+  Gamepad2
 } from 'lucide-react';
 
 interface AdminStudioProps {
@@ -39,7 +41,7 @@ interface AdminStudioProps {
   onExitAdmin: () => void;
 }
 
-type AdminTab = 'dashboard' | 'config' | 'questions' | 'materials' | 'ai' | 'history' | 'backup' | 'tools' | 'worksheets';
+type AdminTab = 'dashboard' | 'config' | 'questions' | 'materials' | 'ai' | 'history' | 'backup' | 'tools' | 'worksheets' | 'gamedashboard';
 
 export const AdminStudio: React.FC<AdminStudioProps> = ({
   config,
@@ -257,6 +259,18 @@ export const AdminStudio: React.FC<AdminStudioProps> = ({
         </button>
 
         <button
+          onClick={() => setActiveTab('gamedashboard')}
+          className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition flex items-center gap-2 shrink-0 ${
+            activeTab === 'gamedashboard'
+              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-200'
+              : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200'
+          }`}
+        >
+          <Gamepad2 className="w-4 h-4 text-emerald-500" />
+          <span>🎮 Game Dashboard Studio</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('tools')}
           className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition flex items-center gap-2 shrink-0 ${
             activeTab === 'tools'
@@ -307,6 +321,10 @@ export const AdminStudio: React.FC<AdminStudioProps> = ({
 
       {/* Active Tab Panel */}
       <main className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm min-h-[500px]">
+        {activeTab === 'gamedashboard' && (
+          <GameDashboard />
+        )}
+
         {activeTab === 'dashboard' && (
           <DashboardTab questions={questions} history={history} />
         )}

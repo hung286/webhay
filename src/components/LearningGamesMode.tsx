@@ -19,6 +19,19 @@ import {
   Dice5
 } from 'lucide-react';
 
+import { switchActiveGameTemplate } from './admin/GameDashboard';
+
+function detectGameType(tool: TeachingTool): string {
+  const text = `${tool.id} ${tool.name} ${tool.url}`.toLowerCase();
+  if (text.includes('chien-hao') || text.includes('chien_hao') || text.includes('chiến hào')) return 'chien-hao';
+  if (text.includes('sut-pen') || text.includes('sut_pen') || text.includes('penalty') || text.includes('sút pen')) return 'sut-pen';
+  if (text.includes('ca-ngua') || text.includes('ca_ngua') || text.includes('cá ngựa')) return 'ca-ngua';
+  if (text.includes('tetris') || text.includes('xep-gach') || text.includes('xếp gạch')) return 'tetris';
+  if (text.includes('hai-tao') || text.includes('hai_tao') || text.includes('hái táo')) return 'hai-tao';
+  if (text.includes('f1') || text.includes('dua-xe') || text.includes('đua xe')) return 'f1';
+  return 'other';
+}
+
 interface LearningGamesModeProps {
   student?: StudentProfile;
 }
@@ -26,6 +39,7 @@ interface LearningGamesModeProps {
 export const LearningGamesMode: React.FC<LearningGamesModeProps> = ({ student }) => {
   const [games, setGames] = useState<TeachingTool[]>([]);
   const [activeGame, setActiveGame] = useState<TeachingTool | null>(null);
+  const [activeNonce, setActiveNonce] = useState<number>(Date.now());
   const [searchQuery, setSearchQuery] = useState('');
   const [gradeFilter, setGradeFilter] = useState<'all' | '10' | '11' | '12'>('all');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -64,12 +78,18 @@ export const LearningGamesMode: React.FC<LearningGamesModeProps> = ({ student })
     }
   };
 
+  const handleExitGame = () => {
+    soundFx.playClick();
+    switchActiveGameTemplate('none', 'none');
+    setActiveGame(null);
+  };
+
   useEffect(() => {
     const handleMsg = (e: MessageEvent) => {
       if (e.data && e.data.type === 'TOGGLE_FULLSCREEN') {
         toggleFullscreen();
       } else if (e.data && e.data.type === 'EXIT_GAME') {
-        setActiveGame(null);
+        handleExitGame();
       }
     };
     window.addEventListener('message', handleMsg);
@@ -78,6 +98,11 @@ export const LearningGamesMode: React.FC<LearningGamesModeProps> = ({ student })
 
   const handlePlayGame = (game: TeachingTool) => {
     soundFx.playClick();
+    // TIÊM BỘ DỌN DẸP MÔI TRƯỜNG VÀ GIẢI PHÓNG CANVAS / F1 CŨ TRƯỚC KHI NẠP GAME MỚI
+    const gType = detectGameType(game);
+    switchActiveGameTemplate(game.id, gType);
+    setActiveNonce(Date.now());
+
     if (game.type === 'url') {
       window.open(game.url, '_blank');
     } else {
@@ -104,10 +129,7 @@ export const LearningGamesMode: React.FC<LearningGamesModeProps> = ({ student })
         <div className="flex justify-between items-center px-3 h-[35px] max-h-[35px] bg-slate-900 border-b border-slate-800 shadow-xl relative z-20 shrink-0">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                setActiveGame(null);
-                soundFx.playClick();
-              }}
+              onClick={handleExitGame}
               className="h-6 px-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg transition font-bold border border-rose-500/30 flex items-center gap-1.5 text-[0.75rem] sm:text-[0.8rem]"
             >
               ✕ <span className="hidden sm:inline">Rời khỏi trò chơi</span>
@@ -138,6 +160,7 @@ export const LearningGamesMode: React.FC<LearningGamesModeProps> = ({ student })
             const src = getToolEmbedUrl(activeGame);
             return (
               <iframe
+                key={`isolated_game_${activeGame.id}_${activeNonce}`}
                 src={src}
                 width="100%"
                 height="100%"

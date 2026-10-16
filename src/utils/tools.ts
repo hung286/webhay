@@ -3,26 +3,67 @@ import { TeachingTool } from '../types';
 export const getToolEmbedUrl = (tool: TeachingTool): string => {
   let finalUrl = tool.url;
 
-  if (tool.id === 'tool_khao_sat_ham_so_12' || tool.name.includes('Khảo sát hàm số') || tool.name.includes('Kho sAt')) {
+  // --- BỘ ĐỊNH TUYẾN TRÒ CHƠI TOÁN HỌC CÔ LẬP (ROUTER FIX CHỐNG ĐÈ F1) ---
+  const lowerName = tool.name.toLowerCase();
+  const lowerId = tool.id.toLowerCase();
+  const lowerUrl = (tool.url || '').toLowerCase();
+
+  // 1. Bảo Vệ Chiến Hào (Tuyệt đối không để dính F1)
+  if (lowerId.includes('chien_hao') || lowerId.includes('chien-hao') || lowerName.includes('chiến hào') || lowerName.includes('chien hao')) {
+    finalUrl = '/game-bao-ve-chien-hao.html';
+  }
+  // 2. Sút Penalty (Tuyệt đối không để dính F1)
+  else if (lowerId.includes('sut_pen') || lowerId.includes('sut-pen') || lowerId.includes('penalty') || lowerName.includes('sút pen') || lowerName.includes('sut pen') || lowerName.includes('penalty')) {
+    finalUrl = '/game-sut-penalty.html';
+  }
+  // 3. Đua Xe F1
+  else if (lowerId.includes('dua_xe_f1') || lowerId.includes('dua-xe-f1') || lowerId.includes('f1') || lowerName.includes('đua xe f1') || lowerName.includes('f1')) {
+    finalUrl = '/game-dua-xe-f1.html';
+  }
+  // 4. Cờ Cá Ngựa
+  else if (lowerId.includes('ca_ngua') || lowerId.includes('ca-ngua') || lowerName.includes('cá ngựa') || lowerName.includes('ca ngua')) {
+    finalUrl = '/game-co-ca-ngua.html';
+  }
+  // 5. Tetris Xếp Gạch
+  else if (lowerId.includes('tetris') || lowerId.includes('xep_gach') || lowerId.includes('xep-gach') || lowerName.includes('tetris') || lowerName.includes('xếp gạch')) {
+    finalUrl = '/game-xep-gach.html';
+  }
+  // 6. Hái Táo Luân Phiên
+  else if (lowerId.includes('hai_tao') || lowerId.includes('hai-tao') || lowerName.includes('hái táo') || lowerName.includes('hai tao')) {
+    finalUrl = '/game-hai-tao.html';
+  }
+  // 7. Vua Phá Băng
+  else if (lowerId.includes('pha_bang') || lowerId.includes('ice_breaker') || lowerName.includes('phá băng') || lowerName.includes('ice breaker')) {
+    finalUrl = '/vua-pha-bang-ice-breaker.html';
+  }
+  // 8. Đào Vàng Tri Thức
+  else if (lowerId.includes('dao_vang') || lowerName.includes('đào vàng') || lowerName.includes('gold miner')) {
+    finalUrl = '/dao-vang-tri-thuc.html';
+  }
+  // 9. Bắn Chim Xác Suất
+  else if (lowerId.includes('ban_chim') || lowerName.includes('bắn chim')) {
+    finalUrl = '/ban-chim-xac-suat10.html';
+  }
+  // 10. Các công cụ thao tác học tập
+  else if (tool.id === 'tool_khao_sat_ham_so_12' || lowerName.includes('khảo sát hàm số') || lowerName.includes('kho sat')) {
     finalUrl = '/khao_sat_ham_so_12.html';
   }
-  if (tool.name.toLowerCase().includes('sơ đồ cây') || tool.name.toLowerCase().includes('sơ đ cAy') || tool.name.toLowerCase().includes('so do cay')) {
+  else if (lowerName.includes('sơ đồ cây') || lowerName.includes('so do cay')) {
     finalUrl = '/so_do_cay_xac_suat.html';
   }
-  let lowerName = tool.name.toLowerCase();
-  if (lowerName.includes('thống kê') || lowerName.includes('thong ke')) {
+  else if (lowerName.includes('thống kê') || lowerName.includes('thong ke')) {
     finalUrl = '/tro_ly_thong_ke_101112.html';
   }
-  if (lowerName.includes('đường tròn') || lowerName.includes('duong tron')) {
+  else if (lowerName.includes('đường tròn') || lowerName.includes('duong tron')) {
     finalUrl = '/phuong_trinh_duong_tron.html';
   }
-  if (lowerName.includes('thể tích') || lowerName.includes('the tich')) {
+  else if (lowerName.includes('thể tích') || lowerName.includes('the tich')) {
     finalUrl = '/tinh_the_tich.html';
   }
-  if (lowerName.includes('diện tích') || lowerName.includes('dien tich') || lowerName.includes('tam giác') || lowerName.includes('tam giac')) {
+  else if (lowerName.includes('diện tích') || lowerName.includes('dien tich') || lowerName.includes('tam giác') || lowerName.includes('tam giac')) {
     finalUrl = '/dien_tich_tam_giac.html';
   }
-  if (lowerName.includes('tiết kiệm') || lowerName.includes('tiet kiem') || lowerName.includes('trả góp') || lowerName.includes('tra gop') || lowerName.includes('lãi')) {
+  else if (lowerName.includes('tiết kiệm') || lowerName.includes('tiet kiem') || lowerName.includes('trả góp') || lowerName.includes('tra gop') || lowerName.includes('lãi')) {
     finalUrl = '/lai_don_lai_kep.html';
   }
 

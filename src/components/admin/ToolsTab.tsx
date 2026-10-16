@@ -8,6 +8,7 @@ import {
   CheckCircle, Eye, Search, Sparkles, Download, ArrowRight, Zap 
 } from 'lucide-react';
 import { soundFx } from '../../utils/sound';
+import { switchActiveGameTemplate } from './GameDashboard';
 
 export interface PairItem {
   id: number;
@@ -68,6 +69,27 @@ export const ToolsTab: React.FC = () => {
     setTools(getTeachingTools());
   }, []);
 
+  const handleOpenPreview = (tool: TeachingTool) => {
+    soundFx.playClick();
+    const text = `${tool.id} ${tool.name} ${tool.url}`.toLowerCase();
+    let gType = 'other';
+    if (text.includes('chien-hao') || text.includes('chiến hào')) gType = 'chien-hao';
+    else if (text.includes('sut-pen') || text.includes('penalty') || text.includes('sút pen')) gType = 'sut-pen';
+    else if (text.includes('ca-ngua') || text.includes('cá ngựa')) gType = 'ca-ngua';
+    else if (text.includes('tetris') || text.includes('xếp gạch')) gType = 'tetris';
+    else if (text.includes('hai-tao') || text.includes('hái táo')) gType = 'hai-tao';
+    else if (text.includes('f1') || text.includes('đua xe')) gType = 'f1';
+
+    switchActiveGameTemplate(tool.id, gType);
+    setPreviewTool(tool);
+  };
+
+  const handleClosePreview = () => {
+    soundFx.playClick();
+    switchActiveGameTemplate('none', 'none');
+    setPreviewTool(null);
+  };
+
   // Mở Studio Tạo Game 1 Nút Bấm
   const handleOpenOneClickStudio = (preferredTool?: TeachingTool) => {
     soundFx.playClick();
@@ -80,7 +102,7 @@ export const ToolsTab: React.FC = () => {
       name: 'Đua xe F1 - Chủ đề mới',
       type: 'iframe' as ToolType,
       category: 'tro-choi' as ToolCategory,
-      url: '/game-dua-xe-F1-on-tap-HK2-toan10.html',
+      url: '/game-dua-xe-f1.html',
       description: 'Trò chơi học tập tùy chỉnh câu hỏi',
       isActive: true,
       createdAt: new Date().toISOString(),
@@ -645,10 +667,7 @@ export const ToolsTab: React.FC = () => {
             <div className="flex justify-between items-center pt-3 border-t border-slate-100 flex-wrap gap-2">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <button
-                  onClick={() => {
-                    setPreviewTool(tool);
-                    soundFx.playClick();
-                  }}
+                  onClick={() => handleOpenPreview(tool)}
                   className="text-xs font-bold text-violet-600 hover:text-violet-800 flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />
@@ -726,7 +745,7 @@ export const ToolsTab: React.FC = () => {
               </span>
             </div>
             <button 
-              onClick={() => { setPreviewTool(null); soundFx.playClick(); }} 
+              onClick={handleClosePreview} 
               className="px-4 py-2 bg-rose-600 text-white rounded-xl font-bold text-sm hover:bg-rose-700 transition cursor-pointer"
             >
               ✕ Đóng xem thử
@@ -741,6 +760,7 @@ export const ToolsTab: React.FC = () => {
               }
               return (
                 <iframe 
+                  key={`preview_tool_${previewTool.id}`}
                   src={url} 
                   className="absolute inset-0 w-full h-full border-0" 
                   allowFullScreen
