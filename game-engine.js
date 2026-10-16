@@ -4,6 +4,65 @@
 // và chuyển đổi dữ liệu câu hỏi phù hợp mà không cần sửa mã nguồn gốc của game.
 
 (function() {
+  // ========================================================
+  // BỘ LỌC CHUỖI TOÀN CỤC (GLOBAL PICMATH SANITIZER)
+  // ========================================================
+  window.formatPicMathGlobal = function(rawInput, isCanvas = false) {
+    if (!rawInput || typeof rawInput !== 'string') return rawInput || '';
+    let text = rawInput.trim();
+
+    // 1. Khử ký tự rác form-feed \f và phục hồi \frac
+    text = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '');
+    text = text.replace(/\\?f?rac\{/g, '\\frac{');
+    text = text.replace(/\brac\{/g, '\\frac{');
+
+    // 2. Chuyển đổi toàn bộ \( ... \), \[ ... \] hoặc $ đơn về chuẩn $$ ... $$
+    text = text.replace(/\\\(|\\\[/g, () => '$$');
+    text = text.replace(/\\\)|\\\]/g, () => '$$');
+    text = text.replace(/(?<!\$)\$(?!\$)(.*?)(?<!\$)\$(?!\$)/g, (m, g1) => '$$' + g1 + '$$');
+
+    // 3. Vá lỗi dính chữ cdot, ký hiệu độ \do, căn thức và phân số mũ
+    text = text.replace(/(\d*)\s*cdot\s*(\d*)/g, '$1 \\cdot $2');
+    text = text.replace(/(?<!\\)cdot/g, '\\cdot');
+    text = text.replace(/(?<!\\)Omega/g, '\\Omega');
+    text = text.replace(/(?<!\\)emptyset/g, '\\emptyset');
+    text = text.replace(/(?<!\\)cup/g, '\\cup');
+    text = text.replace(/(?<!\\)cap/g, '\\cap');
+    text = text.replace(/\\do\b/g, isCanvas ? '°' : '^{\\circ}');
+    text = text.replace(/\\sqrt\s*\/?[xX]\s*-\s*1/g, '\\sqrt{x - 1}');
+    text = text.replace(/\\sqrt\s+([a-zA-Z0-9]+)\s*([+\-])\s*([a-zA-Z0-9]+)/g, '\\sqrt{$1 $2 $3}');
+    text = text.replace(/\^\{?([^}]+)\}?\/_?\{?([^}]+)\}?/g, '\\frac{$1}{$2}');
+    text = text.replace(/x\^2/g, 'x^{2}');
+    text = text.replace(/\\\\/g, '\\');
+
+    // 4. Tách khoảng trắng chống dính chữ tiếng Việt với cặp dấu $$
+    text = text.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\$\$/g, (m, p1) => p1 + ' $$');
+    text = text.replace(/\$\$([a-zA-Zà-ỹÀ-Ỹ0-9])/g, (m, p1) => '$$ ' + p1);
+
+    // 5. Nếu vẽ lên HTML5 Canvas (biển Zombie, gạch Tetris): lọc sạch dấu $$ và mã LaTeX sang ký tự đọc được
+    if (isCanvas) {
+      text = text.replace(/\$\$/g, '')
+                 .replace(/\^\{\\circ\}|\^\\circ/g, '°')
+                 .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)')
+                 .replace(/\\sqrt\{([^}]+)\}/g, '√($1)')
+                 .replace(/\\cdot/g, '·')
+                 .replace(/\\le/g, '≤').replace(/\\ge/g, '≥')
+                 .trim();
+      return text;
+    }
+
+    // 6. Tự động bọc $$ ... $$ nếu chuỗi là biểu thức toán chưa có delimiter
+    if (!text.includes('$$')) {
+      if (/[\\^_{}]|sqrt|frac|cdot|circ|le|ge|ne|Omega|cup|cap/.test(text)) {
+        text = '$$' + text + '$$';
+      }
+    }
+
+    return text;
+  };
+  window.normalizeSystemMathString = window.formatPicMathGlobal;
+  window.formatMathStringToTeX = window.formatPicMathGlobal;
+
   const urlParams = new URLSearchParams(window.location.search);
   const toolId = urlParams.get('toolId');
   
@@ -21,10 +80,10 @@
           
           customQuestions = myTool.customQuestions.map((q, idx) => ({
             id: q.id || `q_${idx}`,
-            q: q.question,
-            options: q.options || ['A', 'B', 'C', 'D'],
+            q: normalizeSystemMathString(q.question, false),
+            options: (q.options || ['A', 'B', 'C', 'D']).map(o => normalizeSystemMathString(o, false)),
             correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-            explanation: q.explanation || "",
+            explanation: normalizeSystemMathString(q.explanation || "", false),
             difficulty: q.difficulty === 'Dễ' ? 1 : (q.difficulty === 'Khó' ? 3 : 2)
           }));
         }
@@ -166,4 +225,82 @@
     // Phát sự kiện toàn cục để game nhận biết cập nhật
     window.dispatchEvent(new CustomEvent('customQuestionsLoaded', { detail: customQuestions }));
   });
+
+  // ========================================================
+  // HỆ THỐNG DỌN DẸP SẠCH TRẠNG THÁI & THOÁT GAME (GLOBAL CLEANUP ON EXIT)
+  // ========================================================
+  function exitToMainMenu() {
+    // 1. Dừng triệt để toàn bộ vòng lặp requestAnimationFrame và bộ đếm thời gian
+    if (window.gameLoopId) cancelAnimationFrame(window.gameLoopId);
+    if (window.animationFrameId) cancelAnimationFrame(window.animationFrameId);
+    if (window.gameInterval) clearInterval(window.gameInterval);
+    if (window.gameTimer) clearTimeout(window.gameTimer);
+    try {
+      const maxId = setTimeout(function(){}, 0);
+      for (let i = 0; i <= maxId; i++) {
+        clearTimeout(i);
+        clearInterval(i);
+      }
+      const maxRaf = requestAnimationFrame(function(){});
+      for (let i = 0; i <= maxRaf; i++) {
+        cancelAnimationFrame(i);
+      }
+    } catch(e) {}
+
+    // 2. Tắt toàn bộ âm thanh đang phát ngầm
+    if (window.currentAudio) {
+      try { window.currentAudio.pause(); window.currentAudio.currentTime = 0; } catch(e) {}
+    }
+    document.querySelectorAll('audio').forEach(function(a) {
+      try { a.pause(); a.currentTime = 0; } catch(e) {}
+    });
+    if (window.SoundEngine && typeof window.SoundEngine.stopAll === 'function') {
+      try { window.SoundEngine.stopAll(); } catch(e) {}
+    }
+
+    // 3. Xóa cờ trạng thái game đang chơi trong LocalStorage/SessionStorage
+    try {
+      localStorage.removeItem('active_game_id');
+      localStorage.removeItem('current_playing_game');
+      sessionStorage.removeItem('active_game_id');
+      window.activeGame = null;
+    } catch(e) {}
+
+    // 4. Xóa sạch tham số game trên thanh địa chỉ URL (không làm reload trang)
+    if (window.location.hash || window.location.search) {
+      try { history.pushState("", document.title, window.location.pathname); } catch(e) {}
+    }
+
+    // Gửi thông báo thoát game về cửa sổ cha (nếu chạy trong iframe của LearningGamesMode hoặc trang-chu)
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'EXIT_GAME' }, '*');
+      }
+    } catch(e) {}
+
+    // 5. Ẩn tất cả các container game và hiển thị lại Menu chính (Dashboard)
+    document.querySelectorAll('.game-container, .game-screen, canvas').forEach(function(el) {
+      el.style.display = 'none';
+      el.classList.add('hidden');
+    });
+
+    const mainMenu = document.getElementById('main-menu') || 
+                     document.getElementById('hub-container') || 
+                     document.querySelector('.dashboard') || 
+                     document.getElementById('main-dashboard') || 
+                     document.getElementById('topic-selection-overlay') || 
+                     document.getElementById('start-screen');
+    if (mainMenu) {
+      mainMenu.style.display = 'block';
+      mainMenu.classList.remove('hidden');
+    } else if (window.self === window.top) {
+      // Nếu chơi trực tiếp độc lập không có khung Menu nội bộ, chuyển hướng về trang chủ
+      window.location.href = '/trang-chu.html';
+    }
+  }
+
+  window.exitToMainMenu = exitToMainMenu;
+  window.exitGame = exitToMainMenu;
+  window.returnToMenu = exitToMainMenu;
+  window.exitGameOrMenu = exitToMainMenu;
 })();

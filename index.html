@@ -14,12 +14,12 @@
     <script>
         window.MathJax = {
             tex: {
-                inlineMath: [['\\(', '\\)'], ['$', '$']],
-                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                inlineMath: [['$$', '$$'], ['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]']],
                 processEscapes: true
             },
             options: {
-                ignoreHtmlClass: 'tex2jax_ignore',
+                ignoreHtmlClass: 'tex2jax_ignore|katex|katex-html|katex-mathml|math-rendered',
                 processHtmlClass: 'tex2jax_process'
             }
         };
@@ -27,7 +27,7 @@
     <script id="MathJax-script" async src="https://jsdelivr.net"></script>
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <style id="mathjax-no-bounding-box-style">mjx-container,.mjx-chtml,mjx-math,mjx-mo,.zombie-math-text,.tex2jax_process,.math-content,.math-text,.MathJax,[class*=math-]{box-shadow:none!important;white-space:nowrap!important;border:none!important;outline:none!important;display:inline-block!important;overflow:visible!important}</style>
+    <style id="mathjax-no-bounding-box-style">mjx-container,mjx-container[display=true],.mjx-chtml,mjx-math,mjx-mo,.zombie-math-text,.tex2jax_process,.math-content,.math-text,.MathJax,.katex,[class*=math-]{box-shadow:none!important;white-space:nowrap!important;vertical-align:middle!important;border:none!important;outline:none!important;max-width:100%!important;margin:0 2px!important;display:inline-block!important;overflow:auto hidden!important}.question-text,.question-box,.quiz-question,.option-item,.quiz-btn,.choice-btn,.card-body,.theory-content,.solution-box{white-space:normal!important;overflow-wrap:break-word!important;word-break:break-word!important}</style>
 
     <script type="module" crossorigin src="/zuizui2/assets/index-Dw6EghOx.js"></script>
     <link rel="stylesheet" crossorigin href="/zuizui2/assets/index-Do_B9jXs.css">
