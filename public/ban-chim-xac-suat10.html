@@ -804,6 +804,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     // HÀM KHỬ SẠCH RÁC CHUỖI "\f\f", KHOẢNG TRẮNG TIẾNG VIỆT & CHUẨN HÓA LATEX MATHJAX
     function cleanBirdMathString(text) {
         if (!text || typeof text !== 'string') return text || '';
+        if (typeof window !== 'undefined' && typeof window.normalizeSystemMathString === 'function') text = window.normalizeSystemMathString(text);
         let cleaned = text.trim();
         // 1. Khử triệt để ký tự lỗi \f, \f\f
         cleaned = cleaned.replace(/\\f\\f/g, '').replace(/\\f/g, '');

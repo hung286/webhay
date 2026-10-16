@@ -1499,6 +1499,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         // ==========================================
         function formatTetrisMathStringToTeX(inputString) {
             if (!inputString || typeof inputString !== 'string') return inputString || '';
+            if (typeof window !== 'undefined' && typeof window.normalizeSystemMathString === 'function') inputString = window.normalizeSystemMathString(inputString);
             let str = inputString.replace(/[\u000c\x0c]/g, '').trim();
 
             // 1. Quét sạch và tiêu diệt triệt để ký tự rác \f, \f\f bám trên chuỗi

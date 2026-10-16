@@ -1,6 +1,8 @@
 import { Question, DragDropCategory, DragDropTableRow } from '../types';
-import { normalizeMathFormulas } from './documentParser';
+import { normalizeMathFormulas, normalizeSystemMathString } from './documentParser';
 import { DEFAULT_WORKSHEETS } from '../data/defaultWorksheets';
+
+export { normalizeSystemMathString };
 
 /**
  * BỘ LỌC XỬ LÝ DỌN CHUỖI TOÁN HỌC CHUẨN THEO ĐÚNG NGUYÊN MẪU CỦA GIÁO VIÊN (ANTI-BUG STRINGS)
@@ -9,7 +11,7 @@ import { DEFAULT_WORKSHEETS } from '../data/defaultWorksheets';
 export function formatMathStringToTeX(rawContent: string): string {
   if (typeof rawContent !== 'string') return rawContent;
 
-  let cleanContent = rawContent;
+  let cleanContent = normalizeSystemMathString(rawContent);
 
   // Khử mã điều khiển form-feed ẩn
   cleanContent = cleanContent.replace(/[\u000c\x0c\f]/g, '');
@@ -4631,6 +4633,39 @@ var questions = window.quizData;
       }
     } catch(e) {}
   }
+  function normalizeSystemMathString(rawInput, isCanvas) {
+    if (!rawInput || typeof rawInput !== 'string') return rawInput || '';
+    var text = rawInput.trim();
+    text = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '');
+    text = text.replace(/\\?f?rac\{/g, '\\frac{').replace(/\brac\{/g, '\\frac{');
+    text = text.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\\(\(|\[)/g, '$1 \\$2');
+    text = text.replace(/\\(\)|\])([a-zA-Zà-ỹÀ-Ỹ0-9])/g, '\\$1 $2');
+    text = text.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\$/g, '$1 $');
+    text = text.replace(/\$([a-zA-Zà-ỹÀ-Ỹ0-9])/g, '$ $1');
+    text = text.replace(/\^\{?([^}]+)\}?\/_?\{?([^}]+)\}?/g, '\\frac{$1}{$2}');
+    text = text.replace(/\\sqrt\s*\/?[xX]\s*-\s*1/g, '\\sqrt{x - 1}');
+    text = text.replace(/\\sqrt\s+([a-zA-Z0-9]+)\s*([+\-])\s*([a-zA-Z0-9]+)/g, '\\sqrt{$1 $2 $3}');
+    text = text.replace(/x\^2/g, 'x^{2}');
+    text = text.replace(/(\d*)\s*cdot\s*(\d*)/g, '$1 \\cdot $2');
+    text = text.replace(/(?<!\\)cdot/g, '\\cdot');
+    text = text.replace(/\\do\b/g, isCanvas ? '°' : '^{\\circ}');
+    if (isCanvas) {
+      text = text.replace(/\\\(|\\\)|\\\[|\\\]|\$/g, '')
+                 .replace(/\^\{\\circ\}|\^\\circ/g, '°')
+                 .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)')
+                 .replace(/\\sqrt\{([^}]+)\}/g, '√($1)')
+                 .replace(/\\cdot/g, '·')
+                 .trim();
+    } else {
+      if (!text.includes('\\(') && !text.includes('$')) {
+        if (/[\\^_{}]|sqrt|frac|cdot|circ|le|ge|ne|Omega|cup|cap/.test(text)) {
+          text = '\\(' + text + '\\)';
+        }
+      }
+    }
+    return text;
+  }
+  window.normalizeSystemMathString = normalizeSystemMathString;
   window.triggerMathTypeset = triggerMathTypeset;
   window.applyTex2jaxProcess = applyTex2jaxProcess;
 
