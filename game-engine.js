@@ -3,6 +3,55 @@
 // Tự động nhận diện cấu trúc từng trò chơi (F1, Chiến Hào, Sút Pen, Triệu Phú, Cá Ngựa...)
 // và chuyển đổi dữ liệu câu hỏi phù hợp mà không cần sửa mã nguồn gốc của game.
 
+// BỘ ĐỊNH DẠNG CHUỖI TOÁN HỌC VẠN NĂNG CHUẨN MIKTEX / TEX LIVE TOÀN HỆ THỐNG
+function normalizeSystemMathString(rawInput, isCanvas = false) {
+  if (!rawInput || typeof rawInput !== 'string') return rawInput || '';
+  let text = rawInput.trim();
+
+  // 1. Khử ký tự rác form-feed \f và phục hồi \frac
+  text = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '');
+  text = text.replace(/\\?f?rac\{/g, '\\frac{').replace(/\brac\{/g, '\\frac{');
+
+  // 2. Chống dính chữ tiếng Việt và công thức (Ví dụ: "trình\(" không bị biến thành "trì nh")
+  text = text.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\\(\(|\[)/g, '$1 \\$2');
+  text = text.replace(/\\(\)|\])([a-zA-Zà-ỹÀ-Ỹ0-9])/g, '\\$1 $2');
+  text = text.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\$/g, '$1 $');
+  text = text.replace(/\$([a-zA-Zà-ỹÀ-Ỹ0-9])/g, '$ $1');
+
+  // 3. Sửa triệt để lỗi phân số dạng số mũ ^{Tử}/{Mẫu} thành \frac{Tử}{Mẫu} và căn thức cụt đuôi
+  text = text.replace(/\^\{?([^}]+)\}?\/_?\{?([^}]+)\}?/g, '\\frac{$1}{$2}');
+  text = text.replace(/\\sqrt\s*\/?[xX]\s*-\s*1/g, '\\sqrt{x - 1}');
+  text = text.replace(/\\sqrt\s+([a-zA-Z0-9]+)\s*([+\-])\s*([a-zA-Z0-9]+)/g, '\\sqrt{$1 $2 $3}');
+  text = text.replace(/x\^2/g, 'x^{2}');
+
+  // 4. Chuẩn hóa cdot, ký hiệu độ góc \do
+  text = text.replace(/(\d*)\s*cdot\s*(\d*)/g, '$1 \\cdot $2');
+  text = text.replace(/(?<!\\)cdot/g, '\\cdot');
+  text = text.replace(/\\do\b/g, isCanvas ? '°' : '^{\\circ}');
+
+  // 5. Xử lý Delimiter theo ngữ cảnh DOM hoặc Canvas
+  if (isCanvas) {
+    // Canvas (biển Zombie, gạch Tetris): loại bỏ delimiter, chuyển mã LaTeX sang ký tự đọc được
+    text = text.replace(/\\\(|\\\)|\\\[|\\\]|\$/g, '')
+               .replace(/\^\{\\circ\}|\^\\circ/g, '°')
+               .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)')
+               .replace(/\\sqrt\{([^}]+)\}/g, '√($1)')
+               .replace(/\\cdot/g, '·')
+               .trim();
+  } else {
+    // DOM HTML: bọc cặp inline \(...\) chuẩn
+    if (!text.includes('\\(') && !text.includes('$')) {
+      if (/[\\^_{}]|sqrt|frac|cdot|circ|le|ge|ne|Omega|cup|cap/.test(text)) {
+        text = `\\(${text}\\)`;
+      }
+    }
+  }
+  return text;
+}
+if (typeof window !== 'undefined') {
+  window.normalizeSystemMathString = normalizeSystemMathString;
+}
+
 (function() {
   const urlParams = new URLSearchParams(window.location.search);
   const toolId = urlParams.get('toolId');
@@ -21,10 +70,10 @@
           
           customQuestions = myTool.customQuestions.map((q, idx) => ({
             id: q.id || `q_${idx}`,
-            q: q.question,
-            options: q.options || ['A', 'B', 'C', 'D'],
+            q: normalizeSystemMathString(q.question),
+            options: (q.options || ['A', 'B', 'C', 'D']).map(opt => normalizeSystemMathString(opt)),
             correct: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
-            explanation: q.explanation || "",
+            explanation: normalizeSystemMathString(q.explanation || ""),
             difficulty: q.difficulty === 'Dễ' ? 1 : (q.difficulty === 'Khó' ? 3 : 2)
           }));
         }
