@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu học tập môn Toán THPT - Thầy Hùng Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        brand: { bg: '#080c17', card: '#111625', border: '#1f2937', hover: '#1e293b' }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #080c17;
+            background-image: 
+                radial-gradient(circle at 20% 40%, rgba(30, 58, 138, 0.15), transparent 40%),
+                radial-gradient(circle at 80% 60%, rgba(124, 58, 237, 0.1), transparent 40%);
+        }
+        
+        .bg-grid-pattern {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+        }
+
+        .text-gradient { background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-item:hover { transform: translateY(-4px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); }
+        .file-item { transition: all 0.2s ease; }
+        .file-item:hover { transform: translateX(4px); }
+        
+        .icon-glow-10 { box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.15), 0 0 15px rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.2); }
+        .icon-glow-11 { box-shadow: inset 0 0 20px rgba(168, 85, 247, 0.15), 0 0 15px rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.2); }
+        .icon-glow-12 { box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.15), 0 0 15px rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.2); }
+
+        .view-section { display: none; opacity: 0; animation: fadeIn 0.4s ease forwards; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://jsdelivr.net"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style id="mathjax-no-bounding-box-style">
+/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax và ép thẳng 1 dòng */
+mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process, .math-content, .math-text, .MathJax, [class*="math-"] {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    white-space: nowrap !important; /* Ép phân số và dấu căn \(\sqrt\) nằm thẳng một dòng */
+    display: inline-block !important;
+    overflow: visible !important;
+}
+</style></head>
+<body class="text-slate-200 min-h-screen flex flex-col relative overflow-x-hidden selection:bg-indigo-500/30">
+
+    <div class="bg-grid-pattern"></div>
+
+    <div class="relative z-10 flex flex-col min-h-screen p-4 md:p-6 lg:p-8">
+        
+        <!-- HEADER -->
+        <header id="main-header" class="max-w-[1200px] w-full mx-auto bg-brand-card/70 backdrop-blur-md rounded-2xl border border-brand-border p-4 md:px-6 md:py-4 shadow-xl mb-12 transition-all duration-300">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
+                        <span class="text-white font-bold text-xl leading-none">Σ</span>
+                    </div>
+                    <div>
+                        <h1 class="text-lg md:text-xl font-bold tracking-wider uppercase text-white">
+                            PHIẾU HỌC TẬP MÔN TOÁN THPT
+                        </h1>
+                        <p class="text-xs text-cyan-300 font-semibold tracking-wide">TOÁN THẦY HÙNG - MH MATHEDU</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <button onclick="goHome()" class="flex-1 md:flex-none bg-[#1e293b]/80 hover:bg-[#2d3748] text-sm text-slate-200 px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors border border-slate-700">
+                        <i class="ph-fill ph-house text-lg"></i>
+                        <span class="font-medium">Trang chủ</span>
+                    </button>
+                    <button onclick="toggleFullScreen()" title="Bật/Tắt Toàn màn hình" class="bg-slate-800/80 hover:bg-slate-700 text-slate-300 p-2 rounded-lg border border-slate-700 transition-colors flex items-center justify-center">
+                        <i class="ph-bold ph-corners-out text-lg fs-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="text-center text-sm italic text-cyan-300/80 font-medium px-2 py-2 border-t border-slate-800/50">
+                "Đoàn kết - Tâm huyết - Gương mẫu tự học - Đổi mới sáng tạo, cùng kiến tạo những giờ Toán truyền cảm hứng cho học sinh THPT."
+            </div>
+        </header>
+
+        <main class="flex-grow flex flex-col items-center w-full max-w-[1000px] mx-auto mt-4 transition-all duration-300">
+            
+            <!-- GIAO DIỆN 1: CÁC THƯ MỤC CHÍNH -->
+            <div id="view-categories" class="w-full">
+                <h2 class="text-3xl md:text-5xl font-extrabold mb-12 text-center tracking-tight">
+                    Hệ thống <span class="bg-gradient-to-r from-cyan-400 to-indigo-500 text-gradient">Phiếu bài tập</span>
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
+                    <div onclick="openFolder('toan10')" class="card-item group bg-brand-card rounded-2xl p-8 border border-brand-border hover:border-sky-500/40 flex flex-col items-center text-center cursor-pointer relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-b from-sky-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="w-20 h-20 rounded-full bg-[#0d162a] flex items-center justify-center mb-6 icon-glow-10 relative z-10 transition-transform duration-300 group-hover:scale-110">
+                            <i class="ph-duotone ph-folder-open text-4xl text-sky-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-sky-400 transition-colors duration-300 z-10">Phiếu học tập toán 10</h3>
+                    </div>
+
+                    <div onclick="openFolder('toan11')" class="card-item group bg-brand-card rounded-2xl p-8 border border-brand-border hover:border-purple-500/40 flex flex-col items-center text-center cursor-pointer relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-b from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="w-20 h-20 rounded-full bg-[#110e24] flex items-center justify-center mb-6 icon-glow-11 relative z-10 transition-transform duration-300 group-hover:scale-110">
+                            <i class="ph-duotone ph-folder-open text-4xl text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-purple-400 transition-colors duration-300 z-10">Phiếu học tập toán 11</h3>
+                    </div>
+
+                    <div onclick="openFolder('toan12')" class="card-item group bg-brand-card rounded-2xl p-8 border border-brand-border hover:border-amber-500/40 flex flex-col items-center text-center cursor-pointer relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="w-20 h-20 rounded-full bg-[#1a150b] flex items-center justify-center mb-6 icon-glow-12 relative z-10 transition-transform duration-300 group-hover:scale-110">
+                            <i class="ph-duotone ph-folder-open text-4xl text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-amber-400 transition-colors duration-300 z-10">Phiếu học tập toán 12</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GIAO DIỆN 2: DANH SÁCH FILE BÊN TRONG THƯ MỤC -->
+            <div id="view-files" class="view-section flex-col w-full max-w-5xl mx-auto h-full">
+                <!-- Thanh công cụ -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-brand-border bg-brand-bg/80 backdrop-blur top-0 sticky z-20 pt-2">
+                    <div class="flex items-center gap-4">
+                        <button onclick="goHome()" class="bg-brand-card hover:bg-brand-hover text-slate-300 p-2.5 rounded-lg border border-brand-border transition-colors group shadow-md">
+                            <i class="ph-bold ph-arrow-left text-lg group-hover:-translate-x-1 transition-transform"></i>
+                        </button>
+                        <div>
+                            <p class="text-sm text-slate-500">Đang mở thư mục</p>
+                            <h3 id="current-folder-title" class="text-lg md:text-2xl font-bold text-white flex items-center gap-2">
+                                <!-- JS sẽ điền tiêu đề vào đây -->
+                            </h3>
+                        </div>
+                    </div>
+                    <button onclick="toggleFullScreen()" class="bg-slate-800/50 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-lg border border-slate-700 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto">
+                        <i class="ph-bold ph-corners-out text-lg fs-icon"></i>
+                        <span class="text-sm font-medium fs-text">Toàn màn hình</span>
+                    </button>
+                </div>
+
+                <!-- Vùng chứa danh sách các file -->
+                <div id="files-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-10">
+                </div>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer id="main-footer" class="mt-24 text-center pb-8 z-10 transition-all duration-300">
+            <p class="text-[10px] md:text-[11px] text-slate-500 tracking-[0.2em] uppercase mb-3 font-semibold">Thiết kế và phát triển bởi</p>
+            <p class="text-[13px] md:text-sm text-slate-300 mb-5 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3">
+                <span>Thầy <span class="text-cyan-400 font-bold">Thầy Hùng Pro</span> <span class="text-slate-500">(MH MathEdu)</span></span>
+            </p>
+            <div class="inline-flex flex-col sm:flex-row items-center gap-2 px-4 py-2 rounded-full bg-slate-800/40 border border-slate-700/50 backdrop-blur-sm text-center">
+                <i class="ph-fill ph-database text-emerald-400 hidden sm:block"></i>
+                <p class="text-sm text-slate-300">Kho học liệu điện tử chất lượng cao dành cho học sinh THPT</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const phieu_hoc_tap_toan10 = [
+            "bai-1-menh-de.html",
+            "bai-2-tap-hop.html",
+            "bai-2-cac-phep-toan-tren-cac-tap-hop.html",
+            "bai-2-cac-tap-con-dac-biet-cua-R.html",
+            "bai-3-bat-phuong-trinh-bac-nhat-hai-an.html",
+            "bai-4-he-bat-phuong-trinh-bac-nhat-hai-an.html",
+            "bai-5-gia-tri-luong-giac-cua-mot-goc-tu-0-den-180.html",
+            "bai-6-he-thuc-luong-trong-tam-giac.html",
+            "bai-7-cac-khai-niem-mo-dau.html",
+            "bai-8-tong-va-hieu-cua-hai-vecto.html",
+            "bai-9-tich-cua-mot-vecto-voi-mot-so.html",
+            "bai-10-vecto-trong-mat-phang-toa-do.html",
+            "bai-11-tich-vo-huong-cua-hai-vecto.html",
+            "bai-12-so-gan-dung-va-sai-so.html",
+            "bai-13-cac-so-dac-trung-do-xu-the-trung-tam.html",
+            "bai-14-cac-so-dac-trung-do-do-phan-tan.html"
+        ];
+
+        const phieu_hoc_tap_toan11 = [
+            "bai-1-gia-tri-luong-giac-cua-goc-luong-giac.html",
+            "bai-1-goc-luong-giac.html",
+            "bai-2-cong-thuc-luong-giac.html",
+            "bai-3-ham-so-luong-giac.html",
+            "bai-4-phuong-trinh-luong-giac-co-ban.html",
+            "bai-5-day-so.html",
+            "bai-6-cap-so-cong.html",
+            "bai-7-cap-so-nhan.html",
+            "bai-8-mau-so-lieu-ghep-nhom.html",
+            "bai-9-cac-so-dac-trung-do-xu-the-trung-tam.html",
+            "bai-10-duong-thang-va-mat-phang-trong-khong-gian.html",
+            "bai-11-hai-duong-thang-song-song.html",
+            "bai-12-duong-thang-va-mat-phang-song-song.html",
+            "bai-13-hai-mat-phang-song-song.html",
+            "bai-14-phep-chieu-song-song.html",
+            "bai-15-gioi-han-cua-day-so.html",
+            "bai-16-gioi-han-cua-ham-so.html",
+            "bai-17-ham-so-lien-tuc.html"
+        ];
+
+        const phieu_hoc_tap_toan12 = [
+            "bai-1-tinh-don-dieu-va-cuc-tri-cua-ham-so.html",
+            "bai-2-gia-tri-lon-nhat-va-gia-tri-nho-nhat-cua-ham-so.html",
+            "bai-3-duong-tiem-can-cua-do-thi-ham-so.html",
+            "bai-4-do-thi-cua-ham-so.html",
+            "chuong1-tong-hop-t12.html",
+            "bai-5-ung-dung-dao-ham-de-giai-quyet-mot-so-van-de-lien-quan-den-thuc-tien.html",
+            "bai-6-vecto-trong-khong-gian.html",
+            "bai-7-he-truc-toa-do-trong-khong-gian.html",
+            "bai-8-bieu-thuc-toa-do-cua-cac-phep-toan-vecto.html",
+            "bai-9-khoang-bien-thien-va-khoang-tu-phan-vi.html",
+            "bai-10-phuong-sai-va-do-lech-chuan.html"
+        ];
+
+        const folderConfig = {
+            'toan10': {
+                title: "Phiếu học tập toán 10",
+                iconColor: "text-sky-400",
+                directory: "phieu-hoc-tap-toan10",
+                files: phieu_hoc_tap_toan10
+            },
+            'toan11': {
+                title: "Phiếu học tập toán 11",
+                iconColor: "text-purple-400",
+                directory: "phieu-hoc-tap-toan11",
+                files: phieu_hoc_tap_toan11
+            },
+            'toan12': {
+                title: "Phiếu học tập toán 12",
+                iconColor: "text-amber-400",
+                directory: "phieu-hoc-tap-toan12",
+                files: phieu_hoc_tap_toan12
+            }
+        };
+
+        const titlesDict = {
+            "bai-1-menh-de.html": "Bài 1: Mệnh đề toán học",
+            "bai-2-tap-hop.html": "Bài 2: Tập hợp",
+            "bai-2-cac-phep-toan-tren-cac-tap-hop.html": "Bài 2: Các phép toán trên các tập hợp",
+            "bai-2-cac-tap-con-dac-biet-cua-R.html": "Bài 2: Các tập con đặc biệt của R",
+            "bai-3-bat-phuong-trinh-bac-nhat-hai-an.html": "Bài 3: Bất phương trình bậc nhất hai ẩn",
+            "bai-4-he-bat-phuong-trinh-bac-nhat-hai-an.html": "Bài 4: Hệ bất phương trình bậc nhất hai ẩn",
+            "bai-5-gia-tri-luong-giac-cua-mot-goc-tu-0-den-180.html": "Bài 5: Giá trị lượng giác của góc 0° đến 180°",
+            "bai-6-he-thuc-luong-trong-tam-giac.html": "Bài 6: Hệ thức lượng trong tam giác",
+            "bai-7-cac-khai-niem-mo-dau.html": "Bài 7: Các khái niệm mở đầu về véctơ",
+            "bai-8-tong-va-hieu-cua-hai-vecto.html": "Bài 8: Tổng và hiệu của hai véctơ",
+            "bai-9-tich-cua-mot-vecto-voi-mot-so.html": "Bài 9: Tích của một véctơ với một số",
+            "bai-10-vecto-trong-mat-phang-toa-do.html": "Bài 10: Véctơ trong mặt phẳng tọa độ",
+            "bai-11-tich-vo-huong-cua-hai-vecto.html": "Bài 11: Tích vô hướng của hai véctơ",
+            "bai-12-so-gan-dung-va-sai-so.html": "Bài 12: Số gần đúng và sai số",
+            "bai-13-cac-so-dac-trung-do-xu-the-trung-tam.html": "Bài 13: Các số đặc trưng đo xu thế trung tâm",
+            "bai-14-cac-so-dac-trung-do-do-phan-tan.html": "Bài 14: Các số đặc trưng đo độ phân tán",
+
+            "bai-1-gia-tri-luong-giac-cua-goc-luong-giac.html": "Bài 1: Giá trị lượng giác của góc lượng giác",
+            "bai-1-goc-luong-giac.html": "Bài 1: Góc lượng giác",
+            "bai-2-cong-thuc-luong-giac.html": "Bài 2: Công thức lượng giác",
+            "bai-3-ham-so-luong-giac.html": "Bài 3: Hàm số lượng giác",
+            "bai-4-phuong-trinh-luong-giac-co-ban.html": "Bài 4: Phương trình lượng giác cơ bản",
+            "bai-5-day-so.html": "Bài 5: Dãy số",
+            "bai-6-cap-so-cong.html": "Bài 6: Cấp số cộng",
+            "bai-7-cap-so-nhan.html": "Bài 7: Cấp số nhân",
+            "bai-8-mau-so-lieu-ghep-nhom.html": "Bài 8: Mẫu số liệu ghép nhóm",
+            "bai-9-cac-so-dac-trung-do-xu-the-trung-tam.html": "Bài 9: Các số đặc trưng đo xu thế trung tâm (Ghép nhóm)",
+            "bai-10-duong-thang-va-mat-phang-trong-khong-gian.html": "Bài 10: Đường thẳng và mặt phẳng trong không gian",
+            "bai-11-hai-duong-thang-song-song.html": "Bài 11: Hai đường thẳng song song",
+            "bai-12-duong-thang-va-mat-phang-song-song.html": "Bài 12: Đường thẳng và mặt phẳng song song",
+            "bai-13-hai-mat-phang-song-song.html": "Bài 13: Hai mặt phẳng song song",
+            "bai-14-phep-chieu-song-song.html": "Bài 14: Phép chiếu song song",
+            "bai-15-gioi-han-cua-day-so.html": "Bài 15: Giới hạn của dãy số",
+            "bai-16-gioi-han-cua-ham-so.html": "Bài 16: Giới hạn của hàm số",
+            "bai-17-ham-so-lien-tuc.html": "Bài 17: Hàm số liên tục",
+
+            "bai-1-tinh-don-dieu-va-cuc-tri-cua-ham-so.html": "Bài 1: Tính đơn điệu và cực trị của hàm số",
+            "bai-2-gia-tri-lon-nhat-va-gia-tri-nho-nhat-cua-ham-so.html": "Bài 2: Giá trị lớn nhất & nhỏ nhất của hàm số",
+            "bai-3-duong-tiem-can-cua-do-thi-ham-so.html": "Bài 3: Đường tiệm cận của đồ thị hàm số",
+            "bai-4-do-thi-cua-ham-so.html": "Bài 4: Khảo sát sự biến thiên và vẽ đồ thị hàm số",
+            "chuong1-tong-hop-t12.html": "Chương 1: Tổng hợp kiến thức & Ôn tập",
+            "bai-5-ung-dung-dao-ham-de-giai-quyet-mot-so-van-de-lien-quan-den-thuc-tien.html": "Bài 5: Ứng dụng đạo hàm giải bài toán thực tiễn",
+            "bai-6-vecto-trong-khong-gian.html": "Bài 6: Véctơ trong không gian",
+            "bai-7-he-truc-toa-do-trong-khong-gian.html": "Bài 7: Hệ trục tọa độ trong không gian Oxyz",
+            "bai-8-bieu-thuc-toa-do-cua-cac-phep-toan-vecto.html": "Bài 8: Biểu thức tọa độ của các phép toán véctơ",
+            "bai-9-khoang-bien-thien-va-khoang-tu-phan-vi.html": "Bài 9: Khoảng biến thiên và khoảng tứ phân vị",
+            "bai-10-phuong-sai-va-do-lech-chuan.html": "Bài 10: Phương sai và độ lệch chuẩn của mẫu ghép nhóm"
+        };
+
+        function openFolder(folderId) {
+            const folderData = folderConfig[folderId];
+            if (!folderData) return;
+
+            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('main-footer').style.display = 'none';
+            document.getElementById('view-categories').style.display = 'none';
+            
+            const viewFiles = document.getElementById('view-files');
+            viewFiles.classList.remove('active');
+            viewFiles.style.display = 'flex';
+            setTimeout(() => { viewFiles.classList.add('active'); }, 10);
+
+            document.getElementById('current-folder-title').innerHTML = `<i class="ph-duotone ph-folder-open ${folderData.iconColor}"></i> ${folderData.title}`;
+            const container = document.getElementById('files-container');
+            container.innerHTML = ''; 
+
+            folderData.files.forEach(filename => {
+                const localUrl = `./${folderData.directory}/${filename}`;
+                const titleId = 'title-' + Math.random().toString(36).substr(2, 9);
+                const defaultTitle = titlesDict[filename] || filename.replace('.html', '').replace(/-/g, ' ');
+
+                const a = document.createElement('a');
+                a.href = localUrl; 
+                a.className = "file-item bg-brand-card hover:bg-brand-hover border border-brand-border hover:border-slate-500 rounded-xl p-4 flex items-center justify-between cursor-pointer group shadow-sm";
+                a.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden w-full">
+                        <div class="w-10 h-10 rounded-lg bg-slate-800/50 flex items-center justify-center shrink-0 group-hover:bg-slate-800 transition-colors">
+                            <i class="ph-duotone ph-file-html text-2xl text-slate-400 group-hover:text-blue-400 transition-colors"></i>
+                        </div>
+                        <div class="overflow-hidden w-full">
+                            <h4 id="${titleId}" class="text-white font-medium truncate pr-2 group-hover:text-blue-300 transition-colors text-sm sm:text-base">
+                                ${defaultTitle}
+                            </h4>
+                            <p class="text-xs text-slate-500 truncate mt-0.5" title="${filename}">${filename}</p>
+                        </div>
+                    </div>
+                    <i class="ph-bold ph-caret-right text-slate-600 group-hover:text-blue-400 transition-colors shrink-0"></i>
+                `;
+                container.appendChild(a);
+
+                // Fetch title tag if available
+                fetch(localUrl)
+                    .then(response => {
+                        if (!response.ok) throw new Error("File not found");
+                        return response.text();
+                    })
+                    .then(html => {
+                        const doc = new DOMParser().parseFromString(html, "text/html");
+                        const pageTitle = doc.querySelector('title') ? doc.querySelector('title').innerText : defaultTitle;
+                        const titleEl = document.getElementById(titleId);
+                        if(titleEl && pageTitle) {
+                            titleEl.innerText = pageTitle;
+                            titleEl.title = pageTitle;
+                        }
+                    })
+                    .catch(() => {});
+            });
+        }
+
+        function goHome() {
+            document.getElementById('main-header').style.display = '';
+            document.getElementById('main-footer').style.display = '';
+            document.getElementById('view-categories').style.display = '';
+            const viewFiles = document.getElementById('view-files');
+            viewFiles.classList.remove('active');
+            viewFiles.style.display = 'none';
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                const docElm = document.documentElement;
+                if (docElm.requestFullscreen) docElm.requestFullscreen();
+                else if (docElm.webkitRequestFullScreen) docElm.webkitRequestFullScreen();
+                else if (docElm.msRequestFullscreen) docElm.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        }
+    </script>
+<script src="/game-engine.js"></script>
+
+<script id="__TEACHER_MATHJAX_CLEANER_AND_SCANNER__">
+function formatMathStringToTeX(rawContent) {
+    if (typeof rawContent !== 'string') return rawContent;
+
+    let cleanContent = rawContent;
+
+    // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
+    cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
+                               .replace(/\\f\s*\\frac/g, '\\frac')
+                               .replace(/\\ffrac/g, '\\frac')
+                               .replace(/\\f/g, ''); // Khử sạch các ký tự \f cô độc
+
+    // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
+    cleanContent = cleanContent.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
+
+    // Tự động chèn khoảng trắng mảnh ngăn dính chữ tiếng Việt (Ví dụ: "0trong", "]là:")
+    cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');
+    var cleanStr = cleanContent;
+    cleanStr = cleanStr.replace(/(\))(trong|đoạn|là)/g, '$1 $2');
+    cleanContent = cleanStr;
+    cleanContent = cleanContent.replace(/\]là\:/g, '\] là:');
+
+    // Khử hoàn toàn lỗi lặp dấu gạch chéo (double escape) bảo vệ các ký hiệu \sqrt, \le, \ge, \ne
+    cleanContent = cleanContent.replace(/\\\\/g, '\\');
+
+    return cleanContent;
+}
+window.formatMathStringToTeX = formatMathStringToTeX;
+
+(function() {
+    function applyTex2jaxProcess() {
+        var selectors = [
+            '.question', '.q-text', '.stem', '#question', '#questionText', '#stem', '#q-text',
+            '.option', '.answer-btn', '.btn-abcd', '.opt-btn', '.option-btn', '.answer-option',
+            '.card', '.card-func', '.card-prop', '.pair-card', '.tile', '.flip-card',
+            '.math-content', '.math-text', '[class*="question"]', '[class*="answer"]', '[class*="option"]', '[class*="card"]'
+        ];
+        selectors.forEach(function(sel) {
+            document.querySelectorAll(sel).forEach(function(el) {
+                if (!el.classList.contains('tex2jax_process')) {
+                    el.classList.add('tex2jax_process');
+                }
+            });
+        });
+        if (document.body && !document.body.classList.contains('tex2jax_process')) {
+            document.body.classList.add('tex2jax_process');
+        }
+    }
+    window.applyTex2jaxProcess = applyTex2jaxProcess;
+
+    function triggerMathTypeset() {
+        try {
+            applyTex2jaxProcess();
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise().catch(function() {});
+            }
+        } catch(e) {}
+    }
+    window.triggerMathTypeset = triggerMathTypeset;
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            applyTex2jaxProcess();
+            triggerMathTypeset();
+        });
+    } else {
+        applyTex2jaxProcess();
+        triggerMathTypeset();
+    }
+    window.addEventListener('load', function() {
+        applyTex2jaxProcess();
+        triggerMathTypeset();
+    });
+
+    try {
+        var obs = new MutationObserver(function() {
+            applyTex2jaxProcess();
+        });
+        obs.observe(document.documentElement, { childList: true, subtree: true });
+    } catch(e) {}
+})();
+</script>
+</body>
+</html>
