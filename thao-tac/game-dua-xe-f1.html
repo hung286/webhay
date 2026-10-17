@@ -703,6 +703,51 @@ mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-
     white-space: nowrap !important;
     vertical-align: middle !important;
 }
+
+/* TỐI ƯU HIỂN THỊ CÔNG THỨC TOÁN HỌC TRÊN KHUNG CÂU HỎI MÀU ĐEN (F1 RACING MATH FIX) */
+.question-text, #q-text {
+    background: rgba(2, 6, 23, 0.95) !important;
+    border: 1px solid #334155 !important;
+    color: #ffffff !important;
+    line-height: 2 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Ép toàn bộ MathJax CHTML hiển thị trọn vẹn, màu trắng sắc nét, nằm ngang thẳng hàng, chống ngắt vụn ký tự */
+mjx-container,
+.mjx-chtml,
+.MathJax,
+.question-text mjx-container,
+#q-text mjx-container,
+.answer-btn mjx-container,
+.option-card mjx-container {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    vertical-align: middle !important;
+    max-width: 100% !important;
+    color: #ffffff !important;
+}
+
+mjx-container *,
+.mjx-chtml *,
+.MathJax *,
+.question-text mjx-container *,
+#q-text mjx-container *,
+.answer-btn mjx-container *,
+.option-card mjx-container * {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    color: #ffffff !important;
+}
+
+/* Đảm bảo đường gạch phân số và gạch trên căn thức luôn trắng sáng rõ nét */
+mjx-line, mjx-frac mjx-line, mjx-dtable mjx-line, mjx-sqrt > mjx-box {
+    border-top-color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
 </style></head>
 <body class="h-screen flex flex-col text-slate-200">
 
@@ -1051,31 +1096,45 @@ mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-
         window.normalizeSystemMathString = normalizeSystemMathString;
 
         function cleanF1MathString(rawStr, isOption = false) {
-            rawStr = normalizeSystemMathString(fixF1QuestionString(rawStr));
             if (typeof rawStr !== 'string') return rawStr || '';
-            let str = rawStr;
+            if (typeof normalizeSystemMathString === 'function') rawStr = normalizeSystemMathString(rawStr);
+            if (typeof fixF1QuestionString === 'function') rawStr = fixF1QuestionString(rawStr);
+            let str = String(rawStr);
 
-            // 1. Khử mã điều khiển và khoảng trắng ẩn
+            // 1. Khử mã điều khiển và khoảng trắng ẩn / rác \f
             str = str.replace(/[\u000c\x0c\f]/g, '');
+            str = str.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '');
 
             // 2. Khử double escape: \\\\ -> \\
             str = str.replace(/\\\\([a-zA-Z0-9^_{}\[\]()\\\/+-])/g, '\\$1');
             str = str.replace(/\\\\/g, '\\');
 
-            // 3. SỬA DỨT ĐIỂM LỖI DẤU CĂN (TẦNG 1):
-            // 3.1 Khử ký tự gạch chéo rác sau dấu căn: √/ hoặc \sqrt/ hoặc \surd/
+            // 3. Phục hồi và chuẩn hóa phân số \frac, \dfrac
+            str = str.replace(/\\f\\frac/g, '\\dfrac')
+                     .replace(/\\f\s*\\frac/g, '\\dfrac')
+                     .replace(/\\ffrac/g, '\\dfrac')
+                     .replace(/(?<![a-zA-Z\\])rac\s*\{/g, '\\dfrac{')
+                     .replace(/(?<![a-zA-Z\\])frac\s*\{/g, '\\dfrac{')
+                     .replace(/\\frac(?=[{\s])/g, '\\dfrac');
+
+            // 4. Sửa dứt điểm lỗi phân số biến dạng thành số mũ
+            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*_\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/_\{\s*([^{}]+?)\s*\}\s*\^\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$2}{$1}');
+            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*(?:\/|_|\/_)\s*\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*\/\s*\(\s*([^()]+?)\s*\)/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*\/\s*([a-zA-Z0-9_\-\+]+)/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/(?<![\\a-zA-Z])\{\s*([^{}]+?)\s*\}\s*\/\s*\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*\(\s*([xX0-9\s\^+\-*]+?)\s*\)/g, '\\dfrac{$1}{$2}');
+            str = str.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*([xX0-9a-zA-Z_\-]+)/g, '\\dfrac{$1}{$2}');
+
+            // 5. Chuẩn hóa căn thức
             str = str.replace(/(?:\\sqrt|√|\\surd)\s*\/\s*/g, '\\sqrt ');
             str = str.replace(/(?:\\sqrt|√|\\surd)\s*\(\s*([^()]+?)\s*\)/g, '\\sqrt{$1}');
             str = str.replace(/(?:√|\\surd)/g, '\\sqrt ');
-
-            // 3.2 Chuẩn hóa căn thức có phép toán đi liền: \sqrt x - 1, \sqrt x + 1, \sqrt x - 2, \sqrt 2x - 1,...
-            // và sửa dạng \sqrt{x}-1 hoặc \sqrt{x} - 1 thành \sqrt{x - 1} khi trong bất phương trình/phương trình
             str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*-\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)|$))/gi, '\\sqrt{x - 1}');
             str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*\+\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)|$))/gi, '\\sqrt{x + 1}');
             str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*-\s*2(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)|$))/gi, '\\sqrt{x - 2}');
             str = str.replace(/\\sqrt\s*\{\s*x\s*\}\s*\+\s*2(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)|$))/gi, '\\sqrt{x + 2}');
-            
-            // Bắt buộc các biểu thức sau \sqrt nếu có phép toán đi liền phải được bọc trọn vẹn trong cặp ngoặc nhọn {...}
             str = str.replace(/\\sqrt\s*x\s*-\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/gi, '\\sqrt{x - 1}');
             str = str.replace(/\\sqrt\s*x\s*\+\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/gi, '\\sqrt{x + 1}');
             str = str.replace(/\\sqrt\s*x\s*-\s*2(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/gi, '\\sqrt{x - 2}');
@@ -1089,36 +1148,15 @@ mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-
             str = str.replace(/\\sqrt\s+([a-zA-Z0-9^]+(?:\s*[\+\-]\s*[a-zA-Z0-9^]+)+)(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/g, '\\sqrt{$1}');
             str = str.replace(/\\sqrt\s+([a-zA-Z0-9]+)(?![a-zA-Z0-9{])/g, '\\sqrt{$1}');
 
-            // 4. SỬA DỨT ĐIỂM LỖI PHÂN SỐ CO RÚM / SỐ MŨ (TẦNG 1):
-            // 4.1 Khử lỗi biến dạng thành số mũ: ^{Tử}_{Mẫu} hoặc _{Mẫu}^{Tử} hoặc ^{Tử}/{Mẫu}
-            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*_\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$1}{$2}');
-            str = str.replace(/_\{\s*([^{}]+?)\s*\}\s*\^\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$2}{$1}');
-            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*(?:\/|_|\/_)\s*\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$1}{$2}');
-            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*\/\s*\(\s*([^()]+?)\s*\)/g, '\\dfrac{$1}{$2}');
-            str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*\/\s*([a-zA-Z0-9_\-\+]+)/g, '\\dfrac{$1}{$2}');
-            str = str.replace(/(?<![\\a-zA-Z])\{\s*([^{}]+?)\s*\}\s*\/\s*\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$1}{$2}');
-
-            // 4.2 Chuyển biểu thức đa thức dạng (A)/(B) thành \dfrac{A}{B}
-            str = str.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*\(\s*([xX0-9\s\^+\-*]+?)\s*\)/g, '\\dfrac{$1}{$2}');
-            str = str.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*([xX0-9a-zA-Z_\-]+)/g, '\\dfrac{$1}{$2}');
-
-            // 4.3 Khử lỗi mất chữ \f (rac{ phục hồi thành \dfrac{)
-            str = str.replace(/\\f\\frac/g, '\\dfrac')
-                     .replace(/\\f\s*\\frac/g, '\\dfrac')
-                     .replace(/\\ffrac/g, '\\dfrac')
-                     .replace(/\\f(?![a-zA-Z])/g, '')
-                     .replace(/(?<![a-zA-Z\\])rac\s*\{/g, '\\dfrac{')
-                     .replace(/(?<![a-zA-Z\\])frac\s*\{/g, '\\dfrac{')
-                     .replace(/\\frac(?=[{\s])/g, '\\dfrac');
-
-            // 5. CHUẨN HÓA DẤU TOÁN HỌC: \le, \ge, \ne
+            // 6. Chuẩn hóa dấu so sánh và quan hệ
             str = str.replace(/<=/g, '\\le ')
                      .replace(/>=/g, '\\ge ')
                      .replace(/≤/g, '\\le ')
                      .replace(/≥/g, '\\ge ')
-                     .replace(/≠/g, ' ≠ ');
+                     .replace(/≠/g, ' \\ne ')
+                     .replace(/\\neq\b/g, '\\ne');
 
-            // 6. TÁCH DÍNH CHỮ TIẾNG VIỆT VÀ CÔNG THỨC:
+            // 7. Tách dính chữ tiếng Việt và công thức toán
             str = str.replace(/(\d+)(trong|đoạn|là|có|với)/g, '$1 $2');
             str = str.replace(/(\))(trong|đoạn|là|có|với)/g, '$1 $2');
             str = str.replace(/(\\\))(trong|đoạn|là|có|với)/g, '$1 $2');
@@ -1131,67 +1169,84 @@ mjx-container, .mjx-chtml, mjx-math, .zombie-math-text, .tex2jax_process, .math-
             str = str.replace(/trong\s*đoạn\s*\[/g, 'trong đoạn [');
             str = str.replace(/\\le\s*0(trong|đoạn|là)/g, '\\le 0 $1');
 
-            // 7. BỌC DELIMITER CHUẨN \( ... \):
+            // 8. Đổi $...$ và $...$ sang \(...\)
             str = str.trim();
-
-            // 7.1 Chuyển đổi $...$ hoặc $$...$$ thành \(...\)
             str = str.replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => '\\(' + m.trim() + '\\)');
             str = str.replace(/\$([^\$]+?)\$/g, (_, m) => '\\(' + m.trim() + '\\)');
 
-            // 7.2 Ghép nối các phần tử toán bị văng ra ngoài dấu đóng ngoặc \)
-            str = str.replace(/\\\)\s*(\\le|\\ge|<=|>=|<|>|=)\s*([0-9a-zA-Z_\-+]+)/g, ' $1 $2\\)');
-
-            // 7.3 Bọc các tập nghiệm dạng đoạn [a; b] còn nằm ngoài TeX
-            str = str.replace(/(?<!\\\()(\[\s*-?[0-9a-zA-Z\s;+\-]+\s*\])(?!\\\))/g, '\\($1\\)');
-
-            // 7.4 Nếu là option toán học thuần (không có tiếng Việt có dấu)
+            // 9. NẾU LÀ OPTION ĐÁP ÁN (A, B, C, D)
             const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(str);
-
             if (isOption) {
-                if (!hasVietnamese && !str.startsWith('\\(') && !str.endsWith('\\)')) {
-                    return '\\(' + str + '\\)';
+                if (!hasVietnamese) {
+                    if (!str.startsWith('\\(') || !str.endsWith('\\)')) {
+                        str = str.replace(/^\\\(/, '').replace(/\\\)$/, '').trim();
+                        return '\\(' + str + '\\)';
+                    }
                 }
                 return str;
             }
 
-            // 7.5 Nếu là câu hỏi có tiếng Việt chứa TeX chưa được bọc \( ... \)
-            if (hasVietnamese) {
-                const mathTokens = [];
-                let sIdx = 0;
-                let cleanMath = '';
-                while (true) {
-                    const start = str.indexOf('\\(', sIdx);
-                    if (start === -1) {
-                        cleanMath += str.slice(sIdx);
-                        break;
-                    }
-                    const end = str.indexOf('\\)', start + 2);
-                    if (end === -1) {
-                        cleanMath += str.slice(sIdx);
-                        break;
-                    }
-                    cleanMath += str.slice(sIdx, start);
-                    mathTokens.push(str.slice(start, end + 2));
-                    cleanMath += '___F1_MATH_BLOCK_' + (mathTokens.length - 1) + '___';
-                    sIdx = end + 2;
+            // 10. TỰ ĐỘNG NHẬN DIỆN VÀ BỌC \( ... \) CHO CÂU HỎI (Tam thức bậc hai, hàm số, đạo hàm)
+            // Bước 10.1: Tách các khối đã được bọc \( ... \) thành tokens an toàn
+            const mathTokens = [];
+            let sIdx = 0;
+            let cleanMath = '';
+            while (true) {
+                const start = str.indexOf('\\(', sIdx);
+                if (start === -1) {
+                    cleanMath += str.slice(sIdx);
+                    break;
                 }
-                str = cleanMath;
-
-                str = str.replace(/(\\dfrac\{[^{}]*\}\{[^{}]*\}|\\sqrt\{[^{}]*\}|[a-zA-Z0-9_\^+\-*\/()=\s\\]+?(?:\\le|\\ge|<|>|=)\s*[0-9a-zA-Z_\-+]+)/g, (match) => {
-                    const m = match.trim();
-                    if (m.includes('___F1_MATH_BLOCK_')) return match;
-                    if (/[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return match;
-                    return '\\(' + m + '\\)';
-                });
-
-                for (let i = 0; i < mathTokens.length; i++) {
-                    str = str.replace('___F1_MATH_BLOCK_' + i + '___', mathTokens[i]);
+                const end = str.indexOf('\\)', start + 2);
+                if (end === -1) {
+                    cleanMath += str.slice(sIdx);
+                    break;
                 }
+                cleanMath += str.slice(sIdx, start);
+                mathTokens.push(str.slice(start, end + 2));
+                cleanMath += '___F1_MATH_BLOCK_' + (mathTokens.length - 1) + '___';
+                sIdx = end + 2;
+            }
+            str = cleanMath;
+
+            // Bước 10.2: Quét các biểu thức toán học còn lại chưa được bọc
+            // a. Hàm số, đạo hàm, tam thức: f(x) = ..., y = ..., y' = ..., f'(x) = ...
+            str = str.replace(/(?:f|g|h|y|P|Q)'*\s*(?:\([a-zA-Z0-9_xX\s\+\-]+\))?\s*=\s*[^,;:\.\?\n\r]+?(?=[,;:\.\?\n\r]|\s+với|\s+tại|\s+khi|\s+là|\s+trên|\s+trong|$)/gi, (m) => {
+                if (m.includes('___F1_MATH_BLOCK_') || /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return m;
+                return '\\(' + m.trim() + '\\)';
+            });
+
+            // b. Biểu thức có chứa tam thức bậc hai hoặc số mũ: ax^2 + bx + c, x^2 - 4x + 3, x^3 - 3x, v.v.
+            str = str.replace(/(?<![a-zA-Z0-9_\\])(?:-?[a-zA-Z0-9_()]+\^[0-9a-zA-Z]+(?:\s*[\+\-]\s*[a-zA-Z0-9_\^+\-*\/()]+)+)/g, (m) => {
+                if (m.includes('___F1_MATH_BLOCK_') || /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return m;
+                return '\\(' + m.trim() + '\\)';
+            });
+
+            // c. Bất phương trình hoặc phương trình: A >= 0, A <= 0, A = 0, A > 0, A < 0
+            str = str.replace(/(?<![a-zA-Z0-9_\\])(?:[a-zA-Z0-9_\^+\-*\/()\s]+?\s*(?:\\le|\\ge|\\ne|<|>|=)\s*-?[0-9a-zA-Z_\-+]+)/g, (m) => {
+                if (m.includes('___F1_MATH_BLOCK_') || /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return m;
+                return '\\(' + m.trim() + '\\)';
+            });
+
+            // d. Biểu thức chứa TeX: \dfrac, \sqrt, \Delta, \vec, \mathbb, \in, v.v.
+            str = str.replace(/(?:\\(?:dfrac|frac|sqrt|vec|Delta|mathbb|in|cup|cap|emptyset|infty|pm|cdot)[^{}\s]*(?:\{[^{}]*\})*(?:\s*[\+\-=\*\/]\s*[a-zA-Z0-9_\\{}]*)?)/g, (m) => {
+                if (m.includes('___F1_MATH_BLOCK_') || /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return m;
+                return '\\(' + m.trim() + '\\)';
+            });
+
+            // e. Khoảng, đoạn tập nghiệm: [a; b], (a; b], [a; b), (a; b)
+            str = str.replace(/(?<![a-zA-Z0-9_\\])(?:\[|\()\s*-?(?:\\infty|\+\\infty|\d+|[a-zA-Z])\s*;\s*-?(?:\\infty|\+\\infty|\d+|[a-zA-Z])\s*(?:\]|\))/g, (m) => {
+                if (m.includes('___F1_MATH_BLOCK_')) return m;
+                return '\\(' + m.trim() + '\\)';
+            });
+
+            // Bước 10.3: Khôi phục lại các tokens đã bảo vệ
+            for (let i = 0; i < mathTokens.length; i++) {
+                str = str.replace('___F1_MATH_BLOCK_' + i + '___', mathTokens[i]);
             }
 
-            // Ghép các cặp \( ... \) \( ... \) liền kề thành 1 môi trường math duy nhất
+            // Bước 10.4: Hợp nhất các khối \( ... \) \( ... \) liền kề
             str = str.replace(/\\\)\s*\\\(/g, ' ');
-            // Đảm bảo không bị lặp lồng \( \( ... \) \)
             str = str.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
 
             return str;
