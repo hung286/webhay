@@ -146,7 +146,29 @@
         /* Leaderboard Tabs */
         .tab-btn { transition: all 0.2s; border-bottom: 3px solid transparent; flex-shrink: 0; }
         .tab-btn.active { border-bottom: 3px solid #f43f5e; color: #e11d48; font-weight: 800; }
-    </style>
+    
+        /* Hiệu ứng biến mất mượt mà khi ghép đúng thẻ */
+        .matched-fade-out {
+            animation: cardMatchedFadeOut 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+            pointer-events: none !important;
+        }
+
+        @keyframes cardMatchedFadeOut {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            40% {
+                transform: scale(1.18);
+                opacity: 0.9;
+                filter: drop-shadow(0 0 18px rgba(34, 197, 94, 0.85));
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+</style>
 <style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.z-10{z-index:10}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.mx-2{margin-left:0.5rem;margin-right:0.5rem}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.mb-1{margin-bottom:0.25rem}.mb-3{margin-bottom:0.75rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-6{height:1.5rem}.h-screen{height:100vh}.max-h-\[95vh\]{max-height:95vh}.max-h-\[40vh\]{max-height:40vh}.w-6{width:1.5rem}.w-full{width:100%}.w-screen{width:100vw}.max-w-3xl{max-width:48rem}.max-w-4xl{max-width:56rem}.max-w-7xl{max-width:80rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.scale-100{--tw-scale-x:1;--tw-scale-y:1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes bounce{0%, 100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(0.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,0.2,1)}}.animate-bounce{animation:bounce 1s infinite}.cursor-pointer{cursor:pointer}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:9999px}.rounded-2xl{border-radius:1rem}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border-2{border-width:2px}.border-\[3px\]{border-width:3px}.border{border-width:1px}.border-b-4{border-bottom-width:4px}.border-b-\[8px\]{border-bottom-width:8px}.border-\[\#B3E5FC\]{--tw-border-opacity:1;border-color:rgb(179 229 252 / var(--tw-border-opacity, 1))}.border-\[\#D1D5DB\]{--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.border-\[\#FFCDD2\]{--tw-border-opacity:1;border-color:rgb(255 205 210 / var(--tw-border-opacity, 1))}.border-\[\#FFECB3\]{--tw-border-opacity:1;border-color:rgb(255 236 179 / var(--tw-border-opacity, 1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-emerald-300{--tw-border-opacity:1;border-color:rgb(110 231 183 / var(--tw-border-opacity, 1))}.border-emerald-100{--tw-border-opacity:1;border-color:rgb(209 250 229 / var(--tw-border-opacity, 1))}.border-teal-200{--tw-border-opacity:1;border-color:rgb(153 246 228 / var(--tw-border-opacity, 1))}.bg-\[\#064E3B\]\/70{background-color:rgb(6 78 59 / 0.7)}.bg-\[\#064E3B\]\/90{background-color:rgb(6 78 59 / 0.9)}.bg-\[\#E1F5FE\]{--tw-bg-opacity:1;background-color:rgb(225 245 254 / var(--tw-bg-opacity, 1))}.bg-\[\#FFEBEE\]{--tw-bg-opacity:1;background-color:rgb(255 235 238 / var(--tw-bg-opacity, 1))}.bg-\[\#FFF8E1\]{--tw-bg-opacity:1;background-color:rgb(255 248 225 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-indigo-500{--tw-bg-opacity:1;background-color:rgb(99 102 241 / var(--tw-bg-opacity, 1))}.bg-sky-500{--tw-bg-opacity:1;background-color:rgb(14 165 233 / var(--tw-bg-opacity, 1))}.bg-teal-50{--tw-bg-opacity:1;background-color:rgb(240 253 250 / var(--tw-bg-opacity, 1))}.bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-teal-100{--tw-gradient-from:#ccfbf1 var(--tw-gradient-from-position);--tw-gradient-to:rgb(204 251 241 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-teal-500{--tw-gradient-from:#14b8a6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(20 184 166 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-emerald-100{--tw-gradient-to:rgb(209 250 229 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #d1fae5 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-emerald-600{--tw-gradient-to:#059669 var(--tw-gradient-to-position)}.to-green-200{--tw-gradient-to:#bbf7d0 var(--tw-gradient-to-position)}.to-teal-700{--tw-gradient-to:#0f766e var(--tw-gradient-to-position)}.to-teal-500{--tw-gradient-to:#14b8a6 var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.object-cover{object-fit:cover}.p-2{padding:0.5rem}.p-4{padding:1rem}.p-1{padding:0.25rem}.p-3{padding:0.75rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.px-4{padding-left:1rem;padding-right:1rem}.px-8{padding-left:2rem;padding-right:2rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-2{padding-bottom:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-5xl{font-size:3rem;line-height:1}.text-6xl{font-size:3.75rem;line-height:1}.text-7xl{font-size:4.5rem;line-height:1}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[11px\]{font-size:11px}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.tracking-wide{letter-spacing:0.025em}.tracking-tight{letter-spacing:-0.025em}.text-\[\#0277BD\]{--tw-text-opacity:1;color:rgb(2 119 189 / var(--tw-text-opacity, 1))}.text-\[\#FF8F00\]{--tw-text-opacity:1;color:rgb(255 143 0 / var(--tw-text-opacity, 1))}.text-emerald-200{--tw-text-opacity:1;color:rgb(167 243 208 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-teal-800{--tw-text-opacity:1;color:rgb(17 94 89 / var(--tw-text-opacity, 1))}.shadow-\[0_20px_50px_rgba\(0\2c 0\2c 0\2c 0\.4\)\]{--tw-shadow:0 20px 50px rgba(0,0,0,0.4);--tw-shadow-colored:0 20px 50px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_15px_rgba\(0\2c 0\2c 0\2c 0\.1\)\]{--tw-shadow:0 4px 15px rgba(0,0,0,0.1);--tw-shadow-colored:0 4px 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_15px_rgba\(16\2c 185\2c 129\2c 0\.3\)\]{--tw-shadow:0 4px 15px rgba(16,185,129,0.3);--tw-shadow-colored:0 4px 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_3px_0_\#0369a1\]{--tw-shadow:0 3px 0 #0369a1;--tw-shadow-colored:0 3px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_3px_0_\#3730a3\]{--tw-shadow:0 3px 0 #3730a3;--tw-shadow-colored:0 3px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_6px_0_\#047857\]{--tw-shadow:0 6px 0 #047857;--tw-shadow-colored:0 6px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.drop-shadow-sm{--tw-drop-shadow:drop-shadow(0 1px 1px rgb(0 0 0 / 0.05));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.drop-shadow-xl{--tw-drop-shadow:drop-shadow(0 20px 13px rgb(0 0 0 / 0.03)) drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-indigo-600:hover{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-600:hover{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.hover\:from-teal-500:hover{--tw-gradient-from:#14b8a6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(20 184 166 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-emerald-500:hover{--tw-gradient-to:#10b981 var(--tw-gradient-to-position)}.focus\:border-emerald-500:focus{--tw-border-opacity:1;border-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:translate-y-\[3px\]:active{--tw-translate-y:3px;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:translate-y-\[6px\]:active{--tw-translate-y:6px;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:shadow-none:active{--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}@media (min-width: 640px){.sm\:flex{display:flex}.sm\:h-8{height:2rem}.sm\:max-h-none{max-height:none}.sm\:w-8{width:2rem}.sm\:w-auto{width:auto}.sm\:flex-row{flex-direction:row}.sm\:gap-2{gap:0.5rem}.sm\:gap-4{gap:1rem}.sm\:gap-3{gap:0.75rem}.sm\:p-3{padding:0.75rem}.sm\:p-4{padding:1rem}.sm\:p-8{padding:2rem}.sm\:px-3{padding-left:0.75rem;padding-right:0.75rem}.sm\:px-4{padding-left:1rem;padding-right:1rem}.sm\:px-5{padding-left:1.25rem;padding-right:1.25rem}.sm\:py-2{padding-top:0.5rem;padding-bottom:0.5rem}.sm\:py-3{padding-top:0.75rem;padding-bottom:0.75rem}.sm\:py-4{padding-top:1rem;padding-bottom:1rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-6xl{font-size:3.75rem;line-height:1}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xs{font-size:0.75rem;line-height:1rem}}@media (min-width: 768px){.md\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}}</style>
     <script>
         window.MathJax = {
@@ -1366,7 +1388,12 @@ button, .btn, input, select, canvas {
                 cardEl.className = 'matching-card-item heart-card-element game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]';
                 cardEl.dataset.baseClasses = 'game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]';
                 cardEl.dataset.id = pairId;
+                cardEl.dataset.pairId = pairId;
                 cardEl.dataset.side = isLeft ? 'left' : 'right';
+                cardEl.dataset.cardType = isLeft ? 'left' : 'right';
+                cardEl.dataset.formulaText = cleanFormula;
+                cardEl.dataset.rawFormula = rawFormula;
+                cardEl.dataset.matched = 'false';
 
                 // Tọa độ khởi đầu phân bố đều, chống dính chùm
                 const posX = Math.max(10, Math.min(maxX, (40 + (index * 135) % maxX)));
@@ -1489,97 +1516,336 @@ button, .btn, input, select, canvas {
         }
 
         function handleSelect(isLeft, id, element) {
-            if (gameState !== 'playing' || isAnimating || matchedIds.includes(id)) return;
+            if (gameState !== 'playing' || isAnimating || window.isCheckingMatch) return;
+            if (element.dataset.matched === 'true' || element.classList.contains('matched-fade-out') || !element.parentNode) return;
 
-            // Chặn click lại thẻ đang chọn
-            if (firstCard && firstCard.id === id && firstCard.isLeft === isLeft) { applyCardState(element, 'idle', isLeft); firstCard = null; return; }
-            if (!firstCard) { firstCard = { id, isLeft, el: element }; applyCardState(element, 'selected', isLeft); return; }
+            // Chặn click lại chính thẻ đang chọn
+            if (firstCard && (firstCard.el === element || (window.selectedFirstCard && window.selectedFirstCard.el === element))) {
+                applyCardState(element, 'idle', isLeft);
+                element.classList.remove('selected', 'active');
+                firstCard = null;
+                window.selectedFirstCard = null;
+                return;
+            }
+            
+            if (!firstCard) {
+                firstCard = { id, isLeft, el: element };
+                window.selectedFirstCard = firstCard;
+                element.classList.add('selected', 'active');
+                applyCardState(element, 'selected', isLeft);
+                return;
+            }
             
             const secondCard = { id, isLeft, el: element };
+            element.classList.add('selected', 'active');
             applyCardState(element, 'selected', isLeft);
             checkMatch(firstCard, secondCard);
         }
 
         function createHaloEffect(x, y) {
-            const halo = document.createElement('div'); halo.className = 'halo-effect'; halo.style.left = `${x}px`; halo.style.top = `${y}px`;
-            const ring1 = document.createElement('div'); ring1.className = 'halo-ring';
-            const ring2 = document.createElement('div'); ring2.className = 'halo-ring'; ring2.style.animationDelay = '0.1s'; ring2.style.borderColor = '#fb7185';
-            const heart = document.createElement('div'); heart.className = 'halo-heart'; heart.innerText = '💖';
-            halo.appendChild(ring1); halo.appendChild(ring2); halo.appendChild(heart);
-            document.getElementById('game-board').appendChild(halo);
+            const halo = document.createElement('div');
+            halo.className = 'halo-effect';
+            halo.style.left = `${x}px`;
+            halo.style.top = `${y}px`;
+            const ring1 = document.createElement('div');
+            ring1.className = 'halo-ring';
+            const ring2 = document.createElement('div');
+            ring2.className = 'halo-ring';
+            ring2.style.animationDelay = '0.1s';
+            ring2.style.borderColor = '#fb7185';
+            const heart = document.createElement('div');
+            heart.className = 'halo-heart';
+            heart.innerText = '💖';
+            halo.appendChild(ring1);
+            halo.appendChild(ring2);
+            halo.appendChild(heart);
+            const board = document.getElementById('game-board') || document.querySelector('.play-area') || document.body;
+            board.appendChild(halo);
             setTimeout(() => { if (halo.parentNode) halo.parentNode.removeChild(halo); }, 1000);
         }
 
-        function checkMatch(c1, c2) {
-            isAnimating = true; 
-            
-            // So sánh tuyệt đối chính xác dựa trên ID (Tránh mọi lỗi)
-            const isMatch = (c1.id === c2.id) && (c1.isLeft !== c2.isLeft); 
-            
-            if (isMatch) {
-                matchedIds.push(c1.id);
-                score++; 
-                updateHeader();
-                sndMatch.currentTime = 0; sndMatch.play().catch(e => {});
+        // ==========================================
+        // CƠ CHẾ NỐI ĐA CẶP GIÁ TRỊ (VALUE-BASED MATCHING)
+        // ==========================================
+        function normalizeMath(str) {
+            if (!str) return '';
+            return str
+                .toString()
+                .replace(/\displaystyle/g, '')
+                .replace(/\left|\right/g, '')
+                .replace(/[\(\)\[\]\$\{\}]/g, '')
+                .replace(/\cdot|\*|\times/g, '')
+                .replace(/\alpha|\beta|\theta|\varphi/g, 'x')
+                .replace(/\,/g, '')
+                .replace(/\/g, '')
+                .replace(/\s+/g, '')
+                .toLowerCase()
+                .trim();
+        }
 
-                const physC1 = movingCards.find(c => c.id === c1.id && c.isLeft === c1.isLeft);
-                const physC2 = movingCards.find(c => c.id === c2.id && c.isLeft === c2.isLeft);
+        // Thiết lập bảng nhóm giá trị kết quả tương đương
+        const trigValueGroups = {
+            "val_1": [
+                "\\(\\sin^2 x + \\cos^2 x\\)",
+                "\\(\\sin^2\\alpha + \\cos^2\\alpha\\)",
+                "\\(\\cos^2 x + \\sin^2 x\\)",
+                "\\(\\cos^2\\alpha + \\sin^2\\alpha\\)",
+                "\\(\\tan x \\cdot \\cot x\\)",
+                "\\(\\tan\\alpha \\cdot \\cot\\alpha\\)",
+                "\\(\\cot x \\cdot \\tan x\\)",
+                "\\(\\cot\\alpha \\cdot \\tan\\alpha\\)",
+                "\\(1\\)",
+                "1"
+            ],
+            "val_sec2": [
+                "\\(\\frac{1}{\\cos^2 x}\\)",
+                "\\(\\frac{1}{\\cos^2\\alpha}\\)",
+                "\\(\displaystyle \\frac{1}{\\cos^2 x}\\)",
+                "\\(\displaystyle \\frac{1}{\\cos^2\\alpha}\\)",
+                "\\(1 + \\tan^2 x\\)",
+                "\\(1 + \\tan^2\\alpha\\)",
+                "\\(\tan^2 x + 1\\)",
+                "\\(\tan^2\\alpha + 1\\)"
+            ],
+            "val_csc2": [
+                "\\(\\frac{1}{\\sin^2 x}\\)",
+                "\\(\\frac{1}{\\sin^2\\alpha}\\)",
+                "\\(\displaystyle \\frac{1}{\\sin^2 x}\\)",
+                "\\(\displaystyle \\frac{1}{\\sin^2\\alpha}\\)",
+                "\\(1 + \\cot^2 x\\)",
+                "\\(1 + \\cot^2\\alpha\\)",
+                "\\(\cot^2 x + 1\\)",
+                "\\(\cot^2\\alpha + 1\\)"
+            ],
+            "val_tan": [
+                "\\(\tan x\\)",
+                "\\(\tan\\alpha\\)",
+                "\\(\frac{\\sin x}{\\cos x}\\)",
+                "\\(\frac{\\sin\\alpha}{\\cos\\alpha}\\)",
+                "\\(\displaystyle \\frac{\\sin x}{\\cos x}\\)",
+                "\\(\displaystyle \\frac{\\sin\\alpha}{\\cos\\alpha}\\)"
+            ],
+            "val_cot": [
+                "\\(\cot x\\)",
+                "\\(\cot\\alpha\\)",
+                "\\(\frac{\\cos x}{\\sin x}\\)",
+                "\\(\frac{\\cos\\alpha}{\\sin\\alpha}\\)",
+                "\\(\displaystyle \\frac{\\cos x}{\\sin x}\\)",
+                "\\(\displaystyle \\frac{\\cos\\alpha}{\\sin\\alpha}\\)"
+            ],
+            "val_cos2x": [
+                "\\(\cos 2x\\)",
+                "\\(\cos^2 x - \\sin^2 x\\)",
+                "\\(1 - 2\\sin^2 x\\)",
+                "\\(2\\cos^2 x - 1\\)"
+            ]
+        };
+
+        function checkTrigValueMatch(card1, card2) {
+            if (!card1 || !card2) return false;
+            
+            const text1 = card1.dataset.formulaText || card1.dataset.rawFormula || card1.innerText.trim();
+            const text2 = card2.dataset.formulaText || card2.dataset.rawFormula || card2.innerText.trim();
+            
+            const type1 = card1.dataset.cardType || card1.dataset.side || '';
+            const type2 = card2.dataset.cardType || card2.dataset.side || '';
+
+            // Nếu cùng vế (cùng vế trái công thức hoặc cùng vế phải kết quả) thì không ghép
+            if (type1 && type2 && type1 === type2) {
+                console.log("Ghép sai: cùng vế thẻ!");
+                executeCardFailureAnimation(card1, card2);
+                return false;
+            }
+
+            const norm1 = normalizeMath(text1);
+            const norm2 = normalizeMath(text2);
+            const id1 = card1.dataset.pairId || card1.dataset.id;
+            const id2 = card2.dataset.pairId || card2.dataset.id;
+
+            let matchedGroup = null;
+
+            // 1. Kiểm tra xem 2 thẻ có cùng nằm trong một nhóm giá trị kết quả hay không (trigValueGroups)
+            for (const [groupKey, expressions] of Object.entries(trigValueGroups)) {
+                const inGroup1 = expressions.some(exp => {
+                    const normExp = normalizeMath(exp);
+                    return norm1 === normExp || norm1.includes(normExp) || normExp.includes(norm1);
+                });
+                const inGroup2 = expressions.some(exp => {
+                    const normExp = normalizeMath(exp);
+                    return norm2 === normExp || norm2.includes(normExp) || normExp.includes(norm2);
+                });
                 
-                if(physC1 && physC2) {
-                    physC1.active = false; physC2.active = false;
-                    const midX = (physC1.x + physC1.width/2 + physC2.x + physC2.width/2) / 2; const midY = (physC1.y + physC1.height/2 + physC2.y + physC2.height/2) / 2;
-
-                    c1.el.classList.add('merge-transition'); c2.el.classList.add('merge-transition');
-                    c1.el.style.left = `${midX - physC1.width/2}px`; c1.el.style.top = `${midY - physC1.height/2}px`;
-                    c2.el.style.left = `${midX - physC2.width/2}px`; c2.el.style.top = `${midY - physC2.height/2}px`;
-
-                    setTimeout(() => {
-                        createHaloEffect(midX, midY);
-                        c1.el.style.transform = 'scale(0)'; c2.el.style.transform = 'scale(0)';
-                        setTimeout(() => { applyCardState(c1.el, 'matched', c1.isLeft); applyCardState(c2.el, 'matched', c2.isLeft); }, 200);
-                        
-                        if (matchedIds.length === currentPairs.length) {
-                            if (currentMode === 'campaign') {
-                                setTimeout(processCampaignVictory, 800);
-                            } else {
-                                setTimeout(() => endGame('victory'), 800);
-                            }
-                        } else { firstCard = null; isAnimating = false;  }
-                    }, 250);
+                if (inGroup1 && inGroup2) {
+                    matchedGroup = groupKey;
+                    break;
                 }
+            }
+
+            // 2. Kiểm tra theo ID cặp gốc trong bộ dữ liệu
+            if (!matchedGroup && id1 && id2 && String(id1) === String(id2) && type1 !== type2) {
+                matchedGroup = 'pair_id_' + id1;
+            }
+
+            // 3. Kiểm tra xem 2 cặp có cùng chung giá trị kết quả vế phải trong currentPairs
+            if (!matchedGroup && Array.isArray(currentPairs)) {
+                const p1 = currentPairs.find(p => String(p.id) === String(id1));
+                const p2 = currentPairs.find(p => String(p.id) === String(id2));
+                if (p1 && p2) {
+                    const normR1 = normalizeMath(p1.right);
+                    const normR2 = normalizeMath(p2.right);
+                    const normL1 = normalizeMath(p1.left);
+                    const normL2 = normalizeMath(p2.left);
+
+                    if (normR1 === normR2 && type1 !== type2) {
+                        matchedGroup = 'equivalent_right_val_' + normR1;
+                    } else if (norm1 === norm2 || norm1 === normR2 || norm2 === normR1 || norm1 === normL2 || norm2 === normL1) {
+                        matchedGroup = 'equivalent_symmetric';
+                    }
+                }
+            }
+
+            if (matchedGroup) {
+                console.log("Ghép đúng nhóm giá trị:", matchedGroup);
+                executeCardSuccessAnimation(card1, card2);
+                return true;
             } else {
-                lives--; updateHeader();
-                sndError.currentTime = 0; sndError.play().catch(e => {});
+                console.log("Ghép sai giá trị!");
+                executeCardFailureAnimation(card1, card2);
+                return false;
+            }
+        }
 
-                applyCardState(c1.el, 'error', c1.isLeft); applyCardState(c2.el, 'error', c2.isLeft);
+        function executeCardSuccessAnimation(card1, card2) {
+            card1.classList.add('matched-fade-out');
+            card2.classList.add('matched-fade-out');
+            card1.dataset.matched = 'true';
+            card2.dataset.matched = 'true';
 
-                const physC1 = movingCards.find(c => c.id === c1.id && c.isLeft === c1.isLeft);
-                const physC2 = movingCards.find(c => c.id === c2.id && c.isLeft === c2.isLeft);
-                
-                if (physC1 && physC2) {
-                    const cx1 = physC1.x + physC1.width/2; const cy1 = physC1.y + physC1.height/2;
-                    const cx2 = physC2.x + physC2.width/2; const cy2 = physC2.y + physC2.height/2;
-                    let dx = cx1 - cx2; let dy = cy1 - cy2;
-                    let dist = Math.sqrt(dx*dx + dy*dy); if (dist === 0) { dx = 1; dy = 0; dist = 1; } 
-                    
-                    const repelForce = 50; 
-                    physC1.vx = (dx / dist) * repelForce; physC1.vy = (dy / dist) * repelForce;
-                    physC2.vx = -(dx / dist) * repelForce; physC2.vy = -(dy / dist) * repelForce;
+            // Vô hiệu hóa thẻ trong movingCards
+            movingCards.forEach(c => {
+                if (c.el === card1 || c.el === card2) {
+                    c.active = false;
                 }
+            });
 
-                if (lives <= 0) {
-                    setTimeout(() => {
-                        applyCardState(c1.el, 'idle', c1.isLeft); applyCardState(c2.el, 'idle', c2.isLeft);
-                        endGame('gameover');
-                    }, 600); 
+            const id1 = parseInt(card1.dataset.pairId || card1.dataset.id || 0);
+            const id2 = parseInt(card2.dataset.pairId || card2.dataset.id || 0);
+            if (id1) matchedIds.push(id1);
+            if (id2 && id2 !== id1) matchedIds.push(id2);
+
+            score++;
+            updateHeader();
+            try {
+                if (sndMatch) { sndMatch.currentTime = 0; sndMatch.play().catch(e => {}); }
+            } catch(e) {}
+
+            // Hiệu ứng ánh sáng hào quang Halo
+            try {
+                const r1 = card1.getBoundingClientRect();
+                const r2 = card2.getBoundingClientRect();
+                const board = document.getElementById('game-board') || card1.parentElement || document.body;
+                const bRect = board.getBoundingClientRect ? board.getBoundingClientRect() : { left: 0, top: 0 };
+                const midX = ((r1.left + r1.right) / 2 + (r2.left + r2.right) / 2) / 2 - bRect.left;
+                const midY = ((r1.top + r1.bottom) / 2 + (r2.top + r2.bottom) / 2) / 2 - bRect.top;
+                if (typeof createHaloEffect === 'function') {
+                    createHaloEffect(midX, midY);
+                }
+            } catch(e) {}
+
+            setTimeout(() => {
+                card1.style.display = 'none';
+                card2.style.display = 'none';
+                if (card1.parentNode) card1.parentNode.removeChild(card1);
+                if (card2.parentNode) card2.parentNode.removeChild(card2);
+                
+                firstCard = null;
+                window.selectedFirstCard = null;
+                isAnimating = false;
+                window.isCheckingMatch = false;
+
+                // Kiểm tra hoàn thành màn chơi
+                if (typeof checkGameCompletion === 'function') {
+                    checkGameCompletion();
+                }
+            }, 300);
+        }
+
+        function executeCardFailureAnimation(card1, card2) {
+            lives--;
+            updateHeader();
+            try {
+                if (sndError) { sndError.currentTime = 0; sndError.play().catch(e => {}); }
+            } catch(e) {}
+
+            applyCardState(card1, 'error', card1.dataset.cardType === 'left' || card1.dataset.side === 'left');
+            applyCardState(card2, 'error', card2.dataset.cardType === 'left' || card2.dataset.side === 'left');
+
+            const physC1 = movingCards.find(c => c.el === card1);
+            const physC2 = movingCards.find(c => c.el === card2);
+            if (physC1 && physC2) {
+                const cx1 = physC1.x + physC1.width / 2;
+                const cy1 = physC1.y + physC1.height / 2;
+                const cx2 = physC2.x + physC2.width / 2;
+                const cy2 = physC2.y + physC2.height / 2;
+                let dx = cx1 - cx2;
+                let dy = cy1 - cy2;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist === 0) { dx = 1; dy = 0; dist = 1; }
+                const repelForce = 50;
+                physC1.vx = (dx / dist) * repelForce;
+                physC1.vy = (dy / dist) * repelForce;
+                physC2.vx = -(dx / dist) * repelForce;
+                physC2.vy = -(dy / dist) * repelForce;
+            }
+
+            if (lives <= 0) {
+                setTimeout(() => {
+                    applyCardState(card1, 'idle', card1.dataset.cardType === 'left' || card1.dataset.side === 'left');
+                    applyCardState(card2, 'idle', card2.dataset.cardType === 'left' || card2.dataset.side === 'left');
+                    endGame('gameover');
+                }, 600);
+            } else {
+                setTimeout(() => {
+                    applyCardState(card1, 'idle', card1.dataset.cardType === 'left' || card1.dataset.side === 'left');
+                    applyCardState(card2, 'idle', card2.dataset.cardType === 'left' || card2.dataset.side === 'left');
+                    card1.classList.remove('selected', 'active');
+                    card2.classList.remove('selected', 'active');
+                    firstCard = null;
+                    window.selectedFirstCard = null;
+                    isAnimating = false;
+                    window.isCheckingMatch = false;
+                }, 400);
+            }
+        }
+
+        function checkMatch(c1, c2) {
+            isAnimating = true;
+            window.isCheckingMatch = true;
+            const el1 = (c1 && c1.el) ? c1.el : c1;
+            const el2 = (c2 && c2.el) ? c2.el : c2;
+            return checkTrigValueMatch(el1, el2);
+        }
+
+        function checkGameCompletion() {
+            const totalRequired = Array.isArray(currentPairs) ? currentPairs.length : 4;
+            const remainingActive = movingCards.filter(c => c.active && c.el && c.el.parentNode && c.el.dataset.matched !== 'true');
+            if (score >= totalRequired || remainingActive.length === 0) {
+                if (currentMode === 'campaign') {
+                    setTimeout(processCampaignVictory, 600);
                 } else {
-                    setTimeout(() => {
-                        applyCardState(c1.el, 'idle', c1.isLeft); applyCardState(c2.el, 'idle', c2.isLeft);
-                        firstCard = null; isAnimating = false;
-                    }, 800);
+                    setTimeout(() => endGame('victory'), 600);
                 }
             }
         }
+
+        // Gắn các hàm ra window để tương thích toàn cục
+        window.normalizeMath = normalizeMath;
+        window.trigValueGroups = trigValueGroups;
+        window.checkTrigValueMatch = checkTrigValueMatch;
+        window.executeCardSuccessAnimation = executeCardSuccessAnimation;
+        window.executeCardFailureAnimation = executeCardFailureAnimation;
+        window.checkGameCompletion = checkGameCompletion;
+        window.checkMatch = checkMatch;
 
         // Khởi động giao diện chính
         showOverlay('start');
