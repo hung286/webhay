@@ -453,6 +453,27 @@ button, .btn, input, select, canvas {
 }
 </style>
 
+
+<style id="__GHEP_CAP_ADJUSTMENTS_CSS__">
+/* =======================================================
+   1. CHUẨN HÓA TỐC ĐỘ TRÔI NỔI VÀ DI CHUYỂN CỰC CHẬM ÊM ÁI CỦA THẺ BÀI
+   ======================================================= */
+.heart-card-element, .matching-card-item, .floating-card, .game-card {
+    animation-duration: 25s !important; /* Kéo dài thời gian chuyển động để thẻ bay cực kỳ chậm rãi, êm ái */
+    transition: transform 0.5s ease !important;
+}
+
+/* =======================================================
+   2. KHÓA HOÀN TOÀN HÀNH VI BẤM VÀO THANH TIÊU ĐỀ TÁC GIẢ "TOÁN PRO - THẦY HÙNG"
+   ======================================================= */
+.author-badge, .topbar-brand, #logo-container, .marquee-badge-wrapper, .marquee-badge-text,
+div[title*="Logo"], [title*="tải Logo"], [title*="Logo"] {
+    pointer-events: none !important;
+    user-select: none !important;
+    cursor: default !important;
+}
+</style>
+
 </head>
 <body class="h-screen w-screen bg-gradient-to-b from-teal-100 via-emerald-100 to-green-200 flex flex-col items-center relative overflow-hidden text-gray-800">
 
@@ -513,11 +534,9 @@ button, .btn, input, select, canvas {
 
     <!-- THANH TRẠNG THÁI -->
     <div class="w-full max-w-7xl z-40 p-2 sm:p-4 flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 shrink-0 pointer-events-none transition-all">
-        <div id="logo-container" class="pointer-events-auto flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 sm:px-5 sm:py-2 rounded-full shadow-[0_4px_15px_rgba(16,185,129,0.3)] border-[3px] border-emerald-300 cursor-pointer hover:scale-105 transition-transform z-30" title="Nhấn để tải Logo lên">
-            <input type="file" id="logoUpload" accept="image/*" class="hidden">
-            <img id="custom-logo" src="https://tro-ly-giao-vien-toanthpt.netlify.app/tro-choi/ghep-cap-cong-thuc-luong-giac.html" class="hidden w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-emerald-200 shadow-sm">
-            <span id="default-icon" class="text-xl sm:text-2xl drop-shadow-sm">🎓</span>
-            <span class="font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-700 tracking-wide text-sm sm:text-xl">TOÁN PRO - THẦY HÙNG</span>
+        <div id="logo-container" class="pointer-events-none select-none flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 sm:px-5 sm:py-2 rounded-full shadow-[0_4px_15px_rgba(16,185,129,0.3)] border-[3px] border-emerald-300 cursor-default z-30">
+            <span id="default-icon" class="text-xl sm:text-2xl drop-shadow-sm pointer-events-none">🎓</span>
+            <span class="font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-700 tracking-wide text-sm sm:text-xl pointer-events-none select-none">TOÁN PRO - THẦY HÙNG</span>
         </div>
 
         <div class="pointer-events-auto flex items-center gap-2">
@@ -1021,15 +1040,33 @@ button, .btn, input, select, canvas {
                         </div>
                     </div>
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn-play-single-topic" type="button" style="
-                            flex: 1; padding: 9px 12px; border: none; border-radius: 12px;
+                        <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+                        <button class="btn-play-single-topic" type="button" data-key="${topic.key}" style="
+                            width: 100%; padding: 8px 10px; border: none; border-radius: 10px;
                             background: ${isFormula ? 'linear-gradient(90deg, #0284c7, #0369a1)' : 'linear-gradient(90deg, #9333ea, #7e22ce)'};
-                            color: #ffffff; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
-                            cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+                            color: #ffffff; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px;
+                            cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.25);
                             touch-action: manipulation; -webkit-tap-highlight-color: transparent;
                         ">
-                            ${topic.icon} VÀO CHƠI NGAY ➡️
+                            ${topic.icon} ${isFormula ? '📘 Chơi Công Thức Ngay' : '⚡ Chơi Ví Dụ Số Ngay'} ➡️
                         </button>
+                        <div style="display: flex; gap: 6px; width: 100%;">
+                            <button type="button" class="btn-topic-mode-ct" data-key="${Math.ceil(topic.id / 2)}_F" style="
+                                flex: 1; padding: 6px 8px; border: none; border-radius: 8px;
+                                background: #0284c7; color: #ffffff; font-weight: 800; font-size: 11px;
+                                cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                            ">
+                                📘 C.Thức
+                            </button>
+                            <button type="button" class="btn-topic-mode-vd" data-key="${Math.ceil(topic.id / 2)}_E" style="
+                                flex: 1; padding: 6px 8px; border: none; border-radius: 8px;
+                                background: #7c3aed; color: #ffffff; font-weight: 800; font-size: 11px;
+                                cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                            ">
+                                ⚡ Ví Dụ
+                            </button>
+                        </div>
+                    </div>
                     </div>
                 `;
 
@@ -1612,6 +1649,68 @@ button, .btn, input, select, canvas {
             });
         }
 
+        
+// ==========================================
+// CƠ CHẾ PHÂN GIẢI & NẠP MẢNG CÔNG THỨC CHUẨN XÁC THEO CHUYÊN ĐỀ (1 ĐẾN 16 & VƯỢT ẢI)
+// ==========================================
+function resolveLevelKey(inputCode) {
+    if (!inputCode) return '1_F';
+    const s = String(inputCode).trim();
+    if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[s]) return s;
+
+    // Phân tích nếu truyền số 1..16
+    const n = parseInt(s);
+    if (!isNaN(n) && n >= 1 && n <= 16) {
+        if (typeof ALL_16_TOPICS !== 'undefined') {
+            const t = ALL_16_TOPICS.find(item => item.id === n);
+            if (t && GAME_LEVELS[t.key]) return t.key;
+        }
+        const group = Math.ceil(n / 2);
+        const suffix = (n % 2 === 1) ? '_F' : '_E';
+        const keyAttempt = `${group}${suffix}`;
+        if (GAME_LEVELS[keyAttempt]) return keyAttempt;
+    }
+
+    // Phân tích nếu dạng 1_F, 1_E, 1F, 1E, v.v.
+    const m = s.match(/^(\d+)[_]?([FEfe])$/);
+    if (m) {
+        let grp = parseInt(m[1]);
+        const type = m[2].toUpperCase();
+        if (grp > 8) grp = Math.ceil(grp / 2);
+        const k = `${grp}_${type}`;
+        if (GAME_LEVELS[k]) return k;
+    }
+
+    return '1_F';
+}
+
+// Thiết lập đầy đủ alias cho GAME_LEVELS (1..16, 1_F..16_E)
+if (typeof GAME_LEVELS !== 'undefined') {
+    for (let i = 1; i <= 16; i++) {
+        const groupNum = Math.ceil(i / 2);
+        const fKey = `${groupNum}_F`;
+        const eKey = `${groupNum}_E`;
+
+        if (i % 2 === 1) { // Lẻ -> Công thức
+            if (GAME_LEVELS[fKey]) {
+                GAME_LEVELS[i] = GAME_LEVELS[fKey];
+                GAME_LEVELS[String(i)] = GAME_LEVELS[fKey];
+                GAME_LEVELS[`${i}_F`] = GAME_LEVELS[fKey];
+                GAME_LEVELS[`${i}_E`] = GAME_LEVELS[eKey];
+                GAME_LEVELS[`topic_${i}`] = GAME_LEVELS[fKey];
+            }
+        } else { // Chẵn -> Ví dụ
+            if (GAME_LEVELS[eKey]) {
+                GAME_LEVELS[i] = GAME_LEVELS[eKey];
+                GAME_LEVELS[String(i)] = GAME_LEVELS[eKey];
+                GAME_LEVELS[`${i}_F`] = GAME_LEVELS[fKey];
+                GAME_LEVELS[`${i}_E`] = GAME_LEVELS[eKey];
+                GAME_LEVELS[`topic_${i}`] = GAME_LEVELS[eKey];
+            }
+        }
+    }
+}
+
         function loadLevelLogic(levelCode) {
             gameState = 'playing';
             firstCard = null; 
@@ -1619,8 +1718,8 @@ button, .btn, input, select, canvas {
             score = 0; 
             isAnimating = false;
             
-            let targetKey = levelCode;
-            if (!targetKey || typeof targetKey !== 'string' || !GAME_LEVELS[targetKey]) {
+            let targetKey = resolveLevelKey(levelCode);
+            if (!targetKey || !GAME_LEVELS[targetKey]) {
                 targetKey = (currentMode === 'campaign' && CAMPAIGN_STAGES[currentCampaignIndex]) ? CAMPAIGN_STAGES[currentCampaignIndex] : '1_F';
             }
 
@@ -2016,7 +2115,8 @@ button, .btn, input, select, canvas {
                     } catch(e) {}
                 }
 
-                const speed = isMobile ? (0.28 + Math.random() * 0.35) : (0.55 + Math.random() * 0.65);
+                // Tốc độ trôi nổi cực kỳ chậm rãi, nhẹ nhàng, êm ái để học sinh dễ dàng quan sát
+                const speed = isMobile ? (0.06 + Math.random() * 0.06) : (0.09 + Math.random() * 0.08);
                 const angle = Math.random() * 2 * Math.PI;
 
                 movingCards.push({
@@ -2387,7 +2487,7 @@ button, .btn, input, select, canvas {
                 let dy = cy1 - cy2;
                 let dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist === 0) { dx = 1; dy = 0; dist = 1; }
-                const repelForce = 50;
+                const repelForce = 2.5;
                 physC1.vx = (dx / dist) * repelForce;
                 physC1.vy = (dy / dist) * repelForce;
                 physC2.vx = -(dx / dist) * repelForce;
@@ -2932,9 +3032,12 @@ window.formatMathStringToTeX = formatMathStringToTeX;
 // ==========================================
 
 // ==========================================
+// ==========================================
 // TOÀN BỘ CÁC HÀM KHỞI CHẠY GAME CHO WINDOW (DIRECT FUNCTION BINDING ALIASES)
 // ==========================================
 if (typeof window !== 'undefined') {
+    window.resolveLevelKey = typeof resolveLevelKey === 'function' ? resolveLevelKey : function(k) { return k || '1_F'; };
+
     window.startGame = function(mode) {
         console.log("window.startGame được gọi với mode:", mode);
         if (mode === 'campaign') {
@@ -2964,9 +3067,54 @@ if (typeof window !== 'undefined') {
     };
 
     // ==========================================
-    // TÌM VÀ GÁN TRỰC TIẾP HÀM GỐC VÀO NÚT BẮT ĐẦU (DIRECT FUNCTION BINDING)
+    // TÌM VÀ GÁN TRỰC TIẾP HÀM GỐC VÀO NÚT BẮT ĐẦU & CÁC NÚT CHUYÊN ĐỀ (DIRECT EVENT BINDING)
     // ==========================================
     (function() {
+        // Trình chặn click toàn cục an toàn (Event Delegation)
+        document.addEventListener('click', function(e) {
+            // 1. Khóa hoàn toàn click vào tiêu đề tác giả / logo
+            const authorEl = e.target.closest('#logo-container, .author-badge, .topbar-brand, .marquee-badge-wrapper');
+            if (authorEl) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+
+            // 2. Bắt các nút bấm chuyên đề C.Thức, Ví Dụ hoặc Vượt 16 Ải
+            const btn = e.target.closest('button, [role="button"], .play-mode-btn');
+            if (!btn) return;
+
+            const txt = (btn.innerText || btn.textContent || "").trim();
+            const upper = txt.toUpperCase();
+
+            // Nếu là nút Vượt 16 ải
+            if (upper.includes('VƯỢT 16') || upper.includes('CAMPAIGN')) {
+                console.log("Kích hoạt Chế độ Vượt 16 Ải từ nút:", txt);
+                if (typeof window.startLevel === 'function') {
+                    window.startLevel('campaign');
+                }
+                return;
+            }
+
+            // Nếu là nút C.Thức hoặc Ví Dụ
+            if (upper === 'C.THỨC' || upper === 'VÍ DỤ' || upper.includes('C.THỨC') || upper.includes('VÍ DỤ')) {
+                let targetKey = btn.dataset.key || btn.getAttribute('data-key');
+                if (!targetKey) {
+                    const onclickAttr = btn.getAttribute('onclick') || '';
+                    const match = onclickAttr.match(/startLevel\(['"]([^'"]+)['"]\)/);
+                    if (match) targetKey = match[1];
+                }
+                if (!targetKey) {
+                    const parentCard = btn.closest('.topic-card, .topic-item-card, div[class*="rounded"]');
+                    if (parentCard) targetKey = parentCard.dataset.key;
+                }
+                if (targetKey && typeof window.startLevel === 'function') {
+                    console.log("Kích hoạt Chuyên đề từ nút C.Thức / Ví Dụ:", targetKey);
+                    window.startLevel(targetKey);
+                }
+            }
+        }, true);
+
         function bindAllStartButtons() {
             // Tìm đến nút bấm bắt đầu chơi chính (an toàn với chuẩn querySelector)
             let mainStartBtn = null;
@@ -2975,6 +3123,18 @@ if (typeof window !== 'undefined') {
             } catch (err) {
                 mainStartBtn = document.querySelector('.play-mode-btn, [id*="start"], [class*="start"], div[style*="background"]');
             }
+
+            // Khóa click cho bất kỳ thẻ nào chứa chữ tác giả
+            document.querySelectorAll('button, div, span, a, h1, h2, h3, p').forEach(el => {
+                const txt = (el.innerText || el.textContent || "").toUpperCase();
+                if (txt.includes('TOÁN PRO') || txt.includes('THẦY HÙNG') || txt.includes('THẤY HÙNG') || el.id === 'logo-container') {
+                    el.style.setProperty('pointer-events', 'none', 'important');
+                    el.style.setProperty('user-select', 'none', 'important');
+                    el.style.setProperty('cursor', 'default', 'important');
+                    el.removeAttribute('title');
+                    el.onclick = null;
+                }
+            });
 
             // Duyệt qua tất cả các button để tìm nút có chữ "BẬT ĐẦU CHƠI" hoặc "Vượt 16 Ái"
             const allEls = document.querySelectorAll('button, div, span, a');
@@ -3036,7 +3196,7 @@ if (typeof window !== 'undefined') {
                             }
                         }
 
-                        // Nếu không tìm thấy hàm global, thử kích hoạt sự kiện click gốc của component hoặc ẩn modal thủ công
+                        // Nếu không tìm thấy hàm global, ẩn modal trực tiếp và hiện bàn chơi
                         if (!launched) {
                             console.log("Không tìm thấy hàm global, thực thi ẩn modal trực tiếp.");
                             const modals = document.querySelectorAll('.selection-screen-wrapper, .lobby-wrapper, #setup-container, #overlay, #topic-selection-overlay');
@@ -3061,20 +3221,19 @@ if (typeof window !== 'undefined') {
         }
 
         // Gọi ngay và gọi sau khi window load
-        setTimeout(bindAllStartButtons, 300);
-        setTimeout(bindAllStartButtons, 800);
-        setTimeout(bindAllStartButtons, 1500);
+        setTimeout(bindAllStartButtons, 200);
+        setTimeout(bindAllStartButtons, 600);
+        setTimeout(bindAllStartButtons, 1200);
 
         if (document.readyState === 'loading') {
             window.addEventListener('load', () => {
-                setTimeout(bindAllStartButtons, 800);
+                setTimeout(bindAllStartButtons, 600);
             });
             document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(bindAllStartButtons, 500);
+                setTimeout(bindAllStartButtons, 400);
             });
         }
     })();
 }
-
 </script>
 </body></html>
