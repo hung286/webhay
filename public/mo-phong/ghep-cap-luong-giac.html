@@ -514,8 +514,8 @@ button, .btn, input, select, canvas {
 
     <!-- MÀN HÌNH POPUP -->
     <div id="overlay" class="absolute inset-0 bg-[#064E3B]/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div id="overlay-content" class="bg-white rounded-[2rem] p-4 sm:p-8 max-w-4xl w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.4)] border-b-[8px] border-[#D1D5DB] transform transition-all scale-100 flex flex-col max-h-[95vh]">
-                <div class="overflow-y-auto pb-2 custom-scrollbar">
+        <div id="overlay-content" class="selection-screen-wrapper lobby-wrapper bg-white rounded-[2rem] p-4 sm:p-8 max-w-4xl w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.4)] border-b-[8px] border-[#D1D5DB] transform transition-all scale-100 flex flex-col max-h-[95vh]">
+                <div id="setup-container" class="overflow-y-auto pb-2 custom-scrollbar">
                     <div class="text-5xl sm:text-6xl mb-3 drop-shadow-xl animate-bounce">🧠</div>
                     <h1 class="text-2xl sm:text-4xl font-black text-emerald-600 mb-1 tracking-tight">Ghép Cặp Trái Tim</h1>
                     <h2 class="text-sm sm:text-lg font-bold text-emerald-500 mb-4 pb-2 inline-block">Công Thức Lượng Giác (16 Level)</h2>
@@ -529,6 +529,25 @@ button, .btn, input, select, canvas {
                         <span class="bg-white/20 px-3 py-1 rounded-xl text-xs uppercase tracking-wider font-extrabold">Mở Menu ➡️</span>
                     </button>
                     
+                    
+                    <!-- BẢNG CHỌN NHIỀU CHUYÊN ĐỀ TÙY Ý VÀ TRỘN NGẪU NHIÊN (MULTI-SELECT UI & AUTO-SHUFFLE) -->
+                    <div id="custom-multi-topics-panel" style="background: rgba(15, 23, 42, 0.94); border: 2px solid #38bdf8; padding: 14px 16px; border-radius: 16px; margin-bottom: 16px; color: #fff; text-align: left; box-shadow: 0 6px 20px rgba(56, 189, 248, 0.35); box-sizing: border-box;">
+                        <div style="font-weight: 900; font-size: 0.95rem; margin-bottom: 10px; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <span style="display: flex; align-items: center; gap: 6px;">
+                                <span>🎯 CHẾ ĐỘ CHỌN NHIỀU CHỦ ĐỀ TÙY Ý</span>
+                                <span id="lobby-chk-count" style="font-size: 11px; font-weight: 800; background: #0284c7; color: #fff; padding: 2px 8px; border-radius: 9999px;">16/16 Đã Chọn</span>
+                            </span>
+                            <div style="display: flex; gap: 6px;">
+                                <button id="btn-select-all" type="button" style="background: #0ea5e9; border: none; color: #fff; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 800; touch-action: manipulation;">Chọn tất cả</button>
+                                <button id="btn-clear-all" type="button" style="background: #64748b; border: none; color: #fff; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 800; touch-action: manipulation;">Bỏ chọn hết</button>
+                            </div>
+                        </div>
+                        <div id="multi-checkboxes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; max-height: 140px; overflow-y: auto; padding-right: 4px; margin-bottom: 12px;" class="custom-scrollbar"></div>
+                        <button id="btn-start-multi-shuffle" type="button" class="btn-start-matching play-mode-btn" style="width: 100%; padding: 12px; background: linear-gradient(90deg, #10b981, #059669); color: #fff; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px; border: 2px solid #34d399; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px; touch-action: manipulation;">
+                            <span>🚀 BẮT ĐẦU CHƠI CÁC CHỦ ĐỀ ĐÃ CHỌN (TRỘN NGẪU NHIÊN CẶP THẺ) ➡️</span>
+                        </button>
+                    </div>
+
                     <div class="mb-4 text-left bg-emerald-50 p-3 sm:p-4 rounded-2xl border-2 border-emerald-100">
                         <label class="block text-sm sm:text-base font-bold text-emerald-800 mb-2">Nhập tên để lưu bảng xếp hạng:</label>
                         <input type="text" id="playerNameInput" oninput="window.savePlayerName(this.value)" placeholder="Tên của bạn..." class="w-full px-4 py-2 sm:py-3 rounded-xl border-2 border-emerald-300 focus:outline-none focus:border-emerald-500 font-bold text-gray-700 shadow-inner" value="">
@@ -693,26 +712,26 @@ button, .btn, input, select, canvas {
         // DANH SÁCH 16 CHUYÊN ĐỀ LƯỢNG GIÁC CHUẨN
         // ==========================================
         const ALL_16_TOPICS = [
-            { key: '1_F', id: 1, name: "1. Công Thức Lượng Giác Cơ Bản", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin²x + cos²x = 1, tanx·cotx = 1, 1+tan²x, 1+cot²x", icon: "📐" },
-            { key: '1_E', id: 2, name: "2. Công Thức Cơ Bản (Ví Dụ Số)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "Giá trị lượng giác góc đặc biệt: π/3, π/4, π/5, π/6", icon: "💡" },
-            { key: '2_F', id: 3, name: "3. Giá Trị Cung Góc Liên Kết", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "Góc đối, bù, phụ, hơn kém π, hơn kém π/2", icon: "🔄" },
-            { key: '2_E', id: 4, name: "4. Cung Góc Liên Kết (Ví Dụ Số)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "Rút gọn cung liên kết: 5π/6, 2π/3, 4π/3", icon: "🎯" },
-            { key: '3_F', id: 5, name: "5. Công Thức Cộng Lượng Giác", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin(a±b), cos(a±b), tan(a±b)", icon: "➕" },
-            { key: '3_E', id: 6, name: "6. Công Thức Cộng (Ví Dụ Số)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "Tính cos 75°, sin 75°, tan 15°, tan 75°", icon: "🧩" },
-            { key: '4_F', id: 7, name: "7. Công Thức Nhân Đôi", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin 2x = 2sinx cosx, cos 2x = cos²x - sin²x, tan 2x", icon: "✖️" },
-            { key: '4_E', id: 8, name: "8. Công Thức Nhân Đôi (Ví Dụ Số)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "2sin 15° cos 15°, cos²(π/8) - sin²(π/8), 1 - 2sin² 15°", icon: "🔥" },
-            { key: '5_F', id: 9, name: "9. Công Thức Hạ Bậc", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin²x = (1-cos 2x)/2, cos²x = (1+cos 2x)/2, tan²x", icon: "📉" },
-            { key: '5_E', id: 10, name: "10. Công Thức Hạ Bậc (Ví Dụ Số)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "Tính sin² 15°, cos² 15°, tan² 15°, cos²(π/8)", icon: "✨" },
-            { key: '6_F', id: 11, name: "11. Công Thức Nhân Ba", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin 3x = 3sinx - 4sin³x, cos 3x = 4cos³x - 3cosx, tan 3x", icon: "🔱" },
-            { key: '6_E', id: 12, name: "12. Công Thức Nhân Ba (Ví Dụ Số)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "3sin 10° - 4sin³ 10°, 4cos³ 10° - 3cos 10°, 4cos³ 15°", icon: "💎" },
-            { key: '7_F', id: 13, name: "13. Biến Đổi Tổng Thành Tích", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "cos a + cos b, cos a - cos b, sin a + sin b, sin a - sin b", icon: "∑" },
-            { key: '7_E', id: 14, name: "14. Tổng Thành Tích (Ví Dụ Số)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "cos 75° + cos 15°, cos 75° - cos 15°, sin(5π/12) ± sin(π/12)", icon: "📊" },
-            { key: '8_F', id: 15, name: "15. Biến Đổi Tích Thành Tổng", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "cos a cos b, sin a sin b, sin a cos b", icon: "∏" },
-            { key: '8_E', id: 16, name: "16. Tích Thành Tổng (Ví Dụ Số)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "cos 75° cos 15°, sin 75° sin 15°, sin 75° cos 15°", icon: "🏆" }
+            { key: '1_F', id: 1, name: "1. Công Thức Lượng Giác Cơ Bản", shortName: "1. C.Thức Cơ Bản", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin²x + cos²x = 1, tanx·cotx = 1, 1+tan²x, 1+cot²x", icon: "📐" },
+            { key: '1_E', id: 2, name: "2. Công Thức Cơ Bản (Ví Dụ Số)", shortName: "2. Cơ Bản (Ví Dụ)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "Giá trị lượng giác góc đặc biệt: π/3, π/4, π/5, π/6", icon: "💡" },
+            { key: '2_F', id: 3, name: "3. Giá Trị Cung Góc Liên Kết", shortName: "3. Cung Liên Kết", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "Góc đối, bù, phụ, hơn kém π, hơn kém π/2", icon: "🔄" },
+            { key: '2_E', id: 4, name: "4. Cung Góc Liên Kết (Ví Dụ Số)", shortName: "4. Liên Kết (Ví Dụ)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "Rút gọn cung liên kết: 5π/6, 2π/3, 4π/3", icon: "🎯" },
+            { key: '3_F', id: 5, name: "5. Công Thức Cộng Lượng Giác", shortName: "5. Công Thức Cộng", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin(a±b), cos(a±b), tan(a±b)", icon: "➕" },
+            { key: '3_E', id: 6, name: "6. Công Thức Cộng (Ví Dụ Số)", shortName: "6. CT Cộng (Ví Dụ)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "Tính cos 75°, sin 75°, tan 15°, tan 75°", icon: "🧩" },
+            { key: '4_F', id: 7, name: "7. Công Thức Nhân Đôi", shortName: "7. CT Nhân Đôi", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin 2x = 2sinx cosx, cos 2x = cos²x - sin²x, tan 2x", icon: "✖️" },
+            { key: '4_E', id: 8, name: "8. Công Thức Nhân Đôi (Ví Dụ Số)", shortName: "8. Nhân Đôi (Ví Dụ)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "2sin 15° cos 15°, cos²(π/8) - sin²(π/8), 1 - 2sin² 15°", icon: "🔥" },
+            { key: '5_F', id: 9, name: "9. Công Thức Hạ Bậc", shortName: "9. CT Hạ Bậc", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin²x = (1-cos 2x)/2, cos²x = (1+cos 2x)/2, tan²x", icon: "📉" },
+            { key: '5_E', id: 10, name: "10. Công Thức Hạ Bậc (Ví Dụ Số)", shortName: "10. Hạ Bậc (Ví Dụ)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "Tính sin² 15°, cos² 15°, tan² 15°, cos²(π/8)", icon: "✨" },
+            { key: '6_F', id: 11, name: "11. Công Thức Nhân Ba", shortName: "11. CT Nhân Ba", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin 3x = 3sinx - 4sin³x, cos 3x = 4cos³x - 3cosx, tan 3x", icon: "🔱" },
+            { key: '6_E', id: 12, name: "12. Công Thức Nhân Ba (Ví Dụ Số)", shortName: "12. Nhân Ba (Ví Dụ)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "3sin 10° - 4sin³ 10°, 4cos³ 10° - 3cos 10°, 4cos³ 15°", icon: "💎" },
+            { key: '7_F', id: 13, name: "13. Biến Đổi Tổng Thành Tích", shortName: "13. Tổng -> Tích", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "cos a + cos b, cos a - cos b, sin a + sin b, sin a - sin b", icon: "∑" },
+            { key: '7_E', id: 14, name: "14. Tổng Thành Tích (Ví Dụ Số)", shortName: "14. Tổng Tích (VD)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "cos 75° + cos 15°, cos 75° - cos 15°, sin(5π/12) ± sin(π/12)", icon: "📊" },
+            { key: '8_F', id: 15, name: "15. Biến Đổi Tích Thành Tổng", shortName: "15. Tích -> Tổng", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "cos a cos b, sin a sin b, sin a cos b", icon: "∏" },
+            { key: '8_E', id: 16, name: "16. Tích Thành Tổng (Ví Dụ Số)", shortName: "16. Tích Tổng (VD)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "cos 75° cos 15°, sin 75° sin 15°, sin 75° cos 15°", icon: "🏆" }
         ];
 
         window.currentTopicTab = '16';
-        window.selectedTopicKeys = new Set(ALL_16_TOPICS.map(t => t.key)); // Mặc định chọn tất cả để người chơi bấm chơi được ngay
+        window.selectedTopicKeys = new Set(ALL_16_TOPICS.map(t => t.key));
 
         window.switchTopicTab = function(tab) {
             window.currentTopicTab = tab;
@@ -745,43 +764,37 @@ button, .btn, input, select, canvas {
             }
         };
 
-        // Hàm cập nhật số lượng chuyên đề đã chọn
-        function updateSelectedCountDisplay() {
-            const countSpan = document.getElementById('selected-topics-count');
-            const count = window.selectedTopicKeys ? window.selectedTopicKeys.size : 0;
-            if (countSpan) {
-                countSpan.innerText = `Đã chọn: ${count}/16`;
-            }
-            const startBtn = document.getElementById('btn-start-multi-topics');
-            if (startBtn) {
-                if (count > 0) {
-                    startBtn.innerHTML = `<span>🚀 BẮT ĐẦU CHƠI ${count} CHỦ ĐỀ ĐÃ CHỌN (TRỘN NGẪU NHIÊN) ➡️</span>`;
-                    startBtn.style.opacity = '1';
-                } else {
-                    startBtn.innerHTML = `<span>🚀 CHỌN ÍT NHẤT 1 CHỦ ĐỀ ĐỂ BẮT ĐẦU ➡️</span>`;
-                    startBtn.style.opacity = '0.75';
-                }
-            }
-        }
-
         // ==========================================
-        // HÀM BỐC NGẪU NHIÊN CẶP THẺ (AUTO-SAMPLING & SHUFFLE)
+        // HÀM TRỘN NGẪU NHIÊN & BỐC THẺ (AUTO-SHUFFLE ENGINE)
         // ==========================================
         window.startMultiTopicsGame = function(customKeys = null) {
             let keys = customKeys;
             if (!Array.isArray(keys) || keys.length === 0) {
-                keys = Array.from(window.selectedTopicKeys || []);
+                // Đọc từ checkbox ở sảnh chờ
+                const chks = document.querySelectorAll('.multi-topic-chk:checked, .topic-checkbox:checked');
+                if (chks.length > 0) {
+                    const setKeys = new Set();
+                    chks.forEach(chk => {
+                        if (chk.dataset.key) { setKeys.add(chk.dataset.key); }
+                        else if (chk.value) {
+                            const valIdx = parseInt(chk.value) - 1;
+                            if (ALL_16_TOPICS[valIdx]) setKeys.add(ALL_16_TOPICS[valIdx].key);
+                        }
+                    });
+                    keys = Array.from(setKeys);
+                } else if (window.selectedTopicKeys && window.selectedTopicKeys.size > 0) {
+                    keys = Array.from(window.selectedTopicKeys);
+                }
             }
-            
+
             // Nếu người chơi chưa tích ô nào, tự động chọn tất cả 16 chuyên đề
-            if (keys.length === 0) {
+            if (!keys || keys.length === 0) {
                 keys = ALL_16_TOPICS.map(t => t.key);
-                window.selectedTopicKeys = new Set(keys);
             }
 
-            console.log("Khởi động chơi ngẫu nhiên từ các chuyên đề:", keys);
+            console.log("Auto-Shuffle Engine: Trộn các chuyên đề:", keys);
 
-            // 1. Thu thập toàn bộ các cặp bài từ các chuyên đề được chọn
+            // 1. Tập hợp các cặp thẻ từ các chủ đề đã chọn
             let pooledPairs = [];
             keys.forEach(k => {
                 if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[k] && Array.isArray(GAME_LEVELS[k].pairs)) {
@@ -799,13 +812,13 @@ button, .btn, input, select, canvas {
                 pooledPairs = [...FALLBACK_TRIGONOMETRY_PAIRS];
             }
 
-            // 2. Thuật toán Fisher-Yates xáo trộn ngẫu nhiên hoàn hảo
+            // 2. Thuật toán Fisher-Yates Shuffle
             for (let i = pooledPairs.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [pooledPairs[i], pooledPairs[j]] = [pooledPairs[j], pooledPairs[i]];
             }
 
-            // 3. Auto-Sampling: Bốc ngẫu nhiên từ 5 đến 8 cặp bài độc đáo
+            // 3. Auto-Sampling: Bốc ngẫu nhiên số cặp thẻ phù hợp (5 đến 8 cặp)
             const sampleSize = Math.min(pooledPairs.length, Math.max(5, Math.min(8, Math.round(keys.length * 1.5))));
             const sampledPairs = pooledPairs.slice(0, sampleSize).map((p, idx) => ({
                 id: idx + 1,
@@ -813,7 +826,7 @@ button, .btn, input, select, canvas {
                 right: cleanPairMath(p.right)
             }));
 
-            // 4. Khởi tạo cấu hình vòng chơi hỗn hợp
+            // 4. Tạo cấu hình màn chơi hỗn hợp
             GAME_LEVELS['multi_topic_mix'] = {
                 title: `Hỗn Hợp (${keys.length} Chủ Đề)`,
                 time: Math.min(150, 50 + sampledPairs.length * 10),
@@ -824,281 +837,175 @@ button, .btn, input, select, canvas {
             window.startLevel('multi_topic_mix');
         };
 
+        // ==========================================
+        // TIÊM BẢNG MULTI-SELECT CHECKBOXES Ở SẢNH CHỜ
+        // ==========================================
+        function initLobbyMultiSelectCheckboxes() {
+            const grid = document.getElementById('multi-checkboxes-grid');
+            if (grid && grid.children.length === 0) {
+                ALL_16_TOPICS.forEach((topic, idx) => {
+                    const label = document.createElement('label');
+                    label.style.cssText = 'display: flex; align-items: center; font-size: 0.8rem; cursor: pointer; background: rgba(255,255,255,0.06); padding: 5px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); user-select: none; touch-action: manipulation;';
+                    label.innerHTML = `<input type="checkbox" class="multi-topic-chk" data-key="${topic.key}" value="${idx + 1}" style="margin-right: 6px; transform: scale(1.15); accent-color: #10b981; cursor: pointer;" checked> <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${topic.shortName || topic.name}</span>`;
+                    
+                    label.addEventListener('change', () => {
+                        updateLobbyCheckboxCount();
+                    });
+
+                    grid.appendChild(label);
+                });
+
+                const btnSelectAll = document.getElementById('btn-select-all');
+                if (btnSelectAll) {
+                    btnSelectAll.onclick = (e) => {
+                        if (e) { e.preventDefault(); e.stopPropagation(); }
+                        document.querySelectorAll('.multi-topic-chk').forEach(c => c.checked = true);
+                        updateLobbyCheckboxCount();
+                    };
+                }
+
+                const btnClearAll = document.getElementById('btn-clear-all');
+                if (btnClearAll) {
+                    btnClearAll.onclick = (e) => {
+                        if (e) { e.preventDefault(); e.stopPropagation(); }
+                        document.querySelectorAll('.multi-topic-chk').forEach(c => c.checked = false);
+                        updateLobbyCheckboxCount();
+                    };
+                }
+
+                const btnStartMulti = document.getElementById('btn-start-multi-shuffle');
+                if (btnStartMulti) {
+                    const startAction = (e) => {
+                        if (e) { e.preventDefault(); e.stopPropagation(); }
+                        window.startMultiTopicsGame();
+                    };
+                    btnStartMulti.addEventListener('click', startAction);
+                    btnStartMulti.addEventListener('touchend', startAction, { passive: false });
+                }
+
+                updateLobbyCheckboxCount();
+            }
+        }
+
+        function updateLobbyCheckboxCount() {
+            const checkedBoxes = document.querySelectorAll('.multi-topic-chk:checked');
+            const countLabel = document.getElementById('lobby-chk-count');
+            if (countLabel) {
+                countLabel.innerText = `${checkedBoxes.length}/16 Đã Chọn`;
+            }
+            const startBtn = document.getElementById('btn-start-multi-shuffle');
+            if (startBtn) {
+                if (checkedBoxes.length > 0) {
+                    startBtn.innerHTML = `<span>🚀 BẮT ĐẦU CHƠI ${checkedBoxes.length} CHỦ ĐỀ ĐÃ CHỌN (TRỘN NGẪU NHIÊN) ➡️</span>`;
+                    startBtn.style.opacity = '1';
+                } else {
+                    startBtn.innerHTML = `<span>🚀 CHỌN ÍT NHẤT 1 CHỦ ĐỀ ĐỂ BẮT ĐẦU ➡️</span>`;
+                    startBtn.style.opacity = '0.75';
+                }
+            }
+        }
+
+        // ==========================================
+        // RENDER DANH SÁCH 16 CHUYÊN ĐỀ (MODAL TOPIC)
+        // ==========================================
         window.renderGhepCapTopicCards = function() {
             const container = document.getElementById('ghep-cap-topics-grid');
             if (!container) return;
             container.innerHTML = '';
 
-            // TAB 1: 16 CHUYÊN ĐỀ CHUẨN VỚI CHECKBOX MULTI-SELECT
-            if (window.currentTopicTab === '16') {
-                // 1. Thêm Multi-select Panel
-                const multiPanel = document.createElement('div');
-                multiPanel.id = 'multi-select-panel';
-                multiPanel.style.cssText = `
-                    grid-column: 1 / -1;
-                    background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(6, 78, 59, 0.96));
-                    border: 2px solid #38bdf8; border-radius: 18px; padding: 14px 16px; margin-bottom: 8px;
-                    color: #fff; text-align: left; box-shadow: 0 4px 25px rgba(56, 189, 248, 0.35); box-sizing: border-box;
+            ALL_16_TOPICS.forEach((topic) => {
+                const levelData = (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[topic.key]) ? GAME_LEVELS[topic.key] : null;
+                const pairCount = levelData && Array.isArray(levelData.pairs) ? levelData.pairs.length : 5;
+                const timeSec = levelData && levelData.time ? levelData.time : 60;
+                const isFormula = topic.type === 'formula';
+                const isChecked = window.selectedTopicKeys ? window.selectedTopicKeys.has(topic.key) : true;
+
+                const card = document.createElement('div');
+                card.className = `topic-card topic-item-card ${isChecked ? 'topic-checked' : ''}`;
+                card.dataset.key = topic.key;
+                card.dataset.type = topic.type;
+                card.style.cssText = `
+                    background: linear-gradient(135deg, rgba(6, 78, 59, 0.92), rgba(2, 44, 34, 0.98));
+                    border: 2px solid ${isChecked ? '#34d399' : (isFormula ? 'rgba(56, 189, 248, 0.45)' : 'rgba(168, 85, 247, 0.45)')};
+                    border-radius: 18px; padding: 14px 16px; text-align: left; transition: all 0.25s ease;
+                    display: flex; flex-direction: column; justify-content: space-between;
+                    box-shadow: 0 8px 20px rgba(0,0,0,0.3); box-sizing: border-box; cursor: pointer;
                 `;
 
-                multiPanel.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
-                        <div style="font-weight: 900; font-size: 13px; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
-                            <span>✨ CHỌN NHANH NHIỀU CHỦ ĐỀ TÙY Ý:</span>
-                            <span id="selected-topics-count" style="background: #0284c7; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 9999px;">
-                                Đã chọn: ${window.selectedTopicKeys ? window.selectedTopicKeys.size : 0}/16
+                const badgeColor = isFormula 
+                    ? 'background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid #38bdf8;'
+                    : 'background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #c084fc;';
+
+                card.innerHTML = `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <label style="display: flex; align-items: center; cursor: pointer; font-size: 11px; font-weight: 900; color: #6ee7b7; letter-spacing: 1.5px; text-transform: uppercase;">
+                                <input type="checkbox" class="topic-checkbox" data-key="${topic.key}" data-type="${topic.type}" ${isChecked ? 'checked' : ''}>
+                                CHUYÊN ĐỀ ${topic.id}
+                            </label>
+                            <span style="font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 9999px; ${badgeColor}">
+                                ${topic.typeLabel}
                             </span>
                         </div>
-                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                            <button id="select-all-topics" type="button" style="background: #0ea5e9; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; touch-action: manipulation;">✓ Chọn tất cả</button>
-                            <button id="clear-all-topics" type="button" style="background: #475569; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; touch-action: manipulation;">✕ Bỏ chọn hết</button>
-                            <button id="select-formula-topics" type="button" style="background: #059669; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; touch-action: manipulation;">📘 Chỉ Lý Thuyết</button>
-                            <button id="select-example-topics" type="button" style="background: #7c3aed; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; touch-action: manipulation;">⚡ Chỉ Ví Dụ</button>
+                        <h3 style="color: #ffffff; font-size: 15px; font-weight: 800; margin: 0 0 6px 0; line-height: 1.35; word-break: break-word;">
+                            ${topic.name}
+                        </h3>
+                        <p style="color: #a7f3d0; font-size: 11px; margin: 0 0 10px 0; line-height: 1.4; opacity: 0.85;">
+                            ${topic.desc}
+                        </p>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px; font-size: 11px; font-weight: 700; color: #6ee7b7;">
+                            <span style="background: rgba(52, 211, 153, 0.15); padding: 2px 8px; border-radius: 6px;">🧩 ${pairCount} Cặp</span>
+                            <span style="background: rgba(52, 211, 153, 0.15); padding: 2px 8px; border-radius: 6px;">⏱️ ${timeSec}s</span>
                         </div>
                     </div>
-                    <button id="btn-start-multi-topics" type="button" class="btn-start-matching btn-start-multi" style="
-                        width: 100%; padding: 13px 18px; border: 2px solid #34d399; border-radius: 14px;
-                        background: linear-gradient(90deg, #10b981, #059669); color: #ffffff;
-                        font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
-                        cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-                        display: flex; align-items: center; justify-content: center; gap: 8px; touch-action: manipulation;
-                    ">
-                        <span>🚀 BẮT ĐẦU CHƠI CÁC CHỦ ĐỀ ĐÃ CHỌN (TRỘN NGẪU NHIÊN CẶP THẺ) ➡️</span>
-                    </button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-play-single-topic" type="button" style="
+                            flex: 1; padding: 9px 12px; border: none; border-radius: 12px;
+                            background: ${isFormula ? 'linear-gradient(90deg, #0284c7, #0369a1)' : 'linear-gradient(90deg, #9333ea, #7e22ce)'};
+                            color: #ffffff; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
+                            cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+                            touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+                        ">
+                            ${topic.icon} VÀO CHƠI NGAY ➡️
+                        </button>
+                    </div>
                 `;
 
-                container.appendChild(multiPanel);
+                const chk = card.querySelector('.topic-checkbox');
 
-                // Gán sự kiện cho các nút điều khiển của Multi-select Panel
-                const btnAll = multiPanel.querySelector('#select-all-topics');
-                if (btnAll) btnAll.onclick = () => {
-                    ALL_16_TOPICS.forEach(t => window.selectedTopicKeys.add(t.key));
-                    document.querySelectorAll('.topic-checkbox').forEach(cb => cb.checked = true);
-                    document.querySelectorAll('.topic-item-card').forEach(c => c.classList.add('topic-checked'));
-                    updateSelectedCountDisplay();
-                };
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.btn-play-single-topic')) return;
+                    if (e.target !== chk) {
+                        chk.checked = !chk.checked;
+                    }
+                    if (chk.checked) {
+                        if (window.selectedTopicKeys) window.selectedTopicKeys.add(topic.key);
+                        card.classList.add('topic-checked');
+                        card.style.borderColor = '#34d399';
+                    } else {
+                        if (window.selectedTopicKeys) window.selectedTopicKeys.delete(topic.key);
+                        card.classList.remove('topic-checked');
+                        card.style.borderColor = isFormula ? 'rgba(56, 189, 248, 0.45)' : 'rgba(168, 85, 247, 0.45)';
+                    }
+                });
 
-                const btnClear = multiPanel.querySelector('#clear-all-topics');
-                if (btnClear) btnClear.onclick = () => {
-                    window.selectedTopicKeys.clear();
-                    document.querySelectorAll('.topic-checkbox').forEach(cb => cb.checked = false);
-                    document.querySelectorAll('.topic-item-card').forEach(c => c.classList.remove('topic-checked'));
-                    updateSelectedCountDisplay();
-                };
-
-                const btnFormula = multiPanel.querySelector('#select-formula-topics');
-                if (btnFormula) btnFormula.onclick = () => {
-                    window.selectedTopicKeys.clear();
-                    ALL_16_TOPICS.forEach(t => {
-                        if (t.type === 'formula') window.selectedTopicKeys.add(t.key);
-                    });
-                    document.querySelectorAll('.topic-checkbox').forEach(cb => {
-                        cb.checked = cb.dataset.type === 'formula';
-                    });
-                    document.querySelectorAll('.topic-item-card').forEach(c => {
-                        c.classList.toggle('topic-checked', c.dataset.type === 'formula');
-                    });
-                    updateSelectedCountDisplay();
-                };
-
-                const btnExample = multiPanel.querySelector('#select-example-topics');
-                if (btnExample) btnExample.onclick = () => {
-                    window.selectedTopicKeys.clear();
-                    ALL_16_TOPICS.forEach(t => {
-                        if (t.type === 'example') window.selectedTopicKeys.add(t.key);
-                    });
-                    document.querySelectorAll('.topic-checkbox').forEach(cb => {
-                        cb.checked = cb.dataset.type === 'example';
-                    });
-                    document.querySelectorAll('.topic-item-card').forEach(c => {
-                        c.classList.toggle('topic-checked', c.dataset.type === 'example');
-                    });
-                    updateSelectedCountDisplay();
-                };
-
-                const btnStartMulti = multiPanel.querySelector('#btn-start-multi-topics');
-                if (btnStartMulti) {
-                    const startMultiAction = (e) => {
+                const playBtn = card.querySelector('.btn-play-single-topic');
+                if (playBtn) {
+                    const playAction = (e) => {
                         if (e) { e.preventDefault(); e.stopPropagation(); }
-                        window.startMultiTopicsGame();
+                        window.closeGhepCapTopicMenu();
+                        const ov = document.getElementById('overlay');
+                        if (ov) { ov.style.display = 'none'; ov.classList.add('hidden'); }
+                        if (typeof window.startLevel === 'function') {
+                            window.startLevel(topic.key);
+                        }
                     };
-                    btnStartMulti.addEventListener('click', startMultiAction);
-                    btnStartMulti.addEventListener('touchend', startMultiAction, { passive: false });
+                    playBtn.addEventListener('click', playAction);
+                    playBtn.addEventListener('touchend', playAction, { passive: false });
                 }
 
-                // 2. Render từng thẻ chuyên đề với Checkbox
-                ALL_16_TOPICS.forEach((topic) => {
-                    const levelData = (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[topic.key]) ? GAME_LEVELS[topic.key] : null;
-                    const pairCount = levelData && Array.isArray(levelData.pairs) ? levelData.pairs.length : 5;
-                    const timeSec = levelData && levelData.time ? levelData.time : 60;
-                    const isFormula = topic.type === 'formula';
-                    const isChecked = window.selectedTopicKeys.has(topic.key);
-
-                    const card = document.createElement('div');
-                    card.className = `topic-card topic-item-card ${isChecked ? 'topic-checked' : ''}`;
-                    card.dataset.key = topic.key;
-                    card.dataset.type = topic.type;
-                    card.style.cssText = `
-                        background: linear-gradient(135deg, rgba(6, 78, 59, 0.92), rgba(2, 44, 34, 0.98));
-                        border: 2px solid ${isChecked ? '#34d399' : (isFormula ? 'rgba(56, 189, 248, 0.45)' : 'rgba(168, 85, 247, 0.45)')};
-                        border-radius: 18px; padding: 14px 16px; text-align: left; transition: all 0.25s ease;
-                        display: flex; flex-direction: column; justify-content: space-between;
-                        box-shadow: 0 8px 20px rgba(0,0,0,0.3); box-sizing: border-box; cursor: pointer;
-                    `;
-
-                    const badgeColor = isFormula 
-                        ? 'background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid #38bdf8;'
-                        : 'background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #c084fc;';
-
-                    card.innerHTML = `
-                        <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <label style="display: flex; align-items: center; cursor: pointer; font-size: 11px; font-weight: 900; color: #6ee7b7; letter-spacing: 1.5px; text-transform: uppercase;">
-                                    <input type="checkbox" class="topic-checkbox" data-key="${topic.key}" data-type="${topic.type}" ${isChecked ? 'checked' : ''}>
-                                    CHUYÊN ĐỀ ${topic.id}
-                                </label>
-                                <span style="font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 9999px; ${badgeColor}">
-                                    ${topic.typeLabel}
-                                </span>
-                            </div>
-                            <h3 style="color: #ffffff; font-size: 15px; font-weight: 800; margin: 0 0 6px 0; line-height: 1.35; word-break: break-word;">
-                                ${topic.name}
-                            </h3>
-                            <p style="color: #a7f3d0; font-size: 11px; margin: 0 0 10px 0; line-height: 1.4; opacity: 0.85;">
-                                ${topic.desc}
-                            </p>
-                            <div style="display: flex; gap: 8px; margin-bottom: 12px; font-size: 11px; font-weight: 700; color: #6ee7b7;">
-                                <span style="background: rgba(52, 211, 153, 0.15); padding: 2px 8px; border-radius: 6px;">🧩 ${pairCount} Cặp</span>
-                                <span style="background: rgba(52, 211, 153, 0.15); padding: 2px 8px; border-radius: 6px;">⏱️ ${timeSec}s</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            <button class="btn-play-single-topic" type="button" style="
-                                flex: 1; padding: 9px 12px; border: none; border-radius: 12px;
-                                background: ${isFormula ? 'linear-gradient(90deg, #0284c7, #0369a1)' : 'linear-gradient(90deg, #9333ea, #7e22ce)'};
-                                color: #ffffff; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
-                                cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-                                touch-action: manipulation; -webkit-tap-highlight-color: transparent;
-                            ">
-                                ${topic.icon} VÀO CHƠI NGAY ➡️
-                            </button>
-                        </div>
-                    `;
-
-                    const chk = card.querySelector('.topic-checkbox');
-
-                    // Khi click vào thân card: toggle checkbox
-                    card.addEventListener('click', (e) => {
-                        // Nếu click vào nút play đơn lẻ thì không toggle mà vào chơi luôn
-                        if (e.target.closest('.btn-play-single-topic')) return;
-                        
-                        if (e.target !== chk) {
-                            chk.checked = !chk.checked;
-                        }
-                        if (chk.checked) {
-                            window.selectedTopicKeys.add(topic.key);
-                            card.classList.add('topic-checked');
-                            card.style.borderColor = '#34d399';
-                        } else {
-                            window.selectedTopicKeys.delete(topic.key);
-                            card.classList.remove('topic-checked');
-                            card.style.borderColor = isFormula ? 'rgba(56, 189, 248, 0.45)' : 'rgba(168, 85, 247, 0.45)';
-                        }
-                        updateSelectedCountDisplay();
-                    });
-
-                    // Sự kiện nút chơi riêng bài này
-                    const playBtn = card.querySelector('.btn-play-single-topic');
-                    if (playBtn) {
-                        const playAction = (e) => {
-                            if (e) { e.preventDefault(); e.stopPropagation(); }
-                            window.closeGhepCapTopicMenu();
-                            const ov = document.getElementById('overlay');
-                            if (ov) { ov.style.display = 'none'; ov.classList.add('hidden'); }
-                            if (typeof window.startLevel === 'function') {
-                                window.startLevel(topic.key);
-                            }
-                        };
-                        playBtn.addEventListener('click', playAction);
-                        playBtn.addEventListener('touchend', playAction, { passive: false });
-                    }
-
-                    container.appendChild(card);
-                });
-
-                updateSelectedCountDisplay();
-            } else {
-                // TAB 2: 3 CHUYÊN ĐỀ ĐA ĐỘ KHÓ CỦA GAMEDATABASE
-                const topics = (window.gameDatabase && typeof window.gameDatabase === 'object') ? Object.keys(window.gameDatabase) : [];
-                if (topics.length === 0) {
-                    container.innerHTML = '<p class="text-white text-center w-full py-4 font-bold">Đang tải danh sách chuyên đề...</p>';
-                    return;
-                }
-
-                topics.forEach((topicName, idx) => {
-                    const data = window.gameDatabase[topicName] || {};
-                    const eCount = (data.easy || []).length;
-                    const mCount = (data.medium || []).length;
-                    const hCount = (data.hard || []).length;
-                    const total = eCount + mCount + hCount;
-
-                    const card = document.createElement('div');
-                    card.className = 'topic-card topic-item-card';
-                    card.style.cssText = `
-                        background: linear-gradient(135deg, rgba(6, 78, 59, 0.9), rgba(2, 44, 34, 0.95));
-                        border: 2px solid ${window.selectedTopic === topicName ? '#34d399' : 'rgba(255,255,255,0.15)'};
-                        border-radius: 18px; padding: 16px; text-align: left; transition: all 0.3s ease;
-                        display: flex; flex-direction: column; justify-content: space-between;
-                        box-shadow: ${window.selectedTopic === topicName ? '0 0 25px rgba(52, 211, 153, 0.4)' : '0 10px 25px rgba(0,0,0,0.3)'};
-                        box-sizing: border-box;
-                    `;
-
-                    card.innerHTML = `
-                        <div>
-                            <div style="font-size: 11px; font-weight: 800; color: #6ee7b7; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;">
-                                CHUYÊN ĐỀ ${idx + 1} (${total} CẶP BÀI)
-                            </div>
-                            <h3 style="color: #ffffff; font-size: 15px; font-weight: 800; margin: 0 0 10px 0; line-height: 1.4; word-break: break-word; white-space: normal;">
-                                ${topicName}
-                            </h3>
-                            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; font-size: 11px; font-weight: 700;">
-                                <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; padding: 2px 8px; border-radius: 999px;">🟢 ${eCount} Dễ</span>
-                                <span style="background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid #eab308; padding: 2px 8px; border-radius: 999px;">🟡 ${mCount} Vừa</span>
-                                <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; padding: 2px 8px; border-radius: 999px;">🔴 ${hCount} Khó</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <button class="btn-topic-campaign" type="button" style="
-                                width: 100%; padding: 9px 12px; border: none; border-radius: 12px;
-                                background: linear-gradient(90deg, #10b981, #059669);
-                                color: #ffffff; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
-                                cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-                                touch-action: manipulation;
-                            ">
-                                ⭐ Chơi Vượt 3 Ải (Dễ ➡️ Khó)
-                            </button>
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
-                                <button class="btn-diff-easy" type="button" style="padding: 6px 4px; border-radius: 8px; background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #4ade80; font-weight: 800; font-size: 11px; cursor: pointer; touch-action: manipulation;">Dễ</button>
-                                <button class="btn-diff-medium" type="button" style="padding: 6px 4px; border-radius: 8px; background: rgba(234, 179, 8, 0.2); border: 1px solid #eab308; color: #facc15; font-weight: 800; font-size: 11px; cursor: pointer; touch-action: manipulation;">Vừa</button>
-                                <button class="btn-diff-hard" type="button" style="padding: 6px 4px; border-radius: 8px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; font-weight: 800; font-size: 11px; cursor: pointer; touch-action: manipulation;">Khó</button>
-                            </div>
-                        </div>
-                    `;
-
-                    const btnCamp = card.querySelector('.btn-topic-campaign');
-                    if (btnCamp) {
-                        btnCamp.onclick = () => { window.closeGhepCapTopicMenu(); window.playTopicCampaign(topicName); };
-                    }
-                    const btnE = card.querySelector('.btn-diff-easy');
-                    if (btnE) btnE.onclick = () => { window.closeGhepCapTopicMenu(); window.playTopicDiff(topicName, 'easy'); };
-                    const btnM = card.querySelector('.btn-diff-medium');
-                    if (btnM) btnM.onclick = () => { window.closeGhepCapTopicMenu(); window.playTopicDiff(topicName, 'medium'); };
-                    const btnH = card.querySelector('.btn-diff-hard');
-                    if (btnH) btnH.onclick = () => { window.closeGhepCapTopicMenu(); window.playTopicDiff(topicName, 'hard'); };
-
-                    container.appendChild(card);
-                });
-            }
+                container.appendChild(card);
+            });
 
             if (window.renderMathInElement) {
                 try {
@@ -1115,8 +1022,12 @@ button, .btn, input, select, canvas {
             }
         };
 
-        // GẮN SỰ KIỆN CLICK & TOUCH AN TOÀN CHO TOÀN BỘ NÚT MENU VÀ SẢNH CHỜ
+        // ==========================================
+        // GÁN SỰ KIỆN VẠN NĂNG KHÓA MỞ CHUYÊN ĐỀ & SẢNH CHỜ (UNBLOCK LOBBY SELECTION)
+        // ==========================================
         function initSafeMenuListeners() {
+            initLobbyMultiSelectCheckboxes();
+
             const toggleMenuBtns = document.querySelectorAll('#toggle-menu-btn, .toggle-menu, .open-menu-btn, button[onclick*="openGhepCapTopicMenu"]');
             const closeMenuBtns = document.querySelectorAll('#close-menu-btn, #close-menu-btn-top, .close-menu');
             const menuContainer = document.querySelector('.menu-container, .topics-selection-wrapper, #topics-modal, #topic-selection-overlay');
@@ -1151,12 +1062,17 @@ button, .btn, input, select, canvas {
                 btn.addEventListener('touchend', closeAction, { passive: false });
             });
 
-            // Mở khóa các nút start sảnh chờ
+            // Mở khóa các nút start sảnh chờ và cấp độ
             const lobbyStartBtns = document.querySelectorAll('.play-mode-btn, #start-game-btn, .btn-start-matching, button[onclick*="startLevel"]');
             lobbyStartBtns.forEach(btn => {
                 btn.style.pointerEvents = 'auto';
                 btn.style.cursor = 'pointer';
                 btn.style.touchAction = 'manipulation';
+                
+                // Đảm bảo chạm phản hồi mượt mà
+                btn.addEventListener('touchend', function(e) {
+                    btn.click();
+                }, { passive: true });
             });
         }
 
@@ -1165,7 +1081,8 @@ button, .btn, input, select, canvas {
         } else {
             initSafeMenuListeners();
         }
-        setTimeout(initSafeMenuListeners, 500);
+        setTimeout(initSafeMenuListeners, 200);
+        setTimeout(initSafeMenuListeners, 800);
 
         window.playTopicDiff = function(topicName, diff) {
             const topicData = (window.gameDatabase && typeof window.gameDatabase === 'object') ? window.gameDatabase[topicName] : null;
