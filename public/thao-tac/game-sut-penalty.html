@@ -162,7 +162,13 @@
         .option-btn.wrong { background: linear-gradient(145deg, #e11d48, #be123c) !important; border-color: var(--neon-red) !important; box-shadow: 0 5px 0px #4c0519 !important; color: #fff !important; text-shadow: 0 0 5px #fff; }
 
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; height: 100dvh; max-height: 100dvh; background: radial-gradient(circle at center, rgba(15, 23, 42, 0.95) 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.4s; padding: 20px; text-align: center; overflow-y: auto;}
-        .overlay.hidden { opacity: 0; pointer-events: none; }
+        .overlay.hidden, #start-screen.hidden, #transition-screen.hidden, #game-over-screen.hidden, .setup-screen.hidden {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            visibility: hidden !important;
+            z-index: -9999 !important;
+        }
 
         .game-title { font-family: var(--font-display); font-size: clamp(3.5rem, 12vw, 6rem); color: #fff; text-transform: uppercase; line-height: 0.9; text-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0,243,255,0.5); margin-bottom: 0.5rem; margin-top: 20px;}
         .game-subtitle { background: transparent; color: var(--gold); border: 2px solid var(--gold); padding: 5px 25px; border-radius: 30px; font-size: clamp(1rem, 3.5vw, 1.3rem); font-weight: 800; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 15px rgba(255,215,0,0.3), inset 0 0 10px rgba(255,215,0,0.2); }
@@ -569,7 +575,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             </div>
         </div>
 
-        <button id="vao-san-btn" class="play-btn enter-field-btn start-game-btn" onclick="applySetupAndInitGame(true)">VÀO SÂN</button>
+        <button id="vao-san-btn" class="play-btn enter-field-btn start-game-btn" onclick="forceEnterPenaltyMatch(event)">VÀO SÂN</button>
 
         <!-- Nút quản trị phụ trên màn hình chính (chỉ hiện khi có ?role=admin) -->
         <button id="btn-admin-gear-overlay" data-admin-control="true" class="hidden interactive mt-3 px-4 py-2 rounded-xl bg-blue-600/90 hover:bg-blue-600 text-white font-black text-xs uppercase tracking-wider border border-blue-400/30 transition items-center gap-2 cursor-pointer shadow-lg" style="display: none !important;" onclick="openAdminModalWithPIN()">
@@ -2345,6 +2351,127 @@ window.formatMathStringToTeX = formatMathStringToTeX;
         attachLobbyRoutingEvents();
     }
     window.addEventListener('load', attachLobbyRoutingEvents);
+
+
+    <!-- SCRIPT FORCE LOBBY BYPASS VÀ KHỞI ĐỘNG TRẬN ĐẤU TRỰC TIẾP -->
+    <script id="force-lobby-bypass-script">
+    (function() {
+        function forceEnterPenaltyMatch(e) {
+            if (e) {
+                try { e.preventDefault(); } catch(err) {}
+                try { e.stopPropagation(); } catch(err) {}
+            }
+            console.log("Đang ép buộc khởi chạy game Sút Penalty từ sảnh chờ...");
+            
+            // 1. Lưu thông tin cấu hình tân binh vào LocalStorage để game không bị lỗi thiếu data
+            try {
+                const teamInput = document.querySelector('#team-name, #setup-team, input[name="team"], .team-input');
+                const teamName = teamInput && teamInput.value ? teamInput.value.trim() : "TOÁN PRO";
+                const numInput = document.querySelector('#player-number, #setup-num, input[name="number"]');
+                const playerNumber = numInput && numInput.value ? numInput.value.trim() : "7";
+                localStorage.setItem('penalty_player_config', JSON.stringify({ teamName, playerNumber }));
+                if (typeof playerSettings !== 'undefined') {
+                    playerSettings.teamName = teamName.toUpperCase();
+                    playerSettings.number = playerNumber;
+                }
+            } catch(err) {
+                console.warn("Lỗi lưu cấu hình cầu thủ:", err);
+            }
+
+            // 2. Ẩn hoàn toàn và triệt để mọi màn hình sảnh chờ đăng ký
+            const setupScreens = document.querySelectorAll('.setup-screen, #setup-container, #start-screen, .lobby-wrapper, form');
+            setupScreens.forEach(el => {
+                el.style.setProperty('display', 'none', 'important');
+                el.style.setProperty('visibility', 'hidden', 'important');
+                el.style.setProperty('pointer-events', 'none', 'important');
+                el.classList.add('hidden');
+            });
+
+            const startScreen = document.getElementById('start-screen');
+            if (startScreen) {
+                startScreen.style.setProperty('display', 'none', 'important');
+                startScreen.style.setProperty('visibility', 'hidden', 'important');
+                startScreen.classList.add('hidden');
+            }
+
+            // 3. Hiển thị khung Canvas và vùng chơi chính
+            const gameContainers = document.querySelectorAll('.game-canvas-container, #game-canvas, canvas, .play-area');
+            gameContainers.forEach(el => {
+                el.style.setProperty('display', 'block', 'important');
+                el.style.setProperty('visibility', 'visible', 'important');
+            });
+
+            if (typeof resizeCanvas === 'function') {
+                try { resizeCanvas(); } catch(err) {}
+            }
+
+            // 4. Kích hoạt mọi hàm khởi tạo game có thể có trong hệ thống
+            try {
+                if (typeof initGameData === 'function') {
+                    initGameData();
+                }
+                if (typeof startCurrentLevel === 'function') {
+                    startCurrentLevel();
+                } else if (typeof window.startCurrentLevel === 'function') {
+                    window.startCurrentLevel();
+                } else if (typeof window.applySetupAndInitGame === 'function') {
+                    window.applySetupAndInitGame(true);
+                } else if (typeof applySetupAndInitGame === 'function') {
+                    applySetupAndInitGame(true);
+                } else if (typeof window.startPenaltyGame === 'function') {
+                    window.startPenaltyGame();
+                } else if (typeof window.initGame === 'function') {
+                    window.initGame();
+                } else if (typeof startGame === 'function') {
+                    startGame();
+                } else if (typeof initCanvas === 'function') {
+                    initCanvas();
+                } else {
+                    console.log("Không tìm thấy hàm khởi tạo cụ thể, kích hoạt vòng lặp mặc định.");
+                    if (typeof gameLoop === 'function') gameLoop();
+                }
+            } catch(err) {
+                console.error("Lỗi khi khởi động trận đấu:", err);
+                try {
+                    if (typeof startCurrentLevel === 'function') startCurrentLevel();
+                } catch(e2) {}
+            }
+        }
+
+        // Lắng nghe sự kiện trên toàn bộ các nút có từ khóa Vào Sân
+        function bindAllEnterButtons() {
+            const btnList = document.querySelectorAll('button, .btn, #vao-san-btn, .play-btn, [class*="start"], [class*="enter"]');
+            btnList.forEach(btn => {
+                const txt = (btn.innerText || btn.textContent || '').toUpperCase();
+                if (txt.includes('VÀO SÂN') || txt.includes('BẮT ĐẦU') || btn.id === 'vao-san-btn') {
+                    btn.onclick = forceEnterPenaltyMatch;
+                    btn.addEventListener('click', forceEnterPenaltyMatch, { passive: false });
+                    btn.addEventListener('touchend', forceEnterPenaltyMatch, { passive: false });
+                    btn.addEventListener('pointerup', forceEnterPenaltyMatch, { passive: false });
+                }
+            });
+        }
+
+        window.addEventListener('load', bindAllEnterButtons);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindAllEnterButtons);
+        } else {
+            bindAllEnterButtons();
+        }
+        window.forceEnterPenaltyMatch = forceEnterPenaltyMatch;
+        window.startPenaltyGame = forceEnterPenaltyMatch;
+        window.initGameCanvas = forceEnterPenaltyMatch;
+        window.startGame = forceEnterPenaltyMatch;
+
+        // Polling an toàn trong 5 giây đầu để bảo đảm bắt dính nút ngay cả khi render chậm
+        var pollCount = 0;
+        var pollTimer = setInterval(function() {
+            bindAllEnterButtons();
+            pollCount++;
+            if (pollCount > 10) clearInterval(pollTimer);
+        }, 500);
+    })();
+    </script>
 
 </body>
 </html>
