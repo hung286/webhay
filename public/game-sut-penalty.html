@@ -543,7 +543,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     </div>
 
     <!-- MÀN HÌNH KHỞI ĐỘNG VÀ SETUP CẦU THỦ -->
-    <div id="start-screen" class="overlay interactive setup-screen">
+    <div id="start-screen" class="overlay interactive setup-screen hidden" style="display: none !important;">
         <div class="game-title">WC PENALTY 26</div>
         <div class="game-subtitle" id="game-subtitle-label">Toán 10 - Giá Trị Lượng Giác</div>
         
@@ -575,7 +575,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             </div>
         </div>
 
-        <button id="vao-san-btn" class="play-btn enter-field-btn start-game-btn" onclick="forceEnterPenaltyMatch(event)">VÀO SÂN</button>
+        <button id="vao-san-btn" class="play-btn enter-field-btn start-game-btn" onclick="forceJumpToPlay(event)">VÀO SÂN</button>
 
         <!-- Nút quản trị phụ trên màn hình chính (chỉ hiện khi có ?role=admin) -->
         <button id="btn-admin-gear-overlay" data-admin-control="true" class="hidden interactive mt-3 px-4 py-2 rounded-xl bg-blue-600/90 hover:bg-blue-600 text-white font-black text-xs uppercase tracking-wider border border-blue-400/30 transition items-center gap-2 cursor-pointer shadow-lg" style="display: none !important;" onclick="openAdminModalWithPIN()">
@@ -1036,11 +1036,25 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             document.getElementById(`foot-${foot}`).classList.add('active');
         }
 
-        function showStartScreen() {
-            ui.overScreen.classList.add('hidden');
-            ui.panel.classList.add('hidden');
-            ui.transScreen.classList.add('hidden');
-            ui.startScreen.classList.remove('hidden');
+                function showStartScreen() {
+            if (ui.overScreen) {
+                ui.overScreen.classList.add('hidden');
+                ui.overScreen.style.setProperty('display', 'none', 'important');
+            }
+            if (ui.panel) {
+                ui.panel.classList.add('hidden');
+                ui.panel.style.setProperty('display', 'none', 'important');
+            }
+            if (ui.transScreen) {
+                ui.transScreen.classList.add('hidden');
+                ui.transScreen.style.setProperty('display', 'none', 'important');
+            }
+            if (ui.startScreen) {
+                ui.startScreen.classList.remove('hidden');
+                ui.startScreen.style.setProperty('display', 'flex', 'important');
+                ui.startScreen.style.removeProperty('visibility');
+                ui.startScreen.style.removeProperty('pointer-events');
+            }
         }
 
                 function applySetupAndInitGame(directStart = true) {
@@ -2353,123 +2367,99 @@ window.formatMathStringToTeX = formatMathStringToTeX;
     window.addEventListener('load', attachLobbyRoutingEvents);
 
 
-    <!-- SCRIPT FORCE LOBBY BYPASS VÀ KHỞI ĐỘNG TRẬN ĐẤU TRỰC TIẾP -->
-    <script id="force-lobby-bypass-script">
+    
+
+
+    <!-- SCRIPT CHÍNH THỨC: BỎ QUA SẢNH CHỜ VÀ VÀO THẲNG TRẬN ĐẤU PENALTY -->
+    <script id="force-override-lobby-script">
     (function() {
-        function forceEnterPenaltyMatch(e) {
+        const forceJumpToPlay = function(e) {
             if (e) {
                 try { e.preventDefault(); } catch(err) {}
                 try { e.stopPropagation(); } catch(err) {}
             }
-            console.log("Đang ép buộc khởi chạy game Sút Penalty từ sảnh chờ...");
+            console.log("Kích hoạt nhảy cóc qua sảnh chờ, vào thẳng trận đấu Sút Penalty!");
             
-            // 1. Lưu thông tin cấu hình tân binh vào LocalStorage để game không bị lỗi thiếu data
-            try {
-                const teamInput = document.querySelector('#team-name, #setup-team, input[name="team"], .team-input');
-                const teamName = teamInput && teamInput.value ? teamInput.value.trim() : "TOÁN PRO";
-                const numInput = document.querySelector('#player-number, #setup-num, input[name="number"]');
-                const playerNumber = numInput && numInput.value ? numInput.value.trim() : "7";
-                localStorage.setItem('penalty_player_config', JSON.stringify({ teamName, playerNumber }));
-                if (typeof playerSettings !== 'undefined') {
-                    playerSettings.teamName = teamName.toUpperCase();
-                    playerSettings.number = playerNumber;
-                }
-            } catch(err) {
-                console.warn("Lỗi lưu cấu hình cầu thủ:", err);
-            }
-
-            // 2. Ẩn hoàn toàn và triệt để mọi màn hình sảnh chờ đăng ký
-            const setupScreens = document.querySelectorAll('.setup-screen, #setup-container, #start-screen, .lobby-wrapper, form');
-            setupScreens.forEach(el => {
-                el.style.setProperty('display', 'none', 'important');
-                el.style.setProperty('visibility', 'hidden', 'important');
-                el.style.setProperty('pointer-events', 'none', 'important');
-                el.classList.add('hidden');
+            // Ẩn lập tức toàn bộ các lớp sảnh chờ đăng ký
+            const screens = document.querySelectorAll('.setup-screen, #setup-container, #start-screen, #transition-screen, .lobby-wrapper, form');
+            screens.forEach(s => {
+                s.style.setProperty('display', 'none', 'important');
+                s.style.setProperty('visibility', 'hidden', 'important');
+                s.style.setProperty('pointer-events', 'none', 'important');
+                s.classList.add('hidden');
             });
-
-            const startScreen = document.getElementById('start-screen');
-            if (startScreen) {
-                startScreen.style.setProperty('display', 'none', 'important');
-                startScreen.style.setProperty('visibility', 'hidden', 'important');
-                startScreen.classList.add('hidden');
-            }
-
-            // 3. Hiển thị khung Canvas và vùng chơi chính
-            const gameContainers = document.querySelectorAll('.game-canvas-container, #game-canvas, canvas, .play-area');
-            gameContainers.forEach(el => {
-                el.style.setProperty('display', 'block', 'important');
-                el.style.setProperty('visibility', 'visible', 'important');
+            
+            // Hiển thị khung Canvas sân bóng
+            const canvases = document.querySelectorAll('canvas, #game-canvas, .game-canvas, .play-field');
+            canvases.forEach(c => {
+                c.style.setProperty('display', 'block', 'important');
+                c.style.setProperty('visibility', 'visible', 'important');
             });
 
             if (typeof resizeCanvas === 'function') {
                 try { resizeCanvas(); } catch(err) {}
             }
 
-            // 4. Kích hoạt mọi hàm khởi tạo game có thể có trong hệ thống
+            // Gọi trực tiếp các hàm render hoặc vòng lặp game chính có sẵn trong source
             try {
-                if (typeof initGameData === 'function') {
-                    initGameData();
-                }
-                if (typeof startCurrentLevel === 'function') {
-                    startCurrentLevel();
-                } else if (typeof window.startCurrentLevel === 'function') {
-                    window.startCurrentLevel();
-                } else if (typeof window.applySetupAndInitGame === 'function') {
-                    window.applySetupAndInitGame(true);
-                } else if (typeof applySetupAndInitGame === 'function') {
-                    applySetupAndInitGame(true);
-                } else if (typeof window.startPenaltyGame === 'function') {
-                    window.startPenaltyGame();
-                } else if (typeof window.initGame === 'function') {
-                    window.initGame();
-                } else if (typeof startGame === 'function') {
-                    startGame();
-                } else if (typeof initCanvas === 'function') {
-                    initCanvas();
-                } else {
-                    console.log("Không tìm thấy hàm khởi tạo cụ thể, kích hoạt vòng lặp mặc định.");
+                if (typeof initGameData === 'function') initGameData();
+                if (typeof startCurrentLevel === 'function') startCurrentLevel();
+                else if (typeof window.startCurrentLevel === 'function') window.startCurrentLevel();
+                else if (typeof window.startPenaltyGame === 'function') window.startPenaltyGame();
+                else if (typeof window.initGame === 'function') window.initGame();
+                else if (typeof startGame === 'function') startGame();
+                else if (typeof initCanvas === 'function') initCanvas();
+                else if (typeof runGame === 'function') runGame();
+                else {
+                    console.log("Khởi động thủ công vòng lặp game cơ bản.");
                     if (typeof gameLoop === 'function') gameLoop();
                 }
             } catch(err) {
-                console.error("Lỗi khi khởi động trận đấu:", err);
+                console.error("Lỗi forceJumpToPlay:", err);
                 try {
                     if (typeof startCurrentLevel === 'function') startCurrentLevel();
                 } catch(e2) {}
             }
-        }
+        };
 
-        // Lắng nghe sự kiện trên toàn bộ các nút có từ khóa Vào Sân
-        function bindAllEnterButtons() {
-            const btnList = document.querySelectorAll('button, .btn, #vao-san-btn, .play-btn, [class*="start"], [class*="enter"]');
-            btnList.forEach(btn => {
+        window.forceJumpToPlay = forceJumpToPlay;
+        window.forceEnterPenaltyMatch = forceJumpToPlay;
+        window.startPenaltyGame = forceJumpToPlay;
+        window.initGameCanvas = forceJumpToPlay;
+        window.startGame = forceJumpToPlay;
+
+        function bindEnterButtons() {
+            const allEnterBtns = document.querySelectorAll('#vao-san-btn, .enter-field-btn, .play-btn, button');
+            allEnterBtns.forEach(btn => {
                 const txt = (btn.innerText || btn.textContent || '').toUpperCase();
                 if (txt.includes('VÀO SÂN') || txt.includes('BẮT ĐẦU') || btn.id === 'vao-san-btn') {
-                    btn.onclick = forceEnterPenaltyMatch;
-                    btn.addEventListener('click', forceEnterPenaltyMatch, { passive: false });
-                    btn.addEventListener('touchend', forceEnterPenaltyMatch, { passive: false });
-                    btn.addEventListener('pointerup', forceEnterPenaltyMatch, { passive: false });
+                    btn.onclick = forceJumpToPlay;
+                    btn.addEventListener('click', forceJumpToPlay, { capture: true, passive: false });
+                    btn.addEventListener('touchend', forceJumpToPlay, { capture: true, passive: false });
                 }
             });
         }
 
-        window.addEventListener('load', bindAllEnterButtons);
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', bindAllEnterButtons);
-        } else {
-            bindAllEnterButtons();
+        function autoLaunchMatch() {
+            bindEnterButtons();
+            const params = new URLSearchParams(window.location.search);
+            const isLobbyMode = params.get('lobby') === 'true' || params.get('setup') === 'true';
+            if (!isLobbyMode) {
+                console.log("Tự động nhảy thẳng vào trận đấu Sút Penalty (Auto-bypass Lobby)!");
+                forceJumpToPlay();
+            }
         }
-        window.forceEnterPenaltyMatch = forceEnterPenaltyMatch;
-        window.startPenaltyGame = forceEnterPenaltyMatch;
-        window.initGameCanvas = forceEnterPenaltyMatch;
-        window.startGame = forceEnterPenaltyMatch;
 
-        // Polling an toàn trong 5 giây đầu để bảo đảm bắt dính nút ngay cả khi render chậm
-        var pollCount = 0;
-        var pollTimer = setInterval(function() {
-            bindAllEnterButtons();
-            pollCount++;
-            if (pollCount > 10) clearInterval(pollTimer);
-        }, 500);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', autoLaunchMatch);
+        } else {
+            autoLaunchMatch();
+        }
+        window.addEventListener('load', autoLaunchMatch);
+
+        // Bảo đảm khởi động sau 100ms và 300ms đề phòng trình duyệt render trễ
+        setTimeout(autoLaunchMatch, 100);
+        setTimeout(autoLaunchMatch, 300);
     })();
     </script>
 
