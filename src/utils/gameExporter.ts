@@ -426,14 +426,14 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/\\+(?:neq|ne)(?=[^a-zA-Z]|$)/g, ' ≠ ');
       res = res.replace(/\s*≠\s*/g, ' ≠ ');
 
-      // KÍCH HOẠT 1: Quét sạch lỗi sinh chữ \f thừa đứng trước \frac
-      res = res.replace(/\\f\\frac/g, '\\frac')
-               .replace(/\\f\s*\\frac/g, '\\frac')
-               .replace(/\\ffrac/g, '\\frac')
+      // Quét sạch lỗi sinh chữ \f thừa đứng trước \frac
+      res = res.replace(/\\f\\frac/g, '\\dfrac')
+               .replace(/\\f\s*\\frac/g, '\\dfrac')
+               .replace(/\\ffrac/g, '\\dfrac')
                .replace(/\\f(?![a-zA-Z])/g, '')
                .replace(/\\f(?=\s*\\frac)/g, '');
 
-      // KÍCH HOẠT 2: SỬA DỨT ĐIỂM LỖI DẤU CĂN & KÝ TỰ RÁC √/
+      // SỬA DỨT ĐIỂM LỖI DẤU CĂN & KÝ TỰ RÁC √/
       res = res.replace(/(?:\\sqrt|√)\s*\/\s*/g, '\\sqrt ');
       res = res.replace(/(?:\\sqrt|√)\s*\(\s*([^()]+?)\s*\)/g, '\\sqrt{$1}');
       res = res.replace(/√/g, '\\sqrt ');
@@ -441,32 +441,16 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
       res = res.replace(/\\sqrt\s*\{\s*x\s*\}\s*\+\s*1(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\\text|\)))/gi, '\\sqrt{x + 1}');
       res = res.replace(/\\sqrt\s+([a-zA-Z0-9^]+(?:\s*[\+\-]\s*[a-zA-Z0-9^]+)+)(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/g, '\\sqrt{$1}');
 
-      // KÍCH HOẠT 2b: SỬA DỨT ĐIỂM LỖI PHÂN SỐ BIẾN DẠNG THÀNH SỐ MŨ ^{...}/{...}
+      // SỬA DỨT ĐIỂM LỖI PHÂN SỐ BIẾN DẠNG THÀNH SỐ MŨ ^{...}/{...}
       res = res.replace(/\^\{([^{}]+)\}\s*(?:\/|_|\/_)\s*\{([^{}]+)\}/g, '\\dfrac{$1}{$2}');
       res = res.replace(/\^\{([^{}]+)\}\s*\/\s*([a-zA-Z0-9_\-]+)/g, '\\dfrac{$1}{$2}');
       res = res.replace(/\^\{([^{}]+)\}\s*\/\s*\(([^()]+)\)/g, '\\dfrac{$1}{$2}');
       res = res.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*\(\s*([xX0-9\s\^+\-*]+?)\s*\)/g, '\\dfrac{$1}{$2}');
       res = res.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*([xX0-9a-zA-Z_\-]+)/g, '\\dfrac{$1}{$2}');
 
-      // KÍCH HOẠT 2: Tự động phát hiện và bọc khối nhọn cho biểu thức dưới dấu căn (Sửa lỗi đứt vạch ngang trên đỉnh)
-      res = res.replace(/\\sqrt\s*x\s*-\s*1/g, '\\sqrt{x-1}')
-               .replace(/√x\s*-\s*1/g, '\\sqrt{x-1}')
-               .replace(/√\s*x\s*-\s*1/g, '\\sqrt{x-1}')
-               .replace(/\\sqrt\s*x\s*\+\s*1/g, '\\sqrt{x+1}')
-               .replace(/√\s*x\s*\+\s*1/g, '\\sqrt{x+1}')
-               .replace(/\\sqrt\s*x\s*-\s*2/g, '\\sqrt{x-2}')
-               .replace(/√\s*x\s*-\s*2/g, '\\sqrt{x-2}')
-               .replace(/\\sqrt\s*([a-zA-Z0-9]+)/g, '\\sqrt{$1}');
-
-      // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
-      res = res.replace(/(?<!f)\brac\b/g, '\\frac')
-               .replace(/(?<!f)rac(?=[0-9\\{])/g, '\\frac')
-               .replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
-
-      // Quét dọn lần cuối bảo hiểm không sót \f\frac
-      res = res.replace(/\\f\\frac/g, '\\frac')
-               .replace(/\\f\s*\\frac/g, '\\frac')
-               .replace(/\\ffrac/g, '\\frac');
+      res = res.replace(/(?<!f)\brac\b/g, '\\dfrac')
+               .replace(/(?<!f)rac(?=[0-9\\{])/g, '\\dfrac')
+               .replace(/(?<![a-zA-Z\\])rac/g, '\\dfrac');
 
       // Tự động chèn khoảng trắng chuẩn giữa biểu thức toán học và chữ tiếng Việt
       res = res.replace(/\bTìmm\b/g, 'Tìm m')
@@ -476,7 +460,6 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/\bT\s+ìm\s+m\b/g, 'Tìm m')
                .replace(/Tìm\s+m\s+để/g, 'Tìm \\(m\\) để');
 
-      // Sửa lỗi dính chữ Hình 1: "0trong đoạn[0; 5]là:"
       res = res.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2')
                .replace(/0trong/g, '0 trong')
                .replace(/trongđoạn/g, 'trong đoạn')
@@ -488,7 +471,7 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/([≤|≥|<=|>=|<=|=>])\s*0/g, '$1 0 ')
                .replace(/(?<=\\\)|0)(trong|đoạn|là)/g, ' $1');
 
-      res = res.replace(/(?<!\\)frac/g, '\\frac')
+      res = res.replace(/(?<!\\)frac/g, '\\dfrac')
                .replace(/(?<!\\)cdot/g, '\\cdot')
                .replace(/(?<!\\)leq/g, '\\leq')
                .replace(/(?<!\\)geq/g, '\\geq')
@@ -504,12 +487,74 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
       res = res.replace(/\\frac(?=[{\s])/g, '\\dfrac');
 
       res = normalizeMathFormulas(res);
+
+      const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(res);
       if (isOption) {
         res = res.trim();
-        const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(res);
-        if (!hasVietnamese && !res.startsWith('\\(') && !res.endsWith('\\)')) {
-          res = '\\(' + res + '\\)';
+        if (!hasVietnamese) {
+          if (!res.startsWith('\\(') || !res.endsWith('\\)')) {
+            res = res.replace(/^\\\(/, '').replace(/\\\)$/, '').trim();
+            res = '\\(' + res + '\\)';
+          }
         }
+      } else {
+        res = res.trim();
+        res = res.replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+        res = res.replace(/\$([^\$]+?)\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+
+        // Tự động bọc \( ... \) cho các biểu thức toán học (tam thức bậc hai, hàm số, đạo hàm)
+        const mathTokens: string[] = [];
+        let sIdx = 0;
+        let cleanMath = '';
+        while (true) {
+          const start = res.indexOf('\\(', sIdx);
+          if (start === -1) { cleanMath += res.slice(sIdx); break; }
+          const end = res.indexOf('\\)', start + 2);
+          if (end === -1) { cleanMath += res.slice(sIdx); break; }
+          cleanMath += res.slice(sIdx, start);
+          mathTokens.push(res.slice(start, end + 2));
+          cleanMath += '___F1_EXPORTER_BLOCK_' + (mathTokens.length - 1) + '___';
+          sIdx = end + 2;
+        }
+        res = cleanMath;
+
+        // Quét các biểu thức toán học chưa bọc:
+        // Hàm số, đạo hàm: f(x) = ..., y = ..., y' = ..., f'(x) = ...
+        res = res.replace(/(?:f|g|h|y|P|Q)'*\s*(?:\([a-zA-Z0-9_xX\s\+\-]+\))?\s*=\s*[^,;:\.\?\n\r]+?(?=[,;:\.\?\n\r]|\s+với|\s+tại|\s+khi|\s+là|\s+trên|\s+trong|$)/gi, (m) => {
+          if (m.includes('___F1_EXPORTER_BLOCK_') || /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return m;
+          return '\\(' + m.trim() + '\\)';
+        });
+
+        // Biểu thức tam thức bậc hai hoặc số mũ: ax^2 + bx + c, x^2 - 4x + 3
+        res = res.replace(/(?<![a-zA-Z0-9_\\])(?:-?[a-zA-Z0-9_()]+\^[0-9a-zA-Z]+(?:\s*[\+\-]\s*[a-zA-Z0-9_\^+\-*\/()]+)+)/g, (m) => {
+          if (m.includes('___F1_EXPORTER_BLOCK_') || /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return m;
+          return '\\(' + m.trim() + '\\)';
+        });
+
+        // Bất phương trình hoặc phương trình: A >= 0, A <= 0, A = 0
+        res = res.replace(/(?<![a-zA-Z0-9_\\])(?:[a-zA-Z0-9_\^+\-*\/()\s]+?\s*(?:\\le|\\ge|\\ne|<|>|=)\s*-?[0-9a-zA-Z_\-+]+)/g, (m) => {
+          if (m.includes('___F1_EXPORTER_BLOCK_') || /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return m;
+          return '\\(' + m.trim() + '\\)';
+        });
+
+        // Biểu thức chứa TeX: \dfrac, \sqrt, \Delta, \vec, \mathbb, \in
+        res = res.replace(/(?:\\(?:dfrac|frac|sqrt|vec|Delta|mathbb|in|cup|cap|emptyset|infty|pm|cdot)[^{}\s]*(?:\{[^{}]*\})*(?:\s*[\+\-=\*\/]\s*[a-zA-Z0-9_\\{}]*)?)/g, (m) => {
+          if (m.includes('___F1_EXPORTER_BLOCK_') || /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(m)) return m;
+          return '\\(' + m.trim() + '\\)';
+        });
+
+        // Khoảng, đoạn tập nghiệm: [a; b], (a; b)
+        res = res.replace(/(?<![a-zA-Z0-9_\\])(?:\[|\()\s*-?(?:\\infty|\+\\infty|\d+|[a-zA-Z])\s*;\s*-?(?:\\infty|\+\\infty|\d+|[a-zA-Z])\s*(?:\]|\))/g, (m) => {
+          if (m.includes('___F1_EXPORTER_BLOCK_')) return m;
+          return '\\(' + m.trim() + '\\)';
+        });
+
+        // Phục hồi tokens
+        for (let i = 0; i < mathTokens.length; i++) {
+          res = res.replace('___F1_EXPORTER_BLOCK_' + i + '___', mathTokens[i]);
+        }
+        res = res.replace(/\\\)\s*\\\(/g, ' ');
+        res = res.replace(/\\\(\s*\\\(([\s\S]*?)\\\)\s*\\\)/g, '\\($1\\)');
       }
       return res;
     };
@@ -531,6 +576,46 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
     });
 
     const injectF1 = `
+<style id="f1-mathjax-white-nowrap">
+.question-text, #q-text {
+    background: rgba(2, 6, 23, 0.95) !important;
+    border: 1px solid #334155 !important;
+    color: #ffffff !important;
+    line-height: 2 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+mjx-container,
+.mjx-chtml,
+.MathJax,
+.question-text mjx-container,
+#q-text mjx-container,
+.answer-btn mjx-container,
+.option-card mjx-container {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    vertical-align: middle !important;
+    max-width: 100% !important;
+    color: #ffffff !important;
+}
+mjx-container *,
+.mjx-chtml *,
+.MathJax *,
+.question-text mjx-container *,
+#q-text mjx-container *,
+.answer-btn mjx-container *,
+.option-card mjx-container * {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    color: #ffffff !important;
+}
+mjx-line, mjx-frac mjx-line, mjx-dtable mjx-line, mjx-sqrt > mjx-box {
+    border-top-color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+</style>
 <script>
 // [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - ĐUA XE F1]
 window.gameDatabase = ${JSON.stringify(topicsMap, null, 2)};
