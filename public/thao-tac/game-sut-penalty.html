@@ -267,6 +267,19 @@
             #question-panel { width: 96%; max-height: 80dvh; padding: 14px 12px; }
             .setup-panel { max-width: 95vw; padding: 15px; }
         }
+    
+        /* TỐI ƯU HÓA HIỂN THỊ VÀ CẢM ỨNG MƯỢT MÀ MOBILE (60 FPS & TOUCH OPTIMIZATION) */
+        button, .btn, .play-btn, input, select, canvas {
+            touch-action: manipulation !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        /* Ép khung chứa game tối ưu diện tích di động & GPU acceleration */
+        .game-container, canvas, #game-canvas {
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+        }
+
     </style>
 
 <style id="mathjax-no-bounding-box-style">
@@ -524,7 +537,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     </div>
 
     <!-- MÀN HÌNH KHỞI ĐỘNG VÀ SETUP CẦU THỦ -->
-    <div id="start-screen" class="overlay interactive">
+    <div id="start-screen" class="overlay interactive setup-screen">
         <div class="game-title">WC PENALTY 26</div>
         <div class="game-subtitle" id="game-subtitle-label">Toán 10 - Giá Trị Lượng Giác</div>
         
@@ -556,7 +569,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             </div>
         </div>
 
-        <button class="play-btn" onclick="applySetupAndInitGame()">VÀO SÂN</button>
+        <button id="vao-san-btn" class="play-btn enter-field-btn start-game-btn" onclick="applySetupAndInitGame(true)">VÀO SÂN</button>
 
         <!-- Nút quản trị phụ trên màn hình chính (chỉ hiện khi có ?role=admin) -->
         <button id="btn-admin-gear-overlay" data-admin-control="true" class="hidden interactive mt-3 px-4 py-2 rounded-xl bg-blue-600/90 hover:bg-blue-600 text-white font-black text-xs uppercase tracking-wider border border-blue-400/30 transition items-center gap-2 cursor-pointer shadow-lg" style="display: none !important;" onclick="openAdminModalWithPIN()">
@@ -1024,16 +1037,49 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             ui.startScreen.classList.remove('hidden');
         }
 
-        function applySetupAndInitGame() {
-            let tName = document.getElementById('setup-team').value.trim();
-            playerSettings.teamName = tName.length > 0 ? tName.toUpperCase() : "TOÁN PRO";
-            let pNum = document.getElementById('setup-num').value;
-            playerSettings.number = pNum !== "" ? pNum.toString() : "7";
-            
-            ui.startScreen.classList.add('hidden');
-            resizeCanvas(); 
-            initGameData();
+                function applySetupAndInitGame(directStart = true) {
+            try {
+                let tInput = document.getElementById('setup-team');
+                let tName = tInput ? tInput.value.trim() : "TOÁN PRO";
+                playerSettings.teamName = tName.length > 0 ? tName.toUpperCase() : "TOÁN PRO";
+                let nInput = document.getElementById('setup-num');
+                let pNum = nInput ? nInput.value : "7";
+                playerSettings.number = pNum !== "" ? pNum.toString() : "7";
+                
+                const startSc = document.getElementById('start-screen') || (ui && ui.startScreen);
+                if (startSc) {
+                    startSc.classList.add('hidden');
+                    startSc.style.setProperty('display', 'none', 'important');
+                    startSc.style.pointerEvents = 'none';
+                }
+                const setupSc = document.querySelector('.setup-screen, #setup-container');
+                if (setupSc) {
+                    setupSc.classList.add('hidden');
+                    setupSc.style.setProperty('display', 'none', 'important');
+                    setupSc.style.pointerEvents = 'none';
+                }
+                resizeCanvas(); 
+                initGameData();
+
+                // Vào trận đấu trực tiếp lập tức, bỏ qua màn hình chờ trung gian để không bao giờ bị kẹt sảnh
+                if (directStart && typeof startCurrentLevel === 'function') {
+                    startCurrentLevel();
+                }
+            } catch(e) {
+                console.error("Lỗi khởi động trận đấu:", e);
+                const startSc = document.getElementById('start-screen');
+                if (startSc) startSc.style.setProperty('display', 'none', 'important');
+                resizeCanvas();
+                if (typeof startCurrentLevel === 'function') startCurrentLevel();
+            }
         }
+
+        window.initGameCanvas = function() {
+            applySetupAndInitGame(true);
+        };
+        window.startGame = function() {
+            applySetupAndInitGame(true);
+        };
 
         /* HỆ THỐNG ÂM THANH WEB AUDIO API */
         const audioSys = {
@@ -2263,5 +2309,42 @@ window.formatMathStringToTeX = formatMathStringToTeX;
     } catch(e) {}
 })();
 </script>
+
+    /* --- BẢN VÁ SỰ KIỆN NÚT VÀO SÂN & CHỐNG KẸT SẢNH (LOBBY ROUTING FIX) --- */
+    function attachLobbyRoutingEvents() {
+        const enterFieldBtn = document.querySelector('#vao-san-btn, .enter-field-btn, button[onclick*="start"], .start-game-btn');
+        if (enterFieldBtn && !enterFieldBtn.dataset.boundLobby) {
+            enterFieldBtn.dataset.boundLobby = 'true';
+            const startGameHandler = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("Kích hoạt chuyển sảnh vào trận đấu trực tiếp!");
+                const setupScreen = document.querySelector('.setup-screen, #setup-container, #start-screen');
+                if (setupScreen) {
+                    setupScreen.classList.add('hidden');
+                    setupScreen.style.setProperty('display', 'none', 'important');
+                }
+
+                if (typeof window.initGameCanvas === 'function') {
+                    window.initGameCanvas();
+                } else if (typeof startGame === 'function') {
+                    startGame();
+                } else if (typeof applySetupAndInitGame === 'function') {
+                    applySetupAndInitGame(true);
+                } else {
+                    window.location.hash = '#playing';
+                }
+            };
+            enterFieldBtn.addEventListener('click', startGameHandler, { passive: false });
+            enterFieldBtn.addEventListener('touchend', startGameHandler, { passive: false });
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachLobbyRoutingEvents);
+    } else {
+        attachLobbyRoutingEvents();
+    }
+    window.addEventListener('load', attachLobbyRoutingEvents);
+
 </body>
 </html>

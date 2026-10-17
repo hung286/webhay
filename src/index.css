@@ -101,3 +101,18 @@ mjx-sqrt > mjx-box {
   opacity: 1 !important;
   visibility: visible !important;
 }
+
+/* ======================================================== */
+/* TỐI ƯU HÓA HIỂN THỊ VÀ CẢM ỨNG MƯỢT MÀ MOBILE (60 FPS)   */
+/* ======================================================== */
+button, .btn, input, select, canvas {
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Ép khung chứa game tối ưu diện tích di động & tăng tốc phần cứng GPU */
+.game-container, canvas {
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
