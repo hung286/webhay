@@ -27,10 +27,20 @@
     <script id="MathJax-script" async src="https://jsdelivr.net"></script>
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <style id="mathjax-no-bounding-box-style">mjx-container,.mjx-chtml,mjx-math,mjx-mo,.zombie-math-text,.tex2jax_process,.math-content,.math-text,.MathJax,[class*=math-]{box-shadow:none!important;white-space:nowrap!important;border:none!important;outline:none!important;display:inline-block!important;overflow:visible!important}</style>
+    <style id="mathjax-no-bounding-box-style">
+    /* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax và ép thẳng 1 dòng */
+    mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process, .math-content, .math-text, .MathJax, [class*="math-"] {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        white-space: nowrap !important;
+        display: inline-block !important;
+        overflow: visible !important;
+    }
+    </style>
 
-    <script type="module" crossorigin src="/zuizui2/assets/index-Dw6EghOx.js"></script>
-    <link rel="stylesheet" crossorigin href="/zuizui2/assets/index-Do_B9jXs.css">
+    <script type="module" crossorigin src="./assets/index-oiUnZkrp.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-cziXsROm.css">
   </head>
   <body>
     <div id="root"></div>
