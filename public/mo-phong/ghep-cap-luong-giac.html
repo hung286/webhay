@@ -605,7 +605,7 @@ button, .btn, input, select, canvas {
                             </div>
                         </div>
                         <div id="multi-checkboxes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; max-height: 140px; overflow-y: auto; padding-right: 4px; margin-bottom: 12px;" class="custom-scrollbar"></div>
-                        <button id="btn-start-multi-shuffle" type="button" class="btn-start-matching play-mode-btn" style="width: 100%; padding: 12px; background: linear-gradient(90deg, #10b981, #059669); color: #fff; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px; border: 2px solid #34d399; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px; touch-action: manipulation;">
+                        <button id="btn-start-multi-shuffle" onclick="window.startMultiTopicsGame() " type="button" class="btn-start-matching play-mode-btn" style="width: 100%; padding: 12px; background: linear-gradient(90deg, #10b981, #059669); color: #fff; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px; border: 2px solid #34d399; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px; touch-action: manipulation;">
                             <span>🚀 BẮT ĐẦU CHƠI CÁC CHỦ ĐỀ ĐÃ CHỌN (TRỘN NGẪU NHIÊN CẶP THẺ) ➡️</span>
                         </button>
                     </div>
@@ -2167,13 +2167,13 @@ button, .btn, input, select, canvas {
             if (!str) return '';
             return str
                 .toString()
-                .replace(/\displaystyle/g, '')
-                .replace(/\left|\right/g, '')
+                .replace(/\\displaystyle/g, '')
+                .replace(/\\left|\\right/g, '')
                 .replace(/[\(\)\[\]\$\{\}]/g, '')
-                .replace(/\cdot|\*|\times/g, '')
-                .replace(/\alpha|\beta|\theta|\varphi/g, 'x')
-                .replace(/\,/g, '')
-                .replace(/\/g, '')
+                .replace(/\\cdot|\*|\\times/g, '')
+                .replace(/\\alpha|\\beta|\\theta|\\varphi/g, 'x')
+                .replace(/,/g, '')
+                .replace(/[\\\/]/g, '')
                 .replace(/\s+/g, '')
                 .toLowerCase()
                 .trim();
@@ -2928,5 +2928,153 @@ window.formatMathStringToTeX = formatMathStringToTeX;
         obs.observe(document.documentElement, { childList: true, subtree: true });
     } catch(e) {}
 })();
+
+// ==========================================
+
+// ==========================================
+// TOÀN BỘ CÁC HÀM KHỞI CHẠY GAME CHO WINDOW (DIRECT FUNCTION BINDING ALIASES)
+// ==========================================
+if (typeof window !== 'undefined') {
+    window.startGame = function(mode) {
+        console.log("window.startGame được gọi với mode:", mode);
+        if (mode === 'campaign') {
+            if (typeof window.startLevel === 'function') return window.startLevel('campaign');
+        }
+        const checkedBoxes = document.querySelectorAll('.multi-topic-chk:checked, .topic-checkbox:checked');
+        if (checkedBoxes.length > 0 && typeof window.startMultiTopicsGame === 'function') {
+            return window.startMultiTopicsGame();
+        }
+        if (typeof window.startMultiTopicsGame === 'function') {
+            return window.startMultiTopicsGame();
+        }
+        if (typeof window.startLevel === 'function') {
+            return window.startLevel(mode || '1_F');
+        }
+    };
+    window.startMatchingGame = window.startGame;
+    window.initGame = window.startGame;
+    window.initMatching = window.startGame;
+    window.playGame = window.startGame;
+    window.beginGame = window.startGame;
+    window.loadMatchingGame = window.startGame;
+    window.renderFloatingCards = function(cards) {
+        if (typeof window.forceRenderMatchingCards === 'function') {
+            window.forceRenderMatchingCards(cards);
+        }
+    };
+
+    // ==========================================
+    // TÌM VÀ GÁN TRỰC TIẾP HÀM GỐC VÀO NÚT BẮT ĐẦU (DIRECT FUNCTION BINDING)
+    // ==========================================
+    (function() {
+        function bindAllStartButtons() {
+            // Tìm đến nút bấm bắt đầu chơi chính (an toàn với chuẩn querySelector)
+            let mainStartBtn = null;
+            try {
+                mainStartBtn = document.querySelector('button:contains("BẬT ĐẦU CHƠI"), .play-mode-btn, [id*="start"], [class*="start"], div[style*="background"]');
+            } catch (err) {
+                mainStartBtn = document.querySelector('.play-mode-btn, [id*="start"], [class*="start"], div[style*="background"]');
+            }
+
+            // Duyệt qua tất cả các button để tìm nút có chữ "BẬT ĐẦU CHƠI" hoặc "Vượt 16 Ái"
+            const allEls = document.querySelectorAll('button, div, span, a');
+            allEls.forEach(el => {
+                const text = (el.innerText || el.textContent || "").trim();
+                const upper = text.toUpperCase();
+                const isMatch = upper.includes('BẬT ĐẦU CHƠI') || 
+                                upper.includes('BẮT ĐẦU CHƠI') || 
+                                upper.includes('BẮT ĐẦU') || 
+                                upper.includes('BẬT ĐẦU') || 
+                                text.includes('Vượt 16 ải') || 
+                                text.includes('Vượt 16 Ải') || 
+                                text.includes('Vượt 16 Ái') || 
+                                el.id === 'btn-start-multi-shuffle' ||
+                                el.id === 'start-game-btn';
+
+                if (isMatch) {
+                    el.style.cursor = 'pointer';
+                    el.style.pointerEvents = 'auto';
+
+                    const triggerRealGame = function(e) {
+                        if (e) {
+                            try { e.preventDefault(); } catch(err) {}
+                            try { e.stopPropagation(); } catch(err) {}
+                        }
+                        console.log("Đã bấm nút bắt đầu, đang tìm hàm gốc để kích hoạt... Element:", el);
+
+                        // Lấy tên và chuyên đề
+                        const nameInput = document.querySelector('input[type="text"]');
+                        if (nameInput) {
+                            try { localStorage.setItem('matching_player_name', nameInput.value.trim() || "Học Sinh"); } catch(e) {}
+                        }
+
+                        const checkedBoxes = document.querySelectorAll('.multi-topic-chk:checked, .topic-checkbox:checked');
+                        let selectedIds = Array.from(checkedBoxes).map(chk => parseInt(chk.value));
+                        if (selectedIds.length === 0) selectedIds = [1];
+                        try { localStorage.setItem('matching_selected_topics', JSON.stringify(selectedIds)); } catch(e) {}
+
+                        // Nếu là nút Vượt 16 ải
+                        if ((text.includes('16') || el.id === 'start-game-btn') && typeof window.startLevel === 'function') {
+                            console.log("Kích hoạt chế độ Vượt 16 Ải...");
+                            window.startLevel('campaign');
+                            return;
+                        }
+
+                        // Thử gọi lần lượt mọi hàm khởi tạo có thể có trong app
+                        let launched = false;
+                        const possibleFunctions = [
+                            'startGame', 'startMatchingGame', 'initGame', 'initMatching', 
+                            'startLevel', 'playGame', 'beginGame', 'loadMatchingGame'
+                        ];
+
+                        for (let fnName of possibleFunctions) {
+                            if (typeof window[fnName] === 'function') {
+                                console.log("Tìm thấy và gọi hàm gốc:", fnName);
+                                window[fnName]();
+                                launched = true;
+                                break;
+                            }
+                        }
+
+                        // Nếu không tìm thấy hàm global, thử kích hoạt sự kiện click gốc của component hoặc ẩn modal thủ công
+                        if (!launched) {
+                            console.log("Không tìm thấy hàm global, thực thi ẩn modal trực tiếp.");
+                            const modals = document.querySelectorAll('.selection-screen-wrapper, .lobby-wrapper, #setup-container, #overlay, #topic-selection-overlay');
+                            modals.forEach(m => {
+                                m.style.display = 'none';
+                                m.style.visibility = 'hidden';
+                            });
+                            const boards = document.querySelectorAll('.play-area, #game-board, .matching-board, #game-board-container, #header-panel');
+                            boards.forEach(b => {
+                                b.style.display = 'block';
+                                b.style.visibility = 'visible';
+                            });
+                            if (typeof window.renderFloatingCards === 'function') window.renderFloatingCards();
+                        }
+                    };
+
+                    el.onclick = triggerRealGame;
+                    el.addEventListener('click', triggerRealGame, { capture: true, passive: false });
+                    el.addEventListener('touchend', triggerRealGame, { capture: true, passive: false });
+                }
+            });
+        }
+
+        // Gọi ngay và gọi sau khi window load
+        setTimeout(bindAllStartButtons, 300);
+        setTimeout(bindAllStartButtons, 800);
+        setTimeout(bindAllStartButtons, 1500);
+
+        if (document.readyState === 'loading') {
+            window.addEventListener('load', () => {
+                setTimeout(bindAllStartButtons, 800);
+            });
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(bindAllStartButtons, 500);
+            });
+        }
+    })();
+}
+
 </script>
 </body></html>
