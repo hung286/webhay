@@ -1528,6 +1528,50 @@ window.penaltyDatabase = JSON.parse(JSON.stringify(window.__INJECTED_PENALTY_DAT
         const style = document.createElement('style');
         style.id = 'penalty-math-nowrap-style';
         style.textContent = \`
+          .game-title-header, .penalty-topbar-title {
+              font-size: clamp(0.85rem, 2vw, 1.1rem) !important;
+              white-space: nowrap !important;
+              overflow: hidden !important;
+              text-overflow: ellipsis !important;
+              max-width: 65vw !important;
+          }
+          .penalty-question-modal, .quiz-box-container {
+              width: 92% !important;
+              max-width: 480px !important;
+              box-sizing: border-box !important;
+          }
+          /* Đề bài tự động xuống dòng */
+          .penalty-question-text, .quiz-question-content {
+              white-space: normal !important;
+              word-wrap: break-word !important;
+              overflow-wrap: break-word !important;
+              font-size: clamp(0.9rem, 2.2vw, 1.05rem) !important;
+          }
+          /* Các nút đáp án ABCD tự động dàn hàng hoặc xuống dòng nếu dài, giữ nguyên MathJax thẳng hàng */
+          .penalty-answer-btn, .quiz-option-btn {
+              white-space: normal !important;
+              height: auto !important;
+              min-height: 44px !important;
+              padding: 8px 12px !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: flex-start !important;
+          }
+          .penalty-answer-btn mjx-container, mjx-container {
+              white-space: nowrap !important;
+              display: inline-block !important;
+          }
+          .penalty-controls-bottom, .shoot-direction-buttons {
+              position: fixed !important;
+              bottom: 0 !important;
+              left: 0 !important;
+              width: 100% !important;
+              padding-bottom: calc(40px + env(safe-area-inset-bottom, 25px)) !important;
+              background: rgba(15, 23, 42, 0.88) !important;
+              backdrop-filter: blur(10px) !important;
+              z-index: 99999 !important;
+              box-sizing: border-box !important;
+          }
           .question-text .mjx-chtml,
           .question-text mjx-container,
           .option-btn .mjx-chtml,
