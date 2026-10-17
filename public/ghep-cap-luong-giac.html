@@ -474,6 +474,15 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"] {
 }
 </style>
 
+<style>
+
+.topic-selected-active {
+    border: 2px solid #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.2) !important;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4) !important;
+}
+
+</style>
 </head>
 <body class="h-screen w-screen bg-gradient-to-b from-teal-100 via-emerald-100 to-green-200 flex flex-col items-center relative overflow-hidden text-gray-800">
 
@@ -925,15 +934,22 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"] {
             const grid = document.getElementById('multi-checkboxes-grid');
             if (grid && grid.children.length === 0) {
                 ALL_16_TOPICS.forEach((topic, idx) => {
-                    const label = document.createElement('label');
-                    label.style.cssText = 'display: flex; align-items: center; font-size: 0.8rem; cursor: pointer; background: rgba(255,255,255,0.06); padding: 5px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); user-select: none; touch-action: manipulation;';
-                    label.innerHTML = `<input type="checkbox" class="multi-topic-chk" data-key="${topic.key}" value="${idx + 1}" style="margin-right: 6px; transform: scale(1.15); accent-color: #10b981; cursor: pointer;" checked> <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${topic.shortName || topic.name}</span>`;
+                    const card = document.createElement('div');
+                    card.className = 'topic-card level-box lobby-topic-item topic-selected-active';
+                    card.dataset.key = topic.key;
+                    card.dataset.topicId = String(idx + 1);
+                    card.style.cssText = 'display: flex; align-items: center; font-size: 0.8rem; cursor: pointer; background: rgba(56, 189, 248, 0.15); padding: 7px 10px; border-radius: 8px; border: 2px solid #38bdf8; user-select: none; touch-action: manipulation; transition: all 0.2s ease;';
+                    card.innerHTML = `<input type="checkbox" class="multi-topic-chk" data-key="${topic.key}" value="${idx + 1}" style="margin-right: 6px; transform: scale(1.15); accent-color: #38bdf8; cursor: pointer;" checked> <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700;">${topic.shortName || topic.name}</span>`;
                     
-                    label.addEventListener('change', () => {
+                    card.onclick = function(e) {
+                        const chk = card.querySelector('.multi-topic-chk');
+                        if (e.target !== chk) {
+                            chk.checked = !chk.checked;
+                        }
                         updateLobbyCheckboxCount();
-                    });
+                    };
 
-                    grid.appendChild(label);
+                    grid.appendChild(card);
                 });
 
                 const btnSelectAll = document.getElementById('btn-select-all');
@@ -970,21 +986,45 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"] {
 
         function updateLobbyCheckboxCount() {
             const checkedBoxes = document.querySelectorAll('.multi-topic-chk:checked');
+            const allCards = document.querySelectorAll('#multi-checkboxes-grid .lobby-topic-item, #multi-checkboxes-grid label');
+            allCards.forEach(c => {
+                const chk = c.querySelector('input');
+                if (chk && chk.checked) {
+                    c.classList.add('topic-selected-active');
+                    c.style.border = '2px solid #38bdf8';
+                    c.style.background = 'rgba(56, 189, 248, 0.18)';
+                    c.style.boxShadow = '0 0 10px rgba(56, 189, 248, 0.3)';
+                } else {
+                    c.classList.remove('topic-selected-active');
+                    c.style.border = '1px solid rgba(255,255,255,0.12)';
+                    c.style.background = 'rgba(255,255,255,0.04)';
+                    c.style.boxShadow = 'none';
+                }
+            });
+
+            const count = checkedBoxes.length;
             const countLabel = document.getElementById('lobby-chk-count');
             if (countLabel) {
-                countLabel.innerText = `${checkedBoxes.length}/16 Đã Chọn`;
+                countLabel.innerText = `${count}/16 Đã Chọn`;
             }
-            const startBtn = document.getElementById('btn-start-multi-shuffle');
-            if (startBtn) {
-                if (checkedBoxes.length > 0) {
-                    startBtn.innerHTML = `<span>🚀 BẮT ĐẦU CHƠI ${checkedBoxes.length} CHỦ ĐỀ ĐÃ CHỌN (TRỘN NGẪU NHIÊN) ➡️</span>`;
-                    startBtn.style.opacity = '1';
-                } else {
-                    startBtn.innerHTML = `<span>🚀 CHỌN ÍT NHẤT 1 CHỦ ĐỀ ĐỂ BẮT ĐẦU ➡️</span>`;
-                    startBtn.style.opacity = '0.75';
-                }
-            }
+
+            updateStartButtonText(count);
         }
+
+        function updateStartButtonText(count) {
+            const startBtns = document.querySelectorAll('#btn-start-multi-shuffle, .btn-start-matching');
+            startBtns.forEach(btn => {
+                if (count > 0) {
+                    btn.innerHTML = `<span>🚀 BẮT ĐẦU CHƠI (${count}/16 chủ đề đã chọn) ➡️</span>`;
+                    btn.style.opacity = '1';
+                } else {
+                    btn.innerHTML = `<span>🚀 CHỌN ÍT NHẤT 1 CHỦ ĐỀ ĐỂ BẮT ĐẦU (0/16) ➡️</span>`;
+                    btn.style.opacity = '0.75';
+                }
+            });
+        }
+        window.updateStartButtonText = updateStartButtonText;
+        window.updateLobbyCheckboxCount = updateLobbyCheckboxCount;
 
         // ==========================================
         // RENDER DANH SÁCH 16 CHUYÊN ĐỀ (MODAL TOPIC)
@@ -1845,6 +1885,18 @@ if (typeof GAME_LEVELS !== 'undefined') {
             clearInterval(timerInterval); 
             cancelAnimationFrame(animationFrameId);
 
+            // Đứng im lập tức toàn bộ thẻ bài
+            const cards = document.querySelectorAll('.heart-card-element, .matching-card-item, .game-card');
+            cards.forEach(c => {
+                c.style.animationPlayState = 'paused';
+                c.style.pointerEvents = 'none';
+            });
+
+            if (state === 'gameover') {
+                showGameOverModal();
+                return;
+            }
+
             setTimeout(() => {
                 overlay.classList.remove('hidden'); 
                 headerPanel.classList.add('hidden'); 
@@ -1852,6 +1904,55 @@ if (typeof GAME_LEVELS !== 'undefined') {
                 showLeaderboardOverlay(state);
             }, 600);
         }
+
+        function showGameOverModal() {
+            if (document.getElementById('custom-game-over-modal')) return;
+
+            // Dừng chuyển động toàn bộ thẻ bài
+            const cards = document.querySelectorAll('.heart-card-element, .matching-card-item, .game-card');
+            cards.forEach(c => {
+                c.style.animationPlayState = 'paused';
+                c.style.pointerEvents = 'none';
+            });
+
+            // Tạo bảng thông báo Thua Cuộc
+            const modal = document.createElement('div');
+            modal.id = 'custom-game-over-modal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 999999; backdrop-filter: blur(5px);';
+            modal.innerHTML = `
+                <div style="background: #0f172a; border: 2px solid #ef4444; padding: 30px; border-radius: 16px; text-align: center; color: #fff; max-width: 420px; width: 90%; box-shadow: 0 15px 35px rgba(239, 68, 68, 0.35); font-family: system-ui, -apple-system, sans-serif;">
+                    <div style="font-size: 3.5rem; margin-bottom: 12px; animation: bounce 1s infinite;">⏳</div>
+                    <h2 style="color: #ef4444; margin-bottom: 10px; font-size: 1.8rem; font-weight: 900; letter-spacing: 0.5px;">THUA RỒI! HẾT GIỜ</h2>
+                    <p style="color: #94a3b8; margin-bottom: 24px; font-size: 0.95rem; line-height: 1.5;">Rất tiếc, thời gian đã cạn kiệt trước khi bạn ghép xong các cặp thẻ. Hãy thử lại để chinh phục các công thức lượng giác nhé!</p>
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <button id="btn-retry-game" style="background: linear-gradient(90deg, #0284c7, #0369a1); color: #fff; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); touch-action: manipulation; transition: all 0.2s;">🔄 Chơi lại màn này</button>
+                        <button id="btn-exit-lobby" style="background: #334155; color: #fff; border: 1px solid #475569; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); touch-action: manipulation; transition: all 0.2s;">🏠 Thoát về sảnh chờ</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            const retryBtn = document.getElementById('btn-retry-game');
+            if (retryBtn) {
+                retryBtn.onclick = () => {
+                    modal.remove();
+                    if (typeof window.startLevel === 'function' && typeof currentMode !== 'undefined' && currentMode) {
+                        window.startLevel(currentMode);
+                    } else {
+                        window.location.reload();
+                    }
+                };
+            }
+
+            const exitBtn = document.getElementById('btn-exit-lobby');
+            if (exitBtn) {
+                exitBtn.onclick = () => {
+                    modal.remove();
+                    window.location.href = window.location.pathname;
+                };
+            }
+        }
+        window.showGameOverModal = showGameOverModal;
 
         function showOverlay(type) {
             overlay.classList.remove('hidden'); headerPanel.classList.add('hidden'); gameBoard.classList.add('hidden');
@@ -3235,5 +3336,81 @@ if (typeof window !== 'undefined') {
         }
     })();
 }
+// =========================================================================
+// KHỐI CODE CHUYÊN BIỆT: MULTI-SELECT TOPIC TOGGLE CLICK & TIME-OUT WATCHER
+// =========================================================================
+(function() {
+    // 1. TOPIC TOGGLE & COUNTER ĐỘC LẬP
+    function setupTopicCardToggles() {
+        const topicCards = document.querySelectorAll('.topic-card, .level-box, div[class*="level"], div[class*="topic"]');
+        topicCards.forEach((card) => {
+            const matchNum = (card.innerText || "").match(/(\d+)\./);
+            if (matchNum) {
+                const topicId = parseInt(matchNum[1]);
+                card.style.cursor = 'pointer';
+                card.style.transition = 'all 0.2s ease';
+
+                // Gắn listener toggle an toàn
+                card.addEventListener('click', function(e) {
+                    if (e.target.closest('button, input, select, a')) return;
+                    
+                    // Tìm checkbox tương ứng trong grid nếu có
+                    const chk = document.querySelector(`.multi-topic-chk[value="${topicId}"], .multi-topic-chk[data-key="${topicId}_F"], .multi-topic-chk[data-key="${topicId}"]`);
+                    if (chk) {
+                        chk.checked = !chk.checked;
+                        if (typeof window.updateLobbyCheckboxCount === 'function') {
+                            window.updateLobbyCheckboxCount();
+                        }
+                    } else {
+                        // Toggle visual class trực tiếp
+                        if (card.classList.contains('topic-selected-active')) {
+                            card.classList.remove('topic-selected-active');
+                            card.style.border = '1px solid rgba(255,255,255,0.15)';
+                            card.style.background = '';
+                        } else {
+                            card.classList.add('topic-selected-active');
+                            card.style.border = '2px solid #38bdf8';
+                            card.style.background = 'rgba(56, 189, 248, 0.15)';
+                        }
+                        const activeCount = document.querySelectorAll('.topic-selected-active, .multi-topic-chk:checked').length;
+                        if (typeof window.updateStartButtonText === 'function') {
+                            window.updateStartButtonText(activeCount);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    // 2. WATCHDOG KIỂM TRA SỰ KIỆN HẾT GIỜ (TIME-OUT WATCHER)
+    function checkTimeOutGameOver() {
+        const timerEl = document.querySelector('.timer-display, #timer, [class*="timer"], #timer-container');
+        if (!timerEl) return;
+
+        const timeText = (timerEl.innerText || "").trim();
+        if (timeText === '0s' || timeText.includes(' 0s') || timeText.includes('00:00') || timeText === '0') {
+            // Dừng chuyển động toàn bộ thẻ bài
+            const cards = document.querySelectorAll('.heart-card-element, .matching-card-item, .game-card');
+            cards.forEach(c => {
+                c.style.animationPlayState = 'paused';
+                c.style.pointerEvents = 'none';
+            });
+
+            // Gọi modal nếu chưa có
+            if (typeof window.showGameOverModal === 'function') {
+                window.showGameOverModal();
+            }
+        }
+    }
+
+    setInterval(checkTimeOutGameOver, 500);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => setTimeout(setupTopicCardToggles, 400));
+        window.addEventListener('load', () => setTimeout(setupTopicCardToggles, 600));
+    } else {
+        setTimeout(setupTopicCardToggles, 400);
+    }
+})();
 </script>
 </body></html>
