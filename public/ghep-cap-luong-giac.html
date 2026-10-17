@@ -465,42 +465,58 @@ button, .btn, input, select, canvas {
 
 /* Khóa sự kiện bấm vào chữ TOÁN PRO / tác giả tránh mở file hệ thống */
 .author-badge, .topbar-brand, #logo-container, .marquee-badge-wrapper, .marquee-badge-text,
-div[title*="Logo"], [title*="tải Logo"], [title*="Logo"] {
+div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
     pointer-events: none !important;
     user-select: none !important;
     cursor: default !important;
 }
 
-/* Trạng thái chọn của thẻ chủ đề */
-.topic-selected-active {
+/* Trạng thái chọn của nút C.Thức & Ví Dụ và thẻ chủ đề */
+.active-selected-btn, .topic-selected-active {
     border: 2px solid #38bdf8 !important;
-    background: rgba(56, 189, 248, 0.2) !important;
-    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4) !important;
+    background: #0284c7 !important;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.6) !important;
 }
 
+/* Chống tràn viền trên mobile cho sảnh chờ và toàn bộ khối chuyên đề */
 @media screen and (max-width: 768px) {
-    .selection-screen-wrapper, .lobby-wrapper, #setup-container {
-        max-height: 90vh !important;
+    .selection-screen-wrapper, .lobby-wrapper, #setup-container, #topics-modal, #overlay-content {
+        max-width: 96vw !important;
+        width: 96% !important;
+        max-height: 92vh !important;
         overflow-y: auto !important;
+        overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         padding: 10px !important;
+        box-sizing: border-box !important;
+        margin: auto !important;
     }
     .topics-grid-container, .level-selection-grid {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .topic-card, .level-box, div[class*="bg-teal-50"] {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+    .topic-card button, .level-box button, div[class*="bg-teal-50"] button {
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 }
-</style>
 
-<style>
-
-.topic-selected-active {
-    border: 2px solid #38bdf8 !important;
-    background: rgba(56, 189, 248, 0.2) !important;
-    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4) !important;
+@media screen and (max-width: 440px) {
+    .topics-grid-container, .level-selection-grid {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+    }
 }
-
 </style>
 </head>
 <body class="h-screen w-screen bg-gradient-to-b from-teal-100 via-emerald-100 to-green-200 flex flex-col items-center relative overflow-hidden text-gray-800">
@@ -858,6 +874,14 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"] {
 
         window.openGhepCapTopicMenu = function() {
             window.renderGhepCapTopicCards();
+            if (typeof window.initAccurateMultiSelect === 'function') {
+                window.initAccurateMultiSelect();
+            }
+            const victoryOverlay = document.getElementById('overlay');
+            if (victoryOverlay) {
+                victoryOverlay.classList.add('hidden');
+                victoryOverlay.style.display = 'none';
+            }
             const overlay = document.getElementById('topic-selection-overlay') || document.querySelector('.topics-selection-wrapper');
             if (overlay) {
                 overlay.style.display = 'flex';
@@ -2116,10 +2140,10 @@ if (typeof GAME_LEVELS !== 'undefined') {
                     ${type === 'victory' ? `
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
                         <button onclick="window.goToNextLevel()" style="background: linear-gradient(90deg, #10b981, #059669); color: #fff; font-weight: 800; padding: 12px 14px; border-radius: 12px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); touch-action: manipulation; font-size: 0.95rem;">
-                            🚀 Qua màn tiếp theo
+                            ✨ Qua màn tiếp theo
                         </button>
                         <button onclick="window.openGhepCapTopicMenu()" style="background: linear-gradient(90deg, #0284c7, #0369a1); color: #fff; font-weight: 800; padding: 12px 14px; border-radius: 12px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); touch-action: manipulation; font-size: 0.95rem;">
-                            📚 Chọn màn khác
+                            🔄 Chọn chuyên đề
                         </button>
                         <button onclick="window.goToLobby()" style="background: #475569; color: #fff; font-weight: 800; padding: 12px 14px; border-radius: 12px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(71, 85, 105, 0.4); touch-action: manipulation; font-size: 0.95rem;">
                             🏠 Về sảnh chờ
@@ -3343,6 +3367,7 @@ if (typeof window !== 'undefined') {
         }
         window.updateStartButtonStatus = updateStartButtonStatus;
 
+        window.initAccurateMultiSelect = initAccurateMultiSelect;
         function initAccurateMultiSelect() {
             // Tìm tất cả các nút C.Thức và Ví Dụ của 16 chủ đề
             const topicButtons = document.querySelectorAll('.topic-btn, .level-box button, button');
