@@ -178,19 +178,116 @@
             box-shadow: 0 4px 0 #991b1b;
         }
 
-        /* 1. NEO CỐ ĐỊNH KHUNG ĐỀ BÀI LÊN ĐỈNH MÀN HÌNH (TOP FIXED POSITIONING) */
+        /* 1. TỰ ĐỘNG XUỐNG HÀNG VÀ CHỐNG TRÀN CHO MÀN HÌNH CHỜ (LOBBY TEXT WRAPPING) */
+        .bird-lobby-container p, .bird-lobby-container span, .sub-title-text, .coder-info-text, .game-instruction-text {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            text-align: center !important;
+            font-size: clamp(0.85rem, 2vw, 1.05rem) !important;
+            line-height: 1.4 !important;
+        }
+        /* Khung chứa nội dung sảnh chờ co giãn ôm khít màn hình */
+        .bird-lobby-box, .setup-card-container {
+            width: 92% !important;
+            max-width: 520px !important;
+            margin: 0 auto !important;
+            box-sizing: border-box !important;
+            padding: clamp(16px, 3.5vw, 28px) !important;
+            border-radius: 24px !important;
+        }
+        .bird-lobby-title {
+            font-size: clamp(1.8rem, 5vw, 3.2rem) !important;
+            line-height: 1.2 !important;
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            text-align: center !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .sub-title-text, .coder-info-text {
+            font-size: clamp(0.85rem, 2.2vw, 1.15rem) !important;
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            text-align: center !important;
+            max-width: 92% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+        #player-name {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .mode-btn {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+            line-height: 1.25 !important;
+        }
+
+        /* 2. KHUNG ĐỀ BÀI IN-GAME: CO GIÃN THÔNG MINH, TỰ ĐỘNG XUỐNG HÀNG (WORD-WRAP) & THU GỌN FONT */
         .question-container-box {
             position: absolute !important;
-            top: 5px !important; /* Đẩy sát lên cạnh trên cùng của khung cảnh, nằm dưới thanh Topbar */
+            top: 6px !important;
             left: 50% !important;
             transform: translateX(-50%) !important;
-            width: 95% !important; /* Co giãn ôm sát viền ngang màn hình */
-            max-width: 680px !important;
-            max-height: 12vh !important; /* Thu hẹp chiều cao khung chữ để không chiếm diện tích */
-            z-index: 20 !important; /* Đảm bảo layer hiển thị rõ ràng */
-            background: rgba(255, 255, 255, 0.92) !important;
+            width: 94% !important;
+            max-width: 620px !important;
+            min-height: auto !important;
+            max-height: 22vh !important;
+            z-index: 25 !important;
+            background: rgba(255, 255, 255, 0.96) !important;
+            border: 3px solid #FBC02D !important;
+            border-radius: 20px !important;
+            padding: 8px 16px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.18) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
+            box-sizing: border-box !important;
+        }
+        #math-question,
+        .question-container-box .question-box-content,
+        #modal-question-text {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            text-align: center !important;
+            font-size: clamp(0.78rem, 1.8vw, 0.96rem) !important;
+            line-height: 1.35 !important;
+            color: #1e293b !important;
+            font-weight: 700 !important;
+            margin: 2px 0 !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 3. CĂN CHỈNH THẺ LEVEL, NÚT BẤM VÀ GIAO DIỆN DI ĐỘNG KHÔNG LẸM VIỀN */
+        .title-badge, #level-badge {
+            position: absolute !important;
+            top: -11px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            background: #FFCA28 !important;
+            border: 2px solid #F57F17 !important;
+            border-radius: 14px !important;
+            padding: 1px 12px !important;
+            font-size: clamp(9px, 1.4vw, 11px) !important;
+            font-weight: 900 !important;
+            color: #5D4037 !important;
+            white-space: nowrap !important;
+            max-width: 90% !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
             box-sizing: border-box !important;
         }
 
@@ -202,32 +299,33 @@
             .brand-logo {
                 display: none !important;
             }
-            /* Điều chỉnh cỡ chữ câu hỏi trên di động cho gọn gàng */
             .question-container-box {
                 top: max(4px, env(safe-area-inset-top)) !important;
-                font-size: 0.85rem !important;
-                padding: 4px 10px !important;
-                max-height: 12vh !important;
                 width: 95% !important;
+                max-width: 95% !important;
+                padding: 6px 12px !important;
+                border-radius: 16px !important;
+                max-height: 20vh !important;
+            }
+            #math-question {
+                font-size: clamp(0.75rem, 3.2vw, 0.88rem) !important;
+                line-height: 1.3 !important;
             }
             #top-left-hud {
                 position: absolute !important;
-                top: calc(12vh + 8px) !important;
+                top: calc(20vh + 6px) !important;
                 left: 6px !important;
                 gap: 4px !important;
+                transform: scale(0.92) !important;
+                transform-origin: top left !important;
             }
             #top-right-hud {
                 position: absolute !important;
-                top: calc(12vh + 8px) !important;
+                top: calc(20vh + 6px) !important;
                 right: 6px !important;
                 gap: 4px !important;
-            }
-            #math-question {
-                font-size: 12.5px !important;
-                line-height: 1.3 !important;
-                max-height: calc(12vh - 12px) !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
+                transform: scale(0.92) !important;
+                transform-origin: top right !important;
             }
             .pill-box {
                 padding: 2px 8px !important;
@@ -238,13 +336,13 @@
         @media (max-height: 520px) and (orientation: landscape) {
             #mobile-bird-dock {
                 display: flex !important;
-                bottom: calc(6px + env(safe-area-inset-bottom, 6px)) !important;
-                padding: 4px 12px !important;
-                gap: 8px !important;
+                bottom: calc(4px + env(safe-area-inset-bottom, 4px)) !important;
+                padding: 4px 10px !important;
+                gap: 6px !important;
                 transform: translateX(-50%) scale(0.85) !important;
             }
             .mobile-bird-btn {
-                padding: 6px 12px !important;
+                padding: 5px 10px !important;
                 font-size: 11px !important;
             }
             .brand-logo {
@@ -252,37 +350,36 @@
             }
             .question-container-box {
                 top: 2px !important;
-                font-size: 0.75rem !important;
-                padding: 2px 8px !important;
-                max-height: 16vh !important;
-                max-width: 60% !important;
-                width: 60% !important;
+                padding: 3px 8px !important;
+                max-height: 24vh !important;
+                max-width: 58% !important;
+                width: 58% !important;
+                border-radius: 14px !important;
             }
             #level-badge {
                 font-size: 8px !important;
-                padding: 1px 6px !important;
-                margin-bottom: 2px !important;
+                padding: 0 6px !important;
+                top: -9px !important;
             }
             #math-question {
                 font-size: 11px !important;
                 line-height: 1.2 !important;
-                max-height: calc(16vh - 12px) !important;
             }
             #top-left-hud {
                 position: absolute !important;
                 top: 2px !important;
                 left: 4px !important;
-                transform: scale(0.82) !important;
+                transform: scale(0.78) !important;
                 transform-origin: top left !important;
-                gap: 3px !important;
+                gap: 2px !important;
             }
             #top-right-hud {
                 position: absolute !important;
                 top: 2px !important;
                 right: 4px !important;
-                transform: scale(0.82) !important;
+                transform: scale(0.78) !important;
                 transform-origin: top right !important;
-                gap: 3px !important;
+                gap: 2px !important;
             }
             .pill-box {
                 padding: 2px 6px !important;
@@ -291,14 +388,25 @@
     </style>
 
 <style id="mathjax-no-bounding-box-style">
-/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax và ép thẳng 1 dòng */
-mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process, .math-content, .math-text, .MathJax, [class*="math-"] {
+/* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax, chỉ ép nowrap cho token công thức */
+mjx-container, .mjx-chtml, mjx-math, mjx-mo, .MathJax, .katex, .katex-html, .katex-display {
     outline: none !important;
     border: none !important;
     box-shadow: none !important;
-    white-space: nowrap !important; /* Ép phân số và dấu căn \(\sqrt\) nằm thẳng một dòng */
+    white-space: nowrap !important;
     display: inline-block !important;
+    max-width: 100% !important;
+    vertical-align: middle !important;
     overflow: visible !important;
+}
+/* Bắt buộc toàn bộ khung chữ đề bài và văn bản tiếng Việt tự động ngắt dòng */
+.tex2jax_process,
+#math-question,
+#math-question-box,
+.question-container-box,
+.question-box-content,
+#modal-question-text {
+    white-space: normal !important;
 }
 </style>
 <style>
@@ -386,37 +494,37 @@ button, .btn, input, select, canvas {
     </div>
 
     <!-- MÀN HÌNH CHỌN CHUYÊN ĐỀ / MÀN CHƠI (START SCREEN) -->
-    <div id="start-screen" class="overlay-screen">
-        <h1 class="text-4xl sm:text-6xl font-black text-yellow-400 mb-2 text-center" style="-webkit-text-stroke: 2px #d97706; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+    <div id="start-screen" class="overlay-screen bird-lobby-container">
+        <h1 class="bird-lobby-title font-black text-yellow-400 mb-2 text-center" style="-webkit-text-stroke: 2px #d97706; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">
             🎯 THỢ SĂN XÁC SUẤT
         </h1>
-        <h2 class="text-lg sm:text-2xl font-bold text-white mb-6 text-center">
+        <h2 class="sub-title-text coder-info-text font-bold text-white mb-5 text-center">
             VIBE CODER: TOÁN PRO - THẦY HÙNG (Toán 10 - KNTT)
         </h2>
         
-        <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center flex flex-col items-center border-4 border-yellow-300">
-            <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full text-center border-4 border-blue-300 rounded-2xl px-4 py-3 text-lg sm:text-xl font-bold text-gray-700 mb-4 focus:outline-none focus:border-blue-500 shadow-inner">
+        <div class="bg-white rounded-3xl shadow-2xl bird-lobby-box setup-card-container text-center flex flex-col items-center border-4 border-yellow-300">
+            <input type="text" id="player-name" placeholder="Nhập tên của bạn..." class="w-full text-center border-4 border-blue-300 rounded-2xl px-4 py-2.5 text-base sm:text-lg font-bold text-gray-700 mb-3 focus:outline-none focus:border-blue-500 shadow-inner box-border">
             
-            <p class="text-gray-600 text-xs sm:text-sm mb-4 leading-relaxed">
+            <p class="text-gray-600 text-xs sm:text-sm mb-4 leading-relaxed game-instruction-text">
                 <b>Cách chơi:</b> Ngắm bắn chú chim mang đáp án đúng trong 5 phương án A, B, C, D, E.<br>
                 <b>Chế độ Vượt Ải:</b> Thăng hạng Level 1 ➔ 2 ➔ 3 để nhận thêm thời gian!
             </p>
 
-            <div class="flex flex-col gap-3 w-full">
+            <div class="flex flex-col gap-2.5 w-full">
                 <!-- Chế độ Vượt ải -->
-                <button class="mode-btn bg-purple-600 hover:bg-purple-700 text-white font-black text-base sm:text-lg py-3 px-4 rounded-2xl border-b-4 border-purple-800 shadow-lg active:border-b-0 active:translate-y-1 transition-all cursor-pointer" data-mode="campaign" data-level="1">
+                <button class="mode-btn bg-purple-600 hover:bg-purple-700 text-white font-black text-sm sm:text-base py-3 px-4 rounded-2xl border-b-4 border-purple-800 shadow-lg active:border-b-0 active:translate-y-1 transition-all cursor-pointer w-full" data-mode="campaign" data-level="1">
                     🏆 CHẾ ĐỘ VƯỢT ẢI (Đề xuất)
                 </button>
                 <!-- 3 Mức độ đơn lẻ -->
-                <div class="grid grid-cols-3 gap-2">
-                    <button class="mode-btn bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm py-2.5 rounded-2xl border-b-4 border-emerald-800 shadow-md active:border-b-0 active:translate-y-1 transition-all cursor-pointer" data-mode="single" data-level="1">
-                        🟢 Level 1: Dễ
+                <div class="grid grid-cols-3 gap-1.5 sm:gap-2 w-full">
+                    <button class="mode-btn bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[11px] sm:text-xs py-2.5 px-1 rounded-2xl border-b-4 border-emerald-800 shadow-md active:border-b-0 active:translate-y-1 transition-all cursor-pointer" data-mode="single" data-level="1">
+                        🟢 L1: Dễ
                     </button>
-                    <button class="mode-btn bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm py-2.5 rounded-2xl border-b-4 border-blue-800 shadow-md active:border-b-0 active:translate-y-1 transition-all cursor-pointer" data-mode="single" data-level="2">
-                        🟡 Level 2: Vừa
+                    <button class="mode-btn bg-blue-600 hover:bg-blue-700 text-white font-black text-[11px] sm:text-xs py-2.5 px-1 rounded-2xl border-b-4 border-blue-800 shadow-md active:border-b-0 active:translate-y-1 transition-all cursor-pointer" data-mode="single" data-level="2">
+                        🟡 L2: Vừa
                     </button>
-                    <button class="mode-btn bg-rose-600 hover:bg-rose-700 text-white font-black text-xs sm:text-sm py-2.5 rounded-2xl border-b-4 border-rose-800 shadow-md active:border-b-0 active:translate-y-1 transition-all cursor-pointer" data-mode="single" data-level="3">
-                        🔴 Level 3: Khó
+                    <button class="mode-btn bg-rose-600 hover:bg-rose-700 text-white font-black text-[11px] sm:text-xs py-2.5 px-1 rounded-2xl border-b-4 border-rose-800 shadow-md active:border-b-0 active:translate-y-1 transition-all cursor-pointer" data-mode="single" data-level="3">
+                        🔴 L3: Khó
                     </button>
                 </div>
             </div>
