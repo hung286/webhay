@@ -1053,23 +1053,39 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
         /* --- 2. SỬA DỨT ĐIỂM MÀN HÌNH BẮT ĐẦU (#start-screen & #player-name) --- */
         #start-screen .military-dossier, .military-dossier {
-            max-height: 90dvh !important;
+            max-height: 92dvh !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
             box-sizing: border-box !important;
             position: relative !important;
-            padding: 24px 20px !important;
+            padding: clamp(16px, 3vw, 24px) clamp(14px, 3vw, 22px) !important;
             width: 100% !important;
             max-width: 620px !important;
             margin: auto 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
         }
 
+        /* 1. THU NHỎ TIÊU ĐỀ VÀ BẬC XUỐNG HÀNG TỰ ĐỘNG */
+        .trench-lobby-title, #start-screen .trench-lobby-title, #start-screen h1.trench-lobby-title {
+            font-size: clamp(1.5rem, 4vw, 2.5rem) !important;
+            word-break: break-word !important;
+            text-align: center !important;
+            white-space: normal !important;
+            line-height: 1.25 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            letter-spacing: 0.05em !important;
+            margin: 0 !important;
+        }
+
+        /* 2. SẮP XẾP LẠI THỨ TỰ CÁC KHỐI THEO CHIỀU DỌC (VERTICAL FLOW) */
         #player-name, .tactical-input {
             width: 100% !important;
             box-sizing: border-box !important;
             font-size: clamp(14px, 3.5vw, 18px) !important;
             padding: 12px 16px !important;
-            margin-bottom: 20px !important;
+            margin-bottom: 0px !important;
             outline: none !important;
             border: 2px solid #475569 !important;
             box-shadow: none !important;
@@ -1082,6 +1098,24 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         #player-name:focus, .tactical-input:focus {
             border-color: #00f0ff !important;
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.4) !important;
+        }
+
+        .signature-box {
+            background: rgba(0, 0, 0, 0.45) !important;
+            border: 1px solid rgba(0, 240, 255, 0.3) !important;
+            border-radius: 12px !important;
+            padding: 12px 14px !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+        }
+        .signature-box .btn-glitch {
+            margin-bottom: 0 !important;
+            padding: 12px 20px !important;
+            font-size: clamp(13px, 3.5vw, 17px) !important;
+            border-radius: 8px !important;
+            letter-spacing: 1px !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
         }
 
         /* --- 3. SỬA LỖI TẤM BIỂN ZOMBIE CẦM BỊ RỖNG & TỰ CÂN ĐỐI KÍCH THƯỚC --- */
@@ -1604,30 +1638,51 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
     <div id="start-screen" class="modal-screen">
         <div class="esport-box military-dossier">
-            <!-- Thiết kế Tiêu đề 1 dòng mạnh mẽ -->
-            <div class="flex flex-col items-center justify-center mb-6">
-                <div class="text-white text-[2rem] sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-widest leading-tight drop-shadow-lg text-center w-full whitespace-nowrap">
+            <!-- Dòng 1: Tiêu đề game đã được thu gọn vừa khung (Tự động xuống hàng) -->
+            <div class="flex flex-col items-center justify-center mb-4 sm:mb-5 w-full">
+                <h1 class="trench-lobby-title text-white font-black uppercase tracking-wider leading-tight drop-shadow-lg text-center w-full" style="font-size: clamp(1.5rem, 4vw, 2.5rem) !important; word-break: break-word !important; text-align: center !important; white-space: normal !important; line-height: 1.25 !important; margin: 0;">
                     BẢO VỆ <span class="text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]">CHIẾN HÀO</span>
+                </h1>
+            </div>
+            
+            <!-- Dòng 2: Khung "Hồ sơ chiến dịch" (Mục tiêu, chỉ thị) -->
+            <div class="campaign-dossier-card bg-black/50 border border-slate-600/80 p-3.5 sm:p-4 rounded-xl mb-4 text-left shadow-inner w-full box-border">
+                <h2 class="text-base sm:text-lg text-cyan-300 tracking-widest font-bold uppercase mb-2 border-b border-gray-700/80 pb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-file-shield text-cyan-400"></i> Hồ sơ chiến dịch
+                </h2>
+                <p class="text-xs sm:text-sm text-gray-300 text-left mb-1.5 leading-relaxed">
+                    <span class="text-cyan-400 font-semibold">Mục tiêu:</span> Đào tạo phản xạ Giá trị lượng giác (0° - 180°).
+                </p>
+                <p class="text-xs sm:text-sm text-gray-400 text-left leading-relaxed">
+                    <span class="text-amber-400 font-semibold">Chỉ thị:</span> Bắn hạ mục tiêu mang đáp án đúng. Sai lệch sẽ phải trả giá bằng sinh mạng.
+                </p>
+            </div>
+            
+            <!-- Dòng 3: Nút màu vàng "🚀 TIẾP TỤC / CHỌN CHIẾN DỊCH ➔" nằm ngay ngắn -->
+            <button id="btn-start-game" onclick="proceedToCampaignOrStart()" class="w-full py-3.5 px-4 sm:px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-600 hover:to-yellow-500 text-slate-950 font-black text-sm sm:text-base uppercase tracking-wider shadow-lg shadow-amber-500/30 transition active:scale-95 cursor-pointer mb-4 flex items-center justify-center gap-2">
+                <span>🚀 TIẾP TỤC / CHỌN CHIẾN DỊCH ➔</span>
+            </button>
+            
+            <!-- Dòng 4: Ô nhập tên "Định danh tân binh" (Input text box rộng rãi để gõ tên dễ dàng) -->
+            <div class="player-identity-group w-full mb-4 text-left box-border">
+                <label for="player-name" class="block text-left text-xs sm:text-sm text-cyan-300 font-bold uppercase mb-1.5 tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-id-card text-yellow-400"></i> Định danh tân binh:
+                </label>
+                <input id="player-name" type="text" onkeydown="if(event.key === 'Enter') startGame()" class="tactical-input w-full box-border" placeholder="NHẬP TÊN ĐỂ KÝ NHẬN..." autocomplete="off">
+            </div>
+            
+            <!-- Dòng 5: Khung "Hộp ký nhận" nằm ở vị trí đáy sảnh chờ -->
+            <div class="signature-box bg-black/45 border border-cyan-500/30 rounded-xl p-3 sm:p-4 mb-2 shadow-lg text-center w-full box-border">
+                <div class="text-[11px] sm:text-xs text-cyan-400 font-bold uppercase tracking-widest mb-2 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-signature text-yellow-400"></i> Hộp ký nhận nhiệm vụ
                 </div>
+                <button onclick="startGame()" class="btn-glitch w-full">
+                    <i class="fa-solid fa-file-signature mr-2"></i> KÝ NHẬN NHIỆM VỤ
+                </button>
             </div>
             
-            <div class="bg-black/40 border border-gray-600 p-4 rounded mb-6">
-                <h2 class="text-xl text-cyan-300 tracking-widest font-bold uppercase mb-2 border-b border-gray-700 pb-2">Hồ sơ chiến dịch</h2>
-                <p class="text-sm text-gray-400 text-left mb-1">Mục tiêu: Đào tạo phản xạ Giá trị lượng giác (0° - 180°).</p>
-                <p class="text-sm text-gray-400 text-left">Chỉ thị: Bắn hạ mục tiêu mang đáp án đúng. Sai lệch sẽ phải trả giá bằng sinh mạng.</p>
-            </div>
-            
-            <div class="text-left text-sm text-gray-400 font-bold uppercase mb-1">Định danh tân binh:</div>
-            <button id="btn-start-game" onclick="proceedToCampaignOrStart()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-slate-950 font-black text-base uppercase tracking-wider shadow-lg shadow-amber-500/30 transition active:scale-95 cursor-pointer mb-6">
-                🚀 TIẾP TỤC / CHỌN CHIẾN DỊCH ➔
-            </button>
-            <input id="player-name" type="text" class="tactical-input w-full box-border" placeholder="NHẬP TÊN ĐỂ KÝ NHẬN..." autocomplete="off">
-            
-            <button onclick="startGame()" class="btn-glitch mb-6">
-                <i class="fa-solid fa-file-signature mr-2"></i> KÝ NHẬN NHIỆM VỤ
-            </button>
-            
-            <div class="controls-hint bg-black/60 p-4 rounded-lg border border-cyan-900/50">
+            <div class="controls-hint bg-black/60 p-2 sm:p-3 rounded-lg border border-cyan-900/50 mt-2 text-center w-full box-border">
+                <span class="text-xs text-gray-400"><i class="fa-solid fa-keyboard mr-1"></i> Nhấn phím số 1-4 hoặc A, B, C, D trên bàn phím để chọn đáp án</span>
             </div>
         </div>
     </div>
