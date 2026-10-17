@@ -126,23 +126,23 @@
             max-width: 100%;
         }
 
-        /* CỤM PHÍM BẤM ẢO DI ĐỘNG (ZERO-LATENCY TOUCH CONTROLS) */
+        /* CỤM PHÍM BẤM ẢO DI ĐỘNG (ZERO-LATENCY TOUCH CONTROLS VỚI SAFE AREA HOÀN HẢO) */
         #mobile-bird-dock {
-            position: absolute;
-            bottom: max(10px, env(safe-area-inset-bottom));
-            left: 50%;
-            transform: translateX(-50%);
+            position: fixed !important;
+            bottom: calc(14px + env(safe-area-inset-bottom, 15px)) !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
             display: none;
             gap: 10px;
-            z-index: 40;
-            pointer-events: auto;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 2px solid #eab308;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.7), 0 0 15px rgba(234, 179, 8, 0.3);
+            z-index: 99999 !important;
+            pointer-events: auto !important;
+            background: rgba(15, 23, 42, 0.92) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            padding: 8px 16px !important;
+            border-radius: 24px !important;
+            border: 2px solid #eab308 !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(234, 179, 8, 0.4) !important;
         }
         .mobile-bird-btn {
             border-radius: 14px;
@@ -188,46 +188,104 @@
             max-width: 680px !important;
             max-height: 12vh !important; /* Thu hẹp chiều cao khung chữ để không chiếm diện tích */
             z-index: 20 !important; /* Đảm bảo layer hiển thị rõ ràng */
-            background: rgba(255, 255, 255, 0.9) !important; /* Giữ màu trắng tinh tế */
+            background: rgba(255, 255, 255, 0.92) !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
             box-sizing: border-box !important;
         }
 
+        /* CHẾ ĐỘ MÀN HÌNH DỌC DI ĐỘNG (PORTRAIT RESPONSIVE) */
         @media (max-width: 768px) {
             #mobile-bird-dock {
-                display: flex;
+                display: flex !important;
             }
             .brand-logo {
-                display: none;
+                display: none !important;
             }
             /* Điều chỉnh cỡ chữ câu hỏi trên di động cho gọn gàng */
             .question-container-box {
-                top: 2px !important;
+                top: max(4px, env(safe-area-inset-top)) !important;
                 font-size: 0.85rem !important;
-                padding: 6px 12px !important;
+                padding: 4px 10px !important;
                 max-height: 12vh !important;
                 width: 95% !important;
             }
             #top-left-hud {
-                position: absolute;
-                top: calc(12vh + 5px);
-                left: 8px;
+                position: absolute !important;
+                top: calc(12vh + 8px) !important;
+                left: 6px !important;
+                gap: 4px !important;
             }
             #top-right-hud {
-                position: absolute;
-                top: calc(12vh + 5px);
-                right: 8px;
+                position: absolute !important;
+                top: calc(12vh + 8px) !important;
+                right: 6px !important;
+                gap: 4px !important;
             }
             #math-question {
-                font-size: 13px;
-                line-height: 1.3;
-                max-height: calc(12vh - 12px);
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
+                font-size: 12.5px !important;
+                line-height: 1.3 !important;
+                max-height: calc(12vh - 12px) !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
             }
             .pill-box {
-                padding: 3px 10px;
+                padding: 2px 8px !important;
+            }
+        }
+
+        /* CHẾ ĐỘ XOAY NGANG DI ĐỘNG (LANDSCAPE RESPONSIVE FIX) */
+        @media (max-height: 520px) and (orientation: landscape) {
+            #mobile-bird-dock {
+                display: flex !important;
+                bottom: calc(6px + env(safe-area-inset-bottom, 6px)) !important;
+                padding: 4px 12px !important;
+                gap: 8px !important;
+                transform: translateX(-50%) scale(0.85) !important;
+            }
+            .mobile-bird-btn {
+                padding: 6px 12px !important;
+                font-size: 11px !important;
+            }
+            .brand-logo {
+                display: none !important;
+            }
+            .question-container-box {
+                top: 2px !important;
+                font-size: 0.75rem !important;
+                padding: 2px 8px !important;
+                max-height: 16vh !important;
+                max-width: 60% !important;
+                width: 60% !important;
+            }
+            #level-badge {
+                font-size: 8px !important;
+                padding: 1px 6px !important;
+                margin-bottom: 2px !important;
+            }
+            #math-question {
+                font-size: 11px !important;
+                line-height: 1.2 !important;
+                max-height: calc(16vh - 12px) !important;
+            }
+            #top-left-hud {
+                position: absolute !important;
+                top: 2px !important;
+                left: 4px !important;
+                transform: scale(0.82) !important;
+                transform-origin: top left !important;
+                gap: 3px !important;
+            }
+            #top-right-hud {
+                position: absolute !important;
+                top: 2px !important;
+                right: 4px !important;
+                transform: scale(0.82) !important;
+                transform-origin: top right !important;
+                gap: 3px !important;
+            }
+            .pill-box {
+                padding: 2px 6px !important;
             }
         }
     </style>
@@ -959,6 +1017,10 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     // =========================================================================
     // 3. ENGINE TRÒ CHƠI & BẮN CHIM ĐỒNG HỌC (CANVAS 2D)
     // =========================================================================
+    const BIRD_MIN_SPEED = 1.0;
+    const BIRD_MAX_SPEED = 2.2;
+    const GAME_DURATION_SECONDS = 60; // Trọn vẹn 1 phút
+
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
     let width, height;
@@ -970,7 +1032,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         level: 1, 
         score: 0, 
         combo: 1,
-        timeLeft: 60,
+        timeLeft: GAME_DURATION_SECONDS,
         lastTime: 0, 
         timerAccumulator: 0,
         currentQuestion: null,
@@ -987,6 +1049,53 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         renderBackgroundBuffer();
     }
     window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', () => {
+        setTimeout(resize, 200);
+    });
+
+    // CHUẨN HÓA VÀ GIA TĂNG ĐỘ NÉT BIỂU THỨC TOÁN & PHÂN SỐ TRÊN BIỂN GỖ CHIM
+    function formatBirdBoardAnswer(raw) {
+        if (!raw) return '';
+        let text = String(raw).trim();
+        // Gỡ bọc LaTeX \( \), $ $
+        text = text.replace(/^\\\(/, '').replace(/\\\)$/, '').replace(/^\$/, '').replace(/\$$/, '').trim();
+        text = text.replace(/\\displaystyle/g, '');
+        text = text.replace(/\\text\{([^}]+)\}/g, '$1');
+        text = text.replace(/\\mathrm\{([^}]+)\}/g, '$1');
+        text = text.replace(/\\mathbf\{([^}]+)\}/g, '$1');
+        text = text.replace(/\\left/g, '').replace(/\\right/g, '');
+
+        // Chuyển phân số LaTeX nhiều tầng \frac{a}{b} hoặc \dfrac{a}{b} thành a/b
+        for (let iter = 0; iter < 3; iter++) {
+            text = text.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '$1/$2');
+            text = text.replace(/\\dfrac\{([^{}]+)\}\{([^{}]+)\}/g, '$1/$2');
+        }
+
+        // Chuyển căn bậc hai
+        text = text.replace(/\\sqrt\{([^{}]+)\}/g, '√$1');
+        text = text.replace(/\\sqrt\s*(\w+)/g, '√$1');
+
+        // Chuyển các ký hiệu tập hợp và toán học sang Unicode sạch
+        text = text.replace(/\\cap/g, '∩').replace(/\bAcapB\b/g, 'A∩B');
+        text = text.replace(/\\cup/g, '∪').replace(/\bAcupB\b/g, 'A∪B');
+        text = text.replace(/\\Omega/g, 'Ω');
+        text = text.replace(/\\emptyset/g, '∅');
+        text = text.replace(/\\cdot/g, '·').replace(/\\times/g, '×');
+        text = text.replace(/\\le/g, '≤').replace(/\\ge/g, '≥').replace(/\\ne/g, '≠');
+        text = text.replace(/\\pm/g, '±');
+        text = text.replace(/\\overline\{([^{}]+)\}/g, '$1̄');
+
+        // Chuyển tổ hợp, chỉnh hợp
+        text = text.replace(/C_\{(\d+)\}\^\{(\d+)\}/g, 'C($1,$2)');
+        text = text.replace(/A_\{(\d+)\}\^\{(\d+)\}/g, 'A($1,$2)');
+        text = text.replace(/C_(\d+)\^(\d+)/g, 'C($1,$2)');
+        text = text.replace(/A_(\d+)\^(\d+)/g, 'A($1,$2)');
+
+        // Bỏ các ký tự TeX gạch chéo còn sót lại
+        text = text.replace(/\\/g, '');
+        text = text.replace(/\s+/g, ' ').trim();
+        return text;
+    }
 
     // Buffer hình nền rừng cây thiên nhiên
     const bgCanvas = document.createElement('canvas');
@@ -1044,11 +1153,16 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         }
     }
 
-    // VẼ CHÚ CHIM VỚI TẤM BIỂN GỖ MANG ĐÁP ÁN (GIỮ 100% CƠ CHẾ ĐỘNG HỌC GỐC)
+    // VẼ CHÚ CHIM VỚI TẤM BIỂN GỖ MANG ĐÁP ÁN (GIỮ 100% CƠ CHẾ ĐỘNG HỌC GỐC, NÉT TOÁN ĐẸP)
     function drawBird(ctx, x, y, frame, answer, letter) {
         ctx.save(); 
         ctx.translate(x, y);
-        const birdScale = (width < 768) ? 0.95 : 1.15;
+        let birdScale = 1.15;
+        if (height < 500) {
+            birdScale = Math.min(width / 800, height / 450, 0.78);
+        } else if (width < 768) {
+            birdScale = 0.95;
+        }
         ctx.scale(birdScale, birdScale); 
 
         const flapOffset = Math.sin(frame * 0.2) * 10;
@@ -1118,30 +1232,34 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         ctx.fill();
 
         // Tấm biển gỗ mang phương án A, B, C, D, E dưới bụng chim
+        const cleanText = formatBirdBoardAnswer(answer);
+        const displayLabel = letter ? `${letter}. ${cleanText}` : cleanText;
+        
+        // Tự động co giãn kích thước biển gỗ theo độ dài đáp án để không bị cắt xén
+        const textLen = displayLabel.length;
+        const boardWidth = Math.max(88, Math.min(136, textLen * 9 + 18));
+        const boardHeight = 28;
+        const halfW = boardWidth / 2;
+
         ctx.fillStyle = '#854d0e'; // Gỗ sẫm
         ctx.strokeStyle = '#451a03';
         ctx.lineWidth = 2.5;
         ctx.beginPath(); 
-        ctx.roundRect(-42, 28, 84, 28, 6); 
+        ctx.roundRect(-halfW, 28, boardWidth, boardHeight, 6); 
         ctx.fill(); 
         ctx.stroke();
 
         // Nền chữ bên trong biển gỗ
         ctx.fillStyle = '#fef08a';
         ctx.beginPath();
-        ctx.roundRect(-39, 31, 78, 22, 4);
+        ctx.roundRect(-halfW + 3, 31, boardWidth - 6, boardHeight - 6, 4);
         ctx.fill();
 
-        // Chữ đáp án (Lược bỏ ký tự TeX thừa để hiển thị sắc nét trên Canvas)
-        let cleanText = (answer || '').replace(/^\\\(/, '').replace(/\\\)$/, '').replace(/^\$/, '').replace(/\$$/, '');
-        cleanText = cleanBirdMathString(cleanText);
-        if (cleanText.length > 9) cleanText = cleanText.substring(0, 8) + '...';
-        
+        // Chữ đáp án (Chuẩn hóa sắc nét, hiển thị phân số A/B và công thức chuẩn trên Canvas)
         ctx.fillStyle = '#78350f';
-        ctx.font = 'bold 13px Arial';
+        ctx.font = 'bold 12.5px "Segoe UI", Arial, sans-serif';
         ctx.textAlign = 'center'; 
         ctx.textBaseline = 'middle';
-        const displayLabel = letter ? `${letter}. ${cleanText}` : cleanText;
         ctx.fillText(displayLabel, 0, 42);
 
         ctx.restore();
@@ -1223,15 +1341,15 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             if (gameState.mode === 'campaign') {
                 if (gameState.score >= 350 && gameState.level === 2) {
                     gameState.level = 3;
-                    gameState.timeLeft += 50;
+                    gameState.score += 50;
                     playSound('levelup');
-                    showMessage("LEVEL 3! +50s", "#c084fc");
+                    showMessage("LEVEL 3! THĂNG HẠNG", "#c084fc");
                     updateLevelBadge();
                 } else if (gameState.score >= 120 && gameState.level === 1) {
                     gameState.level = 2;
-                    gameState.timeLeft += 40;
+                    gameState.score += 30;
                     playSound('levelup');
-                    showMessage("LEVEL 2! +40s", "#60a5fa");
+                    showMessage("LEVEL 2! THĂNG HẠNG", "#60a5fa");
                     updateLevelBadge();
                 } else {
                     playSound('correct');
@@ -1303,21 +1421,32 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         // Xáo trộn vị trí bay của 5 chú chim nhưng giữ nguyên 5 đáp án A-E
         gameState.birds = [];
         const isMobileScreen = (width < 768);
-        const startY = isMobileScreen ? height * 0.22 : height * 0.14;
-        const totalHeightAvailable = isMobileScreen ? height * 0.55 : height * 0.65;
+        const isLandscapeSmall = (height < 520);
+        let startY, totalHeightAvailable;
+        if (isLandscapeSmall) {
+            startY = height * 0.22;
+            totalHeightAvailable = height * 0.58;
+        } else if (isMobileScreen) {
+            startY = height * 0.23;
+            totalHeightAvailable = height * 0.52;
+        } else {
+            startY = height * 0.16;
+            totalHeightAvailable = height * 0.65;
+        }
         const stepY = totalHeightAvailable / 5;
 
         candidateOptions.forEach((item, index) => {
+            const birdSpeed = BIRD_MIN_SPEED + Math.random() * (BIRD_MAX_SPEED - BIRD_MIN_SPEED);
             gameState.birds.push({
-                baseX: -100 - (Math.random() * 250),
-                baseY: startY + (index * stepY) + (Math.random() * 14 - 7),
+                baseX: -120 - (Math.random() * 200),
+                baseY: startY + (index * stepY) + (Math.random() * 10 - 5),
                 x: 0, 
                 y: 0,
-                speedX: 1.2 + Math.random() * 1.4 + (gameState.level * 0.5),
-                ampX: (gameState.level > 1) ? 25 + Math.random() * 50 : 10,
-                freqX: 0.02 + Math.random() * 0.03,
-                ampY: isMobileScreen ? 15 + Math.random() * (15 * gameState.level) : 35 + Math.random() * (35 * gameState.level),
-                freqY: 0.03 + Math.random() * 0.04,
+                speedX: birdSpeed,
+                ampX: 15 + Math.random() * 25,
+                freqX: 0.015 + Math.random() * 0.02,
+                ampY: isLandscapeSmall ? 8 + Math.random() * 12 : (isMobileScreen ? 12 + Math.random() * 16 : 22 + Math.random() * 25),
+                freqY: 0.02 + Math.random() * 0.025,
                 answer: item.text,
                 letter: item.letter,
                 isCorrect: item.isCorrect,
@@ -1393,15 +1522,15 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                     if (gameState.mode === 'campaign') {
                         if (gameState.score >= 350 && gameState.level === 2) {
                             gameState.level = 3;
-                            gameState.timeLeft += 50;
+                            gameState.score += 50;
                             playSound('levelup');
-                            showMessage("LEVEL 3! +50s", "#c084fc");
+                            showMessage("LEVEL 3! THĂNG HẠNG", "#c084fc");
                             updateLevelBadge();
                         } else if (gameState.score >= 120 && gameState.level === 1) {
                             gameState.level = 2;
-                            gameState.timeLeft += 40;
+                            gameState.score += 30;
                             playSound('levelup');
-                            showMessage("LEVEL 2! +40s", "#60a5fa");
+                            showMessage("LEVEL 2! THĂNG HẠNG", "#60a5fa");
                             updateLevelBadge();
                         } else {
                             playSound('correct');
@@ -1549,13 +1678,18 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             let frameCount = timestamp / 16;
             let allOffscreen = true;
 
+            const isMobileScreen = (width < 768);
+            const isLandscapeSmall = (height < 520);
+            const minY = isLandscapeSmall ? 40 : (isMobileScreen ? 70 : 60);
+            const maxY = isLandscapeSmall ? height - 60 : (isMobileScreen ? height - 90 : height - 100);
+
             gameState.birds.forEach(b => {
                 b.baseX += b.speedX;
                 b.x = b.baseX + Math.sin(frameCount * b.freqX + b.frameOffset) * b.ampX;
                 b.y = b.baseY + Math.cos(frameCount * b.freqY + b.frameOffset) * b.ampY;
 
-                if (b.y < 50) b.y = 50 + (50 - b.y) * 0.5; 
-                if (b.y > height - 120) b.y = height - 120 - (b.y - (height - 120)) * 0.5;
+                if (b.y < minY) b.y = minY; 
+                if (b.y > maxY) b.y = maxY;
 
                 drawBird(ctx, b.x, b.y, frameCount + b.frameOffset, b.answer, b.letter);
                 
@@ -1620,7 +1754,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         
         gameState.score = 0; 
         gameState.combo = 1; 
-        gameState.timeLeft = 60;
+        gameState.timeLeft = GAME_DURATION_SECONDS;
         updateLevelBadge();
         updateScoreDisplay();
         

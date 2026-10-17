@@ -1914,28 +1914,114 @@ window.quizData = ${JSON.stringify(flatQuizData, null, 2)};
               max-width: 680px !important;
               max-height: 12vh !important;
               z-index: 20 !important;
-              background: rgba(255, 255, 255, 0.9) !important;
+              background: rgba(255, 255, 255, 0.92) !important;
               overflow-y: auto !important;
               -webkit-overflow-scrolling: touch !important;
               box-sizing: border-box !important;
           }
+          #mobile-bird-dock {
+              position: fixed !important;
+              bottom: calc(14px + env(safe-area-inset-bottom, 15px)) !important;
+              left: 50% !important;
+              transform: translateX(-50%) !important;
+              z-index: 99999 !important;
+              pointer-events: auto !important;
+              background: rgba(15, 23, 42, 0.92) !important;
+              backdrop-filter: blur(10px) !important;
+              -webkit-backdrop-filter: blur(10px) !important;
+              padding: 8px 16px !important;
+              border-radius: 24px !important;
+              border: 2px solid #eab308 !important;
+              box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(234, 179, 8, 0.4) !important;
+          }
           @media (max-width: 768px) {
+              #mobile-bird-dock {
+                  display: flex !important;
+              }
+              .brand-logo {
+                  display: none !important;
+              }
               .question-container-box {
-                  top: 2px !important;
+                  top: max(4px, env(safe-area-inset-top)) !important;
                   font-size: 0.85rem !important;
-                  padding: 6px 12px !important;
+                  padding: 4px 10px !important;
                   max-height: 12vh !important;
                   width: 95% !important;
               }
               #top-left-hud {
                   position: absolute !important;
-                  top: calc(12vh + 5px) !important;
-                  left: 8px !important;
+                  top: calc(12vh + 8px) !important;
+                  left: 6px !important;
+                  gap: 4px !important;
               }
               #top-right-hud {
                   position: absolute !important;
-                  top: calc(12vh + 5px) !important;
-                  right: 8px !important;
+                  top: calc(12vh + 8px) !important;
+                  right: 6px !important;
+                  gap: 4px !important;
+              }
+              #math-question {
+                  font-size: 12.5px !important;
+                  line-height: 1.3 !important;
+                  max-height: calc(12vh - 12px) !important;
+                  overflow-y: auto !important;
+                  -webkit-overflow-scrolling: touch !important;
+              }
+              .pill-box {
+                  padding: 2px 8px !important;
+              }
+          }
+          @media (max-height: 520px) and (orientation: landscape) {
+              #mobile-bird-dock {
+                  display: flex !important;
+                  bottom: calc(6px + env(safe-area-inset-bottom, 6px)) !important;
+                  padding: 4px 12px !important;
+                  gap: 8px !important;
+                  transform: translateX(-50%) scale(0.85) !important;
+              }
+              .mobile-bird-btn {
+                  padding: 6px 12px !important;
+                  font-size: 11px !important;
+              }
+              .brand-logo {
+                  display: none !important;
+              }
+              .question-container-box {
+                  top: 2px !important;
+                  font-size: 0.75rem !important;
+                  padding: 2px 8px !important;
+                  max-height: 16vh !important;
+                  max-width: 60% !important;
+                  width: 60% !important;
+              }
+              #level-badge {
+                  font-size: 8px !important;
+                  padding: 1px 6px !important;
+                  margin-bottom: 2px !important;
+              }
+              #math-question {
+                  font-size: 11px !important;
+                  line-height: 1.2 !important;
+                  max-height: calc(16vh - 12px) !important;
+              }
+              #top-left-hud {
+                  position: absolute !important;
+                  top: 2px !important;
+                  left: 4px !important;
+                  transform: scale(0.82) !important;
+                  transform-origin: top left !important;
+                  gap: 3px !important;
+              }
+              #top-right-hud {
+                  position: absolute !important;
+                  top: 2px !important;
+                  right: 4px !important;
+                  transform: scale(0.82) !important;
+                  transform-origin: top right !important;
+                  gap: 3px !important;
+              }
+              .pill-box {
+                  padding: 2px 6px !important;
               }
           }
           .question-text .mjx-chtml,
