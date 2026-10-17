@@ -317,6 +317,38 @@
             border-color: rgba(52, 211, 153, 0.3);
         }
 
+    
+        /* Multi-select Panel & Topic Checkboxes */
+        .topic-checkbox {
+            width: 22px !important;
+            height: 22px !important;
+            accent-color: #10b981 !important;
+            cursor: pointer !important;
+            margin-right: 8px !important;
+            transform: scale(1.15) !important;
+            touch-action: manipulation !important;
+            flex-shrink: 0 !important;
+        }
+        .topic-item-card {
+            cursor: pointer !important;
+            user-select: none !important;
+            touch-action: manipulation !important;
+            transition: all 0.2s ease !important;
+        }
+        .topic-item-card.topic-checked {
+            border-color: #34d399 !important;
+            background: linear-gradient(135deg, rgba(6, 95, 70, 0.96), rgba(4, 120, 87, 0.98)) !important;
+            box-shadow: 0 0 25px rgba(52, 211, 153, 0.5) !important;
+            transform: scale(1.01) !important;
+        }
+        .btn-start-multi {
+            animation: pulseGlow 2.5s infinite !important;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 4px 28px rgba(52, 211, 153, 0.8), 0 0 15px rgba(16, 185, 129, 0.6); }
+        }
+
     </style>
 <style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.z-10{z-index:10}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.mx-2{margin-left:0.5rem;margin-right:0.5rem}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.mb-1{margin-bottom:0.25rem}.mb-3{margin-bottom:0.75rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-6{height:1.5rem}.h-screen{height:100vh}.max-h-\[95vh\]{max-height:95vh}.max-h-\[40vh\]{max-height:40vh}.w-6{width:1.5rem}.w-full{width:100%}.w-screen{width:100vw}.max-w-3xl{max-width:48rem}.max-w-4xl{max-width:56rem}.max-w-7xl{max-width:80rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.scale-100{--tw-scale-x:1;--tw-scale-y:1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes bounce{0%, 100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(0.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,0.2,1)}}.animate-bounce{animation:bounce 1s infinite}.cursor-pointer{cursor:pointer}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:9999px}.rounded-2xl{border-radius:1rem}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border-2{border-width:2px}.border-\[3px\]{border-width:3px}.border{border-width:1px}.border-b-4{border-bottom-width:4px}.border-b-\[8px\]{border-bottom-width:8px}.border-\[\#B3E5FC\]{--tw-border-opacity:1;border-color:rgb(179 229 252 / var(--tw-border-opacity, 1))}.border-\[\#D1D5DB\]{--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.border-\[\#FFCDD2\]{--tw-border-opacity:1;border-color:rgb(255 205 210 / var(--tw-border-opacity, 1))}.border-\[\#FFECB3\]{--tw-border-opacity:1;border-color:rgb(255 236 179 / var(--tw-border-opacity, 1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-emerald-300{--tw-border-opacity:1;border-color:rgb(110 231 183 / var(--tw-border-opacity, 1))}.border-emerald-100{--tw-border-opacity:1;border-color:rgb(209 250 229 / var(--tw-border-opacity, 1))}.border-teal-200{--tw-border-opacity:1;border-color:rgb(153 246 228 / var(--tw-border-opacity, 1))}.bg-\[\#064E3B\]\/70{background-color:rgb(6 78 59 / 0.7)}.bg-\[\#064E3B\]\/90{background-color:rgb(6 78 59 / 0.9)}.bg-\[\#E1F5FE\]{--tw-bg-opacity:1;background-color:rgb(225 245 254 / var(--tw-bg-opacity, 1))}.bg-\[\#FFEBEE\]{--tw-bg-opacity:1;background-color:rgb(255 235 238 / var(--tw-bg-opacity, 1))}.bg-\[\#FFF8E1\]{--tw-bg-opacity:1;background-color:rgb(255 248 225 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-indigo-500{--tw-bg-opacity:1;background-color:rgb(99 102 241 / var(--tw-bg-opacity, 1))}.bg-sky-500{--tw-bg-opacity:1;background-color:rgb(14 165 233 / var(--tw-bg-opacity, 1))}.bg-teal-50{--tw-bg-opacity:1;background-color:rgb(240 253 250 / var(--tw-bg-opacity, 1))}.bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-teal-100{--tw-gradient-from:#ccfbf1 var(--tw-gradient-from-position);--tw-gradient-to:rgb(204 251 241 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-teal-500{--tw-gradient-from:#14b8a6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(20 184 166 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-emerald-100{--tw-gradient-to:rgb(209 250 229 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #d1fae5 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-emerald-600{--tw-gradient-to:#059669 var(--tw-gradient-to-position)}.to-green-200{--tw-gradient-to:#bbf7d0 var(--tw-gradient-to-position)}.to-teal-700{--tw-gradient-to:#0f766e var(--tw-gradient-to-position)}.to-teal-500{--tw-gradient-to:#14b8a6 var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.object-cover{object-fit:cover}.p-2{padding:0.5rem}.p-4{padding:1rem}.p-1{padding:0.25rem}.p-3{padding:0.75rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.px-4{padding-left:1rem;padding-right:1rem}.px-8{padding-left:2rem;padding-right:2rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-2{padding-bottom:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-5xl{font-size:3rem;line-height:1}.text-6xl{font-size:3.75rem;line-height:1}.text-7xl{font-size:4.5rem;line-height:1}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[11px\]{font-size:11px}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.tracking-wide{letter-spacing:0.025em}.tracking-tight{letter-spacing:-0.025em}.text-\[\#0277BD\]{--tw-text-opacity:1;color:rgb(2 119 189 / var(--tw-text-opacity, 1))}.text-\[\#FF8F00\]{--tw-text-opacity:1;color:rgb(255 143 0 / var(--tw-text-opacity, 1))}.text-emerald-200{--tw-text-opacity:1;color:rgb(167 243 208 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-teal-800{--tw-text-opacity:1;color:rgb(17 94 89 / var(--tw-text-opacity, 1))}.shadow-\[0_20px_50px_rgba\(0\2c 0\2c 0\2c 0\.4\)\]{--tw-shadow:0 20px 50px rgba(0,0,0,0.4);--tw-shadow-colored:0 20px 50px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_15px_rgba\(0\2c 0\2c 0\2c 0\.1\)\]{--tw-shadow:0 4px 15px rgba(0,0,0,0.1);--tw-shadow-colored:0 4px 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_15px_rgba\(16\2c 185\2c 129\2c 0\.3\)\]{--tw-shadow:0 4px 15px rgba(16,185,129,0.3);--tw-shadow-colored:0 4px 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_3px_0_\#0369a1\]{--tw-shadow:0 3px 0 #0369a1;--tw-shadow-colored:0 3px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_3px_0_\#3730a3\]{--tw-shadow:0 3px 0 #3730a3;--tw-shadow-colored:0 3px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_6px_0_\#047857\]{--tw-shadow:0 6px 0 #047857;--tw-shadow-colored:0 6px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.drop-shadow-sm{--tw-drop-shadow:drop-shadow(0 1px 1px rgb(0 0 0 / 0.05));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.drop-shadow-xl{--tw-drop-shadow:drop-shadow(0 20px 13px rgb(0 0 0 / 0.03)) drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-indigo-600:hover{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-600:hover{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.hover\:from-teal-500:hover{--tw-gradient-from:#14b8a6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(20 184 166 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-emerald-500:hover{--tw-gradient-to:#10b981 var(--tw-gradient-to-position)}.focus\:border-emerald-500:focus{--tw-border-opacity:1;border-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:translate-y-\[3px\]:active{--tw-translate-y:3px;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:translate-y-\[6px\]:active{--tw-translate-y:6px;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:shadow-none:active{--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}@media (min-width: 640px){.sm\:flex{display:flex}.sm\:h-8{height:2rem}.sm\:max-h-none{max-height:none}.sm\:w-8{width:2rem}.sm\:w-auto{width:auto}.sm\:flex-row{flex-direction:row}.sm\:gap-2{gap:0.5rem}.sm\:gap-4{gap:1rem}.sm\:gap-3{gap:0.75rem}.sm\:p-3{padding:0.75rem}.sm\:p-4{padding:1rem}.sm\:p-8{padding:2rem}.sm\:px-3{padding-left:0.75rem;padding-right:0.75rem}.sm\:px-4{padding-left:1rem;padding-right:1rem}.sm\:px-5{padding-left:1.25rem;padding-right:1.25rem}.sm\:py-2{padding-top:0.5rem;padding-bottom:0.5rem}.sm\:py-3{padding-top:0.75rem;padding-bottom:0.75rem}.sm\:py-4{padding-top:1rem;padding-bottom:1rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-6xl{font-size:3.75rem;line-height:1}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xs{font-size:0.75rem;line-height:1rem}}@media (min-width: 768px){.md\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}}</style>
     <script>
@@ -680,6 +712,7 @@ button, .btn, input, select, canvas {
         ];
 
         window.currentTopicTab = '16';
+        window.selectedTopicKeys = new Set(ALL_16_TOPICS.map(t => t.key)); // Mặc định chọn tất cả để người chơi bấm chơi được ngay
 
         window.switchTopicTab = function(tab) {
             window.currentTopicTab = tab;
@@ -712,27 +745,205 @@ button, .btn, input, select, canvas {
             }
         };
 
+        // Hàm cập nhật số lượng chuyên đề đã chọn
+        function updateSelectedCountDisplay() {
+            const countSpan = document.getElementById('selected-topics-count');
+            const count = window.selectedTopicKeys ? window.selectedTopicKeys.size : 0;
+            if (countSpan) {
+                countSpan.innerText = `Đã chọn: ${count}/16`;
+            }
+            const startBtn = document.getElementById('btn-start-multi-topics');
+            if (startBtn) {
+                if (count > 0) {
+                    startBtn.innerHTML = `<span>🚀 BẮT ĐẦU CHƠI ${count} CHỦ ĐỀ ĐÃ CHỌN (TRỘN NGẪU NHIÊN) ➡️</span>`;
+                    startBtn.style.opacity = '1';
+                } else {
+                    startBtn.innerHTML = `<span>🚀 CHỌN ÍT NHẤT 1 CHỦ ĐỀ ĐỂ BẮT ĐẦU ➡️</span>`;
+                    startBtn.style.opacity = '0.75';
+                }
+            }
+        }
+
+        // ==========================================
+        // HÀM BỐC NGẪU NHIÊN CẶP THẺ (AUTO-SAMPLING & SHUFFLE)
+        // ==========================================
+        window.startMultiTopicsGame = function(customKeys = null) {
+            let keys = customKeys;
+            if (!Array.isArray(keys) || keys.length === 0) {
+                keys = Array.from(window.selectedTopicKeys || []);
+            }
+            
+            // Nếu người chơi chưa tích ô nào, tự động chọn tất cả 16 chuyên đề
+            if (keys.length === 0) {
+                keys = ALL_16_TOPICS.map(t => t.key);
+                window.selectedTopicKeys = new Set(keys);
+            }
+
+            console.log("Khởi động chơi ngẫu nhiên từ các chuyên đề:", keys);
+
+            // 1. Thu thập toàn bộ các cặp bài từ các chuyên đề được chọn
+            let pooledPairs = [];
+            keys.forEach(k => {
+                if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[k] && Array.isArray(GAME_LEVELS[k].pairs)) {
+                    GAME_LEVELS[k].pairs.forEach(p => {
+                        pooledPairs.push({
+                            left: p.left || p.text || '',
+                            right: p.right || '',
+                            originKey: k
+                        });
+                    });
+                }
+            });
+
+            if (pooledPairs.length === 0) {
+                pooledPairs = [...FALLBACK_TRIGONOMETRY_PAIRS];
+            }
+
+            // 2. Thuật toán Fisher-Yates xáo trộn ngẫu nhiên hoàn hảo
+            for (let i = pooledPairs.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pooledPairs[i], pooledPairs[j]] = [pooledPairs[j], pooledPairs[i]];
+            }
+
+            // 3. Auto-Sampling: Bốc ngẫu nhiên từ 5 đến 8 cặp bài độc đáo
+            const sampleSize = Math.min(pooledPairs.length, Math.max(5, Math.min(8, Math.round(keys.length * 1.5))));
+            const sampledPairs = pooledPairs.slice(0, sampleSize).map((p, idx) => ({
+                id: idx + 1,
+                left: cleanPairMath(p.left),
+                right: cleanPairMath(p.right)
+            }));
+
+            // 4. Khởi tạo cấu hình vòng chơi hỗn hợp
+            GAME_LEVELS['multi_topic_mix'] = {
+                title: `Hỗn Hợp (${keys.length} Chủ Đề)`,
+                time: Math.min(150, 50 + sampledPairs.length * 10),
+                pairs: sampledPairs
+            };
+
+            window.closeGhepCapTopicMenu();
+            window.startLevel('multi_topic_mix');
+        };
+
         window.renderGhepCapTopicCards = function() {
             const container = document.getElementById('ghep-cap-topics-grid');
             if (!container) return;
             container.innerHTML = '';
 
-            // TAB 1: 16 CHUYÊN ĐỀ CHUẨN (MẶC ĐỊNH)
+            // TAB 1: 16 CHUYÊN ĐỀ CHUẨN VỚI CHECKBOX MULTI-SELECT
             if (window.currentTopicTab === '16') {
+                // 1. Thêm Multi-select Panel
+                const multiPanel = document.createElement('div');
+                multiPanel.id = 'multi-select-panel';
+                multiPanel.style.cssText = `
+                    grid-column: 1 / -1;
+                    background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(6, 78, 59, 0.96));
+                    border: 2px solid #38bdf8; border-radius: 18px; padding: 14px 16px; margin-bottom: 8px;
+                    color: #fff; text-align: left; box-shadow: 0 4px 25px rgba(56, 189, 248, 0.35); box-sizing: border-box;
+                `;
+
+                multiPanel.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                        <div style="font-weight: 900; font-size: 13px; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                            <span>✨ CHỌN NHANH NHIỀU CHỦ ĐỀ TÙY Ý:</span>
+                            <span id="selected-topics-count" style="background: #0284c7; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 9999px;">
+                                Đã chọn: ${window.selectedTopicKeys ? window.selectedTopicKeys.size : 0}/16
+                            </span>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button id="select-all-topics" type="button" style="background: #0ea5e9; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; touch-action: manipulation;">✓ Chọn tất cả</button>
+                            <button id="clear-all-topics" type="button" style="background: #475569; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; touch-action: manipulation;">✕ Bỏ chọn hết</button>
+                            <button id="select-formula-topics" type="button" style="background: #059669; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; touch-action: manipulation;">📘 Chỉ Lý Thuyết</button>
+                            <button id="select-example-topics" type="button" style="background: #7c3aed; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 800; touch-action: manipulation;">⚡ Chỉ Ví Dụ</button>
+                        </div>
+                    </div>
+                    <button id="btn-start-multi-topics" type="button" class="btn-start-matching btn-start-multi" style="
+                        width: 100%; padding: 13px 18px; border: 2px solid #34d399; border-radius: 14px;
+                        background: linear-gradient(90deg, #10b981, #059669); color: #ffffff;
+                        font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+                        cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+                        display: flex; align-items: center; justify-content: center; gap: 8px; touch-action: manipulation;
+                    ">
+                        <span>🚀 BẮT ĐẦU CHƠI CÁC CHỦ ĐỀ ĐÃ CHỌN (TRỘN NGẪU NHIÊN CẶP THẺ) ➡️</span>
+                    </button>
+                `;
+
+                container.appendChild(multiPanel);
+
+                // Gán sự kiện cho các nút điều khiển của Multi-select Panel
+                const btnAll = multiPanel.querySelector('#select-all-topics');
+                if (btnAll) btnAll.onclick = () => {
+                    ALL_16_TOPICS.forEach(t => window.selectedTopicKeys.add(t.key));
+                    document.querySelectorAll('.topic-checkbox').forEach(cb => cb.checked = true);
+                    document.querySelectorAll('.topic-item-card').forEach(c => c.classList.add('topic-checked'));
+                    updateSelectedCountDisplay();
+                };
+
+                const btnClear = multiPanel.querySelector('#clear-all-topics');
+                if (btnClear) btnClear.onclick = () => {
+                    window.selectedTopicKeys.clear();
+                    document.querySelectorAll('.topic-checkbox').forEach(cb => cb.checked = false);
+                    document.querySelectorAll('.topic-item-card').forEach(c => c.classList.remove('topic-checked'));
+                    updateSelectedCountDisplay();
+                };
+
+                const btnFormula = multiPanel.querySelector('#select-formula-topics');
+                if (btnFormula) btnFormula.onclick = () => {
+                    window.selectedTopicKeys.clear();
+                    ALL_16_TOPICS.forEach(t => {
+                        if (t.type === 'formula') window.selectedTopicKeys.add(t.key);
+                    });
+                    document.querySelectorAll('.topic-checkbox').forEach(cb => {
+                        cb.checked = cb.dataset.type === 'formula';
+                    });
+                    document.querySelectorAll('.topic-item-card').forEach(c => {
+                        c.classList.toggle('topic-checked', c.dataset.type === 'formula');
+                    });
+                    updateSelectedCountDisplay();
+                };
+
+                const btnExample = multiPanel.querySelector('#select-example-topics');
+                if (btnExample) btnExample.onclick = () => {
+                    window.selectedTopicKeys.clear();
+                    ALL_16_TOPICS.forEach(t => {
+                        if (t.type === 'example') window.selectedTopicKeys.add(t.key);
+                    });
+                    document.querySelectorAll('.topic-checkbox').forEach(cb => {
+                        cb.checked = cb.dataset.type === 'example';
+                    });
+                    document.querySelectorAll('.topic-item-card').forEach(c => {
+                        c.classList.toggle('topic-checked', c.dataset.type === 'example');
+                    });
+                    updateSelectedCountDisplay();
+                };
+
+                const btnStartMulti = multiPanel.querySelector('#btn-start-multi-topics');
+                if (btnStartMulti) {
+                    const startMultiAction = (e) => {
+                        if (e) { e.preventDefault(); e.stopPropagation(); }
+                        window.startMultiTopicsGame();
+                    };
+                    btnStartMulti.addEventListener('click', startMultiAction);
+                    btnStartMulti.addEventListener('touchend', startMultiAction, { passive: false });
+                }
+
+                // 2. Render từng thẻ chuyên đề với Checkbox
                 ALL_16_TOPICS.forEach((topic) => {
                     const levelData = (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[topic.key]) ? GAME_LEVELS[topic.key] : null;
                     const pairCount = levelData && Array.isArray(levelData.pairs) ? levelData.pairs.length : 5;
                     const timeSec = levelData && levelData.time ? levelData.time : 60;
                     const isFormula = topic.type === 'formula';
+                    const isChecked = window.selectedTopicKeys.has(topic.key);
 
                     const card = document.createElement('div');
-                    card.className = 'topic-card topic-item-card';
+                    card.className = `topic-card topic-item-card ${isChecked ? 'topic-checked' : ''}`;
+                    card.dataset.key = topic.key;
+                    card.dataset.type = topic.type;
                     card.style.cssText = `
                         background: linear-gradient(135deg, rgba(6, 78, 59, 0.92), rgba(2, 44, 34, 0.98));
-                        border: 2px solid ${isFormula ? 'rgba(56, 189, 248, 0.45)' : 'rgba(168, 85, 247, 0.45)'};
+                        border: 2px solid ${isChecked ? '#34d399' : (isFormula ? 'rgba(56, 189, 248, 0.45)' : 'rgba(168, 85, 247, 0.45)')};
                         border-radius: 18px; padding: 14px 16px; text-align: left; transition: all 0.25s ease;
                         display: flex; flex-direction: column; justify-content: space-between;
-                        box-shadow: 0 8px 20px rgba(0,0,0,0.3); box-sizing: border-box;
+                        box-shadow: 0 8px 20px rgba(0,0,0,0.3); box-sizing: border-box; cursor: pointer;
                     `;
 
                     const badgeColor = isFormula 
@@ -741,10 +952,11 @@ button, .btn, input, select, canvas {
 
                     card.innerHTML = `
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <span style="font-size: 11px; font-weight: 800; color: #6ee7b7; letter-spacing: 1.5px; text-transform: uppercase;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; font-size: 11px; font-weight: 900; color: #6ee7b7; letter-spacing: 1.5px; text-transform: uppercase;">
+                                    <input type="checkbox" class="topic-checkbox" data-key="${topic.key}" data-type="${topic.type}" ${isChecked ? 'checked' : ''}>
                                     CHUYÊN ĐỀ ${topic.id}
-                                </span>
+                                </label>
                                 <span style="font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 9999px; ${badgeColor}">
                                     ${topic.typeLabel}
                                 </span>
@@ -760,22 +972,49 @@ button, .btn, input, select, canvas {
                                 <span style="background: rgba(52, 211, 153, 0.15); padding: 2px 8px; border-radius: 6px;">⏱️ ${timeSec}s</span>
                             </div>
                         </div>
-                        <button class="btn-play-topic" style="
-                            width: 100%; padding: 9px 12px; border: none; border-radius: 12px;
-                            background: ${isFormula ? 'linear-gradient(90deg, #0284c7, #0369a1)' : 'linear-gradient(90deg, #9333ea, #7e22ce)'};
-                            color: #ffffff; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
-                            cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-                            touch-action: manipulation; -webkit-tap-highlight-color: transparent;
-                        ">
-                            ${topic.icon} VÀO CHƠI NGAY ➡️
-                        </button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-play-single-topic" type="button" style="
+                                flex: 1; padding: 9px 12px; border: none; border-radius: 12px;
+                                background: ${isFormula ? 'linear-gradient(90deg, #0284c7, #0369a1)' : 'linear-gradient(90deg, #9333ea, #7e22ce)'};
+                                color: #ffffff; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
+                                cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+                                touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+                            ">
+                                ${topic.icon} VÀO CHƠI NGAY ➡️
+                            </button>
+                        </div>
                     `;
 
-                    const playBtn = card.querySelector('.btn-play-topic');
+                    const chk = card.querySelector('.topic-checkbox');
+
+                    // Khi click vào thân card: toggle checkbox
+                    card.addEventListener('click', (e) => {
+                        // Nếu click vào nút play đơn lẻ thì không toggle mà vào chơi luôn
+                        if (e.target.closest('.btn-play-single-topic')) return;
+                        
+                        if (e.target !== chk) {
+                            chk.checked = !chk.checked;
+                        }
+                        if (chk.checked) {
+                            window.selectedTopicKeys.add(topic.key);
+                            card.classList.add('topic-checked');
+                            card.style.borderColor = '#34d399';
+                        } else {
+                            window.selectedTopicKeys.delete(topic.key);
+                            card.classList.remove('topic-checked');
+                            card.style.borderColor = isFormula ? 'rgba(56, 189, 248, 0.45)' : 'rgba(168, 85, 247, 0.45)';
+                        }
+                        updateSelectedCountDisplay();
+                    });
+
+                    // Sự kiện nút chơi riêng bài này
+                    const playBtn = card.querySelector('.btn-play-single-topic');
                     if (playBtn) {
                         const playAction = (e) => {
                             if (e) { e.preventDefault(); e.stopPropagation(); }
                             window.closeGhepCapTopicMenu();
+                            const ov = document.getElementById('overlay');
+                            if (ov) { ov.style.display = 'none'; ov.classList.add('hidden'); }
                             if (typeof window.startLevel === 'function') {
                                 window.startLevel(topic.key);
                             }
@@ -786,6 +1025,8 @@ button, .btn, input, select, canvas {
 
                     container.appendChild(card);
                 });
+
+                updateSelectedCountDisplay();
             } else {
                 // TAB 2: 3 CHUYÊN ĐỀ ĐA ĐỘ KHÓ CỦA GAMEDATABASE
                 const topics = (window.gameDatabase && typeof window.gameDatabase === 'object') ? Object.keys(window.gameDatabase) : [];
@@ -827,7 +1068,7 @@ button, .btn, input, select, canvas {
                             </div>
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <button class="btn-topic-campaign" style="
+                            <button class="btn-topic-campaign" type="button" style="
                                 width: 100%; padding: 9px 12px; border: none; border-radius: 12px;
                                 background: linear-gradient(90deg, #10b981, #059669);
                                 color: #ffffff; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px;
@@ -837,9 +1078,9 @@ button, .btn, input, select, canvas {
                                 ⭐ Chơi Vượt 3 Ải (Dễ ➡️ Khó)
                             </button>
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
-                                <button class="btn-diff-easy" style="padding: 6px 4px; border-radius: 8px; background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #4ade80; font-weight: 800; font-size: 11px; cursor: pointer;">Dễ</button>
-                                <button class="btn-diff-medium" style="padding: 6px 4px; border-radius: 8px; background: rgba(234, 179, 8, 0.2); border: 1px solid #eab308; color: #facc15; font-weight: 800; font-size: 11px; cursor: pointer;">Vừa</button>
-                                <button class="btn-diff-hard" style="padding: 6px 4px; border-radius: 8px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; font-weight: 800; font-size: 11px; cursor: pointer;">Khó</button>
+                                <button class="btn-diff-easy" type="button" style="padding: 6px 4px; border-radius: 8px; background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #4ade80; font-weight: 800; font-size: 11px; cursor: pointer; touch-action: manipulation;">Dễ</button>
+                                <button class="btn-diff-medium" type="button" style="padding: 6px 4px; border-radius: 8px; background: rgba(234, 179, 8, 0.2); border: 1px solid #eab308; color: #facc15; font-weight: 800; font-size: 11px; cursor: pointer; touch-action: manipulation;">Vừa</button>
+                                <button class="btn-diff-hard" type="button" style="padding: 6px 4px; border-radius: 8px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; font-weight: 800; font-size: 11px; cursor: pointer; touch-action: manipulation;">Khó</button>
                             </div>
                         </div>
                     `;
@@ -874,7 +1115,7 @@ button, .btn, input, select, canvas {
             }
         };
 
-        // GẮN SỰ KIỆN CLICK & TOUCH AN TOÀN CHO TOÀN BỘ NÚT MENU (MENU TOGGLE & TOUCH FIX)
+        // GẮN SỰ KIỆN CLICK & TOUCH AN TOÀN CHO TOÀN BỘ NÚT MENU VÀ SẢNH CHỜ
         function initSafeMenuListeners() {
             const toggleMenuBtns = document.querySelectorAll('#toggle-menu-btn, .toggle-menu, .open-menu-btn, button[onclick*="openGhepCapTopicMenu"]');
             const closeMenuBtns = document.querySelectorAll('#close-menu-btn, #close-menu-btn-top, .close-menu');
@@ -908,6 +1149,14 @@ button, .btn, input, select, canvas {
                 btn.removeEventListener('touchend', closeAction);
                 btn.addEventListener('click', closeAction, { passive: false });
                 btn.addEventListener('touchend', closeAction, { passive: false });
+            });
+
+            // Mở khóa các nút start sảnh chờ
+            const lobbyStartBtns = document.querySelectorAll('.play-mode-btn, #start-game-btn, .btn-start-matching, button[onclick*="startLevel"]');
+            lobbyStartBtns.forEach(btn => {
+                btn.style.pointerEvents = 'auto';
+                btn.style.cursor = 'pointer';
+                btn.style.touchAction = 'manipulation';
             });
         }
 
@@ -1252,8 +1501,17 @@ button, .btn, input, select, canvas {
                 try { localStorage.setItem('thayHungPlayerName', nameInput.value.trim() || "Ông mai bà mối"); } catch(e) {} 
             }
 
+            // Đóng menu chuyên đề và sảnh chờ
             const overlayTopic = document.getElementById('topic-selection-overlay');
-            if (overlayTopic) overlayTopic.style.display = 'none';
+            if (overlayTopic) {
+                overlayTopic.style.display = 'none';
+                overlayTopic.classList.remove('active');
+            }
+            const overlayMain = document.getElementById('overlay');
+            if (overlayMain) {
+                overlayMain.style.display = 'none';
+                overlayMain.classList.add('hidden');
+            }
 
             currentMode = mode || '1_F';
             if (mode === 'campaign') {
