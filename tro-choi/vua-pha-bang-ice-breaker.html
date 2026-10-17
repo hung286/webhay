@@ -503,6 +503,15 @@
             if (typeof rawContent !== 'string') return rawContent;
 
             let cleanContent = rawContent;
+    // Tiêu diệt triệt để mã rác \d\d, \d\frac, \ddfrac đứng trước phân số, khôi phục vĩnh viễn \frac chuẩn
+    cleanContent = cleanContent.replace(/\\+d+\\+d*frac/gi, '\\frac')
+                               .replace(/\\+d+\\+d*\\+frac/gi, '\\frac')
+                               .replace(/\\+d+\s*\\+frac/gi, '\\frac')
+                               .replace(/\\+d+\\+d+(?=\s*\\?frac)/gi, '')
+                               .replace(/\\d\\d(?=\s*\\?frac)/gi, '')
+                               .replace(/\\ddfrac/gi, '\\frac')
+                               .replace(/\\dfrac/gi, '\\frac')
+                               .replace(/\\d\\frac/gi, '\\frac');
 
             // Khử mã điều khiển form-feed ẩn
             cleanContent = cleanContent.replace(/[\u000c\x0c\f]/g, '');
@@ -525,8 +534,8 @@
                                        .replace(/\\sqrt\s*([a-zA-Z0-9]+)/g, '\\sqrt{$1}'); // Biến đơn
 
             // Phục hồi chữ "frac" nếu hệ thống cũ làm gãy thành "rac"
-            cleanContent = cleanContent.replace(/(?<!f)\brac\b/g, '\\frac')
-                                       .replace(/(?<!f)rac(?=[0-9\\{])/g, '\\frac')
+            cleanContent = cleanContent.replace(/(?<![a-zA-Z\\])\brac\b/g, '\\frac')
+                                       .replace(/(?<![a-zA-Z\\])rac(?=[0-9\\{])/g, '\\frac')
                                        .replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
 
             // Quét dọn lần cuối bảo hiểm không sót \f\frac
@@ -548,7 +557,7 @@
             cleanContent = cleanContent.replace(/\\\\/g, '\\');
 
             // Bảo toàn và chuẩn hóa các ký hiệu toán chuẩn
-            cleanContent = cleanContent.replace(/(?<!\\)frac/g, '\\frac')
+            cleanContent = cleanContent.replace(/(?<![a-zA-Z\\])frac/g, '\\frac')
                                        .replace(/(?<!\\)cdot/g, '\\cdot')
                                        .replace(/(?<!\\)leq/g, '\\leq')
                                        .replace(/(?<!\\)geq/g, '\\geq')
