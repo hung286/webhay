@@ -16,7 +16,16 @@ export function formatMathStringToTeX(rawContent: string): string {
   // Khử mã điều khiển form-feed ẩn
   cleanContent = cleanContent.replace(/[\u000c\x0c\f]/g, '');
 
-  // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
+  // Tiêu diệt triệt để mã rác \d\d, \d\frac, \ddfrac đứng trước phân số, khôi phục vĩnh viễn \frac chuẩn
+  cleanContent = cleanContent.replace(/\\+d+\\+d*frac/gi, '\\frac')
+                             .replace(/\\+d+\\+d*\\+frac/gi, '\\frac')
+                             .replace(/\\+d+\s*\\+frac/gi, '\\frac')
+                             .replace(/\\+d+\\+d+(?=\s*\\?frac)/gi, '')
+                             .replace(/\\d\\d(?=\s*\\?frac)/gi, '')
+                             .replace(/\\ddfrac/gi, '\\frac')
+                             .replace(/\\dfrac/gi, '\\frac')
+                             .replace(/\\d\\frac/gi, '\\frac');
+    // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
   cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
                              .replace(/\\f\s*\\frac/g, '\\frac')
                              .replace(/\\ffrac/g, '\\frac')
@@ -34,9 +43,9 @@ export function formatMathStringToTeX(rawContent: string): string {
                              .replace(/√\s*x\s*-\s*2/g, '\\sqrt{x-2}')
                              .replace(/\\sqrt\s*([a-zA-Z0-9]+)/g, '\\sqrt{$1}'); // Tổng quát hóa cho biến đơn
 
-  // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac" (bảo vệ không làm nhân đôi chữ \f trong \frac)
-  cleanContent = cleanContent.replace(/(?<!f)\brac\b/g, '\\frac')
-                             .replace(/(?<!f)rac(?=[0-9\\{])/g, '\\frac')
+  // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac" (bảo vệ không làm nhân đôi chữ \f trong \frac và chống đục thủng \dfrac)
+  cleanContent = cleanContent.replace(/(?<![a-zA-Z\\])\brac\b/g, '\\frac')
+                             .replace(/(?<![a-zA-Z\\])rac(?=[0-9\\{])/g, '\\frac')
                              .replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
 
   // Quét dọn lần cuối bảo hiểm không sót \f\frac
@@ -427,9 +436,9 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
       res = res.replace(/\s*≠\s*/g, ' ≠ ');
 
       // Quét sạch lỗi sinh chữ \f thừa đứng trước \frac
-      res = res.replace(/\\f\\frac/g, '\\dfrac')
-               .replace(/\\f\s*\\frac/g, '\\dfrac')
-               .replace(/\\ffrac/g, '\\dfrac')
+      res = res.replace(/\\f\\frac/g, '\\frac')
+               .replace(/\\f\s*\\frac/g, '\\frac')
+               .replace(/\\ffrac/g, '\\frac')
                .replace(/\\f(?![a-zA-Z])/g, '')
                .replace(/\\f(?=\s*\\frac)/g, '');
 
@@ -442,15 +451,15 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
       res = res.replace(/\\sqrt\s+([a-zA-Z0-9^]+(?:\s*[\+\-]\s*[a-zA-Z0-9^]+)+)(?=\s*(?:\\le|\\ge|<=|>=|<|>|=|là|\)|$))/g, '\\sqrt{$1}');
 
       // SỬA DỨT ĐIỂM LỖI PHÂN SỐ BIẾN DẠNG THÀNH SỐ MŨ ^{...}/{...}
-      res = res.replace(/\^\{([^{}]+)\}\s*(?:\/|_|\/_)\s*\{([^{}]+)\}/g, '\\dfrac{$1}{$2}');
-      res = res.replace(/\^\{([^{}]+)\}\s*\/\s*([a-zA-Z0-9_\-]+)/g, '\\dfrac{$1}{$2}');
-      res = res.replace(/\^\{([^{}]+)\}\s*\/\s*\(([^()]+)\)/g, '\\dfrac{$1}{$2}');
-      res = res.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*\(\s*([xX0-9\s\^+\-*]+?)\s*\)/g, '\\dfrac{$1}{$2}');
-      res = res.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*([xX0-9a-zA-Z_\-]+)/g, '\\dfrac{$1}{$2}');
+      res = res.replace(/\^\{([^{}]+)\}\s*(?:\/|_|\/_)\s*\{([^{}]+)\}/g, '\\frac{$1}{$2}');
+      res = res.replace(/\^\{([^{}]+)\}\s*\/\s*([a-zA-Z0-9_\-]+)/g, '\\frac{$1}{$2}');
+      res = res.replace(/\^\{([^{}]+)\}\s*\/\s*\(([^()]+)\)/g, '\\frac{$1}{$2}');
+      res = res.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*\(\s*([xX0-9\s\^+\-*]+?)\s*\)/g, '\\frac{$1}{$2}');
+      res = res.replace(/\(\s*([xX0-9\s\^+\-*]+?)\s*\)\s*\/\s*([xX0-9a-zA-Z_\-]+)/g, '\\frac{$1}{$2}');
 
-      res = res.replace(/(?<!f)\brac\b/g, '\\dfrac')
-               .replace(/(?<!f)rac(?=[0-9\\{])/g, '\\dfrac')
-               .replace(/(?<![a-zA-Z\\])rac/g, '\\dfrac');
+      res = res.replace(/(?<![a-zA-Z\\])\brac\b/g, '\\frac')
+               .replace(/(?<![a-zA-Z\\])rac(?=[0-9\\{])/g, '\\frac')
+               .replace(/(?<![a-zA-Z\\])rac/g, '\\frac');
 
       // Tự động chèn khoảng trắng chuẩn giữa biểu thức toán học và chữ tiếng Việt
       res = res.replace(/\bTìmm\b/g, 'Tìm m')
@@ -471,7 +480,7 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/([≤|≥|<=|>=|<=|=>])\s*0/g, '$1 0 ')
                .replace(/(?<=\\\)|0)(trong|đoạn|là)/g, ' $1');
 
-      res = res.replace(/(?<!\\)frac/g, '\\dfrac')
+      res = res.replace(/(?<![a-zA-Z\\])frac/g, '\\frac')
                .replace(/(?<!\\)cdot/g, '\\cdot')
                .replace(/(?<!\\)leq/g, '\\leq')
                .replace(/(?<!\\)geq/g, '\\geq')
@@ -484,7 +493,7 @@ export async function exportStandaloneGameHTML(options: ExportGameOptions): Prom
                .replace(/(?<!\\)\bemptyset\b/g, '\\emptyset');
 
       res = res.replace(/\\\\/g, '\\');
-      res = res.replace(/\\frac(?=[{\s])/g, '\\dfrac');
+      res = res.replace(/\\dfrac(?=[{\s])/g, '\\frac');
 
       res = normalizeMathFormulas(res);
 
@@ -751,7 +760,7 @@ window.gameDatabase = ${JSON.stringify(daoVangDatabase, null, 2)};
                        .replace(/(?<!\\)cot/g, '\\cot')
                        .replace(/(?<!\\)cdot/g, '\\cdot')
                        .replace(/(?<!\\)sqrt/g, '\\sqrt')
-                       .replace(/(?<!\\)frac/g, '\\frac');
+                       .replace(/(?<![a-zA-Z\\])frac/g, '\\frac');
 
       // Khử display math brackets xung đột
       cleaned = cleaned.replace(/\\\[/g, '').replace(/\\\]/g, '');
@@ -2609,7 +2618,7 @@ window.selectedTopic = Object.keys(window.gameDatabase)[0] || "${gameTitle}";
       res = res.replace(/(?<![a-zA-Z\\])rac/g, '\\frac')
                .replace(/\\+rac/g, '\\frac')
                .replace(/\brac\b/g, '\\frac');
-      res = res.replace(/(?<!\\)frac/g, '\\frac');
+      res = res.replace(/(?<![a-zA-Z\\])frac/g, '\\frac');
       res = res.replace(/(?<!\\)cdot/g, '\\cdot');
       res = res.replace(/(?<!\\)forall/g, '\\forall');
       res = res.replace(/(?<!\\)pm/g, '\\pm');
@@ -4923,14 +4932,25 @@ var questions = window.quizData;
     if (typeof rawContent !== 'string') return rawContent;
     var cleanContent = rawContent;
 
+    // Tiêu diệt triệt để mã rác \d\d, \d\frac, \ddfrac đứng trước phân số, khôi phục vĩnh viễn \frac chuẩn
+    cleanContent = cleanContent.replace(/\\+d+\\+d*frac/gi, '\\frac')
+                               .replace(/\\+d+\\+d*\\+frac/gi, '\\frac')
+                               .replace(/\\+d+\\s*\\+frac/gi, '\\frac')
+                               .replace(/\\+d+\\+d+(?=\\s*\\?frac)/gi, '')
+                               .replace(/\\d\\d(?=\\s*\\?frac)/gi, '')
+                               .replace(/\\ddfrac/gi, '\\frac')
+                               .replace(/\\dfrac/gi, '\\frac')
+                               .replace(/\\d\\frac/gi, '\\frac');
+
     // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
     cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
                                .replace(/\\f\s*\\frac/g, '\\frac')
                                .replace(/\\ffrac/g, '\\frac')
                                .replace(/\\f/g, ''); // Khử sạch các ký tự \f cô độc
 
-    // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
-    cleanContent = cleanContent.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
+    // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac" (chống nuốt chữ trong \dfrac hay \frac)
+    cleanContent = cleanContent.replace(/\\+rac\s*\{/g, '\\frac{')
+                               .replace(/(?<![a-zA-Z\\])rac\s*\{/g, '\\frac{');
 
     // Tự động chèn khoảng trắng mảnh ngăn dính chữ tiếng Việt (Ví dụ: "0trong", "]là:")
     cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');

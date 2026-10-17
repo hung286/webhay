@@ -107,9 +107,17 @@ export function normalizeSystemMathString(rawInput: string, isCanvas: boolean = 
   if (!rawInput || typeof rawInput !== 'string') return rawInput || '';
   let text = rawInput.trim();
 
-  // 1. Khử ký tự rác form-feed \f và phục hồi \frac
+  // 1. Tiêu diệt triệt để mã rác \d\d, \d\frac, \ddfrac đứng trước phân số & khôi phục \frac chuẩn
+  text = text.replace(/\\+d+\\+d*frac/gi, '\\frac')
+             .replace(/\\+d+\\+d*\\+frac/gi, '\\frac')
+             .replace(/\\+d+\s*\\+frac/gi, '\\frac')
+             .replace(/\\+d+\\+d+(?=\s*\\?frac)/gi, '')
+             .replace(/\\d\\d(?=\s*\\?frac)/gi, '')
+             .replace(/\\ddfrac/gi, '\\frac')
+             .replace(/\\dfrac/gi, '\\frac')
+             .replace(/\\d\\frac/gi, '\\frac');
   text = text.replace(/\\f\\f/g, '').replace(/\\f/g, '').replace(/[\u000c\x0c]/g, '');
-  text = text.replace(/\\?f?rac\{/g, '\\frac{').replace(/\brac\{/g, '\\frac{');
+  text = text.replace(/\\?f?rac\{/g, '\\frac{').replace(/(?<![a-zA-Z\\])rac\{/g, '\\frac{');
 
   // 2. Chống dính chữ tiếng Việt và công thức (Ví dụ: "trình\(" không bị biến thành "trì nh")
   text = text.replace(/([a-zA-Zà-ỹÀ-Ỹ0-9])\\(\(|\[)/g, '$1 \\$2');
@@ -175,12 +183,22 @@ export function normalizeMathFormulas(text: string): string {
            .replace(/\\+(?:neq|ne)(?=[^a-zA-Z]|$)/g, ' ≠ ');
   str = str.replace(/\s*≠\s*/g, ' ≠ ');
 
+  // Tiêu diệt triệt để mã rác \d\d, \d\frac, \ddfrac đứng trước phân số, khôi phục vĩnh viễn \frac chuẩn
+  str = str.replace(/\\+d+\\+d*frac/gi, '\\frac')
+           .replace(/\\+d+\\+d*\\+frac/gi, '\\frac')
+           .replace(/\\+d+\s*\\+frac/gi, '\\frac')
+           .replace(/\\+d+\\+d+(?=\s*\\?frac)/gi, '')
+           .replace(/\\d\\d(?=\s*\\?frac)/gi, '')
+           .replace(/\\ddfrac/gi, '\\frac')
+           .replace(/\\dfrac/gi, '\\frac')
+           .replace(/\\d\\frac/gi, '\\frac');
+
   // Lọc bỏ hoàn toàn các cụm ký tự \f hoặc \f\f (không xóa \f nếu là lệnh TeX như \frac)
   str = str.replace(/\\f\\f/g, '').replace(/\\f(?![a-zA-Z])/g, '');
   str = str.replace(/f\\f/g, '');
   str = str.replace(/(\\+f|f)+(?=\\?frac)/g, '');
-  str = str.replace(/\bracf\(/g, '\\frac{f(');
-  str = str.replace(/(?:^|[^\\])\brac\s*\{/g, (m) => m.replace('rac{', '\\frac{'));
+  str = str.replace(/(?<![a-zA-Z\\])racf\(/g, '\\frac{f(');
+  str = str.replace(/(?:^|[^a-zA-Z\\])rac\s*\{/g, '\\frac{');
   str = str.replace(/^rac\s*\{/g, '\\frac{');
 
   // Sửa chữa các chuỗi lỗi font/TeX đã bị hỏng trước đó (ví dụ: {\(\frac\){sqrt{3}}{2}})

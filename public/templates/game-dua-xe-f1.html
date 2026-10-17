@@ -693,7 +693,17 @@
                 padding: 8px 12px !important;
                 border-radius: 14px !important;
             }
-        }</style>
+        }
+    /* f1-safe-area-patch */
+    @supports(padding-bottom: env(safe-area-inset-bottom)) {
+      body, .f1-main-container {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+      #f1-scroll-controls {
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+    }
+    </style>
 
 <style id="mathjax-no-bounding-box-style">
 /* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax/KaTeX và căn giữa trục dòng */
@@ -1100,6 +1110,16 @@ mjx-line, mjx-frac mjx-line, mjx-dtable mjx-line, mjx-sqrt > mjx-box {
             if (typeof normalizeSystemMathString === 'function') rawStr = normalizeSystemMathString(rawStr);
             if (typeof fixF1QuestionString === 'function') rawStr = fixF1QuestionString(rawStr);
             let str = String(rawStr);
+    // Tiêu diệt triệt để mã rác \d\d (cleanF1)
+    // Tiêu diệt triệt để mã rác \d\d, \d\frac, \ddfrac đứng trước phân số, khôi phục vĩnh viễn \frac chuẩn
+  str = str.replace(/\\+d+\\+d*frac/gi, '\\frac')
+           .replace(/\\+d+\\+d*\\+frac/gi, '\\frac')
+           .replace(/\\+d+\s*\\+frac/gi, '\\frac')
+           .replace(/\\+d+\\+d+(?=\s*\\?frac)/gi, '')
+           .replace(/\\d\\d(?=\s*\\?frac)/gi, '')
+           .replace(/\\ddfrac/gi, '\\frac')
+           .replace(/\\dfrac/gi, '\\frac')
+           .replace(/\\d\\frac/gi, '\\frac');
 
             // 1. Khử mã điều khiển và khoảng trắng ẩn / rác \f
             str = str.replace(/[\u000c\x0c\f]/g, '');
@@ -1115,7 +1135,7 @@ mjx-line, mjx-frac mjx-line, mjx-dtable mjx-line, mjx-sqrt > mjx-box {
                      .replace(/\\ffrac/g, '\\dfrac')
                      .replace(/(?<![a-zA-Z\\])rac\s*\{/g, '\\dfrac{')
                      .replace(/(?<![a-zA-Z\\])frac\s*\{/g, '\\dfrac{')
-                     .replace(/\\frac(?=[{\s])/g, '\\dfrac');
+                     .replace(/\\dfrac(?=[{\s])/g, '\\frac');
 
             // 4. Sửa dứt điểm lỗi phân số biến dạng thành số mũ
             str = str.replace(/\^\{\s*([^{}]+?)\s*\}\s*_\{\s*([^{}]+?)\s*\}/g, '\\dfrac{$1}{$2}');

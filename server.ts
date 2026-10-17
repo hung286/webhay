@@ -321,14 +321,25 @@ function formatMathStringToTeX(rawContent: any): any {
 
   let cleanContent = rawContent;
 
+  // Tiêu diệt triệt để mã rác \d\d, \d\frac, \ddfrac đứng trước phân số, khôi phục vĩnh viễn \frac chuẩn
+  cleanContent = cleanContent.replace(/\\+d+\\+d*frac/gi, '\\frac')
+                             .replace(/\\+d+\\+d*\\+frac/gi, '\\frac')
+                             .replace(/\\+d+\\s*\\+frac/gi, '\\frac')
+                             .replace(/\\+d+\\+d+(?=\\s*\\?frac)/gi, '')
+                             .replace(/\\d\\d(?=\\s*\\?frac)/gi, '')
+                             .replace(/\\ddfrac/gi, '\\frac')
+                             .replace(/\\dfrac/gi, '\\frac')
+                             .replace(/\\d\\frac/gi, '\\frac');
+
   // ÉP BUỘC: Sử dụng chính xác bộ lọc xử lý dữ liệu từ file mẫu của giáo viên để quét sạch lỗi sinh chữ \f thừa đứng trước \frac
   cleanContent = cleanContent.replace(/\\f\\frac/g, '\\frac')
                              .replace(/\\f\s*\\frac/g, '\\frac')
                              .replace(/\\ffrac/g, '\\frac')
                              .replace(/\\f/g, ''); // Khử sạch các ký tự \f cô độc
 
-  // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac"
-  cleanContent = cleanContent.replace(/\brac\b/g, '\\frac').replace(/rac/g, '\\frac');
+  // Phục hồi chữ "frac" nếu hệ thống cũ lỡ làm gãy chữ thành "rac" (chống nuốt chữ trong \dfrac hay \frac)
+  cleanContent = cleanContent.replace(/\\+rac\s*\{/g, '\\frac{')
+                             .replace(/(?<![a-zA-Z\\])rac\s*\{/g, '\\frac{');
 
   // Tự động chèn khoảng trắng mảnh ngăn dính chữ tiếng Việt (Ví dụ: "0trong", "]là:")
   cleanContent = cleanContent.replace(/(\d+)(trong|đoạn|là|có)/g, '$1 $2');
