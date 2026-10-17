@@ -280,36 +280,126 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     overflow: visible !important;
 }
 
-        /* 1. XỬ LÝ TIÊU ĐỀ TRÊN TOPBAR (HIỆN CHỮ CHẠY HOẶC XUỐNG HÀNG CO GẠN) */
-        .game-title-header, .penalty-topbar-title {
+        /* 1. XỬ LÝ TIÊU ĐỀ TRÊN TOPBAR VÀ TIÊU ĐỀ TRẮC NGHIỆM BỊ TRÀN VIỀN */
+        .game-title-header, .penalty-topbar-title, .quiz-modal-title, .penalty-modal-header-title {
             font-size: clamp(0.85rem, 2vw, 1.1rem) !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
-            max-width: 65vw !important;
+            max-width: 100% !important;
+            display: block !important;
+            box-sizing: border-box !important;
+        }
+
+        .penalty-topbar-title {
             color: #38bdf8 !important;
             font-weight: 800 !important;
             text-transform: uppercase !important;
-            letter-spacing: 1px !important;
+            letter-spacing: 0.5px !important;
             text-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important;
-            display: inline-block !important;
         }
 
-        /* 2. ĐỀ BÀI VÀ NÚT LỰA CHỌN ĐÁP ÁN ABCD */
+        .question-header-badge {
+            text-align: center !important;
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(0, 102, 255, 0.3)) !important;
+            border: 1px solid var(--neon-blue) !important;
+            color: var(--neon-blue) !important;
+            font-family: var(--font-display) !important;
+            font-size: clamp(0.85rem, 2vw, 1.1rem) !important;
+            letter-spacing: 1px !important;
+            padding: 6px 14px !important;
+            border-radius: 12px !important;
+            margin-bottom: 12px !important;
+            text-transform: uppercase !important;
+            font-weight: 700 !important;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3) !important;
+            flex-shrink: 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        .question-header-badge span {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            display: block !important;
+            max-width: 100% !important;
+        }
+
+        /* 2. KHUNG MODAL ĐEN KHÔNG BỊ CHE KHUẤT VÀ NỘI DUNG ĐỀ BÀI */
         .penalty-question-modal, .quiz-box-container, #question-panel {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
             width: 92% !important;
             max-width: 480px !important;
             box-sizing: border-box !important;
+            background: rgba(10, 15, 30, 0.95) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 2px solid rgba(0, 243, 255, 0.5) !important;
+            border-radius: 20px !important;
+            padding: clamp(14px, 3.5vw, 20px) !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0, 243, 255, 0.25) !important;
+            z-index: 100000 !important; /* Nổi hoàn toàn lên trên các dock, thanh hệ thống */
+            display: flex !important;
+            flex-direction: column !important;
+            max-height: 85dvh !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            pointer-events: auto !important;
         }
+
+        #question-panel.hidden {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: translate(-50%, 120dvh) scale(0.7) !important;
+        }
+
         /* Đề bài tự động xuống dòng */
         .penalty-question-text, .quiz-question-content, .question-text {
             white-space: normal !important;
             word-wrap: break-word !important;
             overflow-wrap: break-word !important;
             font-size: clamp(0.9rem, 2.2vw, 1.05rem) !important;
-            line-height: 1.5 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            line-height: 1.55 !important;
+            margin-bottom: 14px !important;
+            text-align: center !important;
+            display: block !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
         }
-        /* Các nút đáp án ABCD tự động dàn hàng hoặc xuống dòng nếu dài, giữ nguyên MathJax thẳng hàng */
+
+        .question-box-content {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            display: inline-block !important;
+            max-width: 100% !important;
+        }
+
+        /* 3. CÁC NÚT ĐÁP ÁN ABCD CĂN CHỈNH ĐỀU ĐẶN, ÔM KHÍT KHUNG CHAT BOX */
+        .options-grid, #options-container {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin-top: 4px !important;
+        }
+
+        @media (max-width: 520px) {
+            .options-grid, #options-container {
+                grid-template-columns: 1fr !important;
+                gap: 8px !important;
+            }
+        }
+
         .penalty-answer-btn, .quiz-option-btn, .option-btn {
             white-space: normal !important;
             height: auto !important;
@@ -322,13 +412,25 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             overflow-wrap: break-word !important;
             box-sizing: border-box !important;
             width: 100% !important;
+            border-radius: 12px !important;
+            border: 1.5px solid #334155 !important;
+            background: linear-gradient(145deg, #1e293b, #0f172a) !important;
+            color: #ffffff !important;
+            cursor: pointer !important;
+            transition: all 0.15s ease !important;
         }
+
+        .penalty-answer-btn:hover:not(:disabled), .quiz-option-btn:hover:not(:disabled), .option-btn:hover:not(:disabled) {
+            border-color: #00f3ff !important;
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.4) !important;
+        }
+
         .penalty-answer-btn mjx-container, .quiz-option-btn mjx-container, .option-btn mjx-container, mjx-container {
             white-space: nowrap !important;
             display: inline-block !important;
         }
 
-        /* 3. KHOÁNG HÓA SAFE AREA NÚT SÚT PENALTY */
+        /* 4. KHOÁNG HÓA SAFE AREA NÚT SÚT PENALTY */
         .penalty-controls-bottom, .shoot-direction-buttons, #mobile-penalty-dock {
             position: fixed !important;
             bottom: 0 !important;
@@ -372,7 +474,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     <!-- Lớp UI -->
     <div id="ui-layer">
         <div id="top-hud" class="interactive">
-            <div style="display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 65vw;">
+            <div style="display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 58vw; overflow: hidden;">
                 <div class="level-badge shrink-0" id="level-badge">VÒNG BẢNG</div>
                 <div class="game-title-header penalty-topbar-title" id="penalty-topbar-title" title="⚽ SÚT PENALTY">⚽ SÚT PENALTY: GIÁ TRỊ LƯỢNG GIÁC</div>
             </div>
@@ -396,7 +498,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         <div id="action-feedback">VÀO!</div>
 
         <div id="question-panel" class="penalty-question-modal quiz-box-container interactive hidden">
-            <div class="question-header-badge">
+            <div class="question-header-badge quiz-modal-title penalty-modal-header-title">
                 <span>⚽ THỬ THÁCH TRẮC NGHIỆM ĐỂ SÚT BÓNG</span>
             </div>
             <div class="question-text penalty-question-text quiz-question-content" id="question-text">Đang tải dữ liệu...</div>
@@ -1631,6 +1733,12 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             }
 
             gameState.currentQ = gameState.questions.pop();
+            if (!gameState.currentQ) {
+                const stageKey = stageConfigs[gameState.levelIdx] ? stageConfigs[gameState.levelIdx].key : 'vongBang';
+                const stagePool = penaltyDatabase[stageKey] || DEFAULT_PENALTY_DATABASE.vongBang;
+                gameState.questions = sampleFiveQuestions(stagePool);
+                gameState.currentQ = gameState.questions.pop() || DEFAULT_PENALTY_DATABASE.vongBang[0];
+            }
             ui.qText.innerHTML = `<div class="question-box-content">${formatMathText(gameState.currentQ.q)}</div>`;
             
             ui.options.forEach((btn, idx) => {
@@ -2013,8 +2121,12 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             bindTouch('m-btn-aim-right', () => setAimCorner('right'));
             bindTouch('m-btn-challenge', () => {
                 if (ui.panel) {
-                    ui.panel.classList.remove('hidden');
-                    typesetMath([ui.panel]);
+                    if (!gameState.currentQ) {
+                        prepareNextShot();
+                    } else {
+                        ui.panel.classList.remove('hidden');
+                        typesetMath([ui.panel]);
+                    }
                 }
             });
 
