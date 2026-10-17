@@ -22,6 +22,47 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
     <style>
+/* TỐI ƯU TOÀN DIỆN SẢNH CHỜ CHUYÊN ĐỀ & MOBILE TOUCH (CHỈ THỊ CẤP CAO) */
+.matching-lobby-container, .selection-screen-wrapper {
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 16px !important;
+    box-sizing: border-box !important;
+}
+/* Tiêu đề chính và tên chủ đề tự động xuống hàng, chống tràn viền */
+.matching-title, .campaign-heading, .topic-card h3, .topic-card p {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+/* Lưới các chuyên đề trên mobile dàn dọc dễ vuốt lướt */
+.topics-grid-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 16px !important;
+}
+@media (max-width: 640px) {
+    .topics-grid-container {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+    .topic-card {
+        padding: 14px !important;
+        border-radius: 16px !important;
+    }
+    .matching-title {
+        font-size: 1.35rem !important;
+        line-height: 1.3 !important;
+    }
+    #topic-selection-overlay {
+        padding: 8px !important;
+    }
+}
         body { font-family: 'Nunito', sans-serif; overflow: hidden; margin: 0; padding: 0; }
         .katex-display { margin: 0 !important; }
 
@@ -51,8 +92,30 @@
         .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         
         /* Adjusted card size to fit up to 40 cards on screen */
-        .game-card { transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s, border-color 0.2s, opacity 0.3s; cursor: pointer; border-radius: 40px; user-select: none; display: flex; align-items: center; justify-content: center; position: absolute; will-change: left, top; padding: 8px 16px; font-size: 0.9rem; }
-        @media (min-width: 640px) { .game-card { padding: 12px 24px; font-size: 1.1rem; } }
+        .game-card {
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s, border-color 0.2s, opacity 0.3s;
+            cursor: pointer;
+            border-radius: 40px;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            will-change: left, top;
+            width: max-content !important;
+            max-width: min(90vw, 360px) !important;
+            min-width: 70px !important;
+            padding: 6px 14px !important;
+            font-size: clamp(0.78rem, 2.2vw, 1.05rem) !important;
+            white-space: nowrap !important;
+            box-sizing: border-box !important;
+        }
+        @media (min-width: 640px) {
+            .game-card {
+                padding: 10px 20px !important;
+                font-size: 1.1rem !important;
+            }
+        }
         .game-card:active { transform: scale(0.95) !important; }
         
         .floating-heart { position: absolute; z-index: 0; pointer-events: none; opacity: 0.2; animation: float-up linear infinite; filter: drop-shadow(0 0 10px rgba(255,255,255,0.8)); }
@@ -116,30 +179,30 @@ button, .btn, input, select, canvas {
     <!-- ======================================================== -->
     <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
     <!-- ======================================================== -->
-    <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #064E3B 0%, #022c22 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Nunito', sans-serif;">
-      <div style="max-width: 980px; width: 100%; background: rgba(6, 78, 59, 0.95); border: 3px solid #34d399; border-radius: 28px; padding: 32px; box-shadow: 0 0 60px rgba(52, 211, 153, 0.35); backdrop-filter: blur(20px); text-align: center;">
+    <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #064E3B 0%, #022c22 100%); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 12px; font-family: 'Nunito', sans-serif; overflow-y: auto; -webkit-overflow-scrolling: touch;">
+      <div class="selection-screen-wrapper matching-lobby-container" style="max-width: 980px; width: 100%; background: rgba(6, 78, 59, 0.95); border: 3px solid #34d399; border-radius: 28px; padding: 24px; box-shadow: 0 0 60px rgba(52, 211, 153, 0.35); backdrop-filter: blur(20px); text-align: center; margin: auto;">
         
         <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 20px; border-radius: 9999px; background: rgba(52, 211, 153, 0.15); border: 1.5px solid #34d399; color: #6ee7b7; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
           🧩 GHÉP CẶP TRÁI TIM | TOÁN PRO - THẦY HÙNG
         </div>
         
-        <h1 style="color: #ffffff; font-size: clamp(1.6rem, 3.8vw, 2.4rem); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 8px 0; text-shadow: 0 0 25px rgba(52, 211, 153, 0.5);">
+        <h1 class="matching-title campaign-heading" style="color: #ffffff; font-size: clamp(1.4rem, 3.5vw, 2.3rem); font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; margin: 0 0 8px 0; text-shadow: 0 0 25px rgba(52, 211, 153, 0.5);">
           GHÉP CẶP LƯỢNG GIÁC: <span style="color: #34d399;">CHỌN CHUYÊN ĐỀ ÔN TẬP</span>
         </h1>
-        <p style="color: #a7f3d0; font-size: 14px; margin: 0 0 24px 0; font-weight: 600;">
+        <p class="matching-title" style="color: #a7f3d0; font-size: 14px; margin: 0 0 20px 0; font-weight: 600;">
           Chọn chuyên đề công thức để nối các cặp thẻ bài tương đương từ Dễ ➡️ Vừa ➡️ Khó!
         </p>
         
         <!-- Grid các chuyên đề -->
-        <div id="ghep-cap-topics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; margin-bottom: 24px; max-height: 52vh; overflow-y: auto; padding: 6px;" class="custom-scrollbar">
+        <div id="ghep-cap-topics-grid" class="topics-grid-container custom-scrollbar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px; max-height: 55vh; overflow-y: auto; padding: 6px;">
           <!-- Rendered dynamically -->
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 16px; font-size: 12px; color: #a7f3d0; font-weight: 600;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 14px; font-size: 12px; color: #a7f3d0; font-weight: 600; flex-wrap: wrap; gap: 8px;">
           <span>⭐ Hỗ trợ chơi từng cấp độ hoặc thử thách liên hoàn 3 Ải</span>
           <div style="display: flex; gap: 10px; align-items: center;">
             <button onclick="document.getElementById('topic-selection-overlay').style.display='none'" style="background: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid #34d399; padding: 4px 14px; border-radius: 8px; font-weight: 700; cursor: pointer;">Đóng Menu</button>
-            <span style="color: #34d399; font-weight: 800;">Matching Engine v3.8</span>
+            <span style="color: #34d399; font-weight: 800;">Matching Engine v4.1</span>
           </div>
         </div>
       </div>
@@ -367,10 +430,37 @@ button, .btn, input, select, canvas {
 
         window.selectedTopic = Object.keys(window.gameDatabase)[0];
 
+        function cleanPairMath(content) {
+            if (typeof content !== 'string') return '';
+            let s = content;
+            if (typeof window.formatMathStringToTeX === 'function') {
+                s = window.formatMathStringToTeX(s);
+            } else {
+                s = s.replace(/\\+d+\\+d*frac/gi, '\\frac')
+                     .replace(/\\+d+\\+d*\\+frac/gi, '\\frac')
+                     .replace(/\\+d+\s*\\+frac/gi, '\\frac')
+                     .replace(/\\+d+\\+d+(?=\s*\\?frac)/gi, '')
+                     .replace(/\\d\\d(?=\s*\\?frac)/gi, '')
+                     .replace(/\\ddfrac/gi, '\\frac')
+                     .replace(/\\dfrac/gi, '\\frac')
+                     .replace(/\\d\\frac/gi, '\\frac')
+                     .replace(/\\f\\frac/g, '\\frac')
+                     .replace(/\\f\s*\\frac/g, '\\frac')
+                     .replace(/\\ffrac/g, '\\frac')
+                     .replace(/\\f(?=\\?frac)/g, '');
+            }
+            return s.trim();
+        }
+
         window.openGhepCapTopicMenu = function() {
             window.renderGhepCapTopicCards();
             const overlay = document.getElementById('topic-selection-overlay');
             if (overlay) overlay.style.display = 'flex';
+        };
+
+        window.closeGhepCapTopicMenu = function() {
+            const overlay = document.getElementById('topic-selection-overlay');
+            if (overlay) overlay.style.display = 'none';
         };
 
         window.renderGhepCapTopicCards = function() {
@@ -378,21 +468,28 @@ button, .btn, input, select, canvas {
             if (!container) return;
             container.innerHTML = '';
 
-            const topics = Object.keys(window.gameDatabase);
+            const topics = (window.gameDatabase && typeof window.gameDatabase === 'object') ? Object.keys(window.gameDatabase) : [];
+            if (topics.length === 0) {
+                container.innerHTML = '<p class="text-white text-center w-full py-4 font-bold">Đang tải danh sách chuyên đề...</p>';
+                return;
+            }
+
             topics.forEach((topicName, idx) => {
-                const data = window.gameDatabase[topicName];
+                const data = window.gameDatabase[topicName] || {};
                 const eCount = (data.easy || []).length;
                 const mCount = (data.medium || []).length;
                 const hCount = (data.hard || []).length;
                 const total = eCount + mCount + hCount;
 
                 const card = document.createElement('div');
+                card.className = 'topic-card';
                 card.style.cssText = `
                     background: linear-gradient(135deg, rgba(6, 78, 59, 0.9), rgba(2, 44, 34, 0.95));
                     border: 2px solid ${window.selectedTopic === topicName ? '#34d399' : 'rgba(255,255,255,0.15)'};
                     border-radius: 20px; padding: 20px; text-align: left; transition: all 0.3s ease;
                     display: flex; flex-direction: column; justify-content: space-between;
                     box-shadow: ${window.selectedTopic === topicName ? '0 0 25px rgba(52, 211, 153, 0.4)' : '0 10px 25px rgba(0,0,0,0.3)'};
+                    box-sizing: border-box;
                 `;
 
                 card.innerHTML = `
@@ -400,7 +497,7 @@ button, .btn, input, select, canvas {
                         <div style="font-size: 11px; font-weight: 800; color: #6ee7b7; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;">
                             CHUYÊN ĐỀ ${idx + 1} (${total} CẶP BÀI)
                         </div>
-                        <h3 style="color: #ffffff; font-size: 16px; font-weight: 800; margin: 0 0 10px 0; line-height: 1.4;">
+                        <h3 style="color: #ffffff; font-size: 16px; font-weight: 800; margin: 0 0 10px 0; line-height: 1.4; word-break: break-word; white-space: normal;">
                             ${topicName}
                         </h3>
                         <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; font-size: 11px; font-weight: 700;">
@@ -410,7 +507,7 @@ button, .btn, input, select, canvas {
                         </div>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <button onclick="window.playTopicCampaign('${topicName}')" style="
+                        <button class="btn-topic-campaign" style="
                             width: 100%; padding: 10px 14px; border: none; border-radius: 12px;
                             background: linear-gradient(90deg, #10b981, #059669);
                             color: #ffffff; font-weight: 900; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
@@ -419,44 +516,64 @@ button, .btn, input, select, canvas {
                             ⭐ Chơi Vượt 3 Ải (Dễ ➡️ Khó)
                         </button>
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
-                            <button onclick="window.playTopicDiff('${topicName}', 'easy')" style="padding: 6px 4px; border-radius: 8px; background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #4ade80; font-weight: 800; font-size: 11px; cursor: pointer;">Dễ</button>
-                            <button onclick="window.playTopicDiff('${topicName}', 'medium')" style="padding: 6px 4px; border-radius: 8px; background: rgba(234, 179, 8, 0.2); border: 1px solid #eab308; color: #facc15; font-weight: 800; font-size: 11px; cursor: pointer;">Vừa</button>
-                            <button onclick="window.playTopicDiff('${topicName}', 'hard')" style="padding: 6px 4px; border-radius: 8px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; font-weight: 800; font-size: 11px; cursor: pointer;">Khó</button>
+                            <button class="btn-diff-easy" style="padding: 6px 4px; border-radius: 8px; background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #4ade80; font-weight: 800; font-size: 11px; cursor: pointer;">Dễ</button>
+                            <button class="btn-diff-medium" style="padding: 6px 4px; border-radius: 8px; background: rgba(234, 179, 8, 0.2); border: 1px solid #eab308; color: #facc15; font-weight: 800; font-size: 11px; cursor: pointer;">Vừa</button>
+                            <button class="btn-diff-hard" style="padding: 6px 4px; border-radius: 8px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; font-weight: 800; font-size: 11px; cursor: pointer;">Khó</button>
                         </div>
                     </div>
                 `;
+
+                const btnCamp = card.querySelector('.btn-topic-campaign');
+                if (btnCamp) btnCamp.onclick = () => window.playTopicCampaign(topicName);
+                const btnE = card.querySelector('.btn-diff-easy');
+                if (btnE) btnE.onclick = () => window.playTopicDiff(topicName, 'easy');
+                const btnM = card.querySelector('.btn-diff-medium');
+                if (btnM) btnM.onclick = () => window.playTopicDiff(topicName, 'medium');
+                const btnH = card.querySelector('.btn-diff-hard');
+                if (btnH) btnH.onclick = () => window.playTopicDiff(topicName, 'hard');
 
                 container.appendChild(card);
             });
 
             if (window.renderMathInElement) {
-                renderMathInElement(container, {
-                    delimiters: [
-                        { left: '$$', right: '$$', display: true },
-                        { left: '$', right: '$', display: false },
-                        { left: '\\(', right: '\\)', display: false },
-                        { left: '\\[', right: '\\]', display: true }
-                    ],
-                    throwOnError: false
-                });
+                try {
+                    renderMathInElement(container, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '$', right: '$', display: false },
+                            { left: '\\(', right: '\\)', display: false },
+                            { left: '\\[', right: '\\]', display: true }
+                        ],
+                        throwOnError: false
+                    });
+                } catch(e) {}
             }
         };
 
         window.playTopicDiff = function(topicName, diff) {
-            const topicData = window.gameDatabase[topicName];
-            if (!topicData) return;
+            const topicData = (window.gameDatabase && typeof window.gameDatabase === 'object') ? window.gameDatabase[topicName] : null;
             window.selectedTopic = topicName;
             
-            const pairs = (topicData[diff] || []).map((p, idx) => ({
-                id: idx + 1,
-                left: p.left,
-                right: p.right
+            let rawList = (topicData && Array.isArray(topicData[diff])) ? topicData[diff] : [];
+            if (rawList.length === 0 && topicData) {
+                rawList = (topicData.easy && topicData.easy.length) ? topicData.easy :
+                          (topicData.medium && topicData.medium.length) ? topicData.medium :
+                          (topicData.hard && topicData.hard.length) ? topicData.hard : [];
+            }
+            if (rawList.length === 0 && typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS['1_F']) {
+                rawList = GAME_LEVELS['1_F'].pairs || [];
+            }
+
+            const pairs = rawList.map((p, idx) => ({
+                id: p.id || (idx + 1),
+                left: cleanPairMath(p.left || ''),
+                right: cleanPairMath(p.right || '')
             }));
 
             GAME_LEVELS['topic_custom'] = {
                 title: `${topicName} (${diff === 'easy' ? 'Dễ' : diff === 'medium' ? 'Vừa' : 'Khó'})`,
                 time: diff === 'easy' ? 60 : diff === 'medium' ? 70 : 80,
-                pairs: pairs
+                pairs: pairs.length > 0 ? pairs : (GAME_LEVELS['1_F']?.pairs || [])
             };
 
             const overlayTopic = document.getElementById('topic-selection-overlay');
@@ -466,13 +583,25 @@ button, .btn, input, select, canvas {
         };
 
         window.playTopicCampaign = function(topicName) {
-            const topicData = window.gameDatabase[topicName];
-            if (!topicData) return;
+            const topicData = (window.gameDatabase && typeof window.gameDatabase === 'object') ? window.gameDatabase[topicName] : null;
             window.selectedTopic = topicName;
 
-            GAME_LEVELS['topic_c1'] = { title: `${topicName} - Ải 1 (Dễ)`, time: 60, pairs: topicData.easy || [] };
-            GAME_LEVELS['topic_c2'] = { title: `${topicName} - Ải 2 (Vừa)`, time: 70, pairs: topicData.medium || [] };
-            GAME_LEVELS['topic_c3'] = { title: `${topicName} - Ải 3 (Khó)`, time: 80, pairs: topicData.hard || [] };
+            const mapPairs = (list, fallbackKey) => {
+                let items = (Array.isArray(list) && list.length > 0) ? list : (GAME_LEVELS[fallbackKey]?.pairs || []);
+                return items.map((p, idx) => ({
+                    id: p.id || (idx + 1),
+                    left: cleanPairMath(p.left || ''),
+                    right: cleanPairMath(p.right || '')
+                }));
+            };
+
+            const ePairs = mapPairs(topicData?.easy, '1_F');
+            const mPairs = mapPairs(topicData?.medium, '1_E');
+            const hPairs = mapPairs(topicData?.hard, '2_F');
+
+            GAME_LEVELS['topic_c1'] = { title: `${topicName} - Ải 1 (Dễ)`, time: 60, pairs: ePairs };
+            GAME_LEVELS['topic_c2'] = { title: `${topicName} - Ải 2 (Vừa)`, time: 70, pairs: mPairs };
+            GAME_LEVELS['topic_c3'] = { title: `${topicName} - Ải 3 (Khó)`, time: 80, pairs: hPairs };
 
             CAMPAIGN_STAGES.length = 0;
             CAMPAIGN_STAGES.push('topic_c1', 'topic_c2', 'topic_c3');
@@ -641,10 +770,11 @@ button, .btn, input, select, canvas {
             }
         };
 
-        const CAMPAIGN_STAGES = [
+        const DEFAULT_CAMPAIGN_STAGES = [
             '1_F', '1_E', '2_F', '2_E', '3_F', '3_E', '4_F', '4_E', 
             '5_F', '5_E', '6_F', '6_E', '7_F', '7_E', '8_F', '8_E'
         ];
+        const CAMPAIGN_STAGES = [...DEFAULT_CAMPAIGN_STAGES];
 
         const sndMatch = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
         const sndError = new Audio('https://assets.mixkit.co/active_storage/sfx/2997/2997-preview.mp3');
@@ -754,16 +884,22 @@ button, .btn, input, select, canvas {
                 try { localStorage.setItem('thayHungPlayerName', nameInput.value.trim() || "Ông mai bà mối"); } catch(e) {} 
             }
 
-            currentMode = mode;
+            const overlayTopic = document.getElementById('topic-selection-overlay');
+            if (overlayTopic) overlayTopic.style.display = 'none';
+
+            currentMode = mode || '1_F';
             if (mode === 'campaign') {
+                if (!CAMPAIGN_STAGES.length) {
+                    CAMPAIGN_STAGES.push(...DEFAULT_CAMPAIGN_STAGES);
+                }
                 currentCampaignIndex = 0;
                 totalCampaignScore = 0;
                 totalCampaignTimeUsed = 0;
                 lives = 3;
-                loadLevelLogic(CAMPAIGN_STAGES[0]);
+                loadLevelLogic(CAMPAIGN_STAGES[0] || '1_F');
             } else {
                 lives = 3;
-                loadLevelLogic(mode);
+                loadLevelLogic(currentMode);
             }
         };
 
@@ -848,11 +984,56 @@ button, .btn, input, select, canvas {
             score = 0; 
             isAnimating = false;
             
-            const levelData = GAME_LEVELS[levelCode];
-            currentPairs = levelData.pairs;
-            timeLeft = levelData.time;
+            let targetKey = levelCode;
+            if (!targetKey || typeof targetKey !== 'string' || !GAME_LEVELS[targetKey]) {
+                targetKey = (currentMode === 'campaign' && CAMPAIGN_STAGES[currentCampaignIndex]) ? CAMPAIGN_STAGES[currentCampaignIndex] : '1_F';
+            }
 
-            levelBadge.innerText = currentMode === 'campaign' ? `Ải ${currentCampaignIndex + 1}/16` : levelData.title;
+            const levelData = (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[targetKey])
+                ? GAME_LEVELS[targetKey]
+                : (GAME_LEVELS['1_F'] || {
+                    title: "Cơ Bản (C.Thức)",
+                    time: 60,
+                    pairs: [
+                        { id: 1, left: "\\sin^2 x + \\cos^2 x", right: "1" },
+                        { id: 2, left: "1 + \\tan^2 x", right: "\\frac{1}{\\cos^2 x}" },
+                        { id: 3, left: "1 + \\cot^2 x", right: "\\frac{1}{\\sin^2 x}" },
+                        { id: 4, left: "\\tan x \\cdot \\cot x", right: "1" }
+                    ]
+                });
+
+            let rawPairs = levelData.pairs;
+            if (!Array.isArray(rawPairs) || rawPairs.length === 0) {
+                rawPairs = (GAME_LEVELS['1_F'] && Array.isArray(GAME_LEVELS['1_F'].pairs) && GAME_LEVELS['1_F'].pairs.length > 0)
+                    ? GAME_LEVELS['1_F'].pairs
+                    : [
+                        { id: 1, left: "\\sin^2 x + \\cos^2 x", right: "1" },
+                        { id: 2, left: "1 + \\tan^2 x", right: "\\frac{1}{\\cos^2 x}" },
+                        { id: 3, left: "1 + \\cot^2 x", right: "\\frac{1}{\\sin^2 x}" },
+                        { id: 4, left: "\\tan x \\cdot \\cot x", right: "1" }
+                    ];
+            }
+
+            currentPairs = rawPairs.filter(p => p && (p.left || p.right)).map((p, idx) => ({
+                id: p.id || (idx + 1),
+                left: cleanPairMath(p.left || ''),
+                right: cleanPairMath(p.right || '')
+            }));
+
+            if (currentPairs.length === 0) {
+                currentPairs = [
+                    { id: 1, left: "\\sin^2 x + \\cos^2 x", right: "1" },
+                    { id: 2, left: "1 + \\tan^2 x", right: "\\frac{1}{\\cos^2 x}" },
+                    { id: 3, left: "1 + \\cot^2 x", right: "\\frac{1}{\\sin^2 x}" },
+                    { id: 4, left: "\\tan x \\cdot \\cot x", right: "1" }
+                ];
+            }
+
+            timeLeft = Number(levelData.time) || 60;
+
+            levelBadge.innerText = currentMode === 'campaign' 
+                ? `Ải ${currentCampaignIndex + 1}/${CAMPAIGN_STAGES.length}` 
+                : (levelData.title || "Vòng Chơi");
             levelBadge.classList.remove('hidden');
 
             livesContainer.innerHTML = '';
@@ -900,8 +1081,10 @@ button, .btn, input, select, canvas {
             clearInterval(timerInterval);
             cancelAnimationFrame(animationFrameId);
             
+            const currentStageKey = (CAMPAIGN_STAGES && CAMPAIGN_STAGES[currentCampaignIndex]) ? CAMPAIGN_STAGES[currentCampaignIndex] : '1_F';
+            const stageTime = (GAME_LEVELS && GAME_LEVELS[currentStageKey] && GAME_LEVELS[currentStageKey].time) ? GAME_LEVELS[currentStageKey].time : 60;
             totalCampaignScore += score;
-            totalCampaignTimeUsed += (GAME_LEVELS[CAMPAIGN_STAGES[currentCampaignIndex]].time - timeLeft);
+            totalCampaignTimeUsed += (stageTime - timeLeft);
 
             if (currentCampaignIndex < CAMPAIGN_STAGES.length - 1) {
                 const transOverlay = document.getElementById('transition-overlay');
@@ -1100,14 +1283,22 @@ button, .btn, input, select, canvas {
         }
 
         function renderAndSetupPhysics() {
-            gameBoard.innerHTML = ''; movingCards = []; let allItems = [];
-            currentPairs.forEach(pair => { allItems.push({ id: pair.id, isLeft: true, content: pair.left }); allItems.push({ id: pair.id, isLeft: false, content: pair.right }); });
+            gameBoard.innerHTML = '';
+            movingCards = [];
+            let allItems = [];
+            
+            currentPairs.forEach(pair => {
+                allItems.push({ id: pair.id, isLeft: true, content: pair.left });
+                allItems.push({ id: pair.id, isLeft: false, content: pair.right });
+            });
             allItems.sort(() => Math.random() - 0.5);
 
             allItems.forEach(item => {
                 const el = document.createElement('div');
                 const baseClasses = `game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]`;
-                el.dataset.baseClasses = baseClasses; el.dataset.id = item.id; el.dataset.side = item.isLeft ? 'left' : 'right';
+                el.dataset.baseClasses = baseClasses;
+                el.dataset.id = item.id;
+                el.dataset.side = item.isLeft ? 'left' : 'right';
                 
                 const icon = item.isLeft ? '💙' : '💖'; 
                 el.innerHTML = `<div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">${icon}</span><span class="math-content"></span></div>`;
@@ -1117,18 +1308,63 @@ button, .btn, input, select, canvas {
                 el.style.opacity = "0"; 
                 gameBoard.appendChild(el);
 
-                katex.render(item.content, el.querySelector('.math-content'), { throwOnError: false, displayMode: true });
-                movingCards.push({ id: item.id, isLeft: item.isLeft, el: el, active: true, x: 0, y: 0, vx: 0, vy: 0, width: 0, height: 0, baseSpeed: 0 });
+                const mathSpan = el.querySelector('.math-content');
+                const tex = (item.content || '').trim();
+                let renderedWithKatex = false;
+                if (typeof katex !== 'undefined' && mathSpan) {
+                    try {
+                        katex.render(tex, mathSpan, { throwOnError: false, displayMode: false });
+                        renderedWithKatex = true;
+                    } catch(e) {
+                        console.warn('KaTeX fallback:', e);
+                    }
+                }
+                if (!renderedWithKatex && mathSpan) {
+                    mathSpan.textContent = `\\(${tex}\\)`;
+                    if (window.MathJax && window.MathJax.typesetPromise) {
+                        window.MathJax.typesetPromise([mathSpan]).catch(() => {});
+                    }
+                }
+
+                movingCards.push({
+                    id: item.id,
+                    isLeft: item.isLeft,
+                    el: el,
+                    active: true,
+                    x: 0,
+                    y: 0,
+                    vx: 0,
+                    vy: 0,
+                    width: 0,
+                    height: 0,
+                    baseSpeed: 0
+                });
             });
 
             setTimeout(() => {
                 const boardRect = gameBoard.getBoundingClientRect();
+                const boardW = boardRect.width || window.innerWidth;
+                const boardH = boardRect.height || window.innerHeight;
+                const isMobile = boardW < 640;
+
                 movingCards.forEach(c => {
-                    c.width = c.el.offsetWidth; c.height = c.el.offsetHeight;
-                    c.x = Math.random() * (boardRect.width - c.width); c.y = Math.random() * (boardRect.height - c.height);
-                    const speed = 0.6 + Math.random() * 0.9; c.baseSpeed = speed; 
-                    const angle = Math.random() * 2 * Math.PI; c.vx = Math.cos(angle) * speed; c.vy = Math.sin(angle) * speed;
-                    c.el.style.left = `${c.x}px`; c.el.style.top = `${c.y}px`; c.el.style.opacity = "1"; 
+                    c.width = c.el.offsetWidth || 120;
+                    c.height = c.el.offsetHeight || 44;
+                    const maxX = Math.max(0, boardW - c.width);
+                    const maxY = Math.max(0, boardH - c.height);
+                    c.x = Math.random() * maxX;
+                    c.y = Math.random() * maxY;
+
+                    // Vận tốc lơ lửng nhẹ nhàng, êm ái trên di động
+                    const speed = isMobile ? (0.28 + Math.random() * 0.35) : (0.55 + Math.random() * 0.65);
+                    c.baseSpeed = speed;
+                    const angle = Math.random() * 2 * Math.PI;
+                    c.vx = Math.cos(angle) * speed;
+                    c.vy = Math.sin(angle) * speed;
+
+                    c.el.style.left = `${c.x}px`;
+                    c.el.style.top = `${c.y}px`;
+                    c.el.style.opacity = "1";
                 });
                 gameLoop(); 
             }, 300);
@@ -1137,22 +1373,46 @@ button, .btn, input, select, canvas {
         function gameLoop() {
             if (gameState !== 'playing') return;
             const boardRect = gameBoard.getBoundingClientRect();
-            const boardW = boardRect.width; const boardH = boardRect.height;
+            const boardW = boardRect.width || window.innerWidth;
+            const boardH = boardRect.height || window.innerHeight;
 
             movingCards.forEach(c => {
                 if (!c.active) return; 
                 const currentSpeed = Math.sqrt(c.vx * c.vx + c.vy * c.vy);
                 if (currentSpeed > c.baseSpeed) {
-                    c.vx *= 0.95; c.vy *= 0.95; 
+                    c.vx *= 0.95;
+                    c.vy *= 0.95; 
                     const newSpeed = Math.sqrt(c.vx * c.vx + c.vy * c.vy);
-                    if (newSpeed <= c.baseSpeed && newSpeed > 0) { const angle = Math.atan2(c.vy, c.vx); c.vx = Math.cos(angle) * c.baseSpeed; c.vy = Math.sin(angle) * c.baseSpeed; }
+                    if (newSpeed <= c.baseSpeed && newSpeed > 0) {
+                        const angle = Math.atan2(c.vy, c.vx);
+                        c.vx = Math.cos(angle) * c.baseSpeed;
+                        c.vy = Math.sin(angle) * c.baseSpeed;
+                    }
                 }
-                c.x += c.vx; c.y += c.vy;
-                if (c.x <= 0) { c.x = 0; c.vx = Math.abs(c.vx); }
-                if (c.x + c.width >= boardW) { c.x = boardW - c.width; c.vx = -Math.abs(c.vx); }
-                if (c.y <= 0) { c.y = 0; c.vy = Math.abs(c.vy); }
-                if (c.y + c.height >= boardH) { c.y = boardH - c.height; c.vy = -Math.abs(c.vy); }
-                c.el.style.left = `${c.x}px`; c.el.style.top = `${c.y}px`;
+                c.x += c.vx;
+                c.y += c.vy;
+
+                const maxX = Math.max(0, boardW - c.width);
+                const maxY = Math.max(0, boardH - c.height);
+
+                if (c.x <= 0) {
+                    c.x = 0;
+                    c.vx = Math.abs(c.vx);
+                } else if (c.x >= maxX) {
+                    c.x = maxX;
+                    c.vx = -Math.abs(c.vx);
+                }
+
+                if (c.y <= 0) {
+                    c.y = 0;
+                    c.vy = Math.abs(c.vy);
+                } else if (c.y >= maxY) {
+                    c.y = maxY;
+                    c.vy = -Math.abs(c.vy);
+                }
+
+                c.el.style.left = `${c.x}px`;
+                c.el.style.top = `${c.y}px`;
             });
             animationFrameId = requestAnimationFrame(gameLoop);
         }
