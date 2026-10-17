@@ -132,7 +132,22 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     display: inline-block !important;
     overflow: visible !important;
 }
-</style></head>
+</style>
+<style>
+/* TỐI ƯU HÓA HIỂN THỊ VÀ CẢM ỨNG MƯỢT MÀ TRÊN MOBILE (60 FPS & TOUCH OPTIMIZATION) */
+button, .btn, input, select, canvas {
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+/* Ép khung chứa game tối ưu diện tích di động & GPU */
+.game-container, canvas {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}
+</style>
+
+</head>
 <body class="relative h-screen w-screen overflow-hidden p-3 flex flex-col">
     
     <!-- Toast Notification -->

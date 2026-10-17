@@ -152,6 +152,21 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #0369a1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
     </style>
+
+<style>
+/* TỐI ƯU HÓA HIỂN THỊ VÀ CẢM ỨNG MƯỢT MÀ TRÊN MOBILE (60 FPS & TOUCH OPTIMIZATION) */
+button, .btn, input, select, canvas {
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+/* Ép khung chứa game tối ưu diện tích di động & GPU */
+.game-container, canvas {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}
+</style>
+
 </head>
 <body class="bg-slate-950 text-slate-100 flex flex-col justify-between relative overflow-hidden">
 
