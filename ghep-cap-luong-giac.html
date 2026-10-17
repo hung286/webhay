@@ -92,6 +92,21 @@
         .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
         
         /* Adjusted card size to fit up to 40 cards on screen */
+        .matching-card-item, .heart-card-element {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            user-select: none !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            z-index: 20 !important;
+        }
+        .play-area, .matching-board, #game-board-container {
+            min-height: 380px !important;
+            position: relative !important;
+            width: 100% !important;
+        }
         .game-card {
             transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s, border-color 0.2s, opacity 0.3s;
             cursor: pointer;
@@ -264,7 +279,9 @@ button, .btn, input, select, canvas {
     </div>
 
     <!-- KHU VỰC THẺ BÀI -->
-    <div id="game-board" class="w-full flex-1 relative z-10 overflow-hidden hidden mx-2 mb-2"></div>
+    <div id="game-board-container" class="play-area matching-board game-board-container w-full flex-1 relative z-10 overflow-hidden flex flex-col min-h-[380px]">
+        <div id="game-board" class="play-area matching-board game-board-container w-full h-full flex-1 relative z-10 overflow-hidden hidden mx-2 mb-2" style="min-height: 380px;"></div>
+    </div>
 
     <!-- MÀN HÌNH CHUYỂN ẢI -->
     <div id="transition-overlay" class="absolute inset-0 bg-[#064E3B]/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
@@ -994,39 +1011,24 @@ button, .btn, input, select, canvas {
                 : (GAME_LEVELS['1_F'] || {
                     title: "Cơ Bản (C.Thức)",
                     time: 60,
-                    pairs: [
-                        { id: 1, left: "\\sin^2 x + \\cos^2 x", right: "1" },
-                        { id: 2, left: "1 + \\tan^2 x", right: "\\frac{1}{\\cos^2 x}" },
-                        { id: 3, left: "1 + \\cot^2 x", right: "\\frac{1}{\\sin^2 x}" },
-                        { id: 4, left: "\\tan x \\cdot \\cot x", right: "1" }
-                    ]
+                    pairs: FALLBACK_TRIGONOMETRY_PAIRS
                 });
 
             let rawPairs = levelData.pairs;
             if (!Array.isArray(rawPairs) || rawPairs.length === 0) {
                 rawPairs = (GAME_LEVELS['1_F'] && Array.isArray(GAME_LEVELS['1_F'].pairs) && GAME_LEVELS['1_F'].pairs.length > 0)
                     ? GAME_LEVELS['1_F'].pairs
-                    : [
-                        { id: 1, left: "\\sin^2 x + \\cos^2 x", right: "1" },
-                        { id: 2, left: "1 + \\tan^2 x", right: "\\frac{1}{\\cos^2 x}" },
-                        { id: 3, left: "1 + \\cot^2 x", right: "\\frac{1}{\\sin^2 x}" },
-                        { id: 4, left: "\\tan x \\cdot \\cot x", right: "1" }
-                    ];
+                    : FALLBACK_TRIGONOMETRY_PAIRS;
             }
 
-            currentPairs = rawPairs.filter(p => p && (p.left || p.right)).map((p, idx) => ({
+            currentPairs = rawPairs.filter(p => p && (p.left || p.right || p.text)).map((p, idx) => ({
                 id: p.id || (idx + 1),
-                left: cleanPairMath(p.left || ''),
+                left: cleanPairMath(p.left || p.text || ''),
                 right: cleanPairMath(p.right || '')
             }));
 
             if (currentPairs.length === 0) {
-                currentPairs = [
-                    { id: 1, left: "\\sin^2 x + \\cos^2 x", right: "1" },
-                    { id: 2, left: "1 + \\tan^2 x", right: "\\frac{1}{\\cos^2 x}" },
-                    { id: 3, left: "1 + \\cot^2 x", right: "\\frac{1}{\\sin^2 x}" },
-                    { id: 4, left: "\\tan x \\cdot \\cot x", right: "1" }
-                ];
+                currentPairs = [...FALLBACK_TRIGONOMETRY_PAIRS];
             }
 
             timeLeft = Number(levelData.time) || 60;
@@ -1046,12 +1048,32 @@ button, .btn, input, select, canvas {
             }
 
             updateHeader();
-            overlay.classList.add('hidden'); 
-            document.getElementById('transition-overlay').classList.add('hidden');
-            headerPanel.classList.remove('hidden'); 
-            gameBoard.classList.remove('hidden');
             
-            renderAndSetupPhysics();
+            // Ẩn tất cả overlay để hiển thị bàn chơi
+            overlay.classList.add('hidden'); 
+            overlay.style.display = 'none';
+            const transOv = document.getElementById('transition-overlay');
+            if (transOv) { transOv.classList.add('hidden'); transOv.style.display = 'none'; }
+            const topicOv = document.getElementById('topic-selection-overlay');
+            if (topicOv) { topicOv.style.display = 'none'; }
+
+            // Hiển thị thanh thông tin và bàn chơi
+            headerPanel.classList.remove('hidden'); 
+            headerPanel.style.display = 'flex';
+            headerPanel.style.visibility = 'visible';
+
+            gameBoard.classList.remove('hidden');
+            gameBoard.style.display = 'block';
+            gameBoard.style.visibility = 'visible';
+            gameBoard.style.opacity = '1';
+
+            const boardContainer = document.getElementById('game-board-container');
+            if (boardContainer) {
+                boardContainer.style.display = 'flex';
+                boardContainer.style.visibility = 'visible';
+            }
+            
+            forceRenderMatchingCards();
 
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
@@ -1282,99 +1304,148 @@ button, .btn, input, select, canvas {
             }
         }
 
-        function renderAndSetupPhysics() {
-            gameBoard.innerHTML = '';
+        const FALLBACK_TRIGONOMETRY_PAIRS = [
+            { id: 1, left: "\\sin^2\\alpha + \\cos^2\\alpha", right: "1", text: "\\sin^2\\alpha + \\cos^2\\alpha" },
+            { id: 2, left: "\\tan\\alpha \\cdot \\cot\\alpha", right: "1", text: "\\tan\\alpha \\cdot \\cot\\alpha" },
+            { id: 3, left: "1 + \\tan^2\\alpha", right: "\\frac{1}{\\cos^2\\alpha}", text: "1 + \\tan^2\\alpha" },
+            { id: 4, left: "1 + \\cot^2\\alpha", right: "\\frac{1}{\\sin^2\\alpha}", text: "1 + \\cot^2\\alpha" },
+            { id: 5, left: "\\tan\\alpha", right: "\\frac{\\sin\\alpha}{\\cos\\alpha}", text: "\\tan\\alpha" },
+            { id: 6, left: "\\cot\\alpha", right: "\\frac{\\cos\\alpha}{\\sin\\alpha}", text: "\\cot\\alpha" }
+        ];
+        window.FALLBACK_TRIGONOMETRY_PAIRS = FALLBACK_TRIGONOMETRY_PAIRS;
+
+        function forceRenderMatchingCards(cardsArray) {
+            const playArea = document.querySelector('.play-area, #game-board-container, .matching-board') || document.getElementById('game-board');
+            if (!playArea) return;
+            playArea.innerHTML = ''; // Làm sạch trước khi vẽ
+            playArea.classList.remove('hidden');
+            playArea.style.display = 'block';
+            playArea.style.visibility = 'visible';
+            playArea.style.opacity = '1';
+
+            const boardContainer = document.getElementById('game-board-container');
+            if (boardContainer) {
+                boardContainer.style.display = 'flex';
+                boardContainer.style.visibility = 'visible';
+            }
+
+            // Nếu không truyền mảng hoặc mảng rỗng, tự nạp từ currentPairs hoặc FALLBACK_TRIGONOMETRY_PAIRS
+            let itemsToRender = [];
+            if (Array.isArray(cardsArray) && cardsArray.length > 0) {
+                itemsToRender = cardsArray.map((c, idx) => ({
+                    id: c.id !== undefined ? c.id : (Math.floor(idx / 2) + 1),
+                    isLeft: c.isLeft !== undefined ? c.isLeft : (idx % 2 === 0),
+                    text: c.text || c.content || '',
+                    content: c.content || c.text || ''
+                }));
+            } else {
+                const pairsSource = (Array.isArray(currentPairs) && currentPairs.length > 0) ? currentPairs : FALLBACK_TRIGONOMETRY_PAIRS;
+                pairsSource.forEach(pair => {
+                    itemsToRender.push({ id: pair.id, isLeft: true, text: pair.left, content: pair.left });
+                    itemsToRender.push({ id: pair.id, isLeft: false, text: pair.right, content: pair.right });
+                });
+                itemsToRender.sort(() => Math.random() - 0.5);
+            }
+
+            const boardRect = playArea.getBoundingClientRect();
+            const boardW = boardRect.width || playArea.clientWidth || window.innerWidth || 800;
+            const boardH = boardRect.height || playArea.clientHeight || window.innerHeight || 600;
+            const isMobile = boardW < 640;
+            const maxX = Math.max(80, boardW - 160);
+            const maxY = Math.max(80, boardH - 90);
+
             movingCards = [];
-            let allItems = [];
-            
-            currentPairs.forEach(pair => {
-                allItems.push({ id: pair.id, isLeft: true, content: pair.left });
-                allItems.push({ id: pair.id, isLeft: false, content: pair.right });
-            });
-            allItems.sort(() => Math.random() - 0.5);
 
-            allItems.forEach(item => {
-                const el = document.createElement('div');
-                const baseClasses = `game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]`;
-                el.dataset.baseClasses = baseClasses;
-                el.dataset.id = item.id;
-                el.dataset.side = item.isLeft ? 'left' : 'right';
+            itemsToRender.forEach((cardData, index) => {
+                const cardEl = document.createElement('div');
+                const isLeft = cardData.isLeft;
+                const pairId = cardData.id;
+                const rawFormula = cardData.text || cardData.content || '';
+                const cleanFormula = cleanPairMath(rawFormula);
                 
-                const icon = item.isLeft ? '💙' : '💖'; 
-                el.innerHTML = `<div class="flex items-center gap-1 sm:gap-2 pointer-events-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">${icon}</span><span class="math-content"></span></div>`;
-                
-                applyCardState(el, 'idle', item.isLeft);
-                el.addEventListener('click', () => handleSelect(item.isLeft, item.id, el));
-                el.style.opacity = "0"; 
-                gameBoard.appendChild(el);
+                cardEl.className = 'matching-card-item heart-card-element game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]';
+                cardEl.dataset.baseClasses = 'game-card font-bold border-[3px] backdrop-blur-sm rounded-[40px]';
+                cardEl.dataset.id = pairId;
+                cardEl.dataset.side = isLeft ? 'left' : 'right';
 
-                const mathSpan = el.querySelector('.math-content');
-                const tex = (item.content || '').trim();
-                let renderedWithKatex = false;
+                // Tọa độ khởi đầu phân bố đều, chống dính chùm
+                const posX = Math.max(10, Math.min(maxX, (40 + (index * 135) % maxX)));
+                const posY = Math.max(10, Math.min(maxY, (40 + (index * 75) % maxY)));
+
+                cardEl.style.position = 'absolute';
+                cardEl.style.left = posX + 'px';
+                cardEl.style.top = posY + 'px';
+                cardEl.style.opacity = '1';
+                cardEl.style.visibility = 'visible';
+
+                const icon = isLeft ? '💙' : '💖';
+                cardEl.innerHTML = `<div class="flex items-center gap-1 sm:gap-2 pointer-events-none select-none"><span class="text-xs sm:text-sm opacity-80 animate-pulse">${icon}</span><span class="math-content">\\(${cleanFormula}\\)</span></div>`;
+
+                applyCardState(cardEl, 'idle', isLeft);
+                cardEl.addEventListener('click', () => handleSelect(isLeft, pairId, cardEl));
+                playArea.appendChild(cardEl);
+
+                // Ưu tiên KaTeX để render tức thì không độ trễ
+                const mathSpan = cardEl.querySelector('.math-content');
                 if (typeof katex !== 'undefined' && mathSpan) {
                     try {
-                        katex.render(tex, mathSpan, { throwOnError: false, displayMode: false });
-                        renderedWithKatex = true;
-                    } catch(e) {
-                        console.warn('KaTeX fallback:', e);
-                    }
-                }
-                if (!renderedWithKatex && mathSpan) {
-                    mathSpan.textContent = `\\(${tex}\\)`;
-                    if (window.MathJax && window.MathJax.typesetPromise) {
-                        window.MathJax.typesetPromise([mathSpan]).catch(() => {});
-                    }
+                        katex.render(cleanFormula, mathSpan, { throwOnError: false, displayMode: false });
+                    } catch(e) {}
                 }
 
+                const speed = isMobile ? (0.28 + Math.random() * 0.35) : (0.55 + Math.random() * 0.65);
+                const angle = Math.random() * 2 * Math.PI;
+
                 movingCards.push({
-                    id: item.id,
-                    isLeft: item.isLeft,
-                    el: el,
+                    id: pairId,
+                    isLeft: isLeft,
+                    el: cardEl,
                     active: true,
-                    x: 0,
-                    y: 0,
-                    vx: 0,
-                    vy: 0,
-                    width: 0,
-                    height: 0,
-                    baseSpeed: 0
+                    x: posX,
+                    y: posY,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    width: cardEl.offsetWidth || 120,
+                    height: cardEl.offsetHeight || 44,
+                    baseSpeed: speed
                 });
             });
 
+            // Tự động gọi lại bộ dịch MathJax ngay sau khi chèn vào DOM
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([playArea]).catch(err => console.error("MathJax matching error:", err));
+            }
+
+            // Đo lại kích thước chuẩn sau khi KaTeX/MathJax hoàn tất layout
             setTimeout(() => {
-                const boardRect = gameBoard.getBoundingClientRect();
-                const boardW = boardRect.width || window.innerWidth;
-                const boardH = boardRect.height || window.innerHeight;
-                const isMobile = boardW < 640;
-
                 movingCards.forEach(c => {
-                    c.width = c.el.offsetWidth || 120;
-                    c.height = c.el.offsetHeight || 44;
-                    const maxX = Math.max(0, boardW - c.width);
-                    const maxY = Math.max(0, boardH - c.height);
-                    c.x = Math.random() * maxX;
-                    c.y = Math.random() * maxY;
-
-                    // Vận tốc lơ lửng nhẹ nhàng, êm ái trên di động
-                    const speed = isMobile ? (0.28 + Math.random() * 0.35) : (0.55 + Math.random() * 0.65);
-                    c.baseSpeed = speed;
-                    const angle = Math.random() * 2 * Math.PI;
-                    c.vx = Math.cos(angle) * speed;
-                    c.vy = Math.sin(angle) * speed;
-
-                    c.el.style.left = `${c.x}px`;
-                    c.el.style.top = `${c.y}px`;
-                    c.el.style.opacity = "1";
+                    if (c.el) {
+                        c.width = c.el.offsetWidth || 120;
+                        c.height = c.el.offsetHeight || 44;
+                    }
                 });
-                gameLoop(); 
-            }, 300);
+                if (gameState === 'playing') {
+                    gameLoop();
+                }
+            }, 100);
+        }
+
+        // Expose matching functions on window
+        window.forceRenderMatchingCards = forceRenderMatchingCards;
+        window.renderCards = forceRenderMatchingCards;
+        window.spawnMatchingCards = forceRenderMatchingCards;
+
+        function renderAndSetupPhysics() {
+            forceRenderMatchingCards();
         }
 
         function gameLoop() {
             if (gameState !== 'playing') return;
-            const boardRect = gameBoard.getBoundingClientRect();
-            const boardW = boardRect.width || window.innerWidth;
-            const boardH = boardRect.height || window.innerHeight;
+            const playArea = document.querySelector('.play-area, #game-board-container, .matching-board') || document.getElementById('game-board');
+            if (!playArea) return;
+            const boardRect = playArea.getBoundingClientRect();
+            const boardW = boardRect.width || playArea.clientWidth || window.innerWidth;
+            const boardH = boardRect.height || playArea.clientHeight || window.innerHeight;
 
             movingCards.forEach(c => {
                 if (!c.active) return; 
