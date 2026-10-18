@@ -263,10 +263,11 @@
             }
 
             /* Riêng các nút đáp án (A, B, C, D) cho phép hiển thị linh hoạt nhiều dòng */
-            .answer-btn, [class*="answer"], button[class*="option"], button[class*="answer"], .option-btn {
+            .answer-btn, [class*="answer"], [class*="option"], button[class*="choice"], button[class*="option"], button[class*="answer"], .option-btn {
                 width: 100% !important;
+                max-width: 100% !important;
                 height: auto !important;
-                min-height: 52px !important;
+                min-height: 50px !important;
                 padding: 10px 14px !important;
                 font-size: 0.85rem !important;
                 line-height: 1.35 !important;
@@ -280,13 +281,15 @@
             }
 
             .answer-text-container, .answer-text {
-                display: inline-block !important;
+                display: block !important;
                 width: 100% !important;
+                max-width: 100% !important;
                 height: auto !important;
                 min-height: 0 !important;
                 word-break: break-word !important;
                 overflow-wrap: break-word !important;
                 white-space: normal !important;
+                box-sizing: border-box !important;
             }
 
             /* Hỗ trợ công thức MathJax co giãn và chống tràn trên mobile */
@@ -434,6 +437,41 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     white-space: nowrap !important; /* Ép phân số và dấu căn \(\sqrt\) nằm thẳng một dòng */
     display: inline-block !important;
     overflow: visible !important;
+}
+@media screen and (max-width: 768px) {
+    .answer-btn, [class*="answer"], [class*="option"], button[class*="choice"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 50px !important;
+        padding: 10px 14px !important;
+        font-size: 0.85rem !important;
+        line-height: 1.35 !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        text-align: left !important;
+    }
+    .answer-text-container, .answer-text {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    .answer-btn mjx-container, [class*="answer"] mjx-container, [class*="option"] mjx-container {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        vertical-align: middle !important;
+    }
 }
 </style></head>
 <body class="flex flex-col md:flex-row h-[100dvh] max-h-[100dvh] w-screen bg-[#09090b] overflow-hidden">

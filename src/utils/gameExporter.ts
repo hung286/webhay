@@ -4639,16 +4639,28 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
               }
 
               /* Riêng các nút đáp án (A, B, C, D) cho phép hiển thị linh hoạt nhiều dòng */
-              .answer-btn, [class*="answer"], button[class*="option"], button[class*="answer"], .option-btn {
+              .answer-btn, [class*="answer"], [class*="option"], button[class*="choice"], button[class*="option"], button[class*="answer"], .option-btn {
                   width: 100% !important;
+                  max-width: 100% !important;
                   height: auto !important;
-                  min-height: 52px !important;
+                  min-height: 50px !important;
                   padding: 10px 14px !important;
                   font-size: 0.85rem !important;
                   line-height: 1.35 !important;
-                  text-align: left !important;
+                  white-space: normal !important;
+                  word-break: break-word !important;
+                  overflow-wrap: break-word !important;
+                  box-sizing: border-box !important;
                   display: flex !important;
                   align-items: center !important;
+                  text-align: left !important;
+              }
+
+              .answer-text-container, .answer-text {
+                  display: block !important;
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  height: auto !important;
                   white-space: normal !important;
                   word-break: break-word !important;
                   overflow-wrap: break-word !important;
