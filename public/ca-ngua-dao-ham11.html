@@ -167,6 +167,19 @@
             box-sizing: border-box !important;
         }
 
+        /* Khôi phục và ép hiển thị cố định khung câu hỏi Cờ Cá Ngựa */
+        #modal-container, #modal-container > div, #q-box, #a-box, .quiz-modal-card, .math-modal-box, .question-container, .quiz-box {
+            z-index: 99999 !important;
+        }
+        #modal-container:not(:empty) {
+            display: block !important;
+            visibility: visible !important;
+            position: absolute !important;
+            inset: 0 !important;
+            z-index: 99999 !important;
+            pointer-events: auto !important;
+        }
+
         /* Triệt tiêu hoàn toàn viền hình chữ nhật gỡ lỗi của MathJax */
         mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text {
             outline: none !important;
@@ -1194,7 +1207,11 @@ window.quizData = ([
 
         function renderModal() {
             const mc = document.getElementById('modal-container');
+            if (!mc) return;
             if (state.phase === 'question' && state.activeQuestion) {
+                mc.style.display = 'block';
+                mc.style.visibility = 'visible';
+                mc.style.zIndex = '99999';
                 const q = state.activeQuestion;
                 const cp = state.players[state.turn];
                 const imgHtml = q.imageUrl ? `<div class="mb-4 text-center"><img src="${q.imageUrl}" class="max-h-48 rounded-2xl mx-auto border border-white/20 shadow-lg object-contain" alt="Minh họa" /></div>` : '';
@@ -1262,6 +1279,9 @@ window.quizData = ([
                 typesetMath([document.getElementById('q-box')]);
 
             } else if (state.phase === 'show_answer') {
+                mc.style.display = 'block';
+                mc.style.visibility = 'visible';
+                mc.style.zIndex = '99999';
                 const q = state.activeQuestion;
                 const cp = state.players[state.turn];
                 const imgHtml = q.imageUrl ? `<div class="mb-4 text-center"><img src="${q.imageUrl}" class="max-h-40 rounded-2xl mx-auto border border-white/20 shadow-lg object-contain" alt="Minh họa" /></div>` : '';
@@ -1325,6 +1345,9 @@ window.quizData = ([
             } else {
                 mc.innerHTML = '';
             }
+            if (typeof window.restoreLudoQuestionDisplay === 'function') {
+                window.restoreLudoQuestionDisplay();
+            }
         }
 
         // Hàm trả lời Đúng/Sai: 0 = ĐÚNG, 1 = SAI
@@ -1358,6 +1381,9 @@ window.quizData = ([
                         state.activeQuestion = QUESTION_BANK[Math.floor(Math.random() * QUESTION_BANK.length)];
                         state.phase = 'question';
                         updateUI();
+                        if (typeof window.restoreLudoQuestionDisplay === 'function') {
+                            window.restoreLudoQuestionDisplay();
+                        }
                     }, 500);
                 }
             }, 60);
@@ -2320,6 +2346,50 @@ window.formatMathStringToTeX = formatMathStringToTeX;
         });
         obs.observe(document.documentElement, { childList: true, subtree: true });
     } catch(e) {}
+})();
+</script>
+
+<script id="__CO_CA_NGUA_QUESTION_DISPLAY_GUARD__">
+(function() {
+    function restoreLudoQuestionDisplay() {
+        // Khôi phục hiển thị tuyệt đối cho mọi khung câu hỏi / modal trắc nghiệm khi có lượt tung xúc xắc
+        const questionContainers = document.querySelectorAll('.question-container, .quiz-box, [class*="question"], [class*="quiz"], [id*="question"]');
+        questionContainers.forEach(qc => {
+            // Chỉ hiện khi trò chơi đang cần trả lời câu hỏi, không che khuất vĩnh viễn
+            if (qc.id === 'modal-container') {
+                if (typeof state !== 'undefined' && (state.phase === 'question' || state.phase === 'show_answer')) {
+                    qc.style.display = 'block';
+                    qc.style.visibility = 'visible';
+                    qc.style.zIndex = '99999';
+                }
+            } else if (qc.id === 'q-box' || qc.id === 'a-box' || qc.classList.contains('quiz-modal-card') || qc.classList.contains('math-modal-box')) {
+                qc.style.display = 'block';
+                qc.style.visibility = 'visible';
+                qc.style.zIndex = '99999';
+            } else {
+                if (qc.style.display === 'none' || qc.style.visibility === 'hidden') {
+                    qc.style.display = 'block';
+                    qc.style.visibility = 'visible';
+                }
+                qc.style.zIndex = '99999';
+            }
+        });
+        const mc = document.getElementById('modal-container');
+        if (mc && typeof state !== 'undefined' && (state.phase === 'question' || state.phase === 'show_answer')) {
+            mc.style.display = 'block';
+            mc.style.visibility = 'visible';
+            mc.style.zIndex = '99999';
+        }
+        console.log("Đã kích hoạt bảo vệ hiển thị khung câu hỏi Cờ Cá Ngựa.");
+    }
+    window.restoreLudoQuestionDisplay = restoreLudoQuestionDisplay;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(restoreLudoQuestionDisplay, 800);
+    });
+    window.addEventListener('load', () => {
+        setTimeout(restoreLudoQuestionDisplay, 800);
+    });
 })();
 </script>
 </body>

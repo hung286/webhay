@@ -4437,6 +4437,19 @@ window.toggleMobileFullscreen = function() {
 
     const caNguaScript = `
 <style>
+/* Khôi phục và ép hiển thị cố định khung câu hỏi Cờ Cá Ngựa */
+#modal-container, #modal-container > div, #q-box, #a-box, .quiz-modal-card, .math-modal-box, .question-container, .quiz-box {
+  z-index: 99999 !important;
+}
+#modal-container:not(:empty) {
+  display: block !important;
+  visibility: visible !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+}
+
 /* 1. KÍCH HOẠT THANH CUỘN LƯỚT CHẠM TỰ DO TRÊN MOBILE (SCROLL VIEWPORT FIX) */
 .game-play-screen, .ludo-main-layout, #game-container {
   width: 100% !important;
@@ -4689,6 +4702,38 @@ var questions = window.quizData;
     } catch(e) {}
   }
 
+  function restoreLudoQuestionDisplay() {
+    try {
+      const questionContainers = document.querySelectorAll('.question-container, .quiz-box, [class*="question"], [class*="quiz"], [id*="question"]');
+      questionContainers.forEach(qc => {
+        if ((qc as HTMLElement).id === 'modal-container') {
+          if (typeof (window as any).state !== 'undefined' && ((window as any).state.phase === 'question' || (window as any).state.phase === 'show_answer')) {
+            (qc as HTMLElement).style.display = 'block';
+            (qc as HTMLElement).style.visibility = 'visible';
+            (qc as HTMLElement).style.zIndex = '99999';
+          }
+        } else if ((qc as HTMLElement).id === 'q-box' || (qc as HTMLElement).id === 'a-box' || qc.classList.contains('quiz-modal-card') || qc.classList.contains('math-modal-box')) {
+          (qc as HTMLElement).style.display = 'block';
+          (qc as HTMLElement).style.visibility = 'visible';
+          (qc as HTMLElement).style.zIndex = '99999';
+        } else {
+          if ((qc as HTMLElement).style.display === 'none' || (qc as HTMLElement).style.visibility === 'hidden') {
+            (qc as HTMLElement).style.display = 'block';
+            (qc as HTMLElement).style.visibility = 'visible';
+          }
+          (qc as HTMLElement).style.zIndex = '99999';
+        }
+      });
+      const mc = document.getElementById('modal-container');
+      if (mc && typeof (window as any).state !== 'undefined' && ((window as any).state.phase === 'question' || (window as any).state.phase === 'show_answer')) {
+        mc.style.display = 'block';
+        mc.style.visibility = 'visible';
+        mc.style.zIndex = '99999';
+      }
+    } catch(e) {}
+  }
+  (window as any).restoreLudoQuestionDisplay = restoreLudoQuestionDisplay;
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       syncCaNguaData();
@@ -4696,6 +4741,8 @@ var questions = window.quizData;
       setupAdminButtons();
       setupDiceClickListeners();
       triggerMathTypeset();
+      restoreLudoQuestionDisplay();
+      setTimeout(restoreLudoQuestionDisplay, 800);
     });
   } else {
     syncCaNguaData();
@@ -4703,6 +4750,8 @@ var questions = window.quizData;
     setupAdminButtons();
     setupDiceClickListeners();
     triggerMathTypeset();
+    restoreLudoQuestionDisplay();
+    setTimeout(restoreLudoQuestionDisplay, 800);
   }
   window.addEventListener('load', function() {
     syncCaNguaData();
@@ -4710,8 +4759,13 @@ var questions = window.quizData;
     setupAdminButtons();
     setupDiceClickListeners();
     triggerMathTypeset();
+    restoreLudoQuestionDisplay();
+    setTimeout(restoreLudoQuestionDisplay, 800);
   });
-  setInterval(setupDiceClickListeners, 1000);
+  setInterval(() => {
+    setupDiceClickListeners();
+    restoreLudoQuestionDisplay();
+  }, 1000);
 })();
 </script>
 `;
