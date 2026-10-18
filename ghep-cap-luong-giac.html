@@ -410,7 +410,17 @@
       -webkit-tap-highlight-color: transparent !important;
       user-select: none !important;
   }
-    </style>
+    
+/* UNLOCK MENU MODAL POINTER EVENTS & SCROLL */
+#topic-selection-overlay, #topics-modal, #ghep-cap-topics-grid, .topic-card, .btn-modal-close-round, .close-menu {
+    pointer-events: auto !important;
+}
+#topic-selection-overlay, #topics-modal, #ghep-cap-topics-grid {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+</style>
 <style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.z-10{z-index:10}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.mx-2{margin-left:0.5rem;margin-right:0.5rem}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.mb-1{margin-bottom:0.25rem}.mb-3{margin-bottom:0.75rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-6{height:1.5rem}.h-screen{height:100vh}.max-h-\[95vh\]{max-height:95vh}.max-h-\[40vh\]{max-height:40vh}.w-6{width:1.5rem}.w-full{width:100%}.w-screen{width:100vw}.max-w-3xl{max-width:48rem}.max-w-4xl{max-width:56rem}.max-w-7xl{max-width:80rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.scale-100{--tw-scale-x:1;--tw-scale-y:1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes bounce{0%, 100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(0.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,0.2,1)}}.animate-bounce{animation:bounce 1s infinite}.cursor-pointer{cursor:pointer}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:9999px}.rounded-2xl{border-radius:1rem}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border-2{border-width:2px}.border-\[3px\]{border-width:3px}.border{border-width:1px}.border-b-4{border-bottom-width:4px}.border-b-\[8px\]{border-bottom-width:8px}.border-\[\#B3E5FC\]{--tw-border-opacity:1;border-color:rgb(179 229 252 / var(--tw-border-opacity, 1))}.border-\[\#D1D5DB\]{--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.border-\[\#FFCDD2\]{--tw-border-opacity:1;border-color:rgb(255 205 210 / var(--tw-border-opacity, 1))}.border-\[\#FFECB3\]{--tw-border-opacity:1;border-color:rgb(255 236 179 / var(--tw-border-opacity, 1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-emerald-300{--tw-border-opacity:1;border-color:rgb(110 231 183 / var(--tw-border-opacity, 1))}.border-emerald-100{--tw-border-opacity:1;border-color:rgb(209 250 229 / var(--tw-border-opacity, 1))}.border-teal-200{--tw-border-opacity:1;border-color:rgb(153 246 228 / var(--tw-border-opacity, 1))}.bg-\[\#064E3B\]\/70{background-color:rgb(6 78 59 / 0.7)}.bg-\[\#064E3B\]\/90{background-color:rgb(6 78 59 / 0.9)}.bg-\[\#E1F5FE\]{--tw-bg-opacity:1;background-color:rgb(225 245 254 / var(--tw-bg-opacity, 1))}.bg-\[\#FFEBEE\]{--tw-bg-opacity:1;background-color:rgb(255 235 238 / var(--tw-bg-opacity, 1))}.bg-\[\#FFF8E1\]{--tw-bg-opacity:1;background-color:rgb(255 248 225 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-indigo-500{--tw-bg-opacity:1;background-color:rgb(99 102 241 / var(--tw-bg-opacity, 1))}.bg-sky-500{--tw-bg-opacity:1;background-color:rgb(14 165 233 / var(--tw-bg-opacity, 1))}.bg-teal-50{--tw-bg-opacity:1;background-color:rgb(240 253 250 / var(--tw-bg-opacity, 1))}.bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-teal-100{--tw-gradient-from:#ccfbf1 var(--tw-gradient-from-position);--tw-gradient-to:rgb(204 251 241 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-teal-500{--tw-gradient-from:#14b8a6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(20 184 166 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-emerald-100{--tw-gradient-to:rgb(209 250 229 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #d1fae5 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-emerald-600{--tw-gradient-to:#059669 var(--tw-gradient-to-position)}.to-green-200{--tw-gradient-to:#bbf7d0 var(--tw-gradient-to-position)}.to-teal-700{--tw-gradient-to:#0f766e var(--tw-gradient-to-position)}.to-teal-500{--tw-gradient-to:#14b8a6 var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.object-cover{object-fit:cover}.p-2{padding:0.5rem}.p-4{padding:1rem}.p-1{padding:0.25rem}.p-3{padding:0.75rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.px-4{padding-left:1rem;padding-right:1rem}.px-8{padding-left:2rem;padding-right:2rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-2{padding-bottom:0.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-5xl{font-size:3rem;line-height:1}.text-6xl{font-size:3.75rem;line-height:1}.text-7xl{font-size:4.5rem;line-height:1}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[11px\]{font-size:11px}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.tracking-wide{letter-spacing:0.025em}.tracking-tight{letter-spacing:-0.025em}.text-\[\#0277BD\]{--tw-text-opacity:1;color:rgb(2 119 189 / var(--tw-text-opacity, 1))}.text-\[\#FF8F00\]{--tw-text-opacity:1;color:rgb(255 143 0 / var(--tw-text-opacity, 1))}.text-emerald-200{--tw-text-opacity:1;color:rgb(167 243 208 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-teal-800{--tw-text-opacity:1;color:rgb(17 94 89 / var(--tw-text-opacity, 1))}.shadow-\[0_20px_50px_rgba\(0\2c 0\2c 0\2c 0\.4\)\]{--tw-shadow:0 20px 50px rgba(0,0,0,0.4);--tw-shadow-colored:0 20px 50px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_15px_rgba\(0\2c 0\2c 0\2c 0\.1\)\]{--tw-shadow:0 4px 15px rgba(0,0,0,0.1);--tw-shadow-colored:0 4px 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_4px_15px_rgba\(16\2c 185\2c 129\2c 0\.3\)\]{--tw-shadow:0 4px 15px rgba(16,185,129,0.3);--tw-shadow-colored:0 4px 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_3px_0_\#0369a1\]{--tw-shadow:0 3px 0 #0369a1;--tw-shadow-colored:0 3px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_3px_0_\#3730a3\]{--tw-shadow:0 3px 0 #3730a3;--tw-shadow-colored:0 3px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_6px_0_\#047857\]{--tw-shadow:0 6px 0 #047857;--tw-shadow-colored:0 6px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.drop-shadow-sm{--tw-drop-shadow:drop-shadow(0 1px 1px rgb(0 0 0 / 0.05));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.drop-shadow-xl{--tw-drop-shadow:drop-shadow(0 20px 13px rgb(0 0 0 / 0.03)) drop-shadow(0 8px 5px rgb(0 0 0 / 0.08));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-indigo-600:hover{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-600:hover{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.hover\:from-teal-500:hover{--tw-gradient-from:#14b8a6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(20 184 166 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-emerald-500:hover{--tw-gradient-to:#10b981 var(--tw-gradient-to-position)}.focus\:border-emerald-500:focus{--tw-border-opacity:1;border-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:translate-y-\[3px\]:active{--tw-translate-y:3px;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:translate-y-\[6px\]:active{--tw-translate-y:6px;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.active\:shadow-none:active{--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}@media (min-width: 640px){.sm\:flex{display:flex}.sm\:h-8{height:2rem}.sm\:max-h-none{max-height:none}.sm\:w-8{width:2rem}.sm\:w-auto{width:auto}.sm\:flex-row{flex-direction:row}.sm\:gap-2{gap:0.5rem}.sm\:gap-4{gap:1rem}.sm\:gap-3{gap:0.75rem}.sm\:p-3{padding:0.75rem}.sm\:p-4{padding:1rem}.sm\:p-8{padding:2rem}.sm\:px-3{padding-left:0.75rem;padding-right:0.75rem}.sm\:px-4{padding-left:1rem;padding-right:1rem}.sm\:px-5{padding-left:1.25rem;padding-right:1.25rem}.sm\:py-2{padding-top:0.5rem;padding-bottom:0.5rem}.sm\:py-3{padding-top:0.75rem;padding-bottom:0.75rem}.sm\:py-4{padding-top:1rem;padding-bottom:1rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-6xl{font-size:3.75rem;line-height:1}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xs{font-size:0.75rem;line-height:1rem}}@media (min-width: 768px){.md\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}}</style>
     <script>
         window.MathJax = {
@@ -550,8 +560,8 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
         </div>
 
         <!-- NÚT BẮT ĐẦU CHƠI TRÊN MENU CHUYÊN ĐỀ -->
-        <button id="btn-start-topic-menu" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-teal-500 hover:to-emerald-500 text-white font-black py-3 sm:py-3.5 px-6 rounded-xl text-base sm:text-lg shadow-[0_4px_15px_rgba(16,185,129,0.4)] border-2 border-emerald-300 transition-all cursor-pointer mb-3">
-          🚀 BẮT ĐẦU CHƠI (0 mục đã chọn)
+        <button id="btn-start-topic-menu" onclick="window.startMultiTopicsGame()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-teal-500 hover:to-emerald-500 text-white font-black py-3 sm:py-3.5 px-6 rounded-xl text-base sm:text-lg shadow-[0_4px_15px_rgba(16,185,129,0.4)] border-2 border-emerald-300 transition-all cursor-pointer mb-3">
+          🚀 BẮT ĐẦU CHƠI CÁC CHỦ ĐỀ ĐÃ CHỌN ➡️
         </button>
 
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 14px; font-size: 12px; color: #a7f3d0; font-weight: 600; flex-wrap: wrap; gap: 8px;">
@@ -874,6 +884,8 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
             const topicsModal = document.getElementById('topics-modal');
             if (topicsModal) {
                 topicsModal.style.display = 'block';
+                topicsModal.style.visibility = 'visible';
+                topicsModal.style.pointerEvents = 'auto';
             }
             const victoryOverlay = document.getElementById('overlay');
             if (victoryOverlay) {
@@ -883,10 +895,12 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
             const overlay = document.getElementById('topic-selection-overlay') || document.querySelector('.topics-selection-wrapper');
             if (overlay) {
                 overlay.style.display = 'flex';
+                overlay.style.visibility = 'visible';
+                overlay.style.pointerEvents = 'auto';
                 overlay.classList.add('active');
             }
-            if (typeof window.initAccurateMultiSelect === 'function') {
-                window.initAccurateMultiSelect();
+            if (typeof window.bindTopicCardActions === 'function') {
+                window.bindTopicCardActions();
             }
         };
 
@@ -899,6 +913,14 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
             const topicsModal = document.getElementById('topics-modal');
             if (topicsModal) {
                 topicsModal.style.display = 'none';
+            }
+            if (!window.gameStartTimeSet) {
+                const mainOverlay = document.getElementById('overlay');
+                if (mainOverlay) {
+                    mainOverlay.classList.remove('hidden');
+                    mainOverlay.style.display = 'flex';
+                    mainOverlay.style.visibility = 'visible';
+                }
             }
         };
 
@@ -1176,6 +1198,26 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
                     }
                 });
 
+                const ctBtn = card.querySelector('.btn-topic-mode-ct');
+                if (ctBtn) {
+                    ctBtn.addEventListener('click', (e) => {
+                        e.preventDefault(); e.stopPropagation();
+                        window.closeGhepCapTopicMenu();
+                        const ov = document.getElementById('overlay');
+                        if (ov) { ov.style.display = 'none'; ov.classList.add('hidden'); }
+                        window.startMatchingLevel(ctBtn.getAttribute('data-key'));
+                    });
+                }
+                const vdBtn = card.querySelector('.btn-topic-mode-vd');
+                if (vdBtn) {
+                    vdBtn.addEventListener('click', (e) => {
+                        e.preventDefault(); e.stopPropagation();
+                        window.closeGhepCapTopicMenu();
+                        const ov = document.getElementById('overlay');
+                        if (ov) { ov.style.display = 'none'; ov.classList.add('hidden'); }
+                        window.startMatchingLevel(vdBtn.getAttribute('data-key'));
+                    });
+                }
                 const playBtn = card.querySelector('.btn-play-single-topic');
                 if (playBtn) {
                     const playAction = (e) => {
@@ -3306,439 +3348,134 @@ if (typeof window !== 'undefined') {
         };
 
         window.startMatchingLevel = function(target) {
+            // Xóa triệt để các cấu hình cũ trong campaign và localStorage để không bị ép vào chủ đề 1
+            if (typeof CAMPAIGN_STAGES !== 'undefined') {
+                CAMPAIGN_STAGES.length = 0;
+            }
             try {
-                let mappedStages = [];
-                if (!target || target === 'campaign') {
-                    const savedTopics = localStorage.getItem('matching_selected_topics');
-                    if (savedTopics) {
-                        const parsed = JSON.parse(savedTopics);
-                        if (Array.isArray(parsed) && parsed.length > 0) {
-                            mappedStages = parsed.map(id => {
-                                const num = parseInt(id) || 1;
-                                const grp = Math.ceil(num / 2);
-                                const suffix = (num % 2 === 1) ? 'F' : 'E';
-                                return `${grp}_${suffix}`;
-                            });
-                        }
-                    }
-                }
-                if (mappedStages.length > 0 && typeof CAMPAIGN_STAGES !== 'undefined') {
-                    CAMPAIGN_STAGES.length = 0;
-                    CAMPAIGN_STAGES.push(...mappedStages);
-                    currentCampaignIndex = 0;
-                    totalCampaignScore = 0;
-                    totalCampaignTimeUsed = 0;
-                } else if (typeof CAMPAIGN_STAGES !== 'undefined') {
-                    CAMPAIGN_STAGES.length = 0;
-                }
+                localStorage.removeItem('matching_selected_topics');
+                localStorage.removeItem('matching_custom_items');
             } catch(e) {}
 
-            if (typeof window.startLevel === 'function') {
-                if (typeof CAMPAIGN_STAGES !== 'undefined' && CAMPAIGN_STAGES.length > 0) {
-                    window.startLevel('campaign');
+            let stageKey = '1_F';
+
+            if (typeof target === 'string') {
+                if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[target]) {
+                    stageKey = target;
+                } else if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[target + '_F']) {
+                    stageKey = target + '_F';
                 } else {
-                    let stageKey = target;
-                    if (typeof target === 'number') {
+                    stageKey = target;
+                }
+            } else if (typeof target === 'number') {
+                if (typeof ALL_16_TOPICS !== 'undefined') {
+                    const found = ALL_16_TOPICS.find(t => t.id === target) || ALL_16_TOPICS[target - 1];
+                    if (found && typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[found.key]) {
+                        stageKey = found.key;
+                    } else {
                         const grp = Math.ceil(target / 2);
                         const suffix = (target % 2 === 1) ? 'F' : 'E';
                         stageKey = `${grp}_${suffix}`;
-                    } else if (typeof target === 'string' && !target.endsWith('_F') && !target.endsWith('_E')) {
-                        const num = parseInt(target) || 1;
-                        const grp = Math.ceil(num / 2);
-                        const suffix = (num % 2 === 1) ? 'F' : 'E';
-                        stageKey = `${grp}_${suffix}`;
                     }
-                    window.startLevel(stageKey);
+                } else {
+                    const grp = Math.ceil(target / 2);
+                    const suffix = (target % 2 === 1) ? 'F' : 'E';
+                    stageKey = `${grp}_${suffix}`;
                 }
+            }
+
+            console.log("Khởi động màn chơi với stageKey chính xác:", stageKey, "từ tham số target:", target);
+            if (typeof window.startLevel === 'function') {
+                window.startLevel(stageKey);
             } else if (typeof startGame === 'function') {
                 startGame();
             }
         };
+
+        window.initMatchingGame = window.startMatchingLevel;
+        window.loadLevel = window.startMatchingLevel;
     }
 
     // ==========================================
-    // MODULE TRUE MULTI-SELECT TOGGLE TRÊN MENU CHUYÊN ĐỀ & MỞ KHÓA NÚT BẮT ĐẦU
+    // TIÊM ĐOẠN SCRIPT LÀM SẠCH VÀ GẮN ĐÚNG THAM SỐ LEVEL MAPPING (CHỈ THỊ CẤP CỨU)
     // ==========================================
     (function() {
-        let selectedConfigSet = new Set(); // Lưu danh sách các mục được chọn độc lập
+        function setupCleanTopicMenu() {
+            // 1. Dọn dẹp các module chèn lỗi làm kẹt menu
+            const trashElements = document.querySelectorAll('#true-independent-multiselect-panel, #menu-multiselect-panel, #isolated-multiselect-modal, #injected-menu-toolbar, #isolated-multiselect-trigger-btn, .clean-topic-chk, .independent-topic-chk, .menu-topic-chk');
+            trashElements.forEach(el => el.remove());
 
-        function updateLaunchButtonLabel(count) {
-            const launchButtons = document.querySelectorAll('button, div[class*="btn"]');
-            launchButtons.forEach(b => {
-                const txt = b.innerText || "";
-                if (txt.includes('Bắt đầu') || txt.includes('Vượt') || txt.includes('Chơi Chế Độ') || txt.includes('BẬT ĐẦU') || txt.includes('CHƠI')) {
-                    if (!txt.includes('NGAY') && !txt.includes('CÔNG THỨC')) {
-                        b.innerText = `🚀 BẮT ĐẦU CHƠI (${count} mục đã chọn)`;
-                    }
-                }
-            });
-            const countBadge = document.getElementById('lobby-chk-count');
-            if (countBadge) countBadge.innerText = `${count}/16 Đã Chọn`;
-        }
-        window.updateLaunchButtonLabel = updateLaunchButtonLabel;
-
-        function scanAndBindMultiSelect() {
-            // Quét các nút chọn trong bảng menu chuyên đề hoặc sảnh chính
-            const allActionBtns = document.querySelectorAll('.topic-btn, button, [class*="btn"], [class*="select"]');
-
-            allActionBtns.forEach((btn) => {
-                const label = btn.innerText || btn.textContent || "";
-                if (label.includes('C.Thức') || label.includes('Ví Dụ') || label.includes('Chơi Công Thức') || label.includes('Chơi Ví Dụ')) {
-                    // Xác định chuyên đề số mấy
-                    const cardBox = btn.closest('.topic-card, .level-box, [class*="card"], [class*="item"], div');
-                    let topicNo = 1;
-                    if (cardBox) {
-                        const matchNum = cardBox.innerText.match(/CHUYÊN ĐỀ\s*(\d+)/i) || cardBox.innerText.match(/(\d+)\./);
-                        if (matchNum) topicNo = parseInt(matchNum[1]);
-                    }
-
-                    const uniqueToken = `top_${topicNo}_${label.includes('Ví Dụ') || label.includes('Ví Dụ Số') ? 'vd' : 'ct'}`;
-
-                    btn.style.cursor = 'pointer';
-                    btn.style.transition = 'all 0.2s ease';
-
-                    // Khôi phục giao diện nếu đã chọn
-                    if (selectedConfigSet.has(uniqueToken)) {
-                        btn.style.border = '2px solid #38bdf8';
-                        btn.style.background = '#0284c7';
-                        btn.classList.add('active-toggle-item');
-                    } else {
-                        btn.style.border = '';
-                        btn.style.background = '';
-                        btn.classList.remove('active-toggle-item');
-                    }
-
-                    btn.onclick = function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        if (selectedConfigSet.has(uniqueToken)) {
-                            selectedConfigSet.delete(uniqueToken);
-                            btn.style.border = '';
-                            btn.style.background = '';
-                            btn.classList.remove('active-toggle-item');
-                        } else {
-                            selectedConfigSet.add(uniqueToken);
-                            btn.style.border = '2px solid #38bdf8';
-                            btn.style.background = '#0284c7';
-                            btn.classList.add('active-toggle-item');
-                        }
-
-                        // Đồng bộ trạng thái cho các nút khác cùng chuyên đề/loại
-                        allActionBtns.forEach(ob => {
-                            const oLabel = ob.innerText || ob.textContent || "";
-                            if (oLabel.includes('C.Thức') || oLabel.includes('Ví Dụ') || oLabel.includes('Chơi Công Thức') || oLabel.includes('Chơi Ví Dụ')) {
-                                const oBox = ob.closest('.topic-card, .level-box, [class*="card"], [class*="item"], div');
-                                let oNo = 1;
-                                if (oBox) {
-                                    const m = oBox.innerText.match(/CHUYÊN ĐỀ\s*(\d+)/i) || oBox.innerText.match(/(\d+)\./);
-                                    if (m) oNo = parseInt(m[1]);
-                                }
-                                const oToken = `top_${oNo}_${oLabel.includes('Ví Dụ') || oLabel.includes('Ví Dụ Số') ? 'vd' : 'ct'}`;
-                                if (oToken === uniqueToken) {
-                                    if (selectedConfigSet.has(uniqueToken)) {
-                                        ob.style.border = '2px solid #38bdf8';
-                                        ob.style.background = '#0284c7';
-                                        ob.classList.add('active-toggle-item');
-                                    } else {
-                                        ob.style.border = '';
-                                        ob.style.background = '';
-                                        ob.classList.remove('active-toggle-item');
-                                    }
-                                }
-                            }
-                        });
-
-                        updateLaunchButtonLabel(selectedConfigSet.size);
-                    };
+            // 2. Mở khóa toàn bộ các nút bấm, thanh cuộn và nút đóng bên trong bảng Menu Modal Chuyên Đề
+            const modalBoxes = document.querySelectorAll('.modal-content, [class*="modal"], [class*="popup"], .lobby-wrapper, #topics-modal, #topic-selection-overlay');
+            modalBoxes.forEach(modalBox => {
+                if (modalBox) {
+                    modalBox.style.pointerEvents = 'auto';
+                    modalBox.style.overflowY = 'auto';
+                    modalBox.style.webkitOverflowScrolling = 'touch';
                 }
             });
 
-            // Gắn sự kiện kích hoạt bắt đầu chơi
-            const startTriggers = document.querySelectorAll('button, div[class*="btn"]');
-            startTriggers.forEach(btn => {
-                const txt = btn.innerText || "";
-                if (txt.includes('BẮT ĐẦU') || txt.includes('Chơi Chế Độ Vượt') || txt.includes('Vượt 16 ải')) {
-                    btn.onclick = function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        if (selectedConfigSet.size === 0) {
-                            // Nếu chưa chọn gì mà bấm bắt đầu, mặc định chọn mục đầu tiên
-                            selectedConfigSet.add('top_1_ct');
-                        }
-
-                        const finalArray = Array.from(selectedConfigSet);
-                        console.log("Tiến hành chơi với các mục:", finalArray);
-                        localStorage.setItem('matching_custom_items', JSON.stringify(finalArray));
-
-                        // Ẩn sảnh chờ, hiển thị bàn chơi
-                        const lobbyScreens = document.querySelectorAll('.selection-screen-wrapper, .lobby-wrapper, #setup-container, [class*="modal"], #overlay, #topic-selection-overlay');
-                        lobbyScreens.forEach(l => {
-                            l.style.display = 'none';
-                            l.style.visibility = 'hidden';
-                        });
-
-                        const ovTopic = document.getElementById('topic-selection-overlay');
-                        if (ovTopic) {
-                            ovTopic.style.display = 'none';
-                            ovTopic.classList.remove('active');
-                        }
-                        const ovMain = document.getElementById('overlay');
-                        if (ovMain) {
-                            ovMain.style.display = 'none';
-                            ovMain.classList.add('hidden');
-                        }
-
-                        const gameBoards = document.querySelectorAll('.play-area, #game-board, .matching-board');
-                        gameBoards.forEach(b => {
-                            b.style.display = 'block';
-                            b.style.visibility = 'visible';
-                        });
-
-                        const hp = document.getElementById('header-panel');
-                        if (hp) {
-                            hp.classList.remove('hidden');
-                            hp.style.display = 'flex';
-                            hp.style.visibility = 'visible';
-                        }
-
-                        window.gameStartTimeSet = true;
-                        if (typeof window.startMatchingLevel === 'function') {
-                            window.startMatchingLevel(1);
-                        } else if (typeof startGame === 'function') {
-                            startGame();
-                        } else {
-                            window.location.reload();
-                        }
-                    };
-                }
+            // Mở khóa nút đóng (dấu X)
+            const closeButtons = Array.from(document.querySelectorAll('button[class*="close"], [class*="exit"], .close-btn, .fa-times, button')).filter(btn => {
+                const t = (btn.innerText || btn.textContent || "").trim();
+                return btn.className.includes('close') || btn.className.includes('exit') || t.includes('✕') || t.includes('Đóng') || t.includes('X');
             });
 
-            updateLaunchButtonLabel(selectedConfigSet.size);
-        }
-
-        window.initAccurateMultiSelect = scanAndBindMultiSelect;
-
-        window.addEventListener('load', () => {
-            setTimeout(scanAndBindMultiSelect, 1100);
-        });
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            setTimeout(scanAndBindMultiSelect, 400);
-        }
-    })();
-
-    // ==========================================
-    // BƯỚC 3: XÂY DỰNG MODULE CHỌN NHIỀU CHỦ ĐỀ (MULTI-SELECT) ĐỘC LẬP HOÀN TOÀN, KHÔNG XUNG ĐỘT
-    // ==========================================
-    (function() {
-        function initIsolatedMultiSelect() {
-            // 1. Dọn dẹp sạch sẽ các thành phần bị chèn lỗi trên sảnh chính (như các checkbox ở thanh tiêu đề xanh ở Ảnh 43)
-            const corruptedInjections = document.querySelectorAll('#true-independent-multiselect-panel, #menu-multiselect-panel, #injected-menu-toolbar, .clean-topic-chk, .independent-topic-chk');
-            corruptedInjections.forEach(el => el.remove());
-
-            // Đảm bảo sảnh chờ gốc và các nút gốc hiển thị hoàn toàn bình thường
-            const lobbyWrapper = document.querySelector('.selection-screen-wrapper, .lobby-wrapper, #setup-container');
-            if (lobbyWrapper) {
-                const originalElements = lobbyWrapper.querySelectorAll('input[type="text"], button, .topic-card, .level-box');
-                originalElements.forEach(el => {
-                    el.style.display = '';
-                    el.style.visibility = '';
-                });
-            }
-
-            // 2. Tạo một Nút điều hướng độc lập "Mở Chế Độ Chọn Nhiều Chủ Đề Tùy Ý" chèn vào góc sảnh chờ gốc mà không phá vỡ layout
-            if (!document.getElementById('isolated-multiselect-trigger-btn') && lobbyWrapper) {
-                const triggerBtn = document.createElement('button');
-                triggerBtn.id = 'isolated-multiselect-trigger-btn';
-                triggerBtn.style.cssText = 'display: block; width: 100%; max-width: 400px; margin: 12px auto; background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.4); text-align: center; z-index: 999;';
-                triggerBtn.innerHTML = '✨ Mở Chế Độ Chọn Nhiều Chủ Đề Tùy Ý (Multi-Select)';
-                
-                // Chèn ngay dưới ô nhập tên hoặc trên cùng của sảnh chờ
-                const nameInputBox = lobbyWrapper.querySelector('input[type="text"], .player-name-field') || lobbyWrapper.firstElementChild;
-                if (nameInputBox) {
-                    nameInputBox.parentNode.insertBefore(triggerBtn, nameInputBox);
-                } else {
-                    lobbyWrapper.prepend(triggerBtn);
-                }
-
-                // Tạo Popup Modal độc lập chứa giao diện chọn nhiều chủ đề
-                const modalOverlay = document.createElement('div');
-                modalOverlay.id = 'isolated-multiselect-modal';
-                modalOverlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 999999; padding: 20px; box-sizing: border-box;';
-                modalOverlay.innerHTML = `
-                    <div style="background: #0f172a; border: 2px solid #38bdf8; width: 100%; max-width: 600px; max-height: 85vh; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.6); color: #fff;">
-                        <div style="padding: 16px; background: #1e293b; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;">
-                            <h3 style="margin: 0; color: #38bdf8; font-size: 1.2rem;">🎯 Chọn Nhiều Chủ Đề Tùy Ý (Độc Lập)</h3>
-                            <button id="iso-close-modal" style="background: #ef4444; color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 1rem;">✕</button>
-                        </div>
-                        <div style="padding: 16px; overflow-y: auto; flex: 1; text-align: left;">
-                            <div style="margin-bottom: 12px; display: flex; gap: 8px;">
-                                <button id="iso-select-all" style="background: #0ea5e9; border: none; color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Chọn tất cả</button>
-                                <button id="iso-clear-all" style="background: #64748b; border: none; color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Bỏ chọn hết</button>
-                            </div>
-                            <div id="iso-checkboxes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;"></div>
-                        </div>
-                        <div style="padding: 16px; background: #1e293b; border-top: 1px solid #334155; text-align: center;">
-                            <button id="iso-start-game-btn" style="width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer;">🚀 BẮT ĐẦU CHƠI (Đã chọn: 16/16)</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modalOverlay);
-
-                // Sinh ra 16 checkbox tương ứng với 16 chủ đề
-                const gridContainer = document.getElementById('iso-checkboxes-grid');
-                const topicTitlesList = [
-                    "1. C.Thức Cơ Bản", "2. Cung Liên Kết", "3. Công Thức Cộng", "4. CT Nhân Đôi",
-                    "5. CT Hạ Bậc", "6. CT Nhân Ba", "7. Tổng Thành Tích", "8. Tích Thành Tổng",
-                    "9. Pt Lượng Giác Cơ Bản", "10. Biến Đổi Nâng Cao", "11. Giá Trị Lượng Giác", "12. Hệ thức lượng",
-                    "13. Ôn Tập Chương I", "14. Ôn Tập Chương II", "15. Tổng Hợp 1", "16. Thử Thách Cuối"
-                ];
-
-                topicTitlesList.forEach((tName, idx) => {
-                    const lbl = document.createElement('label');
-                    lbl.style.cssText = 'display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;';
-                    lbl.innerHTML = `<input type="checkbox" class="iso-topic-chk" value="${idx + 1}" style="margin-right: 10px; transform: scale(1.3); cursor: pointer; accent-color: #38bdf8;" checked> ${tName}`;
-                    gridContainer.appendChild(lbl);
-                });
-
-                // Xử lý sự kiện mở/đóng modal độc lập
-                triggerBtn.onclick = (e) => {
-                    e.preventDefault();
-                    modalOverlay.style.display = 'flex';
-                };
-
-                document.getElementById('iso-close-modal').onclick = (e) => {
-                    e.preventDefault();
-                    modalOverlay.style.display = 'none';
-                };
-
-                // Cập nhật đếm số lượng
-                const updateIsoCount = () => {
-                    const activeNum = modalOverlay.querySelectorAll('.iso-topic-chk:checked').length;
-                    document.getElementById('iso-start-game-btn').innerText = `🚀 BẮT ĐẦU CHƠI (Đã chọn: ${activeNum}/16 chủ đề)`;
-                };
-
-                modalOverlay.querySelectorAll('.iso-topic-chk').forEach(c => c.onchange = updateIsoCount);
-
-                document.getElementById('iso-select-all').onclick = (e) => {
-                    e.preventDefault();
-                    modalOverlay.querySelectorAll('.iso-topic-chk').forEach(c => c.checked = true);
-                    updateIsoCount();
-                };
-
-                document.getElementById('iso-clear-all').onclick = (e) => {
-                    e.preventDefault();
-                    modalOverlay.querySelectorAll('.iso-topic-chk').forEach(c => c.checked = false);
-                    updateIsoCount();
-                };
-
-                // Nút bắt đầu chơi của module độc lập
-                document.getElementById('iso-start-game-btn').onclick = (e) => {
+            closeButtons.forEach(btn => {
+                btn.style.pointerEvents = 'auto';
+                btn.style.cursor = 'pointer';
+                btn.onclick = function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-
-                    const checkedElements = modalOverlay.querySelectorAll('.iso-topic-chk:checked');
-                    let chosenIds = Array.from(checkedElements).map(c => parseInt(c.value));
-                    if (chosenIds.length === 0) {
-                        alert("Vui lòng chọn ít nhất 1 chủ đề để chơi!");
-                        return;
+                    const parentModal = btn.closest('.modal-content, [class*="modal"], [class*="popup"], div[style*="position: fixed"]');
+                    if (parentModal) parentModal.style.display = 'none';
+                    const ovTopic = document.getElementById('topic-selection-overlay');
+                    if (ovTopic) {
+                        ovTopic.style.display = 'none';
+                        ovTopic.classList.remove('active');
                     }
-
-                    console.log("Khởi chạy game độc lập với các chủ đề:", chosenIds);
-                    localStorage.setItem('matching_selected_topics', JSON.stringify(chosenIds));
-
-                    // Đóng modal và ẩn sảnh chờ, mở bàn chơi
-                    modalOverlay.style.display = 'none';
-                    if (lobbyWrapper) lobbyWrapper.style.display = 'none';
-
-                    const ovMain = document.getElementById('overlay');
-                    if (ovMain) {
-                        ovMain.style.display = 'none';
-                        ovMain.classList.add('hidden');
-                    }
-
-                    const gameBoardArea = document.querySelector('.play-area, #game-board, .matching-board');
-                    if (gameBoardArea) {
-                        gameBoardArea.style.display = 'block';
-                        gameBoardArea.style.visibility = 'visible';
-                    }
-
-                    const hp = document.getElementById('header-panel');
-                    if (hp) {
-                        hp.classList.remove('hidden');
-                        hp.style.display = 'flex';
-                        hp.style.visibility = 'visible';
-                    }
-
-                    window.gameStartTimeSet = true;
-                    if (typeof window.startMatchingLevel === 'function') {
-                        window.startMatchingLevel(chosenIds[0]);
-                    } else if (typeof startGame === 'function') {
-                        startGame();
-                    } else {
-                        window.location.reload();
+                    if (!window.gameStartTimeSet) {
+                        const mainOverlay = document.getElementById('overlay');
+                        if (mainOverlay) {
+                            mainOverlay.classList.remove('hidden');
+                            mainOverlay.style.display = 'flex';
+                            mainOverlay.style.visibility = 'visible';
+                        }
                     }
                 };
-            }
-        }
+            });
 
-        window.addEventListener('load', () => {
-            setTimeout(initIsolatedMultiSelect, 1000);
-        });
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            setTimeout(initIsolatedMultiSelect, 300);
-        }
-    })();
-
-    
-    // ==========================================
-    // BƯỚC 1: TIÊM NÚT THOÁT (VỀ SẢNH CHỜ) TRONG BÀN CHƠI (INGAME)
-    // ==========================================
-    (function() {
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const topHeader = document.querySelector('.play-area, header, .game-header, [class*="header"]');
-                if (topHeader && !document.getElementById('ingame-exit-btn')) {
-                    const exitBtn = document.createElement('button');
-                    exitBtn.id = 'ingame-exit-btn';
-                    exitBtn.style.cssText = 'background: #ef4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; margin-left: 10px; box-shadow: 0 2px 6px rgba(239,68,68,0.4);';
-                    exitBtn.innerHTML = '🏠 Về sảnh chờ';
-                    exitBtn.onclick = (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        window.location.reload(); // Reload nhẹ nhàng về sảnh chờ
-                    };
-                    topHeader.prepend(exitBtn);
+            // 3. Gắn chuẩn xác sự kiện chọn chuyên đề cho từng card (1 đến 16)
+            const allTopicCards = document.querySelectorAll('.topic-card, .level-box, [class*="card"], [class*="item"]');
+            
+            allTopicCards.forEach((card, index) => {
+                let determinedId = index + 1;
+                const textContent = card.innerText || "";
+                const matchDigit = textContent.match(/CHUYÊN ĐỀ\s*(\d+)/i) || textContent.match(/(\d+)\./);
+                if (matchDigit && matchDigit[1]) {
+                    determinedId = parseInt(matchDigit[1]);
                 }
-            }, 1200);
-        });
-    })();
 
-    
-    // ==========================================
-    // BƯỚC 2: GHI ĐÈ HÀM BẮT SỰ KIỆN CHỌN CHUYÊN ĐỀ TRONG MENU GỐC ĐỂ TRUYỀN CHUẨN ID LEVEL
-    // ==========================================
-    (function() {
-        // Ghi đè hàm bắt sự kiện chọn chuyên đề trong menu gốc để truyền chuẩn ID level
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const menuCards = document.querySelectorAll('.topic-card, .level-box, [class*="card"], [class*="item"]');
-                menuCards.forEach((card, idx) => {
-                    if (card.closest('#isolated-multiselect-modal')) return;
-                    const targetLevelId = idx + 1;
-                    const playBtns = card.querySelectorAll('button, a, [class*="btn"]');
-                    playBtns.forEach(btn => {
-                        if (btn.classList.contains('close-menu') || btn.id.includes('close') || btn.innerText.includes('✕') || btn.innerText.includes('Đóng')) return;
-                        btn.onclick = function(e) {
+                const actionTriggers = card.querySelectorAll('button, a, [class*="btn"]');
+                
+                actionTriggers.forEach(trg => {
+                    const trgText = trg.innerText || "";
+                    if (trgText.includes('CHƠI') || trgText.includes('C.Thức') || trgText.includes('Ví Dụ') || trgText.includes('Ngay')) {
+                        
+                        trg.style.pointerEvents = 'auto';
+                        trg.style.cursor = 'pointer';
+
+                        trg.onclick = function(e) {
                             e.preventDefault();
                             e.stopPropagation();
-                            console.log("Kích hoạt đúng Level/Chuyên đề số:", targetLevelId);
 
-                            // Đóng menu modal nếu có
-                            const modal = card.closest('.modal-content, [class*="modal"], [class*="popup"]');
-                            if (modal) modal.style.display = 'none';
+                            console.log("Xác nhận người dùng chọn Chuyên Đề chính xác:", determinedId);
 
+                            // Ẩn tất cả các modal menu và sảnh chờ
+                            document.querySelectorAll('.modal-content, [class*="modal"], [class*="popup"], .selection-screen-wrapper, .lobby-wrapper, #setup-container').forEach(m => {
+                                m.style.display = 'none';
+                                m.style.visibility = 'hidden';
+                            });
                             const ovTopic = document.getElementById('topic-selection-overlay');
                             if (ovTopic) {
                                 ovTopic.style.display = 'none';
@@ -3750,13 +3487,11 @@ if (typeof window !== 'undefined') {
                                 ovMain.classList.add('hidden');
                             }
 
-                            const lobby = document.querySelector('.selection-screen-wrapper, .lobby-wrapper, #setup-container');
-                            if (lobby) lobby.style.display = 'none';
-
-                            const board = document.querySelector('.play-area, #game-board, .matching-board');
-                            if (board) {
-                                board.style.display = 'block';
-                                board.style.visibility = 'visible';
+                            // Hiển thị bàn chơi
+                            const boardArea = document.querySelector('.play-area, #game-board, .matching-board');
+                            if (boardArea) {
+                                boardArea.style.display = 'block';
+                                boardArea.style.visibility = 'visible';
                             }
 
                             const hp = document.getElementById('header-panel');
@@ -3768,21 +3503,64 @@ if (typeof window !== 'undefined') {
 
                             window.gameStartTimeSet = true;
 
-                            // Gọi hàm khởi tạo level chính xác
-                            const actualTarget = btn.getAttribute('data-key') || btn.dataset?.key || targetLevelId;
+                            // Trích xuất data-key nếu có (ví dụ 1_F, 1_E), nếu không dùng determinedId
+                            let explicitKey = trg.getAttribute('data-key') || trg.dataset?.key;
+                            if (!explicitKey) {
+                                if (trgText.includes('Ví Dụ')) {
+                                    explicitKey = `${determinedId}_E`;
+                                } else {
+                                    explicitKey = `${determinedId}_F`;
+                                }
+                            }
+
+                            // Gọi hàm khởi tạo game của project với đúng tham số
                             if (typeof window.startMatchingLevel === 'function') {
-                                window.startMatchingLevel(actualTarget);
+                                window.startMatchingLevel(explicitKey);
                             } else if (typeof window.initMatchingGame === 'function') {
-                                window.initMatchingGame(actualTarget);
+                                window.initMatchingGame(explicitKey);
+                            } else if (typeof loadLevel === 'function') {
+                                loadLevel(explicitKey);
                             } else {
-                                localStorage.setItem('matching_selected_topic_id', actualTarget);
+                                localStorage.setItem('matching_selected_topic_id', explicitKey);
                                 window.location.reload();
                             }
                         };
-                    });
+                    }
                 });
-            }, 1500);
+            });
+        }
+
+        window.bindTopicCardActions = setupCleanTopicMenu;
+
+        // BƯỚC 1: TIÊM NÚT THOÁT (VỀ SẢNH CHỜ) TRONG BÀN CHƠI (INGAME)
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const topHeader = document.querySelector('.play-area, header, .game-header, [class*="header"]');
+                if (topHeader && !document.getElementById('ingame-exit-btn')) {
+                    const exitBtn = document.createElement('button');
+                    exitBtn.id = 'ingame-exit-btn';
+                    exitBtn.style.cssText = 'background: #ef4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; margin-left: 10px; box-shadow: 0 2px 6px rgba(239,68,68,0.4);';
+                    exitBtn.innerHTML = '🏠 Về sảnh chờ';
+                    exitBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.location.reload();
+                    };
+                    topHeader.prepend(exitBtn);
+                }
+            }, 1200);
         });
+
+        // Chạy ngay khi DOM sẵn sàng để dọn sạch code rác xung đột
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(setupCleanTopicMenu, 1000);
+        });
+        window.addEventListener('load', () => {
+            setTimeout(setupCleanTopicMenu, 500);
+        });
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(setupCleanTopicMenu, 300);
+        }
     })();
 
     // BƯỚC 3: KIỂM SOÁT AN TOÀN BỘ ĐẾM THỜI GIAN (TIME-OUT & GAME OVER)
