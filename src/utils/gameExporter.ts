@@ -2461,9 +2461,10 @@ body.admin-mode #btn-admin-gear {
 /* 1. GIAO DIỆN DÀNH RIÊNG CHO LAPTOP / DESKTOP (Màn hình lớn >= 768px) */
 /* ========================================== */
 @media screen and (min-width: 768px) {
-    .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board {
+    .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board, div[style*="max-width"] {
         width: 100% !important;
-        max-width: 1400px !important;
+        max-width: 1380px !important;
+    min-width: 1000px !important;
         margin: 0 auto !important;
         display: flex !important;
         flex-direction: row !important;
@@ -2477,8 +2478,8 @@ body.admin-mode #btn-admin-gear {
     /* Các cột đội chơi phân bổ rộng rãi hai bên */
     .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
         flex: 1 !important;
-        max-width: 45% !important;
-        width: 45% !important;
+        max-width: 44% !important;
+        width: 44% !important;
         height: auto !important;
         margin: 0 !important;
     }
@@ -2782,7 +2783,7 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
         if (window.innerWidth >= 768) {
           layoutContainers.forEach(el => {
             (el as HTMLElement).style.width = '100%';
-            (el as HTMLElement).style.maxWidth = '1400px';
+            (el as HTMLElement).style.maxWidth = '1380px';
             (el as HTMLElement).style.margin = '0 auto';
             (el as HTMLElement).style.display = 'flex';
             (el as HTMLElement).style.flexDirection = 'row';
@@ -2793,8 +2794,8 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
           });
           sidePanels.forEach(p => {
             (p as HTMLElement).style.flex = '1';
-            (p as HTMLElement).style.maxWidth = '45%';
-            (p as HTMLElement).style.width = '45%';
+            (p as HTMLElement).style.maxWidth = '44%';
+            (p as HTMLElement).style.width = '44%';
             (p as HTMLElement).style.height = 'auto';
             (p as HTMLElement).style.margin = '0';
           });
@@ -2837,6 +2838,31 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
       };
       updateResponsiveLayout();
       window.addEventListener('resize', updateResponsiveLayout);
+
+      // 2. Trấn áp mọi script trong game cố tình thay đổi inline style bóp méo khung trên laptop (MutationObserver)
+      const protectContainers = () => {
+        if (window.innerWidth >= 768) {
+          const containers = document.querySelectorAll('.apple-game-container, [class*="harvest"], [class*="apple-arena"], .main-board, .game-wrapper');
+          containers.forEach(c => {
+            const el = c as HTMLElement;
+            if (el.style.maxWidth && parseInt(el.style.maxWidth) < 800) {
+              el.style.maxWidth = '1380px';
+            }
+            if (el.style.width && el.style.width.includes('px') && parseInt(el.style.width) < 800) {
+              el.style.width = '100%';
+            }
+            if (el.style.transform && el.style.transform.includes('scale')) {
+              el.style.transform = 'none';
+            }
+          });
+        }
+      };
+      protectContainers();
+      if (window.MutationObserver && document.body) {
+        const obs = new MutationObserver(() => protectContainers());
+        obs.observe(document.body, { attributes: true, childList: true, subtree: true, attributeFilter: ['style'] });
+      }
+
 
       // 5. Mở khóa và sửa sự kiện nút "Đổi Chuyên Đề" / "Chuyên Đề"
       let changeTopicBtns: HTMLElement[] = Array.from(document.querySelectorAll('#btn-student-chuyende, #btn-chuyen-de, .btn-topbar-student, .btn-topbar-chuyende, [class*="change-topic"], [class*="topic-btn"]'));
