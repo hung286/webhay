@@ -3529,7 +3529,7 @@ if (typeof window !== 'undefined') {
     })();
 
     // ==========================================
-    // DỌN SẠCH CODE RÁC SẢNH CHÍNH VÀ TẠO MODULE TAB / NÚT BẤM ĐỘC LẬP
+    // BƯỚC 3: XÂY DỰNG MODULE CHỌN NHIỀU CHỦ ĐỀ (MULTI-SELECT) ĐỘC LẬP HOÀN TOÀN, KHÔNG XUNG ĐỘT
     // ==========================================
     (function() {
         function initIsolatedMultiSelect() {
@@ -3652,10 +3652,23 @@ if (typeof window !== 'undefined') {
                     modalOverlay.style.display = 'none';
                     if (lobbyWrapper) lobbyWrapper.style.display = 'none';
 
+                    const ovMain = document.getElementById('overlay');
+                    if (ovMain) {
+                        ovMain.style.display = 'none';
+                        ovMain.classList.add('hidden');
+                    }
+
                     const gameBoardArea = document.querySelector('.play-area, #game-board, .matching-board');
                     if (gameBoardArea) {
                         gameBoardArea.style.display = 'block';
                         gameBoardArea.style.visibility = 'visible';
+                    }
+
+                    const hp = document.getElementById('header-panel');
+                    if (hp) {
+                        hp.classList.remove('hidden');
+                        hp.style.display = 'flex';
+                        hp.style.visibility = 'visible';
                     }
 
                     window.gameStartTimeSet = true;
