@@ -916,13 +916,17 @@ window.useStaticTopic = true;
   }
 
   function executeMobileFullscreen() {
-    const docEl = document.documentElement;
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      if (docEl.requestFullscreen) docEl.requestFullscreen().catch(function(){});
-      else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+    const target = document.getElementById('game-wrapper') || document.querySelector('.apple-game-container, .harvest-game-wrapper, [class*="game-container"]') || document.documentElement;
+    if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
+      const rfs = target.requestFullscreen || (target as any).webkitRequestFullscreen || (target as any).mozRequestFullScreen || (target as any).msRequestFullscreen;
+      if (rfs) {
+        try { rfs.call(target).catch(function(){}); } catch(e) {}
+      }
     } else {
-      if (document.exitFullscreen) document.exitFullscreen().catch(function(){});
-      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      const efs = document.exitFullscreen || (document as any).webkitExitFullscreen || (document as any).mozCancelFullScreen || (document as any).msExitFullscreen;
+      if (efs) {
+        try { efs.call(document).catch(function(){}); } catch(e) {}
+      }
     }
   }
   window.executeMobileFullscreen = executeMobileFullscreen;
@@ -2398,118 +2402,190 @@ body.admin-mode #btn-admin-gear {
     pointer-events: auto !important;
 }
 
-/* ========================================== */
-/* 2. GIAO DIỆN DÀNH RIÊNG CHO MOBILE (Màn hình nhỏ < 768px) */
-/* ========================================== */
-@media screen and (max-width: 767px) {
-    .apple-game-container, .harvest-game-wrapper, [class*="harvest"], .game-main-layout, .main-board {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-    }
-    body, html, .game-wrapper, [class*="container"], [class*="apple"] {
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-    }
-    .side-panel, .q-container, .input-area {
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        max-width: 100% !important;
-        width: 100% !important;
-    }
-    #mobile-submit-btn {
-        display: block !important;
-        position: relative !important;
-        width: 90% !important;
-        margin: 8px auto !important;
-        z-index: 100 !important;
-        font-size: 18px !important;
-        font-weight: 900 !important;
-        padding: 12px 20px !important;
-        border-radius: 12px !important;
-        box-shadow: 0 4px #2ecc71 !important;
-    }
-    .turn-indicator {
-        position: relative !important;
-        top: auto !important;
-        width: 90% !important;
-        margin: 0 auto 8px auto !important;
-    }
-
-    /* Khung chứa nội dung câu hỏi và các đáp án trên mobile (Scroll độc lập) */
-    .question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
-        max-height: 50vh !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        padding-right: 6px !important;
-    }
-    
-    /* Tùy chỉnh thanh cuộn đẹp mắt, dễ lướt */
-    .question-container::-webkit-scrollbar, .q-container::-webkit-scrollbar, [class*="question-area"]::-webkit-scrollbar {
-        width: 5px;
-    }
-    .question-container::-webkit-scrollbar-thumb, .q-container::-webkit-scrollbar-thumb, [class*="question-area"]::-webkit-scrollbar-thumb {
-        background: rgba(56, 189, 248, 0.6);
-        border-radius: 4px;
-    }
+/* ============================================================== */
+/* 1. THIẾT LẬP KHUNG GỐC & ĐIỀU PHỐI KHÔNG GIAN TOÀN TRANG       */
+/* ============================================================== */
+#game-wrapper, 
+.apple-game-container,
+.harvest-game-wrapper {
+  width: 100%;
+  max-width: 1440px;
+  height: 100vh; /* Khóa cứng chiều cao bằng viewport, không dùng min-height */
+  max-height: 100vh;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden; /* Cấm tuyệt đối xuất hiện thanh cuộn dọc tổng của trình duyệt */
+  position: relative;
+  background-color: #0f172a;
 }
 
-/* ========================================== */
-/* 1. GIAO DIỆN DÀNH RIÊNG CHO LAPTOP / DESKTOP (Màn hình lớn >= 768px) */
-/* ========================================== */
-@media screen and (min-width: 768px) {
-    .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board, div[style*="max-width"] {
-        width: 100% !important;
-        max-width: 1380px !important;
-    min-width: 1000px !important;
-        margin: 0 auto !important;
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: space-between !important;
-        align-items: stretch !important;
-        box-sizing: border-box !important;
-        background: transparent !important;
-        transform: none !important;
-    }
-    
-    /* Các cột đội chơi phân bổ rộng rãi hai bên */
-    .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
-        flex: 1 !important;
-        max-width: 44% !important;
-        width: 44% !important;
-        height: auto !important;
-        margin: 0 !important;
-    }
-    
-    /* Cột cân táo ở giữa */
-    .scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel {
-        flex: 0 0 180px !important;
-        width: 180px !important;
-        min-width: 180px !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-    }
+/* ============================================================== */
+/* 2. ĐẶC TẢ TRẠNG THÁI FULLSCREEN - ÉP LAYOUT LAPTOP KHÔNG MÉO   */
+/* ============================================================== */
+#game-wrapper:fullscreen,
+.apple-game-container:fullscreen,
+.harvest-game-wrapper:fullscreen,
+body.is-fullscreen-active #game-wrapper,
+body.is-fullscreen-active .apple-game-container,
+body.is-fullscreen-active .harvest-game-wrapper {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: clamp(6px, 1.2vh, 14px) clamp(12px, 1.8vw, 24px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
 
-    /* Khung câu hỏi hiển thị đầy đủ, không bị giới hạn chiều cao */
-    .question-container, .quiz-content-box, [class*="question-area"], .q-container, [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
-        max-height: none !important;
-        height: auto !important;
-        overflow-y: visible !important;
-    }
+/* ============================================================== */
+/* 3. BỐ CỤC BÀN CHƠI CHÍNH 3 CỘT (LAPTOP HOẶC FULLSCREEN)        */
+/* ============================================================== */
+/* Ép buộc hiển thị hàng ngang chuẩn, loại bỏ mọi lệnh transform scale của JS */
+body.forced-laptop-layout .game-main-layout,
+body.forced-laptop-layout .main-board,
+body.forced-laptop-layout .apple-arena,
+body:not(.forced-mobile-layout) .game-main-layout,
+body:not(.forced-mobile-layout) .main-board,
+body:not(.forced-mobile-layout) .apple-arena {
+  width: 100%;
+  flex: 1;
+  min-height: 0; /* BẮT BUỘC: Cho phép các khối con co rụt lại khi chia đôi màn hình bị lùn */
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: stretch !important;
+  gap: clamp(8px, 1.2vw, 20px);
+  box-sizing: border-box;
+  transform: none !important;
+}
 
-    .answer-grid, [class*="answers"], .options-container {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 14px !important;
-    }
+/* Hai cột đội chơi trái & phải tự động san sẻ khoảng trống còn lại */
+body:not(.forced-mobile-layout) .team-column-left, 
+body:not(.forced-mobile-layout) .team-column-right,
+body:not(.forced-mobile-layout) [class*="team-box"],
+body:not(.forced-mobile-layout) [class*="player-panel"],
+body:not(.forced-mobile-layout) .side-panel {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
 
-    #mobile-submit-btn {
-        display: none !important;
-    }
+/* Cột cái cân ở giữa tự co giãn mượt mà theo tỷ lệ chiều rộng màn hình */
+body:not(.forced-mobile-layout) .scale-center-column,
+body:not(.forced-mobile-layout) .scale-box,
+body:not(.forced-mobile-layout) [class*="center-arena"],
+body:not(.forced-mobile-layout) .center-panel {
+  flex: 0 0 clamp(110px, 13vw, 180px) !important;
+  width: clamp(110px, 13vw, 180px) !important;
+  min-width: 0 !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+body:not(.forced-mobile-layout) .scale-center-column canvas,
+body:not(.forced-mobile-layout) .scale-center-column img,
+body:not(.forced-mobile-layout) [class*="scale-box"] canvas,
+body:not(.forced-mobile-layout) [class*="scale-box"] img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ============================================================== */
+/* 4. CHỐNG XUNG ĐỘT KHU VỰC HỘP CÂU HỎI VÀ ĐÁP ÁN (FIX DỒN CỤC) */
+/* ============================================================== */
+.question-container, 
+.quiz-content-box,
+[class*="question-area"],
+.q-container,
+[class*="answers-box"] {
+  width: 100%;
+  flex: 1; /* Tự động thích ứng, điền đầy khoảng trống còn lại */
+  min-height: 0; /* Cho phép co nhỏ chiều cao khi màn hình bị chia đôi đè nén */
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: clamp(8px, 1vh, 15px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Đẩy câu hỏi lên đỉnh, đáp án xuống đáy */
+  gap: clamp(6px, 0.8vh, 12px);
+}
+
+/* Vùng chữ câu hỏi tự tạo thanh cuộn độc lập nếu nội dung quá dài */
+.question-text, [class*="question-text"] {
+  font-size: clamp(0.95rem, 1vw + 0.35rem, 1.3rem) !important;
+  line-height: 1.4;
+  overflow-y: auto;
+  max-height: 38%; /* Khống chế không cho lấn chiếm diện tích lưới đáp án */
+  padding-right: 4px;
+}
+
+/* Lưới đáp án: Khóa cứng cấu hình 2 cột trên laptop và tự co giãn chiều cao */
+body:not(.forced-mobile-layout) .answer-grid,
+body:not(.forced-mobile-layout) .options-container,
+body:not(.forced-mobile-layout) [class*="answers"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: clamp(6px, 0.8vh, 12px);
+  width: 100%;
+  flex: 1;
+  min-height: 0; /* Ngăn chặn lưới đẩy vỡ chiều cao tổng */
+}
+
+/* Thẻ đáp án tự tính chiều cao linh động theo vh (chiều cao màn hình máy tính) */
+.answer-btn, 
+.option-card,
+[class*="choice-btn"] {
+  height: 100%;
+  min-height: clamp(38px, 5.5vh, 60px);
+  padding: 6px 12px;
+  font-size: clamp(0.8rem, 0.75vw + 0.3rem, 1.05rem) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* ============================================================== */
+/* 5. KÍCH HOẠT GIAO DIỆN MOBILE CHUẨN (CÔ LẬP HOÀN TOÀN)         */
+/* ============================================================== */
+/* Chỉ kích hoạt khi thỏa mãn là màn hình nhỏ VÀ không ở chế độ Fullscreen */
+body.forced-mobile-layout:not(.is-fullscreen-active) .game-main-layout,
+body.forced-mobile-layout:not(.is-fullscreen-active) .main-board,
+body.forced-mobile-layout:not(.is-fullscreen-active) .apple-arena {
+  flex-direction: column !important; /* Xếp chồng dọc khi màn hình chia đôi siêu hẹp */
+  overflow-y: auto !important;
+}
+
+body.forced-mobile-layout:not(.is-fullscreen-active) .scale-center-column,
+body.forced-mobile-layout:not(.is-fullscreen-active) [class*="scale-box"] {
+  order: -1; /* Đẩy cái cân lên trên cùng màn hình điện thoại */
+  margin: 6px auto;
+  flex: 0 0 90px !important;
+  width: 90px !important;
+}
+
+body.forced-mobile-layout:not(.is-fullscreen-active) .answer-grid,
+body.forced-mobile-layout:not(.is-fullscreen-active) .options-container {
+  grid-template-columns: minmax(0, 1fr) !important; /* Chuyển thành 1 cột đứng dọc */
 }
 
 /* Buộc các khối công thức MathJax / LaTeX tự động xuống hàng theo dòng chảy văn bản */
@@ -2614,100 +2690,148 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
     } catch(e) {}
   }
 
+  function debounce(fn, wait = 180) {
+    let t = null;
+    return function(...args) {
+      if (t) clearTimeout(t);
+      t = setTimeout(() => {
+        if (window.requestAnimationFrame) {
+          window.requestAnimationFrame(() => fn.apply(this, args));
+        } else {
+          fn.apply(this, args);
+        }
+      }, wait);
+    };
+  }
+
+  const LayoutManager = {
+    isIframe: function(): boolean {
+      return window.self !== window.top;
+    },
+    getGameWrapper: function(): HTMLElement {
+      return document.getElementById('game-wrapper') || 
+             document.querySelector('.apple-game-container, .harvest-game-wrapper') as HTMLElement || 
+             document.documentElement;
+    },
+    checkCurrentFullscreen: function(): boolean {
+      return !!(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).mozFullScreenElement ||
+        (document as any).msFullscreenElement
+      );
+    },
+    updateResponsiveState: function(): void {
+      const isFsActive = this.checkCurrentFullscreen() || document.body.classList.contains('is-fullscreen-active');
+      if (isFsActive) {
+        document.body.classList.remove('forced-mobile-layout');
+        document.body.classList.add('forced-laptop-layout', 'is-fullscreen-active');
+      } else {
+        document.body.classList.remove('forced-laptop-layout');
+        if (window.innerWidth < 850) {
+          document.body.classList.add('forced-mobile-layout');
+        } else {
+          document.body.classList.remove('forced-mobile-layout');
+        }
+        document.body.classList.remove('is-fullscreen-active');
+      }
+
+      // Kích hoạt vẽ lại Canvas / HiDPI nếu có
+      const canvases = document.querySelectorAll('.scale-center-column canvas, [class*="scale-box"] canvas');
+      canvases.forEach(cv => {
+        const canvas = cv as HTMLCanvasElement;
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0 && canvas.getAttribute('data-dpr-scaled') !== String(dpr)) {
+          canvas.setAttribute('data-dpr-scaled', String(dpr));
+          canvas.width = Math.round(rect.width * dpr);
+          canvas.height = Math.round(rect.height * dpr);
+          const ctx = canvas.getContext('2d');
+          if (ctx) ctx.scale(dpr, dpr);
+        }
+      });
+      if ((window as any).myGameInstance?.resize) (window as any).myGameInstance.resize();
+      if (typeof (window as any).renderCanvasGame === 'function') (window as any).renderCanvasGame();
+    },
+    debounce: function(fn: any, delay: number) {
+      let timeoutId: any;
+      return function(this: any) {
+        const context = this, args = arguments;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(function() {
+          if (window.requestAnimationFrame) {
+            window.requestAnimationFrame(function() { fn.apply(context, args); });
+          } else {
+            fn.apply(context, args);
+          }
+        }, delay);
+      };
+    },
+    toggleFullscreen: async function(): Promise<void> {
+      if (this.isIframe()) {
+        try {
+          window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN' }, '*');
+        } catch(e) {}
+        return;
+      }
+      const el = this.getGameWrapper();
+      if (!this.checkCurrentFullscreen()) {
+        try {
+          if (el.requestFullscreen) await el.requestFullscreen();
+          else if ((el as any).webkitRequestFullscreen) await (el as any).webkitRequestFullscreen();
+          else if ((el as any).mozRequestFullScreen) await (el as any).mozRequestFullScreen();
+          else if ((el as any).msRequestFullscreen) await (el as any).msRequestFullscreen();
+        } catch (err: any) {
+          console.warn('[LayoutManager] Không thể vào Fullscreen:', err?.message || err);
+        }
+      } else {
+        try {
+          if (document.exitFullscreen) await document.exitFullscreen();
+          else if ((document as any).webkitExitFullscreen) await (document as any).webkitExitFullscreen();
+          else if ((document as any).mozCancelFullScreen) await (document as any).mozCancelFullScreen();
+          else if ((document as any).msExitFullscreen) await (document as any).msExitFullscreen();
+        } catch (err: any) {
+          console.warn('[LayoutManager] Không thể thoát Fullscreen:', err?.message || err);
+        }
+      }
+    },
+    syncButtonUI: function(): void {
+      const isFs = this.checkCurrentFullscreen();
+      const btnText = document.getElementById('fullscreenText') || document.querySelector('#fs-btn span:last-child');
+      const btnIcon = document.getElementById('fullscreenIcon') || document.querySelector('#fs-btn span:first-child');
+      if (btnText) btnText.textContent = isFs ? 'Thu nhỏ' : 'Toàn màn hình';
+      if (btnIcon) btnIcon.textContent = isFs ? '🗗' : '⛶';
+    }
+  };
+
   function setupFullscreen() {
     try {
-      let _exporterLastFsTime = 0;
-      window.toggleMobileFullscreen = function(e) {
-        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
-        const now = Date.now();
-        if (now - _exporterLastFsTime < 450) return;
-        _exporterLastFsTime = now;
+      (window as any).toggleGameFullscreen = () => LayoutManager.toggleFullscreen();
+      (window as any).toggleMobileFullscreen = () => LayoutManager.toggleFullscreen();
+      (window as any).triggerToggleFullscreen = () => LayoutManager.toggleFullscreen();
 
-        const doc = document;
-        const docEl = document.documentElement;
-        const body = document.body;
-        const isNative = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
-        const isForced = docEl.classList.contains('mobile-fullscreen-forced') || body.classList.contains('mobile-fullscreen-forced');
+      ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
+        document.addEventListener(evt, () => {
+          LayoutManager.updateResponsiveState();
+          LayoutManager.syncButtonUI();
+        });
+      });
 
-        if (!isNative && !isForced) {
-          docEl.classList.add('mobile-fullscreen-forced');
-          body.classList.add('mobile-fullscreen-forced');
-          body.style.setProperty('overflow-y', 'auto', 'important');
-          body.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+      window.addEventListener('resize', LayoutManager.debounce(() => {
+        LayoutManager.updateResponsiveState();
+      }, 180));
 
-          const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
-          if (rfs) {
-            try {
-              const res = rfs.call(docEl);
-              if (res && typeof res.then === 'function') {
-                res.then(() => { updateFsUI(); }).catch(function() {});
-              }
-            } catch(e) {}
-          }
-          try {
-            if (window.self !== window.top && window.parent) {
-              window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'enter' }, '*');
-            }
-          } catch(e) {}
-          try { window.scrollTo(0, 1); } catch(e) {}
-          try {
-            if (screen.orientation && typeof screen.orientation.lock === 'function') {
-              screen.orientation.lock('landscape').catch(function() {});
-            }
-          } catch(e) {}
-          updateFsUI();
-        } else {
-          docEl.classList.remove('mobile-fullscreen-forced');
-          body.classList.remove('mobile-fullscreen-forced');
-          body.style.removeProperty('overflow-y');
-          body.style.removeProperty('-webkit-overflow-scrolling');
-          if (isNative) {
-            const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
-            if (efs) { try { efs.call(doc); } catch(e) {} }
-          }
-          try {
-            if (window.self !== window.top && window.parent) {
-              window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'exit' }, '*');
-            }
-          } catch(e) {}
-          try {
-            if (screen.orientation && typeof screen.orientation.unlock === 'function') {
-              screen.orientation.unlock();
-            }
-          } catch(e) {}
-          updateFsUI();
-        }
-
-        const triggerResize = () => {
-          try { window.dispatchEvent(new Event('resize')); } catch(e) {}
-        };
-        triggerResize();
-        setTimeout(triggerResize, 100);
-        setTimeout(triggerResize, 300);
-        setTimeout(triggerResize, 600);
-      };
-
-      function updateFsUI() {
-        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.documentElement.classList.contains('mobile-fullscreen-forced'));
-        if (isFs) {
-          document.body.style.setProperty('overflow-y', 'auto', 'important');
-          document.body.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
-        }
-        const fsIcon = document.getElementById('fullscreenIcon');
-        const fsText = document.getElementById('fullscreenText');
-        if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
-        if (fsText) fsText.textContent = isFs ? '[ 🗗 ] THU NHỎ' : '[ ⛶ ] TOÀN MÀN HÌNH';
+      const fsBtn = document.getElementById('fullscreenToggleBtn') || document.getElementById('fs-btn');
+      if (fsBtn && !(fsBtn as any).dataset.fsBound) {
+        (fsBtn as any).dataset.fsBound = 'true';
+        fsBtn.addEventListener('click', (e) => {
+          if (e && e.stopPropagation) e.stopPropagation();
+          LayoutManager.toggleFullscreen();
+        });
       }
 
-      window.triggerToggleFullscreen = window.toggleMobileFullscreen;
-      document.addEventListener('fullscreenchange', updateFsUI);
-      document.addEventListener('webkitfullscreenchange', updateFsUI);
-
-      const fsBtn = document.getElementById('fullscreenToggleBtn');
-      if (fsBtn && !fsBtn.dataset.fsBound) {
-        fsBtn.dataset.fsBound = 'true';
-        fsBtn.addEventListener('click', window.toggleMobileFullscreen);
-      }
+      LayoutManager.updateResponsiveState();
+      LayoutManager.syncButtonUI();
     } catch(e) {}
   }
 
@@ -2773,95 +2897,8 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
         };
       });
 
-      // 4. Chuẩn hóa layout bàn chơi 3 cột rộng rãi trên Laptop & kích hoạt scroll độc lập trên Mobile
-      const updateResponsiveLayout = () => {
-        const layoutContainers = document.querySelectorAll('.apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board');
-        const sidePanels = document.querySelectorAll('.team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel');
-        const centerPanels = document.querySelectorAll('.scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel');
-        const questionBoxes = document.querySelectorAll('.question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper)');
-
-        if (window.innerWidth >= 768) {
-          layoutContainers.forEach(el => {
-            (el as HTMLElement).style.width = '100%';
-            (el as HTMLElement).style.maxWidth = '1380px';
-            (el as HTMLElement).style.margin = '0 auto';
-            (el as HTMLElement).style.display = 'flex';
-            (el as HTMLElement).style.flexDirection = 'row';
-            (el as HTMLElement).style.justifyContent = 'space-between';
-            (el as HTMLElement).style.alignItems = 'stretch';
-            (el as HTMLElement).style.background = 'transparent';
-            (el as HTMLElement).style.transform = 'none';
-          });
-          sidePanels.forEach(p => {
-            (p as HTMLElement).style.flex = '1';
-            (p as HTMLElement).style.maxWidth = '44%';
-            (p as HTMLElement).style.width = '44%';
-            (p as HTMLElement).style.height = 'auto';
-            (p as HTMLElement).style.margin = '0';
-          });
-          centerPanels.forEach(cp => {
-            (cp as HTMLElement).style.flex = '0 0 180px';
-            (cp as HTMLElement).style.width = '180px';
-            (cp as HTMLElement).style.minWidth = '180px';
-            (cp as HTMLElement).style.display = 'flex';
-            (cp as HTMLElement).style.justifyContent = 'center';
-            (cp as HTMLElement).style.alignItems = 'center';
-          });
-          questionBoxes.forEach(box => {
-            (box as HTMLElement).style.maxHeight = 'none';
-            (box as HTMLElement).style.height = 'auto';
-            (box as HTMLElement).style.overflowY = 'visible';
-          });
-        } else {
-          layoutContainers.forEach(el => {
-            (el as HTMLElement).style.display = 'flex';
-            (el as HTMLElement).style.flexDirection = 'column';
-            (el as HTMLElement).style.width = '100%';
-            (el as HTMLElement).style.maxWidth = '100%';
-            (el as HTMLElement).style.overflowY = 'auto';
-          });
-          sidePanels.forEach(p => {
-            (p as HTMLElement).style.maxWidth = '100%';
-            (p as HTMLElement).style.width = '100%';
-          });
-          centerPanels.forEach(cp => {
-            (cp as HTMLElement).style.flex = 'initial';
-            (cp as HTMLElement).style.width = 'auto';
-          });
-          questionBoxes.forEach(box => {
-            (box as HTMLElement).style.maxHeight = '50vh';
-            (box as HTMLElement).style.overflowY = 'auto';
-            (box as HTMLElement).style.webkitOverflowScrolling = 'touch';
-            (box as HTMLElement).style.paddingRight = '6px';
-          });
-        }
-      };
-      updateResponsiveLayout();
-      window.addEventListener('resize', updateResponsiveLayout);
-
-      // 2. Trấn áp mọi script trong game cố tình thay đổi inline style bóp méo khung trên laptop (MutationObserver)
-      const protectContainers = () => {
-        if (window.innerWidth >= 768) {
-          const containers = document.querySelectorAll('.apple-game-container, [class*="harvest"], [class*="apple-arena"], .main-board, .game-wrapper');
-          containers.forEach(c => {
-            const el = c as HTMLElement;
-            if (el.style.maxWidth && parseInt(el.style.maxWidth) < 800) {
-              el.style.maxWidth = '1380px';
-            }
-            if (el.style.width && el.style.width.includes('px') && parseInt(el.style.width) < 800) {
-              el.style.width = '100%';
-            }
-            if (el.style.transform && el.style.transform.includes('scale')) {
-              el.style.transform = 'none';
-            }
-          });
-        }
-      };
-      protectContainers();
-      if (window.MutationObserver && document.body) {
-        const obs = new MutationObserver(() => protectContainers());
-        obs.observe(document.body, { attributes: true, childList: true, subtree: true, attributeFilter: ['style'] });
-      }
+      // 4. Đồng bộ trạng thái giao diện qua LayoutManager
+      LayoutManager.updateResponsiveState();
 
 
       // 5. Mở khóa và sửa sự kiện nút "Đổi Chuyên Đề" / "Chuyên Đề"
@@ -5033,13 +5070,9 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
           updateFsUI();
         }
 
-        const triggerResize = () => {
+        setTimeout(() => {
           try { window.dispatchEvent(new Event('resize')); } catch(e) {}
-        };
-        triggerResize();
-        setTimeout(triggerResize, 100);
-        setTimeout(triggerResize, 300);
-        setTimeout(triggerResize, 600);
+        }, 180);
       };
 
       function updateFsUI() {
@@ -5399,13 +5432,9 @@ if (window.__INJECTED_MARIO_DATA__ && Object.keys(window.__INJECTED_MARIO_DATA__
           updateFsUI();
         }
 
-        const triggerResize = () => {
+        setTimeout(() => {
           try { window.dispatchEvent(new Event('resize')); } catch(e) {}
-        };
-        triggerResize();
-        setTimeout(triggerResize, 100);
-        setTimeout(triggerResize, 300);
-        setTimeout(triggerResize, 600);
+        }, 180);
       };
 
       function updateFsUI() {

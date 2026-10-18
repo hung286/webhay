@@ -731,6 +731,16 @@
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
         }
+
+        // Lắng nghe sự kiện từ iframe trò chơi con
+        window.addEventListener('message', function(e) {
+            if (!e.data) return;
+            if (e.data.type === 'TOGGLE_FULLSCREEN') {
+                toggleFullScreen();
+            } else if (e.data.type === 'EXIT_GAME') {
+                closeTool();
+            }
+        });
     </script>
 
 <script async="" src="./Trợ tro choi luong giac_files/hud" data-nf-variant="public" data-netlify-site-id="5e51e807-cc05-4ed5-9e76-142c1084ee61" data-app-host="app.netlify.com"></script>
