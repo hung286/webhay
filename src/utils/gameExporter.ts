@@ -2323,6 +2323,46 @@ var questions = window.quizData;
     });
 
     const haiTaoScript = `
+<style id="apple-responsive-style">
+/* 1. Tối ưu chế độ Laptop / Full màn hình */
+@media screen and (min-width: 769px) {
+    .apple-game-container, [class*="apple"], [class*="harvest"], .quiz-box {
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+        box-sizing: border-box !important;
+    }
+    .answer-grid, [class*="answers"], .options-container {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+    }
+}
+
+/* 2. Khắc phục lệch dòng công thức toán học */
+mjx-container, .MathJax, math {
+    vertical-align: middle !important;
+    display: inline-block !important;
+}
+.question-text, .answer-btn, p, span {
+    line-height: 1.6 !important;
+}
+
+/* 3. Tối ưu giao diện Mobile */
+@media screen and (max-width: 768px) {
+    .answer-btn, [class*="answer"], button[class*="option"] {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 48px !important;
+        padding: 10px 12px !important;
+        font-size: 0.85rem !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        display: flex !important;
+        align-items: center !important;
+        text-align: left !important;
+    }
+}
+</style>
 <script>
 // [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - HÁI TÁO LUÂN PHIÊN]
 window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
