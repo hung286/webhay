@@ -2384,6 +2384,29 @@ body.admin-mode #btn-admin-gear {
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
     }
+    #mobile-submit-btn {
+        display: block !important;
+        position: relative !important;
+        width: 90% !important;
+        margin: 8px auto !important;
+        z-index: 100 !important;
+        font-size: 18px !important;
+        font-weight: 900 !important;
+        padding: 12px 20px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px #2ecc71 !important;
+    }
+    .turn-indicator {
+        position: relative !important;
+        top: auto !important;
+        width: 90% !important;
+        margin: 0 auto 8px auto !important;
+    }
+}
+@media screen and (min-width: 769px) {
+    #mobile-submit-btn {
+        display: none !important;
+    }
 }
 
 /* Tối ưu chế độ Laptop / Full màn hình */
@@ -2604,27 +2627,99 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
     } catch(e) {}
   }
 
+  function setupAppleOptimizations() {
+    try {
+      const settingsTriggers = document.querySelectorAll('.settings-btn, [class*="setting"], [class*="gear"], .fa-cog');
+      settingsTriggers.forEach(el => {
+        if (el.id === 'btn-admin-gear' || el.classList.contains('edit-data-btn')) return;
+        el.style.pointerEvents = 'auto';
+        el.style.cursor = 'pointer';
+        el.style.zIndex = '99999';
+        el.onclick = function(e) {
+          if (e && e.preventDefault) e.preventDefault();
+          if (e && e.stopPropagation) e.stopPropagation();
+          const screen = document.getElementById('settings-screen');
+          if (screen) {
+            screen.style.display = 'flex';
+            screen.style.visibility = 'visible';
+          }
+          const modals = document.querySelectorAll('.settings-modal, [class*="setting-modal"], #settings-modal, .modal');
+          modals.forEach(m => {
+            m.style.display = 'block';
+            m.style.visibility = 'visible';
+          });
+          if (typeof window.openSettings === 'function') window.openSettings();
+          else if (typeof window.toggleSettings === 'function') window.toggleSettings();
+          else if (typeof window.showSettingsModal === 'function') window.showSettingsModal();
+        };
+      });
+
+      const mobBtn = document.getElementById('mobile-submit-btn');
+      const startContestBtns = document.querySelectorAll('.start-contest-btn, [class*="start-btn"], #btn-start, .btn-start-race');
+      if (mobBtn && startContestBtns.length > 0 && window.innerWidth <= 768) {
+        startContestBtns[0].parentNode.insertBefore(mobBtn, startContestBtns[0]);
+        mobBtn.style.cssText = 'position: relative !important; display: block !important; width: 90% !important; margin: 10px auto !important; z-index: 100 !important;';
+      } else {
+        const confirmBtns = document.querySelectorAll('.confirm-btn, [class*="submit-answer"], .btn-submit');
+        confirmBtns.forEach(cBtn => {
+          if (startContestBtns.length > 0 && window.innerWidth <= 768 && !cBtn.closest('#panel-1') && !cBtn.closest('#panel-2')) {
+            startContestBtns[0].parentNode.insertBefore(cBtn, startContestBtns[0]);
+            cBtn.style.cssText = 'position: relative !important; display: block !important; width: 90% !important; margin: 10px auto !important; z-index: 100 !important;';
+          }
+        });
+      }
+
+      startContestBtns.forEach(b => {
+        const origOnClick = b.onclick;
+        b.onclick = function(e) {
+          if (typeof window.startGame === 'function') window.startGame();
+          else if (typeof origOnClick === 'function') origOnClick.call(b, e);
+          setTimeout(() => {
+            b.style.display = 'none';
+            b.style.visibility = 'hidden';
+          }, 200);
+        };
+      });
+
+      if (window.innerWidth <= 768) {
+        document.documentElement.style.overflowY = 'auto';
+        document.body.style.overflowY = 'auto';
+        const scrollElements = document.querySelectorAll('.apple-game-container, [class*="harvest"], .game-wrapper, [class*="container"]');
+        scrollElements.forEach(se => {
+          se.style.overflowY = 'auto';
+          se.style.webkitOverflowScrolling = 'touch';
+        });
+      }
+    } catch(e) {}
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       syncHaiTaoData();
       applyAdminSecurity();
       setupAdminButtons();
       setupFullscreen();
+      setupAppleOptimizations();
       triggerMathTypeset();
+      setTimeout(setupAppleOptimizations, 1200);
     });
   } else {
     syncHaiTaoData();
     applyAdminSecurity();
     setupAdminButtons();
     setupFullscreen();
+    setupAppleOptimizations();
     triggerMathTypeset();
+    setTimeout(setupAppleOptimizations, 1200);
   }
   window.addEventListener('load', function() {
     syncHaiTaoData();
     applyAdminSecurity();
     setupAdminButtons();
     setupFullscreen();
+    setupAppleOptimizations();
     triggerMathTypeset();
+    setTimeout(setupAppleOptimizations, 1200);
   });
 })();
 </script>
