@@ -2324,23 +2324,39 @@ var questions = window.quizData;
 
     const haiTaoScript = `
 <style id="apple-responsive-style">
-/* 1. Ép chống tràn và tự động xuống dòng toàn bộ box đề/đáp án trên Laptop & Mobile */
-.apple-game-container, .question-container, [class*="question"], [class*="answer"], [class*="box"], div, p, span {
+/* 1. Triệt tiêu thanh cuộn ngang, ép toàn bộ container co giãn trong box */
+.apple-game-container, .question-container, .quiz-box, [class*="question"], [class*="modal"], [class*="card"], [class*="answer"], [class*="box"], div, p, span {
     max-width: 100% !important;
     box-sizing: border-box !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
     white-space: normal !important;
 }
-.answer-btn, [class*="answer-option"], button[class*="btn"] {
+
+/* 2. Ép đề bài tự động xuống dòng, không bị dài vượt khung */
+.question-text, [class*="question-text"], h2, h3, p {
     width: 100% !important;
+    max-width: 100% !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    line-height: 1.5 !important;
+}
+
+/* 3. Ép các nút đáp án A, B, C, D tự động xuống dòng, vừa khít box trên Laptop và Mobile */
+.answer-btn, [class*="answer"], [class*="option"], button[class*="choice"], [class*="answer-option"], button[class*="btn"], .grid-cols-2 > div {
+    width: 100% !important;
+    max-width: 100% !important;
     height: auto !important;
-    min-height: 48px !important;
+    min-height: 52px !important;
     padding: 10px 14px !important;
     white-space: normal !important;
     word-break: break-word !important;
+    overflow-wrap: break-word !important;
     display: flex !important;
     align-items: center !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
 }
 
 /* 2. Chỉ ẩn tuyệt đối nút Sửa Dữ Liệu ở màn học sinh, GIỮ LẠI nút Cài Đặt (⚙️) */
@@ -5515,6 +5531,44 @@ mjx-sqrt > mjx-box, mjx-box {
     border-top: 0.08em solid currentColor !important;
     opacity: 1 !important;
     visibility: visible !important;
+}
+
+/* ======================================================== */
+/* ÉP TỰ ĐỘNG XUỐNG HÀNG VÀ CHỐNG TRÀN ĐỀ BÀI & ĐÁP ÁN     */
+/* ======================================================== */
+/* 1. Triệt tiêu thanh cuộn ngang, ép toàn bộ container co giãn trong box */
+.question-container, .quiz-box, [class*="question"], [class*="modal"], [class*="card"], div {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+}
+
+/* 2. Ép đề bài tự động xuống dòng, không bị dài vượt khung */
+.question-text, [class*="question-text"], h2, h3, p {
+    width: 100% !important;
+    max-width: 100% !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    line-height: 1.5 !important;
+}
+
+/* 3. Ép các nút đáp án A, B, C, D tự động xuống dòng, vừa khít box trên Laptop và Mobile */
+.answer-btn, [class*="answer"], [class*="option"], button[class*="choice"], .grid-cols-2 > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 52px !important;
+    padding: 10px 14px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    display: flex !important;
+    align-items: center !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
 }
 </style>
 `;
