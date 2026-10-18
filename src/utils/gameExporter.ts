@@ -4447,17 +4447,25 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
   function applyAdminSecurity() {
     try {
       const params = new URLSearchParams(window.location.search);
-      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1';
+      const isDesktop = (typeof window !== 'undefined' && window.innerWidth >= 768) && !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+      const isLocalAdmin = typeof localStorage !== 'undefined' && (localStorage.getItem('tetris_is_admin') === 'true' || localStorage.getItem('app_user_role') === 'admin');
+      const isAdmin = params.get('role') === 'admin' || params.get('role') === 'teacher' || params.get('preview') === 'true' || params.get('admin') === '1' || isLocalAdmin || (window as any).isAdmin || isDesktop;
       const adminTopbar = document.getElementById('admin-topbar');
       const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, #btn-word-template, [data-admin-control="true"]');
       if (isAdmin) {
-        if (adminTopbar) adminTopbar.style.setProperty('display', 'flex', 'important');
+        if (adminTopbar) {
+          adminTopbar.classList.remove('hidden');
+          adminTopbar.style.setProperty('display', 'flex', 'important');
+        }
         adminBtns.forEach(btn => {
           btn.classList.remove('hidden');
           btn.style.setProperty('display', 'inline-flex', 'important');
         });
       } else {
-        if (adminTopbar) adminTopbar.style.setProperty('display', 'none', 'important');
+        if (adminTopbar) {
+          adminTopbar.classList.add('hidden');
+          adminTopbar.style.setProperty('display', 'none', 'important');
+        }
         adminBtns.forEach(btn => {
           btn.classList.add('hidden');
           btn.style.setProperty('display', 'none', 'important');
@@ -4631,10 +4639,10 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
               }
 
               /* Riêng các nút đáp án (A, B, C, D) cho phép hiển thị linh hoạt nhiều dòng */
-              button[class*="answer"], .answer-btn, [class*="option-btn"] {
+              .answer-btn, [class*="answer"], button[class*="option"], button[class*="answer"], .option-btn {
                   width: 100% !important;
                   height: auto !important;
-                  min-height: 48px !important;
+                  min-height: 52px !important;
                   padding: 10px 14px !important;
                   font-size: 0.85rem !important;
                   line-height: 1.35 !important;
@@ -4643,6 +4651,8 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
                   align-items: center !important;
                   white-space: normal !important;
                   word-break: break-word !important;
+                  overflow-wrap: break-word !important;
+                  box-sizing: border-box !important;
               }
 
               /* Hỗ trợ công thức MathJax co giãn và chống tràn trên mobile */

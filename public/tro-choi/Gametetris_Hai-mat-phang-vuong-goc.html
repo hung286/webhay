@@ -263,10 +263,10 @@
             }
 
             /* Riêng các nút đáp án (A, B, C, D) cho phép hiển thị linh hoạt nhiều dòng */
-            button[class*="answer"], .answer-btn, [class*="option-btn"] {
+            .answer-btn, [class*="answer"], button[class*="option"], button[class*="answer"], .option-btn {
                 width: 100% !important;
                 height: auto !important;
-                min-height: 48px !important;
+                min-height: 52px !important;
                 padding: 10px 14px !important;
                 font-size: 0.85rem !important;
                 line-height: 1.35 !important;
@@ -275,6 +275,8 @@
                 align-items: center !important;
                 white-space: normal !important;
                 word-break: break-word !important;
+                overflow-wrap: break-word !important;
+                box-sizing: border-box !important;
             }
 
             .answer-text-container, .answer-text {
@@ -1687,9 +1689,18 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             // Tiêu diệt triệt để ký tự rác \f bám trước \frac
             str = str.replace(/(\\+f|f)+(?=\\frac)/g, '');
 
-            // 4. Khử lỗi lặp dấu gạch chéo (double escape) hoặc bọc ngoặc vuông sai quy cách
-            str = str.replace(/\\\[/g, '').replace(/\\\]/g, '');
+            // 4. Khử lỗi lặp dấu gạch chéo (double escape) và chuẩn hóa delimiter
+            str = str.replace(/\\\\+\(/g, '\\(');
+            str = str.replace(/\\\\+\)/g, '\\)');
+            str = str.replace(/\\\\+\[/g, '\\[');
+            str = str.replace(/\\\\+\]/g, '\\]');
             str = str.replace(/\\\\([a-zA-Z])/g, '\\$1');
+
+            // Chuyển đổi display math \[...\] sang inline math \(...\) để không bị ngắt dòng trong giao diện
+            str = str.replace(/\\\[([\s\S]*?)\\\]/g, (_, m) => '\\(' + m.trim() + '\\)');
+            // Chuyển đổi $$...$$ và $...$ thành \(...\) chuẩn MathJax
+            str = str.replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => '\\(' + m.trim() + '\\)');
+            str = str.replace(/\$([^\$]+?)\$/g, (_, m) => '\\(' + m.trim() + '\\)');
 
             // Sửa lỗi cách chữ đầu câu tiếng Việt
             str = str.replace(/\bN\s+ếu\b/gi, 'Nếu');
@@ -1701,10 +1712,6 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             str = str.replace(/\bM\s+ặt\b/gi, 'Mặt');
             str = str.replace(/\bđ\s+ường\b/gi, 'đường');
             str = str.replace(/Hai\s+m\s+ặt\s+ph\s+ẳng/gi, 'Hai mặt phẳng');
-
-            // Chuyển đổi $$...$$ và $...$ thành \(...\) chuẩn MathJax
-            str = str.replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => '\\(' + m.trim() + '\\)');
-            str = str.replace(/\$([^\$]+?)\$/g, (_, m) => '\\(' + m.trim() + '\\)');
 
             // 5. Chuẩn hóa hình học không gian: tên đỉnh hình chóp S.ABC hoặc mặt phẳng (ABC), (SAB), (SCD)
             str = str.replace(/(?<![a-zA-Z\\\(])(S\.[A-Z]{3,4})(?![a-zA-Z\\\)])/g, '\\($1\\)');
@@ -1739,6 +1746,15 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             const hasVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/i.test(str);
             if (!hasVietnamese && !str.includes('\\(')) {
                 str = '\\(' + str + '\\)';
+            }
+
+            // 8. Tự động cân bằng số lượng dấu \( và \) để triệt tiêu lỗi TeX đỏ (mismatched delimiter)
+            const openCount = (str.match(/\\\(/g) || []).length;
+            const closeCount = (str.match(/\\\)/g) || []).length;
+            if (openCount > closeCount) {
+                str += '\\)'.repeat(openCount - closeCount);
+            } else if (closeCount > openCount) {
+                str = '\\('.repeat(closeCount - openCount) + str;
             }
 
             // Làm sạch khoảng trắng thừa
@@ -2077,18 +2093,26 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
             }
 
             modal.classList.remove('hidden');
-            setTimeout(() => {
+            function executeMathJaxTypeset() {
                 if (window.MathJax && window.MathJax.typesetPromise) {
-                    if (window.MathJax.typesetClear) window.MathJax.typesetClear();
+                    try {
+                        if (window.MathJax.typesetClear) window.MathJax.typesetClear([qText, optContainer]);
+                    } catch(e) {}
                     window.MathJax.typesetPromise([qText, optContainer]).then(() => {
                         content.classList.remove('scale-95'); content.classList.add('scale-100');
-                    }).catch(() => {
+                    }).catch((err) => {
+                        console.warn('MathJax typesetting error suppressed:', err);
                         content.classList.remove('scale-95'); content.classList.add('scale-100');
                     });
+                } else if (window.MathJax && typeof window.MathJax.typeset === 'function') {
+                    try { window.MathJax.typeset([qText, optContainer]); } catch(e) {}
+                    content.classList.remove('scale-95'); content.classList.add('scale-100');
                 } else {
                     content.classList.remove('scale-95'); content.classList.add('scale-100');
+                    setTimeout(executeMathJaxTypeset, 250);
                 }
-            }, 50);
+            }
+            setTimeout(executeMathJaxTypeset, 40);
         }
 
         function submitShortAnswer() {
@@ -2258,26 +2282,60 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                 const admin = params.get('admin');
                 const preview = params.get('preview');
                 const isHashAdmin = window.location.hash.includes('admin') || window.location.hash.includes('role=admin');
-                const isLocalAdmin = localStorage.getItem('tetris_is_admin') === 'true';
+                const isLocalAdmin = localStorage.getItem('tetris_is_admin') === 'true' || 
+                                     localStorage.getItem('app_user_role') === 'admin' ||
+                                     localStorage.getItem('is_admin') === 'true';
 
-                if (role === 'admin' || admin === '1' || preview === 'true' || isHashAdmin || isLocalAdmin || window.isAdmin) {
-                    const topbar = document.getElementById('admin-topbar');
+                // Nhận diện Desktop (màn hình >= 768px hoặc thiết bị máy tính PC/Laptop)
+                const isDesktop = (window.innerWidth >= 768) && !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
+                // Quyền admin mở rộng: URL cờ admin, localStorage, hash, window.isAdmin HOẶC trên Desktop
+                const hasAdminAccess = role === 'admin' || role === 'teacher' || admin === '1' || preview === 'true' || isHashAdmin || isLocalAdmin || window.isAdmin || isDesktop;
+
+                const topbar = document.getElementById('admin-topbar');
+                const gearBtn = document.getElementById('btn-admin-gear');
+                const wordBtn = document.getElementById('btn-word-template');
+                const topicBtn = document.getElementById('btn-chuyen-de');
+
+                if (hasAdminAccess) {
                     if (topbar) {
                         topbar.classList.remove('hidden');
                         topbar.classList.add('flex');
+                        topbar.style.removeProperty('display');
+                        topbar.style.setProperty('display', 'flex', 'important');
                     }
-                    const gearBtn = document.getElementById('btn-admin-gear');
                     if (gearBtn) {
+                        gearBtn.classList.remove('hidden');
+                        gearBtn.style.removeProperty('display');
+                        gearBtn.style.setProperty('display', 'inline-flex', 'important');
                         gearBtn.onclick = function(e) {
                             if (e) { e.preventDefault(); e.stopPropagation(); }
                             openAdminPinPrompt();
                         };
                     }
+                    if (wordBtn) {
+                        wordBtn.classList.remove('hidden');
+                        wordBtn.style.removeProperty('display');
+                        wordBtn.style.setProperty('display', 'inline-flex', 'important');
+                    }
+                    if (topicBtn) {
+                        topicBtn.classList.remove('hidden');
+                        topicBtn.style.removeProperty('display');
+                        topicBtn.style.setProperty('display', 'inline-flex', 'important');
+                    }
                     return true;
+                } else {
+                    if (topbar) {
+                        topbar.classList.add('hidden');
+                        topbar.classList.remove('flex');
+                        topbar.style.setProperty('display', 'none', 'important');
+                    }
                 }
             } catch(e) {}
             return false;
         }
+
+        window.addEventListener('resize', checkAdminRole);
 
         function openAdminPinPrompt() {
             const modal = document.getElementById('pin-prompt-modal');
@@ -2312,7 +2370,9 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
             if (entered === ADMIN_PIN_DEFAULT) {
                 localStorage.setItem('tetris_is_admin', 'true');
+                window.isAdmin = true;
                 closeAdminPinPrompt();
+                checkAdminRole();
                 openAdminEditorModal();
             } else {
                 if (err) {
