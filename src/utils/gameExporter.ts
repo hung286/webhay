@@ -2343,30 +2343,24 @@ var questions = window.quizData;
     align-items: center !important;
 }
 
-/* 2. Ẩn tuyệt đối các nút quản trị / sửa dữ liệu khi ở chế độ học sinh */
-body:not(.is-admin) .admin-only-btn, body:not(.admin-mode) button:contains("Sửa Dữ Liệu"), .admin-toolbar-btn {
+/* 2. Chỉ ẩn tuyệt đối nút Sửa Dữ Liệu ở màn học sinh, GIỮ LẠI nút Cài Đặt (⚙️) */
+body:not(.is-admin) button:contains("Sửa Dữ Liệu"), 
+body:not(.admin-mode) .edit-data-btn, 
+body:not(.is-admin) [class*="edit-data"] {
     display: none !important;
 }
-body:not(.is-admin) .settings-btn-tiny,
 body:not(.is-admin) #admin-topbar,
 body:not(.is-admin) #btn-admin-gear,
-body:not(.is-admin) .btn-topbar-edit,
-body:not(.is-admin) .btn-topbar-chuyende,
-body:not(.admin-mode) .settings-btn-tiny,
 body:not(.admin-mode) #admin-topbar,
-body:not(.admin-mode) #btn-admin-gear,
-body:not(.admin-mode) .btn-topbar-edit,
-body:not(.admin-mode) .btn-topbar-chuyende {
+body:not(.admin-mode) #btn-admin-gear {
     display: none !important;
 }
-body.is-admin .admin-only-btn,
-body.admin-mode .admin-only-btn,
-body.is-admin .admin-toolbar-btn,
-body.admin-mode .admin-toolbar-btn,
 body.is-admin #admin-topbar,
 body.admin-mode #admin-topbar,
-body.is-admin .settings-btn-tiny,
-body.admin-mode .settings-btn-tiny {
+body.is-admin .edit-data-btn,
+body.admin-mode .edit-data-btn,
+body.is-admin [class*="edit-data"],
+body.admin-mode [class*="edit-data"] {
     display: flex !important;
 }
 body.is-admin #btn-admin-gear,
@@ -2374,14 +2368,19 @@ body.admin-mode #btn-admin-gear {
     display: inline-flex !important;
 }
 
+/* Đảm bảo nút Cài đặt / Cấu hình đội và nhạc luôn hiển thị */
+.settings-btn, [class*="setting"], [class*="gear"], button:contains("Cài Đặt") {
+    display: inline-flex !important;
+    pointer-events: auto !important;
+}
+
 /* 3. Kích hoạt thanh cuộn dọc mượt mà cho Mobile */
 @media screen and (max-width: 768px) {
-    body, html, .game-wrapper, [class*="container"] {
+    body, html, .game-wrapper, [class*="container"], [class*="apple"] {
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
-        max-height: 100vh !important;
     }
-    .main-board, .side-panel, .q-container {
+    .main-board, .side-panel, .q-container, .input-area {
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
     }
@@ -2447,8 +2446,16 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
       const isExplicitStudent = params.get('role') === 'student' || params.get('student') === '1' || window.location.pathname.includes('/chon-hs/');
       const isAdmin = !isExplicitStudent && (params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1' || window.location.hash.includes('admin'));
       const adminTopbar = document.getElementById('admin-topbar');
-      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, .settings-btn-tiny, .admin-only-btn, .admin-toolbar-btn, [data-admin-control="true"]');
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, .edit-data-btn, [class*="edit-data"]');
       const studentBtn = document.getElementById('btn-student-chuyende');
+
+      // Nút Cài đặt (⚙️) LUÔN hiển thị cho học sinh và giáo viên
+      const settingsBtn = document.querySelector('.settings-btn-tiny, .settings-btn, .gear-btn');
+      if (settingsBtn) {
+        settingsBtn.style.setProperty('display', 'inline-flex', 'important');
+        settingsBtn.style.setProperty('pointer-events', 'auto', 'important');
+      }
+
       if (isAdmin) {
         document.body.classList.add('is-admin', 'admin-mode');
         if (adminTopbar) adminTopbar.style.setProperty('display', 'flex', 'important');
