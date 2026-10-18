@@ -2398,15 +2398,27 @@ body.admin-mode #btn-admin-gear {
     pointer-events: auto !important;
 }
 
-/* 3. Kích hoạt thanh cuộn dọc mượt mà cho Mobile */
-@media screen and (max-width: 768px) {
+/* ========================================== */
+/* 2. GIAO DIỆN DÀNH RIÊNG CHO MOBILE (Màn hình nhỏ < 768px) */
+/* ========================================== */
+@media screen and (max-width: 767px) {
+    .apple-game-container, .harvest-game-wrapper, [class*="harvest"], .game-main-layout, .main-board {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
     body, html, .game-wrapper, [class*="container"], [class*="apple"] {
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
     }
-    .main-board, .side-panel, .q-container, .input-area {
+    .side-panel, .q-container, .input-area {
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
+        max-width: 100% !important;
+        width: 100% !important;
     }
     #mobile-submit-btn {
         display: block !important;
@@ -2444,39 +2456,44 @@ body.admin-mode #btn-admin-gear {
         border-radius: 4px;
     }
 }
-@media screen and (min-width: 769px) {
-    #mobile-submit-btn {
-        display: none !important;
-    }
-}
 
-/* 1. Thiết lập giao diện bàn chơi Hái Táo chuẩn rộng trên Laptop / Desktop */
-@media screen and (min-width: 769px) {
+/* ========================================== */
+/* 1. GIAO DIỆN DÀNH RIÊNG CHO LAPTOP / DESKTOP (Màn hình lớn >= 768px) */
+/* ========================================== */
+@media screen and (min-width: 768px) {
     .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board {
         width: 100% !important;
-        max-width: 1350px !important;
+        max-width: 1400px !important;
         margin: 0 auto !important;
         display: flex !important;
         flex-direction: row !important;
         justify-content: space-between !important;
         align-items: stretch !important;
         box-sizing: border-box !important;
+        background: transparent !important;
+        transform: none !important;
     }
     
-    /* Các cột đội Xanh, Cân, Đội Đỏ phân bổ rộng rãi trên máy tính */
+    /* Các cột đội chơi phân bổ rộng rãi hai bên */
     .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
         flex: 1 !important;
-        max-width: 42% !important;
-        width: 42% !important;
+        max-width: 45% !important;
+        width: 45% !important;
         height: auto !important;
+        margin: 0 !important;
     }
+    
+    /* Cột cân táo ở giữa */
     .scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel {
-        flex: 0 0 200px !important;
-        width: 200px !important;
+        flex: 0 0 180px !important;
+        width: 180px !important;
         min-width: 180px !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
     }
 
-    /* Khung câu hỏi hiển thị đầy đủ, không bị cụt */
+    /* Khung câu hỏi hiển thị đầy đủ, không bị giới hạn chiều cao */
     .question-container, .quiz-content-box, [class*="question-area"], .q-container, [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
         max-height: none !important;
         height: auto !important;
@@ -2487,6 +2504,10 @@ body.admin-mode #btn-admin-gear {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 14px !important;
+    }
+
+    #mobile-submit-btn {
+        display: none !important;
     }
 }
 
@@ -2726,13 +2747,13 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
 
       const mobBtn = document.getElementById('mobile-submit-btn');
       const startContestBtns = document.querySelectorAll('.start-contest-btn, [class*="start-btn"], #btn-start, .btn-start-race');
-      if (mobBtn && startContestBtns.length > 0 && window.innerWidth <= 768) {
+      if (mobBtn && startContestBtns.length > 0 && window.innerWidth < 768) {
         startContestBtns[0].parentNode.insertBefore(mobBtn, startContestBtns[0]);
         mobBtn.style.cssText = 'position: relative !important; display: block !important; width: 90% !important; margin: 10px auto !important; z-index: 100 !important;';
       } else {
         const confirmBtns = document.querySelectorAll('.confirm-btn, [class*="submit-answer"], .btn-submit');
         confirmBtns.forEach(cBtn => {
-          if (startContestBtns.length > 0 && window.innerWidth <= 768 && !cBtn.closest('#panel-1') && !cBtn.closest('#panel-2')) {
+          if (startContestBtns.length > 0 && window.innerWidth < 768 && !cBtn.closest('#panel-1') && !cBtn.closest('#panel-2')) {
             startContestBtns[0].parentNode.insertBefore(cBtn, startContestBtns[0]);
             cBtn.style.cssText = 'position: relative !important; display: block !important; width: 90% !important; margin: 10px auto !important; z-index: 100 !important;';
           }
@@ -2758,26 +2779,32 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
         const centerPanels = document.querySelectorAll('.scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel');
         const questionBoxes = document.querySelectorAll('.question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper)');
 
-        if (window.innerWidth > 768) {
+        if (window.innerWidth >= 768) {
           layoutContainers.forEach(el => {
             (el as HTMLElement).style.width = '100%';
-            (el as HTMLElement).style.maxWidth = '1350px';
+            (el as HTMLElement).style.maxWidth = '1400px';
             (el as HTMLElement).style.margin = '0 auto';
             (el as HTMLElement).style.display = 'flex';
             (el as HTMLElement).style.flexDirection = 'row';
             (el as HTMLElement).style.justifyContent = 'space-between';
             (el as HTMLElement).style.alignItems = 'stretch';
+            (el as HTMLElement).style.background = 'transparent';
+            (el as HTMLElement).style.transform = 'none';
           });
           sidePanels.forEach(p => {
             (p as HTMLElement).style.flex = '1';
-            (p as HTMLElement).style.maxWidth = '42%';
-            (p as HTMLElement).style.width = '42%';
+            (p as HTMLElement).style.maxWidth = '45%';
+            (p as HTMLElement).style.width = '45%';
             (p as HTMLElement).style.height = 'auto';
+            (p as HTMLElement).style.margin = '0';
           });
           centerPanels.forEach(cp => {
-            (cp as HTMLElement).style.flex = '0 0 200px';
-            (cp as HTMLElement).style.width = '200px';
+            (cp as HTMLElement).style.flex = '0 0 180px';
+            (cp as HTMLElement).style.width = '180px';
             (cp as HTMLElement).style.minWidth = '180px';
+            (cp as HTMLElement).style.display = 'flex';
+            (cp as HTMLElement).style.justifyContent = 'center';
+            (cp as HTMLElement).style.alignItems = 'center';
           });
           questionBoxes.forEach(box => {
             (box as HTMLElement).style.maxHeight = 'none';
@@ -2786,10 +2813,19 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
           });
         } else {
           layoutContainers.forEach(el => {
+            (el as HTMLElement).style.display = 'flex';
+            (el as HTMLElement).style.flexDirection = 'column';
+            (el as HTMLElement).style.width = '100%';
             (el as HTMLElement).style.maxWidth = '100%';
+            (el as HTMLElement).style.overflowY = 'auto';
           });
           sidePanels.forEach(p => {
             (p as HTMLElement).style.maxWidth = '100%';
+            (p as HTMLElement).style.width = '100%';
+          });
+          centerPanels.forEach(cp => {
+            (cp as HTMLElement).style.flex = 'initial';
+            (cp as HTMLElement).style.width = 'auto';
           });
           questionBoxes.forEach(box => {
             (box as HTMLElement).style.maxHeight = '50vh';
@@ -2832,7 +2868,7 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
       });
 
       // 6. Scroll mượt mà toàn trang trên Mobile
-      if (window.innerWidth <= 768) {
+      if (window.innerWidth < 768) {
         document.documentElement.style.overflowY = 'auto';
         document.body.style.overflowY = 'auto';
         const scrollElements = document.querySelectorAll('.apple-game-container, [class*="harvest"], .game-wrapper, [class*="container"]');
