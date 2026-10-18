@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -182,6 +182,141 @@ button, .btn, input, select, canvas {
     -webkit-transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
 }
+
+/* ======================================================== */
+/* BỘ CSS CHỐNG TRÀN, TỰ ĐỘNG XUỐNG DÒNG CHO KÉO CO v3.8    */
+/* ======================================================== */
+.tug-of-war-container, [class*="tug"], .question-container, [class*="question"], [class*="answer"], div, p, span {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+.question-text, [class*="question-text"], h3, p {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.4 !important;
+}
+.answer-btn, [class*="answer"], [class*="option"], button[class*="choice"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 44px !important;
+    padding: 8px 12px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    text-align: left !important;
+}
+
+/* Tinh chỉnh bẻ dòng cho đề bài và đáp án kéo co */
+.problem-title {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.4 !important;
+    text-align: center;
+}
+.problem-text {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+.problem-options {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+.abcd-row {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 44px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    box-sizing: border-box !important;
+}
+.abcd-text {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.4 !important;
+    flex: 1;
+}
+.tf-text {
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.4 !important;
+}
+
+/* Định vị nút cài đặt để không bị đè bởi nút Về Sảnh */
+.settings-btn {
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 42px !important;
+    height: 42px !important;
+    font-size: 24px !important;
+}
+
+/* Hỗ trợ Responsive Mobile & Tablet cho Kéo Co */
+@media (max-width: 900px) {
+    body {
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow-y: auto !important;
+    }
+    .header {
+        flex-wrap: wrap !important;
+        padding: 8px 10px !important;
+        gap: 8px !important;
+        justify-content: center !important;
+    }
+    .header .title {
+        font-size: 16px !important;
+        order: -1 !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
+    .game-container {
+        flex-direction: column !important;
+        align-items: center !important;
+        overflow-y: visible !important;
+        padding: 5px !important;
+    }
+    .panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 8px 0 !important;
+        padding: 12px 14px !important;
+    }
+    .canvas-container {
+        width: 100% !important;
+        min-height: 220px !important;
+        order: -1 !important;
+    }
+    canvas {
+        max-height: 220px !important;
+    }
+    .btn-back-to-lobby {
+        font-size: 12px !important;
+        padding: 5px 10px !important;
+    }
+}
 </style>
 
 </head>
@@ -190,7 +325,7 @@ button, .btn, input, select, canvas {
     <!-- ======================================================== -->
     <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
     <!-- ======================================================== -->
-    <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, rgba(192, 57, 43, 0.96) 0%, rgba(44, 62, 80, 0.98) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Segoe UI', Tahoma, sans-serif;">
+    <div id="topic-selection-overlay" class="selection-screen-wrapper lobby-wrapper modal popup" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, rgba(192, 57, 43, 0.96) 0%, rgba(44, 62, 80, 0.98) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Segoe UI', Tahoma, sans-serif;">
       <div style="max-width: 960px; width: 100%; background: linear-gradient(135deg, rgba(44, 62, 80, 0.96), rgba(26, 37, 47, 0.98)); border: 3px solid #f1c40f; border-radius: 28px; padding: 28px 32px; box-shadow: 0 0 50px rgba(241, 196, 15, 0.4); backdrop-filter: blur(20px); text-align: center;">
         
         <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 20px; border-radius: 9999px; background: rgba(241, 196, 15, 0.15); border: 1.5px solid #f1c40f; color: #f9e79f; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
@@ -212,7 +347,7 @@ button, .btn, input, select, canvas {
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 16px; font-size: 12px; color: #bdc3c7; font-weight: 600;">
           <span>⭐ Hỗ trợ kéo co toàn diện (Dễ ➡️ Khó) hoặc chọn từng cấp độ</span>
           <div style="display: flex; gap: 10px; align-items: center;">
-            <button onclick="document.getElementById('topic-selection-overlay').style.display='none'" style="background: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid #f1c40f; padding: 5px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">Đóng Menu</button>
+            <button class="close-menu-btn" onclick="const modalBox = this.closest('.selection-screen-wrapper, .lobby-wrapper, #setup-container, [class*=\'modal\'], [class*=\'popup\']') || document.getElementById('topic-selection-overlay'); if (modalBox) { modalBox.style.display = 'none'; modalBox.style.visibility = 'hidden'; } const gameArena = document.querySelector('.tug-arena, [class*=\'arena\'], [class*=\'game-board\']'); if (gameArena) { gameArena.style.display = 'flex'; gameArena.style.visibility = 'visible'; }" style="background: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid #f1c40f; padding: 5px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">Đóng Menu</button>
             <span style="color: #f1c40f; font-weight: 800;">TugOfWar Engine v3.8</span>
           </div>
         </div>
@@ -222,8 +357,9 @@ button, .btn, input, select, canvas {
 
     <div id="autoplay-banner">🔊 Click chuột bất kỳ đâu trên màn hình để tự động phát nhạc nền!</div>
 
-    <div class="header">
-        <div style="display: flex; align-items: center; gap: 10px; z-index: 20;">
+    <header class="header top-bar" style="position: relative;">
+        <button class="btn-back-to-lobby" onclick="const lobbyScreens = document.querySelectorAll('.selection-screen-wrapper, .lobby-wrapper, #setup-container, [class*=\'modal\'], [class*=\'popup\']'); lobbyScreens.forEach(s => { s.style.display = 'flex'; s.style.visibility = 'visible'; }); const arena = document.querySelector('.tug-arena, [class*=\'arena\'], [class*=\'game-board\']'); if (arena) arena.style.display = 'none';" style="position: absolute; top: 10px; left: 15px; z-index: 9999; background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">🏠 Về Sảnh</button>
+        <div class="left-controls" style="display: flex; align-items: center; gap: 10px; z-index: 20; margin-left: 110px;">
             <div class="settings-btn" onclick="openSettings()" title="Cài đặt trò chơi">⚙️</div>
             <button onclick="openTugTopicMenu()" style="font-size: 13px; font-weight: 900; background: linear-gradient(135deg, #f1c40f, #e67e22); color: white; border: 2px solid #fff; border-radius: 20px; padding: 6px 14px; cursor: pointer; box-shadow: 0 4px #d35400; text-transform: uppercase; transition: transform 0.1s;">
                 📚 Đổi Chuyên Đề
@@ -236,16 +372,16 @@ button, .btn, input, select, canvas {
             <div class="timer" id="timer" style="display: none;">00:00</div>
         </div>
         <div class="lantern right"></div>
-    </div>
+    </header>
 
-    <div class="game-container">
+    <div class="game-container tug-arena tug-of-war-container game-board" id="game-arena">
         <!-- Đội 1 (Xanh) -->
         <div class="panel blue" id="panel1">
             <div class="team-name" id="name-display-1">Đội Xanh</div>
             <div class="question-info" id="q-info1">Câu --/--</div>
             
-            <div class="problem-wrapper">
-                <div class="problem-text" id="prob1">...</div>
+            <div class="problem-wrapper question-container">
+                <div class="problem-text question-text" id="prob1">...</div>
                 <div class="inline-input-box" id="input1"></div>
             </div>
             
@@ -262,8 +398,8 @@ button, .btn, input, select, canvas {
             <div class="team-name" id="name-display-2">Đội Đỏ</div>
             <div class="question-info" id="q-info2">Câu --/--</div>
             
-            <div class="problem-wrapper">
-                <div class="problem-text" id="prob2">...</div>
+            <div class="problem-wrapper question-container">
+                <div class="problem-text question-text" id="prob2">...</div>
                 <div class="inline-input-box" id="input2"></div>
             </div>
             
@@ -577,7 +713,12 @@ button, .btn, input, select, canvas {
         window.openTugTopicMenu = function() {
             window.renderTugTopicCards();
             const overlay = document.getElementById('topic-selection-overlay');
-            if (overlay) overlay.style.display = 'flex';
+            if (overlay) {
+                overlay.style.display = 'flex';
+                overlay.style.visibility = 'visible';
+            }
+            const arena = document.querySelector('.tug-arena, [class*="arena"], [class*="game-board"]');
+            if (arena) arena.style.display = 'none';
         };
 
         window.renderTugTopicCards = function() {
@@ -658,7 +799,15 @@ button, .btn, input, select, canvas {
 
             // Đóng menu
             const overlayTopic = document.getElementById('topic-selection-overlay');
-            if (overlayTopic) overlayTopic.style.display = 'none';
+            if (overlayTopic) {
+                overlayTopic.style.display = 'none';
+                overlayTopic.style.visibility = 'hidden';
+            }
+            const gameArena = document.querySelector('.tug-arena, [class*="arena"], [class*="game-board"]');
+            if (gameArena) {
+                gameArena.style.display = 'flex';
+                gameArena.style.visibility = 'visible';
+            }
 
             // Reset trận đấu
             resetGame();
@@ -920,7 +1069,7 @@ button, .btn, input, select, canvas {
                 
                 let q = team === 1 ? qData.q1 : qData.q2;
                 
-                let htmlContent = `<div class="problem-title">${q.text}</div>`;
+                let htmlContent = `<div class="problem-title question-text">${q.text}</div>`;
                 if (q.options && q.options.length > 0) {
                     htmlContent += `<div class="problem-options">`;
                     q.options.forEach((opt, idx) => {
@@ -928,7 +1077,7 @@ button, .btn, input, select, canvas {
                             // Giao diện Nút Radio Inline cho câu Đúng/Sai
                             htmlContent += `
                             <div class="tf-row">
-                                <div class="tf-text">${opt}</div>
+                                <div class="tf-text question-text">${opt}</div>
                                 <div class="tf-radios">
                                     <label class="tf-label lbl-t${team}-opt${idx}">
                                         <input type="radio" name="t${team}_opt${idx}" value="Đ" onchange="setTfAns(${team}, ${idx}, 'Đ')"> Đ
@@ -943,9 +1092,9 @@ button, .btn, input, select, canvas {
                             const letters = ['A', 'B', 'C', 'D'];
                             let letter = letters[idx];
                             htmlContent += `
-                            <label class="abcd-row lbl-t${team}-abcd" id="lbl-t${team}-abcd-${letter}">
+                            <label class="abcd-row answer-btn lbl-t${team}-abcd" id="lbl-t${team}-abcd-${letter}">
                                 <input type="radio" name="t${team}_abcd" class="abcd-radio" value="${letter}" onchange="setAbcdAns(${team}, '${letter}')">
-                                <span class="abcd-text">${opt}</span>
+                                <span class="abcd-text question-text">${opt}</span>
                             </label>`;
                         } else {
                             htmlContent += `<div>${opt}</div>`;
@@ -1583,6 +1732,66 @@ window.formatMathStringToTeX = formatMathStringToTeX;
         });
         obs.observe(document.documentElement, { childList: true, subtree: true });
     } catch(e) {}
+})();
+</script>
+<script id="tug-lobby-controller">
+(function() {
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            // 1. Tự động chèn nút "🏠 Về Sảnh" vào góc màn hình bàn chơi Kéo Co nếu chưa có
+            const gameHeader = document.querySelector('.tug-arena, [class*="arena"], [class*="game-board"], header, .top-bar');
+            if (gameHeader && !document.querySelector('.btn-back-to-lobby')) {
+                const lobbyBtn = document.createElement('button');
+                lobbyBtn.className = 'btn-back-to-lobby';
+                lobbyBtn.innerText = '🏠 Về Sảnh';
+                lobbyBtn.style.cssText = 'position: absolute; top: 10px; left: 15px; z-index: 9999; background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);';
+                
+                lobbyBtn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Hiển thị lại sảnh chờ / menu chọn chuyên đề
+                    const lobbyScreens = document.querySelectorAll('.selection-screen-wrapper, .lobby-wrapper, #setup-container, [class*="modal"], [class*="popup"]');
+                    lobbyScreens.forEach(s => {
+                        s.style.display = 'flex';
+                        s.style.visibility = 'visible';
+                    });
+                    // Ẩn bàn đấu Kéo Co
+                    const arena = document.querySelector('.tug-arena, [class*="arena"], [class*="game-board"]');
+                    if (arena) arena.style.display = 'none';
+                };
+                gameHeader.style.position = 'relative';
+                gameHeader.appendChild(lobbyBtn);
+            }
+
+            // 2. Chuẩn hóa nút "Đóng Menu": Ẩn menu và vào thẳng trận đấu
+            let closeMenuBtns = [];
+            try {
+                closeMenuBtns = document.querySelectorAll('button:contains("Đóng Menu"), .close-menu-btn, [class*="close-menu"]');
+            } catch (e) {
+                closeMenuBtns = Array.from(document.querySelectorAll('.close-menu-btn, [class*="close-menu"], button')).filter(btn => 
+                    btn.classList.contains('close-menu-btn') || 
+                    btn.className.includes('close-menu') || 
+                    (btn.textContent && btn.textContent.includes('Đóng Menu'))
+                );
+            }
+            closeMenuBtns.forEach(btn => {
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const modalBox = btn.closest('.selection-screen-wrapper, .lobby-wrapper, #setup-container, [class*="modal"], [class*="popup"]') || document.getElementById('topic-selection-overlay');
+                    if (modalBox) {
+                        modalBox.style.display = 'none';
+                        modalBox.style.visibility = 'hidden';
+                    }
+                    const gameArena = document.querySelector('.tug-arena, [class*="arena"], [class*="game-board"]');
+                    if (gameArena) {
+                        gameArena.style.display = 'flex';
+                        gameArena.style.visibility = 'visible';
+                    }
+                };
+            });
+        }, 1000);
+    });
 })();
 </script>
 </body>
