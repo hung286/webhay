@@ -2429,7 +2429,7 @@ body.admin-mode #btn-admin-gear {
 
     /* Khung chứa nội dung câu hỏi và các đáp án trên mobile (Scroll độc lập) */
     .question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
-        max-height: 55vh !important;
+        max-height: 50vh !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
         padding-right: 6px !important;
@@ -2456,6 +2456,12 @@ body.admin-mode #btn-admin-gear {
         max-width: 1200px !important;
         margin: 0 auto !important;
         box-sizing: border-box !important;
+    }
+    /* Khôi phục chiều cao tự nhiên cho khung câu hỏi và đáp án trên Laptop */
+    .question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
+        max-height: none !important;
+        height: auto !important;
+        overflow-y: visible !important;
     }
     .answer-grid, [class*="answers"], .options-container {
         display: grid !important;
@@ -2725,20 +2731,62 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
         };
       });
 
+      // 4. Khôi phục chiều cao tự nhiên cho khung câu hỏi/đáp án trên Laptop & giới hạn scroll độc lập cho Mobile
+      const updateQuestionBoxHeights = () => {
+        const questionBoxes = document.querySelectorAll('.question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper)');
+        questionBoxes.forEach(box => {
+          if (window.innerWidth > 768) {
+            (box as HTMLElement).style.maxHeight = 'none';
+            (box as HTMLElement).style.height = 'auto';
+            (box as HTMLElement).style.overflowY = 'visible';
+          } else {
+            (box as HTMLElement).style.maxHeight = '50vh';
+            (box as HTMLElement).style.overflowY = 'auto';
+            (box as HTMLElement).style.webkitOverflowScrolling = 'touch';
+            (box as HTMLElement).style.paddingRight = '6px';
+          }
+        });
+      };
+      updateQuestionBoxHeights();
+      window.addEventListener('resize', updateQuestionBoxHeights);
+
+      // 5. Mở khóa và sửa sự kiện nút "Đổi Chuyên Đề" / "Chuyên Đề"
+      let changeTopicBtns: HTMLElement[] = Array.from(document.querySelectorAll('#btn-student-chuyende, #btn-chuyen-de, .btn-topbar-student, .btn-topbar-chuyende, [class*="change-topic"], [class*="topic-btn"]'));
+      document.querySelectorAll('button').forEach(btn => {
+        const txt = (btn.textContent || '').trim();
+        if ((txt.includes('Đổi Chuyên Đề') || txt.includes('CHUYÊN ĐỀ') || txt.includes('Chuyên Đề')) && !changeTopicBtns.includes(btn as HTMLElement)) {
+          changeTopicBtns.push(btn as HTMLElement);
+        }
+      });
+      changeTopicBtns.forEach(btn => {
+        btn.style.pointerEvents = 'auto';
+        btn.style.cursor = 'pointer';
+        btn.onclick = function(e) {
+          if (e && e.preventDefault) e.preventDefault();
+          if (e && e.stopPropagation) e.stopPropagation();
+          console.log("Mở lại menu chọn chuyên đề hái táo...");
+          if (typeof (window as any).openAppleTopicMenu === 'function') {
+            (window as any).openAppleTopicMenu();
+            return;
+          }
+          const topicModal = document.querySelector('#topic-selection-overlay, .selection-screen-wrapper, .lobby-wrapper, #setup-container, #topic-modal, [class*="modal"], [class*="topic-selector"]') as HTMLElement;
+          if (topicModal) {
+            topicModal.style.display = 'flex';
+            topicModal.style.visibility = 'visible';
+          } else {
+            window.location.reload();
+          }
+        };
+      });
+
+      // 6. Scroll mượt mà toàn trang trên Mobile
       if (window.innerWidth <= 768) {
         document.documentElement.style.overflowY = 'auto';
         document.body.style.overflowY = 'auto';
         const scrollElements = document.querySelectorAll('.apple-game-container, [class*="harvest"], .game-wrapper, [class*="container"]');
         scrollElements.forEach(se => {
-          se.style.overflowY = 'auto';
-          se.style.webkitOverflowScrolling = 'touch';
-        });
-        const questionBoxes = document.querySelectorAll('.question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"]');
-        questionBoxes.forEach(qb => {
-          qb.style.maxHeight = '55vh';
-          qb.style.overflowY = 'auto';
-          qb.style.webkitOverflowScrolling = 'touch';
-          qb.style.paddingRight = '6px';
+          (se as HTMLElement).style.overflowY = 'auto';
+          (se as HTMLElement).style.webkitOverflowScrolling = 'touch';
         });
       }
     } catch(e) {}
