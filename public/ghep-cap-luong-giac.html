@@ -581,6 +581,9 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
             <button onclick="window.openGhepCapTopicMenu()" class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs sm:text-sm shadow-[0_4px_15px_rgba(16,185,129,0.4)] border-2 border-emerald-300 hover:scale-105 transition cursor-pointer active:scale-95" title="Chọn chuyên đề học tập">
                 📚 <span>Đổi Chuyên Đề</span>
             </button>
+            <button id="ingame-exit-btn" onclick="window.location.reload()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-gradient-to-r from-rose-500 to-red-600 hover:from-red-600 hover:to-rose-700 text-white font-black text-xs sm:text-sm shadow-[0_4px_15px_rgba(239,68,68,0.4)] border-2 border-red-300 hover:scale-105 transition cursor-pointer active:scale-95" title="Về sảnh chờ">
+                🏠 <span>Về sảnh chờ</span>
+            </button>
         </div>
 
         <div class="pointer-events-auto flex items-center gap-2 flex-wrap">
@@ -3677,6 +3680,30 @@ if (typeof window !== 'undefined') {
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
             setTimeout(initIsolatedMultiSelect, 300);
         }
+    })();
+
+    
+    // ==========================================
+    // BƯỚC 1: TIÊM NÚT THOÁT (VỀ SẢNH CHỜ) TRONG BÀN CHƠI (INGAME)
+    // ==========================================
+    (function() {
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const topHeader = document.querySelector('.play-area, header, .game-header, [class*="header"]');
+                if (topHeader && !document.getElementById('ingame-exit-btn')) {
+                    const exitBtn = document.createElement('button');
+                    exitBtn.id = 'ingame-exit-btn';
+                    exitBtn.style.cssText = 'background: #ef4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; margin-left: 10px; box-shadow: 0 2px 6px rgba(239,68,68,0.4);';
+                    exitBtn.innerHTML = '🏠 Về sảnh chờ';
+                    exitBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.location.reload(); // Reload nhẹ nhàng về sảnh chờ
+                    };
+                    topHeader.prepend(exitBtn);
+                }
+            }, 1200);
+        });
     })();
 
     // BƯỚC 3: KIỂM SOÁT AN TOÀN BỘ ĐẾM THỜI GIAN (TIME-OUT & GAME OVER)
