@@ -1,4 +1,95 @@
 <html lang="vi"><head>
+<script id="apple-screen-guard">
+  (function() {
+      // 1. Khóa cứng CSS cho màn hình máy tính ngay lập tức
+      const styleEl = document.createElement('style');
+      styleEl.id = 'apple-desktop-lock-style';
+      styleEl.innerHTML = `
+          @media screen and (min-width: 768px) {
+              .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board, div[style*="max-width"] {
+                  width: 100% !important;
+                  max-width: 1380px !important;
+                  min-width: 1000px !important;
+                  margin: 0 auto !important;
+                  display: flex !important;
+                  flex-direction: row !important;
+                  justify-content: space-between !important;
+                  align-items: stretch !important;
+                  box-sizing: border-box !important;
+                  transform: none !important;
+              }
+              .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
+                  flex: 1 !important;
+                  max-width: 44% !important;
+                  height: auto !important;
+              }
+              .scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel {
+                  flex: 0 0 180px !important;
+                  width: 180px !important;
+                  min-width: 180px !important;
+              }
+              #pin-prompt-modal > div {
+                  max-width: 360px !important;
+                  min-width: 0 !important;
+                  display: block !important;
+              }
+              #admin-questions-modal > div, #admin-editor-modal > div {
+                  max-width: 1050px !important;
+                  min-width: 0 !important;
+                  display: flex !important;
+                  flex-direction: column !important;
+              }
+              #topic-selection-overlay > div {
+                  max-width: 960px !important;
+                  min-width: 0 !important;
+                  display: block !important;
+              }
+          }
+      `;
+      if (document.head) {
+          document.head.appendChild(styleEl);
+      } else {
+          document.addEventListener('DOMContentLoaded', () => document.head.appendChild(styleEl));
+      }
+
+      // 2. Trấn áp mọi script trong game cố tình thay đổi inline style bóp méo khung trên laptop
+      const initProtectionObserver = () => {
+          const protectContainers = () => {
+              if (window.innerWidth >= 768) {
+                  const containers = document.querySelectorAll('.apple-game-container, [class*="harvest"], [class*="apple-arena"], .main-board, .game-wrapper');
+                  containers.forEach(c => {
+                      if (c.style.maxWidth && parseInt(c.style.maxWidth) < 800) {
+                          c.style.maxWidth = '1380px';
+                      }
+                      if (c.style.width && c.style.width.includes('px') && parseInt(c.style.width) < 800) {
+                          c.style.width = '100%';
+                      }
+                      if (c.style.transform && c.style.transform.includes('scale')) {
+                          c.style.transform = 'none';
+                      }
+                  });
+              }
+          };
+
+          protectContainers();
+
+          if (window.MutationObserver && document.body) {
+              const observer = new MutationObserver((mutations) => {
+                  protectContainers();
+              });
+              observer.observe(document.body, { attributes: true, childList: true, subtree: true, attributeFilter: ['style'] });
+          }
+      };
+
+      if (document.readyState === 'loading') {
+          window.addEventListener('DOMContentLoaded', initProtectionObserver);
+      } else {
+          initProtectionObserver();
+      }
+      window.addEventListener('load', initProtectionObserver);
+      window.addEventListener('resize', initProtectionObserver);
+  })();
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toán 11 - Hội Thi Thu Hoạch Táo Luân Phiên | TOÁN PRO - THẦY HÙNG</title>
@@ -548,9 +639,10 @@
         /* 1. GIAO DIỆN DÀNH RIÊNG CHO LAPTOP / DESKTOP (Màn hình lớn >= 768px) */
         /* ========================================== */
         @media screen and (min-width: 768px) {
-            .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board {
+            .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board, div[style*="max-width"] {
                 width: 100% !important;
-                max-width: 1400px !important;
+                max-width: 1380px !important;
+                  min-width: 1000px !important;
                 margin: 0 auto !important;
                 display: flex !important;
                 flex-direction: row !important;
@@ -564,8 +656,8 @@
             /* Các cột đội chơi phân bổ rộng rãi hai bên */
             .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
                 flex: 1 !important;
-                max-width: 45% !important;
-                width: 45% !important;
+                max-width: 44% !important;
+                width: 44% !important;
                 height: auto !important;
                 margin: 0 !important;
             }
@@ -4821,7 +4913,7 @@ window.formatMathStringToTeX = formatMathStringToTeX;
             if (window.innerWidth >= 768) {
                 layoutContainers.forEach(el => {
                     el.style.width = '100%';
-                    el.style.maxWidth = '1400px';
+                    el.style.maxWidth = '1380px';
                     el.style.margin = '0 auto';
                     el.style.display = 'flex';
                     el.style.flexDirection = 'row';
@@ -4832,8 +4924,8 @@ window.formatMathStringToTeX = formatMathStringToTeX;
                 });
                 sidePanels.forEach(p => {
                     p.style.flex = '1';
-                    p.style.maxWidth = '45%';
-                    p.style.width = '45%';
+                    p.style.maxWidth = '44%';
+                    p.style.width = '44%';
                     p.style.height = 'auto';
                     p.style.margin = '0';
                 });
