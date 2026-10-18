@@ -2450,19 +2450,39 @@ body.admin-mode #btn-admin-gear {
     }
 }
 
-/* Tối ưu chế độ Laptop / Full màn hình */
+/* 1. Thiết lập giao diện bàn chơi Hái Táo chuẩn rộng trên Laptop / Desktop */
 @media screen and (min-width: 769px) {
-    .apple-game-container, [class*="apple"], [class*="harvest"], .quiz-box {
-        max-width: 1200px !important;
+    .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board {
+        width: 100% !important;
+        max-width: 1350px !important;
         margin: 0 auto !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: stretch !important;
         box-sizing: border-box !important;
     }
-    /* Khôi phục chiều cao tự nhiên cho khung câu hỏi và đáp án trên Laptop */
-    .question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
+    
+    /* Các cột đội Xanh, Cân, Đội Đỏ phân bổ rộng rãi trên máy tính */
+    .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
+        flex: 1 !important;
+        max-width: 42% !important;
+        width: 42% !important;
+        height: auto !important;
+    }
+    .scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel {
+        flex: 0 0 200px !important;
+        width: 200px !important;
+        min-width: 180px !important;
+    }
+
+    /* Khung câu hỏi hiển thị đầy đủ, không bị cụt */
+    .question-container, .quiz-content-box, [class*="question-area"], .q-container, [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
         max-height: none !important;
         height: auto !important;
         overflow-y: visible !important;
     }
+
     .answer-grid, [class*="answers"], .options-container {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -2731,24 +2751,56 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
         };
       });
 
-      // 4. Khôi phục chiều cao tự nhiên cho khung câu hỏi/đáp án trên Laptop & giới hạn scroll độc lập cho Mobile
-      const updateQuestionBoxHeights = () => {
+      // 4. Chuẩn hóa layout bàn chơi 3 cột rộng rãi trên Laptop & kích hoạt scroll độc lập trên Mobile
+      const updateResponsiveLayout = () => {
+        const layoutContainers = document.querySelectorAll('.apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board');
+        const sidePanels = document.querySelectorAll('.team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel');
+        const centerPanels = document.querySelectorAll('.scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel');
         const questionBoxes = document.querySelectorAll('.question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper)');
-        questionBoxes.forEach(box => {
-          if (window.innerWidth > 768) {
+
+        if (window.innerWidth > 768) {
+          layoutContainers.forEach(el => {
+            (el as HTMLElement).style.width = '100%';
+            (el as HTMLElement).style.maxWidth = '1350px';
+            (el as HTMLElement).style.margin = '0 auto';
+            (el as HTMLElement).style.display = 'flex';
+            (el as HTMLElement).style.flexDirection = 'row';
+            (el as HTMLElement).style.justifyContent = 'space-between';
+            (el as HTMLElement).style.alignItems = 'stretch';
+          });
+          sidePanels.forEach(p => {
+            (p as HTMLElement).style.flex = '1';
+            (p as HTMLElement).style.maxWidth = '42%';
+            (p as HTMLElement).style.width = '42%';
+            (p as HTMLElement).style.height = 'auto';
+          });
+          centerPanels.forEach(cp => {
+            (cp as HTMLElement).style.flex = '0 0 200px';
+            (cp as HTMLElement).style.width = '200px';
+            (cp as HTMLElement).style.minWidth = '180px';
+          });
+          questionBoxes.forEach(box => {
             (box as HTMLElement).style.maxHeight = 'none';
             (box as HTMLElement).style.height = 'auto';
             (box as HTMLElement).style.overflowY = 'visible';
-          } else {
+          });
+        } else {
+          layoutContainers.forEach(el => {
+            (el as HTMLElement).style.maxWidth = '100%';
+          });
+          sidePanels.forEach(p => {
+            (p as HTMLElement).style.maxWidth = '100%';
+          });
+          questionBoxes.forEach(box => {
             (box as HTMLElement).style.maxHeight = '50vh';
             (box as HTMLElement).style.overflowY = 'auto';
             (box as HTMLElement).style.webkitOverflowScrolling = 'touch';
             (box as HTMLElement).style.paddingRight = '6px';
-          }
-        });
+          });
+        }
       };
-      updateQuestionBoxHeights();
-      window.addEventListener('resize', updateQuestionBoxHeights);
+      updateResponsiveLayout();
+      window.addEventListener('resize', updateResponsiveLayout);
 
       // 5. Mở khóa và sửa sự kiện nút "Đổi Chuyên Đề" / "Chuyên Đề"
       let changeTopicBtns: HTMLElement[] = Array.from(document.querySelectorAll('#btn-student-chuyende, #btn-chuyen-de, .btn-topbar-student, .btn-topbar-chuyende, [class*="change-topic"], [class*="topic-btn"]'));
