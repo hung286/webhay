@@ -471,6 +471,29 @@
                 overflow-y: auto !important;
                 -webkit-overflow-scrolling: touch !important;
             }
+            #mobile-submit-btn {
+                display: block !important;
+                position: relative !important;
+                width: 90% !important;
+                margin: 8px auto !important;
+                z-index: 100 !important;
+                font-size: 18px !important;
+                font-weight: 900 !important;
+                padding: 12px 20px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px #2ecc71 !important;
+            }
+            .turn-indicator {
+                position: relative !important;
+                top: auto !important;
+                width: 90% !important;
+                margin: 0 auto 8px auto !important;
+            }
+        }
+        @media screen and (min-width: 769px) {
+            #mobile-submit-btn {
+                display: none !important;
+            }
         }
 
         /* Tối ưu chế độ Laptop / Full màn hình */
@@ -2217,7 +2240,8 @@ button, .btn, input, select, canvas {
         <!-- Panel Giữa (Cái Cân Hoạt Hình) -->
         <div class="center-panel">
             <div class="turn-indicator" id="turn-indicator" style="display: none;">⬅ LƯỢT ĐỘI XANH</div>
-            <button class="btn-start-race" id="btn-start" onclick="startGame()" style="display: block;">🚀 BẮT ĐẦU TRANH TÀI</button>
+            <button type="button" class="btn-submit confirm-btn submit-answer-btn" id="mobile-submit-btn" onclick="submitCurrentTurnAnswer()" style="display: none;">✅ CHỐT ĐÁP ÁN</button>
+            <button class="btn-start-race start-contest-btn" id="btn-start" onclick="startGame()" style="display: block;">🚀 BẮT ĐẦU TRANH TÀI</button>
             <canvas id="scaleCanvas" width="287" height="564"></canvas>
         </div>
 
@@ -3072,8 +3096,31 @@ button, .btn, input, select, canvas {
         const audioWin = new Audio();
 
         // ================= ĐIỀU KHIỂN LUÂN PHIÊN =================
+        function submitCurrentTurnAnswer() {
+            if (typeof state !== 'undefined' && state.currentTurn) {
+                submitAnswer(state.currentTurn);
+            } else {
+                submitAnswer(1);
+            }
+        }
+        window.submitCurrentTurnAnswer = submitCurrentTurnAnswer;
+
         function startGame() {
-            document.getElementById('btn-start').style.display = 'none';
+            const btnStart = document.getElementById('btn-start');
+            if (btnStart) {
+                btnStart.style.display = 'none';
+                btnStart.style.visibility = 'hidden';
+            }
+            const startBtns = document.querySelectorAll('.start-contest-btn, .btn-start-race, #btn-start');
+            startBtns.forEach(b => {
+                b.style.display = 'none';
+                b.style.visibility = 'hidden';
+            });
+            const mobBtn = document.getElementById('mobile-submit-btn');
+            if (mobBtn && window.innerWidth <= 768) {
+                mobBtn.style.display = 'block';
+                mobBtn.style.visibility = 'visible';
+            }
             document.getElementById('global-timer-display').style.display = 'flex';
             state.isPlaying = true;
             state.currentTurn = 1;
@@ -3089,6 +3136,7 @@ button, .btn, input, select, canvas {
             switchTurnUI();
             startTeamTimer();
         }
+        window.startGame = startGame;
 
         function startGlobalTimer() {
             globalTimerId = setInterval(() => {
@@ -3474,7 +3522,21 @@ button, .btn, input, select, canvas {
         }
 
         // ================= SETTINGS =================
-        function openSettings() { document.getElementById('settings-screen').style.display = 'flex'; }
+        function openSettings() {
+            const screen = document.getElementById('settings-screen');
+            if (screen) {
+                screen.style.display = 'flex';
+                screen.style.visibility = 'visible';
+            }
+            const modal = document.querySelector('.settings-modal');
+            if (modal) {
+                modal.style.display = 'block';
+                modal.style.visibility = 'visible';
+            }
+        }
+        window.openSettings = openSettings;
+        window.toggleSettings = openSettings;
+        window.showSettingsModal = openSettings;
         function saveSettings() {
             state.teamNames[1] = document.getElementById('inp-t1').value || "Đội Xanh";
             state.teamNames[2] = document.getElementById('inp-t2').value || "Đội Đỏ";
@@ -4591,6 +4653,95 @@ window.formatMathStringToTeX = formatMathStringToTeX;
         });
         obs.observe(document.documentElement, { childList: true, subtree: true });
     } catch(e) {}
+})();
+</script>
+
+<!-- ======================================================== -->
+<!-- BƯỚC 2: TỐI ƯU HÓA GIAO DIỆN HÁI TÁO LUÂN PHIÊN (JS ENGINE) -->
+<!-- ======================================================== -->
+<script>
+(function() {
+    function setupAppleOptimizations() {
+        // 1. Mở khóa và gán hàm kích hoạt sự kiện cho nút Cài đặt (thêm đội, thêm nhạc) ở màn hình học sinh trên Laptop
+        const settingsTriggers = document.querySelectorAll('.settings-btn, [class*="setting"], [class*="gear"], .fa-cog');
+        settingsTriggers.forEach(el => {
+            if (el.id === 'btn-admin-gear' || el.classList.contains('edit-data-btn')) return;
+            el.style.pointerEvents = 'auto';
+            el.style.cursor = 'pointer';
+            el.style.zIndex = '99999';
+            el.onclick = function(e) {
+                if (e && e.preventDefault) e.preventDefault();
+                if (e && e.stopPropagation) e.stopPropagation();
+                // Gọi hiển thị bảng cài đặt của game
+                const screen = document.getElementById('settings-screen');
+                if (screen) {
+                    screen.style.display = 'flex';
+                    screen.style.visibility = 'visible';
+                }
+                const modals = document.querySelectorAll('.settings-modal, [class*="setting-modal"], #settings-modal, .modal');
+                modals.forEach(m => {
+                    m.style.display = 'block';
+                    m.style.visibility = 'visible';
+                });
+                if (typeof window.openSettings === 'function') window.openSettings();
+                else if (typeof window.toggleSettings === 'function') window.toggleSettings();
+                else if (typeof window.showSettingsModal === 'function') window.showSettingsModal();
+            };
+        });
+
+        // 2. Định vị nút "Chốt đáp án" trên mobile: nằm dưới chữ "Lượt đội tranh tài" và trên nút "Bắt đầu tranh tài"
+        const mobBtn = document.getElementById('mobile-submit-btn');
+        const startContestBtns = document.querySelectorAll('.start-contest-btn, [class*="start-btn"], #btn-start, .btn-start-race');
+        if (mobBtn && startContestBtns.length > 0 && window.innerWidth <= 768) {
+            startContestBtns[0].parentNode.insertBefore(mobBtn, startContestBtns[0]);
+            mobBtn.style.cssText = 'position: relative !important; display: block !important; width: 90% !important; margin: 10px auto !important; z-index: 100 !important;';
+        } else {
+            const confirmBtns = document.querySelectorAll('.confirm-btn, [class*="submit-answer"], .btn-submit');
+            confirmBtns.forEach(cBtn => {
+                if (startContestBtns.length > 0 && window.innerWidth <= 768 && !cBtn.closest('#panel-1') && !cBtn.closest('#panel-2')) {
+                    // Chèn nút chốt đáp án vào trước nút bắt đầu tranh tài
+                    startContestBtns[0].parentNode.insertBefore(cBtn, startContestBtns[0]);
+                    cBtn.style.cssText = 'position: relative !important; display: block !important; width: 90% !important; margin: 10px auto !important; z-index: 100 !important;';
+                }
+            });
+        }
+
+        // 3. Tự động ẩn nút "Bắt đầu tranh tài" khi trận đấu đã bắt đầu
+        startContestBtns.forEach(b => {
+            const origOnClick = b.onclick;
+            b.onclick = function(e) {
+                if (typeof startGame === 'function') startGame();
+                else if (typeof origOnClick === 'function') origOnClick.call(b, e);
+                // Ẩn nút bắt đầu sau khi bấm
+                setTimeout(() => {
+                    b.style.display = 'none';
+                    b.style.visibility = 'hidden';
+                }, 200);
+            };
+        });
+
+        // 4. Khôi phục chuẩn xác cơ chế scroll mượt mà phiên bản cũ trên Mobile
+        if (window.innerWidth <= 768) {
+            document.documentElement.style.overflowY = 'auto';
+            document.body.style.overflowY = 'auto';
+            const scrollElements = document.querySelectorAll('.apple-game-container, [class*="harvest"], .game-wrapper, [class*="container"]');
+            scrollElements.forEach(se => {
+                se.style.overflowY = 'auto';
+                se.style.webkitOverflowScrolling = 'touch';
+            });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(setupAppleOptimizations, 1200);
+        });
+    } else {
+        setTimeout(setupAppleOptimizations, 1200);
+    }
+    window.addEventListener('load', () => {
+        setTimeout(setupAppleOptimizations, 1200);
+    });
 })();
 </script>
 </body></html>
