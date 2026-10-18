@@ -2324,38 +2324,46 @@ var questions = window.quizData;
 
     const haiTaoScript = `
 <style id="apple-responsive-style">
-/* 1. Triệt tiêu thanh cuộn ngang, ép toàn bộ container co giãn trong box */
+/* 1. Ép toàn bộ khung chứa câu hỏi co giãn tuyệt đối trong box */
 .apple-game-container, .question-container, .quiz-box, [class*="question"], [class*="modal"], [class*="card"], [class*="answer"], [class*="box"], div, p, span {
     max-width: 100% !important;
     box-sizing: border-box !important;
+    overflow-x: hidden !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
     white-space: normal !important;
 }
 
-/* 2. Ép đề bài tự động xuống dòng, không bị dài vượt khung */
-.question-text, [class*="question-text"], h2, h3, p {
+/* 2. Bắt buộc tiêu đề câu hỏi và các thành phần bên trong phải xuống hàng, không được tràn */
+.question-text, [class*="question-text"], h2, h3, p, div[class*="question"] {
     width: 100% !important;
     max-width: 100% !important;
+    white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
-    white-space: normal !important;
     line-height: 1.5 !important;
 }
 
-/* 3. Ép các nút đáp án A, B, C, D tự động xuống dòng, vừa khít box trên Laptop và Mobile */
+/* 3. Buộc các khối công thức MathJax / LaTeX tự động xuống hàng theo dòng chảy văn bản */
+mjx-container, .MathJax, .MathJax_Display, math {
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    word-break: break-word !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+/* 4. Đảm bảo các nút đáp án co giãn ôm khít box */
 .answer-btn, [class*="answer"], [class*="option"], button[class*="choice"], [class*="answer-option"], button[class*="btn"], .grid-cols-2 > div {
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    min-height: 52px !important;
+    min-height: 48px !important;
     padding: 10px 14px !important;
     white-space: normal !important;
     word-break: break-word !important;
-    overflow-wrap: break-word !important;
-    display: flex !important;
-    align-items: center !important;
-    text-align: left !important;
     box-sizing: border-box !important;
 }
 
@@ -2456,11 +2464,14 @@ body.admin-mode #btn-admin-gear {
     }
 }
 
-/* Bảo vệ căn chỉnh công thức Toán MathJax không bị ngắt đôi biểu thức con */
-mjx-container, .MathJax, math, .mjx-chtml {
+/* Buộc các khối công thức MathJax / LaTeX tự động xuống hàng theo dòng chảy văn bản */
+mjx-container, .MathJax, .MathJax_Display, math, .mjx-chtml {
     vertical-align: middle !important;
     display: inline-block !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    word-break: break-word !important;
     max-width: 100% !important;
 }
 .question-text, .answer-btn, p, span {
@@ -5513,7 +5524,6 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     outline: none !important;
     border: none !important;
     box-shadow: none !important;
-    white-space: nowrap !important;
     display: inline-block !important;
     overflow: visible !important;
 }
@@ -5534,40 +5544,45 @@ mjx-sqrt > mjx-box, mjx-box {
 }
 
 /* ======================================================== */
-/* ÉP TỰ ĐỘNG XUỐNG HÀNG VÀ CHỐNG TRÀN ĐỀ BÀI & ĐÁP ÁN     */
+/* ÉP TIÊU ĐỀ CÂU HỎI & CÔNG THỨC TOÁN TỰ ĐỘNG XUỐNG HÀNG  */
 /* ======================================================== */
-/* 1. Triệt tiêu thanh cuộn ngang, ép toàn bộ container co giãn trong box */
+/* 1. Ép toàn bộ khung chứa câu hỏi co giãn tuyệt đối trong box */
 .question-container, .quiz-box, [class*="question"], [class*="modal"], [class*="card"], div {
     max-width: 100% !important;
     box-sizing: border-box !important;
-    word-break: break-word !important;
-    overflow-wrap: break-word !important;
-    white-space: normal !important;
+    overflow-x: hidden !important;
 }
 
-/* 2. Ép đề bài tự động xuống dòng, không bị dài vượt khung */
-.question-text, [class*="question-text"], h2, h3, p {
+/* 2. Bắt buộc tiêu đề câu hỏi và các thành phần bên trong phải xuống hàng, không được tràn */
+.question-text, [class*="question-text"], h2, h3, p, div[class*="question"] {
     width: 100% !important;
     max-width: 100% !important;
+    white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
-    white-space: normal !important;
     line-height: 1.5 !important;
 }
 
-/* 3. Ép các nút đáp án A, B, C, D tự động xuống dòng, vừa khít box trên Laptop và Mobile */
+/* 3. Buộc các khối công thức MathJax / LaTeX tự động xuống hàng theo dòng chảy văn bản */
+mjx-container, .MathJax, .MathJax_Display, math {
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    word-break: break-word !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+/* 4. Đảm bảo các nút đáp án co giãn ôm khít box */
 .answer-btn, [class*="answer"], [class*="option"], button[class*="choice"], .grid-cols-2 > div {
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    min-height: 52px !important;
+    min-height: 48px !important;
     padding: 10px 14px !important;
     white-space: normal !important;
     word-break: break-word !important;
-    overflow-wrap: break-word !important;
-    display: flex !important;
-    align-items: center !important;
-    text-align: left !important;
     box-sizing: border-box !important;
 }
 </style>
