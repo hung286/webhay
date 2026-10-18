@@ -3308,30 +3308,16 @@ if (typeof window !== 'undefined') {
         window.startMatchingLevel = function(target) {
             try {
                 let mappedStages = [];
-                const savedTopics = localStorage.getItem('matching_selected_topics');
-                if (savedTopics) {
-                    const parsed = JSON.parse(savedTopics);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        mappedStages = parsed.map(id => {
-                            const num = parseInt(id) || 1;
-                            const grp = Math.ceil(num / 2);
-                            const suffix = (num % 2 === 1) ? 'F' : 'E';
-                            return `${grp}_${suffix}`;
-                        });
-                    }
-                }
-                if (mappedStages.length === 0) {
-                    const saved = localStorage.getItem('matching_custom_items');
-                    if (saved) {
-                        const parsed = JSON.parse(saved);
+                if (!target || target === 'campaign') {
+                    const savedTopics = localStorage.getItem('matching_selected_topics');
+                    if (savedTopics) {
+                        const parsed = JSON.parse(savedTopics);
                         if (Array.isArray(parsed) && parsed.length > 0) {
-                            mappedStages = parsed.map(item => {
-                                const cleaned = String(item).replace('top_', '');
-                                const parts = cleaned.split('_');
-                                let idx = parseInt(parts[0]) || 1;
-                                const isFormula = (parts[1] === 'ct' || parts[1] === 'F');
-                                if (idx > 8) idx = Math.ceil(idx / 2);
-                                return `${idx}_${isFormula ? 'F' : 'E'}`;
+                            mappedStages = parsed.map(id => {
+                                const num = parseInt(id) || 1;
+                                const grp = Math.ceil(num / 2);
+                                const suffix = (num % 2 === 1) ? 'F' : 'E';
+                                return `${grp}_${suffix}`;
                             });
                         }
                     }
@@ -3342,6 +3328,8 @@ if (typeof window !== 'undefined') {
                     currentCampaignIndex = 0;
                     totalCampaignScore = 0;
                     totalCampaignTimeUsed = 0;
+                } else if (typeof CAMPAIGN_STAGES !== 'undefined') {
+                    CAMPAIGN_STAGES.length = 0;
                 }
             } catch(e) {}
 
@@ -3349,9 +3337,17 @@ if (typeof window !== 'undefined') {
                 if (typeof CAMPAIGN_STAGES !== 'undefined' && CAMPAIGN_STAGES.length > 0) {
                     window.startLevel('campaign');
                 } else {
-                    const stageKey = (typeof target === 'string' && (target.endsWith('_F') || target.endsWith('_E')))
-                        ? target 
-                        : `${target}_F`;
+                    let stageKey = target;
+                    if (typeof target === 'number') {
+                        const grp = Math.ceil(target / 2);
+                        const suffix = (target % 2 === 1) ? 'F' : 'E';
+                        stageKey = `${grp}_${suffix}`;
+                    } else if (typeof target === 'string' && !target.endsWith('_F') && !target.endsWith('_E')) {
+                        const num = parseInt(target) || 1;
+                        const grp = Math.ceil(num / 2);
+                        const suffix = (num % 2 === 1) ? 'F' : 'E';
+                        stageKey = `${grp}_${suffix}`;
+                    }
                     window.startLevel(stageKey);
                 }
             } else if (typeof startGame === 'function') {
@@ -3703,6 +3699,76 @@ if (typeof window !== 'undefined') {
                     topHeader.prepend(exitBtn);
                 }
             }, 1200);
+        });
+    })();
+
+    
+    // ==========================================
+    // BƯỚC 2: GHI ĐÈ HÀM BẮT SỰ KIỆN CHỌN CHUYÊN ĐỀ TRONG MENU GỐC ĐỂ TRUYỀN CHUẨN ID LEVEL
+    // ==========================================
+    (function() {
+        // Ghi đè hàm bắt sự kiện chọn chuyên đề trong menu gốc để truyền chuẩn ID level
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const menuCards = document.querySelectorAll('.topic-card, .level-box, [class*="card"], [class*="item"]');
+                menuCards.forEach((card, idx) => {
+                    if (card.closest('#isolated-multiselect-modal')) return;
+                    const targetLevelId = idx + 1;
+                    const playBtns = card.querySelectorAll('button, a, [class*="btn"]');
+                    playBtns.forEach(btn => {
+                        if (btn.classList.contains('close-menu') || btn.id.includes('close') || btn.innerText.includes('✕') || btn.innerText.includes('Đóng')) return;
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log("Kích hoạt đúng Level/Chuyên đề số:", targetLevelId);
+
+                            // Đóng menu modal nếu có
+                            const modal = card.closest('.modal-content, [class*="modal"], [class*="popup"]');
+                            if (modal) modal.style.display = 'none';
+
+                            const ovTopic = document.getElementById('topic-selection-overlay');
+                            if (ovTopic) {
+                                ovTopic.style.display = 'none';
+                                ovTopic.classList.remove('active');
+                            }
+                            const ovMain = document.getElementById('overlay');
+                            if (ovMain) {
+                                ovMain.style.display = 'none';
+                                ovMain.classList.add('hidden');
+                            }
+
+                            const lobby = document.querySelector('.selection-screen-wrapper, .lobby-wrapper, #setup-container');
+                            if (lobby) lobby.style.display = 'none';
+
+                            const board = document.querySelector('.play-area, #game-board, .matching-board');
+                            if (board) {
+                                board.style.display = 'block';
+                                board.style.visibility = 'visible';
+                            }
+
+                            const hp = document.getElementById('header-panel');
+                            if (hp) {
+                                hp.classList.remove('hidden');
+                                hp.style.display = 'flex';
+                                hp.style.visibility = 'visible';
+                            }
+
+                            window.gameStartTimeSet = true;
+
+                            // Gọi hàm khởi tạo level chính xác
+                            const actualTarget = btn.getAttribute('data-key') || btn.dataset?.key || targetLevelId;
+                            if (typeof window.startMatchingLevel === 'function') {
+                                window.startMatchingLevel(actualTarget);
+                            } else if (typeof window.initMatchingGame === 'function') {
+                                window.initMatchingGame(actualTarget);
+                            } else {
+                                localStorage.setItem('matching_selected_topic_id', actualTarget);
+                                window.location.reload();
+                            }
+                        };
+                    });
+                });
+            }, 1500);
         });
     })();
 
