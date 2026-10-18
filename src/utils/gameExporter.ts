@@ -2402,6 +2402,23 @@ body.admin-mode #btn-admin-gear {
         width: 90% !important;
         margin: 0 auto 8px auto !important;
     }
+
+    /* Khung chứa nội dung câu hỏi và các đáp án trên mobile (Scroll độc lập) */
+    .question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
+        max-height: 55vh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-right: 6px !important;
+    }
+    
+    /* Tùy chỉnh thanh cuộn đẹp mắt, dễ lướt */
+    .question-container::-webkit-scrollbar, .q-container::-webkit-scrollbar, [class*="question-area"]::-webkit-scrollbar {
+        width: 5px;
+    }
+    .question-container::-webkit-scrollbar-thumb, .q-container::-webkit-scrollbar-thumb, [class*="question-area"]::-webkit-scrollbar-thumb {
+        background: rgba(56, 189, 248, 0.6);
+        border-radius: 4px;
+    }
 }
 @media screen and (min-width: 769px) {
     #mobile-submit-btn {
@@ -2688,6 +2705,13 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
         scrollElements.forEach(se => {
           se.style.overflowY = 'auto';
           se.style.webkitOverflowScrolling = 'touch';
+        });
+        const questionBoxes = document.querySelectorAll('.question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"]');
+        questionBoxes.forEach(qb => {
+          qb.style.maxHeight = '55vh';
+          qb.style.overflowY = 'auto';
+          qb.style.webkitOverflowScrolling = 'touch';
+          qb.style.paddingRight = '6px';
         });
       }
     } catch(e) {}
