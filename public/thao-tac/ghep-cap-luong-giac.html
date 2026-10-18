@@ -872,6 +872,9 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
             if (typeof window.initAccurateMultiSelect === 'function') {
                 window.initAccurateMultiSelect();
             }
+            if (typeof window.injectMenuToolbarAndCheckboxes === 'function') {
+                window.injectMenuToolbarAndCheckboxes();
+            }
             const victoryOverlay = document.getElementById('overlay');
             if (victoryOverlay) {
                 victoryOverlay.classList.add('hidden');
@@ -1183,6 +1186,10 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
 
                 container.appendChild(card);
             });
+
+            if (typeof window.injectMenuToolbarAndCheckboxes === 'function') {
+                window.injectMenuToolbarAndCheckboxes();
+            }
 
             if (window.renderMathInElement) {
                 try {
@@ -3297,26 +3304,41 @@ if (typeof window !== 'undefined') {
 
         window.startMatchingLevel = function(target) {
             try {
-                const saved = localStorage.getItem('matching_custom_items');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
+                let mappedStages = [];
+                const savedTopics = localStorage.getItem('matching_selected_topics');
+                if (savedTopics) {
+                    const parsed = JSON.parse(savedTopics);
                     if (Array.isArray(parsed) && parsed.length > 0) {
-                        const mappedStages = parsed.map(item => {
-                            const cleaned = String(item).replace('top_', '');
-                            const parts = cleaned.split('_');
-                            let idx = parseInt(parts[0]) || 1;
-                            const isFormula = (parts[1] === 'ct' || parts[1] === 'F');
-                            if (idx > 8) idx = Math.ceil(idx / 2);
-                            return `${idx}_${isFormula ? 'F' : 'E'}`;
+                        mappedStages = parsed.map(id => {
+                            const num = parseInt(id) || 1;
+                            const grp = Math.ceil(num / 2);
+                            const suffix = (num % 2 === 1) ? 'F' : 'E';
+                            return `${grp}_${suffix}`;
                         });
-                        if (typeof CAMPAIGN_STAGES !== 'undefined') {
-                            CAMPAIGN_STAGES.length = 0;
-                            CAMPAIGN_STAGES.push(...mappedStages);
-                            currentCampaignIndex = 0;
-                            totalCampaignScore = 0;
-                            totalCampaignTimeUsed = 0;
+                    }
+                }
+                if (mappedStages.length === 0) {
+                    const saved = localStorage.getItem('matching_custom_items');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            mappedStages = parsed.map(item => {
+                                const cleaned = String(item).replace('top_', '');
+                                const parts = cleaned.split('_');
+                                let idx = parseInt(parts[0]) || 1;
+                                const isFormula = (parts[1] === 'ct' || parts[1] === 'F');
+                                if (idx > 8) idx = Math.ceil(idx / 2);
+                                return `${idx}_${isFormula ? 'F' : 'E'}`;
+                            });
                         }
                     }
+                }
+                if (mappedStages.length > 0 && typeof CAMPAIGN_STAGES !== 'undefined') {
+                    CAMPAIGN_STAGES.length = 0;
+                    CAMPAIGN_STAGES.push(...mappedStages);
+                    currentCampaignIndex = 0;
+                    totalCampaignScore = 0;
+                    totalCampaignTimeUsed = 0;
                 }
             } catch(e) {}
 
@@ -3504,6 +3526,159 @@ if (typeof window !== 'undefined') {
         });
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
             setTimeout(scanAndBindMultiSelect, 400);
+        }
+    })();
+
+    // ==========================================
+    // TIÊM THANH ĐIỀU HƯỚNG TICKBOX VÀ NÚT BẮT ĐẦU VÀO BẢNG MENU
+    // ==========================================
+    function injectMenuToolbarAndCheckboxes() {
+        const modalContainers = document.querySelectorAll('.modal-content, [class*="modal"], [class*="popup"], .lobby-wrapper, div[style*="position: fixed"]');
+        
+        modalContainers.forEach(modal => {
+            const mText = (modal.innerText || modal.textContent || "");
+            if (mText.includes('CHỌN CHUYÊN ĐỀ') && !document.getElementById('injected-menu-toolbar')) {
+                // Tạo thanh công cụ tickbox và nút bắt đầu ngay trong menu
+                const toolbar = document.createElement('div');
+                toolbar.id = 'injected-menu-toolbar';
+                toolbar.style.cssText = 'background: #0f172a; border: 2px solid #38bdf8; padding: 12px; border-radius: 10px; margin: 10px 0; color: #fff; text-align: left; z-index: 99999; position: relative; box-sizing: border-box; max-width: 100%;';
+                toolbar.innerHTML = `
+                    <div style="font-weight: bold; font-size: 1rem; margin-bottom: 8px; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                        <span>✨ CHỌN NHIỀU CHỦ ĐỀ TÙY Ý</span>
+                        <div style="display: flex; gap: 5px;">
+                            <button id="menu-select-all" style="background: #0ea5e9; border: none; color: #fff; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">Chọn tất cả</button>
+                            <button id="menu-clear-all" style="background: #64748b; border: none; color: #fff; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">Bỏ chọn hết</button>
+                        </div>
+                    </div>
+                    <button id="menu-start-btn" style="width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(34,197,94,0.4); text-transform: uppercase; letter-spacing: 0.5px;">🚀 BẮT ĐẦU CHƠI (Đã chọn: 16/16 chủ đề)</button>
+                `;
+                
+                const gridEl = modal.querySelector('#ghep-cap-topics-grid') || modal.querySelector('.topics-grid-container');
+                if (gridEl && gridEl.parentNode === modal) {
+                    modal.insertBefore(toolbar, gridEl);
+                } else {
+                    modal.prepend(toolbar);
+                }
+
+                // Gắn sự kiện bấm nút bắt đầu trong menu
+                const startBtn = document.getElementById('menu-start-btn');
+                if (startBtn) {
+                    startBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const checkedBoxes = modal.querySelectorAll('.menu-topic-chk:checked');
+                        let chosenIds = Array.from(checkedBoxes).map(c => parseInt(c.value));
+                        if (chosenIds.length === 0) chosenIds = [1];
+
+                        console.log("Bắt đầu chơi với các chuyên đề menu chọn:", chosenIds);
+                        localStorage.setItem('matching_selected_topics', JSON.stringify(chosenIds));
+
+                        // Ẩn modal và sảnh chờ, bật bàn chơi
+                        modal.style.display = 'none';
+                        const overlayTopic = document.getElementById('topic-selection-overlay');
+                        if (overlayTopic) {
+                            overlayTopic.style.display = 'none';
+                            overlayTopic.classList.remove('active');
+                        }
+                        const overlayMain = document.getElementById('overlay');
+                        if (overlayMain) {
+                            overlayMain.style.display = 'none';
+                            overlayMain.classList.add('hidden');
+                        }
+
+                        const lobbyScreens = document.querySelectorAll('.selection-screen-wrapper, .lobby-wrapper, #setup-container');
+                        lobbyScreens.forEach(l => l.style.display = 'none');
+
+                        const board = document.querySelector('.play-area, #game-board, .matching-board');
+                        if (board) {
+                            board.style.display = 'block';
+                            board.style.visibility = 'visible';
+                        }
+
+                        const hp = document.getElementById('header-panel');
+                        if (hp) {
+                            hp.classList.remove('hidden');
+                            hp.style.display = 'flex';
+                            hp.style.visibility = 'visible';
+                        }
+
+                        window.gameStartTimeSet = true;
+                        if (typeof window.startMatchingLevel === 'function') {
+                            window.startMatchingLevel(chosenIds[0]);
+                        } else if (typeof startGame === 'function') {
+                            startGame();
+                        } else {
+                            window.location.reload();
+                        }
+                    };
+                }
+
+                const btnSelectAll = document.getElementById('menu-select-all');
+                if (btnSelectAll) {
+                    btnSelectAll.onclick = (e) => {
+                        if (e) { e.preventDefault(); e.stopPropagation(); }
+                        modal.querySelectorAll('.menu-topic-chk').forEach(c => c.checked = true);
+                        const total = modal.querySelectorAll('.menu-topic-chk:checked').length;
+                        const sBtn = document.getElementById('menu-start-btn');
+                        if (sBtn) sBtn.innerText = `🚀 BẮT ĐẦU CHƠI (Đã chọn: ${total}/16 chủ đề)`;
+                    };
+                }
+
+                const btnClearAll = document.getElementById('menu-clear-all');
+                if (btnClearAll) {
+                    btnClearAll.onclick = (e) => {
+                        if (e) { e.preventDefault(); e.stopPropagation(); }
+                        modal.querySelectorAll('.menu-topic-chk').forEach(c => c.checked = false);
+                        const sBtn = document.getElementById('menu-start-btn');
+                        if (sBtn) sBtn.innerText = `🚀 BẮT ĐẦU CHƠI (Đã chọn: 0/16 chủ đề)`;
+                    };
+                }
+            }
+
+            // Chèn các checkbox vào từng thẻ chuyên đề bên trong modal
+            const topicCardsInside = modal.querySelectorAll('.topic-card, .level-box, [class*="card"], [class*="item"]');
+            topicCardsInside.forEach((card, idx) => {
+                let chk = card.querySelector('.menu-topic-chk');
+                if (!chk) {
+                    chk = document.createElement('input');
+                    chk.type = 'checkbox';
+                    chk.className = 'menu-topic-chk';
+                    chk.value = idx + 1;
+                    chk.style.cssText = 'margin-right: 8px; transform: scale(1.3); cursor: pointer; accent-color: #38bdf8;';
+                    chk.checked = true; // Mặc định chọn hết
+
+                    // Đưa checkbox lên đầu thẻ
+                    const titleEl = card.querySelector('h3, h4, [class*="title"], b') || card.firstElementChild;
+                    if (titleEl) {
+                        titleEl.parentNode.insertBefore(chk, titleEl);
+                    } else {
+                        card.prepend(chk);
+                    }
+                }
+
+                chk.onchange = () => {
+                    const totalChecked = modal.querySelectorAll('.menu-topic-chk:checked').length;
+                    const sBtn = document.getElementById('menu-start-btn');
+                    if (sBtn) sBtn.innerText = `🚀 BẮT ĐẦU CHƠI (Đã chọn: ${totalChecked}/16 chủ đề)`;
+                };
+
+                card.onclick = (e) => {
+                    if (e.target.closest('button, .btn, [class*="btn"], input[type="checkbox"]')) return;
+                    chk.checked = !chk.checked;
+                    chk.onchange();
+                };
+            });
+        });
+    }
+    window.injectMenuToolbarAndCheckboxes = injectMenuToolbarAndCheckboxes;
+
+    (function() {
+        window.addEventListener('load', () => {
+            setTimeout(injectMenuToolbarAndCheckboxes, 1000);
+        });
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(injectMenuToolbarAndCheckboxes, 400);
         }
     })();
 
