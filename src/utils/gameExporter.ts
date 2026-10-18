@@ -4595,8 +4595,74 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
     } catch(e) {}
   }
 
+  function injectTetrisMobileStyle() {
+    try {
+      if (!document.getElementById('tetris-mobile-responsive-style')) {
+        const style = document.createElement('style');
+        style.id = 'tetris-mobile-responsive-style';
+        style.textContent = \`
+          @media screen and (max-width: 768px) {
+              /* Ép toàn bộ khung sảnh chờ, menu và câu hỏi Tetris không bị tràn */
+              .selection-screen-wrapper, .lobby-wrapper, #setup-container, [class*="tetris"], [class*="modal"], [class*="quiz"], div {
+                  max-width: 100% !important;
+                  box-sizing: border-box !important;
+              }
+
+              /* Khung chứa các thẻ chuyên đề sảnh chờ Tetris */
+              .topic-card, .level-box, [class*="card"], [class*="item"] {
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  box-sizing: border-box !important;
+                  padding: 8px 10px !important;
+                  margin: 6px auto !important;
+                  word-break: break-word !important;
+                  overflow-wrap: break-word !important;
+                  white-space: normal !important;
+              }
+
+              /* Tiêu đề chuyên đề / Câu hỏi / Đáp án: Bắt buộc co giãn và xuống dòng */
+              h1, h2, h3, h4, p, span, div, button, 
+              [class*="question"], [class*="answer"], [class*="title"], [class*="text"] {
+                  max-width: 100% !important;
+                  word-break: break-word !important;
+                  overflow-wrap: break-word !important;
+                  white-space: normal !important;
+                  box-sizing: border-box !important;
+              }
+
+              /* Riêng các nút đáp án (A, B, C, D) cho phép hiển thị linh hoạt nhiều dòng */
+              button[class*="answer"], .answer-btn, [class*="option-btn"] {
+                  width: 100% !important;
+                  height: auto !important;
+                  min-height: 48px !important;
+                  padding: 10px 14px !important;
+                  font-size: 0.85rem !important;
+                  line-height: 1.35 !important;
+                  text-align: left !important;
+                  display: flex !important;
+                  align-items: center !important;
+                  white-space: normal !important;
+                  word-break: break-word !important;
+              }
+
+              /* Hỗ trợ công thức MathJax co giãn và chống tràn trên mobile */
+              mjx-container {
+                  max-width: 100% !important;
+                  box-sizing: border-box !important;
+                  overflow-x: auto !important;
+                  overflow-y: hidden !important;
+                  vertical-align: middle !important;
+              }
+          }
+        \`;
+        document.head.appendChild(style);
+      }
+    } catch(e) {}
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
+      injectTetrisMobileStyle();
       syncTetrisData();
       applyAdminSecurity();
       setupAdminButtons();
@@ -4604,6 +4670,7 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
       triggerMathTypeset();
     });
   } else {
+    injectTetrisMobileStyle();
     syncTetrisData();
     applyAdminSecurity();
     setupAdminButtons();
@@ -4611,6 +4678,7 @@ if (window.__INJECTED_TETRIS_DATA__ && Object.keys(window.__INJECTED_TETRIS_DATA
     triggerMathTypeset();
   }
   window.addEventListener('load', function() {
+    injectTetrisMobileStyle();
     syncTetrisData();
     applyAdminSecurity();
     setupAdminButtons();

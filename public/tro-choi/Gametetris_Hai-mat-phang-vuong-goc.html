@@ -230,8 +230,111 @@
             z-index: 2147483647 !important;
         }
 
-        /* TỐI ƯU RESPONSIVE MOBILE (< 768px) VỚI ĐƠN VỊ 100dvh & CHỐNG TRÀN KHUNG */
-        @media (max-width: 768px) {
+                /* ========================================================================== */
+        /* TIÊM ĐOẠN CSS RESPONSIVE CHUYÊN BIỆT CHO TETRIS MOBILE (CHỐNG TRÀN TOÀN DIỆN) */
+        /* ========================================================================== */
+        @media screen and (max-width: 768px) {
+            /* Ép toàn bộ khung sảnh chờ, menu và câu hỏi Tetris không bị tràn */
+            .selection-screen-wrapper, .lobby-wrapper, #setup-container, [class*="tetris"], [class*="modal"], [class*="quiz"], div {
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            /* Khung chứa các thẻ chuyên đề sảnh chờ Tetris */
+            .topic-card, .level-box, [class*="card"], [class*="item"] {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                padding: 8px 10px !important;
+                margin: 6px auto !important;
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+                white-space: normal !important;
+            }
+
+            /* Tiêu đề chuyên đề / Câu hỏi / Đáp án: Bắt buộc co giãn và xuống dòng */
+            h1, h2, h3, h4, p, span, div, button, 
+            [class*="question"], [class*="answer"], [class*="title"], [class*="text"] {
+                max-width: 100% !important;
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+                white-space: normal !important;
+                box-sizing: border-box !important;
+            }
+
+            /* Riêng các nút đáp án (A, B, C, D) cho phép hiển thị linh hoạt nhiều dòng */
+            button[class*="answer"], .answer-btn, [class*="option-btn"] {
+                width: 100% !important;
+                height: auto !important;
+                min-height: 48px !important;
+                padding: 10px 14px !important;
+                font-size: 0.85rem !important;
+                line-height: 1.35 !important;
+                text-align: left !important;
+                display: flex !important;
+                align-items: center !important;
+                white-space: normal !important;
+                word-break: break-word !important;
+            }
+
+            .answer-text-container, .answer-text {
+                display: inline-block !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+                white-space: normal !important;
+            }
+
+            /* Hỗ trợ công thức MathJax co giãn và chống tràn trên mobile */
+            mjx-container {
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                vertical-align: middle !important;
+            }
+
+            /* Cấu hình lưới chuyên đề và danh sách đáp án */
+            #tetris-topics-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+                max-height: 52vh !important;
+                padding: 4px !important;
+            }
+
+            #topic-selection-overlay > div {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 16px 10px !important;
+                border-radius: 20px !important;
+                box-sizing: border-box !important;
+            }
+
+            #optionsContainer {
+                grid-template-columns: 1fr !important;
+                gap: 8px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .tetris-question-modal, .quiz-overlay-box {
+                max-height: 75dvh !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 16px 12px 20px 12px !important;
+                box-sizing: border-box !important;
+            }
+
+            #tetris-next-preview-overlay {
+                width: auto !important;
+                max-width: 65px !important;
+                padding: 4px !important;
+            }
+
+            /* Bàn cờ và khu vực chơi game trên Mobile */
             body {
                 overflow: hidden !important;
                 height: 100dvh !important;
@@ -258,6 +361,8 @@
                 padding: 2px !important;
                 border-width: 2px !important;
             }
+
+            /* CỤM NÚT ĐIỀU HƯỚNG CHƠI (TRÁI, PHẢI, XOAY, XUỐNG) HIỂN THỊ TRỌN VẸN, KHÔNG BỊ CHE KHUẤT */
             #mobileControls, .tetris-mobile-controls, .control-buttons-wrapper {
                 position: fixed !important;
                 bottom: 0 !important;
@@ -266,24 +371,54 @@
                 margin: 0 auto !important;
                 width: 100% !important;
                 max-width: 100% !important;
-                gap: 16px !important;
+                gap: 12px !important;
                 z-index: 99999 !important;
                 display: flex !important;
                 justify-content: center !important;
                 align-items: center !important;
-                padding: 10px 8px calc(45px + env(safe-area-inset-bottom, 20px)) 8px !important;
-                background: rgba(15, 23, 42, 0.85) !important;
+                padding: 10px 8px calc(35px + env(safe-area-inset-bottom, 15px)) 8px !important;
+                background: rgba(15, 23, 42, 0.88) !important;
                 backdrop-filter: blur(10px) !important;
                 pointer-events: auto !important;
                 box-sizing: border-box !important;
             }
-            .control-btn {
-                width: 64px !important;
-                height: 64px !important;
-                font-size: 28px !important;
-                border-radius: 18px !important;
-                box-shadow: 0 4px 14px rgba(0,0,0,0.6) !important;
+            .control-btn, .tetris-btn, #mobileControls .control-btn, #btnLeft, #btnRotate, #btnDown, #btnRight {
+                width: 58px !important;
+                max-width: 58px !important;
+                height: 58px !important;
+                min-height: 58px !important;
+                font-size: 24px !important;
+                border-radius: 16px !important;
                 flex-shrink: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.6) !important;
+            }
+            #btnRotate, .btn-rotate-style {
+                background: rgba(168, 85, 247, 0.25) !important;
+                border-color: rgba(168, 85, 247, 0.6) !important;
+                color: #e9d5ff !important;
+            }
+
+            /* Chống tràn cho công thức MathJax trong câu hỏi và đáp án */
+            mjx-container, .mjx-chtml, mjx-math, .tex2jax_process, .math-content, .math-text, .MathJax {
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .answer-btn mjx-container, [class*="answer"] mjx-container, button[class*="option"] mjx-container {
+                max-width: 100% !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                vertical-align: middle !important;
+            }
+            .question-text mjx-container, [class*="question"] mjx-container {
+                max-width: 100% !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                vertical-align: middle !important;
             }
         }
     </style>
@@ -324,8 +459,8 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
     <!-- ======================================================== -->
     <!-- TOPIC SELECTION OVERLAY (HỆ THỐNG ĐA CHỦ ĐỀ & ĐA ĐỘ KHÓ) -->
     <!-- ======================================================== -->
-    <div id="topic-selection-overlay" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Nunito', sans-serif;">
-      <div style="max-width: 960px; width: 100%; background: rgba(15, 23, 42, 0.96); border: 3px solid #38bdf8; border-radius: 28px; padding: 32px; box-shadow: 0 0 60px rgba(56, 189, 248, 0.35); backdrop-filter: blur(20px); text-align: center;">
+    <div id="topic-selection-overlay" class="selection-screen-wrapper lobby-wrapper" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at center, #0f172a 0%, #020617 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-family: 'Nunito', sans-serif;">
+      <div class="tetris-menu lobby-content modal-content" style="max-width: 960px; width: 100%; background: rgba(15, 23, 42, 0.96); border: 3px solid #38bdf8; border-radius: 28px; padding: 32px; box-shadow: 0 0 60px rgba(56, 189, 248, 0.35); backdrop-filter: blur(20px); text-align: center;">
         
         <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 20px; border-radius: 9999px; background: rgba(56, 189, 248, 0.15); border: 1.5px solid #38bdf8; color: #38bdf8; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;">
           🧱 CYBER TETRIS MATH | TOÁN PRO - THẦY HÙNG
@@ -411,7 +546,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
         <!-- CỤM 4 NÚT ĐIỀU KHIỂN Y HỆT MÁY GAME (SAFE AREA ĐÁY TRÊN MOBILE) -->
         <div id="mobileControls" class="tetris-mobile-controls w-full flex justify-center items-center gap-3 md:gap-5 mt-6 z-30">
             <div class="control-btn tetris-btn" id="btnLeft" title="Sang trái">◀</div>
-            <div class="control-btn tetris-btn" id="btnRotate" title="Xoay 90 độ" style="background: rgba(168, 85, 247, 0.25); border-color: rgba(168, 85, 247, 0.6); color: #e9d5ff;">↻</div>
+            <div class="control-btn tetris-btn btn-rotate-style" id="btnRotate" title="Xoay 90 độ">↻</div>
             <div class="control-btn tetris-btn" id="btnDown" title="Rơi nhanh (Nhấp đúp rơi kịch sàn)">▼</div>
             <div class="control-btn tetris-btn" id="btnRight" title="Sang phải">▶</div>
         </div>
@@ -419,7 +554,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
     <!-- MÀN HÌNH BẮT ĐẦU -->
     <div id="startModal" class="fixed inset-0 z-[100] bg-[#09090b] flex flex-col items-center justify-center p-4 transition-opacity duration-300">
-        <div class="bg-[#0f172a] rounded-3xl p-8 shadow-[0_0_50px_rgba(56,189,248,0.2)] w-full max-w-md neon-box flex flex-col items-center">
+        <div class="modal-card tetris-menu setup-container bg-[#0f172a] rounded-3xl p-8 shadow-[0_0_50px_rgba(56,189,248,0.2)] w-full max-w-md neon-box flex flex-col items-center">
             <h1 class="text-3xl font-black text-center text-sky-400 mb-2 uppercase tracking-widest neon-text-blue">TETRIS</h1>
             <p class="text-center text-pink-400 font-bold mb-8 tracking-widest uppercase text-sm neon-text-pink">Hai Mặt Phẳng Vuông Góc</p>
             
@@ -445,7 +580,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
     <!-- MODAL CÂU HỎI (NEON) - KHÔNG BỊ CẮT CHỮ VỚI MAX-HEIGHT 72dvh VÀ TOUCH SCROLL -->
     <div id="quizModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-3 sm:p-4">
-        <div class="tetris-question-modal quiz-overlay-box bg-[#0f172a] rounded-[2rem] p-5 sm:p-8 md:p-10 w-full max-w-4xl max-h-[72dvh] overflow-y-auto custom-scroll transform scale-95 transition-transform duration-300 neon-box relative flex flex-col items-center" id="modalContent" style="max-height: 72dvh !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; padding-bottom: 20px !important;">
+        <div class="tetris-question-modal quiz-overlay-box question-container bg-[#0f172a] rounded-[2rem] p-5 sm:p-8 md:p-10 w-full max-w-4xl max-h-[72dvh] overflow-y-auto custom-scroll transform scale-95 transition-transform duration-300 neon-box relative flex flex-col items-center" id="modalContent" style="max-height: 72dvh !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; padding-bottom: 20px !important;">
             
             <div id="tetris-next-preview-overlay" style="position: absolute; top: 12px; right: 15px; background: rgba(0,0,0,0.5); border: 1px solid #38bdf8; padding: 6px; border-radius: 8px; text-align: center; z-index: 100000;">
                 <div style="font-size: 0.65rem; color: #38bdf8; margin-bottom: 2px; font-weight: bold;">TIẾP THEO</div>
@@ -460,7 +595,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                 Nội dung câu hỏi...
             </div>
             
-            <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            <div id="optionsContainer" class="question-container grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 <!-- JS chèn nút đáp án -->
             </div>
         </div>
@@ -860,6 +995,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
                 const isSelected = (window.selectedTopic === topicName);
                 const card = document.createElement('div');
+                card.className = "topic-card level-box topic-item";
                 card.style.cssText = `
                     background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
                     border: 3px solid ${isSelected ? '#38bdf8' : 'rgba(255,255,255,0.15)'};
@@ -1829,7 +1965,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                         </div>
                         <p class="text-[11px] text-slate-400 font-semibold text-center">Hệ thống chấp nhận số nguyên, số âm và số thập phân (dấu '.' hoặc ',')</p>
                         <button type="button" id="btnSubmitShort" onclick="submitShortAnswer()" 
-                            class="tetris-answer-btn w-full py-3 sm:py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-sm sm:text-base rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.5)] active:scale-95 transition-all cursor-pointer uppercase tracking-wider">
+                            class="answer-btn tetris-answer-btn w-full py-3 sm:py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-sm sm:text-base rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.5)] active:scale-95 transition-all cursor-pointer uppercase tracking-wider">
                             XÁC NHẬN
                         </button>
                     </div>
@@ -1893,12 +2029,12 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
                 currentQuizCorrectIdx = isCorrectAnswer ? 0 : 1; // 0: Đúng, 1: Sai
 
                 const btnDung = document.createElement('button');
-                btnDung.className = "tetris-answer-btn w-full bg-emerald-600/30 hover:bg-emerald-600 border-2 border-emerald-400 text-emerald-200 hover:text-white font-black py-4 sm:py-6 px-4 sm:px-6 rounded-2xl text-center text-lg md:text-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-95";
+                btnDung.className = "answer-btn tetris-answer-btn w-full bg-emerald-600/30 hover:bg-emerald-600 border-2 border-emerald-400 text-emerald-200 hover:text-white font-black py-4 sm:py-6 px-4 sm:px-6 rounded-2xl text-center text-lg md:text-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-95";
                 btnDung.innerHTML = `<span>✅</span> <span>ĐÚNG</span>`;
                 btnDung.onclick = () => answerQuiz(0, explanationText);
 
                 const btnSai = document.createElement('button');
-                btnSai.className = "tetris-answer-btn w-full bg-rose-600/30 hover:bg-rose-600 border-2 border-rose-400 text-rose-200 hover:text-white font-black py-4 sm:py-6 px-4 sm:px-6 rounded-2xl text-center text-lg md:text-2xl shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.6)] transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-95";
+                btnSai.className = "answer-btn tetris-answer-btn w-full bg-rose-600/30 hover:bg-rose-600 border-2 border-rose-400 text-rose-200 hover:text-white font-black py-4 sm:py-6 px-4 sm:px-6 rounded-2xl text-center text-lg md:text-2xl shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.6)] transition-all cursor-pointer flex items-center justify-center gap-3 active:scale-95";
                 btnSai.innerHTML = `<span>❌</span> <span>SAI</span>`;
                 btnSai.onclick = () => answerQuiz(1, explanationText);
 
@@ -1933,7 +2069,7 @@ mjx-container, .mjx-chtml, mjx-math, mjx-mo, .zombie-math-text, .tex2jax_process
 
                 options.forEach((optHTML, idx) => {
                     const btn = document.createElement('button');
-                    btn.className = "option-btn tetris-answer-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-3 sm:py-5 px-4 sm:px-6 rounded-2xl text-left text-base md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-start min-h-[56px] sm:min-h-[72px] active:scale-95 cursor-pointer";
+                    btn.className = "answer-btn option-btn tetris-answer-btn w-full bg-slate-800 hover:bg-blue-900/60 border-2 border-slate-600 hover:border-cyan-400 text-cyan-50 font-bold py-3 sm:py-5 px-4 sm:px-6 rounded-2xl text-left text-base md:text-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-start min-h-[56px] sm:min-h-[72px] active:scale-95 cursor-pointer";
                     btn.innerHTML = `<span class="answer-text-container w-full leading-relaxed">${formatMathSpacers(optHTML)}</span>`;
                     btn.onclick = () => answerQuiz(idx, qData.explanation);
                     optContainer.appendChild(btn);

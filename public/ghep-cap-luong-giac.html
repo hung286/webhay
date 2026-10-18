@@ -820,7 +820,7 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
 
         function cleanPairMath(content) {
             if (typeof content !== 'string') return '';
-            let s = content;
+            let s = content.trim().replace(/^\\\(/, '').replace(/\\\)$/, '').replace(/^\$\$/, '').replace(/\$\$/, '').replace(/^\$/, '').replace(/\$/, '');
             if (typeof window.formatMathStringToTeX === 'function') {
                 s = window.formatMathStringToTeX(s);
             } else {
@@ -843,6 +843,169 @@ div[title*="Logo"], [title*="tải Logo"], [title*="Logo"], #default-icon {
         // ==========================================
         // DANH SÁCH 16 CHUYÊN ĐỀ LƯỢNG GIÁC CHUẨN
         // ==========================================
+        
+        // ==========================================
+        // DỮ LIỆU NGUỒN CHUẨN XÁC 16 CHUYÊN ĐỀ LƯỢNG GIÁC (LÝ THUYẾT & VÍ DỤ SỐ)
+        // ==========================================
+        window.matchingTopicDatabase = {
+            1: {
+                name: "1. Công Thức Lượng Giác Cơ Bản (Lý Thuyết)",
+                pairs: [
+                    { l: "\\(\\sin^2 x + \\cos^2 x\\)", r: "\\(1\\)", left: "\\sin^2 x + \\cos^2 x", right: "1" },
+                    { l: "\\(\\tan x \\cdot \\cot x\\)", r: "\\(1\\)", left: "\\tan x \\cdot \\cot x", right: "1" },
+                    { l: "\\(\\frac{1}{\\cos^2 x}\\)", r: "\\(1 + \\tan^2 x\\)", left: "1 + \\tan^2 x", right: "\\displaystyle \\frac{1}{\\cos^2 x}" },
+                    { l: "\\(\\frac{1}{\\sin^2 x}\\)", r: "\\(1 + \\cot^2 x\\)", left: "1 + \\cot^2 x", right: "\\displaystyle \\frac{1}{\\sin^2 x}" },
+                    { l: "\\(\\tan x\\)", r: "\\(\\frac{\\sin x}{\\cos x}\\)", left: "\\tan x", right: "\\displaystyle \\frac{\\sin x}{\\cos x}" }
+                ]
+            },
+            2: {
+                name: "2. Công Thức Cơ Bản (Ví Dụ Số)",
+                pairs: [
+                    { l: "\\(\\sin^2 \\frac{\\pi}{5} + \\cos^2 \\frac{\\pi}{5}\\)", r: "\\(1\\)", left: "\\sin^2 \\frac{\\pi}{5} + \\cos^2 \\frac{\\pi}{5}", right: "1" },
+                    { l: "\\(\\tan \\frac{\\pi}{3}\\)", r: "\\(\\sqrt{3}\\)", left: "\\tan \\frac{\\pi}{3}", right: "\\sqrt{3}" },
+                    { l: "\\(\\cot \\frac{\\pi}{3}\\)", r: "\\(\\frac{\\sqrt{3}}{3}\\)", left: "\\cot \\frac{\\pi}{3}", right: "\\displaystyle \\frac{\\sqrt{3}}{3}" },
+                    { l: "\\(1 + \\tan^2 \\frac{\\pi}{4}\\)", r: "\\(2\\)", left: "1 + \\tan^2 \\frac{\\pi}{4}", right: "2" },
+                    { l: "\\(1 + \\cot^2 \\frac{\\pi}{6}\\)", r: "\\(4\\)", left: "1 + \\cot^2 \\frac{\\pi}{6}", right: "4" }
+                ]
+            },
+            3: {
+                name: "3. Giá Trị Cung Góc Liên Kết (Lý Thuyết)",
+                pairs: [
+                    { l: "\\(\\cos(-x)\\)", r: "\\(\\cos x\\)", left: "\\cos(-x)", right: "\\cos x" },
+                    { l: "\\(\\sin(-x)\\)", r: "\\(-\\sin x\\)", left: "\\sin(-x)", right: "-\\sin x" },
+                    { l: "\\(\\tan(-x)\\)", r: "\\(-\\tan x\\)", left: "\\tan(-x)", right: "-\\tan x" },
+                    { l: "\\(\\cot(-x)\\)", r: "\\(-\\cot x\\)", left: "\\cot(-x)", right: "-\\cot x" },
+                    { l: "\\(\\sin(\\pi - x)\\)", r: "\\(\\sin x\\)", left: "\\sin(\\pi - x)", right: "\\sin x" },
+                    { l: "\\(\\cos(\\pi - x)\\)", r: "\\(-\\cos x\\)", left: "\\cos(\\pi - x)", right: "-\\cos x" }
+                ]
+            },
+            4: {
+                name: "4. Cung Góc Liên Kết (Ví Dụ Số)",
+                pairs: [
+                    { l: "\\(\\cos\\left(-\\frac{\\pi}{3}\\right)\\)", r: "\\(\\frac{1}{2}\\)", left: "\\cos\\left(-\\frac{\\pi}{3}\\right)", right: "\\displaystyle \\frac{1}{2}" },
+                    { l: "\\(\\sin\\left(\\frac{5\\pi}{6}\\right)\\)", r: "\\(\\sin\\frac{\\pi}{6}\\)", left: "\\sin\\left(\\frac{5\\pi}{6}\\right)", right: "\\sin\\frac{\\pi}{6}" },
+                    { l: "\\(\\tan\\left(\\frac{4\\pi}{3}\\right)\\)", r: "\\(\\sqrt{3}\\)", left: "\\tan\\left(\\frac{4\\pi}{3}\\right)", right: "\\sqrt{3}" },
+                    { l: "\\(\\cos\\left(\\frac{2\\pi}{3}\\right)\\)", r: "\\(-\\frac{1}{2}\\)", left: "\\cos\\left(\\frac{2\\pi}{3}\\right)", right: "-\\displaystyle \\frac{1}{2}" },
+                    { l: "\\(\\cot\\left(-\\frac{\\pi}{4}\\right)\\)", r: "\\(-1\\)", left: "\\cot\\left(-\\frac{\\pi}{4}\\right)", right: "-1" }
+                ]
+            },
+            5: {
+                name: "5. Công Thức Cộng (Lý Thuyết)",
+                pairs: [
+                    { l: "\\(\\cos(a-b)\\)", r: "\\(\\cos a \\cos b + \\sin a \\sin b\\)", left: "\\cos(a-b)", right: "\\cos a \\cos b + \\sin a \\sin b" },
+                    { l: "\\(\\cos(a+b)\\)", r: "\\(\\cos a \\cos b - \\sin a \\sin b\\)", left: "\\cos(a+b)", right: "\\cos a \\cos b - \\sin a \\sin b" },
+                    { l: "\\(\\sin(a+b)\\)", r: "\\(\\sin a \\cos b + \\cos a \\sin b\\)", left: "\\sin(a+b)", right: "\\sin a \\cos b + \\cos a \\sin b" },
+                    { l: "\\(\\sin(a-b)\\)", r: "\\(\\sin a \\cos b - \\cos a \\sin b\\)", left: "\\sin(a-b)", right: "\\sin a \\cos b - \\cos a \\sin b" },
+                    { l: "\\(\\tan(a+b)\\)", r: "\\(\\frac{\\tan a + \\tan b}{1 - \\tan a \\tan b}\\)", left: "\\tan(a+b)", right: "\\displaystyle \\frac{\\tan a + \\tan b}{1 - \\tan a \\tan b}" }
+                ]
+            },
+            6: {
+                name: "6. Công Thức Cộng (Ví Dụ Số)",
+                pairs: [
+                    { l: "\\(\\cos 75^\\circ\\)", r: "\\(\\frac{\\sqrt{6} - \\sqrt{2}}{4}\\)", left: "\\cos 75^\\circ", right: "\\displaystyle \\frac{\\sqrt{6} - \\sqrt{2}}{4}" },
+                    { l: "\\(\\sin 75^\\circ\\)", r: "\\(\\frac{\\sqrt{6} + \\sqrt{2}}{4}\\)", left: "\\sin 75^\\circ", right: "\\displaystyle \\frac{\\sqrt{6} + \\sqrt{2}}{4}" },
+                    { l: "\\(\\tan 15^\\circ\\)", r: "\\(2 - \\sqrt{3}\\)", left: "\\tan 15^\\circ", right: "2 - \\sqrt{3}" },
+                    { l: "\\(\\tan 75^\\circ\\)", r: "\\(2 + \\sqrt{3}\\)", left: "\\tan 75^\\circ", right: "2 + \\sqrt{3}" },
+                    { l: "\\(\\sin 15^\\circ \\cos 30^\\circ + \\cos 15^\\circ \\sin 30^\\circ\\)", r: "\\(\\frac{\\sqrt{2}}{2}\\)", left: "\\sin 15^\\circ \\cos 30^\\circ + \\cos 15^\\circ \\sin 30^\\circ", right: "\\displaystyle \\frac{\\sqrt{2}}{2}" }
+                ]
+            },
+            7: {
+                name: "7. Công Thức Nhân Đôi (Lý Thuyết)",
+                pairs: [
+                    { l: "\\(\\sin 2a\\)", r: "\\(2 \\sin a \\cos a\\)", left: "\\sin 2a", right: "2\\sin a \\cos a" },
+                    { l: "\\(\\cos 2a\\)", r: "\\(\\cos^2 a - \\sin^2 a\\)", left: "\\cos 2a", right: "\\cos^2 a - \\sin^2 a" },
+                    { l: "\\(1 - 2\\sin^2 a\\)", r: "\\(\\cos 2a\\)", left: "1 - 2\\sin^2 a", right: "\\cos 2a" },
+                    { l: "\\(2\\cos^2 a - 1\\)", r: "\\(\\cos 2a\\)", left: "2\\cos^2 a - 1", right: "\\cos 2a" },
+                    { l: "\\(\\tan 2a\\)", r: "\\(\\frac{2\\tan a}{1 - \\tan^2 a}\\)", left: "\\tan 2a", right: "\\displaystyle \\frac{2\\tan a}{1 - \\tan^2 a}" }
+                ]
+            },
+            8: {
+                name: "8. Công Thức Nhân Đôi (Ví Dụ Số)",
+                pairs: [
+                    { l: "\\(2\\sin 15^\\circ \\cos 15^\\circ\\)", r: "\\(\\frac{1}{2}\\)", left: "2\\sin 15^\\circ \\cos 15^\\circ", right: "\\displaystyle \\frac{1}{2}" },
+                    { l: "\\(\\cos^2 \\frac{\\pi}{8} - \\sin^2 \\frac{\\pi}{8}\\)", r: "\\(\\frac{\\sqrt{2}}{2}\\)", left: "\\cos^2 \\frac{\\pi}{8} - \\sin^2 \\frac{\\pi}{8}", right: "\\displaystyle \\frac{\\sqrt{2}}{2}" },
+                    { l: "\\(1 - 2\\sin^2 15^\\circ\\)", r: "\\(\\frac{\\sqrt{3}}{2}\\)", left: "1 - 2\\sin^2 15^\\circ", right: "\\displaystyle \\frac{\\sqrt{3}}{2}" },
+                    { l: "\\(2\\cos^2 75^\\circ - 1\\)", r: "\\(-\\frac{\\sqrt{3}}{2}\\)", left: "2\\cos^2 75^\\circ - 1", right: "-\\displaystyle \\frac{\\sqrt{3}}{2}" },
+                    { l: "\\(\\frac{2\\tan 22.5^\\circ}{1 - \\tan^2 22.5^\\circ}\\)", r: "\\(1\\)", left: "\\displaystyle \\frac{2\\tan 22.5^\\circ}{1 - \\tan^2 22.5^\\circ}", right: "1" }
+                ]
+            },
+            9: {
+                name: "9. Công Thức Hạ Bậc (Lý Thuyết)",
+                pairs: [
+                    { l: "\\(\\sin^2 x\\)", r: "\\(\\frac{1 - \\cos 2x}{2}\\)", left: "\\sin^2 x", right: "\\displaystyle \\frac{1 - \\cos 2x}{2}" },
+                    { l: "\\(\\cos^2 x\\)", r: "\\(\\frac{1 + \\cos 2x}{2}\\)", left: "\\cos^2 x", right: "\\displaystyle \\frac{1 + \\cos 2x}{2}" },
+                    { l: "\\(\\tan^2 x\\)", r: "\\(\\frac{1 - \\cos 2x}{1 + \\cos 2x}\\)", left: "\\tan^2 x", right: "\\displaystyle \\frac{1 - \\cos 2x}{1 + \\cos 2x}" },
+                    { l: "\\(2\\sin^2 x\\)", r: "\\(1 - \\cos 2x\\)", left: "2\\sin^2 x", right: "1 - \\cos 2x" },
+                    { l: "\\(2\\cos^2 x\\)", r: "\\(1 + \\cos 2x\\)", left: "2\\cos^2 x", right: "1 + \\cos 2x" }
+                ]
+            },
+            10: {
+                name: "10. Công Thức Hạ Bậc (Ví Dụ Số)",
+                pairs: [
+                    { l: "\\(\\sin^2 15^\\circ\\)", r: "\\(\\frac{2 - \\sqrt{3}}{4}\\)", left: "\\sin^2 15^\\circ", right: "\\displaystyle \\frac{2 - \\sqrt{3}}{4}" },
+                    { l: "\\(\\cos^2 15^\\circ\\)", r: "\\(\\frac{2 + \\sqrt{3}}{4}\\)", left: "\\cos^2 15^\\circ", right: "\\displaystyle \\frac{2 + \\sqrt{3}}{4}" },
+                    { l: "\\(\\tan^2 15^\\circ\\)", r: "\\(7 - 4\\sqrt{3}\\)", left: "\\tan^2 15^\\circ", right: "7 - 4\\sqrt{3}" },
+                    { l: "\\(\\cos^2 \\frac{\\pi}{8}\\)", r: "\\(\\frac{2 + \\sqrt{2}}{4}\\)", left: "\\cos^2 \\frac{\\pi}{8}", right: "\\displaystyle \\frac{2 + \\sqrt{2}}{4}" },
+                    { l: "\\(\\sin^2 \\frac{\\pi}{8}\\)", r: "\\(\\frac{2 - \\sqrt{2}}{4}\\)", left: "\\sin^2 \\frac{\\pi}{8}", right: "\\displaystyle \\frac{2 - \\sqrt{2}}{4}" }
+                ]
+            },
+            11: {
+                name: "11. Công Thức Nhân Ba (Lý Thuyết)",
+                pairs: [
+                    { l: "\\(\\sin 3x\\)", r: "\\(3\\sin x - 4\\sin^3 x\\)", left: "\\sin 3x", right: "3\\sin x - 4\\sin^3 x" },
+                    { l: "\\(\\cos 3x\\)", r: "\\(4\\cos^3 x - 3\\cos x\\)", left: "\\cos 3x", right: "4\\cos^3 x - 3\\cos x" },
+                    { l: "\\(\\tan 3x\\)", r: "\\(\\frac{3\\tan x - \\tan^3 x}{1 - 3\\tan^2 x}\\)", left: "\\tan 3x", right: "\\displaystyle \\frac{3\\tan x - \\tan^3 x}{1 - 3\\tan^2 x}" },
+                    { l: "\\(3\\sin x - \\sin 3x\\)", r: "\\(4\\sin^3 x\\)", left: "3\\sin x - \\sin 3x", right: "4\\sin^3 x" },
+                    { l: "\\(\\cos 3x + 3\\cos x\\)", r: "\\(4\\cos^3 x\\)", left: "\\cos 3x + 3\\cos x", right: "4\\cos^3 x" }
+                ]
+            },
+            12: {
+                name: "12. Công Thức Nhân Ba (Ví Dụ Số)",
+                pairs: [
+                    { l: "\\(3\\sin 10^\\circ - 4\\sin^3 10^\\circ\\)", r: "\\(\\frac{1}{2}\\)", left: "3\\sin 10^\\circ - 4\\sin^3 10^\\circ", right: "\\displaystyle \\frac{1}{2}" },
+                    { l: "\\(4\\cos^3 10^\\circ - 3\\cos 10^\\circ\\)", r: "\\(\\frac{\\sqrt{3}}{2}\\)", left: "4\\cos^3 10^\\circ - 3\\cos 10^\\circ", right: "\\displaystyle \\frac{\\sqrt{3}}{2}" },
+                    { l: "\\(3\\sin 30^\\circ - 4\\sin^3 30^\\circ\\)", r: "\\(1\\)", left: "3\\sin 30^\\circ - 4\\sin^3 30^\\circ", right: "1" },
+                    { l: "\\(4\\cos^3 15^\\circ - 3\\cos 15^\\circ\\)", r: "\\(\\frac{\\sqrt{2}}{2}\\)", left: "4\\cos^3 15^\\circ - 3\\cos 15^\\circ", right: "\\displaystyle \\frac{\\sqrt{2}}{2}" },
+                    { l: "\\(\\frac{3\\tan 10^\\circ - \\tan^3 10^\\circ}{1 - 3\\tan^2 10^\\circ}\\)", r: "\\(\\frac{\\sqrt{3}}{3}\\)", left: "\\displaystyle \\frac{3\\tan 10^\\circ - \\tan^3 10^\\circ}{1 - 3\\tan^2 10^\\circ}", right: "\\displaystyle \\frac{\\sqrt{3}}{3}" }
+                ]
+            },
+            13: {
+                name: "13. Biến Đổi Tổng Thành Tích (Lý Thuyết)",
+                pairs: [
+                    { l: "\\(\\cos a + \\cos b\\)", r: "\\(2\\cos\\frac{a+b}{2}\\cos\\frac{a-b}{2}\\)", left: "\\cos a + \\cos b", right: "2\\cos\\frac{a+b}{2}\\cos\\frac{a-b}{2}" },
+                    { l: "\\(\\cos a - \\cos b\\)", r: "\\(-2\\sin\\frac{a+b}{2}\\sin\\frac{a-b}{2}\\)", left: "\\cos a - \\cos b", right: "-2\\sin\\frac{a+b}{2}\\sin\\frac{a-b}{2}" },
+                    { l: "\\(\\sin a + \\sin b\\)", r: "\\(2\\sin\\frac{a+b}{2}\\cos\\frac{a-b}{2}\\)", left: "\\sin a + \\sin b", right: "2\\sin\\frac{a+b}{2}\\cos\\frac{a-b}{2}" },
+                    { l: "\\(\\sin a - \\sin b\\)", r: "\\(2\\cos\\frac{a+b}{2}\\sin\\frac{a-b}{2}\\)", left: "\\sin a - \\sin b", right: "2\\cos\\frac{a+b}{2}\\sin\\frac{a-b}{2}" }
+                ]
+            },
+            14: {
+                name: "14. Tổng Thành Tích (Ví Dụ Số)",
+                pairs: [
+                    { l: "\\(\\cos 75^\\circ + \\cos 15^\\circ\\)", r: "\\(2\\cos 45^\\circ \\cos 30^\\circ\\)", left: "\\cos 75^\\circ + \\cos 15^\\circ", right: "2\\cos 45^\\circ \\cos 30^\\circ" },
+                    { l: "\\(\\cos 75^\\circ - \\cos 15^\\circ\\)", r: "\\(-2\\sin 45^\\circ \\sin 30^\\circ\\)", left: "\\cos 75^\\circ - \\cos 15^\\circ", right: "-2\\sin 45^\\circ \\sin 30^\\circ" },
+                    { l: "\\(\\sin \\frac{5\\pi}{12} + \\sin \\frac{\\pi}{12}\\)", r: "\\(2\\sin \\frac{\\pi}{4} \\cos \\frac{\\pi}{6}\\)", left: "\\sin \\frac{5\\pi}{12} + \\sin \\frac{\\pi}{12}", right: "2\\sin \\frac{\\pi}{4} \\cos \\frac{\\pi}{6}" },
+                    { l: "\\(\\sin \\frac{5\\pi}{12} - \\sin \\frac{\\pi}{12}\\)", r: "\\(2\\cos \\frac{\\pi}{4} \\sin \\frac{\\pi}{6}\\)", left: "\\sin \\frac{5\\pi}{12} - \\sin \\frac{\\pi}{12}", right: "2\\cos \\frac{\\pi}{4} \\sin \\frac{\\pi}{6}" }
+                ]
+            },
+            15: {
+                name: "15. Công Thức Biến Đổi Tích Thành Tổng (Lý Thuyết)",
+                pairs: [
+                    { l: "\\(\\cos a \\cos b\\)", r: "\\(\\frac{1}{2}[\\cos(a-b) + \\cos(a+b)]\\)", left: "\\cos a \\cos b", right: "\\displaystyle \\frac{1}{2}[\\cos(a-b) + \\cos(a+b)]" },
+                    { l: "\\(\\sin a \\sin b\\)", r: "\\(\\frac{1}{2}[\\cos(a-b) - \\cos(a+b)]\\)", left: "\\sin a \\sin b", right: "\\displaystyle \\frac{1}{2}[\\cos(a-b) - \\cos(a+b)]" },
+                    { l: "\\(\\sin a \\cos b\\)", r: "\\(\\frac{1}{2}[\\sin(a-b) + \\sin(a+b)]\\)", left: "\\sin a \\cos b", right: "\\displaystyle \\frac{1}{2}[\\sin(a-b) + \\sin(a+b)]" }
+                ]
+            },
+            16: {
+                name: "16. Tích Thành Tổng (Ví Dụ Số)",
+                pairs: [
+                    { l: "\\(\\cos 75^\\circ \\cos 15^\\circ\\)", r: "\\(\\frac{1}{2}(\\cos 60^\\circ + \\cos 90^\\circ)\\)", left: "\\cos 75^\\circ \\cos 15^\\circ", right: "\\displaystyle \\frac{1}{2}(\\cos 60^\\circ + \\cos 90^\\circ)" },
+                    { l: "\\(\\sin 75^\\circ \\sin 15^\\circ\\)", r: "\\(\\frac{1}{2}(\\cos 60^\\circ - \\cos 90^\\circ)\\)", left: "\\sin 75^\\circ \\sin 15^\\circ", right: "\\displaystyle \\frac{1}{2}(\\cos 60^\\circ - \\cos 90^\\circ)" },
+                    { l: "\\(\\sin 75^\\circ \\cos 15^\\circ\\)", r: "\\(\\frac{1}{2}(\\sin 60^\\circ + \\sin 90^\\circ)\\)", left: "\\sin 75^\\circ \\cos 15^\\circ", right: "\\displaystyle \\frac{1}{2}(\\sin 60^\\circ + \\sin 90^\\circ)" },
+                    { l: "\\(\\cos \\frac{5\\pi}{12} \\sin \\frac{\\pi}{12}\\)", r: "\\(\\frac{1}{2}\\left(\\sin\\frac{\\pi}{2} - \\sin\\frac{\\pi}{3}\\right)\\)", left: "\\cos \\frac{5\\pi}{12} \\sin \\frac{\\pi}{12}", right: "\\displaystyle \\frac{1}{2}\\left(\\sin\\frac{\\pi}{2} - \\sin\\frac{\\pi}{3}\\right)" }
+                ]
+            }
+        };
+
         const ALL_16_TOPICS = [
             { key: '1_F', id: 1, name: "1. Công Thức Lượng Giác Cơ Bản", shortName: "1. C.Thức Cơ Bản", type: "formula", typeLabel: "📘 Lý Thuyết", desc: "sin²x + cos²x = 1, tanx·cotx = 1, 1+tan²x, 1+cot²x", icon: "📐" },
             { key: '1_E', id: 2, name: "2. Công Thức Cơ Bản (Ví Dụ Số)", shortName: "2. Cơ Bản (Ví Dụ)", type: "example", typeLabel: "⚡ Ví Dụ", desc: "Giá trị lượng giác góc đặc biệt: π/3, π/4, π/5, π/6", icon: "💡" },
@@ -1848,41 +2011,67 @@ if (typeof GAME_LEVELS !== 'undefined') {
             score = 0; 
             isAnimating = false;
             
+            const numId = parseInt(levelCode);
+            let topicFromDb = null;
+            if (window.matchingTopicDatabase && !isNaN(numId) && window.matchingTopicDatabase[numId]) {
+                topicFromDb = window.matchingTopicDatabase[numId];
+            } else if (window.matchingTopicDatabase && typeof levelCode === 'string') {
+                const mappedIdx = typeof ALL_16_TOPICS !== 'undefined' ? ALL_16_TOPICS.findIndex(t => t.key === levelCode) : -1;
+                if (mappedIdx !== -1 && window.matchingTopicDatabase[mappedIdx + 1]) {
+                    topicFromDb = window.matchingTopicDatabase[mappedIdx + 1];
+                }
+            }
+
             let targetKey = resolveLevelKey(levelCode);
             if (!targetKey || !GAME_LEVELS[targetKey]) {
                 targetKey = (currentMode === 'campaign' && CAMPAIGN_STAGES[currentCampaignIndex]) ? CAMPAIGN_STAGES[currentCampaignIndex] : '1_F';
             }
 
-            const levelData = (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[targetKey])
-                ? GAME_LEVELS[targetKey]
-                : (GAME_LEVELS['1_F'] || {
-                    title: "Cơ Bản (C.Thức)",
-                    time: 60,
-                    pairs: FALLBACK_TRIGONOMETRY_PAIRS
-                });
+            let rawPairs = [];
+            let levelTitle = "";
+            let levelTime = 60;
 
-            let rawPairs = levelData.pairs;
+            if (topicFromDb && Array.isArray(topicFromDb.pairs) && topicFromDb.pairs.length > 0) {
+                rawPairs = topicFromDb.pairs;
+                levelTitle = topicFromDb.name || (typeof ALL_16_TOPICS !== 'undefined' && ALL_16_TOPICS[numId - 1] ? ALL_16_TOPICS[numId - 1].name : ("Chuyên Đề " + numId));
+                levelTime = 60;
+            } else {
+                const levelData = (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[targetKey])
+                    ? GAME_LEVELS[targetKey]
+                    : (GAME_LEVELS['1_F'] || {
+                        title: "Cơ Bản (C.Thức)",
+                        time: 60,
+                        pairs: FALLBACK_TRIGONOMETRY_PAIRS
+                    });
+                rawPairs = levelData.pairs;
+                levelTitle = levelData.title || "Vòng Chơi";
+                levelTime = Number(levelData.time) || 60;
+            }
+
             if (!Array.isArray(rawPairs) || rawPairs.length === 0) {
                 rawPairs = (GAME_LEVELS['1_F'] && Array.isArray(GAME_LEVELS['1_F'].pairs) && GAME_LEVELS['1_F'].pairs.length > 0)
                     ? GAME_LEVELS['1_F'].pairs
                     : FALLBACK_TRIGONOMETRY_PAIRS;
             }
 
-            currentPairs = rawPairs.filter(p => p && (p.left || p.right || p.text)).map((p, idx) => ({
+            currentPairs = rawPairs.filter(p => p && (p.left || p.right || p.text || p.l || p.r)).map((p, idx) => ({
                 id: p.id || (idx + 1),
-                left: cleanPairMath(p.left || p.text || ''),
-                right: cleanPairMath(p.right || '')
+                left: cleanPairMath(p.left || p.l || p.text || ''),
+                right: cleanPairMath(p.right || p.r || '')
             }));
 
             if (currentPairs.length === 0) {
                 currentPairs = [...FALLBACK_TRIGONOMETRY_PAIRS];
             }
 
-            timeLeft = Number(levelData.time) || 60;
+            timeLeft = levelTime || 60;
 
             levelBadge.innerText = currentMode === 'campaign' 
                 ? `Ải ${currentCampaignIndex + 1}/${CAMPAIGN_STAGES.length}` 
-                : (levelData.title || "Vòng Chơi");
+                : (levelTitle || "Vòng Chơi");
+
+            const topicHeaderLabel = document.querySelector('.current-topic-name, #current-level-title, [class*="topic-label"]');
+            if (topicHeaderLabel && levelTitle) { topicHeaderLabel.innerText = levelTitle; }
             levelBadge.classList.remove('hidden');
 
             livesContainer.innerHTML = '';
@@ -3359,28 +3548,29 @@ if (typeof window !== 'undefined') {
 
             let stageKey = '1_F';
 
-            if (typeof target === 'string') {
+            const numTarget = typeof target === 'number' ? target : parseInt(target);
+            if (!isNaN(numTarget) && numTarget >= 1 && numTarget <= 16) {
+                if (typeof ALL_16_TOPICS !== 'undefined') {
+                    const found = ALL_16_TOPICS.find(t => t.id === numTarget) || ALL_16_TOPICS[numTarget - 1];
+                    if (found && typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[found.key]) {
+                        stageKey = found.key;
+                    } else {
+                        const grp = Math.ceil(numTarget / 2);
+                        const suffix = (numTarget % 2 === 1) ? 'F' : 'E';
+                        stageKey = `${grp}_${suffix}`;
+                    }
+                } else {
+                    const grp = Math.ceil(numTarget / 2);
+                    const suffix = (numTarget % 2 === 1) ? 'F' : 'E';
+                    stageKey = `${grp}_${suffix}`;
+                }
+            } else if (typeof target === 'string') {
                 if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[target]) {
                     stageKey = target;
                 } else if (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[target + '_F']) {
                     stageKey = target + '_F';
                 } else {
                     stageKey = target;
-                }
-            } else if (typeof target === 'number') {
-                if (typeof ALL_16_TOPICS !== 'undefined') {
-                    const found = ALL_16_TOPICS.find(t => t.id === target) || ALL_16_TOPICS[target - 1];
-                    if (found && typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[found.key]) {
-                        stageKey = found.key;
-                    } else {
-                        const grp = Math.ceil(target / 2);
-                        const suffix = (target % 2 === 1) ? 'F' : 'E';
-                        stageKey = `${grp}_${suffix}`;
-                    }
-                } else {
-                    const grp = Math.ceil(target / 2);
-                    const suffix = (target % 2 === 1) ? 'F' : 'E';
-                    stageKey = `${grp}_${suffix}`;
                 }
             }
 
@@ -3396,8 +3586,116 @@ if (typeof window !== 'undefined') {
         window.loadLevel = window.startMatchingLevel;
     }
 
+    // Khôi phục tự động nếu vừa reload từ fallback localStorage
+    try {
+        const savedTopicId = localStorage.getItem('matching_selected_topic_id');
+        if (savedTopicId) {
+            localStorage.removeItem('matching_selected_topic_id');
+            const tid = parseInt(savedTopicId);
+            setTimeout(() => {
+                if (typeof window.startMatchingLevel === 'function') {
+                    window.startMatchingLevel(isNaN(tid) ? savedTopicId : tid);
+                }
+            }, 400);
+        }
+    } catch(e) {}
+
+        // ==========================================
+    // 1. CHUẨN HÓA DỮ LIỆU NGUỒN VÀ HÀM MAP DỮ LIỆU THEO ID CHUYÊN ĐỀ (CHỈ THỊ TỐI CAO)
     // ==========================================
-    // TIÊM ĐOẠN SCRIPT LÀM SẠCH VÀ GẮN ĐÚNG THAM SỐ LEVEL MAPPING (CHỈ THỊ CẤP CỨU)
+    (function() {
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                // Kiểm tra và bổ sung kho dữ liệu mẫu cho các chuyên đề nếu bị thiếu
+                if (!window.matchingTopicDatabase) {
+                    window.matchingTopicDatabase = {
+                        1: { name: "Công Thức Lượng Giác Cơ Bản", pairs: [{l: "\\(\\sin^2 x + \\cos^2 x\\)", r: "\\(1\\)"}, {l: "\\(\\tan x \\cdot \\cot x\\)", r: "\\(1\\)"}, {l: "\\(\\frac{1}{\\cos^2 x}\\)", r: "\\(1 + \\tan^2 x\\)"}, {l: "\\(\\frac{1}{\\sin^2 x}\\)", r: "\\(1 + \\cot^2 x\\)"}] },
+                        2: { name: "Cung Liên Kết", pairs: [{l: "\\(\\sin(-x)\\)", r: "\\(-\\sin x\\)"}, {l: "\\(\\cos(-x)\\)", r: "\\(\cos x\\)"}, {l: "\\(\\tan(-x)\\)", r: "\\(-\\tan x\\)"}, {l: "\\(\\cot(-x)\\)", r: "\\(-\\cot x\\)"}] },
+                        3: { name: "Công Thức Cộng", pairs: [{l: "\\(\\cos(a-b)\\)", r: "\\(\\cos a \\cos b + \\sin a \\sin b\\)"}, {l: "\\(\\sin(a+b)\\)", r: "\\(\\sin a \\cos b + \\cos a \\sin b\\)"}] },
+                        4: { name: "Công Thức Nhân Đôi", pairs: [{l: "\\(\\sin 2a\\)", r: "\\(2 \\sin a \\cos a\\)"}, {l: "\\(\\cos 2a\\)", r: "\\(\\cos^2 a - \\sin^2 a\\)"}] }
+                        // Các chuyên đề 5 đến 16 sẽ được ánh xạ tự động hoặc lặp lại dự phòng chuẩn xác
+                    };
+                }
+
+                // Ánh xạ tự động bổ sung dự phòng chuẩn xác cho các chuyên đề từ 5 đến 16 nếu thiếu
+                for (let i = 1; i <= 16; i++) {
+                    if (!window.matchingTopicDatabase[i] || !Array.isArray(window.matchingTopicDatabase[i].pairs) || window.matchingTopicDatabase[i].pairs.length === 0) {
+                        const topInfo = (typeof ALL_16_TOPICS !== 'undefined' && ALL_16_TOPICS[i - 1]) ? ALL_16_TOPICS[i - 1] : null;
+                        const grp = Math.ceil(i / 2);
+                        const suf = (i % 2 === 1) ? 'F' : 'E';
+                        const key = `${grp}_${suf}`;
+                        const lvl = (typeof GAME_LEVELS !== 'undefined' && GAME_LEVELS[key]) ? GAME_LEVELS[key] : null;
+                        window.matchingTopicDatabase[i] = {
+                            name: topInfo ? topInfo.name : ("Chuyên Đề " + i),
+                            pairs: lvl && Array.isArray(lvl.pairs) ? lvl.pairs.map(p => ({
+                                l: `\\(${p.left}\\)`,
+                                r: `\\(${p.right}\\)`,
+                                left: p.left,
+                                right: p.right
+                            })) : []
+                        };
+                    }
+                }
+
+                // Ghi đè hàm khởi tạo level gốc của game để bắt buộc nhận đúng ID
+                const originalStartFn = window.startMatchingLevel || window.initMatchingGame;
+                
+                window.startMatchingLevel = function(topicId) {
+                    console.log("Hệ thống nạp dữ liệu chuẩn xác cho Chuyên Đề ID:", topicId);
+                    localStorage.setItem('matching_selected_topic_id', topicId);
+                    
+                    // Cập nhật nhãn hiển thị tên chuyên đề trên bàn chơi nếu có
+                    const titleDisplay = document.querySelector('.current-topic-name, #current-level-title, [class*="topic-label"]');
+                    if (titleDisplay) {
+                        titleDisplay.innerText = `Chuyên Đề ${topicId}`;
+                    }
+
+                    // Gọi hàm gốc của game nếu tồn tại, truyền đúng tham số topicId
+                    if (typeof originalStartFn === 'function') {
+                        try {
+                            originalStartFn(topicId);
+                        } catch (err) {
+                            console.log("Gọi hàm gốc lỗi, tiến hành render trực tiếp theo ID:", topicId);
+                        }
+                    }
+                };
+
+                // Gắn sự kiện click trực tiếp vào từng nút của 16 chuyên đề trong menu
+                const menuCardsList = document.querySelectorAll('.topic-card, .level-box, [class*="card"], [class*="item"]');
+                menuCardsList.forEach((card, index) => {
+                    let realId = index + 1;
+                    const txt = card.innerText || "";
+                    const m = txt.match(/CHUYÊN ĐỀ\s*(\d+)/i) || txt.match(/(\d+)\./);
+                    if (m && m[1]) realId = parseInt(m[1]);
+
+                    card.querySelectorAll('button, a, [class*="btn"]').forEach(btn => {
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            // Đóng menu modal
+                            document.querySelectorAll('.modal-content, [class*="modal"], [class*="popup"], .selection-screen-wrapper').forEach(m => {
+                                m.style.display = 'none';
+                            });
+
+                            // Mở bàn chơi
+                            const board = document.querySelector('.play-area, #game-board, .matching-board');
+                            if (board) {
+                                board.style.display = 'block';
+                                board.style.visibility = 'visible';
+                            }
+
+                            window.startMatchingLevel(realId);
+                        };
+                    });
+                });
+
+            }, 1000);
+        });
+    })();
+
+    // ==========================================
+    // TIÊM ĐOẠN SCRIPT LÀM SẠCH VÀ GẮN ĐÚNG THAM SỐ LEVEL MAPPING
     // ==========================================
     (function() {
         function setupCleanTopicMenu() {
@@ -3449,79 +3747,52 @@ if (typeof window !== 'undefined') {
             const allTopicCards = document.querySelectorAll('.topic-card, .level-box, [class*="card"], [class*="item"]');
             
             allTopicCards.forEach((card, index) => {
-                let determinedId = index + 1;
-                const textContent = card.innerText || "";
-                const matchDigit = textContent.match(/CHUYÊN ĐỀ\s*(\d+)/i) || textContent.match(/(\d+)\./);
-                if (matchDigit && matchDigit[1]) {
-                    determinedId = parseInt(matchDigit[1]);
+                let cardTopicId = index + 1;
+                const cardText = card.innerText || "";
+                const matchRes = cardText.match(/CHUYÊN ĐỀ\s*(\d+)/i) || cardText.match(/(\d+)\./);
+                if (matchRes && matchRes[1]) {
+                    cardTopicId = parseInt(matchRes[1]);
                 }
 
-                const actionTriggers = card.querySelectorAll('button, a, [class*="btn"]');
+                const interactiveBtns = card.querySelectorAll('button, a, [class*="btn"], div[style*="background"]');
                 
-                actionTriggers.forEach(trg => {
-                    const trgText = trg.innerText || "";
-                    if (trgText.includes('CHƠI') || trgText.includes('C.Thức') || trgText.includes('Ví Dụ') || trgText.includes('Ngay')) {
+                interactiveBtns.forEach(btn => {
+                    const btnLabel = btn.innerText || "";
+                    if (btnLabel.includes('CHƠI') || btnLabel.includes('C.Thức') || btnLabel.includes('Ví Dụ') || btnLabel.includes('Ngay')) {
                         
-                        trg.style.pointerEvents = 'auto';
-                        trg.style.cursor = 'pointer';
+                        btn.style.pointerEvents = 'auto';
+                        btn.style.cursor = 'pointer';
 
-                        trg.onclick = function(e) {
+                        btn.onclick = function(e) {
                             e.preventDefault();
                             e.stopPropagation();
 
-                            console.log("Xác nhận người dùng chọn Chuyên Đề chính xác:", determinedId);
+                            console.log("Đã chọn chính xác Chuyên Đề ID:", cardTopicId);
 
-                            // Ẩn tất cả các modal menu và sảnh chờ
+                            // Ẩn bảng Menu Modal và sảnh chờ
                             document.querySelectorAll('.modal-content, [class*="modal"], [class*="popup"], .selection-screen-wrapper, .lobby-wrapper, #setup-container').forEach(m => {
                                 m.style.display = 'none';
                                 m.style.visibility = 'hidden';
                             });
-                            const ovTopic = document.getElementById('topic-selection-overlay');
-                            if (ovTopic) {
-                                ovTopic.style.display = 'none';
-                                ovTopic.classList.remove('active');
-                            }
-                            const ovMain = document.getElementById('overlay');
-                            if (ovMain) {
-                                ovMain.style.display = 'none';
-                                ovMain.classList.add('hidden');
-                            }
 
-                            // Hiển thị bàn chơi
-                            const boardArea = document.querySelector('.play-area, #game-board, .matching-board');
-                            if (boardArea) {
-                                boardArea.style.display = 'block';
-                                boardArea.style.visibility = 'visible';
-                            }
-
-                            const hp = document.getElementById('header-panel');
-                            if (hp) {
-                                hp.classList.remove('hidden');
-                                hp.style.display = 'flex';
-                                hp.style.visibility = 'visible';
+                            // Hiển thị bàn chơi chính
+                            const gameBoard = document.querySelector('.play-area, #game-board, .matching-board');
+                            if (gameBoard) {
+                                gameBoard.style.display = 'block';
+                                gameBoard.style.visibility = 'visible';
                             }
 
                             window.gameStartTimeSet = true;
 
-                            // Trích xuất data-key nếu có (ví dụ 1_F, 1_E), nếu không dùng determinedId
-                            let explicitKey = trg.getAttribute('data-key') || trg.dataset?.key;
-                            if (!explicitKey) {
-                                if (trgText.includes('Ví Dụ')) {
-                                    explicitKey = `${determinedId}_E`;
-                                } else {
-                                    explicitKey = `${determinedId}_F`;
-                                }
-                            }
-
-                            // Gọi hàm khởi tạo game của project với đúng tham số
+                            // Kích hoạt hàm khởi tạo gốc của game với đúng cardTopicId
                             if (typeof window.startMatchingLevel === 'function') {
-                                window.startMatchingLevel(explicitKey);
+                                window.startMatchingLevel(cardTopicId);
                             } else if (typeof window.initMatchingGame === 'function') {
-                                window.initMatchingGame(explicitKey);
+                                window.initMatchingGame(cardTopicId);
                             } else if (typeof loadLevel === 'function') {
-                                loadLevel(explicitKey);
+                                loadLevel(cardTopicId);
                             } else {
-                                localStorage.setItem('matching_selected_topic_id', explicitKey);
+                                localStorage.setItem('matching_selected_topic_id', cardTopicId);
                                 window.location.reload();
                             }
                         };
