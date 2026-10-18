@@ -2324,7 +2324,70 @@ var questions = window.quizData;
 
     const haiTaoScript = `
 <style id="apple-responsive-style">
-/* 1. Tối ưu chế độ Laptop / Full màn hình */
+/* 1. Ép chống tràn và tự động xuống dòng toàn bộ box đề/đáp án trên Laptop & Mobile */
+.apple-game-container, .question-container, [class*="question"], [class*="answer"], [class*="box"], div, p, span {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+}
+.answer-btn, [class*="answer-option"], button[class*="btn"] {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 48px !important;
+    padding: 10px 14px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* 2. Ẩn tuyệt đối các nút quản trị / sửa dữ liệu khi ở chế độ học sinh */
+body:not(.is-admin) .admin-only-btn, body:not(.admin-mode) button:contains("Sửa Dữ Liệu"), .admin-toolbar-btn {
+    display: none !important;
+}
+body:not(.is-admin) .settings-btn-tiny,
+body:not(.is-admin) #admin-topbar,
+body:not(.is-admin) #btn-admin-gear,
+body:not(.is-admin) .btn-topbar-edit,
+body:not(.is-admin) .btn-topbar-chuyende,
+body:not(.admin-mode) .settings-btn-tiny,
+body:not(.admin-mode) #admin-topbar,
+body:not(.admin-mode) #btn-admin-gear,
+body:not(.admin-mode) .btn-topbar-edit,
+body:not(.admin-mode) .btn-topbar-chuyende {
+    display: none !important;
+}
+body.is-admin .admin-only-btn,
+body.admin-mode .admin-only-btn,
+body.is-admin .admin-toolbar-btn,
+body.admin-mode .admin-toolbar-btn,
+body.is-admin #admin-topbar,
+body.admin-mode #admin-topbar,
+body.is-admin .settings-btn-tiny,
+body.admin-mode .settings-btn-tiny {
+    display: flex !important;
+}
+body.is-admin #btn-admin-gear,
+body.admin-mode #btn-admin-gear {
+    display: inline-flex !important;
+}
+
+/* 3. Kích hoạt thanh cuộn dọc mượt mà cho Mobile */
+@media screen and (max-width: 768px) {
+    body, html, .game-wrapper, [class*="container"] {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        max-height: 100vh !important;
+    }
+    .main-board, .side-panel, .q-container {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+/* Tối ưu chế độ Laptop / Full màn hình */
 @media screen and (min-width: 769px) {
     .apple-game-container, [class*="apple"], [class*="harvest"], .quiz-box {
         max-width: 1200px !important;
@@ -2338,29 +2401,18 @@ var questions = window.quizData;
     }
 }
 
-/* 2. Khắc phục lệch dòng công thức toán học */
-mjx-container, .MathJax, math {
+/* Bảo vệ căn chỉnh công thức Toán MathJax không bị ngắt đôi biểu thức con */
+mjx-container, .MathJax, math, .mjx-chtml {
     vertical-align: middle !important;
     display: inline-block !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
 }
 .question-text, .answer-btn, p, span {
     line-height: 1.6 !important;
 }
-
-/* 3. Tối ưu giao diện Mobile */
-@media screen and (max-width: 768px) {
-    .answer-btn, [class*="answer"], button[class*="option"] {
-        width: 100% !important;
-        height: auto !important;
-        min-height: 48px !important;
-        padding: 10px 12px !important;
-        font-size: 0.85rem !important;
-        white-space: normal !important;
-        word-break: break-word !important;
-        display: flex !important;
-        align-items: center !important;
-        text-align: left !important;
-    }
+.title, .title-text, .header, .instruction, .global-timer {
+    white-space: nowrap !important;
 }
 </style>
 <script>
@@ -2392,17 +2444,23 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
   function applyAdminSecurity() {
     try {
       const params = new URLSearchParams(window.location.search);
-      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1' || window.location.hash.includes('admin');
+      const isExplicitStudent = params.get('role') === 'student' || params.get('student') === '1' || window.location.pathname.includes('/chon-hs/');
+      const isAdmin = !isExplicitStudent && (params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1' || window.location.hash.includes('admin'));
       const adminTopbar = document.getElementById('admin-topbar');
-      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, .settings-btn-tiny, .admin-only-btn, .admin-toolbar-btn, [data-admin-control="true"]');
+      const studentBtn = document.getElementById('btn-student-chuyende');
       if (isAdmin) {
+        document.body.classList.add('is-admin', 'admin-mode');
         if (adminTopbar) adminTopbar.style.setProperty('display', 'flex', 'important');
+        if (studentBtn) studentBtn.style.setProperty('display', 'none', 'important');
         adminBtns.forEach(btn => {
           btn.classList.remove('hidden');
-          btn.style.setProperty('display', 'inline-flex', 'important');
+          btn.style.removeProperty('display');
         });
       } else {
+        document.body.classList.remove('is-admin', 'admin-mode');
         if (adminTopbar) adminTopbar.style.setProperty('display', 'none', 'important');
+        if (studentBtn) studentBtn.style.setProperty('display', 'flex', 'important');
         adminBtns.forEach(btn => {
           btn.classList.add('hidden');
           btn.style.setProperty('display', 'none', 'important');

@@ -407,7 +407,74 @@
         /* ======================================================== */
         /* CHỐNG NGẮT DÒNG BIỂU THỨC TOÁN HỌC & LŨY THỪA LATEX */
         /* ======================================================== */
-        /* 1. Tối ưu chế độ Laptop / Full màn hình */
+        /* ======================================================== */
+        /* BỘ QUY TẮC CSS KHẮC PHỤC TRIỆT ĐỂ 3 LỖI TRONG GAME HÁI TÁO */
+        /* ======================================================== */
+
+        /* 1. Ép chống tràn và tự động xuống dòng toàn bộ box đề/đáp án trên Laptop & Mobile */
+        .apple-game-container, .question-container, [class*="question"], [class*="answer"], [class*="box"], div, p, span {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            word-break: break-word !important;
+            overflow-wrap: break-word !important;
+            white-space: normal !important;
+        }
+        .answer-btn, [class*="answer-option"], button[class*="btn"] {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 48px !important;
+            padding: 10px 14px !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        /* 2. Ẩn tuyệt đối các nút quản trị / sửa dữ liệu khi ở chế độ học sinh */
+        body:not(.is-admin) .admin-only-btn, body:not(.admin-mode) button:contains("Sửa Dữ Liệu"), .admin-toolbar-btn {
+            display: none !important;
+        }
+        body:not(.is-admin) .settings-btn-tiny,
+        body:not(.is-admin) #admin-topbar,
+        body:not(.is-admin) #btn-admin-gear,
+        body:not(.is-admin) .btn-topbar-edit,
+        body:not(.is-admin) .btn-topbar-chuyende,
+        body:not(.admin-mode) .settings-btn-tiny,
+        body:not(.admin-mode) #admin-topbar,
+        body:not(.admin-mode) #btn-admin-gear,
+        body:not(.admin-mode) .btn-topbar-edit,
+        body:not(.admin-mode) .btn-topbar-chuyende {
+            display: none !important;
+        }
+        body.is-admin .admin-only-btn,
+        body.admin-mode .admin-only-btn,
+        body.is-admin .admin-toolbar-btn,
+        body.admin-mode .admin-toolbar-btn,
+        body.is-admin #admin-topbar,
+        body.admin-mode #admin-topbar,
+        body.is-admin .settings-btn-tiny,
+        body.admin-mode .settings-btn-tiny {
+            display: flex !important;
+        }
+        body.is-admin #btn-admin-gear,
+        body.admin-mode #btn-admin-gear {
+            display: inline-flex !important;
+        }
+
+        /* 3. Kích hoạt thanh cuộn dọc mượt mà cho Mobile */
+        @media screen and (max-width: 768px) {
+            body, html, .game-wrapper, [class*="container"] {
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                max-height: 100vh !important;
+            }
+            .main-board, .side-panel, .q-container {
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+        }
+
+        /* Tối ưu chế độ Laptop / Full màn hình */
         @media screen and (min-width: 769px) {
             .apple-game-container, [class*="apple"], [class*="harvest"], .quiz-box {
                 max-width: 1200px !important;
@@ -421,40 +488,18 @@
             }
         }
 
-        /* 2. Khắc phục lệch dòng công thức toán học */
-        mjx-container, .MathJax, math {
+        /* Bảo vệ căn chỉnh công thức Toán MathJax không bị ngắt đôi biểu thức con */
+        mjx-container, .MathJax, math, .mjx-chtml {
             vertical-align: middle !important;
             display: inline-block !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
         }
         .question-text, .answer-btn, p, span {
             line-height: 1.6 !important;
         }
-
-        /* 3. Tối ưu giao diện Mobile */
-        @media screen and (max-width: 768px) {
-            .answer-btn, [class*="answer"], button[class*="option"] {
-                width: 100% !important;
-                height: auto !important;
-                min-height: 48px !important;
-                padding: 10px 12px !important;
-                font-size: 0.85rem !important;
-                white-space: normal !important;
-                word-break: break-word !important;
-                display: flex !important;
-                align-items: center !important;
-                text-align: left !important;
-            }
-        }
-
-        /* Bảo vệ công thức toán học MathJax căn chỉnh chuẩn và chống ngắt đôi biểu thức con */
-        .mjx-chtml, mjx-container, .MathJax, math {
-            vertical-align: middle !important;
-            display: inline-block !important;
-        }
-        .q-content, .question-box-content, .q-container, .question-text {
-            word-wrap: break-word !important;
-            overflow-wrap: break-word !important;
-            white-space: normal !important;
+        .title, .title-text, .header, .instruction, .global-timer {
+            white-space: nowrap !important;
         }
 
         /* Hai nút Đúng / Sai to tướng */
@@ -1279,7 +1324,7 @@ button, .btn, input, select, canvas {
             <button id="fullscreenToggleBtn" type="button" onclick="toggleMobileFullscreen()" class="btn-topbar-fs" title="[ ⛶ ] Toàn màn hình" data-fs-bound="true">
                 <span id="fullscreenIcon">⛶</span> <span id="fullscreenText" class="fs-text">[ ⛶ ] TOÀN MÀN HÌNH</span>
             </button>
-            <div class="settings-btn-tiny" onclick="openSettings()" title="Cài đặt">⚙️</div>
+            <div class="settings-btn-tiny admin-only-btn admin-toolbar-btn" onclick="openSettings()" title="Cài đặt">⚙️</div>
             <div class="global-timer" id="global-timer-display" style="display:none;">
                 <i>⏱</i> <span id="global-time-text">15:00</span>
             </div>
@@ -1300,11 +1345,11 @@ button, .btn, input, select, canvas {
             <button id="btn-student-chuyende" onclick="openAppleTopicMenu()" class="btn-topbar-student" style="display: flex;">
                 📚 <span>Đổi Chuyên Đề</span>
             </button>
-            <div id="admin-topbar" class="admin-topbar" style="display: none;">
-                <button id="btn-chuyen-de" type="button" onclick="openAppleTopicMenu()" class="btn-topbar-chuyende" title="Chọn Chuyên Đề">
+            <div id="admin-topbar" class="admin-topbar admin-toolbar-btn" style="display: none;">
+                <button id="btn-chuyen-de" type="button" onclick="openAppleTopicMenu()" class="btn-topbar-chuyende admin-only-btn admin-toolbar-btn" title="Chọn Chuyên Đề">
                     📋 <span>CHUYÊN ĐỀ</span>
                 </button>
-                <button id="btn-admin-gear" type="button" onclick="openAdminPinPrompt()" class="btn-topbar-edit" title="Sửa Dữ Liệu In-game">
+                <button id="btn-admin-gear" type="button" onclick="openAdminPinPrompt()" class="btn-topbar-edit admin-only-btn admin-toolbar-btn" title="Sửa Dữ Liệu In-game">
                     ⚙️ <span>SỬA DỮ LIỆU</span>
                 </button>
             </div>
@@ -2142,14 +2187,14 @@ button, .btn, input, select, canvas {
         </div>
     </div>
 
-    <div class="main-board apple-game-container harvest-container quiz-box">
+    <div class="main-board apple-game-container harvest-container quiz-box game-wrapper">
         <!-- Panel Trái (Đội Xanh) -->
         <div class="side-panel left blur-wait" id="panel-1">
             <div class="team-info-bar">
                 <div class="team-name" id="name-1">ĐỘI XANH</div>
                 <div class="timer-box">⏱ <span id="timer-1">00:00</span></div>
             </div>
-            <div class="q-container" id="qc-1" style="opacity: 1;">
+            <div class="q-container question-container" id="qc-1" style="opacity: 1;">
                 <div class="q-header">
                     <div class="q-progress" id="prog-1">Câu 1/7</div>
                     <div class="q-badge" id="badge-1" style="background-color: rgb(46, 204, 113);">Dễ</div>
@@ -2183,7 +2228,7 @@ button, .btn, input, select, canvas {
                 <div class="team-name" id="name-2">ĐỘI ĐỎ</div>
                 <div class="timer-box">⏱ <span id="timer-2">00:00</span></div>
             </div>
-            <div class="q-container" id="qc-2" style="opacity: 1;">
+            <div class="q-container question-container" id="qc-2" style="opacity: 1;">
                 <div class="q-header">
                     <div class="q-progress" id="prog-2">Câu 1/7</div>
                     <div class="q-badge" id="badge-2" style="background-color: rgb(46, 204, 113);">Dễ</div>
@@ -3162,10 +3207,10 @@ button, .btn, input, select, canvas {
                     // Dạng 2 nút ĐÚNG / SAI to tướng
                     container.innerHTML = `
                         <div class="tf-big-grid">
-                            <button type="button" id="smart-tf-${team}-D" class="btn-tf-big dung" onclick="selSmartTF(${team}, 'Đ')">
+                            <button type="button" id="smart-tf-${team}-D" class="btn-tf-big dung answer-btn btn" onclick="selSmartTF(${team}, 'Đ')">
                                 <span>✅</span> ĐÚNG
                             </button>
-                            <button type="button" id="smart-tf-${team}-S" class="btn-tf-big sai" onclick="selSmartTF(${team}, 'S')">
+                            <button type="button" id="smart-tf-${team}-S" class="btn-tf-big sai answer-btn btn" onclick="selSmartTF(${team}, 'S')">
                                 <span>❌</span> SAI
                             </button>
                         </div>
@@ -3990,19 +4035,37 @@ button, .btn, input, select, canvas {
                 const admin = params.get('admin');
                 const preview = params.get('preview');
                 const isHashAdmin = window.location.hash.includes('admin') || window.location.hash.includes('role=admin');
-                const isLocalAdmin = localStorage.getItem('haitao_is_admin') === 'true';
 
-                const isAdmin = role === 'admin' || admin === '1' || preview === 'true' || isHashAdmin || isLocalAdmin || window.isAdmin;
+                // Chế độ học sinh tuyệt đối không mở nút Admin
+                const isExplicitStudent = role === 'student' || params.get('student') === '1' || window.location.pathname.includes('/chon-hs/');
+                const isAdmin = !isExplicitStudent && (role === 'admin' || admin === '1' || preview === 'true' || isHashAdmin || window.isAdmin === true);
+
                 const topbar = document.getElementById('admin-topbar');
                 const studentBtn = document.getElementById('btn-student-chuyende');
-                if (topbar) {
-                    if (isAdmin) {
-                        topbar.style.display = 'flex';
-                        if (studentBtn) studentBtn.style.display = 'none';
-                    } else {
-                        topbar.style.display = 'none';
-                        if (studentBtn) studentBtn.style.display = 'flex';
-                    }
+                const gearBtn = document.getElementById('btn-admin-gear');
+                const settingsBtn = document.querySelector('.settings-btn-tiny');
+                const adminBtns = document.querySelectorAll('.admin-only-btn, .admin-toolbar-btn');
+
+                if (isAdmin) {
+                    document.body.classList.add('is-admin', 'admin-mode');
+                    if (topbar) topbar.style.setProperty('display', 'flex', 'important');
+                    if (gearBtn) gearBtn.style.setProperty('display', 'inline-flex', 'important');
+                    if (settingsBtn) settingsBtn.style.setProperty('display', 'flex', 'important');
+                    if (studentBtn) studentBtn.style.setProperty('display', 'none', 'important');
+                    adminBtns.forEach(btn => {
+                        btn.classList.remove('hidden');
+                        btn.style.removeProperty('display');
+                    });
+                } else {
+                    document.body.classList.remove('is-admin', 'admin-mode');
+                    if (topbar) topbar.style.setProperty('display', 'none', 'important');
+                    if (gearBtn) gearBtn.style.setProperty('display', 'none', 'important');
+                    if (settingsBtn) settingsBtn.style.setProperty('display', 'none', 'important');
+                    if (studentBtn) studentBtn.style.setProperty('display', 'flex', 'important');
+                    adminBtns.forEach(btn => {
+                        btn.classList.add('hidden');
+                        btn.style.setProperty('display', 'none', 'important');
+                    });
                 }
             } catch(e) {}
         }
@@ -4035,6 +4098,8 @@ button, .btn, input, select, canvas {
             const val = input ? input.value.trim() : '';
             if (val === '2806') {
                 localStorage.setItem('haitao_is_admin', 'true');
+                document.body.classList.add('is-admin', 'admin-mode');
+                applyAdminSecurity();
                 closeAdminPinPrompt();
                 openAdminEditorModal();
             } else {
