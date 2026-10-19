@@ -1,96 +1,5 @@
 <html lang="vi"><head>
-<script id="apple-screen-guard">
-  (function() {
-      // 1. Khóa cứng CSS cho màn hình máy tính ngay lập tức
-      const styleEl = document.createElement('style');
-      styleEl.id = 'apple-desktop-lock-style';
-      styleEl.innerHTML = `
-          @media screen and (min-width: 768px) {
-              .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board, div[style*="max-width"] {
-                  width: 100% !important;
-                  max-width: 1380px !important;
-                  min-width: 1000px !important;
-                  margin: 0 auto !important;
-                  display: flex !important;
-                  flex-direction: row !important;
-                  justify-content: space-between !important;
-                  align-items: stretch !important;
-                  box-sizing: border-box !important;
-                  transform: none !important;
-              }
-              .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
-                  flex: 1 !important;
-                  max-width: 44% !important;
-                  height: auto !important;
-              }
-              .scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel {
-                  flex: 0 0 180px !important;
-                  width: 180px !important;
-                  min-width: 180px !important;
-              }
-              #pin-prompt-modal > div {
-                  max-width: 360px !important;
-                  min-width: 0 !important;
-                  display: block !important;
-              }
-              #admin-questions-modal > div, #admin-editor-modal > div {
-                  max-width: 1050px !important;
-                  min-width: 0 !important;
-                  display: flex !important;
-                  flex-direction: column !important;
-              }
-              #topic-selection-overlay > div {
-                  max-width: 960px !important;
-                  min-width: 0 !important;
-                  display: block !important;
-              }
-          }
-      `;
-      if (document.head) {
-          document.head.appendChild(styleEl);
-      } else {
-          document.addEventListener('DOMContentLoaded', () => document.head.appendChild(styleEl));
-      }
-
-      // 2. Trấn áp mọi script trong game cố tình thay đổi inline style bóp méo khung trên laptop
-      const initProtectionObserver = () => {
-          const protectContainers = () => {
-              if (window.innerWidth >= 768) {
-                  const containers = document.querySelectorAll('.apple-game-container, [class*="harvest"], [class*="apple-arena"], .main-board, .game-wrapper');
-                  containers.forEach(c => {
-                      if (c.style.maxWidth && parseInt(c.style.maxWidth) < 800) {
-                          c.style.maxWidth = '1380px';
-                      }
-                      if (c.style.width && c.style.width.includes('px') && parseInt(c.style.width) < 800) {
-                          c.style.width = '100%';
-                      }
-                      if (c.style.transform && c.style.transform.includes('scale')) {
-                          c.style.transform = 'none';
-                      }
-                  });
-              }
-          };
-
-          protectContainers();
-
-          if (window.MutationObserver && document.body) {
-              const observer = new MutationObserver((mutations) => {
-                  protectContainers();
-              });
-              observer.observe(document.body, { attributes: true, childList: true, subtree: true, attributeFilter: ['style'] });
-          }
-      };
-
-      if (document.readyState === 'loading') {
-          window.addEventListener('DOMContentLoaded', initProtectionObserver);
-      } else {
-          initProtectionObserver();
-      }
-      window.addEventListener('load', initProtectionObserver);
-      window.addEventListener('resize', initProtectionObserver);
-  })();
-</script>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toán 11 - Hội Thi Thu Hoạch Táo Luân Phiên | TOÁN PRO - THẦY HÙNG</title>
     
@@ -576,135 +485,56 @@
             pointer-events: auto !important;
         }
 
-        /* ========================================== */
-        /* 2. GIAO DIỆN DÀNH RIÊNG CHO MOBILE (Màn hình nhỏ < 768px) */
-        /* ========================================== */
-        @media screen and (max-width: 767px) {
-            .apple-game-container, .harvest-game-wrapper, [class*="harvest"], .game-main-layout, .main-board {
-                display: flex !important;
-                flex-direction: column !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-            }
-            body, html, .game-wrapper, [class*="container"], [class*="apple"] {
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-            }
-            .side-panel, .q-container, .input-area {
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-                max-width: 100% !important;
-                width: 100% !important;
-            }
-            #mobile-submit-btn {
-                display: block !important;
-                position: relative !important;
-                width: 90% !important;
-                margin: 8px auto !important;
-                z-index: 100 !important;
-                font-size: 18px !important;
-                font-weight: 900 !important;
-                padding: 12px 20px !important;
-                border-radius: 12px !important;
-                box-shadow: 0 4px #2ecc71 !important;
-            }
-            .turn-indicator {
-                position: relative !important;
-                top: auto !important;
-                width: 90% !important;
-                margin: 0 auto 8px auto !important;
-            }
-
-            /* Khung chứa nội dung câu hỏi và các đáp án trên mobile (Scroll độc lập) */
-            .question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
-                max-height: 50vh !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-                padding-right: 6px !important;
-            }
-            
-            /* Tùy chỉnh thanh cuộn đẹp mắt, dễ lướt */
-            .question-container::-webkit-scrollbar, .q-container::-webkit-scrollbar, [class*="question-area"]::-webkit-scrollbar {
-                width: 5px;
-            }
-            .question-container::-webkit-scrollbar-thumb, .q-container::-webkit-scrollbar-thumb, [class*="question-area"]::-webkit-scrollbar-thumb {
-                background: rgba(56, 189, 248, 0.6);
-                border-radius: 4px;
-            }
+                        /* ========================================================== */
+        /* KIỂM TRA ĐẶC BIỆT: ÉP WIDESCREEN TOÀN DIỆN CHO MÁY TÍNH */
+        /* ========================================================== */
+        .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout {
+            width: 100% !important;
+            max-width: 1400px !important;
+            min-height: 85vh !important;
+            margin: 0 auto !important;
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            box-sizing: border-box !important;
+            transform: none !important;
+            position: relative !important;
+            left: auto !important;
+            right: auto !important;
+            padding: 20px !important;
+            background: #0f172a !important;
         }
 
-        /* ========================================== */
-        /* 1. GIAO DIỆN DÀNH RIÊNG CHO LAPTOP / DESKTOP (Màn hình lớn >= 768px) */
-        /* ========================================== */
-        @media screen and (min-width: 768px) {
-            .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board, div[style*="max-width"] {
-                width: 100% !important;
-                max-width: 1380px !important;
-                  min-width: 1000px !important;
-                margin: 0 auto !important;
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: space-between !important;
-                align-items: stretch !important;
-                box-sizing: border-box !important;
-                background: transparent !important;
-                transform: none !important;
-            }
-            
-            /* Các cột đội chơi phân bổ rộng rãi hai bên */
-            .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
-                flex: 1 !important;
-                max-width: 44% !important;
-                width: 44% !important;
-                height: auto !important;
-                margin: 0 !important;
-            }
-            
-            /* Cột cân táo ở giữa */
-            .scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel {
-                flex: 0 0 180px !important;
-                width: 180px !important;
-                min-width: 180px !important;
-                display: flex !important;
-                justify-content: center !important;
-                align-items: center !important;
-            }
-
-            /* Khung câu hỏi hiển thị đầy đủ, không bị giới hạn chiều cao */
-            .question-container, .quiz-content-box, [class*="question-area"], .q-container, [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
-                max-height: none !important;
-                height: auto !important;
-                overflow-y: visible !important;
-            }
-
-            .answer-grid, [class*="answers"], .options-container {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 14px !important;
-            }
-
-            #mobile-submit-btn {
-                display: none !important;
-            }
+        /* Phân bổ cân đối 3 cột trên laptop */
+        .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"] {
+            flex: 1 !important;
+            max-width: 45% !important;
+            box-sizing: border-box !important;
+            height: auto !important;
+        }
+        .scale-center-column, [class*="scale-box"], [class*="center-arena"] {
+            flex: 0 0 160px !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
         }
 
-        /* Buộc các khối công thức MathJax / LaTeX tự động xuống hàng theo dòng chảy văn bản */
-        mjx-container, .MathJax, .MathJax_Display, math, .mjx-chtml {
-            vertical-align: middle !important;
-            display: inline-block !important;
-            white-space: normal !important;
-            overflow-x: auto !important;
-            overflow-y: hidden !important;
-            word-break: break-word !important;
+        /* Mở rộng tự do khung câu hỏi và đáp án */
+        .question-container, .quiz-content-box, [class*="question-area"] {
+            max-height: none !important;
+            height: auto !important;
+            overflow-y: visible !important;
+            width: 100% !important;
             max-width: 100% !important;
         }
-        .question-text, .answer-btn, p, span {
-            line-height: 1.6 !important;
-        }
-        .title, .title-text, .header, .instruction, .global-timer {
-            white-space: nowrap !important;
+
+        /* Đảm bảo chữ và công thức tự động xuống hàng */
+        .question-text, h2, h3, p, span, mjx-container {
+            max-width: 100% !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            overflow-wrap: break-word !important;
         }
 
         /* Hai nút Đúng / Sai to tướng */
@@ -4903,73 +4733,7 @@ window.formatMathStringToTeX = formatMathStringToTeX;
             };
         });
 
-        // 4. Chuẩn hóa layout bàn chơi 3 cột rộng rãi trên Laptop & kích hoạt scroll độc lập trên Mobile
-        const updateResponsiveLayout = () => {
-            const layoutContainers = document.querySelectorAll('.apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board');
-            const sidePanels = document.querySelectorAll('.team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel');
-            const centerPanels = document.querySelectorAll('.scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel');
-            const questionBoxes = document.querySelectorAll('.question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper)');
-
-            if (window.innerWidth >= 768) {
-                layoutContainers.forEach(el => {
-                    el.style.width = '100%';
-                    el.style.maxWidth = '1380px';
-                    el.style.margin = '0 auto';
-                    el.style.display = 'flex';
-                    el.style.flexDirection = 'row';
-                    el.style.justifyContent = 'space-between';
-                    el.style.alignItems = 'stretch';
-                    el.style.background = 'transparent';
-                    el.style.transform = 'none';
-                });
-                sidePanels.forEach(p => {
-                    p.style.flex = '1';
-                    p.style.maxWidth = '44%';
-                    p.style.width = '44%';
-                    p.style.height = 'auto';
-                    p.style.margin = '0';
-                });
-                centerPanels.forEach(cp => {
-                    cp.style.flex = '0 0 180px';
-                    cp.style.width = '180px';
-                    cp.style.minWidth = '180px';
-                    cp.style.display = 'flex';
-                    cp.style.justifyContent = 'center';
-                    cp.style.alignItems = 'center';
-                });
-                questionBoxes.forEach(box => {
-                    box.style.maxHeight = 'none';
-                    box.style.height = 'auto';
-                    box.style.overflowY = 'visible';
-                });
-            } else {
-                layoutContainers.forEach(el => {
-                    el.style.display = 'flex';
-                    el.style.flexDirection = 'column';
-                    el.style.width = '100%';
-                    el.style.maxWidth = '100%';
-                    el.style.overflowY = 'auto';
-                });
-                sidePanels.forEach(p => {
-                    p.style.maxWidth = '100%';
-                    p.style.width = '100%';
-                });
-                centerPanels.forEach(cp => {
-                    cp.style.flex = 'initial';
-                    cp.style.width = 'auto';
-                });
-                questionBoxes.forEach(box => {
-                    box.style.maxHeight = '50vh';
-                    box.style.overflowY = 'auto';
-                    box.style.webkitOverflowScrolling = 'touch';
-                    box.style.paddingRight = '6px';
-                });
-            }
-        };
-        updateResponsiveLayout();
-        window.addEventListener('resize', updateResponsiveLayout);
-
-        // 5. Mở khóa và sửa sự kiện nút "Đổi Chuyên Đề" / "Chuyên Đề"
+// 5. Mở khóa và sửa sự kiện nút "Đổi Chuyên Đề" / "Chuyên Đề"
         let changeTopicBtns = Array.from(document.querySelectorAll('#btn-student-chuyende, #btn-chuyen-de, .btn-topbar-student, .btn-topbar-chuyende, [class*="change-topic"], [class*="topic-btn"]'));
         document.querySelectorAll('button').forEach(btn => {
             const txt = (btn.textContent || '').trim();
@@ -4997,17 +4761,6 @@ window.formatMathStringToTeX = formatMathStringToTeX;
                 }
             };
         });
-
-        // 6. Scroll mượt mà toàn trang trên Mobile
-        if (window.innerWidth <= 768) {
-            document.documentElement.style.overflowY = 'auto';
-            document.body.style.overflowY = 'auto';
-            const scrollElements = document.querySelectorAll('.apple-game-container, [class*="harvest"], .game-wrapper, [class*="container"]');
-            scrollElements.forEach(se => {
-                se.style.overflowY = 'auto';
-                se.style.webkitOverflowScrolling = 'touch';
-            });
-        }
     }
 
     if (document.readyState === 'loading') {
