@@ -2327,284 +2327,6 @@ var questions = window.quizData;
     });
 
     const haiTaoScript = `
-<style id="apple-responsive-style">
-/* 1. Ép toàn bộ khung chứa câu hỏi co giãn tuyệt đối trong box */
-.apple-game-container, .question-container, .quiz-box, [class*="question"], [class*="modal"], [class*="card"], [class*="answer"], [class*="box"], div, p, span {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    overflow-x: hidden !important;
-    word-break: break-word !important;
-    overflow-wrap: break-word !important;
-    white-space: normal !important;
-}
-
-/* 2. Bắt buộc tiêu đề câu hỏi và các thành phần bên trong phải xuống hàng, không được tràn */
-.question-text, [class*="question-text"], h2, h3, p, div[class*="question"] {
-    width: 100% !important;
-    max-width: 100% !important;
-    white-space: normal !important;
-    word-break: break-word !important;
-    overflow-wrap: break-word !important;
-    line-height: 1.5 !important;
-}
-
-/* 3. Buộc các khối công thức MathJax / LaTeX tự động xuống hàng theo dòng chảy văn bản */
-mjx-container, .MathJax, .MathJax_Display, math {
-    max-width: 100% !important;
-    white-space: normal !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    word-break: break-word !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
-}
-
-/* 4. Đảm bảo các nút đáp án co giãn ôm khít box */
-.answer-btn, [class*="answer"], [class*="option"], button[class*="choice"], [class*="answer-option"], button[class*="btn"], .grid-cols-2 > div {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    min-height: 48px !important;
-    padding: 10px 14px !important;
-    white-space: normal !important;
-    word-break: break-word !important;
-    box-sizing: border-box !important;
-}
-
-/* 2. Chỉ ẩn tuyệt đối nút Sửa Dữ Liệu ở màn học sinh, GIỮ LẠI nút Cài Đặt (⚙️) */
-body:not(.is-admin) button:contains("Sửa Dữ Liệu"), 
-body:not(.admin-mode) .edit-data-btn, 
-body:not(.is-admin) [class*="edit-data"] {
-    display: none !important;
-}
-body:not(.is-admin) #admin-topbar,
-body:not(.is-admin) #btn-admin-gear,
-body:not(.admin-mode) #admin-topbar,
-body:not(.admin-mode) #btn-admin-gear {
-    display: none !important;
-}
-body.is-admin #admin-topbar,
-body.admin-mode #admin-topbar,
-body.is-admin .edit-data-btn,
-body.admin-mode .edit-data-btn,
-body.is-admin [class*="edit-data"],
-body.admin-mode [class*="edit-data"] {
-    display: flex !important;
-}
-body.is-admin #btn-admin-gear,
-body.admin-mode #btn-admin-gear {
-    display: inline-flex !important;
-}
-
-/* Đảm bảo nút Cài đặt / Cấu hình đội và nhạc luôn hiển thị */
-.settings-btn, [class*="setting"], [class*="gear"], button:contains("Cài Đặt") {
-    display: inline-flex !important;
-    pointer-events: auto !important;
-}
-
-/* ============================================================== */
-/* 1. THIẾT LẬP KHUNG GỐC & ĐIỀU PHỐI KHÔNG GIAN TOÀN TRANG       */
-/* ============================================================== */
-#game-wrapper, 
-.apple-game-container,
-.harvest-game-wrapper {
-  width: 100%;
-  max-width: 1440px;
-  height: 100vh; /* Khóa cứng chiều cao bằng viewport, không dùng min-height */
-  max-height: 100vh;
-  margin: 0 auto;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow: hidden; /* Cấm tuyệt đối xuất hiện thanh cuộn dọc tổng của trình duyệt */
-  position: relative;
-  background-color: #0f172a;
-}
-
-/* ============================================================== */
-/* 2. ĐẶC TẢ TRẠNG THÁI FULLSCREEN - ÉP LAYOUT LAPTOP KHÔNG MÉO   */
-/* ============================================================== */
-#game-wrapper:fullscreen,
-.apple-game-container:fullscreen,
-.harvest-game-wrapper:fullscreen,
-body.is-fullscreen-active #game-wrapper,
-body.is-fullscreen-active .apple-game-container,
-body.is-fullscreen-active .harvest-game-wrapper {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-  margin: 0 !important;
-  padding: clamp(6px, 1.2vh, 14px) clamp(12px, 1.8vw, 24px) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  box-sizing: border-box !important;
-}
-
-/* ============================================================== */
-/* 3. BỐ CỤC BÀN CHƠI CHÍNH 3 CỘT (LAPTOP HOẶC FULLSCREEN)        */
-/* ============================================================== */
-/* Ép buộc hiển thị hàng ngang chuẩn, loại bỏ mọi lệnh transform scale của JS */
-body.forced-laptop-layout .game-main-layout,
-body.forced-laptop-layout .main-board,
-body.forced-laptop-layout .apple-arena,
-body:not(.forced-mobile-layout) .game-main-layout,
-body:not(.forced-mobile-layout) .main-board,
-body:not(.forced-mobile-layout) .apple-arena {
-  width: 100%;
-  flex: 1;
-  min-height: 0; /* BẮT BUỘC: Cho phép các khối con co rụt lại khi chia đôi màn hình bị lùn */
-  display: flex !important;
-  flex-direction: row !important;
-  justify-content: center !important;
-  align-items: stretch !important;
-  gap: clamp(8px, 1.2vw, 20px);
-  box-sizing: border-box;
-  transform: none !important;
-}
-
-/* Hai cột đội chơi trái & phải tự động san sẻ khoảng trống còn lại */
-body:not(.forced-mobile-layout) .team-column-left, 
-body:not(.forced-mobile-layout) .team-column-right,
-body:not(.forced-mobile-layout) [class*="team-box"],
-body:not(.forced-mobile-layout) [class*="player-panel"],
-body:not(.forced-mobile-layout) .side-panel {
-  flex: 1 1 0 !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  width: auto !important;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-}
-
-/* Cột cái cân ở giữa tự co giãn mượt mà theo tỷ lệ chiều rộng màn hình */
-body:not(.forced-mobile-layout) .scale-center-column,
-body:not(.forced-mobile-layout) .scale-box,
-body:not(.forced-mobile-layout) [class*="center-arena"],
-body:not(.forced-mobile-layout) .center-panel {
-  flex: 0 0 clamp(110px, 13vw, 180px) !important;
-  width: clamp(110px, 13vw, 180px) !important;
-  min-width: 0 !important;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-}
-
-body:not(.forced-mobile-layout) .scale-center-column canvas,
-body:not(.forced-mobile-layout) .scale-center-column img,
-body:not(.forced-mobile-layout) [class*="scale-box"] canvas,
-body:not(.forced-mobile-layout) [class*="scale-box"] img {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-
-/* ============================================================== */
-/* 4. CHỐNG XUNG ĐỘT KHU VỰC HỘP CÂU HỎI VÀ ĐÁP ÁN (FIX DỒN CỤC) */
-/* ============================================================== */
-.question-container, 
-.quiz-content-box,
-[class*="question-area"],
-.q-container,
-[class*="answers-box"] {
-  width: 100%;
-  flex: 1; /* Tự động thích ứng, điền đầy khoảng trống còn lại */
-  min-height: 0; /* Cho phép co nhỏ chiều cao khi màn hình bị chia đôi đè nén */
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(8px);
-  border-radius: 12px;
-  padding: clamp(8px, 1vh, 15px);
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* Đẩy câu hỏi lên đỉnh, đáp án xuống đáy */
-  gap: clamp(6px, 0.8vh, 12px);
-}
-
-/* Vùng chữ câu hỏi tự tạo thanh cuộn độc lập nếu nội dung quá dài */
-.question-text, [class*="question-text"] {
-  font-size: clamp(0.95rem, 1vw + 0.35rem, 1.3rem) !important;
-  line-height: 1.4;
-  overflow-y: auto;
-  max-height: 38%; /* Khống chế không cho lấn chiếm diện tích lưới đáp án */
-  padding-right: 4px;
-}
-
-/* Lưới đáp án: Khóa cứng cấu hình 2 cột trên laptop và tự co giãn chiều cao */
-body:not(.forced-mobile-layout) .answer-grid,
-body:not(.forced-mobile-layout) .options-container,
-body:not(.forced-mobile-layout) [class*="answers"] {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: clamp(6px, 0.8vh, 12px);
-  width: 100%;
-  flex: 1;
-  min-height: 0; /* Ngăn chặn lưới đẩy vỡ chiều cao tổng */
-}
-
-/* Thẻ đáp án tự tính chiều cao linh động theo vh (chiều cao màn hình máy tính) */
-.answer-btn, 
-.option-card,
-[class*="choice-btn"] {
-  height: 100%;
-  min-height: clamp(38px, 5.5vh, 60px);
-  padding: 6px 12px;
-  font-size: clamp(0.8rem, 0.75vw + 0.3rem, 1.05rem) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  text-align: center;
-}
-
-/* ============================================================== */
-/* 5. KÍCH HOẠT GIAO DIỆN MOBILE CHUẨN (CÔ LẬP HOÀN TOÀN)         */
-/* ============================================================== */
-/* Chỉ kích hoạt khi thỏa mãn là màn hình nhỏ VÀ không ở chế độ Fullscreen */
-body.forced-mobile-layout:not(.is-fullscreen-active) .game-main-layout,
-body.forced-mobile-layout:not(.is-fullscreen-active) .main-board,
-body.forced-mobile-layout:not(.is-fullscreen-active) .apple-arena {
-  flex-direction: column !important; /* Xếp chồng dọc khi màn hình chia đôi siêu hẹp */
-  overflow-y: auto !important;
-}
-
-body.forced-mobile-layout:not(.is-fullscreen-active) .scale-center-column,
-body.forced-mobile-layout:not(.is-fullscreen-active) [class*="scale-box"] {
-  order: -1; /* Đẩy cái cân lên trên cùng màn hình điện thoại */
-  margin: 6px auto;
-  flex: 0 0 90px !important;
-  width: 90px !important;
-}
-
-body.forced-mobile-layout:not(.is-fullscreen-active) .answer-grid,
-body.forced-mobile-layout:not(.is-fullscreen-active) .options-container {
-  grid-template-columns: minmax(0, 1fr) !important; /* Chuyển thành 1 cột đứng dọc */
-}
-
-/* Buộc các khối công thức MathJax / LaTeX tự động xuống hàng theo dòng chảy văn bản */
-mjx-container, .MathJax, .MathJax_Display, math, .mjx-chtml {
-    vertical-align: middle !important;
-    display: inline-block !important;
-    white-space: normal !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    word-break: break-word !important;
-    max-width: 100% !important;
-}
-.question-text, .answer-btn, p, span {
-    line-height: 1.6 !important;
-}
-.title, .title-text, .header, .instruction, .global-timer {
-    white-space: nowrap !important;
-}
-</style>
 <script>
 // [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - HÁI TÁO LUÂN PHIÊN]
 window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
@@ -2634,31 +2356,17 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
   function applyAdminSecurity() {
     try {
       const params = new URLSearchParams(window.location.search);
-      const isExplicitStudent = params.get('role') === 'student' || params.get('student') === '1' || window.location.pathname.includes('/chon-hs/');
-      const isAdmin = !isExplicitStudent && (params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1' || window.location.hash.includes('admin'));
+      const isAdmin = params.get('role') === 'admin' || params.get('preview') === 'true' || params.get('admin') === '1' || window.location.hash.includes('admin');
       const adminTopbar = document.getElementById('admin-topbar');
-      const adminBtns = document.querySelectorAll('#btn-admin-gear, .edit-data-btn, [class*="edit-data"]');
-      const studentBtn = document.getElementById('btn-student-chuyende');
-
-      // Nút Cài đặt (⚙️) LUÔN hiển thị cho học sinh và giáo viên
-      const settingsBtn = document.querySelector('.settings-btn-tiny, .settings-btn, .gear-btn');
-      if (settingsBtn) {
-        settingsBtn.style.setProperty('display', 'inline-flex', 'important');
-        settingsBtn.style.setProperty('pointer-events', 'auto', 'important');
-      }
-
+      const adminBtns = document.querySelectorAll('#btn-admin-gear, #btn-chuyen-de, [data-admin-control="true"]');
       if (isAdmin) {
-        document.body.classList.add('is-admin', 'admin-mode');
         if (adminTopbar) adminTopbar.style.setProperty('display', 'flex', 'important');
-        if (studentBtn) studentBtn.style.setProperty('display', 'none', 'important');
         adminBtns.forEach(btn => {
           btn.classList.remove('hidden');
-          btn.style.removeProperty('display');
+          btn.style.setProperty('display', 'inline-flex', 'important');
         });
       } else {
-        document.body.classList.remove('is-admin', 'admin-mode');
         if (adminTopbar) adminTopbar.style.setProperty('display', 'none', 'important');
-        if (studentBtn) studentBtn.style.setProperty('display', 'flex', 'important');
         adminBtns.forEach(btn => {
           btn.classList.add('hidden');
           btn.style.setProperty('display', 'none', 'important');
@@ -2690,148 +2398,100 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
     } catch(e) {}
   }
 
-  function debounce(fn, wait = 180) {
-    let t = null;
-    return function(...args) {
-      if (t) clearTimeout(t);
-      t = setTimeout(() => {
-        if (window.requestAnimationFrame) {
-          window.requestAnimationFrame(() => fn.apply(this, args));
-        } else {
-          fn.apply(this, args);
-        }
-      }, wait);
-    };
-  }
-
-  const LayoutManager = {
-    isIframe: function(): boolean {
-      return window.self !== window.top;
-    },
-    getGameWrapper: function(): HTMLElement {
-      return document.getElementById('game-wrapper') || 
-             document.querySelector('.apple-game-container, .harvest-game-wrapper') as HTMLElement || 
-             document.documentElement;
-    },
-    checkCurrentFullscreen: function(): boolean {
-      return !!(
-        document.fullscreenElement ||
-        (document as any).webkitFullscreenElement ||
-        (document as any).mozFullScreenElement ||
-        (document as any).msFullscreenElement
-      );
-    },
-    updateResponsiveState: function(): void {
-      const isFsActive = this.checkCurrentFullscreen() || document.body.classList.contains('is-fullscreen-active');
-      if (isFsActive) {
-        document.body.classList.remove('forced-mobile-layout');
-        document.body.classList.add('forced-laptop-layout', 'is-fullscreen-active');
-      } else {
-        document.body.classList.remove('forced-laptop-layout');
-        if (window.innerWidth < 850) {
-          document.body.classList.add('forced-mobile-layout');
-        } else {
-          document.body.classList.remove('forced-mobile-layout');
-        }
-        document.body.classList.remove('is-fullscreen-active');
-      }
-
-      // Kích hoạt vẽ lại Canvas / HiDPI nếu có
-      const canvases = document.querySelectorAll('.scale-center-column canvas, [class*="scale-box"] canvas');
-      canvases.forEach(cv => {
-        const canvas = cv as HTMLCanvasElement;
-        const dpr = window.devicePixelRatio || 1;
-        const rect = canvas.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0 && canvas.getAttribute('data-dpr-scaled') !== String(dpr)) {
-          canvas.setAttribute('data-dpr-scaled', String(dpr));
-          canvas.width = Math.round(rect.width * dpr);
-          canvas.height = Math.round(rect.height * dpr);
-          const ctx = canvas.getContext('2d');
-          if (ctx) ctx.scale(dpr, dpr);
-        }
-      });
-      if ((window as any).myGameInstance?.resize) (window as any).myGameInstance.resize();
-      if (typeof (window as any).renderCanvasGame === 'function') (window as any).renderCanvasGame();
-    },
-    debounce: function(fn: any, delay: number) {
-      let timeoutId: any;
-      return function(this: any) {
-        const context = this, args = arguments;
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(function() {
-          if (window.requestAnimationFrame) {
-            window.requestAnimationFrame(function() { fn.apply(context, args); });
-          } else {
-            fn.apply(context, args);
-          }
-        }, delay);
-      };
-    },
-    toggleFullscreen: async function(): Promise<void> {
-      if (this.isIframe()) {
-        try {
-          window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN' }, '*');
-        } catch(e) {}
-        return;
-      }
-      const el = this.getGameWrapper();
-      if (!this.checkCurrentFullscreen()) {
-        try {
-          if (el.requestFullscreen) await el.requestFullscreen();
-          else if ((el as any).webkitRequestFullscreen) await (el as any).webkitRequestFullscreen();
-          else if ((el as any).mozRequestFullScreen) await (el as any).mozRequestFullScreen();
-          else if ((el as any).msRequestFullscreen) await (el as any).msRequestFullscreen();
-        } catch (err: any) {
-          console.warn('[LayoutManager] Không thể vào Fullscreen:', err?.message || err);
-        }
-      } else {
-        try {
-          if (document.exitFullscreen) await document.exitFullscreen();
-          else if ((document as any).webkitExitFullscreen) await (document as any).webkitExitFullscreen();
-          else if ((document as any).mozCancelFullScreen) await (document as any).mozCancelFullScreen();
-          else if ((document as any).msExitFullscreen) await (document as any).msExitFullscreen();
-        } catch (err: any) {
-          console.warn('[LayoutManager] Không thể thoát Fullscreen:', err?.message || err);
-        }
-      }
-    },
-    syncButtonUI: function(): void {
-      const isFs = this.checkCurrentFullscreen();
-      const btnText = document.getElementById('fullscreenText') || document.querySelector('#fs-btn span:last-child');
-      const btnIcon = document.getElementById('fullscreenIcon') || document.querySelector('#fs-btn span:first-child');
-      if (btnText) btnText.textContent = isFs ? 'Thu nhỏ' : 'Toàn màn hình';
-      if (btnIcon) btnIcon.textContent = isFs ? '🗗' : '⛶';
-    }
-  };
-
   function setupFullscreen() {
     try {
-      (window as any).toggleGameFullscreen = () => LayoutManager.toggleFullscreen();
-      (window as any).toggleMobileFullscreen = () => LayoutManager.toggleFullscreen();
-      (window as any).triggerToggleFullscreen = () => LayoutManager.toggleFullscreen();
+      let _exporterLastFsTime = 0;
+      window.toggleMobileFullscreen = function(e) {
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+        const now = Date.now();
+        if (now - _exporterLastFsTime < 450) return;
+        _exporterLastFsTime = now;
 
-      ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
-        document.addEventListener(evt, () => {
-          LayoutManager.updateResponsiveState();
-          LayoutManager.syncButtonUI();
-        });
-      });
+        const doc = document;
+        const docEl = document.documentElement;
+        const body = document.body;
+        const isNative = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+        const isForced = docEl.classList.contains('mobile-fullscreen-forced') || body.classList.contains('mobile-fullscreen-forced');
 
-      window.addEventListener('resize', LayoutManager.debounce(() => {
-        LayoutManager.updateResponsiveState();
-      }, 180));
+        if (!isNative && !isForced) {
+          docEl.classList.add('mobile-fullscreen-forced');
+          body.classList.add('mobile-fullscreen-forced');
+          body.style.setProperty('overflow-y', 'auto', 'important');
+          body.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
 
-      const fsBtn = document.getElementById('fullscreenToggleBtn') || document.getElementById('fs-btn');
-      if (fsBtn && !(fsBtn as any).dataset.fsBound) {
-        (fsBtn as any).dataset.fsBound = 'true';
-        fsBtn.addEventListener('click', (e) => {
-          if (e && e.stopPropagation) e.stopPropagation();
-          LayoutManager.toggleFullscreen();
-        });
+          const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+          if (rfs) {
+            try {
+              const res = rfs.call(docEl);
+              if (res && typeof res.then === 'function') {
+                res.then(() => { updateFsUI(); }).catch(function() {});
+              }
+            } catch(e) {}
+          }
+          try {
+            if (window.self !== window.top && window.parent) {
+              window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'enter' }, '*');
+            }
+          } catch(e) {}
+          try { window.scrollTo(0, 1); } catch(e) {}
+          try {
+            if (screen.orientation && typeof screen.orientation.lock === 'function') {
+              screen.orientation.lock('landscape').catch(function() {});
+            }
+          } catch(e) {}
+          updateFsUI();
+        } else {
+          docEl.classList.remove('mobile-fullscreen-forced');
+          body.classList.remove('mobile-fullscreen-forced');
+          body.style.removeProperty('overflow-y');
+          body.style.removeProperty('-webkit-overflow-scrolling');
+          if (isNative) {
+            const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+            if (efs) { try { efs.call(doc); } catch(e) {} }
+          }
+          try {
+            if (window.self !== window.top && window.parent) {
+              window.parent.postMessage({ type: 'TOGGLE_FULLSCREEN', action: 'exit' }, '*');
+            }
+          } catch(e) {}
+          try {
+            if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+              screen.orientation.unlock();
+            }
+          } catch(e) {}
+          updateFsUI();
+        }
+
+        const triggerResize = () => {
+          try { window.dispatchEvent(new Event('resize')); } catch(e) {}
+        };
+        triggerResize();
+        setTimeout(triggerResize, 100);
+        setTimeout(triggerResize, 300);
+        setTimeout(triggerResize, 600);
+      };
+
+      function updateFsUI() {
+        const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.documentElement.classList.contains('mobile-fullscreen-forced'));
+        if (isFs) {
+          document.body.style.setProperty('overflow-y', 'auto', 'important');
+          document.body.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+        }
+        const fsIcon = document.getElementById('fullscreenIcon');
+        const fsText = document.getElementById('fullscreenText');
+        if (fsIcon) fsIcon.textContent = isFs ? '🗗' : '⛶';
+        if (fsText) fsText.textContent = isFs ? '[ 🗗 ] THU NHỎ' : '[ ⛶ ] TOÀN MÀN HÌNH';
       }
 
-      LayoutManager.updateResponsiveState();
-      LayoutManager.syncButtonUI();
+      window.triggerToggleFullscreen = window.toggleMobileFullscreen;
+      document.addEventListener('fullscreenchange', updateFsUI);
+      document.addEventListener('webkitfullscreenchange', updateFsUI);
+
+      const fsBtn = document.getElementById('fullscreenToggleBtn');
+      if (fsBtn && !fsBtn.dataset.fsBound) {
+        fsBtn.dataset.fsBound = 'true';
+        fsBtn.addEventListener('click', window.toggleMobileFullscreen);
+      }
     } catch(e) {}
   }
 
@@ -2843,133 +2503,27 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
     } catch(e) {}
   }
 
-  function setupAppleOptimizations() {
-    try {
-      const settingsTriggers = document.querySelectorAll('.settings-btn, [class*="setting"], [class*="gear"], .fa-cog');
-      settingsTriggers.forEach(el => {
-        if (el.id === 'btn-admin-gear' || el.classList.contains('edit-data-btn')) return;
-        el.style.pointerEvents = 'auto';
-        el.style.cursor = 'pointer';
-        el.style.zIndex = '99999';
-        el.onclick = function(e) {
-          if (e && e.preventDefault) e.preventDefault();
-          if (e && e.stopPropagation) e.stopPropagation();
-          const screen = document.getElementById('settings-screen');
-          if (screen) {
-            screen.style.display = 'flex';
-            screen.style.visibility = 'visible';
-          }
-          const modals = document.querySelectorAll('.settings-modal, [class*="setting-modal"], #settings-modal, .modal');
-          modals.forEach(m => {
-            m.style.display = 'block';
-            m.style.visibility = 'visible';
-          });
-          if (typeof window.openSettings === 'function') window.openSettings();
-          else if (typeof window.toggleSettings === 'function') window.toggleSettings();
-          else if (typeof window.showSettingsModal === 'function') window.showSettingsModal();
-        };
-      });
-
-      const mobBtn = document.getElementById('mobile-submit-btn');
-      const startContestBtns = document.querySelectorAll('.start-contest-btn, [class*="start-btn"], #btn-start, .btn-start-race');
-      if (mobBtn && startContestBtns.length > 0 && window.innerWidth < 768) {
-        startContestBtns[0].parentNode.insertBefore(mobBtn, startContestBtns[0]);
-        mobBtn.style.cssText = 'position: relative !important; display: block !important; width: 90% !important; margin: 10px auto !important; z-index: 100 !important;';
-      } else {
-        const confirmBtns = document.querySelectorAll('.confirm-btn, [class*="submit-answer"], .btn-submit');
-        confirmBtns.forEach(cBtn => {
-          if (startContestBtns.length > 0 && window.innerWidth < 768 && !cBtn.closest('#panel-1') && !cBtn.closest('#panel-2')) {
-            startContestBtns[0].parentNode.insertBefore(cBtn, startContestBtns[0]);
-            cBtn.style.cssText = 'position: relative !important; display: block !important; width: 90% !important; margin: 10px auto !important; z-index: 100 !important;';
-          }
-        });
-      }
-
-      startContestBtns.forEach(b => {
-        const origOnClick = b.onclick;
-        b.onclick = function(e) {
-          if (typeof window.startGame === 'function') window.startGame();
-          else if (typeof origOnClick === 'function') origOnClick.call(b, e);
-          setTimeout(() => {
-            b.style.display = 'none';
-            b.style.visibility = 'hidden';
-          }, 200);
-        };
-      });
-
-      // 4. Đồng bộ trạng thái giao diện qua LayoutManager
-      LayoutManager.updateResponsiveState();
-
-
-      // 5. Mở khóa và sửa sự kiện nút "Đổi Chuyên Đề" / "Chuyên Đề"
-      let changeTopicBtns: HTMLElement[] = Array.from(document.querySelectorAll('#btn-student-chuyende, #btn-chuyen-de, .btn-topbar-student, .btn-topbar-chuyende, [class*="change-topic"], [class*="topic-btn"]'));
-      document.querySelectorAll('button').forEach(btn => {
-        const txt = (btn.textContent || '').trim();
-        if ((txt.includes('Đổi Chuyên Đề') || txt.includes('CHUYÊN ĐỀ') || txt.includes('Chuyên Đề')) && !changeTopicBtns.includes(btn as HTMLElement)) {
-          changeTopicBtns.push(btn as HTMLElement);
-        }
-      });
-      changeTopicBtns.forEach(btn => {
-        btn.style.pointerEvents = 'auto';
-        btn.style.cursor = 'pointer';
-        btn.onclick = function(e) {
-          if (e && e.preventDefault) e.preventDefault();
-          if (e && e.stopPropagation) e.stopPropagation();
-          console.log("Mở lại menu chọn chuyên đề hái táo...");
-          if (typeof (window as any).openAppleTopicMenu === 'function') {
-            (window as any).openAppleTopicMenu();
-            return;
-          }
-          const topicModal = document.querySelector('#topic-selection-overlay, .selection-screen-wrapper, .lobby-wrapper, #setup-container, #topic-modal, [class*="modal"], [class*="topic-selector"]') as HTMLElement;
-          if (topicModal) {
-            topicModal.style.display = 'flex';
-            topicModal.style.visibility = 'visible';
-          } else {
-            window.location.reload();
-          }
-        };
-      });
-
-      // 6. Scroll mượt mà toàn trang trên Mobile
-      if (window.innerWidth < 768) {
-        document.documentElement.style.overflowY = 'auto';
-        document.body.style.overflowY = 'auto';
-        const scrollElements = document.querySelectorAll('.apple-game-container, [class*="harvest"], .game-wrapper, [class*="container"]');
-        scrollElements.forEach(se => {
-          (se as HTMLElement).style.overflowY = 'auto';
-          (se as HTMLElement).style.webkitOverflowScrolling = 'touch';
-        });
-      }
-    } catch(e) {}
-  }
-
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       syncHaiTaoData();
       applyAdminSecurity();
       setupAdminButtons();
       setupFullscreen();
-      setupAppleOptimizations();
       triggerMathTypeset();
-      setTimeout(setupAppleOptimizations, 1200);
     });
   } else {
     syncHaiTaoData();
     applyAdminSecurity();
     setupAdminButtons();
     setupFullscreen();
-    setupAppleOptimizations();
     triggerMathTypeset();
-    setTimeout(setupAppleOptimizations, 1200);
   }
   window.addEventListener('load', function() {
     syncHaiTaoData();
     applyAdminSecurity();
     setupAdminButtons();
     setupFullscreen();
-    setupAppleOptimizations();
     triggerMathTypeset();
-    setTimeout(setupAppleOptimizations, 1200);
   });
 })();
 </script>
