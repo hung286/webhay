@@ -2332,7 +2332,23 @@ var questions = window.quizData;
   /* BỘ CSS CHUẨN DUY NHẤT: KHÔI PHỤC LAYOUT GỐC HÁI TÁO LUÂN PHIÊN */
   /* ========================================================== */
 
-  /* 1. Màn hình Laptop / Desktop (>= 768px): Đưa bàn chơi về đúng chuẩn dàn trải 3 cột trung tâm, không bóp méo */
+  /* 1. Đảm bảo nút Sẵn sàng luôn hiển thị rõ ràng trên mọi màn hình */
+  .ready-btn, button[class*="ready"], [id*="ready"], .btn-ready, .btn-start-race, #btn-start {
+      display: inline-flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      z-index: 999 !important;
+  }
+
+  /* Khi đã bắt đầu chơi hoặc có class hidden thì ẩn nút */
+  .ready-btn.hidden, button[class*="ready"].hidden, [id*="ready"].hidden, .btn-ready.hidden, .btn-start-race.hidden, #btn-start.hidden {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+  }
+
+  /* 2. Cố định giao diện Widescreen cân đối trên Laptop (>= 768px) */
   @media screen and (min-width: 768px) {
       body, html {
           overflow-x: hidden !important;
@@ -2366,6 +2382,17 @@ var questions = window.quizData;
           display: flex !important;
           justify-content: center !important;
           align-items: center !important;
+          position: relative !important;
+          overflow: visible !important;
+      }
+
+      /* Định vị nút Sẵn sàng / Bắt đầu ở trung tâm dễ nhìn */
+      .btn-start-race, .ready-btn, .btn-ready, #btn-start {
+          position: absolute !important;
+          top: 42% !important;
+          left: 50% !important;
+          transform: translate(-50%, -50%) !important;
+          white-space: nowrap !important;
       }
 
       /* Khung câu hỏi hiển thị đầy đủ, không bị giới hạn chiều cao */
@@ -2635,6 +2662,18 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
     } catch(e) {}
   }
 
+  function ensureReadyButton() {
+    try {
+      const btnStart = document.getElementById('btn-start');
+      if (btnStart) {
+        btnStart.classList.add('ready-btn', 'btn-ready');
+        if (!btnStart.innerText.includes('SẴN SÀNG') && !btnStart.innerText.includes('Sẵn sàng')) {
+          btnStart.innerText = '🚀 SẴN SÀNG TRANH TÀI';
+        }
+      }
+    } catch(e) {}
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       syncHaiTaoData();
@@ -2642,6 +2681,7 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
       setupAdminButtons();
       setupFullscreen();
       triggerMathTypeset();
+      ensureReadyButton();
     });
   } else {
     syncHaiTaoData();
@@ -2649,6 +2689,7 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
     setupAdminButtons();
     setupFullscreen();
     triggerMathTypeset();
+    ensureReadyButton();
   }
   window.addEventListener('load', function() {
     syncHaiTaoData();
@@ -2656,6 +2697,7 @@ if (window.__INJECTED_HAITAO_DATA__ && Object.keys(window.__INJECTED_HAITAO_DATA
     setupAdminButtons();
     setupFullscreen();
     triggerMathTypeset();
+    ensureReadyButton();
   });
 })();
 </script>

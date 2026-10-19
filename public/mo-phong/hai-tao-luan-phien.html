@@ -408,7 +408,23 @@
         /* BỘ CSS CHUẨN DUY NHẤT: KHÔI PHỤC LAYOUT GỐC HÁI TÁO LUÂN PHIÊN */
         /* ========================================================== */
 
-        /* 1. Màn hình Laptop / Desktop (>= 768px): Đưa bàn chơi về đúng chuẩn dàn trải 3 cột trung tâm, không bóp méo */
+        /* 1. Đảm bảo nút Sẵn sàng luôn hiển thị rõ ràng trên mọi màn hình */
+        .ready-btn, button[class*="ready"], [id*="ready"], .btn-ready, .btn-start-race, #btn-start {
+            display: inline-flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            z-index: 999 !important;
+        }
+
+        /* Khi đã bắt đầu chơi hoặc có class hidden thì ẩn nút */
+        .ready-btn.hidden, button[class*="ready"].hidden, [id*="ready"].hidden, .btn-ready.hidden, .btn-start-race.hidden, #btn-start.hidden {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        /* 2. Cố định giao diện Widescreen cân đối trên Laptop (>= 768px) */
         @media screen and (min-width: 768px) {
             body, html {
                 overflow-x: hidden !important;
@@ -442,6 +458,17 @@
                 display: flex !important;
                 justify-content: center !important;
                 align-items: center !important;
+                position: relative !important;
+                overflow: visible !important;
+            }
+
+            /* Định vị nút Sẵn sàng / Bắt đầu ở trung tâm dễ nhìn */
+            .btn-start-race, .ready-btn, .btn-ready, #btn-start {
+                position: absolute !important;
+                top: 42% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                white-space: nowrap !important;
             }
 
             /* Khung câu hỏi hiển thị đầy đủ, không bị giới hạn chiều cao */
@@ -2255,7 +2282,7 @@ button, .btn, input, select, canvas {
         <!-- Panel Giữa (Cái Cân Hoạt Hình) -->
         <div class="center-panel">
             <div class="turn-indicator" id="turn-indicator" style="display: none;">⬅ LƯỢT ĐỘI XANH</div>
-            <button class="btn-start-race" id="btn-start" onclick="startGame()" style="display: block;">🚀 BẮT ĐẦU TRANH TÀI</button>
+            <button class="btn-start-race ready-btn btn-ready" id="btn-start" onclick="startGame()" style="display: inline-flex;">🚀 SẴN SÀNG TRANH TÀI</button>
             <canvas id="scaleCanvas" width="287" height="564"></canvas>
         </div>
 
@@ -3044,12 +3071,23 @@ button, .btn, input, select, canvas {
             document.getElementById('fb-1').style.display = 'none';
             document.getElementById('fb-2').style.display = 'none';
 
-            // Hiển thị nút Bắt đầu ở giữa
+            // Hiển thị nút Sẵn sàng ở giữa
             const btnStart = document.getElementById('btn-start');
             if (btnStart) {
-                btnStart.innerText = "🚀 BẮT ĐẦU TRANH TÀI";
-                btnStart.style.display = 'block';
+                btnStart.innerText = "🚀 SẴN SÀNG TRANH TÀI";
+                btnStart.classList.remove('hidden');
+                btnStart.classList.add('ready-btn', 'btn-ready');
+                btnStart.style.setProperty('display', 'inline-flex', 'important');
+                btnStart.style.removeProperty('visibility');
+                btnStart.style.removeProperty('pointer-events');
             }
+            const allReadyBtns = document.querySelectorAll('.ready-btn, .btn-ready, .btn-start-race, [id*="ready"], button[class*="ready"]');
+            allReadyBtns.forEach(b => {
+                b.classList.remove('hidden');
+                b.style.setProperty('display', 'inline-flex', 'important');
+                b.style.removeProperty('visibility');
+                b.style.removeProperty('pointer-events');
+            });
 
             // Đóng menu chọn chuyên đề
             const overlayTopic = document.getElementById('topic-selection-overlay');
@@ -3111,7 +3149,20 @@ button, .btn, input, select, canvas {
 
         // ================= ĐIỀU KHIỂN LUÂN PHIÊN =================
         function startGame() {
-            document.getElementById('btn-start').style.display = 'none';
+            const btnStart = document.getElementById('btn-start');
+            if (btnStart) {
+                btnStart.classList.add('hidden');
+                btnStart.style.setProperty('display', 'none', 'important');
+                btnStart.style.setProperty('visibility', 'hidden', 'important');
+                btnStart.style.setProperty('pointer-events', 'none', 'important');
+            }
+            const allReadyBtns = document.querySelectorAll('.ready-btn, .btn-ready, .btn-start-race, [id*="ready"], button[class*="ready"]');
+            allReadyBtns.forEach(b => {
+                b.classList.add('hidden');
+                b.style.setProperty('display', 'none', 'important');
+                b.style.setProperty('visibility', 'hidden', 'important');
+                b.style.setProperty('pointer-events', 'none', 'important');
+            });
             document.getElementById('global-timer-display').style.display = 'flex';
             state.isPlaying = true;
             state.currentTurn = 1;
