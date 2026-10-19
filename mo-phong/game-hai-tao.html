@@ -405,6 +405,63 @@
         }
 
         /* ======================================================== */
+        /* THIẾT LẬP LAYOUT WIDESCREEN CHUẨN MỰC CHO LAPTOP & MOBILE */
+        /* ======================================================== */
+        /* --- GIAO DIỆN LAPTOP / DESKTOP (>= 768px) --- */
+        @media screen and (min-width: 768px) {
+            body, html {
+                background: #0f172a !important;
+                overflow-x: hidden !important;
+            }
+            .apple-game-container, .harvest-game-wrapper, [class*="harvest-game"], [class*="apple-arena"], .game-main-layout, .main-board {
+                width: 100% !important;
+                max-width: 1280px !important;
+                min-height: 85vh !important;
+                margin: 20px auto !important;
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                background: #1e293b !important;
+                border-radius: 16px !important;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+                padding: 20px !important;
+                box-sizing: border-box !important;
+                transform: none !important;
+            }
+            .team-column-left, .team-column-right, [class*="team-box"], .side-panel {
+                flex: 1 !important;
+                max-width: 42% !important;
+            }
+            .scale-center-column, [class*="scale-box"], .center-panel {
+                flex: 0 0 160px !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+        }
+
+        /* --- GIAO DIỆN MOBILE (< 768px) --- */
+        @media screen and (max-width: 767px) {
+            .apple-game-container, .harvest-game-wrapper, [class*="harvest"], .main-board {
+                width: 100% !important;
+                max-width: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                padding: 10px !important;
+            }
+            .side-panel {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .center-panel {
+                width: 100% !important;
+            }
+        }
+
+        /* ======================================================== */
         /* CHỐNG TRÀN VĂN BẢN VÀ ÉP TỰ ĐỘNG XUỐNG DÒNG THÔNG MINH */
         /* ======================================================== */
         /* 1. Ép chống tràn và tự động xuống dòng cho khung chứa câu hỏi / đề bài Hái Táo */
