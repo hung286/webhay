@@ -2328,47 +2328,61 @@ var questions = window.quizData;
 
     const haiTaoScript = `
 <style id="apple-anti-overflow-style">
-  /* --- GIAO DIỆN LAPTOP / DESKTOP (>= 768px) --- */
+  /* ========================================================== */
+  /* BỘ CSS CHUẨN DUY NHẤT: KHÔI PHỤC LAYOUT GỐC HÁI TÁO LUÂN PHIÊN */
+  /* ========================================================== */
+
+  /* 1. Màn hình Laptop / Desktop (>= 768px): Đưa bàn chơi về đúng chuẩn dàn trải 3 cột trung tâm, không bóp méo */
   @media screen and (min-width: 768px) {
       body, html {
-          background: #0f172a !important;
           overflow-x: hidden !important;
+          background: #0f172a !important;
       }
       .apple-game-container, .harvest-game-wrapper, [class*="harvest-game"], [class*="apple-arena"], .game-main-layout, .main-board {
           width: 100% !important;
-          max-width: 1280px !important;
-          min-height: 85vh !important;
-          margin: 20px auto !important;
+          max-width: 1320px !important;
+          min-height: 80vh !important;
+          margin: 0 auto !important;
           display: flex !important;
           flex-direction: row !important;
           justify-content: space-between !important;
           align-items: center !important;
-          background: #1e293b !important;
-          border-radius: 16px !important;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
-          padding: 20px !important;
           box-sizing: border-box !important;
           transform: none !important;
+          position: relative !important;
+          left: auto !important;
+          right: auto !important;
+          padding: 20px !important;
       }
-      .team-column-left, .team-column-right, [class*="team-box"], .side-panel {
+
+      /* Tối ưu các cột thành phần bên trong */
+      .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
           flex: 1 !important;
-          max-width: 42% !important;
+          max-width: 45% !important;
+          box-sizing: border-box !important;
       }
-      .scale-center-column, [class*="scale-box"], .center-panel {
+      .scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel {
           flex: 0 0 160px !important;
           display: flex !important;
           justify-content: center !important;
           align-items: center !important;
       }
+
+      /* Khung câu hỏi hiển thị đầy đủ, không bị giới hạn chiều cao */
+      .question-container, .quiz-content-box, [class*="question-area"], .q-container, .q-content, .question-box-content {
+          max-height: none !important;
+          height: auto !important;
+          overflow-y: visible !important;
+      }
   }
 
-  /* --- GIAO DIỆN MOBILE (< 768px) --- */
+  /* 2. Màn hình Mobile (< 768px): Cấu trúc dọc linh hoạt kèm thanh cuộn mượt mà */
   @media screen and (max-width: 767px) {
       .apple-game-container, .harvest-game-wrapper, [class*="harvest"], .main-board {
-          width: 100% !important;
-          max-width: 100% !important;
           display: flex !important;
           flex-direction: column !important;
+          width: 100% !important;
+          max-width: 100% !important;
           overflow-y: auto !important;
           -webkit-overflow-scrolling: touch !important;
           padding: 10px !important;
@@ -2380,9 +2394,29 @@ var questions = window.quizData;
       .center-panel {
           width: 100% !important;
       }
+      .question-container, .quiz-content-box, [class*="question-area"], .q-container, .q-content {
+          max-height: 55vh !important;
+          overflow-y: auto !important;
+          -webkit-overflow-scrolling: touch !important;
+      }
   }
 
-  /* 1. Ép chống tràn và tự động xuống dòng cho khung chứa câu hỏi / đề bài Hái Táo */
+  /* 3. Chống tràn văn bản và công thức toán học */
+  .question-text, h2, h3, p, span, mjx-container, .q-content, .question-box-content, .answer-option, .btn-abcd {
+      max-width: 100% !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+  }
+
+  .apple-game-container mjx-container, 
+  .harvest-game-wrapper mjx-container,
+  mjx-container, .MathJax, .mjx-chtml {
+      display: inline-block !important;
+      vertical-align: middle !important;
+  }
+
+  /* Chống tràn cho khung chứa đề bài */
   .apple-game-container .question-container, 
   .harvest-game-wrapper .question-box, 
   [class*="apple"] .question-text, 
@@ -2397,7 +2431,7 @@ var questions = window.quizData;
       line-height: 1.5 !important;
   }
 
-  /* 2. Ép các nút đáp án A, B, C, D tự động xuống dòng, ôm khít trong box ở cả Laptop và Mobile */
+  /* Chống tràn cho các nút đáp án */
   .apple-game-container .answer-btn, 
   .harvest-game-wrapper button[class*="answer"], 
   [class*="apple"] [class*="option"], 
@@ -2417,7 +2451,6 @@ var questions = window.quizData;
       box-sizing: border-box !important;
   }
 
-  /* 3. Khóa cứng công thức MathJax inline bên trong đề bài/đáp án luôn nằm ngang thẳng hàng */
   .apple-game-container mjx-container, 
   .harvest-game-wrapper mjx-container,
   mjx-container, .MathJax, .mjx-chtml {
