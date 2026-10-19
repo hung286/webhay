@@ -1,95 +1,4 @@
 <html lang="vi"><head>
-<script id="apple-screen-guard">
-  (function() {
-      // 1. Khóa cứng CSS cho màn hình máy tính ngay lập tức
-      const styleEl = document.createElement('style');
-      styleEl.id = 'apple-desktop-lock-style';
-      styleEl.innerHTML = `
-          @media screen and (min-width: 768px) {
-              .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board, div[style*="max-width"] {
-                  width: 100% !important;
-                  max-width: 1380px !important;
-                  min-width: 1000px !important;
-                  margin: 0 auto !important;
-                  display: flex !important;
-                  flex-direction: row !important;
-                  justify-content: space-between !important;
-                  align-items: stretch !important;
-                  box-sizing: border-box !important;
-                  transform: none !important;
-              }
-              .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
-                  flex: 1 !important;
-                  max-width: 44% !important;
-                  height: auto !important;
-              }
-              .scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel {
-                  flex: 0 0 180px !important;
-                  width: 180px !important;
-                  min-width: 180px !important;
-              }
-              #pin-prompt-modal > div {
-                  max-width: 360px !important;
-                  min-width: 0 !important;
-                  display: block !important;
-              }
-              #admin-questions-modal > div, #admin-editor-modal > div {
-                  max-width: 1050px !important;
-                  min-width: 0 !important;
-                  display: flex !important;
-                  flex-direction: column !important;
-              }
-              #topic-selection-overlay > div {
-                  max-width: 960px !important;
-                  min-width: 0 !important;
-                  display: block !important;
-              }
-          }
-      `;
-      if (document.head) {
-          document.head.appendChild(styleEl);
-      } else {
-          document.addEventListener('DOMContentLoaded', () => document.head.appendChild(styleEl));
-      }
-
-      // 2. Trấn áp mọi script trong game cố tình thay đổi inline style bóp méo khung trên laptop
-      const initProtectionObserver = () => {
-          const protectContainers = () => {
-              if (window.innerWidth >= 768) {
-                  const containers = document.querySelectorAll('.apple-game-container, [class*="harvest"], [class*="apple-arena"], .main-board, .game-wrapper');
-                  containers.forEach(c => {
-                      if (c.style.maxWidth && parseInt(c.style.maxWidth) < 800) {
-                          c.style.maxWidth = '1380px';
-                      }
-                      if (c.style.width && c.style.width.includes('px') && parseInt(c.style.width) < 800) {
-                          c.style.width = '100%';
-                      }
-                      if (c.style.transform && c.style.transform.includes('scale')) {
-                          c.style.transform = 'none';
-                      }
-                  });
-              }
-          };
-
-          protectContainers();
-
-          if (window.MutationObserver && document.body) {
-              const observer = new MutationObserver((mutations) => {
-                  protectContainers();
-              });
-              observer.observe(document.body, { attributes: true, childList: true, subtree: true, attributeFilter: ['style'] });
-          }
-      };
-
-      if (document.readyState === 'loading') {
-          window.addEventListener('DOMContentLoaded', initProtectionObserver);
-      } else {
-          initProtectionObserver();
-      }
-      window.addEventListener('load', initProtectionObserver);
-      window.addEventListener('resize', initProtectionObserver);
-  })();
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toán 11 - Hội Thi Thu Hoạch Táo Luân Phiên | TOÁN PRO - THẦY HÙNG</title>
@@ -498,213 +407,14 @@
         /* ======================================================== */
         /* CHỐNG NGẮT DÒNG BIỂU THỨC TOÁN HỌC & LŨY THỪA LATEX */
         /* ======================================================== */
-        /* ======================================================== */
-        /* BỘ QUY TẮC CSS HOÀN THIỆN CHO TRÒ CHƠI HÁI TÁO LUÂN PHIÊN */
-        /* ======================================================== */
-
-        /* 1. Ép toàn bộ khung chứa câu hỏi co giãn tuyệt đối trong box */
-        .apple-game-container, .question-container, .quiz-box, [class*="question"], [class*="modal"], [class*="card"], [class*="answer"], [class*="box"], div, p, span {
-            max-width: 100% !important;
-            box-sizing: border-box !important;
-            overflow-x: hidden !important;
-            word-break: break-word !important;
-            overflow-wrap: break-word !important;
-            white-space: normal !important;
-        }
-
-        /* 2. Bắt buộc tiêu đề câu hỏi và các thành phần bên trong phải xuống hàng, không được tràn */
-        .question-text, [class*="question-text"], h2, h3, p, div[class*="question"] {
-            width: 100% !important;
-            max-width: 100% !important;
-            white-space: normal !important;
-            word-break: break-word !important;
-            overflow-wrap: break-word !important;
-            line-height: 1.5 !important;
-        }
-
-        /* 3. Buộc các khối công thức MathJax / LaTeX tự động xuống hàng theo dòng chảy văn bản */
-        mjx-container, .MathJax, .MathJax_Display, math {
-            max-width: 100% !important;
-            white-space: normal !important;
-            overflow-x: auto !important;
-            overflow-y: hidden !important;
-            word-break: break-word !important;
-            display: inline-block !important;
-            vertical-align: middle !important;
-        }
-
-        /* 4. Đảm bảo các nút đáp án co giãn ôm khít box */
-        .answer-btn, [class*="answer"], [class*="option"], button[class*="choice"], [class*="answer-option"], button[class*="btn"], .grid-cols-2 > div {
-            width: 100% !important;
-            max-width: 100% !important;
-            height: auto !important;
-            min-height: 48px !important;
-            padding: 10px 14px !important;
-            white-space: normal !important;
-            word-break: break-word !important;
-            box-sizing: border-box !important;
-        }
-
-        /* 2. Chỉ ẩn tuyệt đối nút Sửa Dữ Liệu ở màn học sinh, GIỮ LẠI nút Cài Đặt (⚙️) */
-        body:not(.is-admin) button:contains("Sửa Dữ Liệu"), 
-        body:not(.admin-mode) .edit-data-btn, 
-        body:not(.is-admin) [class*="edit-data"] {
-            display: none !important;
-        }
-        body:not(.is-admin) #admin-topbar,
-        body:not(.is-admin) #btn-admin-gear,
-        body:not(.admin-mode) #admin-topbar,
-        body:not(.admin-mode) #btn-admin-gear {
-            display: none !important;
-        }
-        body.is-admin #admin-topbar,
-        body.admin-mode #admin-topbar,
-        body.is-admin .edit-data-btn,
-        body.admin-mode .edit-data-btn,
-        body.is-admin [class*="edit-data"],
-        body.admin-mode [class*="edit-data"] {
-            display: flex !important;
-        }
-        body.is-admin #btn-admin-gear,
-        body.admin-mode #btn-admin-gear {
-            display: inline-flex !important;
-        }
-
-        /* Đảm bảo nút Cài đặt / Cấu hình đội và nhạc luôn hiển thị */
-        .settings-btn, [class*="setting"], [class*="gear"], button:contains("Cài Đặt") {
-            display: inline-flex !important;
-            pointer-events: auto !important;
-        }
-
-        /* ========================================== */
-        /* 2. GIAO DIỆN DÀNH RIÊNG CHO MOBILE (Màn hình nhỏ < 768px) */
-        /* ========================================== */
-        @media screen and (max-width: 767px) {
-            .apple-game-container, .harvest-game-wrapper, [class*="harvest"], .game-main-layout, .main-board {
-                display: flex !important;
-                flex-direction: column !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-            }
-            body, html, .game-wrapper, [class*="container"], [class*="apple"] {
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-            }
-            .side-panel, .q-container, .input-area {
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-                max-width: 100% !important;
-                width: 100% !important;
-            }
-            #mobile-submit-btn {
-                display: block !important;
-                position: relative !important;
-                width: 90% !important;
-                margin: 8px auto !important;
-                z-index: 100 !important;
-                font-size: 18px !important;
-                font-weight: 900 !important;
-                padding: 12px 20px !important;
-                border-radius: 12px !important;
-                box-shadow: 0 4px #2ecc71 !important;
-            }
-            .turn-indicator {
-                position: relative !important;
-                top: auto !important;
-                width: 90% !important;
-                margin: 0 auto 8px auto !important;
-            }
-
-            /* Khung chứa nội dung câu hỏi và các đáp án trên mobile (Scroll độc lập) */
-            .question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
-                max-height: 50vh !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-                padding-right: 6px !important;
-            }
-            
-            /* Tùy chỉnh thanh cuộn đẹp mắt, dễ lướt */
-            .question-container::-webkit-scrollbar, .q-container::-webkit-scrollbar, [class*="question-area"]::-webkit-scrollbar {
-                width: 5px;
-            }
-            .question-container::-webkit-scrollbar-thumb, .q-container::-webkit-scrollbar-thumb, [class*="question-area"]::-webkit-scrollbar-thumb {
-                background: rgba(56, 189, 248, 0.6);
-                border-radius: 4px;
-            }
-        }
-
-        /* ========================================== */
-        /* 1. GIAO DIỆN DÀNH RIÊNG CHO LAPTOP / DESKTOP (Màn hình lớn >= 768px) */
-        /* ========================================== */
-        @media screen and (min-width: 768px) {
-            .apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board, div[style*="max-width"] {
-                width: 100% !important;
-                max-width: 1380px !important;
-                  min-width: 1000px !important;
-                margin: 0 auto !important;
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: space-between !important;
-                align-items: stretch !important;
-                box-sizing: border-box !important;
-                background: transparent !important;
-                transform: none !important;
-            }
-            
-            /* Các cột đội chơi phân bổ rộng rãi hai bên */
-            .team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel {
-                flex: 1 !important;
-                max-width: 44% !important;
-                width: 44% !important;
-                height: auto !important;
-                margin: 0 !important;
-            }
-            
-            /* Cột cân táo ở giữa */
-            .scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel {
-                flex: 0 0 180px !important;
-                width: 180px !important;
-                min-width: 180px !important;
-                display: flex !important;
-                justify-content: center !important;
-                align-items: center !important;
-            }
-
-            /* Khung câu hỏi hiển thị đầy đủ, không bị giới hạn chiều cao */
-            .question-container, .quiz-content-box, [class*="question-area"], .q-container, [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper) {
-                max-height: none !important;
-                height: auto !important;
-                overflow-y: visible !important;
-            }
-
-            .answer-grid, [class*="answers"], .options-container {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 14px !important;
-            }
-
-            #mobile-submit-btn {
-                display: none !important;
-            }
-        }
-
-        /* Buộc các khối công thức MathJax / LaTeX tự động xuống hàng theo dòng chảy văn bản */
-        mjx-container, .MathJax, .MathJax_Display, math, .mjx-chtml {
-            vertical-align: middle !important;
-            display: inline-block !important;
-            white-space: normal !important;
-            overflow-x: auto !important;
-            overflow-y: hidden !important;
-            word-break: break-word !important;
-            max-width: 100% !important;
-        }
-        .question-text, .answer-btn, p, span {
-            line-height: 1.6 !important;
-        }
-        .title, .title-text, .header, .instruction, .global-timer {
+        .question-text, .answer-option, .btn-abcd, .tf-text, .tf-row, .btn-tf-big, .mjx-chtml, mjx-container, .MathJax {
             white-space: nowrap !important;
+            display: inline-block !important;
+        }
+        .q-content, .question-box-content, .q-container {
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            white-space: normal !important;
         }
 
         /* Hai nút Đúng / Sai to tướng */
@@ -1529,7 +1239,7 @@ button, .btn, input, select, canvas {
             <button id="fullscreenToggleBtn" type="button" onclick="toggleMobileFullscreen()" class="btn-topbar-fs" title="[ ⛶ ] Toàn màn hình" data-fs-bound="true">
                 <span id="fullscreenIcon">⛶</span> <span id="fullscreenText" class="fs-text">[ ⛶ ] TOÀN MÀN HÌNH</span>
             </button>
-            <div class="settings-btn settings-btn-tiny gear-btn" onclick="openSettings()" title="Cài đặt (Thêm đội / Thêm nhạc)">⚙️</div>
+            <div class="settings-btn-tiny" onclick="openSettings()" title="Cài đặt">⚙️</div>
             <div class="global-timer" id="global-timer-display" style="display:none;">
                 <i>⏱</i> <span id="global-time-text">15:00</span>
             </div>
@@ -1550,11 +1260,11 @@ button, .btn, input, select, canvas {
             <button id="btn-student-chuyende" onclick="openAppleTopicMenu()" class="btn-topbar-student" style="display: flex;">
                 📚 <span>Đổi Chuyên Đề</span>
             </button>
-            <div id="admin-topbar" class="admin-topbar edit-data-wrapper" style="display: none;">
+            <div id="admin-topbar" class="admin-topbar" style="display: none;">
                 <button id="btn-chuyen-de" type="button" onclick="openAppleTopicMenu()" class="btn-topbar-chuyende" title="Chọn Chuyên Đề">
                     📋 <span>CHUYÊN ĐỀ</span>
                 </button>
-                <button id="btn-admin-gear" type="button" onclick="openAdminPinPrompt()" class="btn-topbar-edit edit-data-btn" title="Sửa Dữ Liệu In-game">
+                <button id="btn-admin-gear" type="button" onclick="openAdminPinPrompt()" class="btn-topbar-edit" title="Sửa Dữ Liệu In-game">
                     ⚙️ <span>SỬA DỮ LIỆU</span>
                 </button>
             </div>
@@ -2392,21 +2102,21 @@ button, .btn, input, select, canvas {
         </div>
     </div>
 
-    <div class="main-board apple-game-container harvest-container quiz-box game-wrapper">
+    <div class="main-board">
         <!-- Panel Trái (Đội Xanh) -->
         <div class="side-panel left blur-wait" id="panel-1">
             <div class="team-info-bar">
                 <div class="team-name" id="name-1">ĐỘI XANH</div>
                 <div class="timer-box">⏱ <span id="timer-1">00:00</span></div>
             </div>
-            <div class="q-container question-container" id="qc-1" style="opacity: 1;">
+            <div class="q-container" id="qc-1" style="opacity: 1;">
                 <div class="q-header">
                     <div class="q-progress" id="prog-1">Câu 1/7</div>
                     <div class="q-badge" id="badge-1" style="background-color: rgb(46, 204, 113);">Dễ</div>
                 </div>
-                <div class="q-content question-box-content question-text" id="q-text-1"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="59" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c33"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c><mjx-c class="mjx-c37"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="79" style="font-size: 113.2%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c33"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c><mjx-c class="mjx-c37"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="104" style="font-size: 113.2%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c33"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c><mjx-c class="mjx-c37"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="129" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c33"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c><mjx-c class="mjx-c37"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mn>3</mn><mrow data-mjx-texclass="ORD"><mi>x</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>=</mo><mn>27</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></div>
+                <div class="q-content question-box-content" id="q-text-1"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="59" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c33"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c><mjx-c class="mjx-c37"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="79" style="font-size: 113.2%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c33"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c><mjx-c class="mjx-c37"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="104" style="font-size: 113.2%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c33"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c><mjx-c class="mjx-c37"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="129" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c33"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c><mjx-c class="mjx-c37"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mn>3</mn><mrow data-mjx-texclass="ORD"><mi>x</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>=</mo><mn>27</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></div>
                 <div class="input-area" id="input-1">
-                    <div id="controls-1" style="width:100%"><div class="abcd-grid answer-grid options-container"><button class="btn-abcd answer-option answer-btn" id="abcd-1-A" onclick="selABCD(1, 'A')">A. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="60" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="80" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="105" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="130" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>1</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option answer-btn" id="abcd-1-B" onclick="selABCD(1, 'B')">B. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="61" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="81" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="106" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="131" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>2</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option answer-btn" id="abcd-1-C" onclick="selABCD(1, 'C')">C. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="62" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="82" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="107" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="132" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>3</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option answer-btn" id="abcd-1-D" onclick="selABCD(1, 'D')">D. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="63" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="83" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="108" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="133" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>4</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button></div></div>
+                    <div id="controls-1" style="width:100%"><div class="abcd-grid"><button class="btn-abcd answer-option" id="abcd-1-A" onclick="selABCD(1, 'A')">A. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="60" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="80" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="105" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="130" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>1</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option" id="abcd-1-B" onclick="selABCD(1, 'B')">B. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="61" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="81" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="106" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="131" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>2</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option" id="abcd-1-C" onclick="selABCD(1, 'C')">C. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="62" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="82" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="107" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="132" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>3</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option" id="abcd-1-D" onclick="selABCD(1, 'D')">D. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="63" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="83" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="108" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="133" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>4</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button></div></div>
                     <button class="btn-submit" onclick="submitAnswer(1)">✅ CHỐT ĐÁP ÁN</button>
                 </div>
             </div>
@@ -2423,8 +2133,7 @@ button, .btn, input, select, canvas {
         <!-- Panel Giữa (Cái Cân Hoạt Hình) -->
         <div class="center-panel">
             <div class="turn-indicator" id="turn-indicator" style="display: none;">⬅ LƯỢT ĐỘI XANH</div>
-            <button type="button" class="btn-submit confirm-btn submit-answer-btn" id="mobile-submit-btn" onclick="submitCurrentTurnAnswer()" style="display: none;">✅ CHỐT ĐÁP ÁN</button>
-            <button class="btn-start-race start-contest-btn" id="btn-start" onclick="startGame()" style="display: block;">🚀 BẮT ĐẦU TRANH TÀI</button>
+            <button class="btn-start-race" id="btn-start" onclick="startGame()" style="display: block;">🚀 BẮT ĐẦU TRANH TÀI</button>
             <canvas id="scaleCanvas" width="287" height="564"></canvas>
         </div>
 
@@ -2434,14 +2143,14 @@ button, .btn, input, select, canvas {
                 <div class="team-name" id="name-2">ĐỘI ĐỎ</div>
                 <div class="timer-box">⏱ <span id="timer-2">00:00</span></div>
             </div>
-            <div class="q-container question-container" id="qc-2" style="opacity: 1;">
+            <div class="q-container" id="qc-2" style="opacity: 1;">
                 <div class="q-header">
                     <div class="q-progress" id="prog-2">Câu 1/7</div>
                     <div class="q-badge" id="badge-2" style="background-color: rgb(46, 204, 113);">Dễ</div>
                 </div>
-                <div class="q-content question-box-content question-text" id="q-text-2">Nghiệm của phương trình: <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="84" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c34"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c36"></mjx-c><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="109" style="font-size: 113.2%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c34"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c36"></mjx-c><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="134" style="font-size: 113.2%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c34"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c36"></mjx-c><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mn>4</mn><mrow data-mjx-texclass="ORD"><mi>x</mi></mrow></msup><mo>=</mo><mn>64</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></div>
+                <div class="q-content question-box-content" id="q-text-2">Nghiệm của phương trình: <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="84" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c34"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c36"></mjx-c><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="109" style="font-size: 113.2%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c34"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c36"></mjx-c><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="134" style="font-size: 113.2%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-msup><mjx-mn class="mjx-n"><mjx-c class="mjx-c34"></mjx-c></mjx-mn><mjx-script style="vertical-align: 0.363em;"><mjx-texatom size="s" texclass="ORD"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c36"></mjx-c><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mn>4</mn><mrow data-mjx-texclass="ORD"><mi>x</mi></mrow></msup><mo>=</mo><mn>64</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></div>
                 <div class="input-area" id="input-2">
-                    <div id="controls-2" style="width:100%"><div class="abcd-grid answer-grid options-container"><button class="btn-abcd answer-option answer-btn" id="abcd-2-A" onclick="selABCD(2, 'A')">A. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="85" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="110" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="135" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>2</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option answer-btn" id="abcd-2-B" onclick="selABCD(2, 'B')">B. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="86" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="111" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="136" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>3</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option answer-btn" id="abcd-2-C" onclick="selABCD(2, 'C')">C. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="87" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="112" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="137" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>4</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option answer-btn" id="abcd-2-D" onclick="selABCD(2, 'D')">D. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="88" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c><mjx-c class="mjx-c36"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="113" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c><mjx-c class="mjx-c36"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="138" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c><mjx-c class="mjx-c36"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>16</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button></div></div>
+                    <div id="controls-2" style="width:100%"><div class="abcd-grid"><button class="btn-abcd answer-option" id="abcd-2-A" onclick="selABCD(2, 'A')">A. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="85" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="110" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="135" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c32"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>2</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option" id="abcd-2-B" onclick="selABCD(2, 'B')">B. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="86" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="111" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="136" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c33"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>3</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option" id="abcd-2-C" onclick="selABCD(2, 'C')">C. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="87" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="112" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="137" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c34"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>4</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button><button class="btn-abcd answer-option" id="abcd-2-D" onclick="selABCD(2, 'D')">D. <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="88" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c><mjx-c class="mjx-c36"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="113" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c><mjx-c class="mjx-c36"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" tabindex="0" ctxtmenu_counter="138" style="font-size: 113.1%; position: relative;"><mjx-math class="MJX-TEX" aria-hidden="true"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D465 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c31"></mjx-c><mjx-c class="mjx-c36"></mjx-c></mjx-mn></mjx-math><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi><mo>=</mo><mn>16</mn></math></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></mjx-assistive-mml></mjx-container></button></div></div>
                     <button class="btn-submit" onclick="submitAnswer(2)">✅ CHỐT ĐÁP ÁN</button>
                 </div>
             </div>
@@ -3279,31 +2988,8 @@ button, .btn, input, select, canvas {
         const audioWin = new Audio();
 
         // ================= ĐIỀU KHIỂN LUÂN PHIÊN =================
-        function submitCurrentTurnAnswer() {
-            if (typeof state !== 'undefined' && state.currentTurn) {
-                submitAnswer(state.currentTurn);
-            } else {
-                submitAnswer(1);
-            }
-        }
-        window.submitCurrentTurnAnswer = submitCurrentTurnAnswer;
-
         function startGame() {
-            const btnStart = document.getElementById('btn-start');
-            if (btnStart) {
-                btnStart.style.display = 'none';
-                btnStart.style.visibility = 'hidden';
-            }
-            const startBtns = document.querySelectorAll('.start-contest-btn, .btn-start-race, #btn-start');
-            startBtns.forEach(b => {
-                b.style.display = 'none';
-                b.style.visibility = 'hidden';
-            });
-            const mobBtn = document.getElementById('mobile-submit-btn');
-            if (mobBtn && window.innerWidth < 768) {
-                mobBtn.style.display = 'block';
-                mobBtn.style.visibility = 'visible';
-            }
+            document.getElementById('btn-start').style.display = 'none';
             document.getElementById('global-timer-display').style.display = 'flex';
             state.isPlaying = true;
             state.currentTurn = 1;
@@ -3319,7 +3005,6 @@ button, .btn, input, select, canvas {
             switchTurnUI();
             startTeamTimer();
         }
-        window.startGame = startGame;
 
         function startGlobalTimer() {
             globalTimerId = setInterval(() => {
@@ -3423,11 +3108,11 @@ button, .btn, input, select, canvas {
             container.innerHTML = '';
             
             if (data.type === 'abcd') {
-                let html = '<div class="abcd-grid answer-grid options-container">';
+                let html = '<div class="abcd-grid">';
                 let opts = data.opts || ['A', 'B', 'C', 'D'];
                 ['A', 'B', 'C', 'D'].forEach((l, i) => {
                     let optText = opts[i] || `Phương án ${l}`;
-                    html += `<button class="btn-abcd answer-option answer-btn" id="abcd-${team}-${l}" onclick="selABCD(${team}, '${l}')">${formatMathStringToTeX(optText)}</button>`;
+                    html += `<button class="btn-abcd answer-option" id="abcd-${team}-${l}" onclick="selABCD(${team}, '${l}')">${formatMathStringToTeX(optText)}</button>`;
                 });
                 html += '</div>';
                 container.innerHTML = html;
@@ -3437,10 +3122,10 @@ button, .btn, input, select, canvas {
                     // Dạng 2 nút ĐÚNG / SAI to tướng
                     container.innerHTML = `
                         <div class="tf-big-grid">
-                            <button type="button" id="smart-tf-${team}-D" class="btn-tf-big dung answer-btn btn" onclick="selSmartTF(${team}, 'Đ')">
+                            <button type="button" id="smart-tf-${team}-D" class="btn-tf-big dung" onclick="selSmartTF(${team}, 'Đ')">
                                 <span>✅</span> ĐÚNG
                             </button>
-                            <button type="button" id="smart-tf-${team}-S" class="btn-tf-big sai answer-btn btn" onclick="selSmartTF(${team}, 'S')">
+                            <button type="button" id="smart-tf-${team}-S" class="btn-tf-big sai" onclick="selSmartTF(${team}, 'S')">
                                 <span>❌</span> SAI
                             </button>
                         </div>
@@ -3705,21 +3390,7 @@ button, .btn, input, select, canvas {
         }
 
         // ================= SETTINGS =================
-        function openSettings() {
-            const screen = document.getElementById('settings-screen');
-            if (screen) {
-                screen.style.display = 'flex';
-                screen.style.visibility = 'visible';
-            }
-            const modal = document.querySelector('.settings-modal');
-            if (modal) {
-                modal.style.display = 'block';
-                modal.style.visibility = 'visible';
-            }
-        }
-        window.openSettings = openSettings;
-        window.toggleSettings = openSettings;
-        window.showSettingsModal = openSettings;
+        function openSettings() { document.getElementById('settings-screen').style.display = 'flex'; }
         function saveSettings() {
             state.teamNames[1] = document.getElementById('inp-t1').value || "Đội Xanh";
             state.teamNames[2] = document.getElementById('inp-t2').value || "Đội Đỏ";
@@ -4279,41 +3950,19 @@ button, .btn, input, select, canvas {
                 const admin = params.get('admin');
                 const preview = params.get('preview');
                 const isHashAdmin = window.location.hash.includes('admin') || window.location.hash.includes('role=admin');
+                const isLocalAdmin = localStorage.getItem('haitao_is_admin') === 'true';
 
-                // Chế độ học sinh tuyệt đối không mở nút Sửa Dữ Liệu (Admin editing)
-                const isExplicitStudent = role === 'student' || params.get('student') === '1' || window.location.pathname.includes('/chon-hs/');
-                const isAdmin = !isExplicitStudent && (role === 'admin' || admin === '1' || preview === 'true' || isHashAdmin || window.isAdmin === true);
-
+                const isAdmin = role === 'admin' || admin === '1' || preview === 'true' || isHashAdmin || isLocalAdmin || window.isAdmin;
                 const topbar = document.getElementById('admin-topbar');
                 const studentBtn = document.getElementById('btn-student-chuyende');
-                const gearBtn = document.getElementById('btn-admin-gear');
-                const editBtns = document.querySelectorAll('.edit-data-btn, [class*="edit-data"]');
-
-                // Nút Cài đặt (⚙️) LUÔN hiển thị cho học sinh và giáo viên để thêm đội, cấu hình nhạc
-                const settingsBtn = document.querySelector('.settings-btn-tiny, .settings-btn, .gear-btn');
-                if (settingsBtn) {
-                    settingsBtn.style.setProperty('display', 'inline-flex', 'important');
-                    settingsBtn.style.setProperty('pointer-events', 'auto', 'important');
-                }
-
-                if (isAdmin) {
-                    document.body.classList.add('is-admin', 'admin-mode');
-                    if (topbar) topbar.style.setProperty('display', 'flex', 'important');
-                    if (gearBtn) gearBtn.style.setProperty('display', 'inline-flex', 'important');
-                    if (studentBtn) studentBtn.style.setProperty('display', 'none', 'important');
-                    editBtns.forEach(btn => {
-                        btn.classList.remove('hidden');
-                        btn.style.removeProperty('display');
-                    });
-                } else {
-                    document.body.classList.remove('is-admin', 'admin-mode');
-                    if (topbar) topbar.style.setProperty('display', 'none', 'important');
-                    if (gearBtn) gearBtn.style.setProperty('display', 'none', 'important');
-                    if (studentBtn) studentBtn.style.setProperty('display', 'flex', 'important');
-                    editBtns.forEach(btn => {
-                        btn.classList.add('hidden');
-                        btn.style.setProperty('display', 'none', 'important');
-                    });
+                if (topbar) {
+                    if (isAdmin) {
+                        topbar.style.display = 'flex';
+                        if (studentBtn) studentBtn.style.display = 'none';
+                    } else {
+                        topbar.style.display = 'none';
+                        if (studentBtn) studentBtn.style.display = 'flex';
+                    }
                 }
             } catch(e) {}
         }
@@ -4346,8 +3995,6 @@ button, .btn, input, select, canvas {
             const val = input ? input.value.trim() : '';
             if (val === '2806') {
                 localStorage.setItem('haitao_is_admin', 'true');
-                document.body.classList.add('is-admin', 'admin-mode');
-                applyAdminSecurity();
                 closeAdminPinPrompt();
                 openAdminEditorModal();
             } else {
@@ -4836,190 +4483,6 @@ window.formatMathStringToTeX = formatMathStringToTeX;
         });
         obs.observe(document.documentElement, { childList: true, subtree: true });
     } catch(e) {}
-})();
-</script>
-
-<!-- ======================================================== -->
-<!-- BƯỚC 2: TỐI ƯU HÓA GIAO DIỆN HÁI TÁO LUÂN PHIÊN (JS ENGINE) -->
-<!-- ======================================================== -->
-<script>
-(function() {
-    function setupAppleOptimizations() {
-        // 1. Mở khóa và gán hàm kích hoạt sự kiện cho nút Cài đặt (thêm đội, thêm nhạc) ở màn hình học sinh trên Laptop
-        const settingsTriggers = document.querySelectorAll('.settings-btn, [class*="setting"], [class*="gear"], .fa-cog');
-        settingsTriggers.forEach(el => {
-            if (el.id === 'btn-admin-gear' || el.classList.contains('edit-data-btn')) return;
-            el.style.pointerEvents = 'auto';
-            el.style.cursor = 'pointer';
-            el.style.zIndex = '99999';
-            el.onclick = function(e) {
-                if (e && e.preventDefault) e.preventDefault();
-                if (e && e.stopPropagation) e.stopPropagation();
-                // Gọi hiển thị bảng cài đặt của game
-                const screen = document.getElementById('settings-screen');
-                if (screen) {
-                    screen.style.display = 'flex';
-                    screen.style.visibility = 'visible';
-                }
-                const modals = document.querySelectorAll('.settings-modal, [class*="setting-modal"], #settings-modal, .modal');
-                modals.forEach(m => {
-                    m.style.display = 'block';
-                    m.style.visibility = 'visible';
-                });
-                if (typeof window.openSettings === 'function') window.openSettings();
-                else if (typeof window.toggleSettings === 'function') window.toggleSettings();
-                else if (typeof window.showSettingsModal === 'function') window.showSettingsModal();
-            };
-        });
-
-        // 2. Định vị nút "Chốt đáp án" trên mobile: nằm dưới chữ "Lượt đội tranh tài" và trên nút "Bắt đầu tranh tài"
-        const mobBtn = document.getElementById('mobile-submit-btn');
-        const startContestBtns = document.querySelectorAll('.start-contest-btn, [class*="start-btn"], #btn-start, .btn-start-race');
-        if (mobBtn && startContestBtns.length > 0 && window.innerWidth < 768) {
-            startContestBtns[0].parentNode.insertBefore(mobBtn, startContestBtns[0]);
-            mobBtn.style.cssText = 'position: relative !important; display: block !important; width: 90% !important; margin: 10px auto !important; z-index: 100 !important;';
-        } else {
-            const confirmBtns = document.querySelectorAll('.confirm-btn, [class*="submit-answer"], .btn-submit');
-            confirmBtns.forEach(cBtn => {
-                if (startContestBtns.length > 0 && window.innerWidth <= 768 && !cBtn.closest('#panel-1') && !cBtn.closest('#panel-2')) {
-                    // Chèn nút chốt đáp án vào trước nút bắt đầu tranh tài
-                    startContestBtns[0].parentNode.insertBefore(cBtn, startContestBtns[0]);
-                    cBtn.style.cssText = 'position: relative !important; display: block !important; width: 90% !important; margin: 10px auto !important; z-index: 100 !important;';
-                }
-            });
-        }
-
-        // 3. Tự động ẩn nút "Bắt đầu tranh tài" khi trận đấu đã bắt đầu
-        startContestBtns.forEach(b => {
-            const origOnClick = b.onclick;
-            b.onclick = function(e) {
-                if (typeof startGame === 'function') startGame();
-                else if (typeof origOnClick === 'function') origOnClick.call(b, e);
-                // Ẩn nút bắt đầu sau khi bấm
-                setTimeout(() => {
-                    b.style.display = 'none';
-                    b.style.visibility = 'hidden';
-                }, 200);
-            };
-        });
-
-        // 4. Chuẩn hóa layout bàn chơi 3 cột rộng rãi trên Laptop & kích hoạt scroll độc lập trên Mobile
-        const updateResponsiveLayout = () => {
-            const layoutContainers = document.querySelectorAll('.apple-game-container, .harvest-game-wrapper, [class*="harvest"], [class*="apple-arena"], .game-main-layout, .main-board');
-            const sidePanels = document.querySelectorAll('.team-column-left, .team-column-right, [class*="team-box"], [class*="player-panel"], .side-panel');
-            const centerPanels = document.querySelectorAll('.scale-center-column, [class*="scale-box"], [class*="center-arena"], .center-panel');
-            const questionBoxes = document.querySelectorAll('.question-container, .q-container, .quiz-content-box, [class*="question-area"], [class*="answers-box"], [class*="quiz-box"]:not(.main-board):not(.game-wrapper)');
-
-            if (window.innerWidth >= 768) {
-                layoutContainers.forEach(el => {
-                    el.style.width = '100%';
-                    el.style.maxWidth = '1380px';
-                    el.style.margin = '0 auto';
-                    el.style.display = 'flex';
-                    el.style.flexDirection = 'row';
-                    el.style.justifyContent = 'space-between';
-                    el.style.alignItems = 'stretch';
-                    el.style.background = 'transparent';
-                    el.style.transform = 'none';
-                });
-                sidePanels.forEach(p => {
-                    p.style.flex = '1';
-                    p.style.maxWidth = '44%';
-                    p.style.width = '44%';
-                    p.style.height = 'auto';
-                    p.style.margin = '0';
-                });
-                centerPanels.forEach(cp => {
-                    cp.style.flex = '0 0 180px';
-                    cp.style.width = '180px';
-                    cp.style.minWidth = '180px';
-                    cp.style.display = 'flex';
-                    cp.style.justifyContent = 'center';
-                    cp.style.alignItems = 'center';
-                });
-                questionBoxes.forEach(box => {
-                    box.style.maxHeight = 'none';
-                    box.style.height = 'auto';
-                    box.style.overflowY = 'visible';
-                });
-            } else {
-                layoutContainers.forEach(el => {
-                    el.style.display = 'flex';
-                    el.style.flexDirection = 'column';
-                    el.style.width = '100%';
-                    el.style.maxWidth = '100%';
-                    el.style.overflowY = 'auto';
-                });
-                sidePanels.forEach(p => {
-                    p.style.maxWidth = '100%';
-                    p.style.width = '100%';
-                });
-                centerPanels.forEach(cp => {
-                    cp.style.flex = 'initial';
-                    cp.style.width = 'auto';
-                });
-                questionBoxes.forEach(box => {
-                    box.style.maxHeight = '50vh';
-                    box.style.overflowY = 'auto';
-                    box.style.webkitOverflowScrolling = 'touch';
-                    box.style.paddingRight = '6px';
-                });
-            }
-        };
-        updateResponsiveLayout();
-        window.addEventListener('resize', updateResponsiveLayout);
-
-        // 5. Mở khóa và sửa sự kiện nút "Đổi Chuyên Đề" / "Chuyên Đề"
-        let changeTopicBtns = Array.from(document.querySelectorAll('#btn-student-chuyende, #btn-chuyen-de, .btn-topbar-student, .btn-topbar-chuyende, [class*="change-topic"], [class*="topic-btn"]'));
-        document.querySelectorAll('button').forEach(btn => {
-            const txt = (btn.textContent || '').trim();
-            if ((txt.includes('Đổi Chuyên Đề') || txt.includes('CHUYÊN ĐỀ') || txt.includes('Chuyên Đề')) && !changeTopicBtns.includes(btn)) {
-                changeTopicBtns.push(btn);
-            }
-        });
-        changeTopicBtns.forEach(btn => {
-            btn.style.pointerEvents = 'auto';
-            btn.style.cursor = 'pointer';
-            btn.onclick = function(e) {
-                if (e && e.preventDefault) e.preventDefault();
-                if (e && e.stopPropagation) e.stopPropagation();
-                console.log("Mở lại menu chọn chuyên đề hái táo...");
-                if (typeof window.openAppleTopicMenu === 'function') {
-                    window.openAppleTopicMenu();
-                    return;
-                }
-                const topicModal = document.querySelector('#topic-selection-overlay, .selection-screen-wrapper, .lobby-wrapper, #setup-container, #topic-modal, [class*="modal"], [class*="topic-selector"]');
-                if (topicModal) {
-                    topicModal.style.display = 'flex';
-                    topicModal.style.visibility = 'visible';
-                } else {
-                    window.location.reload();
-                }
-            };
-        });
-
-        // 6. Scroll mượt mà toàn trang trên Mobile
-        if (window.innerWidth <= 768) {
-            document.documentElement.style.overflowY = 'auto';
-            document.body.style.overflowY = 'auto';
-            const scrollElements = document.querySelectorAll('.apple-game-container, [class*="harvest"], .game-wrapper, [class*="container"]');
-            scrollElements.forEach(se => {
-                se.style.overflowY = 'auto';
-                se.style.webkitOverflowScrolling = 'touch';
-            });
-        }
-    }
-
-    if (document.readyState === 'loading') {
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(setupAppleOptimizations, 1200);
-        });
-    } else {
-        setTimeout(setupAppleOptimizations, 1200);
-    }
-    window.addEventListener('load', () => {
-        setTimeout(setupAppleOptimizations, 1200);
-    });
 })();
 </script>
 </body></html>
