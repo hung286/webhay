@@ -2327,6 +2327,51 @@ var questions = window.quizData;
     });
 
     const haiTaoScript = `
+<style id="apple-anti-overflow-style">
+  /* 1. Ép chống tràn và tự động xuống dòng cho khung chứa câu hỏi / đề bài Hái Táo */
+  .apple-game-container .question-container, 
+  .harvest-game-wrapper .question-box, 
+  [class*="apple"] .question-text, 
+  [class*="harvest"] .quiz-content,
+  .q-content, .question-box-content, .q-container, .question-text, .q-text {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+      line-height: 1.5 !important;
+  }
+
+  /* 2. Ép các nút đáp án A, B, C, D tự động xuống dòng, ôm khít trong box ở cả Laptop và Mobile */
+  .apple-game-container .answer-btn, 
+  .harvest-game-wrapper button[class*="answer"], 
+  [class*="apple"] [class*="option"], 
+  [class*="harvest"] .answer-option,
+  .answer-option, .btn-abcd, .btn-tf-big, .tf-text, .tf-row {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      min-height: 48px !important;
+      padding: 10px 14px !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+      display: flex !important;
+      align-items: center !important;
+      text-align: left !important;
+      box-sizing: border-box !important;
+  }
+
+  /* 3. Khóa cứng công thức MathJax inline bên trong đề bài/đáp án luôn nằm ngang thẳng hàng */
+  .apple-game-container mjx-container, 
+  .harvest-game-wrapper mjx-container,
+  mjx-container, .MathJax, .mjx-chtml {
+      white-space: nowrap !important;
+      display: inline-block !important;
+      vertical-align: middle !important;
+  }
+</style>
 <script>
 // [ADAPTER ENGINE: MULTI-TOPIC ARCHITECTURE - HÁI TÁO LUÂN PHIÊN]
 window.__GAME_TITLE__ = ${JSON.stringify(gameTitle)};
