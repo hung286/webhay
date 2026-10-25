@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toán 11+12.Tiền Tiết Kiệm & Trả Góp </title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Cấu hình MathJax an toàn và mượt mà -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            startup: {
+                typeset: false
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f1f5f9; 
+            color: #1e293b;
+            background-image: url('data:image/svg+xml,%3Csvg width="20" height="20" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h20v20H0z" fill="%23f1f5f9"/%3E%3Cpath d="M0 0h10v10H0zm10 10h10v10H10z" fill="%23e2e8f0" fill-opacity="0.4"/%3E%3C/svg%3E');
+            /* Khóa cuộn dọc của trình duyệt, ép dùng nội dung bên trong */
+            overflow: hidden; 
+        }
+        
+        /* Tùy chỉnh thanh cuộn siêu mượt và sang trọng */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .royal-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.4); }
+        .royal-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.7); }
+        
+        .royal-title { font-family: 'Playfair Display', serif; }
+        .gold-accent { color: #d4af37; }
+        .gold-bg { background-color: #d4af37; }
+        .royal-bg { background: linear-gradient(135deg, #0c2340 0%, #1a365d 100%); }
+        
+        .royal-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-feature {
+            background: white; border: 1px solid #cbd5e1; color: #334155;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+        }
+        .btn-feature:hover { border-color: #d4af37; background: #fdfbf7; transform: translateX(4px); }
+        .btn-feature.active {
+            background: linear-gradient(145deg, #0c2340 0%, #1a365d 100%);
+            color: #d4af37; border-color: #0c2340;
+            box-shadow: 0 4px 10px rgba(12, 35, 64, 0.2);
+            transform: translateX(4px);
+        }
+
+        .btn-calc {
+            background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+            color: white; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;
+        }
+        .btn-calc::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-20deg); transition: all 0.6s ease;
+        }
+        .btn-calc:hover::after { left: 150%; }
+        .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(212, 175, 55, 0.4); }
+
+        .input-group label { font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; display: block; text-transform: uppercase; }
+        .input-royal {
+            width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px;
+            background-color: #f8fafc; font-family: 'Roboto Mono', monospace; font-size: 0.95rem; font-weight: 500;
+            transition: all 0.2s;
+        }
+        .input-royal:focus { outline: none; border-color: #d4af37; background-color: #fff; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); }
+        .input-royal.calculated-glow {
+            border-color: #10b981; background-color: #ecfdf5; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .formula-box { background-color: #f8fafc; border-left: 3px solid #0c2340; padding: 0.75rem 1rem; border-radius: 0 6px 6px 0; overflow-x: auto; }
+        .mathjax-wrap mjx-container[display="true"] { margin: 0 !important; }
+        .mathjax-inline-break { display: block; line-height: 2.2; word-wrap: break-word; }
+        
+        /* Thêm CSS chống cuộn ngang và tự thu nhỏ công thức */
+        .math-responsive {
+            overflow: hidden !important;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        .math-responsive mjx-container {
+            max-width: 100%;
+            overflow-wrap: break-word;
+        }
+        @media (max-width: 1200px) {
+            .math-responsive mjx-container { font-size: 0.9em; }
+        }
+        
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 100; max-width: 350px; }
+        .toast {
+            background-color: #ef4444; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); display: flex; align-items: center;
+            opacity: 0; transform: translateX(20px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .toast.show { opacity: 1; transform: translateX(0); }
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col overflow-hidden">
+
+    <header class="royal-bg text-white shadow-md flex justify-between items-center px-6 py-2.5 shrink-0 z-10 border-b-2 border-[#d4af37]">
+        <div class="flex items-center gap-3">
+            <div class="bg-white/10 p-2 rounded-full border border-[#d4af37]/50 shadow-inner">
+                <i class="fas fa-crown text-xl gold-accent"></i>
+            </div>
+            <div>
+                <h1 class="royal-title text-xl font-bold tracking-wide">TIỀN TIẾT KIỆM & TRẢ GÓP</h1>
+                <p class="text-[10px] uppercase tracking-widest text-gray-300">Tính toán linh hoạt mọi đại lượng</p>
+            </div>
+        </div>
+        <div class="hidden md:flex items-center gap-2">
+            <span class="gold-accent font-bold text-xs uppercase bg-black/30 px-3 py-1 rounded-full border border-[#d4af37]/40 shadow-inner">
+                <i class="fas fa-graduation-cap mr-1"></i> TOÁN PRO
+            </span>
+        </div>
+    </header>
+
+    <main class="flex-1 w-full max-w-[1600px] mx-auto flex flex-row gap-4 p-4 min-h-0">
+        
+        <!-- Cột 1: Menu danh sách bài toán (20%) -->
+        <div class="w-[22%] min-w-[240px] flex flex-col gap-2.5 overflow-y-auto pr-2 custom-scrollbar shrink-0">
+            <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 pl-1">Chọn bài toán</div>
+            <div id="feature-buttons" class="flex flex-col gap-2">
+                <!-- Render bằng JS -->
+            </div>
+        </div>
+
+        <!-- Cột 2: Lý thuyết & Nhập liệu (48%) -->
+        <div class="flex-1 flex flex-col gap-4 min-w-0">
+            <!-- Box Lý thuyết (Gọn gàng trên cùng) -->
+            <div class="royal-card p-4 shrink-0 flex flex-col gap-2 shadow-sm border-t-4 border-[#0c2340]">
+                <h2 class="royal-title text-lg border-b border-gray-100 pb-2 flex items-center justify-between">
+                    <span><i class="fas fa-book-open mr-2 gold-accent"></i> <span id="theory-title">Lý thuyết</span></span>
+                </h2>
+                <div class="text-sm text-gray-700 text-justify leading-relaxed" id="theory-desc"></div>
+                <div class="formula-box text-sm flex items-center justify-center font-bold" id="theory-formula"></div>
+            </div>
+
+            <!-- Box Nhập liệu & Tính toán -->
+            <div class="royal-card p-5 flex-1 flex flex-col overflow-hidden shadow-sm border-t-4 border-[#d4af37]">
+                <div class="flex items-center justify-between mb-4 shrink-0">
+                    <h2 class="royal-title text-lg flex items-center">
+                        <i class="fas fa-keyboard mr-2 text-[#0c2340]"></i> Dữ liệu đầu vào
+                    </h2>
+                    <div class="bg-blue-50 text-blue-700 text-[11px] font-bold px-3 py-1.5 rounded-md border border-blue-200 shadow-sm flex items-center">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-1.5 text-sm"></i>
+                        <span>Để trống ĐÚNG 1 Ô cần tìm!</span>
+                    </div>
+                </div>
+
+                <form id="calculator-form" class="flex-1 flex flex-col min-h-0" onsubmit="calculate(event)">
+                    <!-- Grid input linh hoạt cuộn dọc được nếu nhiều -->
+                    <div id="input-fields" class="grid grid-cols-2 gap-4 overflow-y-auto custom-scrollbar pb-2 pr-1 content-start flex-1">
+                        <!-- Render bằng JS -->
+                    </div>
+                    
+                    <!-- Nút tính toán luôn ghim dưới -->
+                    <div class="mt-4 pt-4 border-t border-gray-100 flex gap-3 shrink-0">
+                        <button type="button" onclick="fillAllExamples()" class="w-1/3 py-2.5 rounded-lg text-[13px] bg-gray-100 text-gray-600 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 transition font-medium flex items-center justify-center">
+                            <i class="fas fa-edit mr-2"></i> Thử ví dụ
+                        </button>
+                        <button type="submit" class="flex-1 btn-calc py-2.5 rounded-lg text-[14px] shadow-md flex items-center justify-center">
+                            <i class="fas fa-magic mr-2"></i> Trích xuất kết quả
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Cột 3: Bảng kết quả 3 bước chuẩn Sư phạm (32%) -->
+        <div class="w-[30%] min-w-[340px] max-w-[450px] royal-bg text-white rounded-xl shadow-xl border border-[#d4af37]/30 flex flex-col shrink-0 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-5" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+            
+            <div class="px-5 py-4 border-b border-white/10 shrink-0 relative z-10 bg-black/20">
+                <h3 class="royal-title text-lg text-[#d4af37] font-bold flex items-center">
+                    <i class="fas fa-microscope mr-2"></i> Bảng phân tích
+                </h3>
+            </div>
+
+            <!-- Khu vực hiển thị kết quả có thanh cuộn riêng -->
+            <div id="result-container" class="flex-1 overflow-y-auto royal-scrollbar p-5 relative z-10 hidden flex-col gap-5">
+                <!-- Sẽ chèn bằng JS -->
+            </div>
+            
+            <div id="result-placeholder" class="flex-1 flex flex-col items-center justify-center p-6 text-center opacity-40 relative z-10">
+                <i class="fas fa-calculator text-5xl mb-3"></i>
+                <p class="text-sm">Nhập số liệu và nhấn Tính toán để xem các bước giải chi tiết tại đây.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="toast-container"></div>
+
+    <script>
+        let mathJaxRenderTimeout;
+        function renderMathJax() {
+            clearTimeout(mathJaxRenderTimeout);
+            mathJaxRenderTimeout = setTimeout(() => {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err));
+                }
+            }, 50);
+        }
+
+        function formatCurrency(number) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+        }
+
+        function fmtMoney(num) {
+            let str = new Intl.NumberFormat('vi-VN').format(Math.round(num));
+            return str.replace(/\./g, '{.}'); // Ngăn MathJax hiểu sai
+        }
+
+        function fmtDec(num) {
+            let str = Number(num.toPrecision(10)).toString();
+            return str.replace('.', '{,}');
+        }
+
+        function formatForMathJax(num, isRate) {
+            if (isRate) {
+                let percent = Number((num * 100).toFixed(6)); 
+                return fmtDec(percent) + '\\%'; 
+            }
+            if (num > 1000 || num < -1000) return fmtMoney(num);
+            let dec = Number(num.toFixed(4)); // Đối với số kỳ n
+            return fmtDec(dec);
+        }
+
+        /* Tự động phẩy hàng nghìn lúc gõ */
+        window.formatNumberInput = function(input) {
+            if (input.dataset.israte === 'true' || input.dataset.id === 'n') return;
+            
+            let cursorPosition = input.selectionStart;
+            let originalLength = input.value.length;
+            
+            // Chấp nhận số và dấu trừ (nếu cần)
+            let rawValue = input.value.replace(/[^0-9]/g, ''); 
+            if (rawValue !== '') {
+                input.value = new Intl.NumberFormat('en-US').format(rawValue);
+                let newLength = input.value.length;
+                cursorPosition = cursorPosition + (newLength - originalLength);
+                input.setSelectionRange(cursorPosition, cursorPosition);
+            } else {
+                input.value = '';
+            }
+            // Gỡ bỏ hiệu ứng phát sáng nếu đang chỉnh sửa
+            input.classList.remove('calculated-glow');
+        };
+
+        // Phân tích đầu vào linh hoạt: Nhận cả "." và "," làm thập phân, hỗ trợ phân số
+        function parseInput(inputStr, isRate = false) {
+            if (inputStr === null || inputStr === undefined || inputStr.trim() === '') return null; // Ký hiệu trống
+            
+            inputStr = inputStr.trim().replace(/\s/g, '');
+            let value = NaN;
+            
+            if (inputStr.includes('/')) {
+                const parts = inputStr.split('/');
+                if (parts.length === 2) {
+                    const num = parseFloat(parts[0].replace(/,/g, '.'));
+                    const den = parseFloat(parts[1].replace(/,/g, '.'));
+                    if (!isNaN(num) && !isNaN(den) && den !== 0) value = num / den;
+                }
+            } else {
+                if (isRate || inputStr.includes('.') || inputStr.includes(',')) {
+                    // Nếu là rate hoặc có dấu thập phân: xóa dấu phẩy định dạng hàng nghìn (US format)
+                    let cleanStr = inputStr;
+                    // Lỗi phổ biến: người Việt gõ 0,6 => cần biến thành 0.6 để parse.
+                    // Nhưng nếu chuỗi là 20,000,000 thì nó là định dạng phẩy hàng nghìn.
+                    // Do ô Lãi suất (isRate) và số kỳ (n) KHÔNG format hàng nghìn, nên dấu ',' chắc chắn là thập phân.
+                    if (isRate || !inputStr.match(/\d,\d{3}/)) {
+                        cleanStr = cleanStr.replace(/,/g, '.'); 
+                    } else {
+                        // Nếu là tiền tệ đã format, bỏ dấu phẩy
+                        cleanStr = cleanStr.replace(/,/g, '');
+                    }
+                    value = parseFloat(cleanStr);
+                } else {
+                    value = parseFloat(inputStr.replace(/,/g, ''));
+                }
+            }
+
+            if (isRate && !isNaN(value)) return value / 100;
+            return value;
+        }
+
+        // Phương trình: eqFunc(vars) = 0. Hàm sẽ tìm giá trị missingVar sao cho biểu thức tiến về 0.
+        function solveNumeric(eqFunc, missingVar, knownVars) {
+            let low = 0;
+            let high = 1e12; // Khoảng tìm kiếm mặc định: 1000 tỷ
+            
+            if (missingVar === 'r') high = 2; // Lãi suất max 200%/kỳ
+            if (missingVar === 'n' || missingVar === 'k') high = 2000; // Số kỳ max 2000
+
+            let f = (val) => {
+                let v = {...knownVars};
+                v[missingVar] = val;
+                // Bảo vệ chống chia cho 0 trong các công thức có mẫu số r
+                if (v.r === 0) v.r = 1e-10; 
+                return eqFunc(v);
+            };
+
+            let fLow = f(low);
+            let fHigh = f(high);
+
+            // Tự động nhận diện hàm đồng biến hay nghịch biến
+            let isIncreasing = fHigh > fLow;
+
+            let mid;
+            for (let i = 0; i < 100; i++) {
+                mid = (low + high) / 2;
+                let fMid = f(mid);
+                
+                // Độ chính xác mong muốn (càng nhỏ càng chính xác)
+                if (Math.abs(fMid) < 1e-4) return mid;
+
+                if (isIncreasing) {
+                    if (fMid > 0) high = mid;
+                    else low = mid;
+                } else {
+                    if (fMid > 0) low = mid;
+                    else high = mid;
+                }
+            }
+            return mid;
+        }
+
+        const features = [
+            {
+                id: 'lai-don',
+                title: '1. Lãi đơn',
+                icon: 'fa-sack-dollar',
+                description: 'Lãi chỉ tính trên số tiền gốc ban đầu, không cộng dồn tiền lãi vào vốn để tính lãi cho chu kỳ tiếp theo.',
+                formula: '$$S = A(1 + n \\cdot r)$$',
+                template: '$\\displaystyle _S_ = _A_(1 + _n_ \\cdot _r_) $',
+                variables: [
+                    { id: 'S', label: 'Số tiền cuối kỳ (S)', unit: 'VNĐ' },
+                    { id: 'A', label: 'Gốc ban đầu (A)', unit: 'VNĐ' },
+                    { id: 'r', label: 'Lãi suất (r)', unit: '%', isRate: true },
+                    { id: 'n', label: 'Số chu kỳ (n)', unit: 'chu kỳ' }
+                ],
+                examples: { S: '', A: 20000000, r: 0.6, n: 12 },
+                eq: (v) => v.S - v.A * (1 + v.n * v.r),
+                labels: { S: 'Số tiền thu được (S)', A: 'Tiền gốc ban đầu (A)', r: 'Lãi suất yêu cầu (r)', n: 'Số chu kỳ gửi (n)' }
+            },
+            {
+                id: 'lai-kep',
+                title: '2. Lãi kép',
+                icon: 'fa-chess-queen',
+                description: 'Tiền lãi của chu kỳ trước được cộng dồn vào vốn gốc để tính lãi cho chu kỳ tiếp theo (lãi mẹ đẻ lãi con).',
+                formula: '$$S = A(1 + r)^n$$',
+                template: '$\\displaystyle _S_ = _A_(1 + _r_)^{_n_} $',
+                variables: [
+                    { id: 'S', label: 'Số tiền cuối kỳ (S)', unit: 'VNĐ' },
+                    { id: 'A', label: 'Gốc ban đầu (A)', unit: 'VNĐ' },
+                    { id: 'r', label: 'Lãi suất (r)', unit: '%', isRate: true },
+                    { id: 'n', label: 'Số chu kỳ (n)', unit: 'chu kỳ' }
+                ],
+                examples: { S: '', A: 20000000, r: 0.6, n: 12 },
+                eq: (v) => v.S - v.A * Math.pow(1 + v.r, v.n),
+                labels: { S: 'Số tiền thu được (S)', A: 'Tiền gốc ban đầu (A)', r: 'Lãi suất yêu cầu (r)', n: 'Số chu kỳ gửi (n)' }
+            },
+            {
+                id: 'gui-them',
+                title: '3. Gửi thêm hàng tháng',
+                icon: 'fa-hand-holding-dollar',
+                description: 'Mỗi chu kỳ gửi thêm một số tiền đặn đặn vào cuối kỳ, tính theo lãi kép.',
+                formula: '$$S = \\frac{A[(1 + r)^n - 1]}{r}(1 + r)$$',
+                template: '$\\displaystyle _S_ = \\frac{_A_[(1 + _r_)^{_n_} - 1]}{_r_}(1 + _r_) $',
+                variables: [
+                    { id: 'S', label: 'Tổng thu được (S)', unit: 'VNĐ' },
+                    { id: 'A', label: 'Tiền gửi mỗi chu kỳ (A)', unit: 'VNĐ' },
+                    { id: 'r', label: 'Lãi suất (r)', unit: '%', isRate: true },
+                    { id: 'n', label: 'Số chu kỳ (n)', unit: 'chu kỳ' }
+                ],
+                examples: { S: '', A: 2000000, r: 0.6, n: 12 },
+                eq: (v) => v.S - (v.A * (Math.pow(1 + v.r, v.n) - 1) / v.r) * (1 + v.r),
+                labels: { S: 'Tổng số tiền sau n chu kỳ (S)', A: 'Cần gửi mỗi chu kỳ (A)', r: 'Lãi suất yêu cầu (r)', n: 'Số chu kỳ cần gửi (n)' }
+            },
+            {
+                id: 'rut-tien',
+                title: '4. Rút tiền hàng tháng',
+                icon: 'fa-money-bill-transfer',
+                description: 'Gửi ban đầu số tiền A, mỗi cuối chu kỳ rút ra một số tiền X không đổi để sinh hoạt.',
+                formula: '$$S = A(1 + r)^n - X\\frac{[(1 + r)^n - 1]}{r}$$',
+                template: '$\\displaystyle _S_ = _A_(1 + _r_)^{_n_} - _X_\\frac{[(1 + _r_)^{_n_} - 1]}{_r_} $',
+                variables: [
+                    { id: 'S', label: 'Tiền còn lại (S)', unit: 'VNĐ' },
+                    { id: 'A', label: 'Gốc ban đầu (A)', unit: 'VNĐ' },
+                    { id: 'X', label: 'Tiền rút mỗi chu kỳ (X)', unit: 'VNĐ' },
+                    { id: 'r', label: 'Lãi suất (r)', unit: '%', isRate: true },
+                    { id: 'n', label: 'Số chu kỳ (n)', unit: 'chu kỳ' }
+                ],
+                examples: { S: '', A: 20000000, X: 1500000, r: 0.6, n: 12 },
+                eq: (v) => v.S - (v.A * Math.pow(1 + v.r, v.n) - v.X * ((Math.pow(1 + v.r, v.n) - 1) / v.r)),
+                labels: { S: 'Số tiền còn lại (S)', A: 'Gốc ban đầu cần có (A)', X: 'Số tiền rút tối đa (X)', r: 'Lãi suất yêu cầu (r)', n: 'Số chu kỳ rút được (n)' }
+            },
+            {
+                id: 'tra-gop',
+                title: '5. Trả góp (gửi góp)',
+                icon: 'fa-calendar-check',
+                description: 'Đã có vay vốn ban đầu, mỗi chu kỳ lại góp thêm X tiền vào tài khoản.',
+                formula: '$$S = A(1 + r)^n + X\\frac{[(1 + r)^n - 1]}{r}$$',
+                template: '$\\displaystyle _S_ = _A_(1 + _r_)^{_n_} + _X_\\frac{[(1 + _r_)^{_n_} - 1]}{_r_} $',
+                variables: [
+                    { id: 'S', label: 'Tổng tiền (S)', unit: 'VNĐ' },
+                    { id: 'A', label: 'Vốn vay ban đầu (A)', unit: 'VNĐ' },
+                    { id: 'X', label: 'Góp thêm mỗi chu kỳ (X)', unit: 'VNĐ' },
+                    { id: 'r', label: 'Lãi suất (r)', unit: '%', isRate: true },
+                    { id: 'n', label: 'Số chu kỳ (n)', unit: 'chu kỳ' }
+                ],
+                examples: { S: '', A: 20000000, X: 2000000, r: 0.6, n: 12 },
+                eq: (v) => v.S - (v.A * Math.pow(1 + v.r, v.n) + v.X * ((Math.pow(1 + v.r, v.n) - 1) / v.r)),
+                labels: { S: 'Tổng số tiền sau n chu kỳ (S)', A: 'Vốn ban đầu cần có (A)', X: 'Tiền góp mỗi chu kỳ (X)', r: 'Lãi suất yêu cầu (r)', n: 'Số chu kỳ cần góp (n)' }
+            },
+            {
+                id: 'tra-het-no',
+                title: '6. Trả hết nợ vay',
+                icon: 'fa-file-invoice-dollar',
+                description: 'Vay một số tiền A, cần trả đều đặn số tiền X mỗi chu kỳ để sau n chu kỳ thì vừa vặn hết nợ (S=0).',
+                formula: '$$X = \\frac{A \\cdot r(1 + r)^n}{(1 + r)^n - 1}$$',
+                template: '$\\displaystyle _X_ = \\frac{_A_ \\cdot _r_(1 + _r_)^{_n_}}{(1 + _r_)^{_n_} - 1} $',
+                variables: [
+                    { id: 'X', label: 'Tiền trả mỗi chu kỳ (X)', unit: 'VNĐ' },
+                    { id: 'A', label: 'Tổng nợ ban đầu (A)', unit: 'VNĐ' },
+                    { id: 'r', label: 'Lãi suất (r)', unit: '%', isRate: true },
+                    { id: 'n', label: 'Số chu kỳ (n)', unit: 'chu kỳ' }
+                ],
+                examples: { X: '', A: 50000000, r: 0.6, n: 12 },
+                eq: (v) => v.X - (v.A * v.r * Math.pow(1 + v.r, v.n)) / (Math.pow(1 + v.r, v.n) - 1),
+                labels: { X: 'Số tiền cần trả mỗi chu kỳ (X)', A: 'Số tiền có thể vay tối đa (A)', r: 'Lãi suất vay (r)', n: 'Thời gian cần để trả hết (n)' }
+            },
+            {
+                id: 'tang-luong',
+                title: '7. Tăng lương',
+                icon: 'fa-arrow-trend-up',
+                description: 'Bài toán lãi kép đặc biệt áp dụng cho việc tăng lương hoặc tăng giá trị đều đặn theo tỷ lệ r.',
+                formula: '$$S = A(1 + r)^n$$',
+                template: '$\\displaystyle _S_ = _A_(1 + _r_)^{_n_} $',
+                variables: [
+                    { id: 'S', label: 'Lương sau n chu kỳ (S)', unit: 'VNĐ' },
+                    { id: 'A', label: 'Lương ban đầu (A)', unit: 'VNĐ' },
+                    { id: 'r', label: 'Tỷ lệ tăng (r)', unit: '%', isRate: true },
+                    { id: 'n', label: 'Số lần tăng (n)', unit: 'lần' }
+                ],
+                examples: { S: '', A: 10000000, r: 5, n: 5 },
+                eq: (v) => v.S - v.A * Math.pow(1 + v.r, v.n),
+                labels: { S: 'Mức lương đạt được (S)', A: 'Mức lương khởi điểm cần (A)', r: 'Tỷ lệ tăng lương cần thiết (r)', n: 'Số lần tăng (n)' }
+            }
+        ];
+
+        let currentFeatureId = features[0].id;
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-circle-exclamation mr-3 text-lg"></i> <span class="text-sm font-medium leading-snug">${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function renderFeatureButtons() {
+            const container = document.getElementById('feature-buttons');
+            container.innerHTML = '';
+            
+            features.forEach(feature => {
+                const btn = document.createElement('button');
+                btn.className = `btn-feature px-3 py-2.5 rounded-lg text-[13px] font-bold flex items-center gap-3 ${feature.id === currentFeatureId ? 'active' : ''}`;
+                btn.onclick = () => selectFeature(feature.id);
+                btn.innerHTML = `<i class="fas ${feature.icon} text-base w-5 text-center"></i> <span>${feature.title}</span>`;
+                container.appendChild(btn);
+            });
+        }
+
+        function selectFeature(id) {
+            currentFeatureId = id;
+            renderFeatureButtons();
+            
+            const feature = features.find(f => f.id === id);
+            
+            document.getElementById('theory-title').innerText = feature.title;
+            document.getElementById('theory-desc').innerText = feature.description;
+            document.getElementById('theory-formula').innerHTML = feature.formula;
+
+            const inputContainer = document.getElementById('input-fields');
+            inputContainer.innerHTML = '';
+            
+            feature.variables.forEach(v => {
+                const group = document.createElement('div');
+                group.className = 'input-group relative';
+                group.innerHTML = `
+                    <label for="${v.id}">${v.label}</label>
+                    <div class="relative">
+                        <input type="text" id="${v.id}" data-id="${v.id}" class="input-royal pr-12" placeholder="Để trống tính ${v.id}..." data-israte="${v.isRate ? 'true' : 'false'}" oninput="formatNumberInput(this)">
+                        <span class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold text-xs bg-[#f8fafc] px-1">${v.unit}</span>
+                    </div>
+                `;
+                inputContainer.appendChild(group);
+            });
+
+            document.getElementById('result-container').classList.add('hidden');
+            document.getElementById('result-placeholder').classList.remove('hidden');
+
+            renderMathJax();
+        }
+
+        window.fillAllExamples = function() {
+            const feature = features.find(f => f.id === currentFeatureId);
+            feature.variables.forEach(v => {
+                const inputEl = document.getElementById(v.id);
+                // Xóa highlight nếu có
+                inputEl.classList.remove('calculated-glow');
+                inputEl.value = feature.examples[v.id];
+                if (window.formatNumberInput && feature.examples[v.id] !== '') {
+                    window.formatNumberInput(inputEl);
+                }
+            });
+            showToast('Đã điền số liệu ví dụ. Vui lòng bấm Trích xuất kết quả!');
+        };
+
+        window.calculate = function(event) {
+            event.preventDefault();
+            const feature = features.find(f => f.id === currentFeatureId);
+            
+            let vars = {};
+            let missingVars = [];
+            let invalidInputs = false;
+
+            feature.variables.forEach(v => {
+                const inputEl = document.getElementById(v.id);
+                inputEl.classList.remove('border-red-500', 'bg-red-50', 'calculated-glow');
+                inputEl.classList.add('border-gray-300', 'bg-[#f8fafc]');
+
+                const val = parseInput(inputEl.value, v.isRate);
+                
+                if (val === null) {
+                    missingVars.push(v.id);
+                } else if (isNaN(val)) {
+                    invalidInputs = true;
+                    inputEl.classList.add('border-red-500', 'bg-red-50');
+                    inputEl.classList.remove('border-gray-300', 'bg-[#f8fafc]');
+                } else {
+                    vars[v.id] = val;
+                }
+            });
+
+            if (invalidInputs) {
+                showToast('Có ô dữ liệu không hợp lệ. Vui lòng nhập số hoặc phân số!');
+                return;
+            }
+
+            if (missingVars.length === 0) {
+                showToast('Bạn đã nhập kín tất cả các ô! Vui lòng xóa trắng ĐÚNG 1 Ô của đại lượng cần tính để hệ thống hoạt động.');
+                return;
+            }
+
+            if (missingVars.length > 1) {
+                showToast(`Bạn đang để trống tới ${missingVars.length} ô. Hệ thống chỉ có thể giải 1 ẩn số, vui lòng nhập đủ các ô còn lại!`);
+                return;
+            }
+
+            // Gọi thuật toán bisection giải đại lượng duy nhất còn thiếu
+            const targetVar = missingVars[0];
+            try {
+                let ans = solveNumeric(feature.eq, targetVar, vars);
+                
+                if (isNaN(ans) || !isFinite(ans)) throw new Error();
+                
+                // Cập nhật kết quả ngược vào ô Input với hiệu ứng phát sáng xanh
+                const targetInput = document.getElementById(targetVar);
+                const targetConfig = feature.variables.find(v => v.id === targetVar);
+                
+                if (targetConfig.isRate) {
+                    targetInput.value = Number((ans * 100).toFixed(6)).toString().replace('.', ',');
+                } else if (targetVar === 'n') {
+                    targetInput.value = Number(ans.toFixed(2)).toString().replace('.', ',');
+                } else {
+                    targetInput.value = Math.round(ans).toString();
+                    window.formatNumberInput(targetInput);
+                }
+                targetInput.classList.add('calculated-glow');
+
+                // Nạp nghiệm vào bộ biến để in ra bảng phân tích
+                vars[targetVar] = ans;
+                renderAnalysis(feature, vars, targetVar, targetConfig);
+
+            } catch (error) {
+                showToast('Hệ phương trình vô nghiệm hoặc số liệu vượt quá giới hạn tính toán logic!');
+            }
+        };
+
+        function renderAnalysis(feature, vars, targetVar, targetConfig) {
+            // Bước 1: Render tóm tắt
+            const summaryParts = feature.variables.map(v => {
+                let val = vars[v.id];
+                if (v.isRate) {
+                    let percentVal = Number((val * 100).toFixed(6)); 
+                    return `${v.id} = ${fmtDec(percentVal)}\\% = ${fmtDec(val)}`;
+                } else if (v.id === 'n' || v.id === 'k') {
+                    return `${v.id} = ${fmtDec(Number(val.toFixed(4)))}`;
+                } else {
+                    return `${v.id} = ${fmtMoney(val)}`;
+                }
+            });
+            const summaryMath = summaryParts.map(part => `$ ${part} $`).join('<br>');
+
+            // Bước 2: Thay số thông minh (Giữ nguyên ký tự ẩn số)
+            let substitutedTex = feature.template;
+            feature.variables.forEach(v => {
+                let replaceWith = v.id === targetVar ? v.id : formatForMathJax(vars[v.id], v.isRate);
+                substitutedTex = substitutedTex.replace(new RegExp(`_${v.id}_`, 'g'), replaceWith);
+            });
+
+            // Bước 3: Định dạng kết quả to
+            let finalResultDisplay = '';
+            let val = vars[targetVar];
+            if (targetConfig.isRate) {
+                finalResultDisplay = `${Number((val * 100).toFixed(4)).toString().replace('.', ',')} %`;
+            } else if (targetVar === 'n') {
+                finalResultDisplay = `${Number(val.toFixed(2)).toString().replace('.', ',')} kỳ`;
+            } else {
+                finalResultDisplay = formatCurrency(Math.round(val));
+            }
+
+            const resultHTML = `
+                <div class="mb-1">
+                    <p class="text-[11px] text-[#d4af37] mb-2 uppercase tracking-wider font-bold">
+                        <i class="fas fa-list mr-1"></i> Bước 1: Tóm tắt hệ đại lượng
+                    </p>
+                    <div class="bg-black/30 border border-white/10 rounded-lg py-2.5 px-3 shadow-inner text-gray-200 mathjax-inline-break text-left text-sm leading-loose overflow-hidden break-words whitespace-normal">
+                        ${summaryMath}
+                    </div>
+                </div>
+
+                <div class="mb-1">
+                    <p class="text-[11px] text-[#d4af37] mb-2 uppercase tracking-wider font-bold">
+                        <i class="fas fa-pen-nib mr-1"></i> Bước 2: Thay số vào công thức
+                    </p>
+                    <div class="bg-black/30 border border-white/10 rounded-lg py-3 px-2 shadow-inner text-center math-responsive">
+                        ${substitutedTex}
+                    </div>
+                </div>
+
+                <div class="mt-2">
+                    <p class="text-[11px] text-[#d4af37] mb-2 uppercase tracking-wider font-bold">
+                        <i class="fas fa-check-double mr-1"></i> Bước 3: Kết quả cuối cùng
+                    </p>
+                    <div class="text-[13px] font-medium text-gray-300 mb-1">Đại lượng được tính: <span class="text-white">${feature.labels[targetVar]}</span></div>
+                    <div class="break-all text-[#e5c158] text-3xl font-playfair font-bold text-center py-4 bg-gradient-to-r from-transparent via-white/5 to-transparent rounded border-t border-b border-white/10">
+                        ${finalResultDisplay}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('result-placeholder').classList.add('hidden');
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = resultHTML;
+            resultContainer.classList.remove('hidden');
+            
+            renderMathJax();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            selectFeature(features[0].id);
+        });
+
+    </script>
+</body>
+</html>

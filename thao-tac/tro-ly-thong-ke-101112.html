@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toán THPT. Trợ lý Thống kê Promax</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Cấu hình MathJax render sang SVG để tự động co giãn Vector -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(', '\\)']] },
+            svg: { 
+                fontCache: 'global',
+                displayAlign: 'center' 
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-svg.js"></script>
+    
+    <!-- Fraction.js for Decimal to Fraction conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/fraction.js/fraction.min.js"></script>
+    
+    <!-- Premium Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --primary: #4f46e5; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+            background-color: #f8fafc;
+        }
+
+        .font-heading { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Hiệu ứng Kính Hoàng Gia (Ultra Premium Glass) */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(226, 232, 240, 0.5), inset 0 1px 0 rgba(255, 255, 255, 1);
+            border-radius: 1.5rem;
+        }
+
+        /* Thẻ Widget Kết quả Auto-Fill */
+        .result-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 252, 255, 0.85) 100%);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1);
+            border-radius: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* NGĂN TRÀN CARD */
+        }
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+
+        /* Thanh cuộn tàng hình chỉ dùng cho Bảng Nhập */
+        .custom-scroll { overflow-y: auto; scrollbar-width: thin; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.5); border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.8); }
+
+        /* CSS TỐI HẬU: Ép SVG co giãn 2 CHIỀU (Ngang & Dọc) không bao giờ tràn */
+        .math-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            flex: 1 1 0%; /* Bắt buộc chiếm hết không gian rỗng */
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+            padding: 0.15rem;
+        }
+        mjx-container[jax="SVG"] {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        mjx-container[jax="SVG"] svg {
+            max-width: 100% !important;
+            max-height: 100% !important;
+            width: auto !important;
+            height: auto !important;
+            object-fit: contain; /* Giữ nguyên tỷ lệ, thu nhỏ lọt khung */
+        }
+
+        /* Font Size Tự Động Scale (Clamp) */
+        .fluid-title { font-size: clamp(10px, 1.1vw, 14px); }
+        .fluid-banner { font-size: clamp(14px, 1.3vw, 17px); }
+
+        .animate-gradient-text { background-size: 200% auto; animation: shine 4s linear infinite; }
+        @keyframes shine { to { background-position: 200% center; } }
+        
+        .tab-content { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-content.active { display: flex; opacity: 1; transform: translateY(0); }
+        
+        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .glow-focus:focus-within { box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); border-color: #818cf8; background-color: rgba(255,255,255,0.95); }
+
+        .toast { position: fixed; top: -100px; right: 20px; z-index: 50; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .toast.show { top: 20px; }
+    </style>
+</head>
+<body class="relative h-screen w-screen overflow-hidden p-3 flex flex-col">
+    
+    <!-- Toast Notification -->
+    <div id="toastNotif" class="toast bg-rose-50 border border-rose-200 text-rose-700 px-6 py-4 rounded-xl shadow-[0_10px_25px_-5px_rgba(225,29,72,0.2)] flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-rose-500"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="toastMsg" class="font-bold text-[15px]">Lỗi hệ thống</span>
+    </div>
+
+    <!-- Background Cực Quang Hoàng Gia -->
+    <div class="absolute inset-0 overflow-hidden -z-10 pointer-events-none bg-slate-50/50">
+        <div class="absolute -top-[15%] -left-[10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-violet-300/40 to-indigo-400/20 blur-[120px]"></div>
+        <div class="absolute top-[40%] -right-[15%] w-[45%] h-[60%] rounded-full bg-gradient-to-br from-amber-200/30 to-rose-300/20 blur-[120px]"></div>
+        <div class="absolute -bottom-[10%] left-[20%] w-[40%] h-[40%] rounded-full bg-gradient-to-tr from-cyan-200/30 to-blue-300/20 blur-[100px]"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="flex justify-between items-center glass-panel px-6 py-2.5 shrink-0 mb-3 h-[60px]">
+        <div class="flex items-center gap-8">
+            <h1 class="text-[22px] font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 via-purple-600 to-indigo-700 font-heading tracking-tight animate-gradient-text drop-shadow-sm flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#royal-gradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <defs>
+                        <linearGradient id="royal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#4f46e5" />
+                            <stop offset="100%" stop-color="#9333ea" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+                </svg>
+                Thống Kê Promax
+            </h1>
+            
+            <div class="hidden md:flex p-1 bg-slate-200/60 rounded-xl border border-slate-300/50 shadow-inner backdrop-blur-md">
+                <button class="tab-btn active px-6 py-1.5 text-[15px] font-bold rounded-lg text-indigo-700 bg-white shadow-[0_2px_8px_-2px_rgba(0,0,0,0.1)] transition-all" data-tab="tab1">Lớp 10 (Gốc)</button>
+                <button class="tab-btn px-6 py-1.5 text-[15px] font-bold rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white/50 transition-all" data-tab="tab2">Lớp 11-12 (Ghép nhóm)</button>
+            </div>
+        </div>
+        <div class="flex items-center bg-white/90 p-1.5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+            <svg class="w-4 h-4 text-slate-400 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <select id="formatToggle" class="bg-transparent border-none text-slate-700 text-[15px] font-bold py-1 px-2 focus:outline-none cursor-pointer">
+                <option value="decimal">Thập phân (1.25)</option>
+                <option value="fraction">Phân số (5/4)</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="flex-1 min-h-0 relative">
+        <!-- Tab 1 -->
+        <div id="tab1" class="tab-content active absolute inset-0 h-full gap-4">
+            <div class="w-[28%] glass-panel p-4 flex flex-col h-full">
+                <div class="flex items-center gap-3 mb-3 shrink-0">
+                    <span class="p-1.5 bg-indigo-50/80 text-indigo-600 rounded-lg shadow-sm border border-indigo-100"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m3 15 2 2 4-4"/></svg></span>
+                    <h2 class="font-heading font-extrabold text-slate-800 text-lg tracking-tight">Dữ Liệu Thô</h2>
+                </div>
+                <textarea id="dataInput1" class="flex-1 w-full bg-white/60 border border-slate-200/80 rounded-xl p-4 text-[17px] font-mono font-semibold text-slate-800 glow-focus outline-none resize-none transition-all custom-scroll shadow-inner" placeholder="Nhập số liệu cách nhau bởi dấu cách hoặc phẩy...&#10;VD: 5 7 3.5 8 9"></textarea>
+                <div class="flex gap-2 mt-3 shrink-0">
+                    <button onclick="calculateTab1()" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-extrabold py-3 rounded-xl shadow-[0_8px_20px_-6px_rgba(79,70,229,0.5)] transition-all text-[15px] flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m13 2-2 2.5h3L11 22l2-2.5h-3z"/></svg> Phân Tích
+                    </button>
+                    <button onclick="clearTab1()" class="px-5 bg-white border border-slate-200 text-slate-600 font-extrabold rounded-xl hover:bg-slate-50 hover:text-rose-600 transition-all text-[15px] shadow-sm">Xóa</button>
+                </div>
+            </div>
+
+            <div class="w-[72%] glass-panel p-4 md:p-5 flex flex-col h-full overflow-hidden">
+                <div class="flex items-center gap-3 mb-3 shrink-0 border-b border-slate-200/50 pb-2">
+                    <span class="p-1.5 bg-emerald-50/80 text-emerald-600 rounded-lg shadow-sm border border-emerald-100"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+                    <h2 class="font-heading font-extrabold text-slate-800 text-lg tracking-tight">Báo Cáo Thống Kê</h2>
+                </div>
+
+                <div id="emptyState1" class="flex-1 flex flex-col items-center justify-center text-slate-400">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-3 shadow-inner">
+                        <svg class="w-8 h-8 text-slate-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    </div>
+                    <span class="text-[16px] font-semibold text-slate-500">Chưa có dữ liệu tính toán</span>
+                </div>
+
+                <div id="resultContent1" class="hidden flex-col h-full min-h-0">
+                    <div class="result-card p-2 md:p-3 flex justify-center items-center shrink-0 mb-3 bg-indigo-50/50">
+                        <div id="dataInfo1" class="fluid-banner font-extrabold text-indigo-700 tracking-wider text-center"></div>
+                    </div>
+                    <!-- Lưới 3x3 Không Cuộn -->
+                    <div class="grid grid-cols-3 grid-rows-3 gap-2 md:gap-3 flex-1 min-h-0 overflow-hidden pb-1">
+                        <!-- Hàng 1: Trung Tâm -->
+                        <div class="result-card border-t-4 border-t-indigo-400 p-2"><p class="fluid-title font-bold text-indigo-600 mb-1 uppercase tracking-wide truncate w-full text-center">Trung bình</p><div class="math-container" id="mean1"></div></div>
+                        <div class="result-card border-t-4 border-t-indigo-400 p-2"><p class="fluid-title font-bold text-indigo-600 mb-1 uppercase tracking-wide truncate w-full text-center">Trung vị</p><div class="math-container" id="median1"></div></div>
+                        <div class="result-card border-t-4 border-t-indigo-400 p-2"><p class="fluid-title font-bold text-indigo-600 mb-1 uppercase tracking-wide truncate w-full text-center">Mốt</p><div class="math-container" id="mode1"></div></div>
+                        <!-- Hàng 2: Tứ phân vị -->
+                        <div class="result-card border-t-4 border-t-emerald-400 p-2"><p class="fluid-title font-bold text-emerald-600 mb-1 uppercase tracking-wide truncate w-full text-center">Tứ phân vị Q1</p><div class="math-container" id="q1_1"></div></div>
+                        <div class="result-card border-t-4 border-t-emerald-400 p-2"><p class="fluid-title font-bold text-emerald-600 mb-1 uppercase tracking-wide truncate w-full text-center">Tứ phân vị Q3</p><div class="math-container" id="q3_1"></div></div>
+                        <div class="result-card border-t-4 border-t-emerald-400 p-2"><p class="fluid-title font-bold text-emerald-600 mb-1 uppercase tracking-wide truncate w-full text-center">Khoảng IQR</p><div class="math-container" id="iqr1"></div></div>
+                        <!-- Hàng 3: Biến thiên -->
+                        <div class="result-card border-t-4 border-t-rose-400 p-2 col-span-3"><p class="fluid-title font-bold text-rose-600 mb-1 uppercase tracking-wide truncate w-full text-center">Khoảng biến thiên</p><div class="math-container" id="range1"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2 -->
+        <div id="tab2" class="tab-content absolute inset-0 h-full gap-4">
+            <div class="w-[30%] glass-panel p-4 flex flex-col h-full">
+                <div class="flex justify-between items-center mb-3 shrink-0 border-b border-slate-200/50 pb-2">
+                    <div class="flex items-center gap-3">
+                        <span class="p-1.5 bg-cyan-50/80 text-cyan-600 rounded-lg shadow-sm border border-cyan-100"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg></span>
+                        <h2 class="font-heading font-extrabold text-slate-800 text-lg tracking-tight">Bảng Tần Số</h2>
+                    </div>
+                    <button onclick="autoFillNextGroup()" class="text-[13px] font-extrabold text-cyan-700 bg-cyan-50 px-2.5 py-1 rounded-md hover:bg-cyan-100 border border-cyan-200/50 shadow-sm transition-all flex items-center gap-1" title="Điền nối tiếp các mút nhóm"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Nối mút</button>
+                </div>
+                
+                <div class="grid grid-cols-12 gap-2 pb-1 mb-1 text-[13px] font-black text-slate-400 uppercase tracking-wide">
+                    <div class="col-span-7 pl-3">Khoảng [ A ; B )</div>
+                    <div class="col-span-5 text-center pr-2">Tần Số (M)</div>
+                </div>
+
+                <div id="gridTableBody" class="space-y-1.5 flex-1 custom-scroll pr-1 pb-1">
+                    <!-- JS Rows -->
+                </div>
+
+                <div class="flex gap-2 mt-3 shrink-0 pt-3 border-t border-slate-200/50">
+                    <button onclick="calculateTab2()" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-extrabold py-3 rounded-xl shadow-[0_8px_20px_-6px_rgba(79,70,229,0.5)] transition-all text-[15px] flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m13 2-2 2.5h3L11 22l2-2.5h-3z"/></svg> Phân Tích Bảng
+                    </button>
+                    <button onclick="initEmptyGridRows(5)" class="px-5 bg-white border border-slate-200 text-slate-600 font-extrabold rounded-xl hover:bg-slate-50 hover:text-rose-600 transition-all text-[15px] shadow-sm">Làm Mới</button>
+                </div>
+            </div>
+
+            <div class="w-[70%] glass-panel p-4 md:p-5 flex flex-col h-full overflow-hidden">
+                <div class="flex items-center gap-3 mb-3 shrink-0 border-b border-slate-200/50 pb-2">
+                    <span class="p-1.5 bg-violet-50/80 text-violet-600 rounded-lg shadow-sm border border-violet-100"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></span>
+                    <h2 class="font-heading font-extrabold text-slate-800 text-lg tracking-tight">Báo Cáo Phân Tích Nhóm</h2>
+                </div>
+
+                <div id="emptyState2" class="flex-1 flex flex-col items-center justify-center text-slate-400">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-3 shadow-inner"><svg class="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></div>
+                    <span class="text-[16px] font-semibold text-slate-500">Chưa có dữ liệu tính toán</span>
+                </div>
+
+                <div id="resultContent2" class="hidden flex-col h-full min-h-0">
+                    <div class="result-card p-2 md:p-3 flex justify-center items-center shrink-0 mb-3 bg-violet-50/50">
+                        <div id="dataInfo2" class="fluid-banner font-extrabold text-violet-700 tracking-wider text-center w-full"></div>
+                    </div>
+                    
+                    <!-- Lưới 3x3 Max Space - Loại bỏ Cuộn dọc hoàn toàn -->
+                    <div class="grid grid-cols-3 grid-rows-3 gap-2 md:gap-3 flex-1 min-h-0 overflow-hidden pb-1">
+                        <!-- Nhóm Trung Tâm (Viền Indigo) -->
+                        <div class="result-card border-t-4 border-t-indigo-400 p-2"><p class="fluid-title font-bold text-indigo-600 mb-1 uppercase tracking-wide w-full text-center">Trung bình</p><div class="math-container" id="mean2"></div></div>
+                        <div class="result-card border-t-4 border-t-indigo-400 p-2"><p class="fluid-title font-bold text-indigo-600 mb-1 uppercase tracking-wide w-full text-center">Trung vị</p><div class="math-container" id="median2"></div></div>
+                        <div class="result-card border-t-4 border-t-indigo-400 p-2"><p class="fluid-title font-bold text-indigo-600 mb-1 uppercase tracking-wide w-full text-center">Mốt</p><div class="math-container" id="mode2"></div></div>
+
+                        <!-- Nhóm Phân Tán (Viền Rose) -->
+                        <div class="result-card border-t-4 border-t-rose-400 p-2"><p class="fluid-title font-bold text-rose-600 mb-1 uppercase tracking-wide w-full text-center">Phương sai</p><div class="math-container" id="variance2"></div></div>
+                        <div class="result-card border-t-4 border-t-rose-400 p-2"><p class="fluid-title font-bold text-rose-600 mb-1 uppercase tracking-wide w-full text-center">Độ lệch chuẩn</p><div class="math-container" id="stdDev2"></div></div>
+                        <div class="result-card border-t-4 border-t-rose-400 p-2"><p class="fluid-title font-bold text-rose-600 mb-1 uppercase tracking-wide w-full text-center">Kh. Biến Thiên</p><div class="math-container" id="range2"></div></div>
+
+                        <!-- Nhóm Tứ Phân Vị (Viền Emerald) -->
+                        <div class="result-card border-t-4 border-t-emerald-400 p-2"><p class="fluid-title font-bold text-emerald-600 mb-1 uppercase tracking-wide w-full text-center">Tứ phân vị Q1</p><div class="math-container" id="q1_2"></div></div>
+                        <div class="result-card border-t-4 border-t-emerald-400 p-2"><p class="fluid-title font-bold text-emerald-600 mb-1 uppercase tracking-wide w-full text-center">Tứ phân vị Q3</p><div class="math-container" id="q3_2"></div></div>
+                        <div class="result-card border-t-4 border-t-emerald-400 p-2"><p class="fluid-title font-bold text-emerald-600 mb-1 uppercase tracking-wide w-full text-center">Khoảng IQR</p><div class="math-container" id="iqr2"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentResults1 = null;
+        let currentResults2 = null;
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotif');
+            document.getElementById('toastMsg').innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3500);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => {
+                        b.classList.remove('text-indigo-700', 'bg-white', 'shadow-[0_2px_8px_-2px_rgba(0,0,0,0.1)]', 'active');
+                        b.classList.add('text-slate-500');
+                    });
+                    
+                    tabContents.forEach(c => {
+                        c.classList.remove('active');
+                        setTimeout(() => { if(!c.classList.contains('active')) c.style.display = 'none'; }, 400);
+                    });
+
+                    btn.classList.add('text-indigo-700', 'bg-white', 'shadow-[0_2px_8px_-2px_rgba(0,0,0,0.1)]', 'active');
+                    btn.classList.remove('text-slate-500');
+                    
+                    const targetEl = document.getElementById(btn.getAttribute('data-tab'));
+                    targetEl.style.display = 'flex';
+                    void targetEl.offsetWidth;
+                    targetEl.classList.add('active');
+                });
+            });
+
+            document.getElementById('formatToggle').addEventListener('change', () => {
+                if (currentResults1) renderResultsTab1();
+                if (currentResults2) renderResultsTab2();
+            });
+
+            initEmptyGridRows(5);
+        });
+
+        function formatNumber(num, format) {
+            if (num === null || isNaN(num) || !isFinite(num)) return "\\text{N/A}";
+            num = Math.round(num * 1e10) / 1e10;
+            if (Number.isInteger(num)) return num.toString();
+
+            if (format === 'decimal') return num.toLocaleString('en-US', { maximumFractionDigits: 4 });
+            else if (format === 'fraction') {
+                try {
+                    let f = new Fraction(num);
+                    if (f.d > 10000) return num.toLocaleString('en-US', { maximumFractionDigits: 4 }); 
+                    return `\\frac{${f.n}}{${f.d}}`;
+                } catch (e) { return num.toLocaleString('en-US', { maximumFractionDigits: 4 }); }
+            }
+            return num.toString();
+        }
+
+        function renderMath(elementId, latexStr) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.innerHTML = `\\( \\displaystyle ${latexStr} \\)`;
+            if (window.MathJax) {
+                MathJax.typesetClear([el]);
+                MathJax.typesetPromise([el]);
+            }
+        }
+
+        function calculateTab1() {
+            const inputStr = document.getElementById('dataInput1').value;
+            const data = inputStr.replace(/[,;]/g, ' ').split(/\s+/).filter(p => p.trim() !== '').map(Number).filter(n => !isNaN(n));
+            if (data.length === 0) { showToast('Vui lòng nhập ít nhất 1 giá trị số hợp lệ.'); return; }
+
+            data.sort((a, b) => a - b);
+            const n = data.length;
+            const sum = data.reduce((a, b) => a + b, 0);
+            const mean = sum / n;
+
+            const getMedian = arr => {
+                const len = arr.length;
+                if (len === 0) return 0;
+                return len % 2 === 0 ? (arr[len/2 - 1] + arr[len/2]) / 2 : arr[Math.floor(len/2)];
+            };
+
+            const q2 = getMedian(data);
+            const lowerHalf = data.slice(0, Math.floor(n/2));
+            const upperHalf = data.slice(Math.ceil(n/2));
+            const q1 = getMedian(lowerHalf);
+            const q3 = getMedian(upperHalf);
+
+            const freqMap = {};
+            let maxFreq = 0;
+            data.forEach(val => {
+                freqMap[val] = (freqMap[val] || 0) + 1;
+                if (freqMap[val] > maxFreq) maxFreq = freqMap[val];
+            });
+            const modes = maxFreq > 1 ? Object.keys(freqMap).filter(k => freqMap[k] === maxFreq).map(Number) : (n === 1 ? [data[0]] : []);
+
+            currentResults1 = { data, n, sum, mean, q1, q2, q3, modes, range: data[n - 1] - data[0], iqr: q3 - q1, lowerHalf, upperHalf };
+            
+            document.getElementById('emptyState1').classList.add('hidden');
+            document.getElementById('resultContent1').classList.remove('hidden');
+            document.getElementById('resultContent1').classList.add('flex');
+            renderResultsTab1();
+        }
+
+        function renderResultsTab1() {
+            if (!currentResults1) return;
+            const res = currentResults1;
+            const f = document.getElementById('formatToggle').value;
+
+            document.getElementById('dataInfo1').innerHTML = `\\( N = ${res.n} \\quad \\big| \\quad \\sum = ${formatNumber(res.sum, 'decimal')} \\)`;
+            if(window.MathJax) {
+                MathJax.typesetClear([document.getElementById('dataInfo1')]);
+                MathJax.typesetPromise([document.getElementById('dataInfo1')]);
+            }
+            
+            renderMath('mean1', `\\overline{x} = ${formatNumber(res.mean, f)}`);
+            renderMath('median1', `M_e = ${formatNumber(res.q2, f)}`);
+            renderMath('mode1', res.modes.length === 0 ? `\\text{Không có}` : `M_o = \\{ ${res.modes.join(', ')} \\}`);
+
+            renderMath('q1_1', `Q_1 = ${res.lowerHalf.length > 0 ? formatNumber(res.q1, f) : '\\text{N/A'}`);
+            renderMath('q3_1', `Q_3 = ${res.upperHalf.length > 0 ? formatNumber(res.q3, f) : '\\text{N/A'}`);
+            renderMath('iqr1', `\\Delta_Q = Q_3 - Q_1 = ${formatNumber(res.iqr, f)}`);
+            renderMath('range1', `R = ${res.data[res.n-1]} - ${res.data[0]} = ${formatNumber(res.range, f)}`);
+        }
+
+        function clearTab1() {
+            document.getElementById('dataInput1').value = '';
+            document.getElementById('emptyState1').classList.remove('hidden');
+            document.getElementById('resultContent1').classList.add('hidden');
+            document.getElementById('resultContent1').classList.remove('flex');
+            currentResults1 = null;
+        }
+
+        function createGridRow(startVal = "", endVal = "", freqVal = "") {
+            const row = document.createElement('div');
+            row.className = 'grid-table-row grid grid-cols-12 gap-1.5 items-center bg-white/70 backdrop-blur-md p-1.5 rounded-xl border border-slate-200/80 hover:border-indigo-300 transition-colors glow-focus';
+            row.innerHTML = `
+                <div class="col-span-7 flex items-center gap-1 pl-1">
+                    <span class="text-slate-400 text-[16px] font-black">[</span>
+                    <input type="number" class="group-start w-full bg-slate-100/50 border-none text-center text-[16px] font-bold p-1.5 rounded-lg focus:bg-white outline-none transition-colors" value="${startVal}" placeholder="a">
+                    <span class="text-slate-400 text-[16px] font-black">;</span>
+                    <input type="number" class="group-end w-full bg-slate-100/50 border-none text-center text-[16px] font-bold p-1.5 rounded-lg focus:bg-white outline-none transition-colors" value="${endVal}" placeholder="b">
+                    <span class="text-slate-400 text-[16px] font-black pl-0.5">)</span>
+                </div>
+                <div class="col-span-4 px-1">
+                    <input type="number" class="freq w-full bg-indigo-50/70 border border-indigo-100/50 text-center text-[16px] font-black text-indigo-700 p-1.5 rounded-lg focus:bg-white outline-none transition-colors" value="${freqVal}" placeholder="0" min="0">
+                </div>
+                <div class="col-span-1 flex justify-center">
+                    <button onclick="removeGridRow(this)" class="text-slate-300 hover:text-rose-500 p-1 rounded-lg hover:bg-rose-50 transition-colors" title="Xóa">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+            `;
+            
+            const inputs = row.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    const rows = document.querySelectorAll('.grid-table-row');
+                    const isLastRow = row === rows[rows.length - 1];
+                    let hasValue = Array.from(inputs).some(inp => inp.value !== "");
+                    
+                    if (isLastRow && hasValue) {
+                        const container = document.getElementById('gridTableBody');
+                        container.appendChild(createGridRow());
+                        container.scrollTop = container.scrollHeight;
+                    }
+                });
+            });
+            return row;
+        }
+
+        function initEmptyGridRows(count = 5) {
+            const container = document.getElementById('gridTableBody');
+            container.innerHTML = '';
+            for(let i=0; i<count; i++) container.appendChild(createGridRow());
+            
+            document.getElementById('emptyState2').classList.remove('hidden');
+            document.getElementById('resultContent2').classList.add('hidden');
+            document.getElementById('resultContent2').classList.remove('flex');
+            currentResults2 = null;
+        }
+
+        function removeGridRow(btn) {
+            const container = document.getElementById('gridTableBody');
+            if (container.querySelectorAll('.grid-table-row').length <= 1) { initEmptyGridRows(1); return; }
+            btn.closest('.grid-table-row').remove();
+        }
+
+        function autoFillNextGroup() {
+            const rows = document.querySelectorAll('.grid-table-row');
+            let filledCount = 0;
+            for (let i = 1; i < rows.length; i++) {
+                const prevEnd = rows[i-1].querySelector('.group-end').value;
+                if (prevEnd !== "") {
+                    rows[i].querySelector('.group-start').value = prevEnd;
+                    filledCount++;
+                }
+            }
+            if(filledCount === 0) showToast("Hãy điền mút phải (B) của nhóm đầu tiên.");
+        }
+
+        function calculateTab2() {
+            const rows = document.querySelectorAll('.grid-table-row');
+            const groups = [];
+            let n = 0;
+            
+            for (let i = 0; i < rows.length; i++) {
+                const sStr = rows[i].querySelector('.group-start').value;
+                const eStr = rows[i].querySelector('.group-end').value;
+                const fStr = rows[i].querySelector('.freq').value;
+                
+                if(sStr === "" || eStr === "") continue;
+
+                const a_i = parseFloat(sStr), a_next = parseFloat(eStr), freq = parseFloat(fStr) || 0;
+                if (a_i >= a_next) { showToast(`Dòng ${i+1}: Mút phải phải lớn hơn mút trái.`); return; }
+                groups.push({ a_i, a_next, m_i: freq, c_i: (a_i + a_next)/2, h_i: a_next - a_i });
+                n += freq;
+            }
+
+            if (groups.length === 0 || n === 0) { showToast("Vui lòng điền số liệu hợp lệ."); return; }
+
+            let cumFreq = 0, sumF_C = 0, sum_fx2 = 0;
+            groups.forEach(g => {
+                cumFreq += g.m_i; g.cf_i = cumFreq;
+                sumF_C += g.m_i * g.c_i;
+                sum_fx2 += g.m_i * Math.pow(g.c_i, 2);
+            });
+
+            const mean = sumF_C / n;
+
+            const calcQuantile = (p, name) => {
+                const pos = n * p;
+                let gIdx = groups.findIndex(g => g.cf_i >= pos);
+                if(gIdx === -1) gIdx = groups.length -1;
+                const g = groups[gIdx];
+                const cf_prev = gIdx === 0 ? 0 : groups[gIdx - 1].cf_i;
+                if (g.m_i === 0) return { value: g.a_i, formula: `\\text{N/A}` };
+                return { 
+                    value: g.a_i + ((pos - cf_prev) / g.m_i) * g.h_i, 
+                    formula: `${name} = ${g.a_i} + \\frac{${formatNumber(pos,'decimal')} - ${cf_prev}}{${g.m_i}} \\cdot ${g.h_i}` 
+                };
+            };
+
+            const q1 = calcQuantile(0.25, 'Q_1');
+            const q2 = calcQuantile(0.5, 'M_e');
+            const q3 = calcQuantile(0.75, 'Q_3');
+
+            let maxF = -1, mIdx = -1;
+            groups.forEach((g, i) => { if (g.m_i > maxF) { maxF = g.m_i; mIdx = i; } });
+            
+            let mode = 0, modeF = '\\text{N/A}';
+            if (maxF > 0) {
+                const gm = groups[mIdx];
+                const mp = mIdx === 0 ? 0 : groups[mIdx-1].m_i;
+                const mn = mIdx === groups.length-1 ? 0 : groups[mIdx+1].m_i;
+                const d1 = gm.m_i - mp, d2 = gm.m_i - mn;
+                if(d1+d2 === 0) {
+                    mode = gm.c_i; modeF = `M_o \\approx ${formatNumber(mode, 'decimal')} \\text{ (Đều)}`;
+                } else {
+                    mode = gm.a_i + (d1/(d1+d2))*gm.h_i;
+                    modeF = `M_o = ${gm.a_i} + \\frac{${d1}}{${d1}+${d2}} \\cdot ${gm.h_i}`;
+                }
+            }
+
+            let rFirst = groups.findIndex(g => g.m_i > 0);
+            let rLast = groups.findLastIndex(g => g.m_i > 0);
+            let range = (rFirst!==-1 && rLast!==-1) ? (groups[rLast].a_next - groups[rFirst].a_i) : 0;
+
+            const variance = (sum_fx2 / n) - Math.pow(mean, 2);
+
+            currentResults2 = { groups, n, mean, sumF_C, q1, q2, q3, mode, modeF, range, rFirst, rLast, iqr: q3.value - q1.value, variance, stdDev: Math.sqrt(Math.max(0, variance)), sum_fx2 };
+
+            document.getElementById('emptyState2').classList.add('hidden');
+            document.getElementById('resultContent2').classList.remove('hidden');
+            document.getElementById('resultContent2').classList.add('flex');
+            
+            renderResultsTab2();
+        }
+
+        function renderResultsTab2() {
+            if (!currentResults2) return;
+            const res = currentResults2;
+            const f = document.getElementById('formatToggle').value;
+
+            document.getElementById('dataInfo2').innerHTML = `\\( N = ${res.n} \\quad \\big| \\quad \\sum M_i C_i = ${formatNumber(res.sumF_C, 'decimal')} \\)`;
+            if(window.MathJax) {
+                MathJax.typesetClear([document.getElementById('dataInfo2')]);
+                MathJax.typesetPromise([document.getElementById('dataInfo2')]);
+            }
+
+            renderMath('mean2', `\\overline{x} = \\frac{${formatNumber(res.sumF_C, 'decimal')}}{${res.n}} = ${formatNumber(res.mean, f)}`);
+            renderMath('median2', `${res.q2.formula} = ${formatNumber(res.q2.value, f)}`);
+            renderMath('mode2', `${res.modeF} ${res.mode ? '= '+formatNumber(res.mode, f) : ''}`);
+            
+            let varF = `S^2 = \\frac{${formatNumber(res.sum_fx2, 'decimal')}}{${res.n}} - \\left(\\, ${formatNumber(res.mean, 'decimal')} \\,\\right)^2`;
+            varF += (f === 'fraction') ? ` = ${formatNumber(res.variance, f)}` : ` \\approx ${formatNumber(res.variance, f)}`;
+            renderMath('variance2', varF);
+            renderMath('stdDev2', `S = \\sqrt{S^2} \\approx ${formatNumber(res.stdDev, 'decimal')}`);
+            renderMath('range2', `R = ${res.groups[res.rLast].a_next} - ${res.groups[res.rFirst].a_i} = ${formatNumber(res.range, f)}`);
+            
+            renderMath('q1_2', `${res.q1.formula} = ${formatNumber(res.q1.value, f)}`);
+            renderMath('q3_2', `${res.q3.formula} = ${formatNumber(res.q3.value, f)}`);
+            renderMath('iqr2', `\\Delta_Q = Q_3 - Q_1 = ${formatNumber(res.iqr, f)}`);
+        }
+    </script>
+</body>
+</html>
