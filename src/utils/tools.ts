@@ -63,6 +63,9 @@ export const getToolEmbedUrl = (tool: TeachingTool): string => {
   else if (lowerName.includes('diện tích') || lowerName.includes('dien tich') || lowerName.includes('tam giác') || lowerName.includes('tam giac')) {
     finalUrl = '/dien_tich_tam_giac.html';
   }
+  else if (lowerName.includes('mặt cầu') || lowerName.includes('mat cau')) {
+    finalUrl = '/phuong-trinh-mat-cau.html';
+  }
   else if (lowerName.includes('tiết kiệm') || lowerName.includes('tiet kiem') || lowerName.includes('trả góp') || lowerName.includes('tra gop') || lowerName.includes('lãi')) {
     finalUrl = '/lai_don_lai_kep.html';
   }
